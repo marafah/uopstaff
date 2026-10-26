@@ -312,7 +312,7 @@ a { color: var(--uop-maroon); }
 .mh { text-align: center; font-size: .78rem; font-weight: 700; color: #666; padding: .3rem 0; }
 .mc { min-height: 92px; border: 1px solid #efe9db; border-radius: 10px; background: #fff; padding: 4px 5px; text-align: start; display: flex; flex-direction: column; gap: 3px; }
 .mc:hover { border-color: var(--uop-maroon); }
-.mc.out { opacity: .4; }
+.mc.out { opacity: .7; }
 .mc.hol { background: #effaf4; }
 .mc.today { box-shadow: 0 0 0 2px var(--uop-maroon); }
 .mc-n { font-weight: 800; font-size: .85rem; color: var(--uop-navy); }
@@ -347,8 +347,6 @@ a { color: var(--uop-maroon); }
 .credit-card .credit-role { font-size: .8rem; }
 .credit-card .credit-person { font-size: 1rem; }
 .credit-card .credit-person.lead { font-size: 1.08rem; }
-.mc.was:not(.today) { background: #fbfaf7; }
-.mc.was .mc-ev i, .mc.was .mc-strips b { opacity: .55; }
 .mc.pick { box-shadow: 0 0 0 2px var(--uop-navy); }
 .mlegend { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; }
 .lg-strip { display: inline-block; width: 14px; height: 4px; border-radius: 2px; background: #2a78d6; vertical-align: middle; }

@@ -213,7 +213,7 @@
     const pick = (window.__pick && window.__pick.slice(0, 7) === m) ? window.__pick : (t.slice(0, 7) === m ? t : first);
     const dayEvs = list.filter(e => covers(e, pick));
     const monthEvs = list.filter(e => touches(e, m));
-    const label = mm => `${monthName(mm + '-01')} ${mm.slice(0, 4)}`;
+    const label = mm => `${+mm.slice(5, 7)}/${mm.slice(0, 4)}`;
     return `<section class="card mb-3"><div class="card-body">
       <div class="month-nav">
         <button type="button" class="btn btn-sm btn-outline-secondary" ${prev ? `data-month="${prev}"` : 'disabled'} title="${prev ? label(prev) : ''}"><i class="bi bi-chevron-right"></i> السابق</button>
@@ -226,7 +226,7 @@
       <div class="mgrid">${heads.map(h => `<div class="mh">${h}</div>`).join('')}${cells}</div>
       <div class="mlegend small text-muted mt-2"><span><b class="lg-strip"></b> فترة مستمرة</span><span><i class="bi bi-square-fill text-success-emphasis" style="color:#cdeedd !important"></i> عطلة</span><span>انقر يوماً لعرض مواعيده</span></div>
     </div></section>
-    <h2 class="month-h"><span>${fmt(pick, { weekday: 'long', day: 'numeric', month: 'long' })}</span> ${pick.slice(0, 4)}</h2>
+    <h2 class="month-h"><span>${dayName(pick)}</span> ${ltr(num(pick))}</h2>
     <div class="ev-list">${dayEvs.length ? dayEvs.map(e => eventRow(e, t)).join('') : '<p class="text-muted">لا مواعيد في هذا اليوم.</p>'}</div>`;
   }
 
