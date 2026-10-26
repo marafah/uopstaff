@@ -112,13 +112,20 @@
       `<option value="${esc(v)}" ${String(v) === selected ? 'selected' : ''} ${n === 0 && String(v) !== selected ? 'disabled' : ''}>${esc(label)} (${n})</option>`).join('');
   }
 
+  function deptHome() {
+    const c = {};
+    DATA.members.forEach(m => depts(m.department).forEach(d => { const f = (c[d] ||= {}); f[m.faculty] = (f[m.faculty] || 0) + 1; }));
+    return Object.fromEntries(Object.entries(c).map(([d, f]) => [d, Object.keys(f).sort((a, b) => f[b] - f[a])[0]]));
+  }
   function render() {
     const st = readState();
     const list = DATA.members.filter(m => matches(m, st)).sort(SORTS[st.sort] || SORTS.default);
     const all = DATA.members;
     const typeC = count(st, 'type', 'type'), facC = count(st, 'faculty', 'faculty'), deptC = count(st, 'dept', 'department');
     const rankC = count(st, 'rank', 'rank'), roleC = count(st, 'role', 'role'), srcC = count(st, 'source', 'source');
-    const deptsSorted = Object.keys(deptC).sort((a, b) => a.localeCompare(b, 'ar'));
+    // a department belongs to the faculty most of its members are in (some staff also list a department of another faculty)
+    const home = deptHome();
+    const deptsSorted = Object.keys(deptC).filter(d => !st.faculty || String(home[d]) === st.faculty).sort((a, b) => a.localeCompare(b, 'ar'));
     const totals = {
       all: all.length, academic: all.filter(m => m.type === 'academic').length, admin: all.filter(m => m.type === 'admin').length,
       leaders: all.filter(m => m.role).length, faculties: new Set(all.map(m => m.faculty).filter(id => FAC[id] && !FAC[id].unit)).size,
