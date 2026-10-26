@@ -352,7 +352,7 @@
         جديد <b>${added.length}</b>، معدّل <b>${changed.length}</b>، لم يعد ظاهراً <b>${removed.length}</b>.
         ${added.length ? `<div class="small mt-1"><b>الجدد:</b> ${names(added)}</div>` : ''}
         ${removed.length ? `<div class="small mt-1"><b>لم يعودوا ظاهرين:</b> ${names(removed)}</div>` : ''}
-        <div class="small text-muted mt-1">الكادر الإداري من آخر تحديث تلقائي (${esc(ago(DATA.updated))})؛ يجري كل 6 ساعات.</div>
+        <div class="small text-muted mt-1">الكادر الإداري من المراجعة التلقائية التي تجري كل ساعة (آخر تغيير ${esc(ago(DATA.updated))}).</div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button></div>`;
       render();
       btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> تم';
@@ -380,10 +380,8 @@
     const fmt = d => new Date(d).toLocaleDateString('ar-JO-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
     $('#updated').innerHTML = DATA.live
       ? 'محدّث الآن من الموقع الرسمي'
-      : `آخر تحديث ${ago(DATA.updated)}`;
-    $('#updated').title = DATA.live
-      ? `الهيئة التدريسية: مباشرة · الكادر الإداري: ${fmt(DATA.updated)} (${ago(DATA.updated)})`
-      : fmt(DATA.updated);
+      : 'يُراجَع تلقائياً كل ساعة';
+    $('#updated').title = `آخر تغيير في البيانات: ${fmt(DATA.updated)} (${ago(DATA.updated)})`;
   }
 
   // ---------------------------------------------------------------- exports

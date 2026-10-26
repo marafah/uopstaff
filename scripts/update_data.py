@@ -223,13 +223,21 @@ def main():
     cache_photos(s, members, log)
     order = {fid: i for i, (fid, *_rest) in enumerate(FACULTIES)}
     members.sort(key=lambda m: (order.get(m["faculty"], 99), m["sort"], m["rank_order"], m["name"]))
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     data = {
-        "updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "updated": now,
         "main_line": "+96265799555", "main_line_display": "06 5799555",
         "faculties": [{"id": fid, "name": ar, "name_en": en, "site": site_url(site)} for fid, ar, en, site in FACULTIES],
         "ranks": [r[0] for r in RANKS], "roles": [r[1] for r in ROLES],
         "sources": sources, "failed": failed, "members": members,
     }
+    # "updated" = when the data last changed; keep it (and the file) as is when nothing changed
+    if os.path.exists(OUT):
+        with open(OUT, encoding="utf-8") as f:
+            old = json.load(f)
+        if {k: v for k, v in old.items() if k != "updated"} == {k: v for k, v in data.items() if k != "updated"}:
+            print(f"no changes since {old.get('updated')}")
+            return
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=0)

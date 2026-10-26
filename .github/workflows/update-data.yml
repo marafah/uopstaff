@@ -2,7 +2,7 @@ name: Update staff data
 
 on:
   schedule:
-    - cron: "15 */6 * * *"   # every 6 hours
+    - cron: "17 * * * *"   # every hour
   workflow_dispatch:        # "Run workflow" button = update on demand
 
 permissions:
@@ -21,12 +21,16 @@ jobs:
         run: python scripts/update_data.py
       - name: Commit if changed
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A data assets/photos
-          if git diff --cached --quiet; then
-            echo "No changes."
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "Update staff data $(date -u +%Y-%m-%d)"
+          if ! git diff --cached --quiet; then
+            git commit -m "Update staff data $(date -u +'%Y-%m-%d %H:%M')"
             git push
+          elif [ $(( $(date +%s) - $(git log -1 --format=%ct) )) -gt $((45 * 24 * 3600)) ]; then
+            # GitHub pauses scheduled workflows after 60 days without repository activity
+            git commit --allow-empty -m "Keep the hourly update active (no data changes)"
+            git push
+          else
+            echo "No changes."
           fi
