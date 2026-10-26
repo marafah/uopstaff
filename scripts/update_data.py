@@ -3,7 +3,8 @@
 Sources (public, used by the university's own pages):
   * academic staff – the InstructorProfile service behind every faculty's "AllAcademicStaff.aspx" page
     (each faculty is queried on its own: the all-faculties call leaves out the deans);
-  * administrative staff – the SharePoint list "AdministrativeStaff" on each faculty site.
+  * administrative staff – the SharePoint list "AdministrativeStaff" on each faculty site and on every unit of
+    www.uop.edu.jo that has one (presidency, admissions, centres ...; found through the site navigation each run).
 Only what the public pages show is kept: no personal e-mail, home address, mobile or employee number.
 Photos are stored with the site (assets/photos/, 240px thumbnails): inside the university network the
 university's hosts resolve to private addresses, so loading them from a public page makes browsers ask
@@ -43,10 +44,17 @@ FACULTIES = [  # id used by the InstructorProfile service, Arabic, English, facu
     (12, "كلية الهندسة", "Engineering", "eng"),
     (13, "كلية طب الأسنان", "Dentistry", "dentist"),
 ]
-UNITS = [  # non-faculty units with an administrative staff page: id (outside the InstructorProfile range), Arabic, English, page, list web
-    (100, "رئاسة الجامعة", "University Presidency", "https://www.uop.edu.jo/Ar/UniversityPresident/Pages/AdministrativeStaff.aspx",
-     "https://www.uop.edu.jo/En/UniversityPresident"),
+WWW = "https://www.uop.edu.jo"
+UNITS = [  # units of www.uop.edu.jo known to keep their own list: SharePoint web, Arabic name, English name
+    ("UniversityPresident", "رئاسة الجامعة", "University Presidency"),
+    ("adnan", "مكتب المستشار الأعلى", "Office of the Higher Consultant"),
+    ("BoardofTrustees", "مجلس الأمناء", "Board of Trustees"),
+    ("AdmissionsAndRegistration", "عمادة القبول والتسجيل", "Admissions and Registration"),
+    ("ComputerCenter", "مركز الحاسوب والمعلومات والسيطرة", "Computer Center"),
+    ("ELearningCenter", "مركز التعلم الإلكتروني", "E-Learning Center"),
+    ("ContinuingEducationCenter", "مركز التعليم المستمر وخدمة المجتمع", "Continuing Education Center"),
 ]
+TEMPLATE_WEB = "CenterTemplate"  # new unit sites start with a copy of this list; such copies are not real staff lists
 RANKS = [("أستاذ", "Professor", 1), ("أستاذ مشارك", "Associate Professor", 2), ("أستاذ مساعد", "Assistant Professor", 3),
          ("مدرس", "Lecturer", 4), ("محاضر", "Instructor", 5), ("مشرف مختبر", "Lab Supervisor", 6)]
 RANK_ORDER = {r[0]: r[2] for r in RANKS}
@@ -114,6 +122,53 @@ def fetch_academic(s, faculties, log):
         }
     log(f"academic staff: {len(people)}")
     return list(people.values())
+
+
+def discover_units(s, log):
+    """Units with a real AdministrativeStaff list: the known ones plus any web found in the site navigation."""
+    h = {"Accept": "application/json; odata=nometadata", "Referer": f"{WWW}/Ar/Pages/default.aspx"}
+    s.get(f"{WWW}/Ar/Pages/default.aspx", timeout=TIMEOUT)
+    webs = OrderedDict((w.lower(), (w, ar, en)) for w, ar, en in UNITS)
+
+    def walk(node):
+        for x in node.get("Nodes", []):
+            m = re.match(r"(?i)^(?:https?://www\.uop\.edu\.jo)?/(?:ar|en)/([^/?#]+)/", (x.get("SimpleUrl") or "") + "/")
+            if m and m.group(1).lower() not in webs and m.group(1).lower() not in ("pages", "_layouts", "documents", "publishingimages"):
+                webs[m.group(1).lower()] = (m.group(1), "", "")
+            walk(x)
+    for lang in ("Ar", "En"):
+        try:
+            walk(s.get(f"{WWW}/{lang}/_api/navigation/menustate?mapprovidername='GlobalNavigationSwitchableProvider'&depth=10",
+                       headers=h, timeout=TIMEOUT).json())
+        except Exception as e:
+            log(f"navigation ({lang}) unavailable: {e}")
+
+    def staff_of(web):
+        r = s.get(f"{WWW}/En/{web}/_api/web/lists/getbytitle('AdministrativeStaff')/items?$top=1000&$select=Title,TitleAR,Email",
+                  headers=h, timeout=TIMEOUT)
+        return r.json().get("value", []) if r.ok else None
+    template = staff_of(TEMPLATE_WEB)
+    out = []
+    for key, (web, ar, en) in webs.items():
+        if key == TEMPLATE_WEB.lower():
+            continue
+        try:
+            # a missing sub-site resolves to its parent, so the web's own URL must match
+            info = s.get(f"{WWW}/Ar/{web}/_api/web?$select=Url,Title", headers=h, timeout=TIMEOUT)
+            if not info.ok or not info.json()["Url"].lower().endswith(f"/ar/{key}"):
+                continue
+            items = staff_of(web)
+            if not items or items == template:
+                continue
+            ar = ar or clean(info.json()["Title"])
+            page = next((f"{WWW}/Ar/{web}/Pages/{pg}" for pg in ("AdministrativeStaff.aspx", "AllAdministrativeStaff.aspx")
+                         if s.get(f"{WWW}/Ar/{web}/Pages/{pg}", timeout=TIMEOUT, allow_redirects=False).status_code == 200),
+                        f"{WWW}/Ar/{web}/Pages/default.aspx")
+            out.append((key, ar, en or ar, page, f"{WWW}/En/{web}"))
+        except Exception as e:
+            log(f"unit {web}: {e}")
+    log(f"units with their own staff list: {len(out)}")
+    return out
 
 
 def fetch_admin(s, fid, key, name, page, api, log):
@@ -201,10 +256,10 @@ def main():
                         "url": f"{API}/MemberInfo/GetFaculty?fact=0&deptID=0", "count": len(acad)})
     except Exception as e:
         failed.append(f"academic: {e}")
-    admin_pages = [(fid, ar, "unit", page, api) for fid, ar, _en, page, api in UNITS] + [
+    units = discover_units(s, log)
+    admin_pages = [(key, ar, key, page, api) for key, ar, _en, page, api in units] + [
         (fid, fac[0], fac[2], f"{site_url(fac[2])}/Ar/Pages/AllAdministrativeStaff.aspx", site_url(fac[2])) for fid, fac in faculties.items()]
     for fid, name, key, page, api in admin_pages:
-        key = "president" if key == "unit" else key
         try:
             adm = fetch_admin(s, fid, key, name, page, api, log)
             members += adm
@@ -227,14 +282,25 @@ def main():
         print("no data fetched; leaving data/staff.json unchanged", file=sys.stderr)
         sys.exit(1)
 
+    # one entry per person: the same e-mail on two lists (e.g. a dean listed again by a centre) keeps the first
+    seen, unique = set(), []
+    for m in members:
+        if m["email"] and m["email"] in seen:
+            continue
+        seen.add(m["email"])
+        unique.append(m)
+    if len(unique) < len(members):
+        log(f"duplicates dropped: {len(members) - len(unique)}")
+    members = unique
+
     cache_photos(s, members, log)
-    order = {fid: i for i, (fid, *_rest) in enumerate(UNITS + FACULTIES)}
+    order = {fid: i for i, fid in enumerate([u[0] for u in units] + [f[0] for f in FACULTIES])}
     members.sort(key=lambda m: (order.get(m["faculty"], 99), m["sort"], m["rank_order"], m["name"]))
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     data = {
         "updated": now,
         "main_line": "+96265799555", "main_line_display": "06 5799555",
-        "faculties": [{"id": fid, "name": ar, "name_en": en, "site": "https://www.uop.edu.jo", "unit": True} for fid, ar, en, *_ in UNITS]
+        "faculties": [{"id": key, "name": ar, "name_en": en, "site": WWW, "unit": True} for key, ar, en, *_ in units if any(m["faculty"] == key for m in members)]
                      + [{"id": fid, "name": ar, "name_en": en, "site": site_url(site)} for fid, ar, en, site in FACULTIES],
         "ranks": [r[0] for r in RANKS], "roles": [r[1] for r in ROLES],
         "sources": sources, "failed": failed, "members": members,
