@@ -428,3 +428,5 @@ a.tt-chip:hover { border-color: var(--uop-maroon); }
   .site-nav a i { display: none; }
   .stat-card .v { font-size: 1.35rem; overflow-wrap: anywhere; }
 }
+.tt-src { text-decoration: none; }
+.tt-src:hover { color: #fff; text-decoration: underline; }

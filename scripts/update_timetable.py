@@ -16,6 +16,7 @@ import json
 import os
 import re
 import sys
+import time
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
@@ -24,8 +25,9 @@ import requests
 
 URL = "https://edugate.uop.edu.jo/timetable"
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"
-TIMEOUT = 300
-WORKERS = 6
+TIMEOUT = 90
+TRIES = 4
+WORKERS = 3
 OUT = os.path.join(os.path.dirname(__file__), "..", "data", "timetable.json")
 AJAX = {"Faces-Request": "partial/ajax", "X-Requested-With": "XMLHttpRequest"}
 COLS = ["code", "name", "activity", "time", "room", "section", "status", "instructor", "building"]
@@ -39,13 +41,27 @@ def clean(v):
     return re.sub(r"\s+", " ", str(v or "")).strip()
 
 
+def call(method, *args, **kw):
+    """One request with retries: the portal sometimes stops answering for a while."""
+    for attempt in range(1, TRIES + 1):
+        try:
+            r = method(*args, timeout=TIMEOUT, **kw)
+            r.raise_for_status()
+            return r
+        except requests.RequestException as e:
+            if attempt == TRIES:
+                raise
+            print(f"retry {attempt} after {type(e).__name__}", file=sys.stderr)
+            time.sleep(10 * attempt)
+
+
 class Form:
     """One browser-like session on the timetable form."""
 
     def __init__(self):
         self.s = requests.Session()
         self.s.headers["User-Agent"] = UA
-        page = self.s.get(URL, timeout=TIMEOUT).text
+        page = call(self.s.get, URL).text
         self.vs = re.search(r'name="javax.faces.ViewState"[^>]*value="([^"]+)"', page).group(1)
         self.action = "https://edugate.uop.edu.jo" + html.unescape(re.search(r'<form id="serviceContents"[^>]*action="([^"]+)"', page).group(1))
         self.term = clean(re.sub(r"<[^>]+>", " ", re.search(r"الفصل الدراسي\s*:(.*?)</", page, re.S).group(1)))
@@ -67,8 +83,7 @@ class Form:
         data = {"serviceContents": "serviceContents", "javax.faces.ViewState": self.vs, "javax.faces.partial.ajax": "true"}
         data.update({f"{sid}_input": v for sid, v in self.values.items()})
         data.update(extra)
-        r = self.s.post(self.action, data=data, headers=AJAX, timeout=TIMEOUT)
-        r.raise_for_status()
+        r = call(self.s.post, self.action, data=data, headers=AJAX)
         m = re.search(r'<update id="j_id1:javax.faces.ViewState:\d+"><!\[CDATA\[(.*?)\]\]>', r.text)
         if m:
             self.vs = m.group(1)

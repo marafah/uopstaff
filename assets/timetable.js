@@ -85,8 +85,9 @@
   }
   const select = (k, name, st, all) => `
     <label class="small fw-bold mb-0" for="f-${k}">${name}</label>
-    <select class="form-select form-select-sm" name="${k}" id="f-${k}"><option value="">${all}</option>${options(k, st).map(([v, n]) =>
-      `<option value="${esc(v)}" ${v === st[k] ? 'selected' : ''} ${n === 0 && v !== st[k] ? 'disabled' : ''}>${esc(label(k, v))} (${n})</option>`).join('')}</select>`;
+    <select class="form-select form-select-sm" name="${k}" id="f-${k}"><option value="">${all}</option>${options(k, st)
+      .filter(([v, n]) => n > 0 || v === st[k])  // each list follows the other choices: a department shows only its instructors, rooms, days...
+      .map(([v, n]) => `<option value="${esc(v)}" ${v === st[k] ? 'selected' : ''}>${esc(label(k, v))} (${n})</option>`).join('')}</select>`;
 
   // ------------------------------------------------------------------ pieces
   const mtg = m => `<span class="tt-day ${MODE[m.mode] ? MODE[m.mode].cls : ''}" title="${esc(DAYS[m.day] + ' ' + m.start + '–' + m.end + ' · ' + m.mode)}"><i class="bi ${(MODE[m.mode] || {}).icon || 'bi-dot'}"></i>${esc(DAYS[m.day] || m.day)}</span>`;
@@ -392,16 +393,45 @@
     const d = Math.round(h / 24);
     return 'قبل ' + say(d, 'يوم', 'يومين', 'أيام', 'يوماً');
   }
+  function showUpdated(d) {
+    const upd = new Date(d.updated).toLocaleDateString('ar-JO-u-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric' });
+    $('#tt-updated').innerHTML = `آخر تغيير ${ago(d.updated)} (${upd}) · يُراجَع كل ساعة`;
+    $('#foot-count').textContent = `${d.count} شعبة · ${d.term}`;
+    $('#foot-updated').textContent = 'آخر تغيير ' + ago(d.updated);
+  }
+  // the button reloads the latest verified copy (the portal itself cannot be read from a browser: no CORS, session-bound)
+  async function refresh(btn) {
+    const old = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> جارٍ التحديث…';
+    try {
+      const d = await fetch('data/timetable.json?t=' + Date.now(), { cache: 'no-store' }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+      const changed = d.updated !== DATA.updated;
+      load(d);
+      btn.classList.add('done');
+      btn.innerHTML = `<i class="bi bi-check2-circle"></i> ${changed ? 'تم تحميل نسخة أحدث' : 'الجدول محدَّث'}`;
+      setTimeout(() => { btn.classList.remove('done'); btn.innerHTML = old; btn.disabled = false; }, 3500);
+    } catch (e) {
+      btn.innerHTML = old;
+      btn.disabled = false;
+      alert('تعذّر التحديث الآن (' + e.message + '). البيانات المعروضة من آخر نسخة محمَّلة.');
+    }
+  }
+  function load(d) {
+    DATA = d;
+    S = d.sections;
+    DAYS = d.days;
+    showUpdated(d);
+    render();
+  }
   fetch('data/timetable.json?t=' + Math.floor(Date.now() / 600000), { cache: 'no-cache' }).then(r => r.json()).then(d => {
     DATA = d;
     S = d.sections;
     DAYS = d.days;
     $('#tt-term').textContent = '– ' + d.term;
-    const upd = new Date(d.updated).toLocaleDateString('ar-JO-u-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric' });
-    $('#tt-updated').innerHTML = `آخر تغيير ${ago(d.updated)} (${upd}) · يُراجَع كل ساعة`;
-    $('#foot-count').textContent = `${d.count} شعبة · ${d.term}`;
-    $('#foot-updated').textContent = 'آخر تغيير ' + ago(d.updated);
+    showUpdated(d);
     $('#year').textContent = new Date().getFullYear();
+    $('#tt-refresh').addEventListener('click', e => refresh(e.currentTarget));
     render();
     $('#tt-verify').innerHTML = `<div class="tt-verify small text-muted mt-3"><i class="bi bi-patch-check-fill text-success"></i>
       كل الشعب الـ${d.checks.rows} مطابقة لبوابة الجامعة: قُرئت تفاصيل كل شعبة من نافذتها (الكلية، القسم، الدرجة، نوع الدراسة، عدد المسجلين)،
