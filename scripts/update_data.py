@@ -130,12 +130,24 @@ def discover_units(s, log):
     s.get(f"{WWW}/Ar/Pages/default.aspx", timeout=TIMEOUT)
     webs = OrderedDict((w.lower(), (w, ar, en)) for w, ar, en in UNITS)
 
+    def add(link):
+        m = re.match(r"(?i)^(?:https?://(?:www\.)?uop\.edu\.jo)?/(?:ar|en)/([^/?#]+)/", (link or "") + "/")
+        if m and m.group(1).lower() not in webs and m.group(1).lower() not in ("pages", "_layouts", "documents", "publishingimages"):
+            webs[m.group(1).lower()] = (m.group(1), "", "")
+
     def walk(node):
         for x in node.get("Nodes", []):
-            m = re.match(r"(?i)^(?:https?://www\.uop\.edu\.jo)?/(?:ar|en)/([^/?#]+)/", (x.get("SimpleUrl") or "") + "/")
-            if m and m.group(1).lower() not in webs and m.group(1).lower() not in ("pages", "_layouts", "documents", "publishingimages"):
-                webs[m.group(1).lower()] = (m.group(1), "", "")
+            add(x.get("SimpleUrl"))
             walk(x)
+    # the home page menus are built from these two lists
+    for lst in ("MenuQuickNavigation", "UsersLink"):
+        try:
+            for it in s.get(f"{WWW}/_api/web/lists/getbytitle('{lst}')/items?$top=1000&$select=LinkAR,Link", headers=h, timeout=TIMEOUT).json()["value"]:
+                for k in ("LinkAR", "Link"):
+                    v = it.get(k)
+                    add(v.get("Url") if isinstance(v, dict) else v)
+        except Exception as e:
+            log(f"menu {lst} unavailable: {e}")
     for lang in ("Ar", "En"):
         try:
             walk(s.get(f"{WWW}/{lang}/_api/navigation/menustate?mapprovidername='GlobalNavigationSwitchableProvider'&depth=10",
