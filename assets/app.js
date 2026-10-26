@@ -73,14 +73,24 @@
   }
   const tel = m => `${DATA.main_line},${m.ext}`;
 
+  // the job line only when it says more than the type/rank badges ("عضو هيئة تدريس" on 180 academics says nothing new)
+  const GENERIC_JOB = /^(عضو )?هيئة تدريس(ية)?$/;
+  function jobText(m) {
+    const j = String(m.job || '').replace(/^استاذ/, 'أستاذ').trim();
+    if (!j || GENERIC_JOB.test(j) || j === m.rank) return '';
+    return j;
+  }
+  // some sources put the extension in the office field too: show the office only when it is a real, different value
+  const officeText = m => m.office && m.office !== m.ext ? m.office : '';
   function card(m) {
     const fac = FAC[m.faculty];
+    const job = jobText(m), office = officeText(m);
     return `<div class="col"><div class="staff-card copy-email ${m.type}" data-email="${esc(m.email)}" title="${m.email ? 'انقر لنسخ البريد: ' + esc(m.email) : ''}">
       <div class="staff-top">${avatar(m, 'lg')}
         <div class="flex-grow-1 min-w-0"><h6 class="staff-name">${esc(m.name)}</h6>
           ${m.name_en ? `<div class="staff-en" dir="ltr">${esc(m.name_en)}</div>` : ''}<div class="mt-1">${badges(m)}</div></div></div>
       <div class="staff-body">
-        ${m.job ? `<div class="staff-job"><i class="bi bi-person-badge"></i> ${esc(m.job)}</div>` : ''}
+        ${job ? `<div class="staff-job"><i class="bi bi-person-badge"></i> ${esc(job)}</div>` : ''}
         <div class="staff-line"><i class="bi bi-bank2"></i> ${esc(fac ? fac.name : '—')}</div>
         ${m.department ? `<div class="staff-line"><i class="bi bi-diagram-3"></i> قسم ${esc(m.department)}</div>` : ''}
         ${m.specialization ? `<div class="staff-line text-muted"><i class="bi bi-lightbulb"></i> ${esc(m.specialization)}</div>`
@@ -88,10 +98,10 @@
       </div>
       <div class="staff-contact">
         <a ${m.ext ? `href="tel:${esc(tel(m))}"` : ''} class="${m.ext ? '' : 'disabled'}" title="${esc(DATA.main_line_display)}${m.ext ? ' – فرعي ' + esc(m.ext) : ''}"><i class="bi bi-telephone-fill"></i> ${esc(m.ext || '—')}</a>
-        <span title="رقم المكتب"><i class="bi bi-door-open-fill"></i> ${esc(m.office || '—')}</span>
+        ${office ? `<span title="المكتب"><i class="bi bi-door-open-fill"></i> ${esc(office)}</span>` : ''}
         ${m.email ? `<a href="mailto:${esc(m.email)}" class="staff-mail" title="${esc(m.email)}" dir="ltr"><i class="bi bi-envelope-fill"></i> ${esc(m.email)}</a>` : ''}
       </div>
-      <div class="staff-foot"><span class="small text-muted"><i class="bi bi-hdd-network"></i> ${TYPE_LABEL[m.type]}</span>
+      <div class="staff-foot justify-content-end">
         ${m.profile ? `<a href="${esc(m.profile)}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary py-0">${m.type === 'academic' ? 'الملف الرسمي' : 'صفحة الكادر'} <i class="bi bi-box-arrow-up-left"></i></a>` : ''}</div>
     </div></div>`;
   }
@@ -100,10 +110,10 @@
     return `<tr class="copy-email" data-email="${esc(m.email)}" title="${m.email ? 'انقر لنسخ البريد: ' + esc(m.email) : ''}">
       <td style="width:46px">${avatar(m, 'sm')}</td>
       <td><b>${esc(m.name)}</b>${m.name_en ? `<div class="small text-muted" dir="ltr" style="text-align:right">${esc(m.name_en)}</div>` : ''}</td>
-      <td>${badges(m)}<div class="small">${esc(m.job)}</div></td>
+      <td>${badges(m)}<div class="small">${esc(jobText(m))}</div></td>
       <td class="small">${esc(fac ? fac.name : '')}${m.department ? `<div class="text-muted">${esc(m.department)}</div>` : ''}</td>
       <td class="text-nowrap">${m.ext ? `<a href="tel:${esc(tel(m))}" class="badge text-bg-light border text-decoration-none"><i class="bi bi-telephone-fill"></i> ${esc(m.ext)}</a>` : '<span class="text-muted">—</span>'}</td>
-      <td class="small">${esc(m.office || '—')}</td>
+      <td class="small">${esc(officeText(m) || '—')}</td>
       <td class="small">${m.email ? `<a href="mailto:${esc(m.email)}" dir="ltr">${esc(m.email)}</a>` : ''}</td>
       <td>${m.profile ? `<a href="${esc(m.profile)}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary py-0" title="الملف الرسمي"><i class="bi bi-box-arrow-up-left"></i></a>` : ''}</td></tr>`;
   }

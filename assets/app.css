@@ -355,3 +355,7 @@ a { color: var(--uop-maroon); }
 
 /* numeric side date (d/m) */
 .ev-date b { font-size: 1.25rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* card contact: numbers on one row, e-mail always on its own row, so cards side by side line up */
+.staff-contact { align-content: flex-start; }
+.staff-contact .staff-mail { flex-basis: 100%; justify-content: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
