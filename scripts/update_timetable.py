@@ -147,7 +147,8 @@ def parse_row(tr):
 
 
 def key(row):
-    return tuple(row[k] for k in COLS) + (row["status_title"],)
+    """A row's identity: every column except the status, which moves with registration."""
+    return tuple(row[k] for k in COLS if k != "status")
 
 
 def parse_time(text):
@@ -202,7 +203,8 @@ def check_filter(form, sections, sid, fields, problems):
                         f"{sum((want - got).values())} the other way")
 
 
-def main():
+def read():
+    """One complete, cross-checked read of the portal: (form, rows, details, problems)."""
     form = Form()
     rows = form.search()
     print(f"{form.term}: {len(rows)} rows")
@@ -222,18 +224,27 @@ def main():
             problems.append(f"row {i}: status {r['status']} with {reg}/{cap}")
         r.update({"faculty": d["faculty"], "department": d["department"], "degree": d["degree"], "study_type": d["study_type"],
                   "registered": int(reg), "capacity": int(cap), "meetings": parse_time(r["time"])})
-        r["status_title"] = f"{reg}/{cap}"  # for key() in the checks below
     if not problems:
         deg_sid, type_sid, fac_sid, dep_sid = form.selects
         check_filter(form, rows, deg_sid, ["degree"], problems)
         check_filter(form, rows, type_sid, ["study_type"], problems)
         check_filter(form, rows, fac_sid, ["faculty"], problems)
         check_filter(form, rows, (fac_sid, dep_sid), ["faculty", "department"], problems)
+    return form, rows, det, problems
+
+
+def main():
+    # during registration the seats move between the first read and the checks; a fresh read settles that
+    for attempt in range(1, 4):
+        form, rows, det, problems = read()
+        if not problems:
+            break
+        print(f"attempt {attempt}: " + "; ".join(problems[:5]), file=sys.stderr)
+        if attempt < 3:
+            time.sleep(60)
     if problems:
         print("\n".join(problems[:40]), file=sys.stderr)
         sys.exit(f"{len(problems)} problem(s); data/timetable.json left unchanged")
-    for r in rows:
-        del r["status_title"]
 
     data = {
         "updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),

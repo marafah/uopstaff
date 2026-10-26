@@ -1,6 +1,6 @@
 {
-"updated": "2026-10-26T12:25:47Z",
-"checked": "2026-10-26T12:25:47Z",
+"updated": "2026-10-26T12:48:39Z",
+"checked": "2026-10-26T12:48:39Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1650,
@@ -23841,7 +23841,7 @@
 "department": "العلوم التربويه / تربية الطفل",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 72,
+"registered": 73,
 "capacity": 70,
 "meetings": [
 {
@@ -23915,7 +23915,7 @@
 "department": "العلوم التربويه / تربية الطفل",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 44,
+"registered": 45,
 "capacity": 50,
 "meetings": [
 {
@@ -25486,7 +25486,7 @@
 "room": "06105",
 "section": "1",
 "status": "مفتوحة",
-"instructor": "م. هوازن عثمان علي القاضي",
+"instructor": "د. عالية ياسين فالح الحنيطي",
 "building": "مبنى كلية الآداب والعلوم",
 "faculty": "الآداب والعلوم",
 "department": "مركز اللغات",
@@ -26265,7 +26265,7 @@
 "department": "العلوم التربوية / التربية الرياضية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 23,
+"registered": 24,
 "capacity": 25,
 "meetings": [
 {
@@ -48583,7 +48583,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 136,
+"registered": 137,
 "capacity": 115,
 "meetings": [
 {
@@ -50242,7 +50242,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 88,
+"registered": 89,
 "capacity": 85,
 "meetings": [
 {

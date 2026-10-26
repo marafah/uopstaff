@@ -57,7 +57,11 @@
       const words = norm(st.q.trim()).split(/\s+/);
       if (!words.every(w => hay(s).includes(w))) return false;
     }
+    // once an instructor is chosen, all of their sections count, also those outside the chosen faculty/department
+    // (faculty and department only narrow the instructor list)
+    const byInst = st.inst && skip !== 'inst';
     for (const [k, , get] of F) {
+      if (byInst && (k === 'fac' || k === 'dept')) continue;
       if (st[k] && k !== skip && !get(s).includes(st[k])) return false;
     }
     if (st.seats === 'free' && skip !== 'seats' && !(s.registered < s.capacity)) return false;
@@ -296,6 +300,7 @@
     $('#tt-toolbar').innerHTML = `<div class="card mb-3 no-print"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center">
       <button type="button" class="btn btn-sm btn-outline-primary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#fpanel" aria-controls="fpanel"><i class="bi bi-funnel-fill"></i> التصفية${active.length ? ` <span class="badge text-bg-primary">${active.length}</span>` : ''}</button>
       <b class="me-1">${list.length} شعبة</b> ${chips}
+      ${st.inst && (st.fac || st.dept) ? '<span class="small text-muted w-100"><i class="bi bi-info-circle"></i> تُعرض كل شعب المدرس، بما فيها شعبه خارج الكلية أو القسم المختار.</span>' : ''}
       <div class="ms-auto d-flex flex-wrap gap-2">
         ${st.view === 'grid' ? '' : `<select class="form-select form-select-sm w-auto" id="tt-sort">${[['code', 'رمز المقرر'], ['name', 'اسم المقرر'], ['time', 'اليوم والوقت'], ['inst', 'المدرس'], ['room', 'القاعة'], ['seats', 'المقاعد المتاحة'], ['fill', 'نسبة الامتلاء']].map(([k, t]) =>
           `<option value="${k}" ${st.sort === k ? 'selected' : ''}>ترتيب: ${t}</option>`).join('')}</select>`}
