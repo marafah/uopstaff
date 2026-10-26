@@ -411,7 +411,9 @@
       }
     } catch (e) { /* storage unavailable */ }
     showUpdated();
-    $('#foot-sources').textContent = `${d.members.length} موظفاً من ${d.sources.length} مصدراً`;
+    $('#foot-count').textContent = `${d.members.length} موظفاً`;
+    $('#foot-sources').textContent = `${d.sources.length} مصدراً`;
+    $('#foot-updated').textContent = new Date(d.updated).toLocaleDateString('ar-JO-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' });
     $('#top-q').addEventListener('input', e => { clearTimeout(qTimer); qTimer = setTimeout(() => set({ q: e.target.value }), 300); });
     render();
   }).catch(err => {

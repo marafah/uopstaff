@@ -76,6 +76,8 @@
   }
   document.addEventListener('DOMContentLoaded', () => {
     $('#year').textContent = new Date().getFullYear();
+    // small QR of the directory link in the footer (opens the share panel)
+    $('#foot-qr').innerHTML = qrFor(baseUrl()).createSvgTag({ cellSize: 4, margin: 2, scalable: true }).replace(/fill="black"/g, `fill="${NAVY}"`);
     const modal = $('#shareModal');
     modal.addEventListener('show.bs.modal', update);
     document.querySelectorAll('input[name=shareWhat]').forEach(r => r.addEventListener('change', update));

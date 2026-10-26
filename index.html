@@ -41,31 +41,53 @@
   <div class="loading" id="loading"><div><div class="spinner-border text-secondary"></div><div class="mt-2">جارٍ تحميل الدليل…</div></div></div>
 </main>
 
-<footer class="uop-footer site-footer no-print">
+<footer class="site-footer no-print">
   <div class="container-fluid px-4">
-    <div class="row g-4 align-items-start">
-      <div class="col-lg-5">
-        <div class="foot-title"><i class="bi bi-person-lines-fill"></i> دليل موظفي جامعة البترا</div>
-        <p class="mb-2">دليل موحّد للهيئة التدريسية والكادر الإداري في كليات الجامعة، يُحدَّث من الموقع الرسمي للجامعة.</p>
-        <div class="small" id="foot-sources"></div>
-        <div class="small">مصدر البيانات: <a href="https://www.uop.edu.jo" target="_blank" rel="noopener">الموقع الرسمي لجامعة البترا</a></div>
-      </div>
-      <div class="col-lg-4">
-        <div class="credits">
-          <div class="credit-row"><span class="credit-label"><i class="bi bi-code-slash"></i> تصميم وتطوير</span>
-            <a class="credit-name main" href="?q=%D8%B9%D8%B1%D9%81%D8%A9">د. محمد عرفة</a></div>
-          <div class="credit-row"><span class="credit-label"><i class="bi bi-compass"></i> بتوجيه ودعم من</span>
-            <span><a class="credit-name" href="?q=%D8%A7%D9%84%D9%85%D9%82%D9%88%D8%B3%D9%8A">د. علي المقوسي</a>
-              <span class="credit-and">و</span>
-              <a class="credit-name" href="?q=%D8%A7%D9%84%D8%B9%D8%AB%D9%85%D8%A7%D9%86">د. محمد العثمان</a></span></div>
+    <div class="foot-grid">
+      <section class="foot-col">
+        <h6 class="foot-h">عن الدليل</h6>
+        <div class="foot-brand"><span class="foot-logo"><i class="bi bi-person-lines-fill"></i></span>
+          <div><b>دليل موظفي جامعة البترا</b><small>الهيئة التدريسية والكادر الإداري</small></div></div>
+        <p class="foot-text">دليل موحّد لكليات الجامعة، يُحدَّث من الموقع الرسمي للجامعة أسبوعياً وعند الطلب.</p>
+        <div class="foot-tags">
+          <span class="foot-tag"><i class="bi bi-people-fill"></i> <span id="foot-count">—</span></span>
+          <span class="foot-tag"><i class="bi bi-hdd-network"></i> <span id="foot-sources">—</span></span>
+          <span class="foot-tag"><i class="bi bi-arrow-repeat"></i> <span id="foot-updated">—</span></span>
         </div>
-      </div>
-      <div class="col-lg-3 text-lg-start">
-        <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#shareModal"><i class="bi bi-qr-code"></i> مشاركة الدليل</button>
-        <div class="small mt-2 opacity-75">https://marafah.github.io/uopstaff</div>
-      </div>
+        <a class="foot-link" href="https://www.uop.edu.jo" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i> الموقع الرسمي لجامعة البترا</a>
+      </section>
+
+      <section class="foot-col">
+        <h6 class="foot-h">فريق العمل</h6>
+        <div class="credit">
+          <span class="credit-role"><i class="bi bi-code-slash"></i> تصميم وتطوير</span>
+          <a class="credit-person lead" href="?q=%D8%B9%D8%B1%D9%81%D8%A9">د. محمد عرفة</a>
+        </div>
+        <div class="credit">
+          <span class="credit-role"><i class="bi bi-compass"></i> بتوجيه ودعم من</span>
+          <a class="credit-person" href="?q=%D8%A7%D9%84%D9%85%D9%82%D9%88%D8%B3%D9%8A">د. علي المقوسي</a>
+          <a class="credit-person" href="?q=%D8%A7%D9%84%D8%B9%D8%AB%D9%85%D8%A7%D9%86">د. محمد العثمان</a>
+        </div>
+      </section>
+
+      <section class="foot-col foot-share">
+        <h6 class="foot-h">شارك الدليل</h6>
+        <div class="foot-share-row">
+          <button type="button" class="foot-qr" id="foot-qr" data-bs-toggle="modal" data-bs-target="#shareModal" title="مشاركة الدليل ورمز QR" aria-label="مشاركة الدليل ورمز QR"></button>
+          <div>
+            <p class="foot-text mb-2">امسح الرمز بكاميرا الهاتف لفتح الدليل، أو شارك الرابط.</p>
+            <div class="foot-url" dir="ltr">marafah.github.io/uopstaff</div>
+            <button type="button" class="btn btn-sm btn-light mt-2" data-bs-toggle="modal" data-bs-target="#shareModal"><i class="bi bi-share-fill"></i> مشاركة</button>
+          </div>
+        </div>
+      </section>
     </div>
-    <div class="foot-bottom"><i class="bi bi-info-circle"></i> صفحة غير رسمية تعرض البيانات المنشورة على الموقع الرسمي للجامعة؛ المرجع المعتمد هو الموقع الرسمي. · © <span id="year"></span></div>
+  </div>
+  <div class="foot-bottom">
+    <div class="container-fluid px-4">
+      <span><i class="bi bi-info-circle"></i> صفحة غير رسمية تعرض البيانات المنشورة على الموقع الرسمي للجامعة؛ المرجع المعتمد هو الموقع الرسمي.</span>
+      <span class="foot-copy">© <span id="year"></span></span>
+    </div>
   </div>
 </footer>
 
