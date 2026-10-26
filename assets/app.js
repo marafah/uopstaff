@@ -121,7 +121,7 @@
     const deptsSorted = Object.keys(deptC).sort((a, b) => a.localeCompare(b, 'ar'));
     const totals = {
       all: all.length, academic: all.filter(m => m.type === 'academic').length, admin: all.filter(m => m.type === 'admin').length,
-      leaders: all.filter(m => m.role).length, faculties: new Set(all.map(m => m.faculty)).size,
+      leaders: all.filter(m => m.role).length, faculties: new Set(all.map(m => m.faculty).filter(id => FAC[id] && !FAC[id].unit)).size,
       depts: new Set(all.flatMap(m => depts(m.department))).size,
     };
     // per-faculty summary (other filters applied, faculty filter ignored)
@@ -168,7 +168,7 @@
               <input type="radio" class="btn-check" name="type" value="admin" id="t2" ${st.type === 'admin' ? 'checked' : ''}><label class="btn btn-outline-navy" for="t2">إداري <span class="badge text-bg-light">${typeC.admin || 0}</span></label>
             </div>
             <label class="small fw-bold mb-0" for="f-faculty">الكلية</label>
-            <select class="form-select form-select-sm" name="faculty" id="f-faculty">${opts(DATA.faculties.map(f => [f.id, f.name, facC[f.id] || 0]), st.faculty, 'كل الكليات')}</select>
+            <select class="form-select form-select-sm" name="faculty" id="f-faculty">${opts(DATA.faculties.map(f => [f.id, f.name, facC[f.id] || 0]), st.faculty, 'كل الكليات والوحدات')}</select>
             <label class="small fw-bold mb-0" for="f-dept">القسم الأكاديمي</label>
             <select class="form-select form-select-sm" name="dept" id="f-dept">${opts(deptsSorted.map(d => [d, d, deptC[d]]), st.dept, st.faculty ? 'كل الأقسام في الكلية' : 'كل الأقسام')}</select>
             <label class="small fw-bold mb-0" for="f-rank">الرتبة الأكاديمية</label>
@@ -296,7 +296,7 @@
     try {
       const get = url => fetch(url, { cache: 'no-store' }).then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); });
       const snapshot = fetch(`data/staff.json?t=${Date.now()}`, { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null);
-      const lists = await Promise.all(DATA.faculties.map(f => get(`${API}?fact=${f.id}&deptID=0`)).concat([get(`${API}?fact=0&deptID=0`)]));
+      const lists = await Promise.all(DATA.faculties.filter(f => !f.unit).map(f => get(`${API}?fact=${f.id}&deptID=0`)).concat([get(`${API}?fact=0&deptID=0`)]));
       const snap = await snapshot;
       if (snap && snap.updated >= DATA.updated) {  // newer automatic update of the administrative staff
         DATA.members = DATA.members.filter(m => m.type === 'academic').concat(snap.members.filter(m => m.type !== 'academic'));

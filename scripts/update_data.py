@@ -43,6 +43,10 @@ FACULTIES = [  # id used by the InstructorProfile service, Arabic, English, facu
     (12, "كلية الهندسة", "Engineering", "eng"),
     (13, "كلية طب الأسنان", "Dentistry", "dentist"),
 ]
+UNITS = [  # non-faculty units with an administrative staff page: id (outside the InstructorProfile range), Arabic, English, page, list web
+    (100, "رئاسة الجامعة", "University Presidency", "https://www.uop.edu.jo/Ar/UniversityPresident/Pages/AdministrativeStaff.aspx",
+     "https://www.uop.edu.jo/En/UniversityPresident"),
+]
 RANKS = [("أستاذ", "Professor", 1), ("أستاذ مشارك", "Associate Professor", 2), ("أستاذ مساعد", "Assistant Professor", 3),
          ("مدرس", "Lecturer", 4), ("محاضر", "Instructor", 5), ("مشرف مختبر", "Lab Supervisor", 6)]
 RANK_ORDER = {r[0]: r[2] for r in RANKS}
@@ -57,7 +61,7 @@ ROLES = [  # leadership role from the job title -> (label, order); first match w
 
 
 def clean(v):
-    return re.sub(r"\s+", " ", str(v or "")).strip()
+    return re.sub(r"\s+", " ", re.sub(r"[​-‏‪-‮⁠﻿]", "", str(v or ""))).strip()  # drop zero-width / bidi marks
 
 
 def role_of(*titles):
@@ -112,12 +116,12 @@ def fetch_academic(s, faculties, log):
     return list(people.values())
 
 
-def fetch_admin(s, fid, fac, log):
-    site = site_url(fac[2])
-    page = f"{site}/Ar/Pages/AllAdministrativeStaff.aspx"
-    s.get(f"{site}/Ar/Pages/default.aspx", timeout=TIMEOUT)  # SharePoint hands out the anonymous session cookie here
+def fetch_admin(s, fid, key, name, page, api, log):
+    """`page` is the public list page, `api` the SharePoint web that holds the AdministrativeStaff list."""
+    origin = "/".join(page.split("/")[:3])
+    s.get(page, timeout=TIMEOUT)  # SharePoint hands out the anonymous session cookie here
     h = {"Accept": "application/json; odata=nometadata", "Referer": page}
-    lst = f"{site}/_api/web/lists/getbytitle('AdministrativeStaff')/items"
+    lst = f"{api}/_api/web/lists/getbytitle('AdministrativeStaff')/items"
     r = s.get(lst + "?$top=1000&$orderby=Order0 asc", headers=h, timeout=TIMEOUT)
     r.raise_for_status()
     out = []
@@ -127,21 +131,21 @@ def fetch_admin(s, fid, fac, log):
             html = s.get(f"{lst}({it['ID']})/FieldValuesAsHtml", headers=h, timeout=TIMEOUT).json().get("PublishingPageImage") or ""
             m = re.search(r'src="([^"]+)"', html)
             if m:
-                photo = m.group(1) if m.group(1).startswith("http") else site + quote(m.group(1), safe="/%:")
+                photo = m.group(1) if m.group(1).startswith("http") else origin + quote(m.group(1), safe="/%:")
         except Exception:
             pass
         job_ar, job_en = clean(it.get("PositionAR")), clean(it.get("Position"))
         role, order = role_of(job_ar, job_en)
         out.append({
-            "id": f"S:{fac[2]}:{it['ID']}", "type": "admin", "faculty": fid,
+            "id": f"S:{key}:{it['ID']}", "type": "admin", "faculty": fid,
             "name": clean(it.get("TitleAR")) or clean(it.get("Title")), "name_en": clean(it.get("Title")),
             "job": job_ar, "rank": "", "rank_order": 99, "role": role, "sort": order + 20,
             "department": "", "specialization": "",
             "qualification": " – ".join(x for x in [clean(it.get("QualificationAR")), clean(it.get("UniversityAR"))] if x),
             "ext": clean(it.get("ExtensionNumber")), "office": clean(it.get("OfficeLocationAR")) or clean(it.get("OfficeLocation")),
-            "email": clean(it.get("Email")).lower(), "photo": photo, "profile": page, "source": f"admin_{fac[2]}",
+            "email": clean(it.get("Email")).lower(), "photo": photo, "profile": page, "source": f"admin_{key}",
         })
-    log(f"administrative staff – {fac[1]}: {len(out)}")
+    log(f"administrative staff – {name}: {len(out)}")
     return out
 
 
@@ -197,15 +201,18 @@ def main():
                         "url": f"{API}/MemberInfo/GetFaculty?fact=0&deptID=0", "count": len(acad)})
     except Exception as e:
         failed.append(f"academic: {e}")
-    for fid, fac in faculties.items():
+    admin_pages = [(fid, ar, "unit", page, api) for fid, ar, _en, page, api in UNITS] + [
+        (fid, fac[0], fac[2], f"{site_url(fac[2])}/Ar/Pages/AllAdministrativeStaff.aspx", site_url(fac[2])) for fid, fac in faculties.items()]
+    for fid, name, key, page, api in admin_pages:
+        key = "president" if key == "unit" else key
         try:
-            adm = fetch_admin(s, fid, fac, log)
+            adm = fetch_admin(s, fid, key, name, page, api, log)
             members += adm
-            sources.append({"key": f"admin_{fac[2]}", "name": f"الكادر الإداري – {fac[0]}", "kind": "admin",
-                            "url": f"{site_url(fac[2])}/Ar/Pages/AllAdministrativeStaff.aspx", "count": len(adm), "faculty": fid})
+            sources.append({"key": f"admin_{key}", "name": f"الكادر الإداري – {name}", "kind": "admin",
+                            "url": page, "count": len(adm), "faculty": fid})
         except Exception as e:
-            failed.append(f"{fac[0]}: {e}")
-            log(f"FAILED {fac[0]}: {e}")
+            failed.append(f"{name}: {e}")
+            log(f"FAILED {name}: {e}")
 
     # Keep the previous data for any source that failed, so one unreachable site never empties the page.
     if failed and os.path.exists(OUT):
@@ -221,13 +228,14 @@ def main():
         sys.exit(1)
 
     cache_photos(s, members, log)
-    order = {fid: i for i, (fid, *_rest) in enumerate(FACULTIES)}
+    order = {fid: i for i, (fid, *_rest) in enumerate(UNITS + FACULTIES)}
     members.sort(key=lambda m: (order.get(m["faculty"], 99), m["sort"], m["rank_order"], m["name"]))
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     data = {
         "updated": now,
         "main_line": "+96265799555", "main_line_display": "06 5799555",
-        "faculties": [{"id": fid, "name": ar, "name_en": en, "site": site_url(site)} for fid, ar, en, site in FACULTIES],
+        "faculties": [{"id": fid, "name": ar, "name_en": en, "site": "https://www.uop.edu.jo", "unit": True} for fid, ar, en, *_ in UNITS]
+                     + [{"id": fid, "name": ar, "name_en": en, "site": site_url(site)} for fid, ar, en, site in FACULTIES],
         "ranks": [r[0] for r in RANKS], "roles": [r[1] for r in ROLES],
         "sources": sources, "failed": failed, "members": members,
     }
