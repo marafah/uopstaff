@@ -135,17 +135,28 @@
     }).join(' ');
     const kpi = (v, l, icon, color, href) => `<div class="col-6 col-md-4 col-xl-2"><a href="${href || '#'}" ${href ? '' : 'onclick="return false"'} class="text-decoration-none"><div class="stat-card" ${color ? `style="border-top-color:${color}"` : ''}><div class="v">${v}</div><div class="l"><i class="bi ${icon}"></i> ${l}</div></div></a></div>`;
 
-    $('#app').innerHTML = `
-    <div class="row g-3 mb-3">
+    if (!$('#layout')) {  // page skeleton once; the parts below are refreshed on every change (keeps the drawer open)
+      $('#app').innerHTML = `<div class="row g-3 mb-3" id="kpis"></div><div id="live-msg"></div>
+        <div class="row g-3" id="layout">
+          <aside class="col-lg-4 col-xl-3 no-print">
+            <div class="offcanvas-lg offcanvas-end filter-drawer" tabindex="-1" id="fpanel" aria-labelledby="fpanel-title">
+              <div class="offcanvas-header d-lg-none border-bottom"><h5 class="offcanvas-title fw-bold" id="fpanel-title"><i class="bi bi-funnel-fill"></i> التصفية</h5>
+                <button type="button" class="btn-close ms-0" data-bs-dismiss="offcanvas" data-bs-target="#fpanel" aria-label="إغلاق"></button></div>
+              <div class="offcanvas-body d-block p-3 p-lg-0"><div class="filter-sticky" id="panel"></div></div>
+            </div>
+          </aside>
+          <section class="col-lg-8 col-xl-9"><div id="toolbar"></div><div id="results"></div></section>
+        </div>`;
+    }
+    const nActive = FILTERS.filter(k => st[k]).length;
+    $('#kpis').innerHTML = `
       ${kpi(totals.all, 'إجمالي الموظفين', 'bi-people-fill', '', '?')}
       ${kpi(totals.academic, 'أكاديمي', 'bi-mortarboard-fill', 'var(--uop-maroon)', '?type=academic')}
       ${kpi(totals.admin, 'إداري', 'bi-briefcase-fill', 'var(--uop-navy)', '?type=admin')}
       ${kpi(totals.leaders, 'مناصب قيادية', 'bi-star-fill', '#eda100', '?role=any')}
       ${kpi(totals.faculties, 'كليات', 'bi-bank2', '', '')}
-      ${kpi(totals.depts, 'أقسام أكاديمية', 'bi-diagram-3-fill', '', '')}
-    </div>
-    <div class="row g-3">
-      <aside class="col-xl-3 no-print">
+      ${kpi(totals.depts, 'أقسام أكاديمية', 'bi-diagram-3-fill', '', '')}`;
+    $('#panel').innerHTML = `
         <form class="card mb-3" id="filters" onsubmit="return false">
           <div class="card-header d-flex justify-content-between align-items-center"><span><i class="bi bi-funnel-fill"></i> التصفية</span>${active ? '<a href="#" data-clear="all" class="small">مسح الكل</a>' : ''}</div>
           <div class="card-body d-grid gap-2">
@@ -177,12 +188,14 @@
                 <span class="fac-name">${esc(f.name.replace('كلية ', ''))}</span>
                 <span class="fac-bar"><i class="a" style="width:${100 * s.a / top}%"></i><i class="d" style="width:${100 * s.d / top}%"></i></span>
                 <span class="fac-n">${s.a + s.d}</span></a>`; }).join('')}
-          </div></div>
-      </aside>
-      <section class="col-xl-9">
+          </div></div>`;
+    $('#toolbar').innerHTML = `
         <div class="card mb-3 no-print"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center">
+          <button type="button" class="btn btn-sm btn-outline-primary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#fpanel" aria-controls="fpanel">
+            <i class="bi bi-funnel-fill"></i> التصفية${nActive ? ` <span class="badge text-bg-primary">${nActive}</span>` : ''}</button>
           <b class="me-1">${list.length} موظف</b> ${active}
           <div class="ms-auto d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-sm btn-navy" id="live-update" title="جلب أحدث بيانات الهيئة التدريسية مباشرة من الموقع الرسمي للجامعة"><i class="bi bi-cloud-arrow-down"></i> تحديث من الموقع الرسمي</button>
             <select class="form-select form-select-sm w-auto" id="sort">
               <option value="default" ${st.sort === 'default' ? 'selected' : ''}>ترتيب: الكلية والمنصب</option>
               <option value="name" ${st.sort === 'name' ? 'selected' : ''}>ترتيب: الاسم</option>
@@ -199,14 +212,12 @@
                 <li><a class="dropdown-item" href="#" data-export="json"><i class="bi bi-filetype-json"></i> JSON</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="#" data-export="print"><i class="bi bi-printer"></i> طباعة / PDF</a></li></ul></div>
-          </div></div></div>
-        ${!list.length ? `<div class="card"><div class="card-body text-center text-muted py-5"><i class="bi bi-person-x fs-1"></i><p class="mb-0 mt-2">لا يوجد موظفون مطابقون للتصفية.</p></div></div>`
+          </div></div></div>`;
+    $('#results').innerHTML = `${!list.length ? `<div class="card"><div class="card-body text-center text-muted py-5"><i class="bi bi-person-x fs-1"></i><p class="mb-0 mt-2">لا يوجد موظفون مطابقون للتصفية.</p></div></div>`
           : st.view === 'table' ? `<div class="card"><div class="table-responsive" style="max-height:78vh"><table class="table table-uop table-sm table-hover align-middle mb-0">
               <thead class="sticky-top"><tr><th></th><th>الاسم</th><th>الوظيفة والرتبة</th><th>الكلية / القسم</th><th>الفرعي</th><th>المكتب</th><th>البريد الإلكتروني</th><th>الملف</th></tr></thead>
               <tbody>${list.map(row).join('')}</tbody></table></div></div>`
-          : `<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xxl-4 g-3">${list.map(card).join('')}</div>`}
-      </section>
-    </div>`;
+          : `<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 row-cols-xxl-4 g-3">${list.map(card).join('')}</div>`}`;
     bind(list, st);
   }
 
@@ -232,6 +243,7 @@
     document.querySelectorAll('[data-faculty]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); set({ faculty: a.dataset.faculty }); }));
     document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => set({ view: b.dataset.view })));
     $('#sort').addEventListener('change', e => set({ sort: e.target.value }));
+    $('#live-update').addEventListener('click', e => liveUpdate(e.currentTarget));
     document.querySelectorAll('[data-export]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); exportAs(a.dataset.export, list, st); }));
     document.querySelectorAll('.copy-email').forEach(el => el.addEventListener('click', e => {
       if (e.target.closest('a, button, input, select, label')) return;
@@ -258,6 +270,92 @@
     el.classList.toggle('warn', !!warn);
     el.classList.add('show');
     clearTimeout(tTimer); tTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  // ---------------------------------------------------------------- live update (academic staff)
+  // The university's academic-profile service allows cross-site requests, so the page can refresh its
+  // academic staff straight from the official source. Administrative lists need a site session the
+  // browser cannot send, so they keep the last saved update (refreshed weekly by the GitHub workflow).
+  const API = 'https://services.uop.edu.jo/InstructorProfile/Services/api/MemberInfo/GetFaculty';
+  const PHOTO_BASE = 'https://services.uop.edu.jo/InstructorProfile/ProfileImage/';
+  const RANK_ORDER = { 'أستاذ': 1, 'أستاذ مشارك': 2, 'أستاذ مساعد': 3, 'مدرس': 4, 'محاضر': 5, 'مشرف مختبر': 6 };
+  const ROLE_RULES = [
+    [/نائب رئيس الجامعة|vice president/i, 'نائب رئيس الجامعة', 1], [/^(?!.*(نائب|مساعد)).*عميد|^dean/i, 'عميد', 2],
+    [/نائب (ال)?عميد/i, 'نائب عميد', 3], [/مساعد (ال)?(عميد|رئيس)/i, 'مساعد عميد / رئيس', 4],
+    [/رئيس قسم|head of/i, 'رئيس قسم', 5], [/مدير|director/i, 'مدير', 6]];
+  const cl = v => String(v == null ? '' : v).replace(/\s+/g, ' ').trim();
+  function roleOf(...t) {
+    const text = t.filter(Boolean).map(cl).join(' ');
+    if (/سكرت|مكتب|secretar/i.test(text)) return ['', 10];
+    for (const [re, label, order] of ROLE_RULES) if (re.test(text)) return [label, order];
+    return ['', 10];
+  }
+  const KEY_FIELDS = ['name', 'job', 'rank', 'role', 'department', 'ext', 'office', 'email', 'photo', 'faculty'];
+  async function liveUpdate(btn) {
+    const old = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> جارٍ الجلب من الموقع الرسمي…';
+    try {
+      const get = url => fetch(url, { cache: 'no-store' }).then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); });
+      const lists = await Promise.all(DATA.faculties.map(f => get(`${API}?fact=${f.id}&deptID=0`)).concat([get(`${API}?fact=0&deptID=0`)]));
+      const people = new Map();
+      lists.flat().forEach(d => {
+        const enc = d.enc;
+        if (!enc) return;
+        const dept = cl(d.DeptNameArabic);
+        if (people.has(enc)) {
+          const p = people.get(enc);
+          if (dept && !p.department.includes(dept)) p.department += `، ${dept}`;
+          return;
+        }
+        const fid = parseInt(d.FacultyID || 0, 10), fac = FAC[fid];
+        const rank = cl(d.AcademicRankArabic).replace(/استاذ/g, 'أستاذ');
+        const job = cl(d.JobTitleArabic), [role, order] = roleOf(job, cl(d.JobTitle));
+        const img = cl(d.ImagePath);
+        people.set(enc, {
+          id: `A:${enc}`, type: 'academic', faculty: fac ? fid : null, name: cl(d.FullNameAr) || cl(d.FullNameEn), name_en: cl(d.FullNameEn),
+          job, rank, rank_order: RANK_ORDER[rank] || 9, role, sort: order, department: dept,
+          specialization: [cl(d.GeneralSpecializationArabic), cl(d.SpecificSpecializationArabic)].filter(Boolean).join(' – '),
+          qualification: '', ext: cl(d.Extention), office: cl(d.OfficeNumber), email: cl(d.UniversityEmail).toLowerCase(),
+          photo: img ? PHOTO_BASE + encodeURIComponent(img).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase()) : '',  // same encoding as scripts/update_data.py
+          profile: `${fac ? fac.site : 'https://www.uop.edu.jo'}/Ar/Pages/AcademicStaffInfo.aspx?uid=${enc}`, source: 'academic_api',
+        });
+      });
+      const fresh = [...people.values()];
+      if (fresh.length < 50) throw new Error('عدد غير متوقع من السجلات');
+      const before = new Map(DATA.members.filter(m => m.type === 'academic').map(m => [m.id, m]));
+      const added = fresh.filter(m => !before.has(m.id));
+      const changed = fresh.filter(m => before.has(m.id) && KEY_FIELDS.some(k => String(before.get(m.id)[k] || '') !== String(m[k] || '')));
+      const freshIds = new Set(fresh.map(m => m.id));
+      const removed = [...before.values()].filter(m => !freshIds.has(m.id));
+      const order = Object.fromEntries(DATA.faculties.map((f, i) => [f.id, i]));
+      const pos = id => (id in order ? order[id] : 99);
+      DATA.members = fresh.concat(DATA.members.filter(m => m.type !== 'academic'))
+        .sort((a, b) => (pos(a.faculty) - pos(b.faculty)) || a.sort - b.sort || a.rank_order - b.rank_order || a.name.localeCompare(b.name, 'ar'));
+      DATA.live = new Date().toISOString();
+      (DATA.sources.find(x => x.key === 'academic_api') || {}).count = fresh.length;
+      try { localStorage.setItem('uopstaff-live', JSON.stringify({ at: DATA.live, academic: fresh })); } catch (e) { /* storage unavailable */ }
+      showUpdated();
+      const names = list => list.slice(0, 12).map(m => esc(m.name)).join('، ') + (list.length > 12 ? ' …' : '');
+      $('#live-msg').innerHTML = `<div class="alert alert-success alert-dismissible fade show no-print">
+        <b><i class="bi bi-check-circle-fill"></i> تم التحديث من الموقع الرسمي:</b> ${fresh.length} عضو هيئة تدريس —
+        جديد <b>${added.length}</b>، معدّل <b>${changed.length}</b>، لم يعد ظاهراً <b>${removed.length}</b>.
+        ${added.length ? `<div class="small mt-1"><b>الجدد:</b> ${names(added)}</div>` : ''}
+        ${removed.length ? `<div class="small mt-1"><b>لم يعودوا ظاهرين:</b> ${names(removed)}</div>` : ''}
+        <div class="small text-muted mt-1">بيانات الكادر الإداري من آخر تحديث محفوظ؛ تُحدَّث أسبوعياً.</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button></div>`;
+      render();
+    } catch (e) {
+      toast('تعذّر الاتصال بالموقع الرسمي الآن (' + e.message + ')؛ البيانات المعروضة من آخر تحديث محفوظ.', true);
+      btn.disabled = false;
+      btn.innerHTML = old;
+    }
+  }
+  function showUpdated() {
+    const fmt = d => new Date(d).toLocaleDateString('ar-JO-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
+    $('#updated').innerHTML = DATA.live
+      ? `<i class="bi bi-broadcast"></i> الهيئة التدريسية محدّثة مباشرة ${fmt(DATA.live)} · الكادر الإداري ${fmt(DATA.updated)}`
+      : `<i class="bi bi-arrow-repeat"></i> آخر تحديث ${fmt(DATA.updated)}`;
   }
 
   // ---------------------------------------------------------------- exports
@@ -304,8 +402,15 @@
     DATA = d;
     d.faculties.forEach(f => FAC[f.id] = f);
     d.sources.forEach(s => SRC[s.key] = s);
-    const up = new Date(d.updated);
-    $('#updated').innerHTML = `<i class="bi bi-arrow-repeat"></i> آخر تحديث ${up.toLocaleDateString('ar-JO-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}`;
+    // a live update made in this browser is kept until the saved data is newer than it
+    try {
+      const c = JSON.parse(localStorage.getItem('uopstaff-live') || 'null');
+      if (c && c.academic && c.at > d.updated) {
+        d.members = c.academic.concat(d.members.filter(m => m.type !== 'academic'));
+        d.live = c.at;
+      }
+    } catch (e) { /* storage unavailable */ }
+    showUpdated();
     $('#foot-sources').textContent = `${d.members.length} موظفاً من ${d.sources.length} مصدراً`;
     $('#top-q').addEventListener('input', e => { clearTimeout(qTimer); qTimer = setTimeout(() => set({ q: e.target.value }), 300); });
     render();
