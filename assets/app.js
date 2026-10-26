@@ -32,8 +32,9 @@
   function matches(m, st, skip) {
     if (st.q && skip !== 'q') {
       const q = norm(st.q.trim());
-      const hay = norm([m.name, m.name_en, m.email, m.office, m.job, m.specialization, m.department, m.qualification].join(' '));
-      if (!(hay.includes(q) || m.ext === st.q.trim())) return false;
+      const hay = norm([m.name, m.name_en, m.email, m.office, m.job, m.specialization, m.department, m.qualification, (FAC[m.faculty] || {}).name].join(' '));
+      // every word must appear somewhere, in any order ("مدير المالية", "سكرتيرة الرئيس")
+      if (!(q.split(/\s+/).every(w => hay.includes(w)) || m.ext === st.q.trim())) return false;
     }
     if (st.type && skip !== 'type' && m.type !== st.type) return false;
     if (st.faculty && skip !== 'faculty' && String(m.faculty) !== st.faculty) return false;
@@ -179,7 +180,7 @@
           <div class="card-header d-flex justify-content-between align-items-center"><span><i class="bi bi-funnel-fill"></i> التصفية</span>${active ? '<a href="#" data-clear="all" class="small">مسح الكل</a>' : ''}</div>
           <div class="card-body d-grid gap-2">
             <div class="input-group input-group-sm"><span class="input-group-text"><i class="bi bi-search"></i></span>
-              <input class="form-control" name="q" value="${esc(st.q)}" placeholder="اسم، بريد، فرعي، مكتب، تخصص…"></div>
+              <input class="form-control" name="q" value="${esc(st.q)}" placeholder="اسم، مسمى وظيفي، بريد، فرعي، تخصص…"></div>
             <div class="btn-group btn-group-sm w-100" role="group">
               <input type="radio" class="btn-check" name="type" value="" id="t0" ${!st.type ? 'checked' : ''}><label class="btn btn-outline-secondary" for="t0">الكل</label>
               <input type="radio" class="btn-check" name="type" value="academic" id="t1" ${st.type === 'academic' ? 'checked' : ''}><label class="btn btn-outline-maroon" for="t1">أكاديمي <span class="badge text-bg-light">${typeC.academic || 0}</span></label>
