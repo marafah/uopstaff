@@ -5,10 +5,15 @@ Sources (public, used by the university's own pages):
     (each faculty is queried on its own: the all-faculties call leaves out the deans);
   * administrative staff – the SharePoint list "AdministrativeStaff" on each faculty site.
 Only what the public pages show is kept: no personal e-mail, home address, mobile or employee number.
+Photos are stored with the site (assets/photos/, 240px thumbnails): inside the university network the
+university's hosts resolve to private addresses, so loading them from a public page makes browsers ask
+for "local network" permission. Local copies avoid that and load faster.
 
-    pip install requests
+    pip install requests pillow
     python scripts/update_data.py
 """
+import hashlib
+import io
 import json
 import os
 import re
@@ -24,6 +29,8 @@ PHOTO_BASE = "https://services.uop.edu.jo/InstructorProfile/ProfileImage/"
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"
 TIMEOUT = 40
 OUT = os.path.join(os.path.dirname(__file__), "..", "data", "staff.json")
+PHOTOS = os.path.join(os.path.dirname(__file__), "..", "assets", "photos")
+THUMB = 240  # px, longest side
 
 FACULTIES = [  # id used by the InstructorProfile service, Arabic, English, faculty site sub-domain
     (1, "كلية تكنولوجيا المعلومات", "Information Technology", "fit"),
@@ -138,6 +145,41 @@ def fetch_admin(s, fid, fac, log):
     return out
 
 
+def cache_photos(s, members, log):
+    """Store each photo once as a small JPEG named after its source URL; drop files nobody uses any more."""
+    from PIL import Image
+    os.makedirs(PHOTOS, exist_ok=True)
+    used, fetched, failed = set(), 0, 0
+    for m in members:
+        src = m.get("photo_src") or (m["photo"] if m["photo"].startswith("http") else "")
+        m["photo_src"] = src
+        if not src:
+            m["photo"] = ""
+            continue
+        name = hashlib.sha1(src.encode("utf-8")).hexdigest()[:16] + ".jpg"
+        path = os.path.join(PHOTOS, name)
+        if not os.path.exists(path):
+            try:
+                r = s.get(src, timeout=TIMEOUT)
+                r.raise_for_status()
+                img = Image.open(io.BytesIO(r.content)).convert("RGB")
+                img.thumbnail((THUMB, THUMB))
+                img.save(path, "JPEG", quality=82, optimize=True, progressive=True)
+                fetched += 1
+            except Exception:
+                failed += 1
+                m["photo"] = ""  # initials instead of a broken or off-site image
+                continue
+        used.add(name)
+        m["photo"] = f"assets/photos/{name}"
+    removed = 0
+    for f in os.listdir(PHOTOS):
+        if f.endswith(".jpg") and f not in used:
+            os.remove(os.path.join(PHOTOS, f))
+            removed += 1
+    log(f"photos: {len(used)} stored ({fetched} new, {removed} removed, {failed} unavailable)")
+
+
 def main():
     s = requests.Session()
     s.headers["User-Agent"] = UA
@@ -178,6 +220,7 @@ def main():
         print("no data fetched; leaving data/staff.json unchanged", file=sys.stderr)
         sys.exit(1)
 
+    cache_photos(s, members, log)
     order = {fid: i for i, (fid, *_rest) in enumerate(FACULTIES)}
     members.sort(key=lambda m: (order.get(m["faculty"], 99), m["sort"], m["rank_order"], m["name"]))
     data = {

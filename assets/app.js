@@ -288,7 +288,7 @@
     for (const [re, label, order] of ROLE_RULES) if (re.test(text)) return [label, order];
     return ['', 10];
   }
-  const KEY_FIELDS = ['name', 'job', 'rank', 'role', 'department', 'ext', 'office', 'email', 'photo', 'faculty'];
+  const KEY_FIELDS = ['name', 'job', 'rank', 'role', 'department', 'ext', 'office', 'email', 'photo_src', 'faculty'];
   async function liveUpdate(btn) {
     const old = btn.innerHTML;
     btn.disabled = true;
@@ -315,11 +315,16 @@
           job, rank, rank_order: RANK_ORDER[rank] || 9, role, sort: order, department: dept,
           specialization: [cl(d.GeneralSpecializationArabic), cl(d.SpecificSpecializationArabic)].filter(Boolean).join(' – '),
           qualification: '', ext: cl(d.Extention), office: cl(d.OfficeNumber), email: cl(d.UniversityEmail).toLowerCase(),
-          photo: img ? PHOTO_BASE + encodeURIComponent(img).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase()) : '',  // same encoding as scripts/update_data.py
+          photo_src: img ? PHOTO_BASE + encodeURIComponent(img).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase()) : '',  // same encoding as scripts/update_data.py
           profile: `${fac ? fac.site : 'https://www.uop.edu.jo'}/Ar/Pages/AcademicStaffInfo.aspx?uid=${enc}`, source: 'academic_api',
         });
       });
       const fresh = [...people.values()];
+      const stored = new Map(DATA.members.map(m => [m.id, m]));
+      fresh.forEach(m => {  // reuse the site's copy of an unchanged photo; a new photo is shown from the source
+        const o = stored.get(m.id);
+        m.photo = o && o.photo_src === m.photo_src ? o.photo : m.photo_src;
+      });
       if (fresh.length < 50) throw new Error('عدد غير متوقع من السجلات');
       const before = new Map(DATA.members.filter(m => m.type === 'academic').map(m => [m.id, m]));
       const added = fresh.filter(m => !before.has(m.id));
@@ -340,7 +345,7 @@
         جديد <b>${added.length}</b>، معدّل <b>${changed.length}</b>، لم يعد ظاهراً <b>${removed.length}</b>.
         ${added.length ? `<div class="small mt-1"><b>الجدد:</b> ${names(added)}</div>` : ''}
         ${removed.length ? `<div class="small mt-1"><b>لم يعودوا ظاهرين:</b> ${names(removed)}</div>` : ''}
-        <div class="small text-muted mt-1">بيانات الكادر الإداري من آخر تحديث محفوظ؛ تُحدَّث أسبوعياً.</div>
+        <div class="small text-muted mt-1">بيانات الكادر الإداري من آخر تحديث تلقائي؛ يجري كل 6 ساعات.</div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button></div>`;
       render();
       btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> تم التحديث';
