@@ -295,7 +295,14 @@
     btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> جارٍ الجلب من الموقع الرسمي…';
     try {
       const get = url => fetch(url, { cache: 'no-store' }).then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); });
+      const snapshot = fetch(`data/staff.json?t=${Date.now()}`, { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null);
       const lists = await Promise.all(DATA.faculties.map(f => get(`${API}?fact=${f.id}&deptID=0`)).concat([get(`${API}?fact=0&deptID=0`)]));
+      const snap = await snapshot;
+      if (snap && snap.updated >= DATA.updated) {  // newer automatic update of the administrative staff
+        DATA.members = DATA.members.filter(m => m.type === 'academic').concat(snap.members.filter(m => m.type !== 'academic'));
+        DATA.sources = snap.sources;
+        DATA.updated = snap.updated;
+      }
       const people = new Map();
       lists.flat().forEach(d => {
         const enc = d.enc;
@@ -320,7 +327,7 @@
         });
       });
       const fresh = [...people.values()];
-      const stored = new Map(DATA.members.map(m => [m.id, m]));
+      const stored = new Map(DATA.members.concat(snap ? snap.members : []).map(m => [m.id, m]));
       fresh.forEach(m => {  // reuse the site's copy of an unchanged photo; a new photo is shown from the source
         const o = stored.get(m.id);
         m.photo = o && o.photo_src === m.photo_src ? o.photo : m.photo_src;
@@ -345,7 +352,7 @@
         جديد <b>${added.length}</b>، معدّل <b>${changed.length}</b>، لم يعد ظاهراً <b>${removed.length}</b>.
         ${added.length ? `<div class="small mt-1"><b>الجدد:</b> ${names(added)}</div>` : ''}
         ${removed.length ? `<div class="small mt-1"><b>لم يعودوا ظاهرين:</b> ${names(removed)}</div>` : ''}
-        <div class="small text-muted mt-1">بيانات الكادر الإداري من آخر تحديث تلقائي؛ يجري كل 6 ساعات.</div>
+        <div class="small text-muted mt-1">الكادر الإداري من آخر تحديث تلقائي (${esc(ago(DATA.updated))})؛ يجري كل 6 ساعات.</div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button></div>`;
       render();
       btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> تم التحديث';
@@ -358,11 +365,20 @@
       btn.innerHTML = old;
     }
   }
+  function ago(iso) {
+    const min = Math.max(0, Math.round((Date.now() - new Date(iso)) / 60000));
+    if (min < 2) return 'قبل لحظات';
+    if (min < 60) return `قبل ${min} دقيقة`;
+    const h = Math.round(min / 60);
+    if (h < 24) return h === 1 ? 'قبل ساعة' : h === 2 ? 'قبل ساعتين' : `قبل ${h} ساعات`;
+    const d = Math.round(h / 24);
+    return d === 1 ? 'قبل يوم' : d === 2 ? 'قبل يومين' : `قبل ${d} أيام`;
+  }
   function showUpdated() {
     const fmt = d => new Date(d).toLocaleDateString('ar-JO-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
     $('#updated').innerHTML = DATA.live
-      ? `الهيئة التدريسية: ${fmt(DATA.live)} (مباشر) · الإداريون: ${fmt(DATA.updated)}`
-      : `آخر تحديث: ${fmt(DATA.updated)}`;
+      ? `الهيئة التدريسية: الآن (مباشر) · الإداريون: ${ago(DATA.updated)}`
+      : `آخر تحديث: ${ago(DATA.updated)} · ${fmt(DATA.updated)}`;
   }
 
   // ---------------------------------------------------------------- exports
