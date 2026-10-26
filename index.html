@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>دليل موظفي جامعة البترا</title>
+  <meta name="description" content="دليل الهيئة التدريسية والكادر الإداري في جامعة البترا: الاسم، الوظيفة، الرتبة، الكلية، القسم، الهاتف الفرعي، المكتب، البريد الإلكتروني والملف الرسمي.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+<nav class="navbar uop-topbar py-0 sticky-top no-print">
+  <div class="container-fluid">
+    <a class="brand py-2" href="./">
+      <img src="https://www.uop.edu.jo/assets/images/petra_logo.png" alt="جامعة البترا" onerror="this.remove()">
+      <span class="sys"><b>دليل الموظفين</b><small>جامعة البترا</small></span>
+    </a>
+    <input class="uop-search my-2" id="top-q" type="search" placeholder="ابحث: اسم، بريد، رقم فرعي…" aria-label="بحث">
+  </div>
+</nav>
+
+<header class="uop-hero">
+  <div class="container-fluid px-4">
+    <h1>دليل موظفي جامعة البترا</h1>
+    <p>الهيئة التدريسية والكادر الإداري – البيانات من الموقع الرسمي uop.edu.jo <span class="updated-pill ms-1" id="updated"></span></p>
+    <p class="unofficial"><i class="bi bi-info-circle"></i> صفحة غير رسمية تعرض البيانات المنشورة على الموقع الرسمي للجامعة؛ المرجع المعتمد هو الموقع الرسمي.</p>
+  </div>
+</header>
+
+<main class="container-fluid px-4" id="app">
+  <div class="loading" id="loading"><div><div class="spinner-border text-secondary"></div><div class="mt-2">جارٍ تحميل الدليل…</div></div></div>
+</main>
+
+<footer class="uop-footer no-print">
+  <div class="container-fluid px-4 d-flex flex-wrap justify-content-between gap-2">
+    <span>مصدر البيانات: <a class="text-white" href="https://www.uop.edu.jo" target="_blank" rel="noopener">الموقع الرسمي لجامعة البترا</a> · تُحدّث تلقائياً كل أسبوع</span>
+    <span id="foot-sources"></span>
+  </div>
+</footer>
+
+<div class="copy-toast" id="copy-toast" role="status" aria-live="polite"><i class="bi bi-clipboard-check-fill"></i> <span></span></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
