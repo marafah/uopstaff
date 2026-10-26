@@ -304,6 +304,12 @@ def main():
     if len(unique) < len(members):
         log(f"duplicates dropped: {len(members) - len(unique)}")
     members = unique
+    # unit lists (e.g. the green-campus team) can include faculty staff: their job or office names the faculty
+    for m in members:
+        if isinstance(m["faculty"], str):
+            fid = next((fid for fid, ar, *_ in FACULTIES if ar in f'{m["job"]} {m["office"]}'), None)
+            if fid:
+                m["faculty"] = fid
 
     cache_photos(s, members, log)
     order = {fid: i for i, fid in enumerate([u[0] for u in units] + [f[0] for f in FACULTIES])}
