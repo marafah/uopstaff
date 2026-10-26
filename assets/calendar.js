@@ -28,13 +28,12 @@
   const say = (n, one, two, few, many) => n === 1 ? one : n === 2 ? two : n <= 10 ? `${n} ${few}` : `${n} ${many}`;
   const days = n => say(n, 'يوم', 'يومان', 'أيام', 'يوماً');
   const inDays = n => n === 0 ? 'اليوم' : n === 1 ? 'غداً' : `بعد ${say(n, 'يوم', 'يومين', 'أيام', 'يوماً')}`;
+  // numeric dates, day/month/year (e.g. 19/1/2027), kept left-to-right so the digits never get reordered
+  const num = iso => `${+iso.slice(8)}/${+iso.slice(5, 7)}/${iso.slice(0, 4)}`;
+  const ltr = s => `<bdi dir="ltr" class="num-date">${s}</bdi>`;
   function rangeText(e) {
-    if (e.dates) return e.dates.map(d => `${+d.slice(8)} ${monthName(d)}`).join('، ');
-    const [a, b] = [e.start, e.end];
-    if (a === b) return `${+a.slice(8)} ${monthName(a)} ${a.slice(0, 4)}`;
-    if (a.slice(0, 7) === b.slice(0, 7)) return `${+a.slice(8)} – ${+b.slice(8)} ${monthName(a)} ${a.slice(0, 4)}`;
-    if (a.slice(0, 4) === b.slice(0, 4)) return `${+a.slice(8)} ${monthName(a)} – ${+b.slice(8)} ${monthName(b)} ${a.slice(0, 4)}`;
-    return `${+a.slice(8)} ${monthName(a)} ${a.slice(0, 4)} – ${+b.slice(8)} ${monthName(b)} ${b.slice(0, 4)}`;
+    if (e.dates) return e.dates.map(d => ltr(num(d))).join('، ');
+    return e.start === e.end ? ltr(num(e.start)) : `${ltr(num(e.start))} – ${ltr(num(e.end))}`;
   }
   function status(e, t) {
     if (e.dates) {
@@ -105,7 +104,7 @@
     const base = EVENTS.filter(e => (!st.sem || e.sem === st.sem) && (!q || norm(e.title + ' ' + e.note).includes(q)));
     const list = base.filter(e => (!st.cat.length || st.cat.includes(e.category)) && (st.past || status(e, t).k !== 'past'));
     const catCount = {};
-    base.filter(e => st.past || status(e, t).k !== 'past').forEach(e => catCount[e.category] = (catCount[e.category] || 0) + 1);
+    base.filter(e => st.view === 'month' || st.past || status(e, t).k !== 'past').forEach(e => catCount[e.category] = (catCount[e.category] || 0) + 1);
 
     // current semester and teaching week
     const sem = CAL.semesters.find(s => s.start <= t && t <= s.end && s.events.some(e => /بدء التدريس/.test(e.title) && e.start <= t)) ||
@@ -152,14 +151,14 @@
             <button type="button" class="btn ${st.view === 'list' ? 'btn-navy' : 'btn-outline-secondary'}" data-view="list"><i class="bi bi-list-ul"></i> خط زمني</button>
             <button type="button" class="btn ${st.view === 'month' ? 'btn-navy' : 'btn-outline-secondary'}" data-view="month"><i class="bi bi-calendar3"></i> شهري</button>
           </div>
-          <div class="form-check form-switch m-0 small"><input class="form-check-input" type="checkbox" id="show-past" ${st.past ? 'checked' : ''}><label class="form-check-label" for="show-past">إظهار ما انتهى</label></div>
+          ${st.view === 'list' ? `<div class="form-check form-switch m-0 small"><input class="form-check-input" type="checkbox" id="show-past" ${st.past ? 'checked' : ''}><label class="form-check-label" for="show-past">إظهار ما انتهى</label></div>` : ''}
         </div>
         <div class="cat-chips mt-2">${Object.entries(CAT).map(([k, c]) =>
           `<button type="button" class="cat-chip ${st.cat.includes(k) ? 'on' : ''}" data-cat="${k}" style="--c:${c.color}" aria-pressed="${st.cat.includes(k)}"><i class="bi ${c.icon}"></i> ${c.label} <span>${catCount[k] || 0}</span></button>`).join('')}
           ${st.cat.length || st.q ? '<button type="button" class="btn btn-link btn-sm p-0" data-clear="1">مسح التصفية</button>' : ''}</div>
       </div></section>
 
-      ${st.view === 'month' ? monthView(st, t, list) : listView(list, t, st)}`;
+      ${st.view === 'month' ? monthView(st, t, base.filter(e => !st.cat.length || st.cat.includes(e.category))) : listView(list, t, st)}`;
     bind();
   }
   function listView(list, t, st) {
@@ -177,13 +176,25 @@
     });
     return html + '</div>';
   }
+  // months the calendar covers (navigation never leaves them)
+  function monthsSpan() {
+    const a = EVENTS.reduce((m, e) => e.start < m ? e.start : m, '9999').slice(0, 7);
+    const b = EVENTS.reduce((m, e) => e.end > m ? e.end : m, '0000').slice(0, 7);
+    const out = [];
+    for (let y = +a.slice(0, 4), mo = +a.slice(5, 7); `${y}-${String(mo).padStart(2, '0')}` <= b; mo === 12 ? (y++, mo = 1) : mo++)
+      out.push(`${y}-${String(mo).padStart(2, '0')}`);
+    return out;
+  }
   function monthView(st, t, list) {
-    const m = st.month || t.slice(0, 7);
+    // every event of the month is shown, finished ones dimmed: the "show finished" switch only affects the timeline
+    const months = monthsSpan();
+    let m = st.month || t.slice(0, 7);
+    if (!months.includes(m)) m = m < months[0] ? months[0] : months[months.length - 1];
+    const idx = months.indexOf(m), prev = months[idx - 1], next = months[idx + 1];
+    const touches = (e, mm) => e.dates ? e.dates.some(d => d.startsWith(mm)) : (e.start.slice(0, 7) <= mm && mm <= e.end.slice(0, 7));
     const first = m + '-01';
     const lead = (D(first).getUTCDay() + 1) % 7;  // weeks start on Saturday
     const start = addDays(first, -lead);
-    const prev = ISO(new Date(Date.UTC(+m.slice(0, 4), +m.slice(5, 7) - 2, 1))).slice(0, 7);
-    const next = ISO(new Date(Date.UTC(+m.slice(0, 4), +m.slice(5, 7), 1))).slice(0, 7);
     const heads = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
     let cells = '';
     for (let i = 0; i < 42; i++) {
@@ -195,20 +206,27 @@
       const named = evs.filter(e => e.dates || e.start === d || e.end === d);
       const through = evs.filter(e => !named.includes(e));
       const tag = e => e.dates || e.start === e.end ? '' : e.start === d ? 'يبدأ: ' : 'ينتهي: ';
-      cells += `<button type="button" class="mc ${d.slice(0, 7) !== m ? 'out' : ''} ${d === t ? 'today' : ''} ${holiday ? 'hol' : ''}" data-day="${d}" aria-label="${fmt(d, { weekday: 'long', day: 'numeric', month: 'long' })}: ${evs.length} مواعيد">
+      cells += `<button type="button" class="mc ${d.slice(0, 7) !== m ? 'out' : ''} ${d < t ? 'was' : ''} ${d === t ? 'today' : ''} ${holiday ? 'hol' : ''} ${d === window.__pick ? 'pick' : ''}" data-day="${d}" aria-label="${fmt(d, { weekday: 'long', day: 'numeric', month: 'long' })}: ${evs.length} مواعيد">
         <span class="mc-top"><span class="mc-n">${+d.slice(8)}</span><span class="mc-strips">${through.slice(0, 5).map(e => `<b style="--c:${CAT[e.category].color}" title="${esc(e.title)}"></b>`).join('')}</span></span>
         <span class="mc-ev">${named.slice(0, 3).map(e => `<i style="--c:${CAT[e.category].color}" title="${esc(e.title)}">${tag(e)}${esc(e.title)}</i>`).join('')}${named.length > 3 ? `<em>+${named.length - 3}</em>` : ''}</span></button>`;
     }
     const pick = (window.__pick && window.__pick.slice(0, 7) === m) ? window.__pick : (t.slice(0, 7) === m ? t : first);
     const dayEvs = list.filter(e => covers(e, pick));
+    const monthEvs = list.filter(e => touches(e, m));
+    const label = mm => `${monthName(mm + '-01')} ${mm.slice(0, 4)}`;
     return `<section class="card mb-3"><div class="card-body">
-      <div class="month-nav"><button type="button" class="btn btn-sm btn-outline-secondary" data-month="${prev}" aria-label="الشهر السابق"><i class="bi bi-chevron-right"></i></button>
-        <h2 class="m-0">${monthName(first)} ${m.slice(0, 4)}</h2>
-        <button type="button" class="btn btn-sm btn-outline-secondary" data-month="${next}" aria-label="الشهر التالي"><i class="bi bi-chevron-left"></i></button>
-        <button type="button" class="btn btn-sm btn-link" data-month="${t.slice(0, 7)}">اليوم</button></div>
+      <div class="month-nav">
+        <button type="button" class="btn btn-sm btn-outline-secondary" ${prev ? `data-month="${prev}"` : 'disabled'} title="${prev ? label(prev) : ''}"><i class="bi bi-chevron-right"></i> السابق</button>
+        <select class="form-select form-select-sm w-auto month-pick" aria-label="اختر الشهر">${months.map(mm =>
+          `<option value="${mm}" ${mm === m ? 'selected' : ''}>${label(mm)} (${list.filter(e => touches(e, mm)).length})</option>`).join('')}</select>
+        <button type="button" class="btn btn-sm btn-outline-secondary" ${next ? `data-month="${next}"` : 'disabled'} title="${next ? label(next) : ''}">التالي <i class="bi bi-chevron-left"></i></button>
+        ${months.includes(t.slice(0, 7)) && t.slice(0, 7) !== m ? `<button type="button" class="btn btn-sm btn-link" data-month="${t.slice(0, 7)}">الشهر الحالي</button>` : ''}
+        <span class="ms-auto small text-muted">${monthEvs.length} موعداً هذا الشهر</span>
+      </div>
       <div class="mgrid">${heads.map(h => `<div class="mh">${h}</div>`).join('')}${cells}</div>
+      <div class="mlegend small text-muted mt-2"><span><b class="lg-strip"></b> فترة مستمرة</span><span><i class="bi bi-square-fill text-success-emphasis" style="color:#cdeedd !important"></i> عطلة</span><span>انقر يوماً لعرض مواعيده</span></div>
     </div></section>
-    <h2 class="month-h"><span>${fmt(pick, { weekday: 'long', day: 'numeric', month: 'long' })}</span></h2>
+    <h2 class="month-h"><span>${fmt(pick, { weekday: 'long', day: 'numeric', month: 'long' })}</span> ${pick.slice(0, 4)}</h2>
     <div class="ev-list">${dayEvs.length ? dayEvs.map(e => eventRow(e, t)).join('') : '<p class="text-muted">لا مواعيد في هذا اليوم.</p>'}</div>`;
   }
 
@@ -218,6 +236,7 @@
     document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => set({ view: b.dataset.view }));
     document.querySelectorAll('[data-month]').forEach(b => b.onclick = () => { window.__pick = null; set({ month: b.dataset.month }); });
     document.querySelectorAll('[data-day]').forEach(b => b.onclick = () => { window.__pick = b.dataset.day; render(); });
+    document.querySelectorAll('.month-pick').forEach(sel => sel.onchange = () => { window.__pick = null; set({ month: sel.value }); });
     document.querySelectorAll('[data-cat]').forEach(b => b.onclick = () => {
       const st = readState(), k = b.dataset.cat;
       set({ cat: st.cat.includes(k) ? st.cat.filter(x => x !== k) : st.cat.concat(k) });
