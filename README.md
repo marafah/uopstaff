@@ -29,7 +29,8 @@
 
 ## التحديث
 - **تلقائياً:** كل يوم أحد عبر GitHub Actions (`.github/workflows/update-data.yml`).
-- **عند الطلب:** من تبويب **Actions** ← **Update staff data** ← **Run workflow**.
+- **من الصفحة (لأي زائر):** زر **تحديث الآن من الموقع الرسمي** في أعلى الصفحة يجلب أحدث بيانات الهيئة التدريسية فوراً.
+- **تحديث كامل عند الطلب (للمسؤول):** رابط **تحديث كامل** في لوحة التحديث، أو تبويب **Actions** ← **Update staff data** ← **Run workflow**.
 - **يدوياً:**
   ```bash
   pip install requests

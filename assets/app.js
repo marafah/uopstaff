@@ -195,7 +195,6 @@
             <i class="bi bi-funnel-fill"></i> التصفية${nActive ? ` <span class="badge text-bg-primary">${nActive}</span>` : ''}</button>
           <b class="me-1">${list.length} موظف</b> ${active}
           <div class="ms-auto d-flex flex-wrap gap-2">
-            <button type="button" class="btn btn-sm btn-navy" id="live-update" title="جلب أحدث بيانات الهيئة التدريسية مباشرة من الموقع الرسمي للجامعة"><i class="bi bi-cloud-arrow-down"></i> تحديث من الموقع الرسمي</button>
             <select class="form-select form-select-sm w-auto" id="sort">
               <option value="default" ${st.sort === 'default' ? 'selected' : ''}>ترتيب: الكلية والمنصب</option>
               <option value="name" ${st.sort === 'name' ? 'selected' : ''}>ترتيب: الاسم</option>
@@ -243,7 +242,6 @@
     document.querySelectorAll('[data-faculty]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); set({ faculty: a.dataset.faculty }); }));
     document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => set({ view: b.dataset.view })));
     $('#sort').addEventListener('change', e => set({ sort: e.target.value }));
-    $('#live-update').addEventListener('click', e => liveUpdate(e.currentTarget));
     document.querySelectorAll('[data-export]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); exportAs(a.dataset.export, list, st); }));
     document.querySelectorAll('.copy-email').forEach(el => el.addEventListener('click', e => {
       if (e.target.closest('a, button, input, select, label')) return;
@@ -345,6 +343,10 @@
         <div class="small text-muted mt-1">بيانات الكادر الإداري من آخر تحديث محفوظ؛ تُحدَّث أسبوعياً.</div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button></div>`;
       render();
+      btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> تم التحديث';
+      btn.classList.add('done');
+      setTimeout(() => { btn.disabled = false; btn.classList.remove('done'); btn.innerHTML = old; }, 4000);
+      $('#live-msg').scrollIntoView({ behavior: 'smooth', block: 'center' });
     } catch (e) {
       toast('تعذّر الاتصال بالموقع الرسمي الآن (' + e.message + ')؛ البيانات المعروضة من آخر تحديث محفوظ.', true);
       btn.disabled = false;
@@ -354,8 +356,8 @@
   function showUpdated() {
     const fmt = d => new Date(d).toLocaleDateString('ar-JO-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
     $('#updated').innerHTML = DATA.live
-      ? `<i class="bi bi-broadcast"></i> الهيئة التدريسية محدّثة مباشرة ${fmt(DATA.live)} · الكادر الإداري ${fmt(DATA.updated)}`
-      : `<i class="bi bi-arrow-repeat"></i> آخر تحديث ${fmt(DATA.updated)}`;
+      ? `الهيئة التدريسية: ${fmt(DATA.live)} (مباشر) · الإداريون: ${fmt(DATA.updated)}`
+      : `آخر تحديث: ${fmt(DATA.updated)}`;
   }
 
   // ---------------------------------------------------------------- exports
@@ -416,6 +418,7 @@
     $('#foot-updated').textContent = new Date(d.updated).toLocaleDateString('ar-JO-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' });
     $('#top-q').addEventListener('input', e => { clearTimeout(qTimer); qTimer = setTimeout(() => set({ q: e.target.value }), 300); });
     render();
+    $('#live-update').addEventListener('click', e => liveUpdate(e.currentTarget));
   }).catch(err => {
     $('#app').innerHTML = `<div class="alert alert-danger mt-3"><i class="bi bi-exclamation-octagon-fill"></i> تعذّر تحميل بيانات الدليل (${esc(err.message)}). إن فتحت الملف مباشرة من الجهاز، شغّله عبر خادم ويب (انظر README).</div>`;
   });

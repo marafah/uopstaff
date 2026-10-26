@@ -31,9 +31,22 @@
 </nav>
 
 <header class="uop-hero">
-  <div class="container-fluid px-4">
-    <h1>دليل موظفي جامعة البترا</h1>
-    <p>الهيئة التدريسية والكادر الإداري – البيانات من الموقع الرسمي uop.edu.jo <span class="updated-pill ms-1" id="updated"></span></p>
+  <div class="container-fluid px-4 hero-row">
+    <div class="hero-text">
+      <h1>دليل موظفي جامعة البترا</h1>
+      <p>الهيئة التدريسية والكادر الإداري – البيانات من الموقع الرسمي uop.edu.jo</p>
+    </div>
+    <aside class="update-box no-print" aria-label="تحديث البيانات">
+      <div class="update-head"><span class="update-ico"><i class="bi bi-arrow-repeat"></i></span>
+        <div><b>تحديث البيانات</b><small id="updated">—</small></div></div>
+      <button type="button" class="btn btn-update w-100" id="live-update" title="جلب أحدث بيانات الهيئة التدريسية مباشرة من الموقع الرسمي للجامعة">
+        <i class="bi bi-cloud-arrow-down-fill"></i> تحديث الآن من الموقع الرسمي</button>
+      <div class="update-foot">
+        <span><i class="bi bi-calendar-week"></i> تحديث كامل تلقائي كل أحد</span>
+        <a href="https://github.com/marafah/uopstaff/actions/workflows/update-data.yml" target="_blank" rel="noopener" title="للمسؤول: تشغيل التحديث الكامل (يشمل الكادر الإداري) على GitHub">
+          <i class="bi bi-shield-lock"></i> تحديث كامل (للمسؤول)</a>
+      </div>
+    </aside>
   </div>
 </header>
 
