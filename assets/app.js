@@ -292,7 +292,7 @@
   async function liveUpdate(btn) {
     const old = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> جارٍ الجلب من الموقع الرسمي…';
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> جارٍ التحديث…';
     try {
       const get = url => fetch(url, { cache: 'no-store' }).then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); });
       const snapshot = fetch(`data/staff.json?t=${Date.now()}`, { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null);
@@ -355,7 +355,7 @@
         <div class="small text-muted mt-1">الكادر الإداري من آخر تحديث تلقائي (${esc(ago(DATA.updated))})؛ يجري كل 6 ساعات.</div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button></div>`;
       render();
-      btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> تم التحديث';
+      btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> تم';
       btn.classList.add('done');
       setTimeout(() => { btn.disabled = false; btn.classList.remove('done'); btn.innerHTML = old; }, 4000);
       $('#live-msg').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -368,17 +368,22 @@
   function ago(iso) {
     const min = Math.max(0, Math.round((Date.now() - new Date(iso)) / 60000));
     if (min < 2) return 'قبل لحظات';
-    if (min < 60) return `قبل ${min} دقيقة`;
+    // Arabic number agreement: 1 / 2 (dual) / 3–10 (plural) / 11+ (singular accusative)
+    const say = (n, one, two, few, many) => n === 1 ? one : n === 2 ? two : n <= 10 ? `${n} ${few}` : `${n} ${many}`;
+    if (min < 60) return 'قبل ' + say(min, 'دقيقة', 'دقيقتين', 'دقائق', 'دقيقة');
     const h = Math.round(min / 60);
-    if (h < 24) return h === 1 ? 'قبل ساعة' : h === 2 ? 'قبل ساعتين' : `قبل ${h} ساعات`;
+    if (h < 24) return 'قبل ' + say(h, 'ساعة', 'ساعتين', 'ساعات', 'ساعة');
     const d = Math.round(h / 24);
-    return d === 1 ? 'قبل يوم' : d === 2 ? 'قبل يومين' : `قبل ${d} أيام`;
+    return 'قبل ' + say(d, 'يوم', 'يومين', 'أيام', 'يوماً');
   }
   function showUpdated() {
     const fmt = d => new Date(d).toLocaleDateString('ar-JO-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
     $('#updated').innerHTML = DATA.live
-      ? `الهيئة التدريسية: الآن (مباشر) · الإداريون: ${ago(DATA.updated)}`
-      : `آخر تحديث: ${ago(DATA.updated)} · ${fmt(DATA.updated)}`;
+      ? 'محدّث الآن من الموقع الرسمي'
+      : `آخر تحديث ${ago(DATA.updated)}`;
+    $('#updated').title = DATA.live
+      ? `الهيئة التدريسية: مباشرة · الكادر الإداري: ${fmt(DATA.updated)} (${ago(DATA.updated)})`
+      : fmt(DATA.updated);
   }
 
   // ---------------------------------------------------------------- exports
