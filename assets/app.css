@@ -354,3 +354,6 @@ a { color: var(--uop-maroon); }
 .lg-strip { display: inline-block; width: 14px; height: 4px; border-radius: 2px; background: #2a78d6; vertical-align: middle; }
 .month-nav { flex-wrap: wrap; }
 .num-date { font-variant-numeric: tabular-nums; unicode-bidi: isolate; }
+
+/* numeric side date (d/m) */
+.ev-date b { font-size: 1.25rem; font-variant-numeric: tabular-nums; white-space: nowrap; }

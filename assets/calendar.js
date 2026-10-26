@@ -74,7 +74,7 @@
     const s = status(e, t), c = CAT[e.category] || {};
     const len = e.dates ? `${e.dates.length} مواعيد` : (e.start !== e.end ? days(diff(e.start, e.end) + 1) : '');
     return `<article class="ev ${s.k}" style="--c:${c.color}" data-id="${e.id}">
-      <div class="ev-date"><b>${+((s.next || e.start).slice(8))}</b><span>${monthName(s.next || e.start)}</span><small>${esc(e.day || dayName(e.start))}</small></div>
+      <div class="ev-date"><b dir="ltr">${num(s.next || e.start).slice(0, -5)}</b><span>${(s.next || e.start).slice(0, 4)}</span><small>${esc(e.day || dayName(e.start))}</small></div>
       <div class="ev-body">
         <h3 class="ev-title">${esc(e.title)}${e.estimated ? ' <span class="est" title="التاريخ تقديري ويُعلن رسمياً لاحقاً">تقديري</span>' : ''}</h3>
         ${e.note ? `<div class="ev-note"><i class="bi bi-exclamation-circle"></i> ${esc(e.note)}</div>` : ''}
@@ -128,7 +128,7 @@
 
     $('#cal-app').innerHTML = `
       <section class="today-band">
-        <div class="today-date"><small>اليوم</small><b>${dayName(t)}</b><span>${fmt(t, { day: 'numeric', month: 'long', year: 'numeric' })}</span></div>
+        <div class="today-date"><small>اليوم</small><b>${dayName(t)}</b><span>${ltr(num(t))}</span></div>
         <div class="today-sem">${sem ? `<small>${esc(sem.name)} ${esc(CAL.year)}</small>${weekHtml}` : '<small>خارج العام الجامعي</small>'}</div>
         <div class="today-now"><small><i class="bi bi-broadcast"></i> يجري الآن</small>
           ${now.length ? now.map(e => `<a class="now-chip" href="#ev-${e.id}" data-jump="${e.id}" style="--c:${CAT[e.category].color}">${esc(e.title)} <em>${status(e, t).left ? 'ينتهي ' + inDays(status(e, t).left) : 'اليوم'}</em></a>`).join('') : '<span class="text-muted small">لا مواعيد جارية اليوم</span>'}</div>
