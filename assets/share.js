@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   const $ = s => document.querySelector(s);
-  const TITLE = 'دليل موظفي جامعة البترا';
+  const TITLE = document.body.dataset.shareTitle || 'دليل موظفي جامعة البترا';  // set per page on <body>
   const NAVY = '#091b22', MAROON = '#901d23';
   let current = '';
 
@@ -31,7 +31,7 @@
     const label = what === 'view' && hasView ? viewLabel() : '';
     $('#share-url').value = current;
     $('#share-url-text').textContent = current.replace(/^https?:\/\//, '');
-    $('#qr-sub').textContent = label ? `امسح الرمز لفتح: ${label}` : 'امسح الرمز لفتح الدليل';
+    $('#qr-sub').textContent = label ? `امسح الرمز لفتح: ${label}` : `امسح الرمز لفتح ${document.body.dataset.shareWhat || 'الدليل'}`;
     $('#qr').innerHTML = qrFor(current).createSvgTag({ cellSize: 6, margin: 2, scalable: true })
       .replace(/fill="black"/g, `fill="${NAVY}"`);
     const text = `${TITLE}${label ? ' – ' + label : ''}\n${current}`;

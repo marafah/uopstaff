@@ -1,0 +1,1055 @@
+{
+ "year": "2026/2027",
+ "semesters": [
+  {
+   "key": "first",
+   "name": "الفصل الدراسي الأول",
+   "years": [
+    2026,
+    2027
+   ],
+   "events": [
+    {
+     "title": "بدء التسجيل المبكر للفصل الدراسي الأول",
+     "note": "",
+     "day": "الأحد",
+     "category": "registration",
+     "estimated": false,
+     "start": "2026-08-02",
+     "end": "2026-08-02",
+     "id": "02c619f438"
+    },
+    {
+     "title": "ذكرى المولد النبوي الشريف",
+     "note": "",
+     "day": "الثلاثاء",
+     "category": "holiday",
+     "estimated": false,
+     "start": "2026-08-25",
+     "end": "2026-08-25",
+     "id": "d70c64c98a"
+    },
+    {
+     "title": "دوام أعضاء الهيئة التدريسية/بدء العام الجامعي 2026/2027",
+     "note": "",
+     "day": "الأحد",
+     "category": "teaching",
+     "estimated": false,
+     "start": "2026-09-27",
+     "end": "2026-09-27",
+     "id": "cc306d6f4b"
+    },
+    {
+     "title": "دورات تدريبية للهيئة التدريسية والإدارية",
+     "note": "",
+     "day": "الأحد-الخميس",
+     "category": "teaching",
+     "estimated": false,
+     "start": "2026-09-27",
+     "end": "2026-10-08",
+     "id": "092f637daf"
+    },
+    {
+     "title": "فترة السحب والإضافة",
+     "note": "",
+     "day": "الأحد-الخميس",
+     "category": "registration",
+     "estimated": false,
+     "start": "2026-10-11",
+     "end": "2026-10-15",
+     "id": "c86acded53"
+    },
+    {
+     "title": "آخر موعد لتسجيل الطلبة القدامى",
+     "note": "",
+     "day": "الخميس",
+     "category": "registration",
+     "estimated": false,
+     "start": "2026-10-15",
+     "end": "2026-10-15",
+     "id": "b0b2820c83"
+    },
+    {
+     "title": "بدء التدريس للفصل الأول",
+     "note": "",
+     "day": "الأحد",
+     "category": "teaching",
+     "estimated": false,
+     "start": "2026-10-18",
+     "end": "2026-10-18",
+     "id": "37825f2b75"
+    },
+    {
+     "title": "بدء غرامة التسجيل المتأخر للطلبة القدامى (الفترة الأولى – 50 دينار)",
+     "note": "",
+     "day": "الأحد",
+     "category": "registration",
+     "estimated": false,
+     "start": "2026-10-18",
+     "end": "2026-10-18",
+     "id": "1f4315a36a"
+    },
+    {
+     "title": "الأسبوع التنويري للطلبة المستجدين",
+     "note": "",
+     "day": "الأحد-الخميس",
+     "category": "teaching",
+     "estimated": false,
+     "start": "2026-10-18",
+     "end": "2026-10-22",
+     "id": "f5c5b49751"
+    },
+    {
+     "title": "فترة الانسحاب الأولى لطلبة البكالوريوس والماجستير",
+     "note": "مع فقدان 25% من الرسوم",
+     "day": "الأحد-السبت",
+     "category": "registration",
+     "estimated": false,
+     "start": "2026-10-18",
+     "end": "2026-11-07",
+     "id": "3754de5e4c"
+    },
+    {
+     "title": "بدء غرامة التسجيل المتأخر للطلبة القدامى (الفترة الثانية – 100 دينار)",
+     "note": "",
+     "day": "الأحد",
+     "category": "registration",
+     "estimated": false,
+     "start": "2026-10-25",
+     "end": "2026-10-25",
+     "id": "865366a494"
+    },
+    {
+     "title": "آخر موعد لمراجعة العلامات النهائية للفصل الثاني والصيفي 2025/2026",
+     "note": "",
+     "day": "الخميس",
+     "category": "results",
+     "estimated": false,
+     "start": "2026-10-29",
+     "end": "2026-10-29",
+     "id": "07f9c50c9a"
+    },
+    {
+     "title": "آخر موعد لاستكمال علامات الفصل الثاني والصيفي 2025/2026",
+     "note": "",
+     "day": "الخميس",
+     "category": "results",
+     "estimated": false,
+     "start": "2026-11-05",
+     "end": "2026-11-05",
+     "id": "d583437bf0"
+    },
+    {
+     "title": "فترة الانسحاب الثانية لطلبة البكالوريوس والماجستير",
+     "note": "مع فقدان 50% من الرسوم",
+     "day": "الأحد-السبت",
+     "category": "registration",
+     "estimated": false,
+     "start": "2026-11-08",
+     "end": "2026-11-21",
+     "id": "e6da06f66b"
+    },
+    {
+     "title": "الفترة التي يتم خلالها إجراء الامتحان الأول",
+     "note": "",
+     "day": "الأحد-الخميس",
+     "category": "exams",
+     "estimated": false,
+     "start": "2026-11-15",
+     "end": "2026-11-26",
+     "id": "4ad00a40f7"
+    },
+    {
+     "title": "موعد عقد امتحان الشامل",
+     "note": "",
+     "day": "الأحد-الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2026-11-22",
+     "end": "2026-12-03",
+     "id": "cd51b36538"
+    },
+    {
+     "title": "فترة الانسحاب القهري لطلبة البكالوريوس والماجستير",
+     "note": "مع فقدان 100% من الرسوم",
+     "day": "الأحد-الثلاثاء",
+     "category": "registration",
+     "estimated": false,
+     "start": "2026-11-22",
+     "end": "2027-01-19",
+     "id": "6f85713845"
+    },
+    {
+     "title": "آخر موعد لتقديم مقترحات الرسائل (Proposal) وتقديم نماذج تحويل مسار وتعيين مشرف",
+     "note": "",
+     "day": "الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2026-11-26",
+     "end": "2026-11-26",
+     "id": "957835847e"
+    },
+    {
+     "title": "آخر موعد لتسليم النماذج الخاصة بتشكيل لجنة وتحديد موعد مناقشة رسالة الماجستير",
+     "note": "",
+     "day": "الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2026-12-03",
+     "end": "2026-12-03",
+     "id": "cf06d0054b"
+    },
+    {
+     "title": "امتحان منتصف الفصل",
+     "note": "",
+     "day": "الخميس",
+     "category": "exams",
+     "estimated": false,
+     "dates": [
+      "2026-12-03",
+      "2026-12-10",
+      "2026-12-17",
+      "2026-12-24"
+     ],
+     "start": "2026-12-03",
+     "end": "2026-12-24",
+     "id": "cbc463c664"
+    },
+    {
+     "title": "بدء التسجيل المبكر للفصل الدراسي الثاني",
+     "note": "",
+     "day": "الأحد",
+     "category": "registration",
+     "estimated": false,
+     "start": "2026-12-06",
+     "end": "2026-12-06",
+     "id": "83528616d3"
+    },
+    {
+     "title": "فترة إصدار بطاقة دخول الامتحانات النهائية",
+     "note": "",
+     "day": "الأحد",
+     "category": "exams",
+     "estimated": false,
+     "start": "2026-12-06",
+     "end": "2026-12-06",
+     "id": "2684aaed0e"
+    },
+    {
+     "title": "عيد الميلاد المجيد",
+     "note": "",
+     "day": "الجمعة",
+     "category": "holiday",
+     "estimated": false,
+     "start": "2026-12-25",
+     "end": "2026-12-25",
+     "id": "7889f6f187"
+    },
+    {
+     "title": "الفترة التي يتم خلالها إجراء الاختبار الثاني",
+     "note": "",
+     "day": "الأحد-الخميس",
+     "category": "exams",
+     "estimated": false,
+     "start": "2026-12-27",
+     "end": "2027-01-07",
+     "id": "2b21fed4e1"
+    },
+    {
+     "title": "آخر موعد لمناقشة الرسائل الجامعية",
+     "note": "",
+     "day": "الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2026-12-31",
+     "end": "2026-12-31",
+     "id": "c9790e27bc"
+    },
+    {
+     "title": "رأس السنة الميلادية",
+     "note": "",
+     "day": "الجمعة",
+     "category": "holiday",
+     "estimated": false,
+     "start": "2027-01-01",
+     "end": "2027-01-01",
+     "id": "8f516cf16a"
+    },
+    {
+     "title": "الإسراء والمعراج",
+     "note": "",
+     "day": "الثلاثاء",
+     "category": "holiday",
+     "estimated": false,
+     "start": "2027-01-05",
+     "end": "2027-01-05",
+     "id": "d402c57ec8"
+    },
+    {
+     "title": "آخر موعد لتسليم قرارات لجان المناقشات",
+     "note": "",
+     "day": "الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2027-01-14",
+     "end": "2027-01-14",
+     "id": "860537211e"
+    },
+    {
+     "title": "آخر يوم تدريس للفصل الأول",
+     "note": "",
+     "day": "الثلاثاء",
+     "category": "teaching",
+     "estimated": false,
+     "start": "2027-01-19",
+     "end": "2027-01-19",
+     "id": "0b3a1bb888"
+    },
+    {
+     "title": "فترة الامتحانات النهائية",
+     "note": "",
+     "day": "الأربعاء- الخميس",
+     "category": "exams",
+     "estimated": false,
+     "start": "2027-01-20",
+     "end": "2027-02-04",
+     "id": "f6c664c533"
+    },
+    {
+     "title": "آخر موعد لتسليم الرسائل الجامعية للقسم المعني بشكل نهائي وبعد التعديلات المقترحة من لجنة المناقشة",
+     "note": "",
+     "day": "الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2027-01-28",
+     "end": "2027-01-28",
+     "id": "458fccfe73"
+    },
+    {
+     "title": "بدء عطلة الطلبة بين الفصلين",
+     "note": "",
+     "day": "الأحد",
+     "category": "teaching",
+     "estimated": false,
+     "start": "2027-02-07",
+     "end": "2027-02-07",
+     "id": "ea8b9e030e"
+    },
+    {
+     "title": "آخر موعد لتسليم النتائج لعمادة القبول والتسجيل وإعلان النتائج",
+     "note": "",
+     "day": "الأحد",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-02-07",
+     "end": "2027-02-07",
+     "id": "41ad73af37"
+    },
+    {
+     "title": "إجازة لمدة اسبوعين لأعضاء الهيئة التدريسية يتم تحديدها بالتنسيق مع عميد الكلية خلال هذه الفترة",
+     "note": "",
+     "day": "الأحد-الخميس",
+     "category": "teaching",
+     "estimated": false,
+     "start": "2027-02-07",
+     "end": "2027-03-04",
+     "id": "687e4dd737"
+    },
+    {
+     "title": "قرار مجلس العمداء بمنح الدرجات العلمية والشهادات",
+     "note": "",
+     "day": "الأحد",
+     "category": "results",
+     "estimated": false,
+     "start": "2027-02-14",
+     "end": "2027-02-14",
+     "id": "cfd677c637"
+    }
+   ],
+   "stats": {
+    "study_days": 68,
+    "exam_days": 12
+   },
+   "start": "2026-08-02",
+   "end": "2027-03-04"
+  },
+  {
+   "key": "second",
+   "name": "الفصل الدراسي الثاني",
+   "years": [
+    2026,
+    2027
+   ],
+   "events": [
+    {
+     "title": "بدء شهر رمضان المبارك",
+     "note": "",
+     "day": "الإثنين",
+     "category": "holiday",
+     "estimated": true,
+     "start": "2027-02-08",
+     "end": "2027-02-08",
+     "id": "11bf771341"
+    },
+    {
+     "title": "فترة السحب والإضافة",
+     "note": "",
+     "day": "الأحد- الإثنين",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-02-28",
+     "end": "2027-03-08",
+     "id": "93b2f7bf18"
+    },
+    {
+     "title": "بدء دوام أعضاء الهيئة التدريسية",
+     "note": "",
+     "day": "الأحد",
+     "category": "teaching",
+     "estimated": false,
+     "start": "2027-03-07",
+     "end": "2027-03-07",
+     "id": "7c8e82a5fc"
+    },
+    {
+     "title": "آخر موعد لتسجيل الطلبة القدامى",
+     "note": "",
+     "day": "الإثنين",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-03-08",
+     "end": "2027-03-08",
+     "id": "4ea7abf0ae"
+    },
+    {
+     "title": "عيد الفطر السعيد",
+     "note": "",
+     "day": "الثلاثاء-الخميس",
+     "category": "holiday",
+     "estimated": true,
+     "start": "2027-03-09",
+     "end": "2027-03-11",
+     "id": "6a229b7dbe"
+    },
+    {
+     "title": "بدء التدريس للفصل الثاني",
+     "note": "",
+     "day": "الأحد",
+     "category": "teaching",
+     "estimated": false,
+     "start": "2027-03-14",
+     "end": "2027-03-14",
+     "id": "abf3066658"
+    },
+    {
+     "title": "بدء غرامة التسجيل المتأخر للطلبة القدامى (الفترة الأولى – 50 دينار)",
+     "note": "",
+     "day": "الأحد",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-03-14",
+     "end": "2027-03-14",
+     "id": "4988bb5f85"
+    },
+    {
+     "title": "فترة الانسحاب الأولى لطلبة البكالوريوس والماجستير",
+     "note": "مع فقدان 25% من الرسوم",
+     "day": "الأحد-السبت",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-03-14",
+     "end": "2027-04-03",
+     "id": "722ba27bbe"
+    },
+    {
+     "title": "بدء غرامة التسجيل المتأخر للطلبة القدامى (الفترة الثانية – 100 دينار)",
+     "note": "",
+     "day": "الأحد",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-03-21",
+     "end": "2027-03-21",
+     "id": "bf913cfae7"
+    },
+    {
+     "title": "حفل تخريج الطلبة للفصل الأول",
+     "note": "",
+     "day": "الأربعاء- الخميس",
+     "category": "results",
+     "estimated": false,
+     "start": "2027-03-24",
+     "end": "2027-03-25",
+     "id": "e8ec2f1833"
+    },
+    {
+     "title": "آخر موعد لمراجعة العلامات النهائية للفصل الأول 2026/2027",
+     "note": "",
+     "day": "الخميس",
+     "category": "results",
+     "estimated": false,
+     "start": "2027-03-25",
+     "end": "2027-03-25",
+     "id": "39bf719464"
+    },
+    {
+     "title": "آخر موعد لاستكمال علامات الفصل الأول 2026/2027",
+     "note": "",
+     "day": "الخميس",
+     "category": "results",
+     "estimated": false,
+     "start": "2027-04-01",
+     "end": "2027-04-01",
+     "id": "7068d53a38"
+    },
+    {
+     "title": "فترة الانسحاب الثانية لطلبة البكالوريوس والماجستير",
+     "note": "مع فقدان 50% من الرسوم",
+     "day": "الأحد-السبت",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-04-04",
+     "end": "2027-04-17",
+     "id": "aac091ebc4"
+    },
+    {
+     "title": "آخر موعد لتقديم مقترحات الرسائل (Proposal) وتقديم نماذج تحويل مسار وتعيين مشرف",
+     "note": "",
+     "day": "الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2027-04-08",
+     "end": "2027-04-08",
+     "id": "e4ce8c4bb9"
+    },
+    {
+     "title": "الفترة التي يتم خلالها إجراء الامتحان الأول",
+     "note": "",
+     "day": "الأحد-الخميس",
+     "category": "exams",
+     "estimated": false,
+     "start": "2027-04-11",
+     "end": "2027-04-22",
+     "id": "f758d888d7"
+    },
+    {
+     "title": "موعد عقد امتحان الشامل",
+     "note": "",
+     "day": "الأحد-الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2027-04-11",
+     "end": "2027-04-22",
+     "id": "6b94422ef2"
+    },
+    {
+     "title": "بدء التسجيل المبكر للفصل الدراسي الصيفي",
+     "note": "",
+     "day": "الأحد",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-04-18",
+     "end": "2027-04-18",
+     "id": "3779395f6f"
+    },
+    {
+     "title": "فترة إصدار بطاقة دخول الامتحانات النهائية",
+     "note": "",
+     "day": "الأحد",
+     "category": "exams",
+     "estimated": false,
+     "start": "2027-04-18",
+     "end": "2027-04-18",
+     "id": "f7f53d5cf1"
+    },
+    {
+     "title": "فترة الانسحاب القهري لطلبة البكالوريوس والماجستير",
+     "note": "",
+     "day": "الأحد-الثلاثاء",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-04-18",
+     "end": "2027-06-22",
+     "id": "9ea6b73fcc"
+    },
+    {
+     "title": "امتحان منتصف الفصل",
+     "note": "",
+     "day": "الخميس",
+     "category": "exams",
+     "estimated": false,
+     "dates": [
+      "2027-04-29",
+      "2027-05-06",
+      "2027-05-13",
+      "2027-05-20"
+     ],
+     "start": "2027-04-29",
+     "end": "2027-05-20",
+     "id": "ad351498e5"
+    },
+    {
+     "title": "عيد العمال",
+     "note": "",
+     "day": "السبت",
+     "category": "holiday",
+     "estimated": false,
+     "start": "2027-05-01",
+     "end": "2027-05-01",
+     "id": "1e42280c0b"
+    },
+    {
+     "title": "آخر موعد لتسليم النماذج الخاصة بتشكيل لجنة وتحديد موعد مناقشة رسالة الماجستير",
+     "note": "",
+     "day": "الإثنين",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2027-05-03",
+     "end": "2027-05-03",
+     "id": "c067d3e3cb"
+    },
+    {
+     "title": "عطلة عيد الأضحى المبارك",
+     "note": "",
+     "day": "السبت-الأربعاء",
+     "category": "holiday",
+     "estimated": true,
+     "start": "2027-05-15",
+     "end": "2027-05-19",
+     "id": "1d7a76a084"
+    },
+    {
+     "title": "الفترة التي يتم خلالها إجراء الامتحان الثاني",
+     "note": "",
+     "day": "الأحد-الخميس",
+     "category": "exams",
+     "estimated": false,
+     "start": "2027-05-23",
+     "end": "2027-06-03",
+     "id": "e86803219a"
+    },
+    {
+     "title": "عيد الاستقلال",
+     "note": "",
+     "day": "الثلاثاء",
+     "category": "holiday",
+     "estimated": false,
+     "start": "2027-05-25",
+     "end": "2027-05-25",
+     "id": "c46dcd1080"
+    },
+    {
+     "title": "آخر موعد لمناقشة الرسائل الجامعية",
+     "note": "",
+     "day": "الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2027-06-03",
+     "end": "2027-06-03",
+     "id": "d9bba116de"
+    },
+    {
+     "title": "رأس السنة الهجرية",
+     "note": "",
+     "day": "الأحد",
+     "category": "holiday",
+     "estimated": true,
+     "start": "2027-06-06",
+     "end": "2027-06-06",
+     "id": "4427e4a978"
+    },
+    {
+     "title": "آخر يوم تدريس للفصل الثاني",
+     "note": "",
+     "day": "الثلاثاء",
+     "category": "teaching",
+     "estimated": false,
+     "start": "2027-06-22",
+     "end": "2027-06-22",
+     "id": "27040e83f5"
+    },
+    {
+     "title": "فترة الامتحانات النهائية",
+     "note": "",
+     "day": "الأربعاء- الخميس",
+     "category": "exams",
+     "estimated": false,
+     "start": "2027-06-23",
+     "end": "2027-07-08",
+     "id": "2a4a1cd088"
+    },
+    {
+     "title": "آخر موعد لتسليم قرارات لجان المناقشات",
+     "note": "",
+     "day": "الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2027-06-24",
+     "end": "2027-06-24",
+     "id": "f5188f527d"
+    },
+    {
+     "title": "آخر موعد لتسليم الرسائل الجامعية للقسم المعني بشكل نهائي وبعد التعديلات المقترحة من لجنة المناقشة",
+     "note": "",
+     "day": "الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2027-07-01",
+     "end": "2027-07-01",
+     "id": "f07f342574"
+    },
+    {
+     "title": "بدء العطلة الصيفية للطلبة",
+     "note": "",
+     "day": "الأحد",
+     "category": "teaching",
+     "estimated": false,
+     "start": "2027-07-11",
+     "end": "2027-07-11",
+     "id": "582e03ceea"
+    },
+    {
+     "title": "آخر موعد لتسليم النتائج لعمادة القبول والتسجيل وإعلان النتائج",
+     "note": "",
+     "day": "الأحد",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-07-11",
+     "end": "2027-07-11",
+     "id": "1739fdd5b2"
+    },
+    {
+     "title": "قرار مجلس العمداء بمنح الدرجات العلمية والشهادات",
+     "note": "",
+     "day": "الأحد",
+     "category": "results",
+     "estimated": false,
+     "start": "2027-07-18",
+     "end": "2027-07-18",
+     "id": "968ffa2a3e"
+    },
+    {
+     "title": "بدء إجازة اعضاء الهيئة التدريسية لمن لا يدرس في الفصل الصيفي",
+     "note": "",
+     "day": "الأحد",
+     "category": "teaching",
+     "estimated": false,
+     "start": "2027-07-25",
+     "end": "2027-07-25",
+     "id": "5d38afff8b"
+    }
+   ],
+   "stats": {
+    "study_days": 67,
+    "exam_days": 12
+   },
+   "start": "2027-02-08",
+   "end": "2027-07-25"
+  },
+  {
+   "key": "summer",
+   "name": "الفصل الدراسي الصيفي",
+   "years": [
+    2026,
+    2027
+   ],
+   "events": [
+    {
+     "title": "فترة السحب والإضافة",
+     "note": "",
+     "day": "الثلاثاء-الخميس",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-07-20",
+     "end": "2027-07-22",
+     "id": "7c9fb532f7"
+    },
+    {
+     "title": "آخر موعد لتسجيل الطلبة القدامى",
+     "note": "",
+     "day": "الخميس",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-07-22",
+     "end": "2027-07-22",
+     "id": "8101e3be58"
+    },
+    {
+     "title": "بدء التدريس للفصل الصيفي",
+     "note": "",
+     "day": "الأحد",
+     "category": "teaching",
+     "estimated": false,
+     "start": "2027-07-25",
+     "end": "2027-07-25",
+     "id": "5c099dc4d6"
+    },
+    {
+     "title": "بدء غرامة التسجيل المتأخر للطلبة القدامى (الفترة الأولى – 50 دينار)",
+     "note": "",
+     "day": "الأحد",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-07-25",
+     "end": "2027-07-25",
+     "id": "f850e37e2c"
+    },
+    {
+     "title": "فترة الانسحاب الأولى لطلبة البكالوريوس والماجستير",
+     "note": "مع فقدان 25% من الرسوم",
+     "day": "الأحد-السبت",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-07-25",
+     "end": "2027-08-07",
+     "id": "7a7c1709e5"
+    },
+    {
+     "title": "بدء غرامة التسجيل المتأخر للطلبة القدامى (الفترة الثانية – 100 دينار)",
+     "note": "",
+     "day": "الأحد",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-08-01",
+     "end": "2027-08-01",
+     "id": "2e4f2fe6c9"
+    },
+    {
+     "title": "حفل تخريج الطلبة للفصل الثاني",
+     "note": "",
+     "day": "الأربعاء- الخميس",
+     "category": "results",
+     "estimated": false,
+     "start": "2027-08-04",
+     "end": "2027-08-05",
+     "id": "63ce668d86"
+    },
+    {
+     "title": "آخر موعد لتسليم النماذج الخاصة بتشكيل لجنة وتحديد موعد مناقشة رسالة",
+     "note": "",
+     "day": "الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2027-08-05",
+     "end": "2027-08-05",
+     "id": "720dc8ec61"
+    },
+    {
+     "title": "بدء التسجيل المبكر للفصل الدراسي الأول",
+     "note": "",
+     "day": "الأحد",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-08-08",
+     "end": "2027-08-08",
+     "id": "003935ede8"
+    },
+    {
+     "title": "فترة اصدار بطاقة دخول الامتحانات النهائية",
+     "note": "",
+     "day": "الأحد",
+     "category": "exams",
+     "estimated": false,
+     "start": "2027-08-08",
+     "end": "2027-08-08",
+     "id": "7ecc12cb9c"
+    },
+    {
+     "title": "الفترة التي يتم خلالها إجراء الامتحان الأول",
+     "note": "",
+     "day": "الأحد-الخميس",
+     "category": "exams",
+     "estimated": false,
+     "start": "2027-08-08",
+     "end": "2027-08-12",
+     "id": "ffe191ca46"
+    },
+    {
+     "title": "فترة الانسحاب الثانية لطلبة البكالوريوس والماجستير",
+     "note": "مع فقدان 50% من الرسوم",
+     "day": "الأحد-السبت",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-08-08",
+     "end": "2027-08-14",
+     "id": "b7d3c46de4"
+    },
+    {
+     "title": "آخر موعد لتقديم مقترحات الرسائل (Proposal)",
+     "note": "",
+     "day": "الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2027-08-12",
+     "end": "2027-08-12",
+     "id": "6302d70ede"
+    },
+    {
+     "title": "آخر موعد لمناقشة الرسائل الجامعية",
+     "note": "",
+     "day": "الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2027-08-12",
+     "end": "2027-08-12",
+     "id": "3370b77403"
+    },
+    {
+     "title": "امتحان منتصف الفصل",
+     "note": "",
+     "day": "الخميس",
+     "category": "exams",
+     "estimated": false,
+     "dates": [
+      "2027-08-12",
+      "2027-08-19",
+      "2027-08-26"
+     ],
+     "start": "2027-08-12",
+     "end": "2027-08-26",
+     "id": "425ae88a7e"
+    },
+    {
+     "title": "ذكرى المولد النبوي الشريف",
+     "note": "",
+     "day": "السبت",
+     "category": "holiday",
+     "estimated": true,
+     "start": "2027-08-14",
+     "end": "2027-08-14",
+     "id": "7b3a295824"
+    },
+    {
+     "title": "موعد عقد امتحان الشامل",
+     "note": "",
+     "day": "الأحد-الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2027-08-15",
+     "end": "2027-08-19",
+     "id": "b5bcc8efe7"
+    },
+    {
+     "title": "فترة الانسحاب القهري لطلبة البكالوريوس والماجستير",
+     "note": "مع فقدان 100% من الرسوم",
+     "day": "الأحد-الخميس",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-08-15",
+     "end": "2027-09-09",
+     "id": "b780c88016"
+    },
+    {
+     "title": "الفترة التي يتم خلالها إجراء الامتحان الثاني",
+     "note": "",
+     "day": "الأحد-الخميس",
+     "category": "exams",
+     "estimated": false,
+     "start": "2027-08-29",
+     "end": "2027-09-02",
+     "id": "2b9fefe347"
+    },
+    {
+     "title": "آخر موعد لتسليم قرارات لجان المناقشات",
+     "note": "",
+     "day": "الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2027-09-02",
+     "end": "2027-09-02",
+     "id": "d6f87560ee"
+    },
+    {
+     "title": "آخر يوم تدريس للفصل الصيفي",
+     "note": "",
+     "day": "الخميس",
+     "category": "teaching",
+     "estimated": false,
+     "start": "2027-09-09",
+     "end": "2027-09-09",
+     "id": "68fe0efd0d"
+    },
+    {
+     "title": "آخر موعد لتسليم الرسائل الجامعية للقسم المعني بشكل نهائي وبعد التعديلات المقترحة من لجنة المناقشة",
+     "note": "",
+     "day": "الخميس",
+     "category": "graduate",
+     "estimated": false,
+     "start": "2027-09-09",
+     "end": "2027-09-09",
+     "id": "1d131e3161"
+    },
+    {
+     "title": "فترة الامتحانات النهائية",
+     "note": "",
+     "day": "الأحد-الخميس",
+     "category": "exams",
+     "estimated": false,
+     "start": "2027-09-12",
+     "end": "2027-09-16",
+     "id": "b4eed280ed"
+    },
+    {
+     "title": "آخر موعد لتسليم النتائج لعمادة القبول والتسجيل وإعلان النتائج",
+     "note": "",
+     "day": "الأحد",
+     "category": "registration",
+     "estimated": false,
+     "start": "2027-09-19",
+     "end": "2027-09-19",
+     "id": "1e18734f6a"
+    },
+    {
+     "title": "دوام أعضاء الهيئة التدريسية/بدء العام الجامعي 2027/2028",
+     "note": "",
+     "day": "الأحد",
+     "category": "teaching",
+     "estimated": false,
+     "start": "2027-09-26",
+     "end": "2027-09-26",
+     "id": "9dac692e54"
+    },
+    {
+     "title": "قرار مجلس العمداء بمنح الدرجات العلمية والشهادات",
+     "note": "",
+     "day": "الاثنين",
+     "category": "results",
+     "estimated": false,
+     "start": "2027-09-27",
+     "end": "2027-09-27",
+     "id": "d549561438"
+    },
+    {
+     "title": "حفل تخريج الطلبة للفصل الصيفي",
+     "note": "",
+     "day": "الأربعاء- الخميس",
+     "category": "results",
+     "estimated": false,
+     "start": "2027-09-29",
+     "end": "2027-09-30",
+     "id": "50d0058d53"
+    },
+    {
+     "title": "بدء التدريس للفصل الدراسي الأول 2027/2028",
+     "note": "",
+     "day": "الأحد",
+     "category": "teaching",
+     "estimated": false,
+     "start": "2027-10-17",
+     "end": "2027-10-17",
+     "id": "b86b1f7730"
+    }
+   ],
+   "stats": {
+    "study_days": 35,
+    "exam_days": 5
+   },
+   "start": "2027-07-20",
+   "end": "2027-10-17"
+  }
+ ],
+ "warnings": [],
+ "source": "https://www.uop.edu.jo/Ar/AdmissionsAndRegistration/Documents/AcademicCalendar.pdf",
+ "sha256": "a17f18fde247d8edc5721916c6a577b45623a3e42a08d0d0c005201f4d5db2c0",
+ "source_modified": "Mon, 12 Oct 2026 10:22:17 GMT",
+ "updated": "2026-10-26T05:08:37Z"
+}

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>التقويم الجامعي – جامعة البترا</title>
+  <meta name="description" content="التقويم الجامعي لجامعة البترا: بداية الفصول والتدريس، الامتحانات، العطل الرسمية، التسجيل والانسحاب، ومواعيد الدراسات العليا — يُحدَّث من الملف الرسمي كل ساعة.">
+  <meta name="author" content="د. محمد عرفة">
+  <meta property="og:title" content="التقويم الجامعي – جامعة البترا">
+  <meta property="og:description" content="كل مواعيد العام الجامعي في مكان واحد: الامتحانات، العطل، التسجيل والانسحاب، مع عدّاد للمواعيد القادمة.">
+  <meta property="og:url" content="https://marafah.github.io/uopstaff/calendar.html">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="assets/app.css?v=202610260812">
+</head>
+<body data-share-title="التقويم الجامعي – جامعة البترا" data-share-what="التقويم الجامعي">
+<nav class="navbar uop-topbar py-0 sticky-top no-print">
+  <div class="container-fluid gap-2">
+    <a class="brand py-2" href="./">
+      <img src="assets/logo.png" alt="جامعة البترا" onerror="this.remove()">
+      <span class="sys"><b>التقويم الجامعي</b><small>جامعة البترا</small></span>
+    </a>
+    <nav class="site-nav" aria-label="أقسام الموقع">
+      <a href="./"><i class="bi bi-person-lines-fill"></i> دليل الموظفين</a>
+      <a class="active" href="calendar.html" aria-current="page"><i class="bi bi-calendar3"></i> التقويم الجامعي</a>
+    </nav>
+    <div class="d-flex align-items-center gap-2 my-2 ms-auto">
+      <input class="uop-search" id="cal-q" type="search" placeholder="ابحث في المواعيد: امتحان، عطلة، انسحاب…" aria-label="بحث في التقويم">
+      <button type="button" class="btn btn-share" data-bs-toggle="modal" data-bs-target="#shareModal" title="مشاركة الدليل ورمز QR"><i class="bi bi-qr-code"></i><span class="d-none d-sm-inline"> مشاركة</span></button>
+    </div>
+  </div>
+</nav>
+
+<header class="uop-hero">
+  <div class="container-fluid px-4 hero-row">
+    <div class="hero-text">
+      <h1>التقويم الجامعي <span id="cal-year"></span></h1>
+      <p>بداية الفصول والتدريس، الامتحانات، العطل، التسجيل والانسحاب — من الملف الرسمي للجامعة</p>
+    </div>
+    <aside class="update-box no-print" aria-label="إضافة التقويم">
+      <button type="button" class="btn btn-update" data-bs-toggle="modal" data-bs-target="#subModal" title="أضف كل المواعيد إلى تقويم هاتفك أو Google أو Outlook؛ تُحدَّث تلقائياً">
+        <i class="bi bi-calendar-plus"></i> أضِفه إلى تقويمك</button>
+      <small class="update-when" id="cal-updated">—</small>
+    </aside>
+  </div>
+</header>
+
+<main class="container-fluid px-4" id="cal-app">
+  <div class="loading"><div><div class="spinner-border text-secondary"></div><div class="mt-2">جارٍ تحميل التقويم…</div></div></div>
+</main>
+
+<footer class="site-footer no-print">
+  <div class="container-fluid px-4">
+    <div class="foot-grid">
+      <section class="foot-col">
+        <h6 class="foot-h">عن الدليل</h6>
+        <div class="foot-brand"><span class="foot-logo"><i class="bi bi-person-lines-fill"></i></span>
+          <div><b>التقويم الجامعي</b><small>جامعة البترا</small></div></div>
+        <p class="foot-text">مواعيد العام الجامعي كما في الملف الرسمي للجامعة، تُراجَع تلقائياً كل ساعة.</p>
+        <div class="foot-tags">
+          <span class="foot-tag"><i class="bi bi-calendar-event"></i> <span id="foot-count">—</span></span>
+          <span class="foot-tag"><i class="bi bi-arrow-repeat"></i> <span id="foot-updated">—</span></span>
+        </div>
+        <a class="foot-link" id="foot-pdf" href="https://www.uop.edu.jo/Ar/AdmissionsAndRegistration/Documents/AcademicCalendar.pdf" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> الملف الرسمي للتقويم (PDF)</a>
+      </section>
+
+      <section class="foot-col">
+        <h6 class="foot-h">فريق العمل</h6>
+        <div class="credit">
+          <span class="credit-role"><i class="bi bi-code-slash"></i> تصميم وتطوير</span>
+          <a class="credit-person lead" href="?q=%D8%B9%D8%B1%D9%81%D8%A9">د. محمد عرفة</a>
+        </div>
+        <div class="credit">
+          <span class="credit-role"><i class="bi bi-compass"></i> بتوجيه ودعم من</span>
+          <a class="credit-person" href="?q=%D8%A7%D9%84%D9%85%D9%82%D9%88%D8%B3%D9%8A">د. علي المقوسي</a>
+          <a class="credit-person" href="?q=%D8%A7%D9%84%D8%B9%D8%AB%D9%85%D8%A7%D9%86">د. محمد العثمان</a>
+        </div>
+      </section>
+
+      <section class="foot-col foot-share">
+        <h6 class="foot-h">شارك الدليل</h6>
+        <div class="foot-share-row">
+          <button type="button" class="foot-qr" id="foot-qr" data-bs-toggle="modal" data-bs-target="#shareModal" title="مشاركة الدليل ورمز QR" aria-label="مشاركة الدليل ورمز QR"></button>
+          <div>
+            <p class="foot-text mb-2">امسح الرمز بكاميرا الهاتف لفتح التقويم، أو شارك الرابط.</p>
+            <div class="foot-url" dir="ltr">marafah.github.io/uopstaff/calendar.html</div>
+            <button type="button" class="btn btn-sm btn-light mt-2" data-bs-toggle="modal" data-bs-target="#shareModal"><i class="bi bi-share-fill"></i> مشاركة</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <div class="container-fluid px-4">
+      <span><i class="bi bi-info-circle"></i> صفحة غير رسمية تعرض البيانات المنشورة على الموقع الرسمي للجامعة؛ المرجع المعتمد هو الموقع الرسمي.</span>
+      <span class="foot-copy">© <span id="year"></span></span>
+    </div>
+  </div>
+</footer>
+
+<!-- Share: link, QR code, messaging -->
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content share-modal">
+      <div class="modal-header"><h5 class="modal-title fw-bold" id="shareTitle"><i class="bi bi-share-fill"></i> مشاركة التقويم الجامعي</h5>
+        <button type="button" class="btn-close ms-0" data-bs-dismiss="modal" aria-label="إغلاق"></button></div>
+      <div class="modal-body">
+        <div class="btn-group w-100 mb-3" role="group" aria-label="ما الذي تشاركه">
+          <input type="radio" class="btn-check" name="shareWhat" id="sw-all" value="all" checked><label class="btn btn-outline-primary btn-sm" for="sw-all"><i class="bi bi-house"></i> التقويم كاملاً</label>
+          <input type="radio" class="btn-check" name="shareWhat" id="sw-view" value="view"><label class="btn btn-outline-primary btn-sm" for="sw-view"><i class="bi bi-funnel"></i> النتيجة الحالية</label>
+        </div>
+        <div class="qr-card" id="qr-card">
+          <div class="qr-head"><b>التقويم الجامعي – جامعة البترا</b><small id="qr-sub">امسح الرمز لفتح الدليل</small></div>
+          <div class="qr-box" id="qr"></div>
+          <div class="qr-url" id="share-url-text" dir="ltr"></div>
+        </div>
+        <div class="input-group input-group-sm mt-3">
+          <input class="form-control" id="share-url" readonly dir="ltr" aria-label="الرابط">
+          <button class="btn btn-primary" type="button" id="copy-link"><i class="bi bi-clipboard"></i> نسخ الرابط</button>
+        </div>
+        <div class="share-actions mt-3">
+          <a class="btn btn-sm btn-whatsapp" id="share-wa" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> واتساب</a>
+          <a class="btn btn-sm btn-outline-secondary" id="share-mail"><i class="bi bi-envelope"></i> بريد</a>
+          <button class="btn btn-sm btn-outline-secondary" type="button" id="share-native" hidden><i class="bi bi-box-arrow-up"></i> مشاركة…</button>
+          <button class="btn btn-sm btn-outline-success" type="button" id="qr-download"><i class="bi bi-download"></i> تنزيل رمز QR</button>
+          <button class="btn btn-sm btn-outline-dark" type="button" id="qr-print"><i class="bi bi-printer"></i> طباعة بطاقة</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="subModal" tabindex="-1" aria-labelledby="subTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content share-modal">
+      <div class="modal-header"><h5 class="modal-title fw-bold" id="subTitle"><i class="bi bi-calendar-plus"></i> أضف التقويم الجامعي إلى تقويمك</h5>
+        <button type="button" class="btn-close ms-0" data-bs-dismiss="modal" aria-label="إغلاق"></button></div>
+      <div class="modal-body">
+        <p class="small text-muted">اشتراك لمرة واحدة: تظهر كل المواعيد في تقويمك، وتُحدَّث تلقائياً عند تغيّر التقويم الرسمي.</p>
+        <div class="sub-grid">
+          <a class="sub-opt" id="sub-google" target="_blank" rel="noopener"><i class="bi bi-google"></i><b>Google Calendar</b><small>هاتف Android والويب</small></a>
+          <a class="sub-opt" id="sub-apple"><i class="bi bi-apple"></i><b>iPhone / Mac</b><small>تقويم Apple</small></a>
+          <a class="sub-opt" id="sub-outlook" target="_blank" rel="noopener"><i class="bi bi-microsoft"></i><b>Outlook</b><small>بريد الجامعة / Office 365</small></a>
+          <a class="sub-opt" id="sub-file" download="التقويم_الجامعي_جامعة_البترا.ics"><i class="bi bi-download"></i><b>تنزيل الملف</b><small>‎.ics لأي تطبيق تقويم</small></a>
+        </div>
+        <div class="input-group input-group-sm mt-3">
+          <input class="form-control" id="sub-url" readonly dir="ltr" aria-label="رابط الاشتراك">
+          <button class="btn btn-primary" type="button" id="sub-copy"><i class="bi bi-clipboard"></i> نسخ رابط الاشتراك</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="copy-toast" id="copy-toast" role="status" aria-live="polite"><i class="bi bi-clipboard-check-fill"></i> <span></span></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="assets/calendar.js?v=202610260812"></script>
+<script src="assets/share.js?v=202610260812"></script>
+</body>
+</html>
