@@ -131,7 +131,8 @@
     const st = readState();
     const list = DATA.members.filter(m => matches(m, st)).sort(SORTS[st.sort] || SORTS.default);
     const all = DATA.members;
-    const typeC = count(st, 'type', 'type'), facC = count(st, 'faculty', 'faculty'), deptC = count(st, 'dept', 'department');
+    // picking a faculty clears the department, so the faculty counts ignore the department filter
+    const typeC = count(st, 'type', 'type'), facC = count({ ...st, dept: '' }, 'faculty', 'faculty'), deptC = count(st, 'dept', 'department');
     const rankC = count(st, 'rank', 'rank'), roleC = count(st, 'role', 'role'), srcC = count(st, 'source', 'source');
     // a department belongs to the faculty most of its members are in (some staff also list a department of another faculty)
     const home = deptHome();
@@ -143,7 +144,7 @@
     };
     // per-faculty summary (other filters applied, faculty filter ignored)
     const sum = {};
-    all.filter(m => matches(m, st, 'faculty')).forEach(m => { const s = sum[m.faculty] || (sum[m.faculty] = { a: 0, d: 0 }); m.type === 'academic' ? s.a++ : s.d++; });
+    all.filter(m => matches(m, { ...st, dept: '' }, 'faculty')).forEach(m => { const s = sum[m.faculty] || (sum[m.faculty] = { a: 0, d: 0 }); m.type === 'academic' ? s.a++ : s.d++; });
     const top = Math.max(1, ...Object.values(sum).map(s => s.a + s.d));
     const active = FILTERS.filter(k => st[k]).map(k => {
       const value = k === 'type' ? TYPE_LABEL[st[k]] : k === 'faculty' ? (FAC[st[k]] || {}).name : k === 'source' ? (SRC[st[k]] || {}).name
