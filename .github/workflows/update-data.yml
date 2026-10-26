@@ -1,4 +1,4 @@
-name: Update staff data and calendar
+name: Update staff data, calendar and timetable
 
 on:
   schedule:
@@ -21,6 +21,10 @@ jobs:
         run: python scripts/update_data.py
       - name: Academic calendar from uop.edu.jo
         run: python scripts/update_calendar.py
+      - name: Study timetable from edugate.uop.edu.jo
+        # any mismatch fails this step only: the previous timetable stays, the other updates are still saved
+        continue-on-error: true
+        run: python scripts/update_timetable.py
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"
