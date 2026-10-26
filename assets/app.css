@@ -339,3 +339,11 @@ a { color: var(--uop-maroon); }
 .mc-top { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
 .mc-strips { display: flex; gap: 2px; }
 .mc-strips b { width: 10px; height: 4px; border-radius: 2px; background: var(--c); opacity: .75; }
+
+/* one credits card: role on the right, name on the left, a divider between the two lines */
+.credit-card { border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); overflow: hidden; }
+.credit-line { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .8rem 1rem; }
+.credit-line + .credit-line { border-top: 1px solid rgba(255,255,255,.1); }
+.credit-card .credit-role { font-size: .8rem; }
+.credit-card .credit-person { font-size: 1rem; }
+.credit-card .credit-person.lead { font-size: 1.08rem; }
