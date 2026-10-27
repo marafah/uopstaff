@@ -44,6 +44,22 @@ window.printReport = (function () {
   @media screen { footer.rf { position: static; margin-top: 14px; } }
   `;
 
+  // a table copied from the screen (with the site's styles): printed as displayed, without scroll boxes or links
+  const RAW_CSS = `
+  body { background: #fff !important; }
+  .raw { margin-top: 10px; }
+  .raw .table-responsive, .raw .mx-wrap, .raw .tt-grid-wrap { overflow: visible !important; max-height: none !important; }
+  .raw table { width: 100% !important; margin: 0; }
+  .raw thead th { position: static !important; }
+  .raw tbody th { position: static !important; }
+  .raw a { text-decoration: none !important; pointer-events: none; }
+  .raw .tt-more { display: none; }
+  .raw tr { break-inside: avoid; }
+  .raw table thead { display: table-header-group; }
+  .raw .tt-grid thead th, .raw .mx-table thead th, .raw .fr-heat thead th, .raw .fr-strips thead th { background: #091b22 !important; color: #fff !important; }
+  .raw th, .raw td { min-width: 0 !important; }
+  .raw .tt-grid { table-layout: fixed; }
+  .raw .tt-chip { max-width: 100%; }`;
   function cell(c) {
     if (c && typeof c === 'object' && !Array.isArray(c)) return `<td class="${c.cls || ''}">${c.html != null ? c.html : esc(c.text)}${c.sub ? `<small>${esc(c.sub)}</small>` : ''}</td>`;
     return `<td>${esc(c)}</td>`;
@@ -61,14 +77,16 @@ window.printReport = (function () {
     frame = document.createElement('iframe');
     frame.id = 'report-frame';
     frame.setAttribute('aria-hidden', 'true');
-    frame.style.cssText = 'position:fixed;left:-10000px;top:0;width:1200px;height:900px;border:0;visibility:hidden';
+    const printable = (o.orientation || 'landscape') === 'landscape' ? 1032 : 703;  // A4 minus the page margins, in CSS px
+    frame.style.cssText = `position:fixed;left:-10000px;top:0;width:${printable}px;height:900px;border:0;visibility:hidden`;
     document.body.appendChild(frame);
     const w = frame.contentWindow;
     const orient = o.orientation || 'landscape';
     const logo = new URL('assets/logo.png', location.href).href;
     const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${esc(o.title)}</title>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap">
-      <style>:root{--orient:${orient};--screenw:${orient === 'landscape' ? '297mm' : '210mm'}}${CSS}</style></head><body>
+      ${(o.css || []).map(h => `<link rel="stylesheet" href="${new URL(h, location.href).href}">`).join('')}
+      <style>:root{--orient:${orient};--screenw:${orient === 'landscape' ? '297mm' : '210mm'}}${CSS}${o.raw ? RAW_CSS : ''}</style></head><body>
       <div class="page">
         <header class="rh"><img src="${logo}" alt="">
           <div class="t"><small>جامعة البترا</small><h1>${esc(o.title)}</h1>${o.subtitle ? `<h2>${esc(o.subtitle)}</h2>` : ''}</div>
@@ -76,6 +94,7 @@ window.printReport = (function () {
         ${o.filters && o.filters.length ? `<div class="filters">${o.filters.map(([k, v]) => `<span>${esc(k)}: <b>${esc(v)}</b></span>`).join('')}</div>` : ''}
         ${o.stats && o.stats.length ? `<div class="stats">${o.stats.map(([k, v]) => `<div><b>${esc(v)}</b><span>${esc(k)}</span></div>`).join('')}</div>` : ''}
         ${(o.sections || []).map(table).join('')}
+        ${o.raw ? `<div class="raw">${o.raw}</div>` : ''}
         ${o.note ? `<p class="note">${esc(o.note)}</p>` : ''}
         <footer class="rf"><span>صفحة غير رسمية تعرض البيانات المنشورة على الموقع الرسمي للجامعة؛ المرجع المعتمد هو الموقع الرسمي.</span><span>marafah.github.io/uopstaff</span></footer>
       </div></body></html>`;
@@ -83,7 +102,12 @@ window.printReport = (function () {
     w.document.write(html);
     w.document.close();
     // print once the font and logo are in, so the first page is laid out with them
-    const go = () => { try { w.focus(); w.print(); } catch (e) { /* printing not available */ } };
+    const go = () => {
+      // a wide matrix is scaled down to the page width instead of being cut at the edge
+      const raw = w.document.querySelector('.raw');
+      if (raw && raw.scrollWidth > printable) raw.style.zoom = (printable / raw.scrollWidth).toFixed(3);
+      try { w.focus(); w.print(); } catch (e) { /* printing not available */ }
+    };
     if (w.document.fonts && w.document.fonts.ready) w.document.fonts.ready.then(() => setTimeout(go, 300)); else setTimeout(go, 800);
   };
 })();

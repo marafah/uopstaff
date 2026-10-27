@@ -731,3 +731,5 @@ button.fr-person.g-unknown { border-style: dashed; }
 .fr-heat col.fr-tcol { width: 64px; }
 .fr-heat thead th:first-child, .fr-heat tbody th { text-align: center; color: #091b22; font-weight: 800; padding: 0 4px; }
 .fr-heat td a { min-width: 0; }
+.badge-fix { background: #e8f1fd; color: #174a8c; border: 1px solid #8fb6ea; cursor: help; font-weight: 700; }
+.tt-none { color: #174a8c; background: #eef4fd; border: 1px solid #a9c6ee; }

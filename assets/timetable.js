@@ -163,7 +163,7 @@
     ['fill', 'الحالة / المقاعد'], ['inst', 'اسم المدرس'], ['', 'القسم / الكلية']];
   // empty values in the source ("0" room, "-" building) shown as a clear label; the source value stays in the tooltip
   const roomCell = s => s.room === '0' || !s.room
-    ? `<span class="tt-none" title="القاعة في المصدر: ${esc(s.room)}">بلا قاعة</span>`
+    ? `<span class="tt-none" title="القاعة 0 في نظام الجامعة: قاعة افتراضية (تعليم إلكتروني أو قاعة لم تُحدَّد بعد)">قاعة افتراضية (0)</span>`
     : `<a href="#" data-pick="room" data-v="${esc(s.room)}" class="tt-room">${esc(s.room)}</a>`;
   const bldCell = s => /^-+$/.test(s.building) || !s.building ? `<span class="tt-none" title="المبنى في المصدر: ${esc(s.building)}">—</span>` : esc(s.building);
   function tableView(list, st) {
@@ -260,7 +260,7 @@
       ${many ? `<div class="alert alert-info small m-2 mb-0">${rowsAll.length} صفاً؛ يُعرض أول 120. اختر كلية أو قسماً أو مبنى لعرض الكل.</div>` : ''}
       <div class="table-responsive tt-grid-wrap"><table class="table table-bordered mb-0 tt-grid ${names ? 'named' : ''}">
         <thead><tr><th class="tt-gh">${{ time: 'الوقت', room: 'القاعة', inst: 'المدرس' }[rowsBy]}</th>${days.map(d => `<th>${esc(DAYS[d])}</th>`).join('')}</tr></thead>
-        <tbody>${rowsShown.map(r => `<tr><th class="tt-gh">${rowsBy === 'time' ? `<bdi dir="ltr">${esc(r)}</bdi>` : esc(r)}${rowsBy === 'room' && r === '0' ? '<small class="d-block fw-normal text-muted">بدون قاعة محددة</small>' : ''}</th>${days.map(d => {
+        <tbody>${rowsShown.map(r => `<tr><th class="tt-gh">${rowsBy === 'time' ? `<bdi dir="ltr">${esc(r)}</bdi>` : esc(r)}${rowsBy === 'room' && r === '0' ? '<small class="d-block fw-normal">قاعة افتراضية</small>' : ''}</th>${days.map(d => {
           const items = (cells.get(r + '\u0000' + d) || []).sort((a, b) => a.m.start.localeCompare(b.m.start) || a.s.code.localeCompare(b.s.code));
           if (!items.length) return '<td></td>';
           const clash = rowsBy !== 'time' && !(rowsBy === 'room' && r === '0') && hasOverlap(items);
@@ -678,7 +678,7 @@
     const near = list.filter(s => s.capacity && s.registered < s.capacity && s.registered / s.capacity >= 0.9);
     const allM = list.flatMap(s => s.meetings);
     const onlineShare = pct(allM.filter(m => m.mode !== 'وجاهي').length, allM.length);
-    const noRoom = list.filter(s => s.room === '0').length;
+    const fullyOnline = list.filter(s => s.meetings.length && s.meetings.every(m => m.mode !== 'وجاهي' && m.mode !== 'مدمج')).length;
     const avgClass = list.length ? Math.round(reg / list.length) : 0;
     const count = (arr, f) => arr.reduce((m, x) => { const k = f(x); m[k] = (m[k] || 0) + 1; return m; }, {});
 
@@ -688,7 +688,7 @@
       ${kpi(pct(reg, cap) + '%', 'نسبة الامتلاء', `متوسط الشعبة ${avgClass} طالباً`, 'bi-speedometer2')}
       ${kpi(fmtN(over.length), 'تجاوزت السعة', `${fmtN(near.length)} قاربت الامتلاء (≥90%)`, 'bi-exclamation-triangle-fill', over.length ? 'bad' : '')}
       ${kpi(onlineShare + '%', 'لقاءات غير وجاهية', 'إلكتروني كامل وغير متزامن ومدمج', 'bi-camera-video-fill')}
-      ${kpi(fmtN(noRoom), 'شعبة بدون قاعة', 'القاعة في المصدر: 0', 'bi-door-closed', noRoom ? 'warn' : '')}
+      ${kpi(fmtN(fullyOnline), 'تعليم إلكتروني بالكامل', 'شعب ليس لها أي لقاء وجاهي', 'bi-laptop')}
     </div>`;
 
     // faculties (or departments when one faculty is chosen)
@@ -950,15 +950,27 @@
   }
 
   // ------------------------------------------------------------------ export
+  // the table on screen in the matrix views (weekly matrix, ready-made matrices, free-time map / busy strips)
+  function shownMatrix(st) {
+    if (!['grid', 'mx', 'free'].includes(st.view)) return null;
+    const t = document.querySelector('#tt-results .tt-grid, #tt-results .mx-table, #tt-results .fr-heat, #tt-results .fr-strips');
+    if (!t) return null;
+    const title = st.view === 'grid' ? `المصفوفة الأسبوعية – الصفوف: ${{ time: 'الوقت', room: 'القاعة', inst: 'المدرس' }[st.rows] || 'الوقت'}`
+      : st.view === 'mx' ? MX[st.mx in MX ? st.mx : 'load'].t
+      : st.ftab === 'busy' ? 'أوقات الفراغ – انشغال المدرسين' : 'أوقات الفراغ – خريطة التفرغ';
+    return { table: t, title };
+  }
   function printTimetable(list) {
     const st = readState();
+    const shown = shownMatrix(st);
     const filters = [...FK, 'seats'].filter(k => st[k]).map(k => [k === 'seats' ? 'المقاعد' : F.find(f => f[0] === k)[1], k === 'seats' ? 'متاحة فقط' : label(k, st[k])]);
     if (st.q) filters.unshift(['بحث', st.q]);
     const base = { title: 'الجدول الدراسي', source: 'المصدر: بوابة الجامعة (edugate)', filters, orientation: 'landscape' };
-    if (st.view === 'mx' && window.__mxcsv && window.__mxcsv.length) {  // the ready-made matrix on screen
-      const [head, ...rows] = window.__mxcsv;
-      return printReport(Object.assign(base, { subtitle: `${DATA.term} – ${MX[st.mx in MX ? st.mx : 'load'].t}`,
-        sections: [{ columns: head, numCols: head.map((h, i) => i).filter(i => i > 0), rows: rows.map(r => r.map((v, i) => i ? { text: v, cls: 'num' } : { html: `<b>${esc(v)}</b>` })) }] }));
+    if (shown) {  // a matrix: printed exactly as displayed (same colours, chips and layout)
+      const legend = document.querySelector('#tt-results .fr-legend, #tt-results .mx-days + div .ms-auto');
+      return printReport(Object.assign(base, { subtitle: `${DATA.term} – ${shown.title}`,
+        css: ['https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css', 'assets/app.css'],
+        raw: (legend ? `<div class="small mb-2">${legend.outerHTML}</div>` : '') + shown.table.outerHTML }));
     }
     const reg = list.reduce((a, s) => a + s.registered, 0), cap = list.reduce((a, s) => a + s.capacity, 0);
     const timeHtml = s => {
@@ -978,7 +990,7 @@
           { html: `<b>${esc(s.name)}</b>`, sub: [s.activity, s.degree !== 'البكالوريوس' ? s.degree : ''].filter(Boolean).join(' · ') },
           { text: s.section, cls: 'num' },
           { html: timeHtml(s) },
-          { text: s.room === '0' ? 'بلا قاعة' : s.room, sub: /^-+$/.test(s.building) ? '' : s.building },
+          { text: s.room === '0' ? 'قاعة افتراضية (0)' : s.room, sub: /^-+$/.test(s.building) ? '' : s.building },
           s.instructor,
           { html: `<span class="pill ${s.status === 'مفتوحة' ? 'ok' : 'no'}">${esc(s.status)}</span> <span dir="ltr">${s.registered}/${s.capacity}</span>` },
           { text: s.department, sub: s.faculty },
@@ -988,6 +1000,8 @@
   }
   function exportAs(kind, list) {
     if (kind === 'print') return printTimetable(list);
+    const shown = shownMatrix(readState());
+    if (shown && (kind === 'xlsx' || kind === 'csv')) return exportMatrix(kind, shown);
     const head = ['رمز المقرر', 'اسم المقرر', 'النشاط', 'الوقت', 'القاعة', 'الشعبة', 'الحالة', 'المسجلون', 'السعة', 'اسم المدرس', 'المبنى', 'الكلية', 'القسم', 'الدرجة العلمية', 'نوع الدراسة'];
     const rows = list.map(s => [s.code, s.name, s.activity, s.time, s.room, s.section, s.status, s.registered, s.capacity, s.instructor, s.building, s.faculty, s.department, s.degree, s.study_type]);
     const base = 'الجدول_الدراسي_' + DATA.term.replace(/[^\d/]+/g, ' ').trim().replace(/\D+/g, '-');
@@ -1005,6 +1019,33 @@
       XLSX.utils.book_append_sheet(wb, ws, 'الجدول الدراسي');
       return XLSX.writeFile(wb, base + '.xlsx');
     }
+  }
+  // the displayed matrix as a sheet: one cell per cell on screen (chips become lines), merged cells kept
+  function exportMatrix(kind, shown) {
+    const t = shown.table.cloneNode(true);
+    t.querySelectorAll('.tt-more, .tt-clash-tag').forEach(x => x.remove());
+    t.querySelectorAll('.tt-chip').forEach(c => { c.textContent = c.innerText.replace(/\s*\n\s*/g, ' · ').trim() + '\n'; });
+    t.querySelectorAll('td, th').forEach(c => {
+      const sub = c.querySelector('.fr-bar');
+      if (sub) c.textContent = [...sub.querySelectorAll('i')].map(i => i.title.split('\n')[1] || '').filter(Boolean).join('\n');
+      if (c.classList.contains('mx-busy') || c.classList.contains('mx-part')) c.textContent = (c.title || '').replace(/\n/g, ' | ') || 'مشغولة';
+      else if (c.classList.contains('mx-free')) c.textContent = 'شاغرة';
+    });
+    const base = ('مصفوفة_' + shown.title).replace(/[\s–:]+/g, '_');
+    if (kind === 'csv') {
+      const rows = [...t.rows].map(r => [...r.cells].map(c => `"${c.innerText.trim().replace(/"/g, '""')}"`).join(','));
+      return download(new Blob(['\ufeff' + rows.join('\r\n')], { type: 'text/csv;charset=utf-8' }), base + '.csv');
+    }
+    if (!window.XLSX) return alert('مكتبة Excel لم تُحمَّل بعد؛ أعد المحاولة بعد لحظات.');
+    document.body.appendChild(t);
+    t.style.cssText = 'position:fixed;left:-10000px;top:0';
+    const ws = XLSX.utils.table_to_sheet(t, { raw: true });
+    t.remove();
+    ws['!cols'] = [{ wch: 18 }].concat(Array(60).fill({ wch: 26 }));
+    const wb = XLSX.utils.book_new();
+    wb.Workbook = { Views: [{ RTL: true }] };
+    XLSX.utils.book_append_sheet(wb, ws, 'المصفوفة');
+    XLSX.writeFile(wb, base + '.xlsx');
   }
   function download(blob, name) {
     const a = document.createElement('a');

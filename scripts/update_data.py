@@ -216,6 +216,34 @@ def fetch_admin(s, fid, key, name, page, api, log):
     return out
 
 
+CORRECTIONS = os.path.join(os.path.dirname(__file__), "..", "data", "corrections.json")
+CORRECTABLE = ("department", "job", "rank", "ext", "office")
+
+
+def apply_corrections(members, log):
+    """Known corrections to the official data (data/corrections.json), matched by e-mail. The official values are
+    kept in "corrected" so the page can say what the official site shows."""
+    if not os.path.exists(CORRECTIONS):
+        return []
+    with open(CORRECTIONS, encoding="utf-8") as f:
+        fixes = json.load(f)
+    by_mail = {m["email"]: m for m in members if m["email"]}
+    for fx in fixes:
+        m = by_mail.get(fx["email"].lower())
+        if not m:
+            log(f"correction for {fx['email']}: no such person in the official data")
+            continue
+        official = {k: m[k] for k in CORRECTABLE if k in fx and fx[k] != m[k]}
+        if not official:
+            continue  # the official site now says the same: nothing to correct
+        m.update({k: fx[k] for k in official})
+        m["role"], order = role_of(m["job"])
+        m["sort"] = order + (20 if m["type"] == "admin" else 0)
+        m["corrected"] = {"official": official, "note": fx.get("note", "")}
+    log(f"corrections applied: {sum(1 for m in members if m.get('corrected'))}")
+    return fixes
+
+
 def cache_photos(s, members, log):
     """Store each photo once as a small JPEG named after its source URL; drop files nobody uses any more."""
     from PIL import Image
@@ -311,6 +339,7 @@ def main():
             if fid:
                 m["faculty"] = fid
 
+    corrections = apply_corrections(members, log)
     cache_photos(s, members, log)
     order = {fid: i for i, fid in enumerate([u[0] for u in units] + [f[0] for f in FACULTIES])}
     members.sort(key=lambda m: (order.get(m["faculty"], 99), m["sort"], m["rank_order"], m["name"]))
@@ -322,6 +351,8 @@ def main():
                      + [{"id": fid, "name": ar, "name_en": en, "site": site_url(site)} for fid, ar, en, site in FACULTIES],
         "ranks": [r[0] for r in RANKS], "roles": [r[1] for r in ROLES],
         "sources": sources, "failed": failed, "members": members,
+        # kept with the data so the page's live update applies them too
+        "corrections": corrections,
     }
     # "updated" = when the data last changed; keep it (and the file) as is when nothing changed
     if os.path.exists(OUT):

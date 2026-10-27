@@ -1,5 +1,5 @@
 {
-"updated": "2026-10-26T10:40:41Z",
+"updated": "2026-10-27T04:37:33Z",
 "main_line": "+96265799555",
 "main_line_display": "06 5799555",
 "faculties": [
@@ -2798,6 +2798,35 @@
 "photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/03142022112137415.JPG"
 },
 {
+"id": "A:6D006F00680061006D006D00610064002E0061006C006F007500640061007400400075006F0070002E006500640075002E006A006F00",
+"type": "academic",
+"faculty": 1,
+"name": "د. محمد عطاالله محمد العودات",
+"name_en": "Mohammad Attahhah Mo'd Al Awdat",
+"job": "رئيس قسم علم الحاسوب",
+"rank": "أستاذ مساعد",
+"rank_order": 3,
+"role": "رئيس قسم",
+"sort": 5,
+"department": "علم الحاسوب",
+"specialization": "هندسة وعلوم الحاسوب – الذكاء الاصطناعي",
+"qualification": "",
+"ext": "7301",
+"office": "7301",
+"email": "mohammad.aloudat@uop.edu.jo",
+"photo": "assets/photos/69c414221fa04d9d.jpg",
+"profile": "https://fit.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6D006F00680061006D006D00610064002E0061006C006F007500640061007400400075006F0070002E006500640075002E006A006F00",
+"source": "academic_api",
+"corrected": {
+"official": {
+"department": "علم البيانات والذكاء الاصطناعي",
+"job": "استاذ مساعد"
+},
+"note": "تصحيح من الكلية بتاريخ 2026/10/27: الموقع الرسمي لم يُحدَّث بعد"
+},
+"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20243009.jpg"
+},
+{
 "id": "A:6D006F00680061006D006D00610064002E00610072006100660061006800400075006F0070002E006500640075002E006A006F000D00",
 "type": "academic",
 "faculty": 1,
@@ -3302,28 +3331,6 @@
 "profile": "https://fit.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6D002E0061006C0061006400610069006C0065006800400075006F0070002E006500640075002E006A006F00",
 "source": "academic_api",
 "photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20242022.jpg"
-},
-{
-"id": "A:6D006F00680061006D006D00610064002E0061006C006F007500640061007400400075006F0070002E006500640075002E006A006F00",
-"type": "academic",
-"faculty": 1,
-"name": "د. محمد عطاالله محمد العودات",
-"name_en": "Mohammad Attahhah Mo'd Al Awdat",
-"job": "استاذ مساعد",
-"rank": "أستاذ مساعد",
-"rank_order": 3,
-"role": "",
-"sort": 10,
-"department": "علم البيانات والذكاء الاصطناعي",
-"specialization": "هندسة وعلوم الحاسوب – الذكاء الاصطناعي",
-"qualification": "",
-"ext": "7301",
-"office": "7301",
-"email": "mohammad.aloudat@uop.edu.jo",
-"photo": "assets/photos/69c414221fa04d9d.jpg",
-"profile": "https://fit.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6D006F00680061006D006D00610064002E0061006C006F007500640061007400400075006F0070002E006500640075002E006A006F00",
-"source": "academic_api",
-"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20243009.jpg"
 },
 {
 "id": "A:6E006A0061006D0061006C00400075006F0070002E006500640075002E006A006F00",
@@ -11596,6 +11603,15 @@
 "profile": "https://dentist.uop.edu.jo/Ar/Pages/AllAdministrativeStaff.aspx",
 "source": "admin_dentist",
 "photo_src": ""
+}
+],
+"corrections": [
+{
+"email": "mohammad.aloudat@uop.edu.jo",
+"name": "د. محمد عطاالله محمد العودات",
+"department": "علم الحاسوب",
+"job": "رئيس قسم علم الحاسوب",
+"note": "تصحيح من الكلية بتاريخ 2026/10/27: الموقع الرسمي لم يُحدَّث بعد"
 }
 ]
 }

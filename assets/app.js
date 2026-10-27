@@ -66,6 +66,11 @@
       : '<span class="badge badge-admin"><i class="bi bi-briefcase-fill"></i> إداري</span> ';
     if (m.role) h += `<span class="badge badge-lead"><i class="bi bi-star-fill"></i> ${esc(m.role)}</span> `;
     if (m.rank) h += `<span class="badge rank-${m.rank_order}">${esc(m.rank)}</span>`;
+    if (m.corrected) {
+      const L = { department: 'القسم', job: 'الوظيفة', rank: 'الرتبة', ext: 'الفرعي', office: 'المكتب' };
+      const was = Object.entries(m.corrected.official).map(([k, v]) => `${L[k] || k}: ${v || '—'}`).join('\n');
+      h += ` <span class="badge badge-fix" title="${esc(`${m.corrected.note}\nفي الموقع الرسمي حالياً:\n${was}`)}"><i class="bi bi-pencil-square"></i> مصحَّح</span>`;
+    }
     return h;
   }
   function avatar(m, size) {
@@ -310,7 +315,24 @@
     for (const [re, label, order] of ROLE_RULES) if (re.test(text)) return [label, order];
     return ['', 10];
   }
-  const KEY_FIELDS = ['name', 'job', 'rank', 'role', 'department', 'ext', 'office', 'email', 'photo_src', 'faculty'];
+  // known corrections to the official data (data/corrections.json, shipped inside staff.json), same rules as
+  // scripts/update_data.py: matched by e-mail, the official values kept for the "corrected" note
+  function applyCorrections(list) {
+    const byMail = new Map(list.filter(m => m.email).map(m => [m.email, m]));
+    (DATA.corrections || []).forEach(fx => {
+      const m = byMail.get(String(fx.email).toLowerCase());
+      if (!m) return;
+      const official = {};
+      ['department', 'job', 'rank', 'ext', 'office'].forEach(k => { if (k in fx && fx[k] !== m[k]) official[k] = m[k]; });
+      if (!Object.keys(official).length) return;
+      Object.keys(official).forEach(k => { m[k] = fx[k]; });
+      const [role, order] = roleOf(m.job);
+      m.role = role;
+      m.sort = order + (m.type === 'admin' ? 20 : 0);
+      m.corrected = { official, note: fx.note || '' };
+    });
+  }
+  const KEY_FIELDS =['name', 'job', 'rank', 'role', 'department', 'ext', 'office', 'email', 'photo_src', 'faculty'];
   async function liveUpdate(btn) {
     const old = btn.innerHTML;
     btn.disabled = true;
@@ -349,6 +371,7 @@
         });
       });
       const fresh = [...people.values()];
+      applyCorrections(fresh);
       const stored = new Map(DATA.members.concat(snap ? snap.members : []).map(m => [m.id, m]));
       fresh.forEach(m => {  // reuse the site's copy of an unchanged photo; a new photo is shown from the source
         const o = stored.get(m.id);
