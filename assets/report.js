@@ -9,6 +9,10 @@ window.printReport = (function () {
 
   const CSS = `
   @page { size: A4 __ORIENT__; margin: __MARGIN__; }
+  /* multi-page reports: the footer and page numbers in the page margin of every page (a fixed footer would land on the
+     next page's title); one-page reports (no margin) keep the footer line below */
+  @page { @bottom-right { content: "صفحة غير رسمية تعرض البيانات المنشورة على الموقع الرسمي للجامعة؛ المرجع المعتمد هو الموقع الرسمي."; font: 7.5pt Tajawal, sans-serif; color: #777; }
+          @bottom-left { content: "marafah.github.io/uopstaff  ·  " counter(page) " / " counter(pages); font: 7.5pt Tajawal, sans-serif; color: #777; } }
   * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   html, body { margin: 0; background: #fff; color: #1f2d33; font-family: Tajawal, 'Segoe UI', Tahoma, sans-serif; font-size: 10.5pt; }
   .page { padding: 0; }
@@ -43,7 +47,7 @@ window.printReport = (function () {
   .note { margin-top: 10px; font-size: 8pt; color: #666; }
   /* one-page report: no page margin (so the browser prints no date/title/URL lines); margins inside the page instead,
      sized so the content keeps the measured width; the footer inside the page, never on a page of its own */
-  @media print { body.fit { padding: 10mm 12mm 0; } body.fit footer.rf { bottom: 6mm; left: 12mm; right: 12mm; } }
+  @media print { body:not(.fit) footer.rf { display: none; } body.fit { padding: 10mm 12mm 0; } body.fit footer.rf { bottom: 6mm; left: 12mm; right: 12mm; } }
   @media screen { footer.rf { position: static; margin-top: 14px; } }
   `;
 
