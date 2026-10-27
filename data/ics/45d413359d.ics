@@ -24,7 +24,7 @@ DTSTART;TZID=Asia/Amman:20261018T160000
 DTEND;TZID=Asia/Amman:20261018T190000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:701711 مناهج البحث القانوني – ش1
-LOCATION:2404 – مبنى كلية الهندسة
+LOCATION:3402 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · القانون الخاص – الح
  قوق
 END:VEVENT

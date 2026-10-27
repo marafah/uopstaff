@@ -82,7 +82,7 @@ DTSTART;TZID=Asia/Amman:20261018T160000
 DTEND;TZID=Asia/Amman:20261018T190000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:313101 مبادىء المحاسبة (1) - ُE - – ش18
-LOCATION:2203 – مبنى كلية الهندسة
+LOCATION:3211 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · المحاسبة – العلوم ا
  لادارية والمالية
 END:VEVENT
@@ -93,7 +93,7 @@ DTSTART;TZID=Asia/Amman:20261018T160000
 DTEND;TZID=Asia/Amman:20261018T190000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:313101 مبادىء المحاسبة (1) - ُE - – ش18
-LOCATION:2203 – مبنى كلية الهندسة
+LOCATION:3211 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · المحاسبة – العلوم ا
  لادارية والمالية
 END:VEVENT

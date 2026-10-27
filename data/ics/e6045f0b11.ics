@@ -59,7 +59,7 @@ DTSTART;TZID=Asia/Amman:20261019T160000
 DTEND;TZID=Asia/Amman:20261019T190000
 RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270119T205959Z
 SUMMARY:403707 طرق بحث في الترجمة – ش1
-LOCATION:2302 – مبنى كلية الهندسة
+LOCATION:3210 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · اللغة الانجليزية /ال
  ترجمه – الآداب والعلوم
 END:VEVENT

@@ -24,7 +24,7 @@ DTSTART;TZID=Asia/Amman:20261024T130000
 DTEND;TZID=Asia/Amman:20261024T160000
 RRULE:FREQ=WEEKLY;BYDAY=SA;UNTIL=20270119T205959Z
 SUMMARY:301711 إدارة الموارد البشرية – ش1
-LOCATION:2202 – مبنى كلية الهندسة
+LOCATION:3211 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · ادارة الأعمال – الع
  لوم الادارية والمالية
 END:VEVENT

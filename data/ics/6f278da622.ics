@@ -49,7 +49,7 @@ DTSTART;TZID=Asia/Amman:20261024T110000
 DTEND;TZID=Asia/Amman:20261024T140000
 RRULE:FREQ=WEEKLY;BYDAY=SA;UNTIL=20270119T205959Z
 SUMMARY:501727 صيدلة حيوية وحركية الدواء – ش1
-LOCATION:2304 – مبنى كلية الهندسة
+LOCATION:3202 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT

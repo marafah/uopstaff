@@ -46,7 +46,7 @@ DTSTART;TZID=Asia/Amman:20261018T153000
 DTEND;TZID=Asia/Amman:20261018T183000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:103712 تحليل دالي – ش1
-LOCATION:2209 – مبنى كلية الهندسة
+LOCATION:3401 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · الرياضيات – الآداب 
  والعلوم
 END:VEVENT
@@ -58,7 +58,7 @@ DTEND;TZID=Asia/Amman:20261020T183000
 RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T153000
 SUMMARY:103781 دراسات خاصة في الرياضيات – ش1
-LOCATION:2303 – مبنى كلية الهندسة
+LOCATION:3402 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · الرياضيات – الآداب 
  والعلوم
 END:VEVENT

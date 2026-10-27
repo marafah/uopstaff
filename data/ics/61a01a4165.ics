@@ -116,7 +116,7 @@ DTSTART;TZID=Asia/Amman:20261024T110000
 DTEND;TZID=Asia/Amman:20261024T140000
 RRULE:FREQ=WEEKLY;BYDAY=SA;UNTIL=20270119T205959Z
 SUMMARY:101752 موضوعات خاصة في الكيمياء – ش1
-LOCATION:2303 – مبنى كلية الهندسة
+LOCATION:3309 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · الكيمياء – الآداب و
  العلوم
 END:VEVENT

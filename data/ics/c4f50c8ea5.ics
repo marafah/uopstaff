@@ -58,7 +58,7 @@ DTSTART;TZID=Asia/Amman:20261019T140000
 DTEND;TZID=Asia/Amman:20261019T160000
 RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270119T205959Z
 SUMMARY:503781 التحليل الإحصائي الحيوي – ش1
-LOCATION:2301 – مبنى كلية الهندسة
+LOCATION:3210 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT

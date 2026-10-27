@@ -60,7 +60,7 @@ DTSTART;TZID=Asia/Amman:20261021T160000
 DTEND;TZID=Asia/Amman:20261021T190000
 RRULE:FREQ=WEEKLY;BYDAY=WE;UNTIL=20270119T205959Z
 SUMMARY:301712 الإدارة الاستراتيجية – ش1
-LOCATION:2202 – مبنى كلية الهندسة
+LOCATION:3211 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · ادارة الأعمال – الع
  لوم الادارية والمالية
 END:VEVENT

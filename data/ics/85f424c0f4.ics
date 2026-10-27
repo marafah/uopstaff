@@ -58,7 +58,7 @@ DTSTART;TZID=Asia/Amman:20261018T160000
 DTEND;TZID=Asia/Amman:20261018T190000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:406732 تصميم وتطوير التعليم الرقمي – ش1
-LOCATION:2303 – مبنى كلية الهندسة
+LOCATION:3310 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · العلوم التربويه / مع
  لم الصف – الآداب والعلوم
 END:VEVENT

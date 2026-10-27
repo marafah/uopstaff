@@ -36,7 +36,7 @@ DTSTART;TZID=Asia/Amman:20261024T130000
 DTEND;TZID=Asia/Amman:20261024T160000
 RRULE:FREQ=WEEKLY;BYDAY=SA;UNTIL=20270119T205959Z
 SUMMARY:406711 مناهج البحث في التربية – ش1
-LOCATION:2302 – مبنى كلية الهندسة
+LOCATION:3210 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · العلوم التربويه / مع
  لم الصف – الآداب والعلوم
 END:VEVENT
@@ -48,7 +48,7 @@ DTEND;TZID=Asia/Amman:20261020T190000
 RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T160000
 SUMMARY:406721 تخطيط المناهج وتطويرها – ش1
-LOCATION:2301 – مبنى كلية الهندسة
+LOCATION:3303 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · العلوم التربويه / مع
  لم الصف – الآداب والعلوم
 END:VEVENT
@@ -60,7 +60,7 @@ DTEND;TZID=Asia/Amman:20261019T190000
 RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270119T205959Z
 SUMMARY:406722 تحليل المناهج العامة وتقويمها – 
  ش1
-LOCATION:2303 – مبنى كلية الهندسة
+LOCATION:3310 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · العلوم التربويه / مع
  لم الصف – الآداب والعلوم
 END:VEVENT

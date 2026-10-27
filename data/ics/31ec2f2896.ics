@@ -46,7 +46,7 @@ DTSTART;TZID=Asia/Amman:20261024T090000
 DTEND;TZID=Asia/Amman:20261024T120000
 RRULE:FREQ=WEEKLY;BYDAY=SA;UNTIL=20270119T205959Z
 SUMMARY:803712 حلقة دراسية في بحوث الاعلام – ش1
-LOCATION:2404 – مبنى كلية الهندسة
+LOCATION:3302 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · الصحافة والإعلام ال
  رقمي – الإعلام
 END:VEVENT

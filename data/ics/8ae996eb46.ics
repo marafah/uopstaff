@@ -47,7 +47,7 @@ DTSTART;TZID=Asia/Amman:20261024T090000
 DTEND;TZID=Asia/Amman:20261024T120000
 RRULE:FREQ=WEEKLY;BYDAY=SA;UNTIL=20270119T205959Z
 SUMMARY:303724 المحاسبة والتمويل – ش1
-LOCATION:2301 – مبنى كلية الهندسة
+LOCATION:3301 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · المحاسبة – العلوم ا
  لادارية والمالية
 END:VEVENT

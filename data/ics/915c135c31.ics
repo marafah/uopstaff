@@ -23,7 +23,7 @@ DTSTART;TZID=Asia/Amman:20261024T140000
 DTEND;TZID=Asia/Amman:20261024T170000
 RRULE:FREQ=WEEKLY;BYDAY=SA;UNTIL=20270119T205959Z
 SUMMARY:101732 صناعات غير عضوية متقدمة – ش1
-LOCATION:2204 – مبنى كلية الهندسة
+LOCATION:3309 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · الكيمياء – الآداب و
  العلوم
 END:VEVENT
@@ -93,7 +93,7 @@ DTEND;TZID=Asia/Amman:20261018T190000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:501722 التحاليل التقنية وضبط الجودة – ش
  1
-LOCATION:2402 – مبنى كلية الهندسة
+LOCATION:3209 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT

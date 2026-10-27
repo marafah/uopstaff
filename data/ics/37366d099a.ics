@@ -24,7 +24,7 @@ DTSTART;TZID=Asia/Amman:20261019T160000
 DTEND;TZID=Asia/Amman:20261019T190000
 RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270119T205959Z
 SUMMARY:301714 نظرية المنظمة – ش1
-LOCATION:2202 – مبنى كلية الهندسة
+LOCATION:3211 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · ادارة الأعمال – الع
  لوم الادارية والمالية
 END:VEVENT

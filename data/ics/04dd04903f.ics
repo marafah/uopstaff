@@ -60,7 +60,7 @@ DTSTART;TZID=Asia/Amman:20261019T160000
 DTEND;TZID=Asia/Amman:20261019T190000
 RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270119T205959Z
 SUMMARY:307710 أسس وتقنيات ذكاء الأعمال – ش1
-LOCATION:2203 – مبنى كلية الهندسة
+LOCATION:3301 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · ذكاء الأعمال وتحليل 
  البيانات – العلوم الادارية والمالية
 END:VEVENT

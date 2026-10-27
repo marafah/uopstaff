@@ -58,7 +58,7 @@ DTEND;TZID=Asia/Amman:20261020T190000
 RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T160000
 SUMMARY:501706 الجرع الدوائية – ش1
-LOCATION:2209 – مبنى كلية الهندسة
+LOCATION:3202 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
