@@ -1502,3 +1502,5 @@ body.scr-on > *:not(.scr):not(script):not(.modal) { display: none !important; }
 .nb-star { position: absolute; top: 50%; left: .4rem; transform: translateY(-50%); border: 0; background: transparent; color: #b9c0c6; font-size: 1.15rem; line-height: 1; padding: .25rem; border-radius: 8px; }
 .nb-star:hover { color: #d4a017; background: #fff8e6; }
 .nb-star.on { color: #e0a800; }
+.nb-start { grid-column: 1 / -1; text-align: center; padding: 1rem; } .nb-start p { color: #5b6970; margin-bottom: .6rem; }
+.nb-demo { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; font-size: .85rem; color: #4c1d95; background: #f3edff; border: 1px solid #d8c8fb; border-radius: 12px; padding: .55rem .9rem; margin-bottom: .8rem; }

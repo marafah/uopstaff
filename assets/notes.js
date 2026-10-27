@@ -227,7 +227,8 @@
       ${col('خلال 7 أيام', 'bi-calendar-week', 'soon', next, 'لا شيء في الأسبوع القادم')}
       </div>
       ${pins.length ? `<section class="nb-strip"><h2><i class="bi bi-pin-angle-fill"></i> مثبّت</h2><div class="nb-grid">${pins.map(x => card(x)).join('')}</div></section>` : ''}
-      <section class="nb-strip"><h2><i class="bi bi-clock-history"></i> آخر ما عدّلته</h2><div class="nb-grid">${recent.map(x => card(x)).join('') || '<p class="nb-empty">لا سجلات بعد. ابدأ بزر «سجل جديد».</p>'}</div></section>`;
+      <section class="nb-strip"><h2><i class="bi bi-clock-history"></i> آخر ما عدّلته</h2><div class="nb-grid">${recent.map(x => card(x)).join('') || `<div class="nb-start"><p>لا سجلات بعد. ابدأ بزر «سجل جديد»، أو جرّب المفكرة أولاً ببيانات نموذجية تُحذف بضغطة.</p>
+        <button type="button" class="btn btn-outline-secondary" data-exp="demo"><i class="bi bi-magic"></i> تجربة ببيانات نموذجية</button></div>`}</div></section>`;
   }
   function viewList(list) {
     const l = list.slice().sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || dateOf(b).localeCompare(dateOf(a)));
@@ -285,7 +286,8 @@
     const body = { today: viewToday, list: viewList, timeline: viewTimeline, calendar: viewCalendar, board: viewBoard }[st.view](list);
     $('#nb-app').innerHTML = `
       <div class="nb-private"><i class="bi bi-shield-lock-fill"></i><span><b>خاص بك:</b> سجلاتك محفوظة على هذا الجهاز وهذا المتصفح فقط، ولا تُرسل إلى أي مكان. للنقل إلى جهاز آخر أو للاحتياط: «تصدير ← نسخة احتياطية».</span></div>
-      ${stale ? `<div class="nb-backup"><i class="bi bi-cloud-arrow-down-fill"></i> ${last ? `آخر نسخة احتياطية ${U.ago(new Date(last).toISOString())}` : 'لم تحفظ نسخة احتياطية بعد'}. احفظ نسخة الآن حتى لا تفقد سجلاتك إن مُسح المتصفح. <button type="button" class="btn btn-sm btn-light" data-exp="json"><i class="bi bi-download"></i> نسخة احتياطية</button></div>` : ''}
+      ${ITEMS.some(isDemo) ? `<div class="nb-demo"><i class="bi bi-magic"></i> تعرض المفكرة الآن ${ITEMS.filter(isDemo).length} سجلاً نموذجياً للتجربة (#${DEMO_TAG}). <button type="button" class="btn btn-sm btn-light" data-exp="undemo"><i class="bi bi-trash"></i> حذفها</button></div>` : ''}
+      ${stale && !ITEMS.every(isDemo) ? `<div class="nb-backup"><i class="bi bi-cloud-arrow-down-fill"></i> ${last ? `آخر نسخة احتياطية ${U.ago(new Date(last).toISOString())}` : 'لم تحفظ نسخة احتياطية بعد'}. احفظ نسخة الآن حتى لا تفقد سجلاتك إن مُسح المتصفح. <button type="button" class="btn btn-sm btn-light" data-exp="json"><i class="bi bi-download"></i> نسخة احتياطية</button></div>` : ''}
       <div class="nb-kpis">
         <div><b>${ITEMS.length}</b><span>سجل</span></div><div><b>${openN}</b><span>مفتوح</span></div><div class="${late ? 'bad' : ''}"><b>${late}</b><span>متأخر</span></div>
         <div><b>${ITEMS.filter(x => x.status === 'done').length}</b><span>منجز</span></div>
@@ -304,7 +306,10 @@
             <li><a class="dropdown-item" href="#" data-exp="ics"><i class="bi bi-calendar-plus"></i> المواعيد والتذكيرات إلى تقويم الهاتف (.ics)</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="#" data-exp="json"><i class="bi bi-download"></i> نسخة احتياطية كاملة (.json)</a></li>
-            <li><a class="dropdown-item" href="#" data-exp="import"><i class="bi bi-upload"></i> استعادة من نسخة احتياطية</a></li></ul></div>
+            <li><a class="dropdown-item" href="#" data-exp="import"><i class="bi bi-upload"></i> استعادة من نسخة احتياطية</a></li>
+            <li><hr class="dropdown-divider"></li>
+            ${ITEMS.some(isDemo) ? '<li><a class="dropdown-item text-danger" href="#" data-exp="undemo"><i class="bi bi-trash"></i> حذف البيانات النموذجية</a></li>'
+              : '<li><a class="dropdown-item" href="#" data-exp="demo"><i class="bi bi-magic"></i> تجربة ببيانات نموذجية</a></li>'}</ul></div>
       </div>
       <div class="nb-filters">
         <button type="button" class="${!st.type ? 'on' : ''}" data-ftype="">الكل <span>${ITEMS.length}</span></button>
@@ -466,6 +471,91 @@
     draw();
   }
 
+  // ---------------------------------------------------------------- sample data (to try every type, view and export)
+  // sample records carry the id prefix "demo-" and the tag «تجريبي»: removing them never touches the person's own records
+  const DEMO_TAG = 'تجريبي';
+  const isDemo = x => String(x.id).startsWith('demo-');
+  function demoItems() {
+    const at = (d, h, m) => { const x = new Date(); x.setDate(x.getDate() + d); x.setHours(h || 9, m || 0, 0, 0); return isoLocal(x); };
+    const day = d => at(d).slice(0, 10);
+    const P = (name, ext) => ({ name, ext: ext || '' });
+    const L = (text, done, who, due) => ({ text, done: !!done, who: who || '', due: due || '' });
+    const r = [
+      // التواصل
+      { type: 'call', title: 'مكالمة مع القبول والتسجيل بخصوص مقعد إضافي', when: at(-1, 11, 15), direction: 'صادرة', phone: '1300', people: [P('أ. سارة خالد', '1300')], outcome: 'سيُفتح مقعد إضافي في الشعبة 5', follow: at(1, 10), status: 'waiting', tags: ['التسجيل'] },
+      { type: 'call', title: 'مكالمة واردة من وليّ أمر طالب', when: at(0, 9, 30), direction: 'واردة', phone: '0790000000', outcome: 'شرح آلية الانسحاب، وسيراجع الطالب المرشد', status: 'done' },
+      { type: 'call', title: 'مكالمة فائتة من مركز الحاسوب', when: at(0, 8, 50), direction: 'فائتة', phone: '1500', follow: at(0, 13), status: 'open', priority: 'high' },
+      { type: 'meeting', title: 'اجتماع مجلس القسم', when: at(0, 10), end: at(0, 11, 30), place: 'قاعة الاجتماعات', people: [P('د. أحمد سالم', '7301'), P('د. ليلى حسن', '7302'), P('د. عمر يوسف', '7305')],
+        body: '1. مراجعة الخطط الدراسية\n2. توزيع مشاريع التخرج\n3. ما يستجد من أعمال', decisions: 'اعتماد توزيع مشاريع التخرج\nتشكيل لجنة لمراجعة الخطة الدراسية\nعقد ورشة للطلبة الجدد',
+        checklist: [L('إرسال المحضر للأعضاء', 1, 'مقرر القسم', day(1)), L('رفع التوزيع إلى العمادة', 0, 'رئيس القسم', day(3)), L('تحديد موعد الورشة', 0, 'د. ليلى حسن', day(7))], status: 'doing', priority: 'high', pinned: true, tags: ['القسم'] },
+      { type: 'meeting', title: 'اجتماع لجنة الجودة', when: at(4, 12), end: at(4, 13), place: 'مكتب العميد', people: [P('د. ليلى حسن', '7302')], checklist: [L('تجهيز تقرير المؤشرات'), L('تحديث ملف المقرر')], status: 'open', tags: ['الجودة'] },
+      { type: 'email', title: 'بريد إلى عمادة الكلية بطلب مختبر', when: at(-4, 14), people: [P('مكتب العميد')], org: 'عمادة الكلية', ref: 'BR-112', outcome: 'بانتظار الرد', follow: at(2, 9), status: 'waiting' },
+      { type: 'message', title: 'رسالة لمجموعة طلبة الشعبة 1', when: at(-2, 18), outcome: 'إعلان تأجيل الاختبار القصير', status: 'done', tags: ['طلبة'] },
+      { type: 'visit', title: 'زيارة ميدانية لشركة برمجيات', when: at(9, 9), end: at(9, 13), place: 'شارع المدينة المنورة', org: 'شركة تقنية', people: [P('م. رامي ناصر')], status: 'open', priority: 'normal' },
+      { type: 'interview', title: 'مقابلة متقدم لوظيفة مشرف مختبر', when: at(2, 11), end: at(2, 11, 45), place: 'مكتب رئيس القسم', people: [P('م. هيثم علي')], decisions: 'التوصية بالتعيين', status: 'open' },
+      // الأعمال الإدارية
+      { type: 'memo', title: 'مذكرة طلب تجهيز مختبر إضافي', when: at(-6, 9), org: 'عمادة الكلية', ref: 'ت م/45/2026', body: 'طلب تخصيص مختبر للشعب العملية بسبب زيادة الأعداد', status: 'done' },
+      { type: 'letter', title: 'كتاب وارد: تعديل مواعيد الامتحانات', when: at(-3, 10), direction: 'وارد', org: 'عمادة القبول والتسجيل', ref: 'ق ت/221', due: at(2, 14), follow: at(1, 9), status: 'open', priority: 'high' },
+      { type: 'letter', title: 'كتاب صادر: ترشيح ممثل القسم', when: at(-8, 12), direction: 'صادر', org: 'عمادة الكلية', ref: 'ع ح/77', status: 'done' },
+      { type: 'request', title: 'طلب تمديد موعد تسليم العلامات', when: at(-2, 10), org: 'عمادة القبول والتسجيل', ref: 'ط/09', due: at(1, 12), checklist: [L('تعبئة النموذج', 1), L('توقيع رئيس القسم', 0)], status: 'waiting' },
+      { type: 'decision', title: 'قرار اعتماد الخطة الدراسية المعدّلة', when: at(-10, 13), org: 'مجلس الكلية', ref: 'ق/14/2026', decisions: 'اعتماد الخطة اعتباراً من الفصل القادم', status: 'done' },
+      { type: 'circular', title: 'تعميم: إجراءات السلامة في المختبرات', when: at(-5, 8), org: 'مكتب السلامة العامة', ref: 'تع/3', link: 'https://example.org/safety', status: 'done' },
+      { type: 'report', title: 'بلاغ عطل جهاز العرض في القاعة', when: at(-3, 8, 40), place: 'القاعة 7419', org: 'مركز الحاسوب', ref: 'HD-2291', follow: at(-1, 10), status: 'open', priority: 'high' },
+      { type: 'complaint', title: 'شكوى طالب على علامة الاختبار الأول', when: at(-1, 13), people: [P('الطالب: محمد علي')], org: 'القسم', ref: 'ش/5', outcome: 'مراجعة الورقة مع الطالب', follow: at(3, 11), status: 'doing' },
+      { type: 'approval', title: 'اعتماد جدول المحاضرات الإضافية', when: at(-2, 9), org: 'عمادة الكلية', ref: 'م/31', due: at(5, 12), status: 'waiting' },
+      // المهام والمتابعة
+      { type: 'task', title: 'تسليم علامات الامتحان الأول', due: at(-2, 14), checklist: [L('الشعبة 1', 1), L('الشعبة 5', 0), L('إدخالها في البوابة', 0)], status: 'open', priority: 'urgent' },
+      { type: 'task', title: 'تحديث ملف المقرر على المنصة', due: at(5, 16), checklist: [L('الخطة الأسبوعية', 1), L('المراجع', 0)], status: 'doing' },
+      { type: 'task', title: 'تصحيح الواجب الثاني', due: at(-6, 12), status: 'done' },
+      { type: 'follow', title: 'متابعة اعتماد الخطة الدراسية', due: at(1, 12), people: [P('د. أحمد سالم', '7301')], checklist: [L('التأكد من وصول الكتاب', 1), L('الاستفسار من العمادة', 0)], status: 'open' },
+      { type: 'reminder', title: 'تجديد اشتراك قاعدة البيانات العلمية', when: at(0, 15), status: 'open' },
+      { type: 'reminder', title: 'إرسال الحضور الأسبوعي', when: at(2, 8, 30), status: 'open' },
+      { type: 'deadline', title: 'آخر موعد لتقديم ملخصات المؤتمر', due: at(6, 23, 59), org: 'لجنة المؤتمر', link: 'https://example.org/cfp', checklist: [L('كتابة الملخص', 1), L('مراجعة اللغة', 0)], status: 'doing', priority: 'high' },
+      { type: 'project', title: 'تطوير مختبر الذكاء الاصطناعي', when: at(-20, 9), due: at(25, 16), people: [P('د. عمر يوسف', '7305'), P('م. رامي ناصر')], org: 'القسم',
+        checklist: [L('دراسة الاحتياجات', 1), L('عروض الأسعار', 1), L('موافقة العمادة', 0), L('التركيب والتشغيل', 0)], status: 'doing', priority: 'high', tags: ['مشاريع'] },
+      // الأكاديمي
+      { type: 'lecture', title: 'محاضرة: هياكل البيانات (الأشجار)', when: at(1, 10), end: at(1, 11), course: '601214 لغة برمجة (2)', place: '2105', checklist: [L('تجهيز الأمثلة', 1), L('رفع الشرائح', 0)], status: 'open' },
+      { type: 'lecture', title: 'محاضرة تعويضية', when: at(3, 14), end: at(3, 15, 30), course: '606315 البرمجة لعلم البيانات', place: '7419', status: 'open' },
+      { type: 'exam', title: 'الامتحان الثاني', when: at(12, 12), end: at(12, 13, 30), course: '601214 لغة برمجة (2)', place: 'المسرح', checklist: [L('إعداد الأسئلة', 0), L('نموذج الإجابة', 0), L('طباعة النسخ', 0)], status: 'open', priority: 'high' },
+      { type: 'advising', title: 'إرشاد طالب: خطة التخرج', when: at(-1, 12), people: [P('الطالبة: رنا محمود')], course: '603480 مشروع تخرج (1)', outcome: 'تسجيل 18 ساعة الفصل القادم', follow: at(14, 12), status: 'done' },
+      { type: 'supervision', title: 'إشراف: مشروع نظام الحضور بالوجه', due: at(20, 12), people: [P('الطالب: يزن خليل'), P('الطالب: سامر عادل')], checklist: [L('الفصل الأول', 1), L('النموذج الأولي', 0), L('التقرير النهائي', 0)], follow: at(7, 11), status: 'doing', tags: ['مشاريع'] },
+      { type: 'research', title: 'بحث: التنبؤ بالانسحاب من المقررات', due: at(40, 12), people: [P('د. ليلى حسن', '7302')], org: 'مجلة علمية محكّمة', link: 'https://example.org/journal', checklist: [L('جمع البيانات', 1), L('التحليل', 0), L('الكتابة', 0)], status: 'doing', tags: ['بحث'] },
+      { type: 'committee', title: 'لجنة المعادلات', when: at(-7, 11), place: 'مكتب رئيس القسم', people: [P('د. أحمد سالم', '7301'), P('د. عمر يوسف', '7305')], decisions: 'معادلة 3 مقررات لطالب منتقل', checklist: [L('إرسال القرار للقبول', 1)], status: 'done' },
+      // الفعاليات والتطوير
+      { type: 'event', title: 'يوم الإرشاد الوظيفي', when: at(10, 10), end: at(10, 14), place: 'ساحة الجامعة', org: 'عمادة شؤون الطلبة', status: 'open' },
+      { type: 'conference', title: 'مؤتمر الذكاء الاصطناعي في التعليم', when: at(15, 9), end: at(16, 15), place: 'عمّان', org: 'جامعة البترا', link: 'https://example.org/conf', ref: 'ورقة رقم 42', amount: '150', status: 'open', priority: 'high', tags: ['بحث'] },
+      { type: 'seminar', title: 'ندوة النزاهة الأكاديمية', when: at(3, 11), end: at(3, 12, 30), place: 'المسرح', org: 'عمادة البحث العلمي', status: 'open' },
+      { type: 'workshop', title: 'ورشة: التعليم المدمج', when: at(-12, 10), end: at(-12, 13), place: 'مركز التطوير الأكاديمي', org: 'مركز التطوير الأكاديمي', checklist: [L('الحضور', 1), L('تطبيق نشاط في المقرر', 0)], status: 'done' },
+      { type: 'training', title: 'دورة: أساسيات الحوسبة السحابية', when: at(20, 9), end: at(22, 14), place: 'عن بعد', org: 'جهة تدريب', ref: 'شهادة حضور', amount: '200', status: 'open' },
+      { type: 'trip', title: 'مهمة رسمية: زيارة جامعة شريكة', when: at(30, 7), end: at(32, 20), place: 'العقبة', org: 'مكتب التعليم الدولي', ref: 'م ر/12', amount: '320', checklist: [L('الموافقة على المهمة', 1), L('حجز الفندق', 0), L('تقرير الزيارة', 0)], status: 'open' },
+      // شخصي
+      { type: 'note', title: 'أفكار لمشاريع التخرج', body: 'نظام حضور بالوجه\nتحليل بيانات التسجيل\nمساعد ذكي للطلبة', status: 'open', pinned: true, tags: ['مشاريع'] },
+      { type: 'idea', title: 'فكرة: نادٍ للبرمجة التنافسية', body: 'لقاء أسبوعي ومسابقات شهرية', link: 'https://example.org/club', status: 'open' },
+      { type: 'leave', title: 'إجازة سنوية', when: at(45, 8), end: at(49, 16), org: 'دائرة الموارد البشرية', ref: 'إج/88', status: 'waiting' },
+      { type: 'expense', title: 'رسوم اشتراك مجلة', when: at(-9, 10), amount: '60', org: 'ناشر علمي', ref: 'فاتورة 551', status: 'done' },
+      { type: 'expense', title: 'كتب مراجع للمقرر', when: at(-15, 10), amount: '45.5', status: 'done' },
+      { type: 'document', title: 'دليل الطالب للخطة الدراسية', link: 'https://example.org/guide.pdf', ref: 'إصدار 2026', org: 'القسم', status: 'open' },
+      { type: 'note', title: 'سجل قديم ملغى', body: 'مثال على سجل ملغى', status: 'cancelled' },
+    ];
+    const c = new Date();
+    return r.map((x, i) => {
+      const made = new Date(c.getTime() - (r.length - i) * 3600e3).toISOString();
+      return { priority: 'normal', people: [], checklist: [], status: 'open', ...x, id: 'demo-' + String(i + 1).padStart(2, '0'), tags: [DEMO_TAG].concat(x.tags || []), created: made, updated: made };
+    });
+  }
+  async function loadDemo() {
+    const items = demoItems();
+    await Promise.all(items.map(x => persist(x, true)));
+    render(); toast(`<i class="bi bi-magic"></i> أُضيف ${items.length} سجلاً نموذجياً (موسومة #${DEMO_TAG}) — جرّب كل العروض والتصدير`);
+  }
+  async function clearDemo() {
+    const ids = ITEMS.filter(isDemo).map(x => x.id);
+    if (!ids.length) return;
+    if (!confirm(`حذف ${ids.length} سجلاً نموذجياً؟ سجلاتك الخاصة لن تُمسّ.`)) return;
+    await Promise.all(ids.map(remove));
+    render(); toast('حُذفت البيانات النموذجية');
+  }
+
   // ---------------------------------------------------------------- exports
   const rowsFor = l => l.slice().sort((a, b) => dateOf(a).localeCompare(dateOf(b)));
   function details(x) {
@@ -505,6 +595,8 @@
       U.download(`مفكرتي_نسخة_احتياطية_${today()}.json`, JSON.stringify({ app: 'uop-notebook', version: 1, exported: new Date().toISOString(), count: ITEMS.length, settings: { quickTypes: pref.get('fav', null) }, items: ITEMS }, null, 1), 'application/json');
       pref.set('backup', Date.now()); render(); return toast('<i class="bi bi-check-circle-fill"></i> حُفظت النسخة الاحتياطية في مجلد التنزيلات');
     }
+    if (kind === 'demo') return loadDemo();
+    if (kind === 'undemo') return clearDemo();
     if (kind === 'import') {
       const f = document.createElement('input'); f.type = 'file'; f.accept = '.json,application/json';
       f.onchange = () => { const r = new FileReader(); r.onload = async () => {
