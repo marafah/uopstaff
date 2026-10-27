@@ -1,0 +1,3 @@
+# calendar files must keep their CRLF line endings (RFC 5545): store them byte for byte
+*.ics -text
+*.vcf -text
