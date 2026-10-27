@@ -281,6 +281,9 @@ def main():
         print("\n".join(problems[:40]), file=sys.stderr)
         sys.exit(f"{len(problems)} problem(s); data/timetable.json left unchanged")
 
+    # obvious spelling slips in the portal's building names (e.g. "مينى كلية الصيدلة"), corrected after the checks
+    for r in rows:
+        r["building"] = re.sub(r"^مينى\s", "مبنى ", r["building"])
     data = {
         "updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "checked": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),

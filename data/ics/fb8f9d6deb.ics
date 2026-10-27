@@ -23,7 +23,7 @@ DTSTART;TZID=Asia/Amman:20261019T110000
 DTEND;TZID=Asia/Amman:20261019T123000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501272 الكيمياء الحيوية – ش1
-LOCATION:8201 – مينى كلية الصيدلة
+LOCATION:8201 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -35,7 +35,7 @@ DTEND;TZID=Asia/Amman:20261018T110000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T100000
 SUMMARY:501403 علم المناعة – ش1
-LOCATION:8101 – مينى كلية الصيدلة
+LOCATION:8101 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -58,7 +58,7 @@ DTEND;TZID=Asia/Amman:20261018T120000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T110000
 SUMMARY:503170 علوم الحياة – ش1
-LOCATION:8406 – مينى كلية الصيدلة
+LOCATION:8406 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -70,7 +70,7 @@ DTEND;TZID=Asia/Amman:20261018T130000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T120000
 SUMMARY:503170 علوم الحياة – ش2
-LOCATION:8406 – مينى كلية الصيدلة
+LOCATION:8406 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -81,7 +81,7 @@ DTSTART;TZID=Asia/Amman:20261019T080000
 DTEND;TZID=Asia/Amman:20261019T110000
 RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270119T205959Z
 SUMMARY:503171 مختبر علوم الحياة – ش2
-LOCATION:L11A – مينى كلية الصيدلة
+LOCATION:L11A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT

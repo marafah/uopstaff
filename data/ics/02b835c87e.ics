@@ -24,7 +24,7 @@ DTSTART;TZID=Asia/Amman:20261019T093000
 DTEND;TZID=Asia/Amman:20261019T110000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501330 التقنية الصيدلانية – ش2
-LOCATION:8206 – مينى كلية الصيدلة
+LOCATION:8206 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -35,7 +35,7 @@ DTSTART;TZID=Asia/Amman:20261018T130000
 DTEND;TZID=Asia/Amman:20261018T160000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:501331 مختبر التقنية الصيدلانية – ش1
-LOCATION:L21B – مينى كلية الصيدلة
+LOCATION:L21B – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -46,7 +46,7 @@ DTSTART;TZID=Asia/Amman:20261019T130000
 DTEND;TZID=Asia/Amman:20261019T160000
 RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270119T205959Z
 SUMMARY:501331 مختبر التقنية الصيدلانية – ش2
-LOCATION:L21B – مينى كلية الصيدلة
+LOCATION:L21B – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT

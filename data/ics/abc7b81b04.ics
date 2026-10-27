@@ -23,7 +23,7 @@ DTSTART;TZID=Asia/Amman:20261019T080000
 DTEND;TZID=Asia/Amman:20261019T093000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501357 مختبر الممارسة الصيدلانية (1) – ش1
-LOCATION:8B-8142 – مينى كلية الصيدلة
+LOCATION:8B-8142 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -34,7 +34,7 @@ DTSTART;TZID=Asia/Amman:20261019T093000
 DTEND;TZID=Asia/Amman:20261019T110000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501357 مختبر الممارسة الصيدلانية (1) – ش2
-LOCATION:8107 – مينى كلية الصيدلة
+LOCATION:8107 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -45,7 +45,7 @@ DTSTART;TZID=Asia/Amman:20261019T110000
 DTEND;TZID=Asia/Amman:20261019T123000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501357 مختبر الممارسة الصيدلانية (1) – ش3
-LOCATION:8109 – مينى كلية الصيدلة
+LOCATION:8109 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -91,7 +91,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T080000
 SUMMARY:501458 المعلوماتية الدوائية والصحة الع
  امة – ش1
-LOCATION:8B-8141 – مينى كلية الصيدلة
+LOCATION:8B-8141 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -104,7 +104,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T090000
 SUMMARY:501458 المعلوماتية الدوائية والصحة الع
  امة – ش2
-LOCATION:8B-8141 – مينى كلية الصيدلة
+LOCATION:8B-8141 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT

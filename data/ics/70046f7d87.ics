@@ -25,7 +25,7 @@ DTEND;TZID=Asia/Amman:20261018T110000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T100000
 SUMMARY:501201 علم الأحياء الدقيقة – ش1
-LOCATION:8221 – مينى كلية الصيدلة
+LOCATION:8221 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -37,7 +37,7 @@ DTEND;TZID=Asia/Amman:20261018T120000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T110000
 SUMMARY:501201 علم الأحياء الدقيقة – ش2
-LOCATION:8206 – مينى كلية الصيدلة
+LOCATION:8206 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -49,7 +49,7 @@ DTEND;TZID=Asia/Amman:20261018T123000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T110000
 SUMMARY:502226 علم الاحياء الدقيقة – ش1
-LOCATION:8201 – مينى كلية الصيدلة
+LOCATION:8201 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -61,7 +61,7 @@ DTEND;TZID=Asia/Amman:20261019T140000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:504362 اساسيات ومهارات البحث العلمي الت
  طبيقي – ش1
-LOCATION:8201 – مينى كلية الصيدلة
+LOCATION:8201 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT

@@ -36,7 +36,7 @@ DTEND;TZID=Asia/Amman:20261018T130000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T120000
 SUMMARY:501456 المداوة (2) – ش2
-LOCATION:8B-8141 – مينى كلية الصيدلة
+LOCATION:8B-8141 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -47,7 +47,7 @@ DTSTART;TZID=Asia/Amman:20261019T110000
 DTEND;TZID=Asia/Amman:20261019T123000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501513 التسويق الصيدلاني – ش1
-LOCATION:8B-8141 – مينى كلية الصيدلة
+LOCATION:8B-8141 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -58,7 +58,7 @@ DTSTART;TZID=Asia/Amman:20261019T123000
 DTEND;TZID=Asia/Amman:20261019T140000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501596 مهارات الاتصال في الصيدلة – ش1
-LOCATION:8221 – مينى كلية الصيدلة
+LOCATION:8221 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT

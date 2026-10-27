@@ -25,7 +25,7 @@ DTEND;TZID=Asia/Amman:20261019T150000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501241 كيمياء تحليلية للعلوم الطبية – ش
  1
-LOCATION:8B-8143 – مينى كلية الصيدلة
+LOCATION:8B-8143 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -36,7 +36,7 @@ DTSTART;TZID=Asia/Amman:20261018T080000
 DTEND;TZID=Asia/Amman:20261018T110000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:503308 تخطيط وجبات الطعام – ش1
-LOCATION:8116 – مينى كلية الصيدلة
+LOCATION:8116 – مبنى كلية الصيدلة
 DESCRIPTION:عملي · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -47,7 +47,7 @@ DTSTART;TZID=Asia/Amman:20261019T123000
 DTEND;TZID=Asia/Amman:20261019T140000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:503308 تخطيط وجبات الطعام – ش1
-LOCATION:8406 – مينى كلية الصيدلة
+LOCATION:8406 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -58,7 +58,7 @@ DTSTART;TZID=Asia/Amman:20261018T130000
 DTEND;TZID=Asia/Amman:20261018T160000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:503320 التغذية العلاجية (1) – ش1
-LOCATION:8401 – مينى كلية الصيدلة
+LOCATION:8401 – مبنى كلية الصيدلة
 DESCRIPTION:عملي · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -69,7 +69,7 @@ DTSTART;TZID=Asia/Amman:20261019T093000
 DTEND;TZID=Asia/Amman:20261019T110000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:503320 التغذية العلاجية (1) – ش1
-LOCATION:8405 – مينى كلية الصيدلة
+LOCATION:8405 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -80,7 +80,7 @@ DTSTART;TZID=Asia/Amman:20261019T080000
 DTEND;TZID=Asia/Amman:20261019T093000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:503423 التغذية خلال مراحل الحياة – ش1
-LOCATION:8406 – مينى كلية الصيدلة
+LOCATION:8406 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT

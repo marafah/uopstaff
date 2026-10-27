@@ -25,7 +25,7 @@ DTEND;TZID=Asia/Amman:20261018T120000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T110000
 SUMMARY:501430 مستحضرات التجميل – ش1
-LOCATION:8208 – مينى كلية الصيدلة
+LOCATION:8208 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -37,7 +37,7 @@ DTEND;TZID=Asia/Amman:20261018T130000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T120000
 SUMMARY:501430 مستحضرات التجميل – ش2
-LOCATION:8208 – مينى كلية الصيدلة
+LOCATION:8208 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -49,7 +49,7 @@ DTEND;TZID=Asia/Amman:20261018T110000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T100000
 SUMMARY:501435 التقنية الحيوية الصيدلانية – ش1
-LOCATION:8208 – مينى كلية الصيدلة
+LOCATION:8208 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -61,7 +61,7 @@ DTEND;TZID=Asia/Amman:20261018T160000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:501436 مختبر التقنية الحيوية الصيدلاني
  ة – ش1
-LOCATION:L31B – مينى كلية الصيدلة
+LOCATION:L31B – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -74,7 +74,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T130000
 SUMMARY:501436 مختبر التقنية الحيوية الصيدلاني
  ة – ش3
-LOCATION:L31B – مينى كلية الصيدلة
+LOCATION:L31B – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT

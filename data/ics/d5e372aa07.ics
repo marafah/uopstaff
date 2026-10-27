@@ -26,7 +26,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T110000
 SUMMARY:501243 كيمياء تحليلية للعلوم الطبية – ش
  1
-LOCATION:8109 – مينى كلية الصيدلة
+LOCATION:8109 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -39,7 +39,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T100000
 SUMMARY:501243 كيمياء تحليلية للعلوم الطبية – ش
  2
-LOCATION:8406 – مينى كلية الصيدلة
+LOCATION:8406 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT

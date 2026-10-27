@@ -24,7 +24,7 @@ DTEND;TZID=Asia/Amman:20261018T100000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T090000
 SUMMARY:501452 علم الأدوية ( 3 ) – ش1
-LOCATION:8208 – مينى كلية الصيدلة
+LOCATION:8208 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -36,7 +36,7 @@ DTEND;TZID=Asia/Amman:20261018T110000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T100000
 SUMMARY:501452 علم الأدوية ( 3 ) – ش2
-LOCATION:8B-8143 – مينى كلية الصيدلة
+LOCATION:8B-8143 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -48,7 +48,7 @@ DTEND;TZID=Asia/Amman:20261018T090000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T080000
 SUMMARY:501515 علم السموم السريري – ش1
-LOCATION:8B-8142 – مينى كلية الصيدلة
+LOCATION:8B-8142 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT

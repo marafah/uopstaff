@@ -6,8 +6,9 @@
   'use strict';
   const U = window.UOP, { $, esc, toMin, toTime, live } = U;
   const P = new URLSearchParams(location.search);
-  const B = P.get('b') || '';
+  const B = (P.get('b') || '').replace(/^مينى\s/, 'مبنى ');  // links made before the portal's spelling slip was corrected
   let TT, S, IDX, CAL, page = 0;
+  const PER = { run: 5, soon: 6, free: 15 };  // items per page; measured from the screen after the first paint
   const SOON = 90;  // minutes ahead shown as "starting soon"
   const SITE = location.origin + location.pathname.replace(/[^/]*$/, '');
   const clean = r => String(r || '').replace(/[ً-ْ​-‏]/g, '').trim();
@@ -72,6 +73,7 @@
     paint();
     setInterval(paint, 60000);
     setInterval(() => { page++; paint(true); }, 12000);
+    window.addEventListener('resize', () => { Object.assign(PER, { run: 5, soon: 6, free: 15 }); paint(); });
     setInterval(() => Promise.all([U.getJSON('data/timetable.json', true), U.getJSON('data/calendar.json', true)])
       .then(([t, c]) => { TT = t; S = t.sections; CAL = c; paint(); }).catch(() => {}), 15 * 60000);
     setTimeout(() => location.reload(), 6 * 3600 * 1000);
@@ -92,7 +94,7 @@
     // long lists: show one page at a time, turning every 12 seconds
     const pages = (list, per) => { const n = Math.max(1, Math.ceil(list.length / per)); const p = page % n; return { items: list.slice(p * per, p * per + per), p, n }; };
     const dots = (p, n) => n > 1 ? `<span class="scr-dots">${Array.from({ length: n }, (_, i) => `<i class="${i === p ? 'on' : ''}"></i>`).join('')}</span>` : '';
-    const R = pages(running, 5), N = pages(soon, 6), F = pages(free, 18);
+    const R = pages(running, PER.run), N = pages(soon, PER.soon), F = pages(free, PER.free);
     const left = x => Math.max(0, x.b - now.min);
     if (!T.ok) {
       $('#scr-main').innerHTML = `<div class="scr-off"><i class="bi bi-moon-stars-fill"></i><b>لا محاضرات اليوم</b><span>${esc(T.why)}</span></div>`;
@@ -109,12 +111,32 @@
         <section class="scr-col free"><h2><i class="bi bi-door-open"></i> قاعات شاغرة الآن <span>${free.length}</span>${dots(F.p, F.n)}</h2>
           <div class="scr-free">${F.items.map(x => `<div><b dir="ltr">${esc(x.r)}</b><small>${x.until ? 'حتى ' + toTime(x.until) : 'بقية اليوم'}</small></div>`).join('') || '<p class="scr-none">كل القاعات مشغولة</p>'}</div></section>`;
     }
-    // ticker: upcoming dates of the academic calendar
+    // upcoming dates of the academic calendar: one card each (date badge, title on two lines at most)
     const end = new Date(now.iso); end.setDate(end.getDate() + 21);
     const endIso = end.toISOString().slice(0, 10);
-    const ev = (CAL ? CAL.semesters : []).flatMap(s => s.events).filter(e => e.end >= now.iso && e.start <= endIso).sort((a, b) => a.start.localeCompare(b.start)).slice(0, 6);
-    $('#scr-tick').innerHTML = ev.length ? `<b><i class="bi bi-calendar-event"></i> قريباً</b>${ev.map(e => `<span><bdi>${e.start === e.end ? U.numDate(e.start) : `${U.numDate(e.start)} – ${U.numDate(e.end)}`}</bdi> ${esc(e.title)}</span>`).join('')}`
-      : `<b><i class="bi bi-info-circle"></i></b><span>آخر تحديث للجدول ${U.ago(TT.updated)} · المصدر: بوابة الجامعة</span>`;
+    const ev = (CAL ? CAL.semesters : []).flatMap(s => s.events).filter(e => e.end >= now.iso && e.start <= endIso)
+      .sort((a, b) => a.start.localeCompare(b.start) || a.end.localeCompare(b.end)).slice(0, 4);
+    const dm = iso => { const [, m, d] = iso.split('-'); return `${+d}/${+m}`; };
+    $('#scr-tick').innerHTML = `<div class="scr-tl"><i class="bi bi-calendar-event"></i><b>مواعيد قريبة</b></div>` + (ev.length
+      ? ev.map(e => { const on = e.start <= now.iso;
+        return `<div class="scr-ev ${on ? 'on' : ''}"><span class="scr-date"><bdi dir="ltr">${e.start === e.end ? dm(e.start) : `${dm(e.start)} – ${dm(e.end)}`}</bdi><small>${on ? 'جارٍ الآن' : 'بعد ' + U.count(Math.round((Date.parse(e.start) - Date.parse(now.iso)) / 864e5), 'يوم', 'يومين', 'أيام', 'يوماً')}</small></span>
+          <span class="scr-et">${esc(e.title.replace(/\s*(للفصل الدراسي|للعام الجامعي)?\s*\d{4}\/\d{4}\s*$/, ''))}</span></div>`; }).join('')
+      : `<div class="scr-ev"><span class="scr-et">لا مواعيد خلال الأسابيع الثلاثة القادمة · آخر تحديث للجدول ${U.ago(TT.updated)}</span></div>`);
+    if (!flip) fit();
+  }
+  // how many cards fit in each column on this screen (any size): measured, never a card cut at the bottom
+  function fit() {
+    const per = (col, sel, cols) => {
+      const c = document.querySelector('.scr-col.' + col), it = c && c.querySelector(sel);
+      if (!it) return null;
+      const gap = parseFloat(getComputedStyle(c).rowGap || getComputedStyle(c).gap) || 8;
+      const top = it.getBoundingClientRect().top - c.getBoundingClientRect().top;
+      const room = c.clientHeight - top - parseFloat(getComputedStyle(c).paddingBottom);
+      const rowH = it.getBoundingClientRect().height + (cols ? (parseFloat(getComputedStyle(it.parentElement).rowGap) || 8) : gap);
+      return Math.max(1, Math.floor((room + (cols ? parseFloat(getComputedStyle(it.parentElement).rowGap) || 8 : gap)) / rowH)) * (cols || 1);
+    };
+    const next = { run: per('now', '.scr-card') || PER.run, soon: per('soon', '.scr-row') || PER.soon, free: per('free', '.scr-free > div', 3) || PER.free };
+    if (next.run !== PER.run || next.soon !== PER.soon || next.free !== PER.free) { Object.assign(PER, next); paint(); }
   }
 
   // ---------------------------------------------------------------- start

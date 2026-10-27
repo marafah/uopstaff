@@ -24,7 +24,7 @@ DTSTART;TZID=Asia/Amman:20261019T093000
 DTEND;TZID=Asia/Amman:20261019T110000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501210 علم اعتلال وظائف الأعضاء – ش1
-LOCATION:8101 – مينى كلية الصيدلة
+LOCATION:8101 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -35,7 +35,7 @@ DTSTART;TZID=Asia/Amman:20261019T080000
 DTEND;TZID=Asia/Amman:20261019T093000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501210 علم اعتلال وظائف الأعضاء – ش2
-LOCATION:8108 – مينى كلية الصيدلة
+LOCATION:8108 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -47,7 +47,7 @@ DTEND;TZID=Asia/Amman:20261018T130000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T120000
 SUMMARY:503170 علوم الحياة – ش3
-LOCATION:8401 – مينى كلية الصيدلة
+LOCATION:8401 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -58,7 +58,7 @@ DTSTART;TZID=Asia/Amman:20261018T080000
 DTEND;TZID=Asia/Amman:20261018T110000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:503171 مختبر علوم الحياة – ش4
-LOCATION:L37A – مينى كلية الصيدلة
+LOCATION:L37A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -70,7 +70,7 @@ DTEND;TZID=Asia/Amman:20261020T110000
 RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T080000
 SUMMARY:503171 مختبر علوم الحياة – ش5
-LOCATION:L37A – مينى كلية الصيدلة
+LOCATION:L37A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -81,7 +81,7 @@ DTSTART;TZID=Asia/Amman:20261019T130000
 DTEND;TZID=Asia/Amman:20261019T160000
 RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270119T205959Z
 SUMMARY:503171 مختبر علوم الحياة – ش6
-LOCATION:L37A – مينى كلية الصيدلة
+LOCATION:L37A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT

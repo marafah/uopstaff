@@ -26,7 +26,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T090000
 SUMMARY:501303 كيمياء النواتج الطبيعية والعقاق
  ير (2) – ش1
-LOCATION:8401 – مينى كلية الصيدلة
+LOCATION:8401 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -39,7 +39,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T100000
 SUMMARY:501303 كيمياء النواتج الطبيعية والعقاق
  ير (2) – ش2
-LOCATION:8401 – مينى كلية الصيدلة
+LOCATION:8401 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -51,7 +51,7 @@ DTEND;TZID=Asia/Amman:20261018T130000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T120000
 SUMMARY:501459 العلاج بالنواتج الطبيعية – ش1
-LOCATION:8B-8142 – مينى كلية الصيدلة
+LOCATION:8B-8142 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -63,7 +63,7 @@ DTEND;TZID=Asia/Amman:20261018T140000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T130000
 SUMMARY:501459 العلاج بالنواتج الطبيعية – ش2
-LOCATION:8B-8142 – مينى كلية الصيدلة
+LOCATION:8B-8142 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT

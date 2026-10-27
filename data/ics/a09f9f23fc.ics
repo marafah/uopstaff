@@ -24,7 +24,7 @@ DTSTART;TZID=Asia/Amman:20261019T093000
 DTEND;TZID=Asia/Amman:20261019T110000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501272 الكيمياء الحيوية – ش2
-LOCATION:8109 – مينى كلية الصيدلة
+LOCATION:8109 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -35,7 +35,7 @@ DTSTART;TZID=Asia/Amman:20261019T110000
 DTEND;TZID=Asia/Amman:20261019T120000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501435 التقنية الحيوية الصيدلانية – ش2
-LOCATION:8207 – مينى كلية الصيدلة
+LOCATION:8207 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -47,7 +47,7 @@ DTEND;TZID=Asia/Amman:20261019T160000
 RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270119T205959Z
 SUMMARY:501436 مختبر التقنية الحيوية الصيدلاني
  ة – ش2
-LOCATION:L31B – مينى كلية الصيدلة
+LOCATION:L31B – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -59,7 +59,7 @@ DTEND;TZID=Asia/Amman:20261018T100000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T090000
 SUMMARY:502436 الكيمياء الحيوية السريرية – ش1
-LOCATION:8221 – مينى كلية الصيدلة
+LOCATION:8221 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -84,7 +84,7 @@ DTEND;TZID=Asia/Amman:20261018T160000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:504232 مختبر الكيمياء الحيوية للتحاليل 
  الطبية – ش1
-LOCATION:8B-8144 – مينى كلية الصيدلة
+LOCATION:8B-8144 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT

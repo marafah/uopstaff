@@ -24,7 +24,7 @@ DTEND;TZID=Asia/Amman:20261018T110000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T100000
 SUMMARY:501321 أخلاقيات وقوانين الصيدلة – ش1
-LOCATION:8201 – مينى كلية الصيدلة
+LOCATION:8201 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -36,7 +36,7 @@ DTEND;TZID=Asia/Amman:20261018T100000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T090000
 SUMMARY:501321 أخلاقيات وقوانين الصيدلة – ش2
-LOCATION:8101 – مينى كلية الصيدلة
+LOCATION:8101 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -47,7 +47,7 @@ DTSTART;TZID=Asia/Amman:20261019T093000
 DTEND;TZID=Asia/Amman:20261019T110000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501550 المداوة (3) – ش1
-LOCATION:8221 – مينى كلية الصيدلة
+LOCATION:8221 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT

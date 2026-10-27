@@ -25,7 +25,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T100000
 SUMMARY:504231 الكيمياء الحيوية للتحاليل الطبي
  ة – ش2
-LOCATION:8B-8145 – مينى كلية الصيدلة
+LOCATION:8B-8145 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT
@@ -37,7 +37,7 @@ DTEND;TZID=Asia/Amman:20261018T090000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T080000
 SUMMARY:504233 بيولوجيا جزيئية ووراثة – ش1
-LOCATION:8B-8144 – مينى كلية الصيدلة
+LOCATION:8B-8144 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT
@@ -49,7 +49,7 @@ DTEND;TZID=Asia/Amman:20261021T160000
 RRULE:FREQ=WEEKLY;BYDAY=WE;UNTIL=20270119T205959Z
 SUMMARY:504234 مختبر بيولوجيا جزيئية ووراثة – ش
  1
-LOCATION:L37A – مينى كلية الصيدلة
+LOCATION:L37A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT
@@ -61,7 +61,7 @@ DTEND;TZID=Asia/Amman:20261018T120000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T110000
 SUMMARY:504235 هرمونات وغدد صم – ش2
-LOCATION:8B-8145 – مينى كلية الصيدلة
+LOCATION:8B-8145 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT
@@ -73,7 +73,7 @@ DTEND;TZID=Asia/Amman:20261018T100000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T090000
 SUMMARY:504331 الكيمياء الحيوية السريرية (1) – ش1
-LOCATION:8B-8145 – مينى كلية الصيدلة
+LOCATION:8B-8145 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT
@@ -85,7 +85,7 @@ DTEND;TZID=Asia/Amman:20261018T160000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:504332 مختبرالكيمياء الحيوية السريرية 
  – ش1
-LOCATION:L37A – مينى كلية الصيدلة
+LOCATION:L37A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT
@@ -98,7 +98,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T130000
 SUMMARY:504332 مختبرالكيمياء الحيوية السريرية 
  – ش2
-LOCATION:L37A – مينى كلية الصيدلة
+LOCATION:L37A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT

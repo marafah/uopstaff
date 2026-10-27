@@ -24,7 +24,7 @@ DTSTART;TZID=Asia/Amman:20261019T080000
 DTEND;TZID=Asia/Amman:20261019T093000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501351 علم الأدوية (1) – ش1
-LOCATION:8B-8143 – مينى كلية الصيدلة
+LOCATION:8B-8143 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -35,7 +35,7 @@ DTSTART;TZID=Asia/Amman:20261019T093000
 DTEND;TZID=Asia/Amman:20261019T110000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501351 علم الأدوية (1) – ش2
-LOCATION:8B-8142 – مينى كلية الصيدلة
+LOCATION:8B-8142 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -46,7 +46,7 @@ DTSTART;TZID=Asia/Amman:20261018T130000
 DTEND;TZID=Asia/Amman:20261018T160000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:501454 مختبر علم الأدوية ( 3 ) – ش1
-LOCATION:L31A – مينى كلية الصيدلة
+LOCATION:L31A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -57,7 +57,7 @@ DTSTART;TZID=Asia/Amman:20261019T130000
 DTEND;TZID=Asia/Amman:20261019T160000
 RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270119T205959Z
 SUMMARY:501454 مختبر علم الأدوية ( 3 ) – ش2
-LOCATION:L31A – مينى كلية الصيدلة
+LOCATION:L31A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -69,7 +69,7 @@ DTEND;TZID=Asia/Amman:20261020T160000
 RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T130000
 SUMMARY:501454 مختبر علم الأدوية ( 3 ) – ش3
-LOCATION:L31A – مينى كلية الصيدلة
+LOCATION:L31A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -80,7 +80,7 @@ DTSTART;TZID=Asia/Amman:20261021T130000
 DTEND;TZID=Asia/Amman:20261021T160000
 RRULE:FREQ=WEEKLY;BYDAY=WE;UNTIL=20270119T205959Z
 SUMMARY:501454 مختبر علم الأدوية ( 3 ) – ش4
-LOCATION:L31A – مينى كلية الصيدلة
+LOCATION:L31A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT

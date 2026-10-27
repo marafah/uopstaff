@@ -26,7 +26,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T100000
 SUMMARY:501353 حسابات وتركيب الاشكال الصيدلاني
  ة – ش1
-LOCATION:8B-8144 – مينى كلية الصيدلة
+LOCATION:8B-8144 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -38,7 +38,7 @@ DTEND;TZID=Asia/Amman:20261019T090000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501353 حسابات وتركيب الاشكال الصيدلاني
  ة – ش2
-LOCATION:8B-8144 – مينى كلية الصيدلة
+LOCATION:8B-8144 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -50,7 +50,7 @@ DTEND;TZID=Asia/Amman:20261018T160000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:501354 مختبر حسابات وتركيب الاشكال الصي
  دلانية – ش1
-LOCATION:L22B – مينى كلية الصيدلة
+LOCATION:L22B – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -62,7 +62,7 @@ DTEND;TZID=Asia/Amman:20261019T160000
 RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270119T205959Z
 SUMMARY:501354 مختبر حسابات وتركيب الاشكال الصي
  دلانية – ش2
-LOCATION:L22B – مينى كلية الصيدلة
+LOCATION:L22B – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -75,7 +75,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T130000
 SUMMARY:501354 مختبر حسابات وتركيب الاشكال الصي
  دلانية – ش3
-LOCATION:L22B – مينى كلية الصيدلة
+LOCATION:L22B – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -87,7 +87,7 @@ DTEND;TZID=Asia/Amman:20261018T100000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T090000
 SUMMARY:501525 نظم ايصال الدواء – ش1
-LOCATION:8201 – مينى كلية الصيدلة
+LOCATION:8201 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -98,7 +98,7 @@ DTSTART;TZID=Asia/Amman:20261019T093000
 DTEND;TZID=Asia/Amman:20261019T103000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501525 نظم ايصال الدواء – ش2
-LOCATION:8201 – مينى كلية الصيدلة
+LOCATION:8201 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT

@@ -26,7 +26,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T110000
 SUMMARY:501401 الصيدلة الحيوية وحركية الدواء – 
  ش1
-LOCATION:8B-8144 – مينى كلية الصيدلة
+LOCATION:8B-8144 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -38,7 +38,7 @@ DTEND;TZID=Asia/Amman:20261019T123000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501401 الصيدلة الحيوية وحركية الدواء – 
  ش2
-LOCATION:8108 – مينى كلية الصيدلة
+LOCATION:8108 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT

@@ -24,7 +24,7 @@ DTSTART;TZID=Asia/Amman:20261019T123000
 DTEND;TZID=Asia/Amman:20261019T133000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:504211 علم الانسجة – ش1
-LOCATION:8B-8143 – مينى كلية الصيدلة
+LOCATION:8B-8143 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT
@@ -35,7 +35,7 @@ DTSTART;TZID=Asia/Amman:20261019T110000
 DTEND;TZID=Asia/Amman:20261019T120000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:504211 علم الانسجة – ش2
-LOCATION:8B-8144 – مينى كلية الصيدلة
+LOCATION:8B-8144 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT
@@ -47,7 +47,7 @@ DTEND;TZID=Asia/Amman:20261020T160000
 RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T130000
 SUMMARY:504212 مختبر علم الانسجة – ش1
-LOCATION:L33A – مينى كلية الصيدلة
+LOCATION:L33A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT

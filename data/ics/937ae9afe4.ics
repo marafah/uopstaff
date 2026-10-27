@@ -26,7 +26,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T110000
 SUMMARY:501203 كيمياء النواتج الطبيعية والعقاق
  ير (1) – ش1
-LOCATION:8101 – مينى كلية الصيدلة
+LOCATION:8101 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -39,7 +39,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T090000
 SUMMARY:501243 كيمياء تحليلية للعلوم الطبية – ش
  3
-LOCATION:8206 – مينى كلية الصيدلة
+LOCATION:8206 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -51,7 +51,7 @@ DTEND;TZID=Asia/Amman:20261018T160000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:501304 مختبر كيمياء النواتج الطبيعية وا
  لعقاقير (2) – ش1
-LOCATION:L34A – مينى كلية الصيدلة
+LOCATION:L34A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -63,7 +63,7 @@ DTEND;TZID=Asia/Amman:20261019T160000
 RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270119T205959Z
 SUMMARY:501304 مختبر كيمياء النواتج الطبيعية وا
  لعقاقير (2) – ش2
-LOCATION:L34A – مينى كلية الصيدلة
+LOCATION:L34A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -76,7 +76,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T130000
 SUMMARY:501304 مختبر كيمياء النواتج الطبيعية وا
  لعقاقير (2) – ش3
-LOCATION:L34A – مينى كلية الصيدلة
+LOCATION:L34A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -88,7 +88,7 @@ DTEND;TZID=Asia/Amman:20261021T160000
 RRULE:FREQ=WEEKLY;BYDAY=WE;UNTIL=20270119T205959Z
 SUMMARY:501304 مختبر كيمياء النواتج الطبيعية وا
  لعقاقير (2) – ش4
-LOCATION:L34A – مينى كلية الصيدلة
+LOCATION:L34A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -99,7 +99,7 @@ DTSTART;TZID=Asia/Amman:20261019T110000
 DTEND;TZID=Asia/Amman:20261019T123000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501586 موضوعات مختارة في الصيدلة – ش1
-LOCATION:8221 – مينى كلية الصيدلة
+LOCATION:8221 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT

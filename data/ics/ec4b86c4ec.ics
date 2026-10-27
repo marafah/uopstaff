@@ -24,7 +24,7 @@ DTSTART;TZID=Asia/Amman:20261019T110000
 DTEND;TZID=Asia/Amman:20261019T120000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:503210 مقدمة في علم التغذية – ش1
-LOCATION:8107 – مينى كلية الصيدلة
+LOCATION:8107 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -36,7 +36,7 @@ DTEND;TZID=Asia/Amman:20261018T110000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T100000
 SUMMARY:503427 ادارة مؤسسات الغذاء – ش1
-LOCATION:8108 – مينى كلية الصيدلة
+LOCATION:8108 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -49,7 +49,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T120000
 SUMMARY:503490 مهارات مهنية في التغذية السريرية
   والحميات – ش1
-LOCATION:8101 – مينى كلية الصيدلة
+LOCATION:8101 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT

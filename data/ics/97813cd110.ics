@@ -23,7 +23,7 @@ DTSTART;TZID=Asia/Amman:20261019T093000
 DTEND;TZID=Asia/Amman:20261019T103000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:503101 علوم الحياة (1) – ش1
-LOCATION:8406 – مينى كلية الصيدلة
+LOCATION:8406 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -46,7 +46,7 @@ DTSTART;TZID=Asia/Amman:20261019T140000
 DTEND;TZID=Asia/Amman:20261019T150000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:503209 مقدمة في علم الغذاء – ش1
-LOCATION:8401 – مينى كلية الصيدلة
+LOCATION:8401 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT

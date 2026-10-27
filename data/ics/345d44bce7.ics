@@ -23,7 +23,7 @@ DTSTART;TZID=Asia/Amman:20261019T110000
 DTEND;TZID=Asia/Amman:20261019T120000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:501403 علم المناعة – ش2
-LOCATION:8B-8142 – مينى كلية الصيدلة
+LOCATION:8B-8142 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -34,7 +34,7 @@ DTSTART;TZID=Asia/Amman:20261019T090000
 DTEND;TZID=Asia/Amman:20261019T100000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:504323 الاحياء الدقيقة التشخيصية (1) – ش1
-LOCATION:8B-8145 – مينى كلية الصيدلة
+LOCATION:8B-8145 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT
@@ -46,7 +46,7 @@ DTEND;TZID=Asia/Amman:20261018T140000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:504324 مختبر الاحياء الدقيقة التشخيصية 
  – ش1
-LOCATION:L36A – مينى كلية الصيدلة
+LOCATION:L36A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT
@@ -59,7 +59,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T110000
 SUMMARY:504324 مختبر الاحياء الدقيقة التشخيصية 
  – ش2
-LOCATION:L36B – مينى كلية الصيدلة
+LOCATION:L36B – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT
@@ -70,7 +70,7 @@ DTSTART;TZID=Asia/Amman:20261019T140000
 DTEND;TZID=Asia/Amman:20261019T160000
 RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270119T205959Z
 SUMMARY:504326 مختبر طفيليات طبية – ش1
-LOCATION:L33A – مينى كلية الصيدلة
+LOCATION:L33A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT
@@ -93,7 +93,7 @@ DTSTART;TZID=Asia/Amman:20261019T123000
 DTEND;TZID=Asia/Amman:20261019T133000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:504435 وراثة تشخيصية جزيئية – ش1
-LOCATION:8101 – مينى كلية الصيدلة
+LOCATION:8101 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT

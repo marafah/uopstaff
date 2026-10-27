@@ -24,7 +24,7 @@ DTEND;TZID=Asia/Amman:20261018T110000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T100000
 SUMMARY:501213 كيمياء عضوية صيدلانية – ش1
-LOCATION:8B-8141 – مينى كلية الصيدلة
+LOCATION:8B-8141 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -36,7 +36,7 @@ DTEND;TZID=Asia/Amman:20261018T120000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T110000
 SUMMARY:501213 كيمياء عضوية صيدلانية – ش2
-LOCATION:8405 – مينى كلية الصيدلة
+LOCATION:8405 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -48,7 +48,7 @@ DTEND;TZID=Asia/Amman:20261018T130000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T120000
 SUMMARY:501213 كيمياء عضوية صيدلانية – ش3
-LOCATION:8405 – مينى كلية الصيدلة
+LOCATION:8405 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -59,7 +59,7 @@ DTSTART;TZID=Asia/Amman:20261018T130000
 DTEND;TZID=Asia/Amman:20261018T160000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:501214 مختبر كيمياء عضوية صيدلانية – ش1
-LOCATION:L32A – مينى كلية الصيدلة
+LOCATION:L32A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -70,7 +70,7 @@ DTSTART;TZID=Asia/Amman:20261021T080000
 DTEND;TZID=Asia/Amman:20261021T110000
 RRULE:FREQ=WEEKLY;BYDAY=WE;UNTIL=20270119T205959Z
 SUMMARY:501214 مختبر كيمياء عضوية صيدلانية – ش2
-LOCATION:L32A – مينى كلية الصيدلة
+LOCATION:L32A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -82,7 +82,7 @@ DTEND;TZID=Asia/Amman:20261020T160000
 RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T130000
 SUMMARY:501214 مختبر كيمياء عضوية صيدلانية – ش3
-LOCATION:L32A – مينى كلية الصيدلة
+LOCATION:L32A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -93,7 +93,7 @@ DTSTART;TZID=Asia/Amman:20261021T130000
 DTEND;TZID=Asia/Amman:20261021T160000
 RRULE:FREQ=WEEKLY;BYDAY=WE;UNTIL=20270119T205959Z
 SUMMARY:501214 مختبر كيمياء عضوية صيدلانية – ش4
-LOCATION:L32A – مينى كلية الصيدلة
+LOCATION:L32A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -104,7 +104,7 @@ DTSTART;TZID=Asia/Amman:20261019T080000
 DTEND;TZID=Asia/Amman:20261019T110000
 RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270119T205959Z
 SUMMARY:501214 مختبر كيمياء عضوية صيدلانية – ش5
-LOCATION:L32A – مينى كلية الصيدلة
+LOCATION:L32A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT

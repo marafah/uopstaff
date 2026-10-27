@@ -24,7 +24,7 @@ DTSTART;TZID=Asia/Amman:20261021T130000
 DTEND;TZID=Asia/Amman:20261021T160000
 RRULE:FREQ=WEEKLY;BYDAY=WE;UNTIL=20270119T205959Z
 SUMMARY:501231 مختبر الصيدلانيات – ش3
-LOCATION:L21A – مينى كلية الصيدلة
+LOCATION:L21A – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -36,7 +36,7 @@ DTEND;TZID=Asia/Amman:20261018T160000
 RRULE:FREQ=WEEKLY;BYDAY=SU;UNTIL=20270119T205959Z
 SUMMARY:501402 مختبر الصيدلة الحيوية وحركية الد
  واء – ش1
-LOCATION:8116 – مينى كلية الصيدلة
+LOCATION:8116 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -48,7 +48,7 @@ DTEND;TZID=Asia/Amman:20261019T110000
 RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270119T205959Z
 SUMMARY:501402 مختبر الصيدلة الحيوية وحركية الد
  واء – ش2
-LOCATION:8116 – مينى كلية الصيدلة
+LOCATION:8116 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
@@ -61,7 +61,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T130000
 SUMMARY:501402 مختبر الصيدلة الحيوية وحركية الد
  واء – ش3
-LOCATION:8116 – مينى كلية الصيدلة
+LOCATION:8116 – مبنى كلية الصيدلة
 DESCRIPTION:نظري · وجاهي · الصيدلة – الصيدلة و
  العلوم الطبية
 END:VEVENT
