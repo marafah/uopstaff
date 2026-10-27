@@ -69,8 +69,9 @@ window.UOP = (function () {
         ${its.map(x => {
           const top = (toMin(x.start) - from) / 60 * PX, h = Math.max(22, (toMin(x.end) - toMin(x.start)) / 60 * PX - 3);
           const w = 100 / x._lanes;
-          return `<${x.href ? `a href="${esc(x.href)}"` : x.data ? `a href="#" ${x.data}` : 'div'} class="wk-ev ${x.cls || ''}" style="top:${top}px;height:${h}px;right:calc(${w * x._lane}% + 2px);width:calc(${w}% - 4px)" title="${esc(x.tip || '')}">
-            <b>${esc(x.title)}</b>${x.sub ? `<span>${esc(x.sub)}</span>` : ''}<small dir="ltr">${x.start}–${x.end}</small></${x.href || x.data ? 'a' : 'div'}>`;
+          // optional: x.style (e.g. a course colour), x.icon, x.line (a second line such as the course name)
+          return `<${x.href ? `a href="${esc(x.href)}"` : x.data ? `a href="#" ${x.data}` : 'div'} class="wk-ev ${x.cls || ''}" style="top:${top}px;height:${h}px;right:calc(${w * x._lane}% + 2px);width:calc(${w}% - 4px);${x.style || ''}" title="${esc(x.tip || '')}">
+            <b>${x.icon ? `<i class="bi ${x.icon}"></i> ` : ''}${esc(x.title)}</b>${x.line ? `<span class="wk-l2">${esc(x.line)}</span>` : ''}${x.sub ? `<span>${esc(x.sub)}</span>` : ''}<small dir="ltr">${x.start}–${x.end}</small></${x.href || x.data ? 'a' : 'div'}>`;
         }).join('')}</div>`;
     };
     const untimed = items.filter(x => !x.start);

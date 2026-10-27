@@ -1,6 +1,6 @@
 /* Print reports: a clean A4 document built from the data (not a print of the screen).
    printReport({ title, subtitle, filters: [[label, value]], stats: [[label, value]], sections: [{ title?, columns, rows, widths? }],
-                 orientation: 'landscape' | 'portrait', note }) builds it in a hidden frame and opens the print dialog
+                 orientation: 'landscape' | 'portrait', note, fit }) builds it (fit: scaled to one page) in a hidden frame and opens the print dialog
    (where "Save as PDF" saves it as a file). */
 window.printReport = (function () {
   'use strict';
@@ -41,6 +41,7 @@ window.printReport = (function () {
   .empty { color: #999; text-align: center; padding: 20px; }
   footer.rf { position: fixed; bottom: -10mm; left: 0; right: 0; display: flex; justify-content: space-between; font-size: 7.5pt; color: #777; border-top: 1px solid #ddd; padding-top: 3px; }
   .note { margin-top: 10px; font-size: 8pt; color: #666; }
+  body.fit footer.rf { bottom: 0; }  /* one-page report: the footer inside the page, never pushed to a page of its own */
   @media screen { footer.rf { position: static; margin-top: 14px; } }
   `;
 
@@ -86,7 +87,7 @@ window.printReport = (function () {
     const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${esc(o.title)}</title>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap">
       ${(o.css || []).map(h => `<link rel="stylesheet" href="${new URL(h, location.href).href}">`).join('')}
-      <style>${CSS.replace('__ORIENT__', orient)}${o.raw ? RAW_CSS : ''}</style></head><body>
+      <style>${CSS.replace('__ORIENT__', orient)}${o.raw ? RAW_CSS : ''}</style></head><body class="${o.fit ? 'fit' : ''}">
       <div class="page">
         <header class="rh"><img src="${logo}" alt="">
           <div class="t"><small>جامعة البترا</small><h1>${esc(o.title)}</h1>${o.subtitle ? `<h2>${esc(o.subtitle)}</h2>` : ''}</div>
@@ -96,16 +97,22 @@ window.printReport = (function () {
         ${(o.sections || []).map(table).join('')}
         ${o.raw ? `<div class="raw">${o.raw}</div>` : ''}
         ${o.note ? `<p class="note">${esc(o.note)}</p>` : ''}
-        <footer class="rf"><span>صفحة غير رسمية تعرض البيانات المنشورة على الموقع الرسمي للجامعة؛ المرجع المعتمد هو الموقع الرسمي.</span><span>marafah.github.io/uopstaff</span></footer>
-      </div></body></html>`;
+      </div>
+      <footer class="rf"><span>صفحة غير رسمية تعرض البيانات المنشورة على الموقع الرسمي للجامعة؛ المرجع المعتمد هو الموقع الرسمي.</span><span>marafah.github.io/uopstaff</span></footer>
+      </body></html>`;
     w.document.open();
     w.document.write(html);
     w.document.close();
     // print once the font and logo are in, so the first page is laid out with them
     const go = () => {
-      // a wide matrix is scaled down to the page width instead of being cut at the edge
       const raw = w.document.querySelector('.raw');
-      if (raw && raw.scrollWidth > printable) raw.style.zoom = (printable / raw.scrollWidth).toFixed(3);
+      if (o.fit) {
+        // o.fit: everything on one page — the whole report is scaled to the printable width and height
+        const page = w.document.querySelector('.page');
+        const height = (orient === 'landscape' ? 680 : 1009) - 44;  // A4 minus the page margins and the footer line, in CSS px
+        const scale = Math.min(1, printable / page.scrollWidth, height / page.scrollHeight);
+        if (scale < 1) page.style.zoom = scale.toFixed(3);
+      } else if (raw && raw.scrollWidth > printable) raw.style.zoom = (printable / raw.scrollWidth).toFixed(3);  // a wide matrix: page width, not cut
       try { w.focus(); w.print(); } catch (e) { /* printing not available */ }
     };
     if (w.document.fonts && w.document.fonts.ready) w.document.fonts.ready.then(() => setTimeout(go, 300)); else setTimeout(go, 800);
