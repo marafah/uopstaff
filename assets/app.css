@@ -628,3 +628,40 @@ button.fr-person:hover { border-color: var(--uop-maroon); }
 /* dashboard: only the four figures not already in the page's top cards, on one row */
 .db-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
 @media (max-width: 767.98px) { .db-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
+
+/* free time: groups of instructors (own unit / other units / unknown) */
+.fr-group { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .6rem; margin: .35rem 0 .1rem; padding-top: .35rem; border-top: 1px dashed #e2dac8; }
+.fr-group:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+.fr-group b { font-size: .8rem; color: var(--uop-navy); }
+.fr-group b span { color: #8a8478; font-weight: 400; }
+.fr-group small { font-size: .7rem; color: #8a8478; }
+button.fr-person.g-unknown { border-style: dashed; }
+.fr-chips { max-height: 260px; }
+
+/* suggested times in groups */
+.fr-tier + .fr-tier { margin-top: .9rem; padding-top: .8rem; border-top: 1px solid #efe9db; }
+.fr-tier h4 { font-size: .9rem; font-weight: 800; color: var(--uop-navy); margin: 0 0 .5rem; display: flex; align-items: center; gap: .4rem; }
+.fr-tier h4 small { font-weight: 400; color: #8a8478; font-size: .74rem; }
+.fr-tier-dot { width: 10px; height: 10px; border-radius: 50%; background: #2e8540; }
+.fr-tier.one .fr-tier-dot { background: #d8a227; }
+.fr-tier.two .fr-tier-dot { background: #c76b1d; }
+.fr-slot.one { background: #fff8e6; border-color: #f0d27a; color: #4a3500; }
+.fr-slot.two { background: #fff1e6; border-color: #efb98a; color: #5a2e05; }
+.fr-slot em { font-style: normal; font-size: .68rem; margin-top: 2px; max-width: 150px; text-align: center; line-height: 1.3; }
+
+/* empty rooms over several days */
+.mx-part { background: repeating-linear-gradient(135deg, #e9b8bb 0 4px, #f6e3e4 4px 8px) !important; min-width: 16px; padding: 0 !important; }
+.mx-key.part { background: repeating-linear-gradient(135deg, #e9b8bb 0 3px, #f6e3e4 3px 6px); border-color: #e9b8bb; }
+.mx-long { white-space: nowrap; font-size: .74rem; text-align: center; background: #fbf9f4 !important; }
+.mx-long bdi { display: block; font-weight: 700; color: #145a24; }
+.mx-long small { color: #777; }
+.mx-days .btn-group .btn { min-width: 76px; }
+/* wider top search so its hint text is fully visible */
+.uop-search { width: 420px; max-width: 100%; padding: .45rem 1.1rem; font-size: .92rem; }
+.uop-search::placeholder { color: rgba(255,255,255,.85); }
+@media (max-width: 991.98px) { .uop-search { width: 330px; } }
+@media (max-width: 575.98px) { .uop-search { width: 100%; flex: 1; font-size: .85rem; } }
+@media (max-width: 575.98px) {
+  .uop-topbar .container-fluid > .d-flex.ms-auto { width: 100%; margin: 0 0 .5rem !important; order: 2; }
+  .uop-topbar .site-nav { order: 3; }
+}

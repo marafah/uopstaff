@@ -233,6 +233,41 @@ def read():
     return form, rows, det, problems
 
 
+STAFF = os.path.join(os.path.dirname(__file__), "..", "data", "staff.json")
+
+
+def person_key(name):
+    """Name without its title and with the usual spelling variants unified, for an exact match only."""
+    n = re.sub(r"^\s*((أ|ا)\s*\.\s*د|د|م|أ|ا)\s*\.+\s*", "", name)
+    n = re.sub(r"^\s*((أ|ا)\s*\.\s*د|د|م)\s*\.+\s*", "", n)  # "أ.د. د." and the like
+    n = n.translate(str.maketrans({"أ": "ا", "إ": "ا", "آ": "ا", "ة": "ه", "ى": "ي", ".": " "}))
+    return re.sub(r"\s+", " ", n).strip()
+
+
+def home_departments(rows):
+    """Each instructor's own department(s) from the staff directory (academic staff), by exact name match.
+    Names that match no one, or more than one person, are left out: their department is unknown."""
+    if not os.path.exists(STAFF):
+        return {}
+    with open(STAFF, encoding="utf-8") as f:
+        staff = json.load(f)
+    members = [m for m in staff["members"] if m["type"] == "academic"]
+    # the directory writes "كلية العلوم الإدارية والمالية", the portal "العلوم الادارية والمالية": same faculty
+    fkey = lambda n: person_key(re.sub(r"^كلية\s+", "", n)).replace(" ", "").replace("و", "")
+    portal = {fkey(r["faculty"]): r["faculty"] for r in rows}
+    fac_name = {f["id"]: portal.get(fkey(f["name"]), "") for f in staff["faculties"]}
+    by = {}
+    for m in members:
+        by.setdefault(person_key(m["name"]), []).append(m)
+    homes = {}
+    for inst in sorted({r["instructor"] for r in rows}):
+        found = by.get(person_key(inst), [])
+        if len(found) == 1:
+            depts = [d.strip() for d in (found[0]["department"] or "").split("،") if d.strip()]
+            homes[inst] = {"faculty": fac_name.get(found[0]["faculty"], ""), "departments": depts}
+    return homes
+
+
 def main():
     # during registration the seats move between the first read and the checks; a fresh read settles that
     for attempt in range(1, 4):
@@ -253,6 +288,8 @@ def main():
         "filters": {"degree": [n for _v, n in form.options[form.selects[0]]], "study_type": [n for _v, n in form.options[form.selects[1]]],
                     "faculty": [n for _v, n in form.options[form.selects[2]]]},
         "sections": rows,
+        # instructor -> own department(s) from the staff directory; instructors not in it are absent (unknown)
+        "homes": home_departments(rows),
         # what this run checked (shown on the page)
         "checks": {"rows": len(rows), "details_read": len(det), "filters": ["degree", "study_type", "faculty", "department"],
                    "status_vs_seats": len(rows)},

@@ -106,6 +106,27 @@
       .filter(([v, n]) => n > 0 || v === st[k])  // each list follows the other choices: a department shows only its instructors, rooms, days...
       .map(([v, n]) => `<option value="${esc(v)}" ${v === st[k] ? 'selected' : ''}>${esc(label(k, v))} (${n})</option>`).join('')}</select>`;
 
+  // the instructor list, split into the unit's own instructors / from other units / unknown when a unit is chosen
+  function instSelect(st) {
+    const opts = options('inst', st).filter(([v, n]) => n > 0 || v === st.inst);
+    // the unit's own instructors who teach only elsewhere still belong in its list (count = all their sections)
+    if (st.fac || st.dept) Object.keys(DATA.homes || {}).forEach(i => {
+      if (homeGroup(i, st) === 'home' && !opts.some(([v]) => v === i)) {
+        const n = S.filter(s => s.instructor === i).length;
+        if (n) opts.push([i, n]);
+      }
+    });
+    opts.sort((a, b) => a[0].localeCompare(b[0], 'ar'));
+    const opt = ([v, n]) => `<option value="${esc(v)}" ${v === st.inst ? 'selected' : ''}>${esc(v)} (${n})</option>`;
+    const body = !st.fac && !st.dept ? opts.map(opt).join('')
+      : homeGroups(st).map(([g, title]) => {
+        const os = opts.filter(([v]) => homeGroup(v, st) === g);
+        return os.length ? `<optgroup label="${title} (${os.length})">${os.map(opt).join('')}</optgroup>` : '';
+      }).join('');
+    return `<label class="small fw-bold mb-0" for="f-inst">المدرس</label>
+      <select class="form-select form-select-sm" name="inst" id="f-inst"><option value="">كل المدرسين</option>${body}</select>`;
+  }
+
   // ------------------------------------------------------------------ pieces
   const mtg = m => `<span class="tt-day ${MODE[m.mode] ? MODE[m.mode].cls : ''}" title="${esc(DAYS[m.day] + ' ' + m.start + '–' + m.end + ' · ' + m.mode)}"><i class="bi ${(MODE[m.mode] || {}).icon || 'bi-dot'}"></i>${esc(DAYS[m.day] || m.day)}</span>`;
   function when(s) {
@@ -269,15 +290,33 @@
     const hs = h === 0 ? '' : h === 1 ? 'ساعة' : h === 2 ? 'ساعتان' : h <= 10 ? `${h} ساعات` : `${h} ساعة`;
     return half ? (hs ? hs + ' ونصف' : 'نصف ساعة') : hs;
   }
+  // An instructor's own department/faculty comes from the staff directory (data.homes); the portal's department
+  // belongs to the course. With a department (or faculty) chosen, instructors fall into three groups.
+  function homeGroup(inst, st) {
+    const h = (DATA.homes || {})[inst];
+    if (!st.dept && !st.fac) return 'home';
+    if (!h) return 'unknown';
+    if (st.dept) return h.departments.includes(st.dept) ? 'home' : 'other';
+    return h.faculty === st.fac ? 'home' : 'other';
+  }
+  function homeGroups(st) {
+    const unit = st.dept ? 'القسم' : 'الكلية';
+    return [['home', `مدرسو ${unit}`, `قسمهم في دليل الموظفين هو ${st.dept ? esc(st.dept) : 'من كلية ' + esc(st.fac)}`],
+      ['other', `من ${st.dept ? 'أقسام' : 'كليات'} أخرى`, `يدرّسون مقررات ${unit} وقسمهم الأصلي غير ${unit} المختار`],
+      ['unknown', 'قسمهم غير معروف', 'غير موجودين في دليل الموظفين (غالباً غير متفرغين أو من خارج الجامعة)']];
+  }
   function freeScope(st) {
-    // pool = the instructors offered for selection (chosen instructor, or the faculty/department in the filters,
-    // plus anyone added by name); people = the ones selected (everyone in the pool until the user picks)
-    const base = st.inst ? [st.inst]
+    // pool = the instructors offered for selection: those teaching in the chosen faculty/department, plus that
+    // unit's own instructors teaching elsewhere, plus anyone added by name.
+    // people = the ones selected; until the user picks, the unit's own instructors (everyone when no unit is chosen)
+    const teaching = st.inst ? [st.inst]
       : [...new Set(S.filter(s => (!st.fac || s.faculty === st.fac) && (!st.dept || s.department === st.dept)).map(s => s.instructor))];
+    const own = st.inst || (!st.fac && !st.dept) ? [] : Object.keys(DATA.homes || {}).filter(i => homeGroup(i, st) === 'home' && S.some(s => s.instructor === i));
     const valid = (st.ppl || []).filter(x => S.some(s => s.instructor === x));
-    const pool = [...new Set(base.concat(valid))].sort((a, b) => a.localeCompare(b, 'ar'));
-    const people = st.ppl ? valid.slice().sort((a, b) => a.localeCompare(b, 'ar')) : pool;
-    return { pool, people, custom: !!st.ppl };
+    const pool = [...new Set(teaching.concat(own, valid))].sort((a, b) => a.localeCompare(b, 'ar'));
+    const dflt = st.inst ? pool : pool.filter(p => homeGroup(p, st) === 'home');
+    const people = st.ppl ? valid.slice().sort((a, b) => a.localeCompare(b, 'ar')) : dflt;
+    return { pool, people, dflt, custom: !!st.ppl };
   }
   function busyMap(people, st, days, slots) {
     const set = new Set(people), busy = {};
@@ -302,18 +341,6 @@
     const busy = busyMap(people, st, days, slots);
     const freeN = {};
     days.forEach(d => { freeN[d] = slots.map((t, i) => people.filter(p => !busy[p][d][i]).length); });
-    // best common windows: longest runs where everyone is free, else where the most people are
-    const best = Math.max(0, ...days.flatMap(d => freeN[d]));
-    const runs = [];
-    if (best > 0) days.forEach(d => {
-      let start = null;
-      slots.concat([null]).forEach((t, i) => {
-        const ok = t !== null && freeN[d][i] >= best;
-        if (ok && start === null) start = i;
-        if (!ok && start !== null) { runs.push({ d, a: slots[start], b: slots[i - 1] + 30, n: i - start }); start = null; }
-      });
-    });
-    runs.sort((x, y) => y.n - x.n || days.indexOf(x.d) - days.indexOf(y.d) || x.a - y.a);
     const timesOpt = sel => { const o = []; for (let t = 7 * 60; t <= 23 * 60; t += 30) o.push(`<option ${toTime(t) === sel ? 'selected' : ''}>${toTime(t)}</option>`); return o.join(''); };
     const allNames = [...new Set(S.map(s => s.instructor))].sort((a, b) => a.localeCompare(b, 'ar'));
     const { pool } = freeScope(st);
@@ -334,6 +361,7 @@
       <div class="fr-people mt-3">
         <div class="fr-ptools">
           <b class="small">اختر المدرسين <span class="badge rounded-pill text-bg-primary">${N} / ${pool.length}</span></b>
+          ${st.fac || st.dept ? `<button type="button" class="btn btn-sm btn-outline-primary" id="fr-own"><i class="bi bi-house-door"></i> مدرسو ${st.dept ? 'القسم' : 'الكلية'} فقط</button>` : ''}
           <button type="button" class="btn btn-sm btn-outline-primary" id="fr-all"><i class="bi bi-check2-all"></i> تحديد الكل</button>
           <button type="button" class="btn btn-sm btn-outline-secondary" id="fr-none"><i class="bi bi-x-lg"></i> إلغاء التحديد</button>
           <div class="input-group input-group-sm fr-find"><span class="input-group-text"><i class="bi bi-search"></i></span>
@@ -342,23 +370,53 @@
             <input class="form-control" id="fr-add" list="fr-names" placeholder="أضف مدرساً من قسم آخر…" autocomplete="off">
             <datalist id="fr-names">${allNames.filter(n => !pool.includes(n)).map(n => `<option value="${esc(n)}">`).join('')}</datalist></div>
         </div>
-        <p class="small text-muted mb-2"><i class="bi bi-hand-index"></i> انقر الاسم لتحديده أو إلغائه. مثال لاجتماع مدرسَين: «إلغاء التحديد» ثم انقر الاسمين.</p>
-        <div class="fr-chips">${pool.map(p => `<button type="button" class="fr-person ${people.includes(p) ? 'on' : ''}" data-toggle-p="${esc(p)}" aria-pressed="${people.includes(p)}">
-            <i class="bi ${people.includes(p) ? 'bi-check-circle-fill' : 'bi-circle'}"></i> ${esc(p)}</button>`).join('')
+        <p class="small text-muted mb-2"><i class="bi bi-hand-index"></i> انقر الاسم لتحديده أو إلغائه. مثال لاجتماع مدرسَين: «إلغاء التحديد» ثم انقر الاسمين.${st.fac || st.dept ? ` المحدَّد تلقائياً: مدرسو ${st.dept ? 'القسم' : 'الكلية'} حسب دليل الموظفين.` : ''}</p>
+        <div class="fr-chips">${(st.inst || (!st.fac && !st.dept) ? [['home', '', '']] : homeGroups(st)).map(([g, title, hint]) => {
+          const ps = pool.filter(p => st.inst || homeGroup(p, st) === g);
+          return ps.length ? `${title ? `<div class="fr-group"><b>${title} <span>(${ps.length})</span></b><small>${hint}</small></div>` : ''}${ps.map(p => `<button type="button" class="fr-person ${people.includes(p) ? 'on' : ''} g-${g}" data-toggle-p="${esc(p)}" aria-pressed="${people.includes(p)}">
+            <i class="bi ${people.includes(p) ? 'bi-check-circle-fill' : 'bi-circle'}"></i> ${esc(p)}</button>`).join('')}` : '';
+        }).join('')
           || '<span class="text-muted small">لا يوجد مدرسون في النطاق؛ اختر كلية أو قسماً من التصفية أو أضف مدرساً بالاسم.</span>'}</div>
       </div></div></div>`;
     if (!N) return head + (pool.length ? '<div class="card"><div class="card-body text-center text-muted py-4"><i class="bi bi-person-check fs-3 d-block mb-1"></i>اختر مدرساً واحداً على الأقل لعرض أوقات الفراغ.</div></div>' : '');
-    const tabs = `<ul class="nav nav-pills fr-tabs mb-3">${[['best', 'bi-stars', 'الأوقات المشتركة'], ['map', 'bi-grid-3x3-gap-fill', 'خريطة التفرغ'], ['busy', 'bi-bar-chart-steps', 'انشغال المدرسين']]
+    const tabs = `<ul class="nav nav-pills fr-tabs mb-3">${[['best', 'bi-stars', 'أفضل الأوقات'], ['map', 'bi-grid-3x3-gap-fill', 'خريطة التفرغ'], ['busy', 'bi-bar-chart-steps', 'انشغال المدرسين']]
       .map(([k, i, t]) => `<li class="nav-item"><a href="#" class="nav-link ${tab === k ? 'active' : ''}" data-ftab="${k}"><i class="bi ${i}"></i> ${t}</a></li>`).join('')}</ul>`;
 
-    const all = best === N;
-    const bestCard = `<div class="card mb-3 fr-bestcard"><div class="card-header"><i class="bi bi-stars"></i>
-        ${all ? 'أوقات يتفرغ فيها الجميع' : best ? `لا يوجد وقت يتفرغ فيه الجميع — أفضل الأوقات: ${best} من ${N} متفرغون` : 'لا يوجد وقت فراغ ضمن هذه الساعات'}
-        <span class="small text-muted ms-2">الأطول أولاً · انقر للتفاصيل</span></div>
-      <div class="card-body fr-best">${runs.slice(0, 10).map(r => `<a href="#" class="fr-slot ${all ? 'all' : ''}" data-cellf="${r.d}|${r.a}">
-        <b>${esc(DAYS[r.d])}</b><bdi dir="ltr">${toTime(r.a)}–${toTime(r.b)}</bdi><small>${dur(r.n)}</small></a>`).join('')
-        || '<span class="text-muted small">جرّب توسيع الساعات أو تقليل عدد المدرسين.</span>'}
-        ${runs.length > 10 ? `<span class="small text-muted align-self-center">و${runs.length - 10} فترات أقصر</span>` : ''}</div></div>`;
+    // suggested times, grouped: everyone free, then one absent, then two absent (longest first, each with who is missing)
+    const absentAt = (d, k) => people.filter(p => busy[p][d][k]);
+    const tierRuns = miss => {
+      const out = [];
+      days.forEach(d => {
+        let start = null;
+        slots.concat([null]).forEach((t, k) => {
+          const ok = t !== null && freeN[d][k] >= N - miss;
+          if (ok && start === null) start = k;
+          if (!ok && start !== null) {
+            const idx = Array.from({ length: k - start }, (_, x) => start + x);
+            const away = [...new Set(idx.flatMap(x => absentAt(d, x)))];
+            // a window already counted in a better group (fewer absent all along) is not repeated
+            if (miss === 0 || idx.some(x => freeN[d][x] === N - miss)) out.push({ d, a: slots[start], b: slots[k - 1] + 30, n: k - start, away });
+            start = null;
+          }
+        });
+      });
+      return out.sort((x, y) => y.n - x.n || days.indexOf(x.d) - days.indexOf(y.d) || x.a - y.a);
+    };
+    const tiers = [[0, 'يتفرغ فيها الجميع', 'all', 1]]
+      .concat(N >= 3 ? [[1, 'يغيب مدرس واحد', 'one', 2]] : [])
+      .concat(N >= 5 ? [[2, 'يغيب مدرسان', 'two', 2]] : [])
+      .map(([miss, title, cls, minLen]) => ({ miss, title, cls, runs: tierRuns(miss).filter(r => r.n >= minLen) }));
+    const slotCard = (r, cls) => `<a href="#" class="fr-slot ${cls}" data-cellf="${r.d}|${r.a}" title="${r.away.length ? 'يغيب: ' + esc(r.away.join('، ')) : 'الجميع متفرغ'}">
+        <b>${esc(DAYS[r.d])}</b><bdi dir="ltr">${toTime(r.a)}–${toTime(r.b)}</bdi><small>${dur(r.n)}</small>
+        ${r.away.length ? `<em>يغيب: ${r.away.length > 2 ? r.away.length + ' مدرسين' : esc(r.away.map(x => x.replace(/^(أ\.?\s?د|د|م|أ)\.+\s*/, '').split(' ').slice(0, 2).join(' ')).join('، '))}</em>` : ''}</a>`;
+    const anyRun = tiers.some(t => t.runs.length);
+    const bestCard = `<div class="card mb-3 fr-bestcard"><div class="card-header d-flex flex-wrap gap-2 align-items-baseline"><span><i class="bi bi-stars"></i> أفضل الأوقات المقترحة</span>
+        <span class="small text-muted">${N} مدرس · الأطول أولاً · انقر أي وقت لعرض المتفرغين والمشغولين</span></div>
+      <div class="card-body">${tiers.map(t => `<section class="fr-tier ${t.cls}">
+          <h4><span class="fr-tier-dot"></span>${t.title} <small>${t.runs.length ? t.runs.length + ' ' + (t.runs.length > 10 ? 'فترة' : 'فترات') : 'لا توجد'}${t.miss ? ' · ساعة على الأقل' : ''}</small></h4>
+          <div class="fr-best">${t.runs.slice(0, 8).map(r => slotCard(r, t.cls)).join('') || `<span class="text-muted small">${t.miss ? 'لا توجد فترة بطول ساعة.' : 'لا يوجد وقت يتفرغ فيه الجميع ضمن هذه الساعات.'}</span>`}
+            ${t.runs.length > 8 ? `<span class="small text-muted align-self-center">و${t.runs.length - 8} فترات أقصر</span>` : ''}</div></section>`).join('')}
+        ${anyRun ? '' : '<p class="text-muted small mb-0">جرّب توسيع الساعات أو تقليل عدد المدرسين.</p>'}</div></div>`;
 
     const heat = `<div class="card h-100"><div class="card-header d-flex flex-wrap justify-content-between gap-2"><span><i class="bi bi-grid-3x3-gap-fill"></i> خريطة التفرغ</span>
         <span class="fr-legend small"><span>مشغول</span>${[0, .25, .5, .75, 1].map(v => `<i style="--f:${v}"></i>`).join('')}<span>متفرغ</span></span></div>
@@ -409,13 +467,14 @@
           || '<li class="text-muted">لا أحد</li>'}</ul></div></div>`);
   }
   function bindFree(st) {
-    const { pool, people } = freeScope(st);
+    const { pool, people, dflt } = freeScope(st);
     const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
     on('#fr-from', 'change', e => set({ from: e.target.value }));
     on('#fr-to', 'change', e => set({ to: e.target.value }));
     on('#fr-sat', 'change', e => set({ sat: e.target.checked ? '1' : '' }));
     on('#fr-async', 'change', e => set({ async: e.target.checked ? '1' : '' }));
-    on('#fr-all', 'click', () => set({ ppl: null }));
+    on('#fr-all', 'click', () => set({ ppl: pool.length === dflt.length ? null : pool }));
+    on('#fr-own', 'click', () => set({ ppl: null }));
     on('#fr-none', 'click', () => set({ ppl: [] }));
     on('#fr-add', 'change', e => {
       const v = e.target.value.trim();
@@ -428,7 +487,7 @@
     document.querySelectorAll('[data-toggle-p]').forEach(b => b.addEventListener('click', () => {
       const p = b.dataset.toggleP;
       const next = people.includes(p) ? people.filter(x => x !== p) : people.concat([p]);
-      set({ ppl: next.length === pool.length && pool.every(x => next.includes(x)) ? null : next });
+      set({ ppl: next.length === dflt.length && dflt.every(x => next.includes(x)) ? null : next });
     }));
     document.querySelectorAll('[data-ftab]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); set({ ftab: a.dataset.ftab }); }));
     document.querySelectorAll('[data-cellf]').forEach(a => a.addEventListener('click', e => {
@@ -446,7 +505,7 @@
   const MX = {
     load: { t: 'ضغط الأوقات', i: 'bi-activity', d: 'عدد الشعب التي تُعقد في كل نصف ساعة من كل يوم — يكشف ساعات الذروة والأوقات الهادئة.' },
     roomuse: { t: 'إشغال القاعات', i: 'bi-door-open', d: 'ساعات استخدام كل قاعة في كل يوم ومجموعها الأسبوعي — القاعات الأكثر والأقل استخداماً.' },
-    roomfree: { t: 'القاعات الشاغرة', i: 'bi-door-closed', d: 'لكل قاعة: الأوقات المشغولة والشاغرة في اليوم المختار — للعثور على قاعة لمحاضرة تعويضية أو اجتماع.' },
+    roomfree: { t: 'القاعات الشاغرة', i: 'bi-door-closed', d: 'لكل قاعة: الأوقات الشاغرة في يوم أو أكثر معاً (مثل الأحد والثلاثاء) — لمحاضرة تعويضية أو شعبة جديدة أو اجتماع.' },
     instload: { t: 'عبء المدرسين', i: 'bi-person-workspace', d: 'ساعات التدريس المجدولة لكل مدرس في كل يوم، مع عدد الشعب والمجموع.' },
     facday: { t: 'الكليات × الأيام', i: 'bi-bank2', d: 'عدد الشعب التي تُعقد في كل يوم لكل كلية.' },
     seats: { t: 'المقاعد حسب القسم', i: 'bi-people', d: 'الشعب المفتوحة والمغلقة، المسجلون والسعة ونسبة الامتلاء لكل قسم.' },
@@ -502,28 +561,57 @@
         ${days.map(d => heatCell(r.d[d] || 0, max, hrs(r.d[d] || 0), `${r.k} · ${DAYS[d]}: ${hrs(r.d[d] || 0)} ساعة`)).join('')}
         <td class="mx-tot"><b>${hrs(r.tot)}</b> س<span class="mx-bar"><i style="width:${100 * r.tot / maxT}%"></i></span></td><td class="text-center">${r.secs.size}</td></tr>`));
     } else if (kind === 'roomfree') {
-      const day = days.includes(st.mxday) ? st.mxday : days[0];
-      const from = 8 * 60, to = Math.max(17 * 60, ...list.flatMap(s => s.meetings.filter(m => m.day === day && live(m)).map(m => toMin(m.end))));
+      // one or more days: a half hour is free only when the room is free on every chosen day
+      // (a course meeting Sunday and Tuesday needs the room on both)
+      const sel = [...new Set([...(st.mxday || '')])].filter(d => days.includes(d));
+      const chosen = sel.length ? sel.sort((a, b) => WEEK.indexOf(a) - WEEK.indexOf(b)) : [days[0]];
+      const key = ds => ds.slice().sort((a, b) => WEEK.indexOf(a) - WEEK.indexOf(b)).join('');
+      const from = 8 * 60, to = Math.max(17 * 60, ...list.flatMap(s => s.meetings.filter(m => chosen.includes(m.day) && live(m)).map(m => toMin(m.end))));
       const slots = [];
       for (let t = from; t < to; t += 30) slots.push(t);
-      // all rooms known from the whole timetable (a room free all day still counts); occupancy from every section, not only filtered ones
+      // rooms from the filtered sections; occupancy from every section of the university in those rooms
       const roomsAll = [...new Set(list.map(s => s.room))].filter(r => r && r !== '0').sort((a, b) => a.localeCompare(b));
-      const occ = {};
+      const occ = {};  // room -> slot -> day -> sections
       S.forEach(s => s.meetings.forEach(m => {
-        if (m.day !== day || !live(m) || !roomsAll.includes(s.room)) return;
-        slots.forEach((t, i) => { if (toMin(m.start) < t + 30 && toMin(m.end) > t) ((occ[s.room] ||= {})[i] ||= []).push(s); });
+        if (!chosen.includes(m.day) || !live(m) || !roomsAll.includes(s.room)) return;
+        slots.forEach((t, i) => { if (toMin(m.start) < t + 30 && toMin(m.end) > t) (((occ[s.room] ||= {})[i] ||= {})[m.day] ||= []).push(s); });
       }));
+      const busyDays = (r, i) => Object.keys((occ[r] || {})[i] || {});
       const bld = Object.fromEntries(S.map(s => [s.room, s.building]));
-      csv = [['القاعة', 'المبنى', ...slots.map(toTime)], ...roomsAll.map(r => [r, bld[r], ...slots.map((t, i) => occ[r] && occ[r][i] ? occ[r][i].map(s => s.code + '/' + s.section).join(' ') : 'شاغرة')])];
-      const freeNow = slots.map((t, i) => roomsAll.filter(r => !(occ[r] && occ[r][i])).length);
-      body = `<div class="d-flex flex-wrap gap-2 align-items-center p-2 small"><span class="fw-bold">اليوم:</span>
-          <div class="btn-group btn-group-sm">${days.map(d => `<button type="button" class="btn ${d === day ? 'btn-primary' : 'btn-outline-primary'}" data-mxday="${d}">${esc(DAYS[d])}</button>`).join('')}</div>
+      const longest = r => {  // longest stretch free on all chosen days
+        let best = 0, run = 0, at = 0, bestAt = 0;
+        slots.forEach((t, i) => { if (!busyDays(r, i).length) { if (!run) at = t; run++; if (run > best) { best = run; bestAt = at; } } else run = 0; });
+        return { n: best, a: bestAt };
+      };
+      const names = chosen.map(d => DAYS[d]).join(' و');
+      csv = [['القاعة', 'المبنى', ...slots.map(toTime), 'أطول فترة شاغرة'], ...roomsAll.map(r => [r, bld[r], ...slots.map((t, i) => {
+        const b = busyDays(r, i);
+        return b.length ? b.map(d => DAYS[d] + ': ' + occ[r][i][d].map(s => s.code + '/' + s.section).join(' ')).join(' | ') : 'شاغرة';
+      }), (l => l.n ? `${toTime(l.a)}–${toTime(l.a + 30 * l.n)}` : '—')(longest(r))])];
+      const freeNow = slots.map((t, i) => roomsAll.filter(r => !busyDays(r, i).length).length);
+      const toggle = d => key(chosen.includes(d) ? (chosen.length > 1 ? chosen.filter(x => x !== d) : chosen) : chosen.concat([d]));
+      const presets = [['حث', 'الأحد والثلاثاء'], ['نر', 'الاثنين والأربعاء'], ['حثخ', 'الأحد والثلاثاء والخميس'], [key(days.filter(d => d !== 'س')), 'كل أيام الأسبوع']]
+        .filter(([k]) => [...k].every(d => days.includes(d)));
+      body = `<div class="d-flex flex-wrap gap-2 align-items-center p-2 small mx-days">
+          <span class="fw-bold">الأيام:</span>
+          <div class="btn-group btn-group-sm flex-wrap">${days.map(d => `<button type="button" class="btn ${chosen.includes(d) ? 'btn-primary' : 'btn-outline-primary'}" data-mxday="${toggle(d)}" aria-pressed="${chosen.includes(d)}">
+            ${chosen.includes(d) ? '<i class="bi bi-check2"></i> ' : ''}${esc(DAYS[d])}</button>`).join('')}</div>
+          <span class="text-muted">أو نمط جاهز:</span>
+          ${presets.map(([k, t]) => `<button type="button" class="btn btn-sm ${key(chosen) === k ? 'btn-secondary' : 'btn-outline-secondary'}" data-mxday="${k}">${t}</button>`).join('')}
+        </div>
+        <div class="d-flex flex-wrap gap-3 align-items-center px-2 pb-2 small">
+          <span><b>الشاغر = شاغرة ${chosen.length > 1 ? 'في كل الأيام المختارة معاً' : 'في هذا اليوم'}</b> (${esc(names)})</span>
           <span class="text-muted">القاعات من نطاق التصفية؛ الإشغال من كل شعب الجامعة في هذه القاعات</span>
-          <span class="ms-auto d-flex gap-2"><span class="mx-key busy"></span> مشغولة <span class="mx-key"></span> شاغرة</span></div>`
-        + mxTable(['القاعة', ...slots.map(t => `<bdi dir="ltr" class="mx-vt">${toTime(t)}</bdi>`)], roomsAll.map(r => `<tr><th>${esc(r)}<small class="d-block fw-normal text-muted">${esc(bld[r] || '')}</small></th>${slots.map((t, i) => {
-          const o = occ[r] && occ[r][i];
-          return o ? `<td class="mx-busy" title="${esc(o.map(s => `${s.code} ${s.name} – ش${s.section} · ${s.instructor}`).join('\n'))}"></td>` : `<td class="mx-free" title="${esc(`${r} شاغرة ${DAYS[day]} ${toTime(t)}–${toTime(t + 30)}`)}"></td>`;
-        }).join('')}</tr>`), `<tr><th>شاغرة</th>${freeNow.map(n => `<td class="mx-sum">${n}</td>`).join('')}</tr>`);
+          <span class="ms-auto d-flex flex-wrap gap-2 align-items-center"><span class="mx-key busy"></span> مشغولة${chosen.length > 1 ? ' في كل الأيام <span class="mx-key part"></span> مشغولة في بعضها' : ''} <span class="mx-key"></span> شاغرة</span></div>`
+        + mxTable(['القاعة', ...slots.map(t => `<bdi dir="ltr" class="mx-vt">${toTime(t)}</bdi>`), 'أطول فترة شاغرة'], roomsAll.map(r => {
+          const l = longest(r);
+          return `<tr><th>${esc(r)}<small class="d-block fw-normal text-muted">${esc(bld[r] || '')}</small></th>${slots.map((t, i) => {
+            const b = busyDays(r, i);
+            const tip = b.map(d => `${DAYS[d]}: ` + occ[r][i][d].map(s => `${s.code} ${s.name} – ش${s.section} · ${s.instructor}`).join('، ')).join('\n');
+            return !b.length ? `<td class="mx-free" title="${esc(`${r} شاغرة ${names} ${toTime(t)}–${toTime(t + 30)}`)}"></td>`
+              : `<td class="${b.length === chosen.length ? 'mx-busy' : 'mx-part'}" title="${esc(tip)}"></td>`;
+          }).join('')}<td class="mx-long">${l.n ? `<bdi dir="ltr">${toTime(l.a)}–${toTime(l.a + 30 * l.n)}</bdi><small>${dur(l.n)}</small>` : '—'}</td></tr>`;
+        }), `<tr><th>قاعات شاغرة</th>${freeNow.map(n => `<td class="mx-sum">${n}</td>`).join('')}<td></td></tr>`);
     } else if (kind === 'facday') {
       const facs = DATA.filters.faculty.filter(f => list.some(s => s.faculty === f));
       const n = (f, d) => list.filter(s => s.faculty === f && s.meetings.some(m => m.day === d && live(m))).length;
@@ -782,7 +870,7 @@
         ${select('mode', 'نمط التدريس', st, 'الكل')}
         ${select('bld', 'المبنى', st, 'كل المباني')}
         <div class="row g-2"><div class="col-7">${select('room', 'القاعة', st, 'كل القاعات')}</div><div class="col-5">${select('sec', 'الشعبة', st, 'الكل')}</div></div>
-        ${select('inst', 'المدرس', st, 'كل المدرسين')}
+        ${instSelect(st)}
       </div></form>`;
     const chips = active.map(k => `<a href="#" data-clear="${k}" class="badge rounded-pill text-bg-light border text-decoration-none filter-chip">${k === 'seats' ? 'مقاعد متاحة' : F.find(f => f[0] === k)[1] + ': ' + esc(label(k, st[k]))} <i class="bi bi-x-circle-fill"></i></a>`).join(' ');
     const views = [['dash', 'bi-speedometer', 'لوحة المؤشرات'], ['table', 'bi-table', 'جدول'], ['cards', 'bi-grid-3x2-gap-fill', 'بطاقات'], ['courses', 'bi-journal-bookmark', 'حسب المقرر'], ['grid', 'bi-calendar-week', 'مصفوفة أسبوعية'], ['free', 'bi-hourglass-split', 'أوقات الفراغ'], ['mx', 'bi-grid-3x3', 'مصفوفات جاهزة']];
