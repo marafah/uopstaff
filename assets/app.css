@@ -56,6 +56,11 @@ a { color: var(--uop-maroon); }
 .stat-card { border-radius: 14px; background: #fff; padding: 1rem 1.2rem; box-shadow: 0 2px 10px rgba(9,27,34,.06); border-top: 4px solid var(--uop-maroon); }
 .stat-card .v { font-size: 1.9rem; font-weight: 800; color: var(--uop-navy); }
 .stat-card .l { color: #6c757d; font-size: .85rem; }
+#kpis a[data-kpi] .stat-card { transition: box-shadow .15s, transform .15s; }
+#kpis a[data-kpi]:hover .stat-card { box-shadow: 0 6px 18px rgba(9,27,34,.12); transform: translateY(-1px); }
+#kpis .stat-card.active { box-shadow: 0 0 0 2px var(--uop-maroon), 0 6px 18px rgba(9,27,34,.12); }
+.kpi-scope { margin-bottom: -.4rem; font-size: .9rem; color: var(--uop-navy); }
+.kpi-scope i { color: var(--uop-maroon); }
 .section-title { text-align: center; font-weight: 800; color: var(--uop-navy); margin: 1.5rem 0 1rem; }
 .section-title::after { content: ""; display: block; width: 60px; height: 3px; background: var(--uop-maroon); margin: .5rem auto 0; border-radius: 3px; }
 

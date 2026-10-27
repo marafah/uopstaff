@@ -147,10 +147,12 @@
     // a department belongs to the faculty most of its members are in (some staff also list a department of another faculty)
     const home = deptHome();
     const deptsSorted = Object.keys(deptC).filter(d => !st.faculty || String(home[d]) === st.faculty).sort((a, b) => a.localeCompare(b, 'ar'));
+    // the top cards follow the chosen faculty/department (the other filters are what the cards themselves set)
+    const scope = all.filter(m => (!st.faculty || String(m.faculty) === st.faculty) && (!st.dept || depts(m.department).includes(st.dept)));
     const totals = {
-      all: all.length, academic: all.filter(m => m.type === 'academic').length, admin: all.filter(m => m.type === 'admin').length,
-      leaders: all.filter(m => m.role).length, faculties: new Set(all.map(m => m.faculty).filter(id => FAC[id] && !FAC[id].unit)).size,
-      depts: new Set(all.flatMap(m => depts(m.department))).size,
+      all: scope.length, academic: scope.filter(m => m.type === 'academic').length, admin: scope.filter(m => m.type === 'admin').length,
+      leaders: scope.filter(m => m.role).length, faculties: new Set(scope.map(m => m.faculty).filter(id => FAC[id] && !FAC[id].unit)).size,
+      depts: new Set(scope.flatMap(m => depts(m.department))).size,
     };
     // per-faculty summary (other filters applied, faculty filter ignored)
     const sum = {};
@@ -161,7 +163,11 @@
         : k === 'role' && st[k] === 'any' ? 'أي منصب قيادي' : st[k];
       return `<a href="#" data-clear="${k}" class="badge rounded-pill text-bg-light border text-decoration-none filter-chip">${LABELS[k]}: ${esc(value)} <i class="bi bi-x-circle-fill"></i></a>`;
     }).join(' ');
-    const kpi = (v, l, icon, color, href) => `<div class="col-6 col-md-4 col-xl-2"><a href="${href || '#'}" ${href ? '' : 'onclick="return false"'} class="text-decoration-none"><div class="stat-card" ${color ? `style="border-top-color:${color}"` : ''}><div class="v">${v}</div><div class="l"><i class="bi ${icon}"></i> ${l}</div></div></a></div>`;
+    // a card sets type/role and keeps the chosen faculty and department
+    const kpi = (v, l, icon, color, set) => {
+      const on = set && set.type === st.type && set.role === st.role && !st.q && !st.rank && !st.source;
+      return `<div class="col-6 col-md-4 col-xl-2"><a href="#" ${set ? `data-kpi='${JSON.stringify(set)}'` : 'onclick="return false"'} class="text-decoration-none"${on ? ' aria-current="true"' : ''}><div class="stat-card${on ? ' active' : ''}" ${color ? `style="border-top-color:${color}"` : ''}><div class="v">${v}</div><div class="l"><i class="bi ${icon}"></i> ${l}</div></div></a></div>`;
+    };
 
     if (!$('#layout')) {  // page skeleton once; the parts below are refreshed on every change (keeps the drawer open)
       $('#app').innerHTML = `<div class="row g-3 mb-3" id="kpis"></div><div id="live-msg"></div>
@@ -177,13 +183,15 @@
         </div>`;
     }
     const nActive = FILTERS.filter(k => st[k]).length;
+    const scopeName = [st.faculty && (FAC[st.faculty] || {}).name, st.dept && 'قسم ' + st.dept].filter(Boolean).join(' · ');
     $('#kpis').innerHTML = `
-      ${kpi(totals.all, 'إجمالي الموظفين', 'bi-people-fill', '', '?')}
-      ${kpi(totals.academic, 'أكاديمي', 'bi-mortarboard-fill', 'var(--uop-maroon)', '?type=academic')}
-      ${kpi(totals.admin, 'إداري', 'bi-briefcase-fill', 'var(--uop-navy)', '?type=admin')}
-      ${kpi(totals.leaders, 'مناصب قيادية', 'bi-star-fill', '#eda100', '?role=any')}
-      ${kpi(totals.faculties, 'كليات', 'bi-bank2', '', '')}
-      ${kpi(totals.depts, 'أقسام أكاديمية', 'bi-diagram-3-fill', '', '')}`;
+      ${scopeName ? `<div class="col-12 kpi-scope"><i class="bi bi-bullseye"></i> الأرقام ضمن: <b>${esc(scopeName)}</b></div>` : ''}
+      ${kpi(totals.all, scopeName ? 'كل الموظفين' : 'إجمالي الموظفين', 'bi-people-fill', '', { type: '', role: '' })}
+      ${kpi(totals.academic, 'أكاديمي', 'bi-mortarboard-fill', 'var(--uop-maroon)', { type: 'academic', role: '' })}
+      ${kpi(totals.admin, 'إداري', 'bi-briefcase-fill', 'var(--uop-navy)', { type: 'admin', role: '' })}
+      ${kpi(totals.leaders, 'مناصب قيادية', 'bi-star-fill', '#eda100', { type: '', role: 'any' })}
+      ${kpi(totals.faculties, totals.faculties === 1 ? 'كلية' : 'كليات', 'bi-bank2', '', null)}
+      ${kpi(totals.depts, 'أقسام أكاديمية', 'bi-diagram-3-fill', '', null)}`;
     $('#panel').innerHTML = `
         <form class="card mb-3" id="filters" onsubmit="return false">
           <div class="card-header d-flex justify-content-between align-items-center"><span><i class="bi bi-funnel-fill"></i> التصفية</span>${active ? '<a href="#" data-clear="all" class="small">مسح الكل</a>' : ''}</div>
@@ -267,6 +275,10 @@
       e.preventDefault();
       const k = a.dataset.clear;
       set(k === 'all' ? Object.fromEntries(FILTERS.map(x => [x, ''])) : { [k]: '' });
+    }));
+    document.querySelectorAll('[data-kpi]').forEach(a => a.addEventListener('click', e => {
+      e.preventDefault();
+      set({ ...JSON.parse(a.dataset.kpi), q: '', rank: '', source: '' });
     }));
     document.querySelectorAll('[data-faculty]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); set({ faculty: a.dataset.faculty }); }));
     document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => set({ view: b.dataset.view })));
