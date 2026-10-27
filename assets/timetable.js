@@ -523,6 +523,158 @@
         ${list.length ? body : '<div class="card-body text-muted">لا توجد شعب في نطاق التصفية.</div>'}</div>`;
   }
 
+  // ------------------------------------------------------------------ dashboard
+  // Every figure comes from the sections that match the current filters; every bar drills down (sets a filter).
+  // Single-series bars in one hue; status keeps its reserved green/red and always has a text label.
+  const pct = (a, b) => b ? Math.round(100 * a / b) : 0;
+  const fmtN = n => n.toLocaleString('en-US');
+  function hbars(items, opts) {
+    // items: [{label, value, sub?, pick?: [key, value], tip}] — horizontal bars, value label at the end
+    const max = Math.max(1, ...items.map(x => x.value));
+    return `<div class="db-hbars">${items.map(x => `<${x.pick ? 'a href="#"' : 'div'} class="db-hbar ${x.pick ? 'click' : ''}" ${x.pick ? `data-pick="${x.pick[0]}" data-v="${esc(x.pick[1])}"` : ''} data-tip="${esc(x.tip || '')}">
+        <span class="db-hl">${esc(x.label)}${x.sub ? `<small>${esc(x.sub)}</small>` : ''}</span>
+        <span class="db-ht"><i style="width:${(100 * x.value / max).toFixed(1)}%" class="${x.cls || ''}"></i></span>
+        <b class="db-hv">${opts && opts.fmt ? opts.fmt(x) : fmtN(x.value)}</b></${x.pick ? 'a' : 'div'}>`).join('')}</div>`;
+  }
+  function cols(items, opts) {
+    // vertical columns on a shared baseline; the tallest gets a direct label, the others show on hover
+    const max = Math.max(1, ...items.map(x => x.value));
+    const top = items.reduce((a, x) => x.value > a.value ? x : a, items[0] || { value: 0 });
+    return `<div class="db-cols ${opts && opts.dense ? 'dense' : ''}">${items.map(x => `<a href="#" class="db-col" ${x.pick ? `data-pick="${x.pick[0]}" data-v="${esc(x.pick[1])}"` : ''} data-tip="${esc(x.tip)}">
+        <span class="db-cb"><i style="height:${(100 * x.value / max).toFixed(1)}%">${x === top && x.value ? `<em>${fmtN(x.value)}</em>` : ''}</i></span>
+        <span class="db-cl">${x.html || esc(x.label)}</span></a>`).join('')}</div>`;
+  }
+  const panel = (icon, title, sub, body, cls) => `<section class="db-panel ${cls || ''}"><header><h3><i class="bi ${icon}"></i> ${title}</h3>${sub ? `<small>${sub}</small>` : ''}</header>${body}</section>`;
+
+  function dashView(list, st) {
+    if (!list.length) return '<div class="card"><div class="card-body text-center text-muted py-5">لا توجد شعب في نطاق التصفية.</div></div>';
+    const liveM = list.flatMap(s => s.meetings.filter(live).map(m => ({ s, m })));
+    const reg = list.reduce((a, s) => a + s.registered, 0), cap = list.reduce((a, s) => a + s.capacity, 0);
+    const open = list.filter(s => s.status === 'مفتوحة').length;
+    const over = list.filter(s => s.registered > s.capacity);
+    const near = list.filter(s => s.capacity && s.registered < s.capacity && s.registered / s.capacity >= 0.9);
+    const allM = list.flatMap(s => s.meetings);
+    const onlineShare = pct(allM.filter(m => m.mode !== 'وجاهي').length, allM.length);
+    const noRoom = list.filter(s => s.room === '0').length;
+    const avgClass = list.length ? Math.round(reg / list.length) : 0;
+    const count = (arr, f) => arr.reduce((m, x) => { const k = f(x); m[k] = (m[k] || 0) + 1; return m; }, {});
+
+    // KPI band
+    const kpi = (v, l, sub, icon, tone) => `<div class="db-kpi ${tone || ''}"><i class="bi ${icon}"></i><div><b>${v}</b><span>${l}</span>${sub ? `<small>${sub}</small>` : ''}</div></div>`;
+    const kpis = `<div class="db-kpis">
+      ${kpi(fmtN(list.length), 'شعبة', `${fmtN(new Set(list.map(s => s.code)).size)} مقرراً`, 'bi-collection-fill')}
+      ${kpi(fmtN(new Set(list.map(s => s.instructor)).size), 'مدرس', `${(list.length / Math.max(1, new Set(list.map(s => s.instructor)).size)).toFixed(1)} شعبة لكل مدرس`, 'bi-person-video3')}
+      ${kpi(fmtN(reg), 'طالب مسجّل', `من سعة ${fmtN(cap)}`, 'bi-people-fill')}
+      ${kpi(pct(reg, cap) + '%', 'نسبة الامتلاء', `متوسط الشعبة ${avgClass} طالباً`, 'bi-speedometer2')}
+      ${kpi(fmtN(open), 'شعبة مفتوحة', `${fmtN(list.length - open)} مغلقة`, 'bi-unlock-fill', 'good')}
+      ${kpi(fmtN(over.length), 'تجاوزت السعة', `${fmtN(near.length)} قاربت الامتلاء (≥90%)`, 'bi-exclamation-triangle-fill', over.length ? 'bad' : '')}
+      ${kpi(onlineShare + '%', 'لقاءات غير وجاهية', 'إلكتروني كامل وغير متزامن ومدمج', 'bi-camera-video-fill')}
+      ${kpi(fmtN(noRoom), 'شعبة بدون قاعة', 'القاعة في المصدر: 0', 'bi-door-closed', noRoom ? 'warn' : '')}
+    </div>`;
+
+    // faculties (or departments when one faculty is chosen)
+    const byDept = !!st.fac;
+    const g = count(list, s => byDept ? s.department : s.faculty);
+    const unitItems = Object.entries(g).sort((a, b) => b[1] - a[1]).map(([k, v]) => {
+      const ss = list.filter(s => (byDept ? s.department : s.faculty) === k);
+      const r = ss.reduce((a, s) => a + s.registered, 0), c = ss.reduce((a, s) => a + s.capacity, 0);
+      return { label: k, value: v, pick: [byDept ? 'dept' : 'fac', k], tip: `${k}\n${v} شعبة · ${r} مسجلاً من ${c} (${pct(r, c)}%)` };
+    });
+
+    // days and start times
+    const dayItems = WEEK.filter(d => liveM.some(x => x.m.day === d)).map(d => {
+      const n = new Set(liveM.filter(x => x.m.day === d).map(x => x.s)).size;
+      return { label: DAYS[d], value: n, pick: ['day', d], tip: `${DAYS[d]}: ${n} شعبة لها لقاء مجدول` };
+    });
+    const starts = [...new Set(liveM.map(x => x.m.start))].sort();
+    const timeItems = starts.map(t => {
+      const n = new Set(liveM.filter(x => x.m.start === t).map(x => x.s)).size;
+      return { label: t, html: `<bdi dir="ltr">${t}</bdi>`, value: n, pick: ['time', t], tip: `تبدأ ${t}: ${n} شعبة` };
+    });
+
+    // delivery modes (meetings)
+    const modeN = count(allM, m => m.mode);
+    const modeItems = Object.keys(MODE).filter(k => modeN[k]).map(k => ({ label: k, value: modeN[k], pick: ['mode', k],
+      tip: `${k}: ${modeN[k]} لقاء (${pct(modeN[k], allM.length)}%)` }));
+
+    // fill rate by department
+    const dg = {};
+    list.forEach(s => { const r = dg[s.department] || (dg[s.department] = { r: 0, c: 0, n: 0, f: s.faculty }); r.r += s.registered; r.c += s.capacity; r.n++; });
+    const fillItems = Object.entries(dg).map(([k, v]) => ({ label: k, sub: byDept ? '' : v.f, value: pct(v.r, v.c), pick: ['dept', k],
+      cls: v.r >= v.c ? 'full' : '', tip: `${k}\n${v.r} مسجلاً من ${v.c} في ${v.n} شعبة` })).sort((a, b) => b.value - a.value).slice(0, 12);
+
+    // busiest instructors / rooms (all their sections, union of half hours)
+    const hoursOf = (key, keep) => {
+      const keys = new Set(list.map(key).filter(keep));
+      const o = {};
+      S.forEach(s => {
+        const k = key(s);
+        if (!keys.has(k)) return;
+        s.meetings.filter(live).forEach(m => { const set = ((o[k] ||= {})[m.day] ||= new Set()); for (let t = toMin(m.start); t < toMin(m.end); t += 30) set.add(t); });
+      });
+      return Object.entries(o).map(([k, d]) => [k, Object.values(d).reduce((a, x) => a + x.size, 0) / 2]).sort((a, b) => b[1] - a[1]);
+    };
+    const instItems = hoursOf(s => s.instructor, Boolean).slice(0, 10).map(([k, h]) => ({ label: k, value: h, pick: ['inst', k],
+      tip: `${k}: ${h} ساعة مجدولة أسبوعياً (من كل شعبه)` }));
+    const roomH = hoursOf(s => s.room, r => r && r !== '0');
+    const roomItems = roomH.slice(0, 10).map(([k, h]) => ({ label: k, sub: (S.find(s => s.room === k) || {}).building, value: h, pick: ['room', k],
+      tip: `القاعة ${k}: ${h} ساعة إشغال أسبوعياً` }));
+
+    // capacity watch: sections over capacity / nearly full
+    const watch = over.slice().sort((a, b) => (b.registered - b.capacity) - (a.registered - a.capacity)).slice(0, 8);
+    const watchRows = watch.map(s => `<a href="#" class="db-watch" data-open="${S.indexOf(s)}" data-tip="${esc(`${s.code} ${s.name} – ش${s.section}\n${s.instructor}`)}">
+        <span><b dir="ltr">${esc(s.code)}</b> ${esc(s.name)} <small>ش${esc(s.section)}</small></span>
+        <span class="db-over">+${s.registered - s.capacity}</span><bdi dir="ltr" class="small">${s.registered}/${s.capacity}</bdi></a>`).join('');
+
+    // open vs closed by degree/activity
+    const split = (f, label) => {
+      const c = count(list, f);
+      return Object.entries(c).map(([k, n]) => {
+        const o = list.filter(s => f(s) === k && s.status === 'مفتوحة').length;
+        return `<div class="db-split" data-tip="${esc(`${label} ${k}: ${o} مفتوحة، ${n - o} مغلقة`)}"><span class="db-hl">${esc(k)}</span>
+          <span class="db-stack"><i class="ok" style="width:${100 * o / n}%"></i><i class="no" style="width:${100 * (n - o) / n}%"></i></span>
+          <small><b class="text-success">${o}</b> / <b class="text-danger">${n - o}</b></small></div>`;
+      }).join('');
+    };
+
+    return `<div class="db">${kpis}
+      <div class="db-grid">
+        ${panel('bi-bank2', byDept ? `الشعب حسب القسم – ${esc(st.fac)}` : 'الشعب حسب الكلية', 'انقر شريطاً لعرض شعبه', hbars(unitItems), 'w2')}
+        ${panel('bi-calendar-week', 'الشعب حسب اليوم', 'شعب لها لقاء مجدول في اليوم', cols(dayItems))}
+        ${panel('bi-clock', 'أوقات البداية', 'عدد الشعب التي تبدأ في كل وقت', cols(timeItems, { dense: true }), 'w2')}
+        ${panel('bi-broadcast', 'أنماط التدريس', 'عدد اللقاءات الأسبوعية', hbars(modeItems, { fmt: x => `${fmtN(x.value)} <small>(${pct(x.value, allM.length)}%)</small>` }))}
+        ${panel('bi-speedometer2', 'الامتلاء حسب القسم', 'المسجلون ÷ السعة · الأحمر = ممتلئ أو أكثر', hbars(fillItems, { fmt: x => x.value + '%' }), 'w2')}
+        ${panel('bi-toggle-on', 'المفتوحة والمغلقة', '<span class="text-success">■ مفتوحة</span> <span class="text-danger">■ مغلقة</span>',
+          split(s => s.degree, 'الدرجة') + '<hr class="my-2">' + split(s => s.activity, 'النشاط') + '<hr class="my-2">' + split(s => s.study_type, 'نوع الدراسة'))}
+        ${panel('bi-person-workspace', 'الأكثر ساعات تدريس', 'أعلى 10 · ساعات أسبوعية من كل الشعب', hbars(instItems, { fmt: x => x.value + ' س' }))}
+        ${panel('bi-door-open', 'القاعات الأكثر إشغالاً', 'أعلى 10 · ساعات أسبوعية', hbars(roomItems, { fmt: x => x.value + ' س' }))}
+        ${panel('bi-exclamation-triangle', 'شعب تجاوزت السعة', over.length ? `${over.length} شعبة · الأعلى تجاوزاً أولاً · انقر للتفاصيل` : '', watchRows || '<p class="text-muted small mb-0">لا توجد شعب تجاوزت سعتها.</p>')}
+      </div>
+      <p class="small text-muted mt-2 mb-0"><i class="bi bi-info-circle"></i> كل الأرقام من ${fmtN(list.length)} شعبة تطابق التصفية الحالية. ساعات المدرسين والقاعات من كل شعبهم (بلا تكرار للشعب المدرَّسة معاً)، والمحاضرات غير المتزامنة لا تُحسب في الأوقات لأنه لا وقت حضور ثابت لها.</p>
+    </div>`;
+  }
+  // one floating tooltip for every [data-tip] on the dashboard
+  function bindTips() {
+    let tip = $('#db-tip');
+    if (!tip) {
+      document.body.insertAdjacentHTML('beforeend', '<div id="db-tip" role="tooltip"></div>');
+      tip = $('#db-tip');
+      addEventListener('scroll', () => { tip.style.display = 'none'; }, { passive: true });
+    }
+    tip.style.display = 'none';
+    document.querySelectorAll('.db [data-tip]').forEach(el => {
+      el.addEventListener('mousemove', e => {
+        if (!el.dataset.tip) return;
+        tip.textContent = el.dataset.tip;
+        tip.style.display = 'block';
+        const w = tip.offsetWidth;
+        tip.style.left = Math.max(8, Math.min(innerWidth - w - 8, e.clientX - w / 2)) + 'px';
+        tip.style.top = (e.clientY - tip.offsetHeight - 14) + 'px';
+      });
+      el.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+    });
+  }
+
   // ------------------------------------------------------------------ section dialog
   function openModal(title, body) {
     let dlg = $('#ttModal');
@@ -589,13 +741,13 @@
         ${select('inst', 'المدرس', st, 'كل المدرسين')}
       </div></form>`;
     const chips = active.map(k => `<a href="#" data-clear="${k}" class="badge rounded-pill text-bg-light border text-decoration-none filter-chip">${k === 'seats' ? 'مقاعد متاحة' : F.find(f => f[0] === k)[1] + ': ' + esc(label(k, st[k]))} <i class="bi bi-x-circle-fill"></i></a>`).join(' ');
-    const views = [['table', 'bi-table', 'جدول'], ['cards', 'bi-grid-3x2-gap-fill', 'بطاقات'], ['courses', 'bi-journal-bookmark', 'حسب المقرر'], ['grid', 'bi-calendar-week', 'مصفوفة أسبوعية'], ['free', 'bi-hourglass-split', 'أوقات الفراغ'], ['mx', 'bi-grid-3x3', 'مصفوفات جاهزة']];
+    const views = [['dash', 'bi-speedometer', 'لوحة المؤشرات'], ['table', 'bi-table', 'جدول'], ['cards', 'bi-grid-3x2-gap-fill', 'بطاقات'], ['courses', 'bi-journal-bookmark', 'حسب المقرر'], ['grid', 'bi-calendar-week', 'مصفوفة أسبوعية'], ['free', 'bi-hourglass-split', 'أوقات الفراغ'], ['mx', 'bi-grid-3x3', 'مصفوفات جاهزة']];
     $('#tt-toolbar').innerHTML = `<div class="card mb-3 no-print"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center">
       <button type="button" class="btn btn-sm btn-outline-primary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#fpanel" aria-controls="fpanel"><i class="bi bi-funnel-fill"></i> التصفية${active.length ? ` <span class="badge text-bg-primary">${active.length}</span>` : ''}</button>
       <b class="me-1">${list.length} شعبة</b> ${chips}
       ${st.inst && (st.fac || st.dept) ? '<span class="small text-muted w-100"><i class="bi bi-info-circle"></i> تُعرض كل شعب المدرس، بما فيها شعبه خارج الكلية أو القسم المختار.</span>' : ''}
       <div class="ms-auto d-flex flex-wrap gap-2">
-        ${['grid', 'free', 'mx'].includes(st.view) ? '' : `<select class="form-select form-select-sm w-auto" id="tt-sort">${[['code', 'رمز المقرر'], ['name', 'اسم المقرر'], ['time', 'اليوم والوقت'], ['inst', 'المدرس'], ['room', 'القاعة'], ['seats', 'المقاعد المتاحة'], ['fill', 'نسبة الامتلاء']].map(([k, t]) =>
+        ${['grid', 'free', 'mx', 'dash'].includes(st.view) ? '' : `<select class="form-select form-select-sm w-auto" id="tt-sort">${[['code', 'رمز المقرر'], ['name', 'اسم المقرر'], ['time', 'اليوم والوقت'], ['inst', 'المدرس'], ['room', 'القاعة'], ['seats', 'المقاعد المتاحة'], ['fill', 'نسبة الامتلاء']].map(([k, t]) =>
           `<option value="${k}" ${st.sort === k ? 'selected' : ''}>ترتيب: ${t}</option>`).join('')}</select>`}
         <div class="btn-group btn-group-sm flex-wrap">${views.map(([k, i, t]) => `<button type="button" class="btn ${st.view === k ? 'btn-primary' : 'btn-outline-primary'}" data-view="${k}"><i class="bi ${i}"></i> ${t}</button>`).join('')}</div>
         <div class="dropdown"><button class="btn btn-sm btn-success dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-download"></i> تصدير</button>
@@ -606,7 +758,7 @@
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="#" data-export="print"><i class="bi bi-printer"></i> طباعة / PDF</a></li></ul></div>
       </div></div></div>`;
-    $('#tt-results').innerHTML = st.view === 'free' ? freeView(st) : st.view === 'mx' ? matrixView(list, st) : !list.length ? '<div class="card"><div class="card-body text-center text-muted py-5"><i class="bi bi-search fs-2 d-block mb-2"></i>لا توجد شعب تطابق التصفية الحالية.</div></div>'
+    $('#tt-results').innerHTML = st.view === 'dash' ? dashView(list, st) : st.view === 'free' ? freeView(st) : st.view === 'mx' ? matrixView(list, st) : !list.length ? '<div class="card"><div class="card-body text-center text-muted py-5"><i class="bi bi-search fs-2 d-block mb-2"></i>لا توجد شعب تطابق التصفية الحالية.</div></div>'
       : st.view === 'cards' ? cardsView(list, st) : st.view === 'courses' ? coursesView(list, st) : st.view === 'grid' ? gridView(list, st) : tableView(list, st);
     bind(list, st);
     if (focus) { const q = $('#tt-filters input[name=q]'); q.focus(); q.setSelectionRange(q.value.length, q.value.length); }
@@ -653,6 +805,7 @@
     }));
     document.querySelectorAll('[data-export]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); exportAs(a.dataset.export, list); }));
     if (st.view === 'free') bindFree(st);
+    if (st.view === 'dash') bindTips();
     document.querySelectorAll('[data-mx]').forEach(b => b.addEventListener('click', () => set({ mx: b.dataset.mx })));
     document.querySelectorAll('[data-mxday]').forEach(b => b.addEventListener('click', () => set({ mxday: b.dataset.mxday })));
     const mxc = $('#mx-csv');
