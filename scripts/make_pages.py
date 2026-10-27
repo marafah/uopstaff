@@ -8,23 +8,30 @@ import os
 import re
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
-MAIN = [("./", "bi-search", "أين أجد؟"), ("directory.html", "bi-person-lines-fill", "دليل الموظفين"),
-        ("timetable.html", "bi-table", "الجدول الدراسي"), ("calendar.html", "bi-calendar3", "التقويم الجامعي"),
-        ("now.html", "bi-broadcast", "الآن في الجامعة")]
 # links made when the directory was the home page carry its filters; the home page forwards them to directory.html
 DIR_PARAMS = ["type", "faculty", "dept", "rank", "role", "source", "view", "sort"]
 HOME_REDIRECT = ("<script>(function () { var p = new URLSearchParams(location.search);"
                  " if (%s.some(function (k) { return p.has(k); })) location.replace('directory.html' + location.search + location.hash); })();</script>\n"
                  % str(DIR_PARAMS).replace(" ", ""))
-MORE = [("notes.html", "bi-journal-richtext", "مفكرتي", "مكالمات واجتماعات ومتابعات وتذكيرات… محفوظة على جهازك فقط"),
+# the site menu: six items; the directory and the timetable open a menu of the pages that grow out of them
+MENU = [
+    ("./", "bi-search", "أين أجد؟", "", []),
+    ("directory.html", "bi-person-lines-fill", "دليل الموظفين", "الهيئة التدريسية والكادر الإداري: الفرعي والمكتب والبريد", [
+        ("org.html", "bi-diagram-3-fill", "الهيكل التنظيمي", "من يتبع لمن، ومن المسؤول عن كل وحدة"),
+        ("office-hours.html", "bi-person-raised-hand", "الساعات المكتبية", "ساعات كل مدرس حسب القسم والكلية، تصدير وطباعة مع QR")]),
+    ("timetable.html", "bi-table", "الجدول الدراسي", "شعب الفصل الحالي ومواعيدها وقاعاتها ومدرسوها", [
         ("instructor.html", "bi-person-badge", "صفحة المدرس", "جدول كل مدرس وأوقات فراغه واشتراك تقويمه"),
         ("planner.html", "bi-calendar2-week", "مخطط جدولي", "اختر مقرراتك وشعبك بلا تعارض"),
         ("room.html", "bi-door-open", "صفحة القاعة", "محاضرات كل قاعة الآن وجدولها، مع بطاقة باب QR"),
-        ("office-hours.html", "bi-person-raised-hand", "الساعات المكتبية", "ساعات كل مدرس حسب القسم والكلية، تصدير وطباعة مع QR"),
         ("usage.html", "bi-grid-3x3-gap-fill", "إشغال القاعات", "نسب الإشغال حسب اليوم والساعة والمبنى، للتخطيط"),
-        ("screen.html", "bi-display", "شاشة المبنى", "للشاشات في مداخل الكليات: الجاري والقادم والشاغر"),
         ("trends.html", "bi-graph-up-arrow", "متابعة التسجيل", "امتلاء الشعب والمقررات التي تحتاج شعباً إضافية"),
-        ("org.html", "bi-diagram-3-fill", "الهيكل التنظيمي", "من يتبع لمن، ومن المسؤول عن كل وحدة")]
+        ("screen.html", "bi-display", "شاشة المبنى", "للشاشات في مداخل الكليات: الجاري والقادم والشاغر")]),
+    ("calendar.html", "bi-calendar3", "التقويم الجامعي", "", []),
+    ("now.html", "bi-broadcast", "الآن في الجامعة", "", []),
+    ("notes.html", "bi-journal-richtext", "مفكرتي", "", []),
+]
+MAIN = [(href, ic, t) for href, ic, t, _, _ in MENU]
+MORE = [c for *_, kids in MENU for c in kids]
 
 PAGES = {
     "instructor.html": dict(
@@ -86,22 +93,24 @@ PAGES = {
 
 
 def nav(active):
-    cur = 'class="active" '
-    here = ' aria-current="page"'
-    main = "\n".join('      <a %shref="%s"%s><i class="bi %s"></i> %s</a>' % (cur if href == active else "", href, here if href == active else "", ic, t)
-                     for href, ic, t in MAIN)
-    in_more = " active" if any(href == active for href, *_ in MORE) else ""
-    items = "\n".join('          <li><a class="dropdown-item%s" href="%s"><i class="bi %s"></i><span><b>%s</b><small>%s</small></span></a></li>'
-                      % (" active" if href == active else "", href, ic, t, d) for href, ic, t, d in MORE)
-    return f'''    <nav class="site-nav" aria-label="أقسام الموقع">
-{main}
-      <div class="dropdown site-more">
-        <a href="#" class="dropdown-toggle{in_more}" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-grid-3x3-gap-fill"></i> المزيد</a>
-        <ul class="dropdown-menu dropdown-menu-end">
-{items}
+    out = []
+    # a menu opens toward the middle of the bar: the first one (at the right edge, in Arabic) from its start
+    for n, (href, ic, t, desc, kids) in enumerate(MENU):
+        on = active == href or any(c[0] == active for c in kids)
+        if not kids:
+            out.append('      <a %shref="%s"%s><i class="bi %s"></i> %s</a>' % ('class="active" ' if on else "", href, ' aria-current="page"' if on else "", ic, t))
+            continue
+        item = lambda h, i, tt, d: ('          <li><a class="dropdown-item%s" href="%s"%s><i class="bi %s"></i><span><b>%s</b><small>%s</small></span></a></li>'
+                                    % (" active" if h == active else "", h, ' aria-current="page"' if h == active else "", i, tt, d))
+        out.append(f'''      <div class="dropdown site-more">
+        <a href="{href}" class="dropdown-toggle{' active' if on else ''}" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi {ic}"></i> {t}</a>
+        <ul class="dropdown-menu{'' if n < 2 else ' dropdown-menu-end'}">
+{item(href, ic, t, desc)}
+          <li><hr class="dropdown-divider"></li>
+{chr(10).join(item(*c) for c in kids)}
         </ul>
-      </div>
-    </nav>'''
+      </div>''')
+    return '    <nav class="site-nav" aria-label="أقسام الموقع">\n' + "\n".join(out) + "\n    </nav>"
 
 
 def set_nav(html, active):
