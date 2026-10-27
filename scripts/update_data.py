@@ -46,9 +46,9 @@ FACULTIES = [  # id used by the InstructorProfile service, Arabic, English, facu
 ]
 WWW = "https://www.uop.edu.jo"
 UNITS = [  # units of www.uop.edu.jo known to keep their own list: SharePoint web, Arabic name, English name
+    ("BoardofTrustees", "مجلس الأمناء", "Board of Trustees"),
     ("UniversityPresident", "رئاسة الجامعة", "University Presidency"),
     ("adnan", "مكتب المستشار الأعلى", "Office of the Higher Consultant"),
-    ("BoardofTrustees", "مجلس الأمناء", "Board of Trustees"),
     ("AdmissionsAndRegistration", "عمادة القبول والتسجيل", "Admissions and Registration"),
     ("ComputerCenter", "مركز الحاسوب والمعلومات والسيطرة", "Computer Center"),
     ("ELearningCenter", "مركز التعلم الإلكتروني", "E-Learning Center"),
@@ -59,6 +59,8 @@ RANKS = [("أستاذ", "Professor", 1), ("أستاذ مشارك", "Associate Pr
          ("مدرس", "Lecturer", 4), ("محاضر", "Instructor", 5), ("مشرف مختبر", "Lab Supervisor", 6)]
 RANK_ORDER = {r[0]: r[2] for r in RANKS}
 ROLES = [  # leadership role from the job title -> (label, order); first match wins
+    (r"^رئيس مجلس الأمناء|^chairman", "رئيس مجلس الأمناء", 0),
+    (r"^رئيس الجامعة|^president", "رئيس الجامعة", 0),
     (r"نائب رئيس الجامعة|vice president", "نائب رئيس الجامعة", 1),
     (r"^(?!.*(نائب|مساعد)).*عميد|^dean", "عميد", 2),
     (r"نائب (ال)?عميد", "نائب عميد", 3),
@@ -205,7 +207,7 @@ def fetch_admin(s, fid, key, name, page, api, log):
         role, order = role_of(job_ar, job_en)
         out.append({
             "id": f"S:{key}:{it['ID']}", "type": "admin", "faculty": fid,
-            "name": clean(it.get("TitleAR")) or clean(it.get("Title")), "name_en": clean(it.get("Title")),
+            "name": short_title(clean(it.get("TitleAR")) or clean(it.get("Title"))), "name_en": clean(it.get("Title")),
             "job": job_ar, "rank": "", "rank_order": 99, "role": role, "sort": order + 20,
             "department": "", "specialization": "",
             "qualification": " – ".join(x for x in [clean(it.get("QualificationAR")), clean(it.get("UniversityAR"))] if x),
@@ -213,6 +215,60 @@ def fetch_admin(s, fid, key, name, page, api, log):
             "email": clean(it.get("Email")).lower(), "photo": photo, "profile": page, "source": f"admin_{key}",
         })
     log(f"administrative staff – {name}: {len(out)}")
+    return out
+
+
+BOARD = ("boardoftrustees", "BoardofTrustees", 2)  # the board's members: the web's AllStaff list, StaffTypeId 2
+HONORIFIC = [(r"^(معالي|عطوفة|سعادة)\s+الدكتور\s+", r"\1 د. "), (r"^الأستاذ الدكتور\s+", "أ.د. "), (r"^الدكتور\s+", "د. "),
+             (r"^المهندس\s+", "م. "), (r"^(السيد|السيدة|الآنسة)\s+", "")]
+
+
+def short_title(name):
+    """The directory's short titles ("الأستاذ الدكتور" -> "أ.د.", "المهندس" -> "م."); courtesy titles are dropped."""
+    for pattern, repl in HONORIFIC:
+        name = re.sub(pattern, repl, name)
+    return name
+
+
+def fetch_board(s, log):
+    """Board of Trustees members (www.uop.edu.jo/Ar/BoardofTrustees/Pages/AllStaff.aspx?staffid=2), in the board's order.
+    Most members are from outside the university: they have no e-mail or extension."""
+    key, web, type_id = BOARD
+    page = f"{WWW}/Ar/{web}/Pages/AllStaff.aspx?staffid={type_id}"
+    s.get(page, timeout=TIMEOUT)
+    h = {"Accept": "application/json; odata=nometadata", "Referer": page}
+    lst = f"{WWW}/En/{web}/_api/web/lists/getbytitle('AllStaff')/items"
+    r = s.get(lst + f"?$top=500&$orderby=Order0 asc&$filter=StaffTypeId eq {type_id}", headers=h, timeout=TIMEOUT)
+    r.raise_for_status()
+    out = []
+    for it in sorted(r.json()["value"], key=lambda x: x.get("Order0") or 99):
+        name = short_title(clean(it.get("TitleAR")) or clean(it.get("Title"))).replace('"', "")
+        # the site puts the board role in either field ("رئيس المجلس" / "عضو" / "أمين سر المجلس")
+        parts = []
+        for v in (clean(it.get("PositionAR")), clean(it.get("RankAR"))):
+            v = re.sub(r"^عضو(اً?)?$", "عضو مجلس الأمناء", v)
+            v = re.sub(r"^(رئيس|أمين سر) المجلس$", r"\1 مجلس الأمناء", v)
+            if v and v not in parts:
+                parts.append(v)
+        job = " – ".join(parts)
+        photo = ""
+        try:
+            html = s.get(f"{lst}({it['ID']})/FieldValuesAsHtml", headers=h, timeout=TIMEOUT).json().get("PublishingPageImage") or ""
+            m = re.search(r'src="([^"]+)"', html)
+            if m:
+                photo = m.group(1) if m.group(1).startswith("http") else WWW + quote(m.group(1), safe="/%:")
+        except Exception:
+            pass
+        role, _order = role_of(job)
+        out.append({
+            "id": f"B:{key}:{it['ID']}", "type": "board", "faculty": key,
+            "name": name, "name_en": clean(it.get("Title")).replace('"', ""),
+            "job": job, "rank": "", "rank_order": 99, "role": role, "sort": int(it.get("Order0") or 99),
+            "department": "", "specialization": "", "qualification": "",
+            "ext": clean(it.get("Ext")), "office": "", "email": clean(it.get("Email")).lower(),
+            "photo": photo, "profile": page, "source": f"board_{key}",
+        })
+    log(f"board of trustees: {len(out)}")
     return out
 
 
@@ -308,6 +364,18 @@ def main():
         except Exception as e:
             failed.append(f"{name}: {e}")
             log(f"FAILED {name}: {e}")
+    # board members come after the staff lists, so a member who is also on a staff list keeps that entry (same e-mail)
+    if not any(u[0] == BOARD[0] for u in units):
+        units.insert(0, next((w.lower(), ar, en, f"{WWW}/Ar/{w}/Pages/AllStaff.aspx?staffid={BOARD[2]}", f"{WWW}/En/{w}")
+                             for w, ar, en in UNITS if w.lower() == BOARD[0]))
+    try:
+        board = fetch_board(s, log)
+        members += board
+        sources.append({"key": f"board_{BOARD[0]}", "name": "مجلس الأمناء", "kind": "board",
+                        "url": f"{WWW}/Ar/{BOARD[1]}/Pages/AllStaff.aspx?staffid={BOARD[2]}", "count": len(board), "faculty": BOARD[0]})
+    except Exception as e:
+        failed.append(f"board: {e}")
+        log(f"FAILED board: {e}")
 
     # Keep the previous data for any source that failed, so one unreachable site never empties the page.
     if failed and os.path.exists(OUT):

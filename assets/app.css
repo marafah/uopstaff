@@ -102,6 +102,13 @@ a { color: var(--uop-maroon); }
 .badge-acad { background: #f6e3e4; color: var(--uop-maroon); border: 1px solid #e6c2c4; }
 .badge-admin { background: #e2e9ec; color: var(--uop-navy); border: 1px solid #c3d0d6; }
 .badge-lead { background: #fff1c7; color: #6b4a00; border: 1px solid #f0d27a; }
+/* Board of Trustees: gold accent on the administrative card */
+.badge-board { background: #fbf1d6; color: #6b4a00; border: 1px solid #e3c46f; }
+.btn-outline-gold { color: #7a5600; border-color: #b98a1c; }
+.btn-check:checked + .btn-outline-gold, .btn-outline-gold:hover { background: #8a6300; color: #fff; border-color: #8a6300; }
+.staff-card.admin.board { border-top-color: #b98a1c; }
+.avatar-lg.admin.board { box-shadow: 0 0 0 2px #b98a1c; }
+.avatar.admin.board { background: #fbf1d6; color: #6b4a00; }
 .rank-1 { background: #5c1216; color: #fff; }
 .rank-2 { background: #901d23; color: #fff; }
 .rank-3 { background: #c0545a; color: #fff; }
@@ -883,3 +890,5 @@ body.kiosk .now-what b { font-size: 1.05rem; }
 .tr-near em { font-style: normal; font-size: .72rem; font-weight: 700; background: #fff8e6; border: 1px solid #f0d27a; color: #6b4a00; border-radius: 999px; padding: 0 8px; white-space: nowrap; }
 .tr-spark { width: 120px; height: 30px; }
 @media (max-width: 575.98px) { .site-more .dropdown-item i { display: inline-block !important; } }
+.staff-card.admin.board .staff-body i, .staff-card.admin.board .staff-contact.one-row .sc-item i, .staff-card.admin.board .staff-contact.one-row .sc-icon i { color: #8a6300 !important; }
+.staff-card.admin.board .staff-contact.one-row .sc-profile { background: #8a6300; }

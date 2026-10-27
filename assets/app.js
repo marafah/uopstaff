@@ -2,7 +2,8 @@
 (function () {
   'use strict';
   const FILTERS = ['q', 'type', 'faculty', 'dept', 'rank', 'role', 'source'];
-  const TYPE_LABEL = { academic: 'أكاديمي', admin: 'إداري' };
+  const TYPE_LABEL = { academic: 'أكاديمي', admin: 'إداري', board: 'مجلس الأمناء' };
+  const typeClass = m => m.type === 'board' ? 'admin board' : m.type;  // board cards: the administrative look, gold accent
   const LABELS = { q: 'بحث', type: 'النوع', faculty: 'الكلية', dept: 'القسم', rank: 'الرتبة', role: 'المنصب', source: 'المصدر' };
   let DATA = null, FAC = {}, SRC = {};
 
@@ -61,8 +62,8 @@
 
   // ---------------------------------------------------------------- render
   function badges(m) {
-    let h = m.type === 'academic'
-      ? '<span class="badge badge-acad"><i class="bi bi-mortarboard-fill"></i> أكاديمي</span> '
+    let h = m.type === 'academic' ? '<span class="badge badge-acad"><i class="bi bi-mortarboard-fill"></i> أكاديمي</span> '
+      : m.type === 'board' ? '<span class="badge badge-board"><i class="bi bi-bank"></i> مجلس الأمناء</span> '
       : '<span class="badge badge-admin"><i class="bi bi-briefcase-fill"></i> إداري</span> ';
     if (m.role) h += `<span class="badge badge-lead"><i class="bi bi-star-fill"></i> ${esc(m.role)}</span> `;
     if (m.rank) h += `<span class="badge rank-${m.rank_order}">${esc(m.rank)}</span>`;
@@ -75,7 +76,7 @@
   }
   function avatar(m, size) {
     const img = m.photo ? `<img src="${esc(m.photo)}" alt="${esc(m.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : '';
-    return `<span class="avatar avatar-${size} ${m.type}">${img}<span class="ini">${esc(initials(m.name))}</span></span>`;
+    return `<span class="avatar avatar-${size} ${typeClass(m)}">${img}<span class="ini">${esc(initials(m.name))}</span></span>`;
   }
   const tel = m => `${DATA.main_line},${m.ext}`;
 
@@ -91,7 +92,7 @@
   function card(m) {
     const fac = FAC[m.faculty];
     const job = jobText(m), office = officeText(m);
-    return `<div class="col"><div class="staff-card copy-email ${m.type}" data-email="${esc(m.email)}" title="${m.email ? 'انقر لنسخ البريد: ' + esc(m.email) : ''}">
+    return `<div class="col"><div class="staff-card copy-email ${typeClass(m)}" data-email="${esc(m.email)}" title="${m.email ? 'انقر لنسخ البريد: ' + esc(m.email) : ''}">
       <div class="staff-top">${avatar(m, 'lg')}
         <div class="flex-grow-1 min-w-0"><h6 class="staff-name">${esc(m.name)}</h6>
           ${m.name_en ? `<div class="staff-en" dir="ltr">${esc(m.name_en)}</div>` : ''}<div class="mt-1">${badges(m)}</div></div></div>
@@ -110,7 +111,7 @@
         <span class="sc-fill"></span>
         ${m.email ? `<a href="mailto:${esc(m.email)}" class="sc-icon" title="مراسلة: ${esc(m.email)}" aria-label="مراسلة ${esc(m.email)}"><i class="bi bi-envelope-fill"></i></a>` : ''}
         ${INS_PAGE[m.email] ? `<a href="instructor.html?id=${INS_PAGE[m.email]}" class="sc-icon" title="الجدول الأسبوعي وأوقات الفراغ" aria-label="صفحة المدرس"><i class="bi bi-calendar-week"></i></a>` : ''}
-        ${m.profile ? `<a href="${esc(m.profile)}" target="_blank" rel="noopener" class="sc-profile" title="${m.type === 'academic' ? 'الملف الرسمي' : 'صفحة الكادر'} على موقع الجامعة"
+        ${m.profile ? `<a href="${esc(m.profile)}" target="_blank" rel="noopener" class="sc-profile" title="${m.type === 'academic' ? 'الملف الرسمي' : m.type === 'board' ? 'صفحة مجلس الأمناء' : 'صفحة الكادر'} على موقع الجامعة"
           aria-label="${m.type === 'academic' ? 'الملف الرسمي' : 'صفحة الكادر'}"><i class="bi bi-box-arrow-up-left"></i></a>` : ''}
       </div>
     </div></div>`;
@@ -202,6 +203,7 @@
               <input type="radio" class="btn-check" name="type" value="" id="t0" ${!st.type ? 'checked' : ''}><label class="btn btn-outline-secondary" for="t0">الكل</label>
               <input type="radio" class="btn-check" name="type" value="academic" id="t1" ${st.type === 'academic' ? 'checked' : ''}><label class="btn btn-outline-maroon" for="t1">أكاديمي <span class="badge text-bg-light">${typeC.academic || 0}</span></label>
               <input type="radio" class="btn-check" name="type" value="admin" id="t2" ${st.type === 'admin' ? 'checked' : ''}><label class="btn btn-outline-navy" for="t2">إداري <span class="badge text-bg-light">${typeC.admin || 0}</span></label>
+              ${typeC.board || st.type === 'board' ? `<input type="radio" class="btn-check" name="type" value="board" id="t3" ${st.type === 'board' ? 'checked' : ''}><label class="btn btn-outline-gold" for="t3" title="مجلس الأمناء">الأمناء <span class="badge text-bg-light">${typeC.board || 0}</span></label>` : ''}
             </div>
             <label class="small fw-bold mb-0" for="f-faculty">الكلية</label>
             <select class="form-select form-select-sm" name="faculty" id="f-faculty">${opts(DATA.faculties.map(f => [f.id, f.name, facC[f.id] || 0]), st.faculty, 'كل الكليات والوحدات')}</select>
