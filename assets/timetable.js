@@ -950,8 +950,44 @@
   }
 
   // ------------------------------------------------------------------ export
+  function printTimetable(list) {
+    const st = readState();
+    const filters = [...FK, 'seats'].filter(k => st[k]).map(k => [k === 'seats' ? 'المقاعد' : F.find(f => f[0] === k)[1], k === 'seats' ? 'متاحة فقط' : label(k, st[k])]);
+    if (st.q) filters.unshift(['بحث', st.q]);
+    const base = { title: 'الجدول الدراسي', source: 'المصدر: بوابة الجامعة (edugate)', filters, orientation: 'landscape' };
+    if (st.view === 'mx' && window.__mxcsv && window.__mxcsv.length) {  // the ready-made matrix on screen
+      const [head, ...rows] = window.__mxcsv;
+      return printReport(Object.assign(base, { subtitle: `${DATA.term} – ${MX[st.mx in MX ? st.mx : 'load'].t}`,
+        sections: [{ columns: head, numCols: head.map((h, i) => i).filter(i => i > 0), rows: rows.map(r => r.map((v, i) => i ? { text: v, cls: 'num' } : { html: `<b>${esc(v)}</b>` })) }] }));
+    }
+    const reg = list.reduce((a, s) => a + s.registered, 0), cap = list.reduce((a, s) => a + s.capacity, 0);
+    const timeHtml = s => {
+      const blocks = [];
+      s.meetings.forEach(m => { const k = m.start + '–' + m.end; const b = blocks.find(x => x.k === k) || (blocks.push({ k, ms: [] }), blocks[blocks.length - 1]); b.ms.push(m); });
+      return blocks.map(b => `<b dir="ltr">${b.k}</b> ${b.ms.map(m => `${esc(DAYS[m.day])}${m.mode === 'وجاهي' ? '' : ` <span class="pill mut">${esc(m.mode)}</span>`}`).join('، ')}`).join('<br>');
+    };
+    printReport(Object.assign(base, {
+      subtitle: DATA.term,
+      stats: [['شعبة', list.length], ['مقرر', new Set(list.map(s => s.code)).size], ['مدرس', new Set(list.map(s => s.instructor)).size],
+        ['مفتوحة', list.filter(s => s.status === 'مفتوحة').length], ['مسجّل / سعة', `${reg} / ${cap}`]],
+      sections: [{
+        columns: ['رمز المقرر', 'اسم المقرر', 'الشعبة', 'الوقت والأيام', 'القاعة', 'المدرس', 'الحالة', 'القسم'],
+        numCols: [2],
+        rows: list.map(s => [
+          { html: `<b dir="ltr">${esc(s.code)}</b>` },
+          { html: `<b>${esc(s.name)}</b>`, sub: [s.activity, s.degree !== 'البكالوريوس' ? s.degree : ''].filter(Boolean).join(' · ') },
+          { text: s.section, cls: 'num' },
+          { html: timeHtml(s) },
+          { text: s.room === '0' ? 'بلا قاعة' : s.room, sub: /^-+$/.test(s.building) ? '' : s.building },
+          s.instructor,
+          { html: `<span class="pill ${s.status === 'مفتوحة' ? 'ok' : 'no'}">${esc(s.status)}</span> <span dir="ltr">${s.registered}/${s.capacity}</span>` },
+          { text: s.department, sub: s.faculty },
+        ]),
+      }],
+    }));
+  }
   function exportAs(kind, list) {
-    if (kind === 'print') return window.print();
+    if (kind === 'print') return printTimetable(list);
     const head = ['رمز المقرر', 'اسم المقرر', 'النشاط', 'الوقت', 'القاعة', 'الشعبة', 'الحالة', 'المسجلون', 'السعة', 'اسم المدرس', 'المبنى', 'الكلية', 'القسم', 'الدرجة العلمية', 'نوع الدراسة'];
     const rows = list.map(s => [s.code, s.name, s.activity, s.time, s.room, s.section, s.status, s.registered, s.capacity, s.instructor, s.building, s.faculty, s.department, s.degree, s.study_type]);
     const base = 'الجدول_الدراسي_' + DATA.term.replace(/[^\d/]+/g, ' ').trim().replace(/\D+/g, '-');

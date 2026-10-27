@@ -96,14 +96,17 @@
         ${m.department ? `<div class="staff-line"><i class="bi bi-diagram-3"></i> قسم ${esc(m.department)}</div>` : ''}
         ${m.specialization ? `<div class="staff-line text-muted"><i class="bi bi-lightbulb"></i> ${esc(m.specialization)}</div>`
           : m.qualification ? `<div class="staff-line text-muted"><i class="bi bi-mortarboard"></i> ${esc(m.qualification)}</div>` : ''}
+        ${m.email ? `<div class="staff-line staff-email"><i class="bi bi-envelope"></i> <span dir="ltr">${esc(m.email)}</span></div>` : ''}
       </div>
-      <div class="staff-contact">
-        <a ${m.ext ? `href="tel:${esc(tel(m))}"` : ''} class="${m.ext ? '' : 'disabled'}" title="${esc(DATA.main_line_display)}${m.ext ? ' – فرعي ' + esc(m.ext) : ''}"><i class="bi bi-telephone-fill"></i> ${esc(m.ext || '—')}</a>
-        ${office ? `<span title="المكتب"><i class="bi bi-door-open-fill"></i> ${esc(office)}</span>` : ''}
-        ${m.email ? `<a href="mailto:${esc(m.email)}" class="staff-mail" title="${esc(m.email)}" dir="ltr"><i class="bi bi-envelope-fill"></i> ${esc(m.email)}</a>` : ''}
+      <!-- one row of fixed-size actions: always fits, whatever the card width -->
+      <div class="staff-contact one-row">
+        <a ${m.ext ? `href="tel:${esc(tel(m))}"` : ''} class="sc-item ${m.ext ? '' : 'disabled'}" title="${esc(DATA.main_line_display)}${m.ext ? ' – فرعي ' + esc(m.ext) : ''}"><i class="bi bi-telephone-fill"></i> ${esc(m.ext || '—')}</a>
+        ${office ? `<span class="sc-item sc-office" title="المكتب: ${esc(office)}"><i class="bi bi-door-open-fill"></i><span>${esc(office)}</span></span>` : ''}
+        <span class="sc-fill"></span>
+        ${m.email ? `<a href="mailto:${esc(m.email)}" class="sc-icon" title="مراسلة: ${esc(m.email)}" aria-label="مراسلة ${esc(m.email)}"><i class="bi bi-envelope-fill"></i></a>` : ''}
+        ${m.profile ? `<a href="${esc(m.profile)}" target="_blank" rel="noopener" class="sc-profile" title="${m.type === 'academic' ? 'الملف الرسمي' : 'صفحة الكادر'} على موقع الجامعة"
+          aria-label="${m.type === 'academic' ? 'الملف الرسمي' : 'صفحة الكادر'}"><i class="bi bi-box-arrow-up-left"></i></a>` : ''}
       </div>
-      <div class="staff-foot justify-content-end">
-        ${m.profile ? `<a href="${esc(m.profile)}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary py-0">${m.type === 'academic' ? 'الملف الرسمي' : 'صفحة الكادر'} <i class="bi bi-box-arrow-up-left"></i></a>` : ''}</div>
     </div></div>`;
   }
   function row(m) {
@@ -414,10 +417,46 @@
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
-  function exportAs(kind, list) {
+  // printed report: a formatted document from the data (report.js), not a print of the screen
+  function printDirectory(list, st) {
+    const filters = FILTERS.filter(k => st[k]).map(k => [LABELS[k], k === 'type' ? TYPE_LABEL[st[k]] : k === 'faculty' ? (FAC[st[k]] || {}).name
+      : k === 'source' ? ((DATA.sources.find(x => x.key === st[k]) || {}).name || st[k]) : k === 'role' && st[k] === 'any' ? 'أي منصب قيادي' : st[k]]);
+    const acad = list.filter(m => m.type === 'academic').length;
+    printReport({
+      title: 'دليل موظفي جامعة البترا',
+      subtitle: filters.length ? filters.map(f => f[1]).join(' · ') : 'كل الموظفين',
+      source: 'المصدر: الموقع الرسمي للجامعة',
+      filters,
+      stats: [['موظف', list.length], ['أكاديمي', acad], ['إداري', list.length - acad], ['مناصب قيادية', list.filter(m => m.role).length]],
+      // one faculty chosen: its name is in the title, not repeated on every row
+      sections: [(() => {
+        const oneFac = !!st.faculty;
+        return {
+          columns: ['#', 'الاسم', 'الوظيفة / الرتبة'].concat(oneFac ? [] : ['الكلية / الوحدة'], ['القسم', 'الفرعي', 'المكتب', 'البريد الإلكتروني']),
+          numCols: oneFac ? [0, 4] : [0, 5],
+          rows: list.map((m, i) => {
+            const job = [jobText(m), m.rank].filter(Boolean).join(' – ');
+            return [
+              { text: i + 1, cls: 'num' },
+              { html: `<b>${escH(m.name)}</b>`, sub: m.name_en },
+              { text: job || TYPE_LABEL[m.type], sub: m.role && !job.includes(m.role) ? m.role : '' },
+            ].concat(oneFac ? [] : [(FAC[m.faculty] || {}).name || ''], [
+              m.department || '',
+              { text: m.ext || '—', cls: 'num' },
+              officeText(m) || '—',
+              { text: m.email || '—', cls: 'ltr' },
+            ]);
+          }),
+        };
+      })()],
+      note: `الهاتف الرئيسي للجامعة ${DATA.main_line_display}، ثم الرقم الفرعي.`,
+    });
+  }
+  const escH = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  function exportAs(kind, list, st) {
     const stamp = new Date().toISOString().slice(0, 10);
     const base = `دليل_موظفي_جامعة_البترا_${stamp}`;
-    if (kind === 'print') return window.print();
+    if (kind === 'print') return printDirectory(list, st || readState());
     if (kind === 'json') return download(base + '.json', JSON.stringify(list.map(m => Object.fromEntries(COLUMNS.map((c, i) => [c, rowOf(m)[i]]))), null, 1), 'application/json');
     if (kind === 'csv') {
       const q = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;

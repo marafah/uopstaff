@@ -151,6 +151,7 @@
             <button type="button" class="btn ${st.view === 'list' ? 'btn-navy' : 'btn-outline-secondary'}" data-view="list"><i class="bi bi-list-ul"></i> خط زمني</button>
             <button type="button" class="btn ${st.view === 'month' ? 'btn-navy' : 'btn-outline-secondary'}" data-view="month"><i class="bi bi-calendar3"></i> شهري</button>
           </div>
+          <button type="button" class="btn btn-sm btn-success" id="cal-print" title="تقرير مرتب بالمواعيد الظاهرة حسب التصفية"><i class="bi bi-printer"></i> طباعة / PDF</button>
           ${st.view === 'list' ? `<div class="form-check form-switch m-0 small"><input class="form-check-input" type="checkbox" id="show-past" ${st.past ? 'checked' : ''}><label class="form-check-label" for="show-past">إظهار ما انتهى</label></div>` : ''}
         </div>
         <div class="cat-chips mt-2">${Object.entries(CAT).map(([k, c]) =>
@@ -231,7 +232,37 @@
   }
 
   // ---------------------------------------------------------------- events
+  // printed report of the events matching the semester / category / search filters (finished ones included)
+  function printCalendar() {
+    const st = readState(), q = norm(st.q.trim());
+    const list = EVENTS.filter(e => (!st.sem || e.sem === st.sem) && (!q || norm(e.title + ' ' + e.note).includes(q))
+      && (!st.cat.length || st.cat.includes(e.category)));
+    const filters = [];
+    if (st.sem) filters.push(['الفصل', SEM_SHORT[st.sem]]);
+    if (st.cat.length) filters.push(['الفئة', st.cat.map(c => CAT[c].label).join('، ')]);
+    if (st.q) filters.push(['بحث', st.q]);
+    printReport({
+      title: 'التقويم الجامعي ' + (CAL.year || ''),
+      subtitle: st.sem ? 'الفصل ' + SEM_SHORT[st.sem] : 'كل الفصول',
+      source: 'المصدر: الملف الرسمي للتقويم الجامعي',
+      orientation: 'portrait',
+      filters,
+      stats: [['موعداً', list.length]].concat(CAL.semesters.filter(x => !st.sem || x.key === st.sem).map(x => ['الفصل ' + SEM_SHORT[x.key], list.filter(e => e.sem === x.key).length])),
+      sections: CAL.semesters.filter(x => list.some(e => e.sem === x.key)).map(x => ({
+        title: x.name,
+        columns: ['التاريخ', 'اليوم', 'الموعد', 'الفئة'],
+        rows: list.filter(e => e.sem === x.key).sort((a, b) => a.start.localeCompare(b.start)).map(e => [
+          { html: `<b>${rangeText(e)}</b>`, cls: 'num' },
+          e.day || '',
+          { html: `<b>${esc(e.title)}</b>${e.estimated ? ' <span class="pill mut">تقديري</span>' : ''}`, sub: e.note || '' },
+          { html: `<span class="pill" style="background:${CAT[e.category].color}22;color:#222;border:1px solid ${CAT[e.category].color}">${esc(CAT[e.category].label)}</span>` },
+        ]),
+      })),
+    });
+  }
   function bind() {
+    const pr = $('#cal-print');
+    if (pr) pr.onclick = printCalendar;
     document.querySelectorAll('[data-sem]').forEach(b => b.onclick = () => set({ sem: b.dataset.sem }));
     document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => set({ view: b.dataset.view }));
     document.querySelectorAll('[data-month]').forEach(b => b.onclick = () => { window.__pick = null; set({ month: b.dataset.month }); });
