@@ -34,6 +34,9 @@ jobs:
       - name: Instructor pages, calendar subscriptions, seat history
         continue-on-error: true
         run: python scripts/build_extras.py
+      - name: What changed since the last run («ما الجديد؟»)
+        continue-on-error: true
+        run: python scripts/build_changes.py
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"

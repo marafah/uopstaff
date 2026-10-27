@@ -111,6 +111,7 @@
         <span class="sc-fill"></span>
         ${m.email ? `<a href="mailto:${esc(m.email)}" class="sc-icon" title="مراسلة: ${esc(m.email)}" aria-label="مراسلة ${esc(m.email)}"><i class="bi bi-envelope-fill"></i></a>` : ''}
         ${INS_PAGE[m.email] ? `<a href="instructor.html?id=${INS_PAGE[m.email]}" class="sc-icon" title="الجدول الأسبوعي وأوقات الفراغ" aria-label="صفحة المدرس"><i class="bi bi-calendar-week"></i></a>` : ''}
+        ${window.reportMail ? `<a href="${esc(window.reportMail(m.name, [`الاسم: ${m.name}`, `الوظيفة: ${m.job || '—'}`, `الكلية / الوحدة: ${(FAC[m.faculty] || {}).name || ''}`, `الفرعي: ${m.ext || '—'}`, `المكتب: ${m.office || '—'}`]))}" class="sc-icon sc-report" title="أبلغ عن خطأ في هذه البيانات" aria-label="أبلغ عن خطأ"><i class="bi bi-flag"></i></a>` : ''}
         ${m.profile ? `<a href="${esc(m.profile)}" target="_blank" rel="noopener" class="sc-profile" title="${m.type === 'academic' ? 'الملف الرسمي' : m.type === 'board' ? 'صفحة مجلس الأمناء' : 'صفحة الكادر'} على موقع الجامعة"
           aria-label="${m.type === 'academic' ? 'الملف الرسمي' : 'صفحة الكادر'}"><i class="bi bi-box-arrow-up-left"></i></a>` : ''}
       </div>

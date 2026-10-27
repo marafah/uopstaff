@@ -15,13 +15,18 @@ HOME_REDIRECT = ("<script>(function () { var p = new URLSearchParams(location.se
                  % str(DIR_PARAMS).replace(" ", ""))
 # the site menu: six items; the directory and the timetable open a menu of the pages that grow out of them
 MENU = [
-    ("./", "bi-search", "أين أجد؟", "", []),
+    ("./", "bi-search", "أين أجد؟", "بحث واحد في الأشخاص والمقررات والقاعات والوحدات والمواعيد", [
+        ("changes.html", "bi-lightning-charge", "ما الجديد؟", "ما تغيّر في الجدول والدليل والتقويم، ساعة بساعة")]),
     ("directory.html", "bi-person-lines-fill", "دليل الموظفين", "الهيئة التدريسية والكادر الإداري: الفرعي والمكتب والبريد", [
         ("org.html", "bi-diagram-3-fill", "الهيكل التنظيمي", "من يتبع لمن، ومن المسؤول عن كل وحدة"),
-        ("office-hours.html", "bi-person-raised-hand", "الساعات المكتبية", "ساعات كل مدرس حسب القسم والكلية، تصدير وطباعة مع QR")]),
+        ("office-hours.html", "bi-person-raised-hand", "الساعات المكتبية", "ساعات كل مدرس حسب القسم والكلية، تصدير وطباعة مع QR"),
+        ("phones.html", "bi-telephone", "دليل الفرعيات", "الأرقام الفرعية حسب الكلية والقسم، للطباعة على المكاتب")]),
     ("timetable.html", "bi-table", "الجدول الدراسي", "شعب الفصل الحالي ومواعيدها وقاعاتها ومدرسوها", [
         ("instructor.html", "bi-person-badge", "صفحة المدرس", "جدول كل مدرس وأوقات فراغه واشتراك تقويمه"),
+        ("makeup.html", "bi-arrow-repeat", "محاضرة تعويضية", "وقت لا يتعارض مع محاضرات المدرس، وقاعة شاغرة"),
+        ("load.html", "bi-bar-chart-line", "عبء المدرسين", "شعب كل مدرس وطلبته وساعات تدريسه، حسب القسم"),
         ("planner.html", "bi-calendar2-week", "مخطط جدولي", "اختر مقرراتك وشعبك بلا تعارض"),
+        ("together.html", "bi-people", "جدولنا معاً", "أوقات فراغ مشتركة لمجموعة طلبة ومشرفهم"),
         ("room.html", "bi-door-open", "صفحة القاعة", "محاضرات كل قاعة الآن وجدولها، مع بطاقة باب QR"),
         ("usage.html", "bi-grid-3x3-gap-fill", "إشغال القاعات", "نسب الإشغال حسب اليوم والساعة والمبنى، للتخطيط"),
         ("trends.html", "bi-graph-up-arrow", "متابعة التسجيل", "امتلاء الشعب والمقررات التي تحتاج شعباً إضافية"),
@@ -84,6 +89,31 @@ PAGES = {
         desc="متابعة التسجيل في جامعة البترا: امتلاء الشعب عبر الوقت، أسرع المقررات امتلاءً، والمقررات التي تحتاج شعباً إضافية.",
         hero="متابعة التسجيل", sub="امتلاء الشعب عبر الوقت، أسرع المقررات امتلاءً، والمقررات التي تحتاج شعباً إضافية",
         search="ابحث: رمز أو اسم مقرر…", about="لقطة من أعداد المسجلين تُحفظ مع كل تحديث ساعي للجدول الدراسي، فتظهر حركة التسجيل عبر الأيام."),
+    "changes.html": dict(
+        title="ما الجديد؟", short="ما الجديد؟", what="ما الجديد؟", app="cg-app", js="changes.js",
+        desc="ما تغيّر في جامعة البترا: شعب أُضيفت أو أُلغيت، تغيير مدرس أو قاعة أو موعد، موظفون جدد وتغيير الفرعيات، ومواعيد التقويم الجامعي.",
+        hero="ما الجديد؟", sub="ما تغيّر في الجدول الدراسي ودليل الموظفين والتقويم الجامعي — يُفحص كل ساعة",
+        search="ابحث في التغييرات…", about="يقارن الموقع بياناته كل ساعة بما كانت عليه، ويسجّل ما تغيّر مع إمكانية الطباعة والتصدير والاشتراك."),
+    "makeup.html": dict(
+        title="محاضرة تعويضية", short="محاضرة تعويضية", what="المحاضرة التعويضية", app="mk-app", js="makeup.js",
+        desc="إيجاد وقت لمحاضرة تعويضية في جامعة البترا: لا يتعارض مع محاضرات المدرس، وقاعة شاغرة تتسع للشعبة، مع إشعار للطباعة ورسالة للطلبة.",
+        hero="محاضرة تعويضية", sub="اختر المدرس والشعبة: الأيام والأوقات التي لا يكون فيها للمدرس محاضرة، والقاعات الشاغرة فيها",
+        search="ابحث عن مدرس…", about="من الجدول الدراسي المنشور: محاضرات المدرس وإشغال القاعات. جداول الطلبة في مقرراتهم الأخرى غير منشورة."),
+    "load.html": dict(
+        title="عبء المدرسين", short="عبء المدرسين", what="عبء المدرسين", app="ld-app", js="load.js",
+        desc="عبء التدريس في جامعة البترا حسب الكلية والقسم: الشعب والمقررات والطلبة وساعات التدريس الأسبوعية لكل مدرس، من الجدول المنشور.",
+        hero="عبء المدرسين", sub="الشعب والمقررات والطلبة وساعات التدريس الأسبوعية لكل مدرس — من الجدول الدراسي المنشور، دون تقدير",
+        search="ابحث عن مدرس…", about="محسوب من الجدول الدراسي على بوابة الجامعة، ويتحدّث كل ساعة."),
+    "phones.html": dict(
+        title="دليل الفرعيات", short="دليل الفرعيات", what="دليل الفرعيات", app="ph-app", js="phones.js",
+        desc="الأرقام الفرعية لموظفي جامعة البترا حسب الكلية والوحدة والقسم، بصيغة مطبوعة من عمودين مع رمز QR للنسخة الحية.",
+        hero="دليل الفرعيات", sub="الأرقام الفرعية حسب الكلية والقسم — للشاشة، أو ورقة A4 من عمودين للمكاتب",
+        search="ابحث: اسم، وظيفة، فرعي…", about="من دليل الموظفين المأخوذ من الموقع الرسمي للجامعة، ويتحدّث كل ساعة."),
+    "together.html": dict(
+        title="جدولنا معاً", short="جدولنا معاً", what="جدولنا معاً", app="tg-app", js="together.js",
+        desc="جداول مجموعة من الطلبة ومدرسيهم في أسبوع واحد، مع أوقات الفراغ المشتركة — لفرق المشاريع ومجموعات الدراسة.",
+        hero="جدولنا معاً", sub="ضع جداول أعضاء المجموعة معاً: أوقات فراغ الجميع لاجتماعات المشروع والدراسة ولقاء المشرف",
+        search="ابحث عن مدرس…", about="من خطط «مخطط جدولي» والجدول الدراسي المنشور؛ المجموعة محفوظة في الرابط فقط."),
     "org.html": dict(
         title="الهيكل التنظيمي", short="الهيكل التنظيمي", what="الهيكل التنظيمي", app="org-app", js="org.js",
         desc="الهيكل التنظيمي لجامعة البترا: من يتبع لمن، ومن المسؤول عن كل وحدة، مربوطاً بدليل الموظفين.",
@@ -111,6 +141,25 @@ def nav(active):
         </ul>
       </div>''')
     return '    <nav class="site-nav" aria-label="أقسام الموقع">\n' + "\n".join(out) + "\n    </nav>"
+
+
+# every page: installable as an app (manifest, icons, offline copy through sw.js), the light / dark choice applied
+# before the page draws, and assets/site.js (install button, offline note, theme switch)
+APP_HEAD = """<!-- app -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#901d23">
+  <link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <script>try { if (localStorage.getItem('uop-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) { /* storage unavailable */ }</script>
+  <!-- /app -->"""
+
+
+def app_shell(html):
+    html = re.sub(r"\s*<!-- app -->.*?<!-- /app -->", "", html, flags=re.S)
+    html = re.sub(r'(<meta name="viewport"[^>]*>)', lambda m: m.group(1) + "\n  " + APP_HEAD, html, count=1)
+    html = re.sub(r'\n<script src="assets/site\.js\?v=\d+"></script>', "", html)
+    v = re.search(r'assets/app\.css\?v=(\d+)', html).group(1)
+    return re.sub(r'(<script src="assets/share\.js\?v=\d+"></script>)', lambda m: m.group(1) + f'\n<script src="assets/site.js?v={v}"></script>', html, count=1)
 
 
 def set_nav(html, active):
@@ -156,7 +205,7 @@ def main():
         h = re.sub(r'<script src="https://cdn.jsdelivr.net/npm/xlsx@[^"]+" defer></script>\n', '', h)
         h = re.sub(r'<script src="assets/timetable\.js\?v=(\d+)"></script>',
                    lambda m: "\n".join(f'<script src="assets/{js}?v={m.group(1)}"></script>' for js in ["common.js"] + p.get("extra", []) + [p["js"]]), h)
-        h = set_nav(h, href_of)
+        h = app_shell(set_nav(h, href_of))
         if page == "index.html":
             h = h.replace("<head>\n", "<head>\n" + HOME_REDIRECT, 1)
             h = h.replace("<body", '<body data-home="1"', 1)
@@ -173,7 +222,7 @@ def main():
         with open(path, encoding="utf-8") as f:
             h = f.read()
         with open(path, "w", encoding="utf-8") as f:
-            f.write(set_nav(h, active))
+            f.write(app_shell(set_nav(h, active)))
     print("pages:", ", ".join(PAGES))
 
 

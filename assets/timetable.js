@@ -833,7 +833,9 @@
       ${row('القاعة', esc(s.room))}${row('المبنى', esc(s.building))}${row('المدرس', instLink(s))}
       ${row('الحالة', seats(s))}${row('الطلاب المسجلون', s.registered)}${row('السعة', s.capacity)}
       ${row('الكلية', esc(s.faculty))}${row('القسم', esc(s.department))}${row('الدرجة العلمية', esc(s.degree))}${row('نوع الدراسة', esc(s.study_type))}</table>
-      <div class="small text-muted">نص الوقت في المصدر: <bdi>${esc(s.time)}</bdi></div>`);
+      <div class="small text-muted">نص الوقت في المصدر: <bdi>${esc(s.time)}</bdi></div>
+      ${window.reportMail ? `<a class="btn btn-sm btn-link px-0 mt-1" href="${esc(window.reportMail(`${s.code} ${s.name} – شعبة ${s.section}`, [`المقرر: ${s.code} ${s.name}`, `الشعبة: ${s.section} (${s.activity}) · ${s.degree}`,
+        `المدرس: ${s.instructor}`, `الوقت: ${s.time}`, `القاعة: ${s.room} · ${s.building}`]))}"><i class="bi bi-flag"></i> أبلغ عن خطأ في هذه الشعبة</a>` : ''}`);
   }
 
   // ------------------------------------------------------------------ render

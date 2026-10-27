@@ -879,6 +879,17 @@
     render();
     document.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'n' && !e.ctrlKey && !e.metaKey && !/input|textarea|select/i.test(e.target.tagName) && !document.querySelector('.modal.show')) { e.preventDefault(); gallery(); } });
     $('#pg-q').addEventListener('input', e => { st.q = e.target.value; render(); });
+    // a record handed over by another page (such as «محاضرة تعويضية»): notes.html#add=<json> opens it, unsaved, in the editor
+    if (location.hash.startsWith('#add=')) {
+      try {
+        const a = JSON.parse(decodeURIComponent(location.hash.slice(5))), x = {};
+        ['type', 'title', 'body', 'when', 'end', 'place', 'course', 'link', 'org'].forEach(k => { if (typeof a[k] === 'string') x[k] = a[k].slice(0, 2000); });
+        if (Array.isArray(a.tags)) x.tags = a.tags.filter(g => typeof g === 'string').slice(0, 10);
+        history.replaceState(null, '', location.pathname + location.search);
+        if (TYPES[x.type]) edit({ id: 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), title: '', body: '', status: 'open', priority: 'normal',
+          tags: [], people: [], checklist: [], students: [], created: new Date().toISOString(), ...x }, null, null, true);
+      } catch (e) { /* not a record */ }
+    }
     remind(); setInterval(remind, 60000);
     if (window.Notification && Notification.permission === 'default' && ITEMS.some(x => x.type === 'reminder')) Notification.requestPermission().catch(() => {});
   })();

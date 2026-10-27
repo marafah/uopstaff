@@ -207,7 +207,7 @@
       }).join('')
       : `<div class="fd-grid">${view.filter(x => x !== best).slice(0, 120).map(x => card(x, q)).join('')}</div>`;
     $('#fd-results').innerHTML = !READY ? '<div class="loading"><div><div class="spinner-border text-secondary"></div><div class="mt-2">جارٍ تجهيز البحث…</div></div></div>'
-      : !q ? `<div class="fd-empty"><p>اكتب اسم شخص أو جزءاً منه، وظيفة، رقم قاعة أو فرعي، رمز مقرر أو اسمه، وحدة أو قسم، أو موعداً في التقويم.</p>
+      : !q ? `${soon()}<div class="fd-empty"><p>اكتب اسم شخص أو جزءاً منه، وظيفة، رقم قاعة أو فرعي، رمز مقرر أو اسمه، وحدة أو قسم، أو موعداً في التقويم.</p>
           <div class="fd-try">${['7419', 'عميد', 'رئيس قسم علم الحاسوب', '601214', 'القبول والتسجيل', 'الامتحانات النهائية', 'مبنى المكتبة', 'المالية'].map(s => `<button type="button" data-try="${esc(s)}">${esc(s)}</button>`).join('')}</div>
           <div class="fd-stats">${counts.map(([t]) => `<span><i class="bi ${t[2]}"></i> ${IDX.filter(x => x.type === t[0]).length} ${esc(t[1])}</span>`).join('')}</div></div>`
         : !res.length ? `<div class="fd-empty"><p><i class="bi bi-search"></i> لا نتائج لـ«${esc(q)}». جرّب جزءاً من الاسم فقط، أو كتابة أخرى (مثلاً «احمد» بدل «أحمد» تعمل تلقائياً).</p></div>`
@@ -237,6 +237,16 @@
   $('#pg-q').addEventListener('input', e => { $('#fd-q').value = e.target.value; onInput(e.target.value); });
   $('#fd-q').addEventListener('keydown', e => { if (e.key === 'Enter') { const a = document.querySelector('.fd-best .fd-title'); if (a) location.href = a.href; } });
   $('#fd-q').focus();
+  // the start screen: the next dates of the academic calendar with a countdown, and today's changes («ما الجديد؟»)
+  let SOON = [], CHG = null;
+  function soon() {
+    if (!SOON.length && CHG == null) return '';
+    const today = NOW.iso, days = d => Math.round((new Date(d + 'T12:00:00Z') - new Date(today + 'T12:00:00Z')) / 864e5);
+    const when = e => e.start <= today ? (e.end > today ? `جارٍ حتى ${U.numDate(e.end)}` : 'اليوم') : days(e.start) === 1 ? 'غداً' : `بعد ${U.count(days(e.start), 'يوم', 'يومين', 'أيام', 'يوماً')}`;
+    return `<div class="fd-soon">${SOON.map(e => `<a href="calendar.html" class="fd-cd ${e.start <= today ? 'now' : ''}"><b>${when(e)}</b><span>${esc(e.title)}</span>
+        <small>${U.numDate(e.start)}${e.end && e.end !== e.start ? ' – ' + U.numDate(e.end) : ''}</small></a>`).join('')}
+      ${CHG != null ? `<a href="changes.html" class="fd-cd chg"><b>${CHG ? U.count(CHG, 'تغيير واحد', 'تغييران', 'تغييرات', 'تغييراً') : 'لا تغييرات'} اليوم</b><span>ما الجديد؟</span><small>الجدول والدليل والتقويم</small></a>` : ''}</div>`;
+  }
   render();
 
   Promise.allSettled(['data/staff.json', 'data/instructors.json', 'data/timetable.json', 'data/org.json', 'data/calendar.json'].map(f => U.getJSON(f))).then(rs => {
@@ -246,6 +256,8 @@
     NOW = { ...now, ok: !T || (now.iso >= T.start && now.iso <= T.end && !T.holidays.includes(now.iso) && now.day !== 'ج'),
       why: T && now.iso < T.start ? 'التدريس لم يبدأ بعد' : T && now.iso > T.end ? 'انتهى التدريس للفصل' : 'لا محاضرات اليوم' };
     IDX = build(staff, ins, tt, org, cal);
+    if (cal) SOON = cal.semesters.flatMap(sm => sm.events).filter(e => (e.end || e.start) >= now.iso).sort((a, b) => a.start.localeCompare(b.start)).slice(0, 3);
+    U.getJSON('data/changes.json').then(c => { CHG = c.events.filter(e => U.amman(e.at).iso === now.iso).length; render(); }).catch(() => {});
     READY = true;
     const n = IDX.length;
     $('#foot-count').textContent = `${n} عنصراً قابلاً للبحث`;

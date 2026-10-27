@@ -1,0 +1,23 @@
+{
+  "name": "جامعة البترا – الدليل والجداول (غير رسمي)",
+  "short_name": "البترا",
+  "description": "دليل الموظفين والجدول الدراسي والتقويم الجامعي ومفكرتي — يعمل دون إنترنت بآخر نسخة محفوظة.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f4ee",
+  "theme_color": "#901d23",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "دليل الموظفين", "url": "directory.html", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "الجدول الدراسي", "url": "timetable.html", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "الآن في الجامعة", "url": "now.html", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "مفكرتي", "url": "notes.html", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
