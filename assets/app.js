@@ -234,7 +234,8 @@
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="#" data-export="xlsx"><i class="bi bi-file-earmark-excel text-success"></i> Excel</a></li>
                 <li><a class="dropdown-item" href="#" data-export="csv"><i class="bi bi-filetype-csv"></i> CSV</a></li>
-                <li><a class="dropdown-item" href="#" data-export="vcf"><i class="bi bi-person-vcard"></i> بطاقات اتصال (vCard)</a></li>
+                <li><a class="dropdown-item" href="#" data-export="vcf"><i class="bi bi-phone"></i> بطاقات اتصال – للهاتف وGoogle وApple</a></li>
+                <li><a class="dropdown-item" href="#" data-export="vcf21"><i class="bi bi-microsoft"></i> بطاقات اتصال – Outlook</a></li>
                 <li><a class="dropdown-item" href="#" data-export="json"><i class="bi bi-filetype-json"></i> JSON</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="#" data-export="print"><i class="bi bi-printer"></i> طباعة / PDF</a></li></ul></div>
@@ -433,6 +434,68 @@
   const COLUMNS = ['الاسم', 'Name', 'النوع', 'الوظيفة', 'المنصب', 'الرتبة', 'الكلية', 'القسم', 'التخصص / المؤهل', 'الهاتف', 'الفرعي', 'المكتب', 'البريد الإلكتروني', 'الملف الرسمي', 'الصورة'];
   const rowOf = m => [m.name, m.name_en, TYPE_LABEL[m.type], m.job, m.role, m.rank, (FAC[m.faculty] || {}).name || '', m.department,
     m.specialization || m.qualification, DATA.main_line_display, m.ext, m.office, m.email, m.profile, m.photo];
+  // ---- contact cards
+  // vCard 3.0 (RFC 2426) for phones, Google and Apple: UTF-8 text, the required N field, escaped values,
+  // lines folded at 75 bytes (an Arabic letter is 2 bytes). vCard 2.1 for Outlook on Windows, which reads
+  // non-Latin text only as CHARSET=UTF-8 with quoted-printable encoding.
+  const vEsc = v => String(v == null ? '' : v).replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1');
+  function fold(line) {  // split at 75 octets without breaking a UTF-8 character; continuation lines start with a space
+    const enc = new TextEncoder();
+    const out = [];
+    let cur = '', size = 0, limit = 75;
+    for (const ch of line) {
+      const n = enc.encode(ch).length;
+      if (size + n > limit) { out.push(cur); cur = ' '; size = 1; limit = 75; }
+      cur += ch; size += n;
+    }
+    out.push(cur);
+    return out.join('\r\n');
+  }
+  function nameParts(m) {  // family name = last word of the Arabic name; title (د. / أ.د. / م.) as prefix
+    const t = String(m.name || '').match(/^((?:أ\.?\s?د|ا\.?\s?د|د|م|أ)\.+\s*)?(.*)$/);
+    const prefix = (t[1] || '').trim(), words = t[2].trim().split(/\s+/);
+    return { prefix, family: words.length > 1 ? words[words.length - 1] : '', given: words.length > 1 ? words.slice(0, -1).join(' ') : words[0] || '' };
+  }
+  function vFields(m) {
+    const fac = (FAC[m.faculty] || {}).name || '';
+    const p = nameParts(m);
+    return {
+      n: [p.family, p.given, '', p.prefix, ''], fn: m.name, en: m.name_en,
+      org: ['جامعة البترا', fac, m.department || ''].filter(Boolean),
+      title: [jobText(m), m.rank].filter(Boolean).join(' – ') || TYPE_LABEL[m.type],
+      // main line, then a pause and the extension: phones dial the extension automatically
+      tel: m.ext ? `${DATA.main_line},${m.ext}` : DATA.main_line,
+      email: m.email, url: m.profile, office: officeText(m),
+    };
+  }
+  function vcard3(m) {
+    const f = vFields(m);
+    return ['BEGIN:VCARD', 'VERSION:3.0',
+      'N:' + f.n.map(vEsc).join(';'), 'FN:' + vEsc(f.fn),
+      f.en ? 'X-PHONETIC-FIRST-NAME:' + vEsc(f.en) : '', f.en ? 'NICKNAME:' + vEsc(f.en) : '',
+      'ORG:' + f.org.map(vEsc).join(';'), 'TITLE:' + vEsc(f.title),
+      'TEL;TYPE=WORK,VOICE:' + f.tel, f.email ? 'EMAIL;TYPE=INTERNET,WORK:' + f.email : '',
+      f.url ? 'URL:' + f.url : '', f.office ? 'NOTE:' + vEsc('المكتب: ' + f.office) : '', 'END:VCARD']
+      .filter(Boolean).map(fold).join('\r\n') + '\r\n';
+  }
+  function qp(text) {  // quoted-printable of the UTF-8 bytes, soft line breaks at 75 characters
+    const bytes = new TextEncoder().encode(text);
+    let out = '', line = '';
+    bytes.forEach(b => {
+      const tok = (b >= 33 && b <= 126 && b !== 61) ? String.fromCharCode(b) : '=' + b.toString(16).toUpperCase().padStart(2, '0');
+      if (line.length + tok.length > 73) { out += line + '=\r\n'; line = ''; }
+      line += tok;
+    });
+    return out + line;
+  }
+  function vcard21(m) {
+    const f = vFields(m);
+    const u = (name, value) => `${name};CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:${qp(value)}`;
+    return ['BEGIN:VCARD', 'VERSION:2.1',
+      u('N', f.n.join(';')), u('FN', f.fn), u('ORG', f.org.join(';')), u('TITLE', f.title),
+      'TEL;WORK;VOICE:' + f.tel, f.email ? 'EMAIL;PREF;INTERNET:' + f.email : '', f.url ? 'URL;WORK:' + f.url : '',
+      f.office ? u('NOTE', 'المكتب: ' + f.office) : '', 'END:VCARD'].filter(Boolean).join('\r\n') + '\r\n';
+  }
   function download(name, content, type) {
     const blob = content instanceof Blob ? content : new Blob([content], { type });
     const a = document.createElement('a');
@@ -486,13 +549,8 @@
       const csv = [COLUMNS].concat(list.map(rowOf)).map(r => r.map(q).join(',')).join('\r\n');
       return download(base + '.csv', '﻿' + csv, 'text/csv;charset=utf-8');  // BOM so Excel reads Arabic
     }
-    if (kind === 'vcf') {
-      const v = list.map(m => ['BEGIN:VCARD', 'VERSION:3.0', `FN;CHARSET=UTF-8:${m.name}`, m.name_en ? `NICKNAME:${m.name_en}` : '',
-        `ORG;CHARSET=UTF-8:جامعة البترا;${(FAC[m.faculty] || {}).name || ''}`, [m.job, m.rank].filter(Boolean).length ? `TITLE;CHARSET=UTF-8:${[m.job, m.rank].filter(Boolean).join(' – ')}` : '',
-        m.ext ? `TEL;TYPE=WORK:${DATA.main_line},${m.ext}` : '', m.email ? `EMAIL;TYPE=WORK:${m.email}` : '', m.profile ? `URL:${m.profile}` : '',
-        m.office ? `NOTE;CHARSET=UTF-8:مكتب ${m.office}` : '', 'END:VCARD'].filter(Boolean).join('\r\n')).join('\r\n');
-      return download(base + '.vcf', v, 'text/vcard');
-    }
+    if (kind === 'vcf') return download(base + '.vcf', list.map(vcard3).join(''), 'text/vcard;charset=utf-8');
+    if (kind === 'vcf21') return download(base + '_Outlook.vcf', list.map(vcard21).join(''), 'text/x-vcard;charset=utf-8');
     if (kind === 'xlsx') {
       if (!window.XLSX) return toast('مكتبة Excel لم تُحمَّل بعد؛ حاول بعد لحظة أو استخدم CSV', true);
       const ws = XLSX.utils.aoa_to_sheet([COLUMNS].concat(list.map(rowOf)));
