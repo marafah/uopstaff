@@ -1,6 +1,6 @@
 {
-"updated": "2026-10-27T11:14:18Z",
-"checked": "2026-10-27T11:14:18Z",
+"updated": "2026-10-27T11:36:46Z",
+"checked": "2026-10-27T11:36:46Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1649,
@@ -16050,7 +16050,7 @@
 "name": "تحليلات التسويق الرقمية",
 "activity": "نظري",
 "time": "[ 16:00_19:00 ] س وجاهي",
-"room": "2201",
+"room": "2302",
 "section": "1",
 "status": "مفتوحة",
 "instructor": "د. جاسم أحمد سليمان الغصاونة",
@@ -18578,7 +18578,7 @@
 "department": "التسويق الرقمي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 56,
+"registered": 57,
 "capacity": 52,
 "meetings": [
 {
@@ -18942,7 +18942,7 @@
 "department": "التسويق الرقمي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 40,
+"registered": 41,
 "capacity": 40,
 "meetings": [
 {
@@ -19016,7 +19016,7 @@
 "department": "التسويق الرقمي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 56,
+"registered": 57,
 "capacity": 54,
 "meetings": [
 {
@@ -19195,7 +19195,7 @@
 "department": "التسويق الرقمي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 12,
+"registered": 13,
 "capacity": 15,
 "meetings": [
 {
@@ -41218,7 +41218,7 @@
 "department": "القانون الخاص",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 26,
+"registered": 27,
 "capacity": 40,
 "meetings": [
 {
@@ -41663,7 +41663,7 @@
 "department": "القانون الخاص",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 23,
+"registered": 24,
 "capacity": 40,
 "meetings": [
 {
@@ -42486,7 +42486,7 @@
 "department": "القانون العام",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 41,
+"registered": 42,
 "capacity": 60,
 "meetings": [
 {
@@ -46404,7 +46404,7 @@
 "name": "هندسة التكاليف",
 "activity": "نظري",
 "time": "[ 16:00_19:00 ] س وجاهي",
-"room": "2302",
+"room": "2201",
 "section": "1",
 "status": "مفتوحة",
 "instructor": "د. حسن درويش حسن بدران",
@@ -49107,7 +49107,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 88,
+"registered": 89,
 "capacity": 90,
 "meetings": [
 {
@@ -49255,7 +49255,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 88,
+"registered": 89,
 "capacity": 90,
 "meetings": [
 {
@@ -50180,7 +50180,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 89,
+"registered": 90,
 "capacity": 85,
 "meetings": [
 {
