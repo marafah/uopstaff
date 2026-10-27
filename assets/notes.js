@@ -8,24 +8,67 @@
 
   // ---------------------------------------------------------------- record types and their fields
   const TYPES = {
-    note: { name: 'ملاحظة', icon: 'bi-sticky-fill', color: '#64748b', f: [] },
-    task: { name: 'مهمة', icon: 'bi-check2-square', color: '#0f766e', f: ['due', 'checklist'] },
+    // التواصل
     call: { name: 'مكالمة', icon: 'bi-telephone-fill', color: '#1d4ed8', f: ['when', 'people', 'phone', 'direction', 'outcome', 'follow'] },
     meeting: { name: 'اجتماع', icon: 'bi-people-fill', color: '#901d23', f: ['when', 'end', 'place', 'people', 'decisions', 'checklist', 'follow'] },
-    memo: { name: 'مذكرة', icon: 'bi-file-earmark-text-fill', color: '#475569', f: ['when', 'org', 'ref'] },
-    report: { name: 'بلاغ', icon: 'bi-megaphone-fill', color: '#c2410c', f: ['when', 'org', 'ref', 'place', 'follow'] },
+    email: { name: 'بريد إلكتروني', icon: 'bi-envelope-fill', color: '#0369a1', f: ['when', 'people', 'org', 'ref', 'outcome', 'follow'] },
+    message: { name: 'رسالة', icon: 'bi-chat-dots-fill', color: '#16a34a', f: ['when', 'people', 'phone', 'outcome', 'follow'] },
+    visit: { name: 'زيارة', icon: 'bi-door-open-fill', color: '#0e7490', f: ['when', 'end', 'place', 'people', 'org', 'outcome', 'follow'] },
+    interview: { name: 'مقابلة', icon: 'bi-person-video2', color: '#4338ca', f: ['when', 'end', 'place', 'people', 'outcome', 'decisions', 'follow'] },
+    // الأعمال الإدارية
+    memo: { name: 'مذكرة', icon: 'bi-file-earmark-text-fill', color: '#475569', f: ['when', 'org', 'ref', 'follow'] },
+    letter: { name: 'كتاب رسمي', icon: 'bi-envelope-paper-fill', color: '#334155', f: ['when', 'org', 'ref', 'direction', 'due', 'follow'] },
+    request: { name: 'طلب', icon: 'bi-inbox-fill', color: '#0891b2', f: ['when', 'org', 'ref', 'due', 'outcome', 'checklist', 'follow'] },
+    decision: { name: 'قرار', icon: 'bi-hammer', color: '#7f1d1d', f: ['when', 'org', 'ref', 'decisions'] },
+    circular: { name: 'تعميم', icon: 'bi-broadcast-pin', color: '#a16207', f: ['when', 'org', 'ref', 'link'] },
+    report: { name: 'بلاغ', icon: 'bi-megaphone-fill', color: '#c2410c', f: ['when', 'org', 'ref', 'place', 'outcome', 'follow'] },
+    complaint: { name: 'شكوى', icon: 'bi-exclamation-diamond-fill', color: '#b91c1c', f: ['when', 'people', 'org', 'ref', 'outcome', 'follow'] },
+    approval: { name: 'موافقة / اعتماد', icon: 'bi-patch-check-fill', color: '#15803d', f: ['when', 'org', 'ref', 'due', 'outcome'] },
+    // المهام والمتابعة
+    task: { name: 'مهمة', icon: 'bi-check2-square', color: '#0f766e', f: ['due', 'people', 'checklist'] },
     follow: { name: 'متابعة', icon: 'bi-arrow-repeat', color: '#7c3aed', f: ['due', 'people', 'related', 'checklist'] },
-    event: { name: 'حدث', icon: 'bi-calendar-event-fill', color: '#0369a1', f: ['when', 'end', 'place', 'org', 'link'] },
-    conference: { name: 'مؤتمر', icon: 'bi-easel2-fill', color: '#9333ea', f: ['when', 'end', 'place', 'org', 'link', 'ref'] },
-    seminar: { name: 'ندوة', icon: 'bi-mic-fill', color: '#be185d', f: ['when', 'end', 'place', 'org', 'link'] },
     reminder: { name: 'تذكير', icon: 'bi-bell-fill', color: '#b45309', f: ['when'] },
+    deadline: { name: 'موعد نهائي', icon: 'bi-hourglass-bottom', color: '#dc2626', f: ['due', 'org', 'link', 'checklist'] },
+    project: { name: 'مشروع', icon: 'bi-kanban-fill', color: '#1e40af', f: ['when', 'due', 'people', 'org', 'link', 'checklist'] },
+    // الأكاديمي
+    lecture: { name: 'محاضرة', icon: 'bi-easel-fill', color: '#9a3412', f: ['when', 'end', 'course', 'place', 'checklist'] },
+    exam: { name: 'امتحان', icon: 'bi-pencil-square', color: '#be123c', f: ['when', 'end', 'course', 'place', 'checklist'] },
+    advising: { name: 'إرشاد طالب', icon: 'bi-mortarboard-fill', color: '#0d9488', f: ['when', 'people', 'course', 'outcome', 'follow'] },
+    supervision: { name: 'إشراف', icon: 'bi-journal-check', color: '#6d28d9', f: ['due', 'people', 'checklist', 'link', 'follow'] },
+    research: { name: 'بحث / نشر', icon: 'bi-journal-richtext', color: '#5b21b6', f: ['due', 'people', 'org', 'link', 'checklist'] },
+    committee: { name: 'لجنة', icon: 'bi-diagram-3-fill', color: '#9f1239', f: ['when', 'place', 'people', 'decisions', 'checklist', 'follow'] },
+    // الفعاليات والتطوير
+    event: { name: 'حدث', icon: 'bi-calendar-event-fill', color: '#0369a1', f: ['when', 'end', 'place', 'org', 'link'] },
+    conference: { name: 'مؤتمر', icon: 'bi-easel2-fill', color: '#9333ea', f: ['when', 'end', 'place', 'org', 'link', 'ref', 'amount'] },
+    seminar: { name: 'ندوة', icon: 'bi-mic-fill', color: '#be185d', f: ['when', 'end', 'place', 'org', 'link'] },
+    workshop: { name: 'ورشة عمل', icon: 'bi-tools', color: '#c2410c', f: ['when', 'end', 'place', 'org', 'link', 'checklist'] },
+    training: { name: 'دورة تدريبية', icon: 'bi-award-fill', color: '#ca8a04', f: ['when', 'end', 'place', 'org', 'link', 'ref', 'amount'] },
+    trip: { name: 'سفر / مهمة رسمية', icon: 'bi-airplane-fill', color: '#0284c7', f: ['when', 'end', 'place', 'org', 'ref', 'amount', 'checklist'] },
+    // شخصي
+    note: { name: 'ملاحظة', icon: 'bi-sticky-fill', color: '#64748b', f: [] },
+    idea: { name: 'فكرة', icon: 'bi-lightbulb-fill', color: '#eab308', f: ['link'] },
+    leave: { name: 'إجازة', icon: 'bi-umbrella-fill', color: '#0f766e', f: ['when', 'end', 'org', 'ref'] },
+    expense: { name: 'مصروف', icon: 'bi-cash-coin', color: '#047857', f: ['when', 'amount', 'org', 'ref'] },
+    document: { name: 'وثيقة / رابط', icon: 'bi-paperclip', color: '#475569', f: ['link', 'ref', 'org'] },
   };
-  const ORDER = ['meeting', 'call', 'task', 'follow', 'reminder', 'memo', 'report', 'event', 'conference', 'seminar', 'note'];
+  const CATS = [
+    ['التواصل', 'bi-chat-left-text-fill', ['call', 'meeting', 'email', 'message', 'visit', 'interview']],
+    ['الأعمال الإدارية', 'bi-briefcase-fill', ['memo', 'letter', 'request', 'decision', 'circular', 'report', 'complaint', 'approval']],
+    ['المهام والمتابعة', 'bi-list-check', ['task', 'follow', 'reminder', 'deadline', 'project']],
+    ['الأكاديمي', 'bi-mortarboard', ['lecture', 'exam', 'advising', 'supervision', 'research', 'committee']],
+    ['الفعاليات والتطوير', 'bi-stars', ['event', 'conference', 'seminar', 'workshop', 'training', 'trip']],
+    ['شخصي', 'bi-person-heart', ['note', 'idea', 'leave', 'expense', 'document']],
+  ];
+  const ORDER = CATS.flatMap(c => c[2]);
   const STATUS = { open: ['مفتوح', 'bi-circle'], doing: ['قيد التنفيذ', 'bi-play-circle-fill'], waiting: ['بانتظار رد', 'bi-hourglass-split'], done: ['منجز', 'bi-check-circle-fill'], cancelled: ['ملغى', 'bi-x-circle'] };
   const PRIO = { low: ['منخفضة', '#64748b'], normal: ['عادية', '#0369a1'], high: ['مهمة', '#c2410c'], urgent: ['عاجلة', '#b42318'] };
-  const MILESTONE = new Set(['meeting', 'event', 'conference', 'seminar']);
-  const LABEL = { when: 'التاريخ والوقت', end: 'ينتهي', due: 'موعد الإنجاز', people: 'الأشخاص', phone: 'الهاتف / الفرعي', direction: 'نوع المكالمة', outcome: 'النتيجة',
-    place: 'المكان', decisions: 'القرارات', checklist: 'بنود العمل', org: 'الجهة', ref: 'الرقم المرجعي', link: 'الرابط', related: 'مرتبط بـ', follow: 'متابعة بتاريخ' };
+  const MILESTONE = new Set(['meeting', 'event', 'conference', 'seminar', 'workshop', 'training', 'trip', 'exam', 'committee', 'deadline', 'decision', 'approval']);
+  const LABEL = { when: 'التاريخ والوقت', end: 'ينتهي', due: 'موعد الإنجاز', people: 'الأشخاص', phone: 'الهاتف / الفرعي', direction: 'الاتجاه', outcome: 'النتيجة',
+    place: 'المكان', decisions: 'القرارات', checklist: 'بنود العمل', org: 'الجهة', ref: 'الرقم المرجعي', link: 'الرابط', related: 'مرتبط بـ', follow: 'متابعة بتاريخ',
+    amount: 'المبلغ (دينار)', course: 'المقرر' };
+  // the type's own words for some fields
+  const DIRECTION = { call: ['صادرة', 'واردة', 'فائتة'], letter: ['صادر', 'وارد'] };
+  const QUICK_DEFAULT = ['meeting', 'call', 'task', 'follow', 'reminder', 'email', 'lecture', 'memo', 'event', 'note'];
 
   // ---------------------------------------------------------------- storage: IndexedDB on this device only
   const DB = {
@@ -88,6 +131,32 @@
     if (PEOPLE) return Promise.resolve(PEOPLE);
     return U.getJSON('data/staff.json').then(d => (PEOPLE = d.members.map(m => ({ name: m.name, ext: m.ext, email: m.email, job: m.job })))).catch(() => (PEOPLE = []));
   }
+  let COURSES = [];
+  function courses() {
+    return U.getJSON('data/timetable.json').then(d => { const m = {}; d.sections.forEach(s => { m[s.code] = `${s.code} ${s.name.replace(/\s*-\s*(نظري|عملي)\s*$/, '')}`; }); COURSES = Object.values(m).sort(); }).catch(() => {});
+  }
+  // the quick-add bar: the types this person uses most, then the usual ones
+  function quickTypes() {
+    const used = {}; ITEMS.forEach(x => { used[x.type] = (used[x.type] || 0) + 1; });
+    const top = Object.keys(used).filter(k => TYPES[k]).sort((a, b) => used[b] - used[a]);
+    return [...new Set(top.concat(QUICK_DEFAULT))].slice(0, 10);
+  }
+  // all types, grouped, with a search box
+  function gallery() {
+    U.modal('<i class="bi bi-plus-circle-fill"></i> سجل جديد: اختر النوع', `
+      <div class="nb-search mb-3"><i class="bi bi-search"></i><input id="g-q" type="search" placeholder="ابحث عن نوع: اجتماع، كتاب، امتحان، سفر…" autocomplete="off"></div>
+      <div id="g-list">${CATS.map(([cn, ci, ks]) => `<section class="nb-gcat"><h3><i class="bi ${ci}"></i> ${cn}</h3><div class="nb-gtypes">${ks.map(k => `<button type="button" data-g="${k}" data-n="${esc(norm(TYPES[k].name))}" style="--c:${TYPES[k].color}">
+        <i class="bi ${TYPES[k].icon}"></i><b>${TYPES[k].name}</b><small>${TYPES[k].f.filter(f => ['when', 'due', 'people', 'place', 'decisions', 'checklist', 'amount', 'course', 'ref'].includes(f)).slice(0, 2).map(f => LABEL[f].replace(' (دينار)', '')).join(' · ') || 'نص حر'}</small></button>`).join('')}</div></section>`).join('')}</div>`);
+    const m = $('#pgModal'); m.querySelector('.modal-dialog').classList.add('modal-xl');
+    m.addEventListener('hidden.bs.modal', () => m.querySelector('.modal-dialog').classList.remove('modal-xl'), { once: true });
+    m.querySelectorAll('[data-g]').forEach(b => b.addEventListener('click', () => { bootstrap.Modal.getInstance(m).hide(); setTimeout(() => edit(null, b.dataset.g), 320); }));
+    const q = $('#g-q');
+    q.addEventListener('input', () => { const v = norm(q.value.trim());
+      m.querySelectorAll('[data-g]').forEach(b => { b.hidden = !!v && !b.dataset.n.includes(v); });
+      m.querySelectorAll('.nb-gcat').forEach(c => { c.hidden = ![...c.querySelectorAll('[data-g]')].some(b => !b.hidden); }); });
+    q.addEventListener('keydown', e => { if (e.key === 'Enter') { const b = m.querySelector('[data-g]:not([hidden])'); if (b) b.click(); } });
+    setTimeout(() => q.focus(), 350);
+  }
   function filtered() {
     const q = norm(st.q.trim());
     return ITEMS.filter(x => (!st.type || x.type === st.type) && (!st.status || x.status === st.status) && (!st.prio || x.priority === st.prio)
@@ -110,6 +179,7 @@
       ${!compact && x.body ? `<p>${esc(x.body).slice(0, 220)}${x.body.length > 220 ? '…' : ''}</p>` : ''}
       <div class="nb-meta">${when}${due}${fol}${x.place ? `<span><i class="bi bi-geo-alt-fill"></i> ${esc(x.place)}</span>` : ''}
         ${(x.people || []).length ? `<span><i class="bi bi-person-fill"></i> ${x.people.map(p => esc(U.shortName(p.name))).slice(0, 3).join('، ')}${x.people.length > 3 ? ` +${x.people.length - 3}` : ''}</span>` : ''}
+        ${x.course ? `<span><i class="bi bi-journal-bookmark"></i> ${esc(x.course)}</span>` : ''}${x.amount ? `<span><i class="bi bi-cash-coin"></i> <bdi dir="ltr">${(+x.amount).toLocaleString('en-US', { maximumFractionDigits: 2 })}</bdi> د.أ</span>` : ''}
         ${cl.length ? `<span><i class="bi bi-list-check"></i> ${done}/${cl.length}</span>` : ''}</div>
       ${cl.length ? `<i class="nb-prog"><em style="width:${Math.round(100 * done / cl.length)}%"></em></i>` : ''}
       ${(x.tags || []).length ? `<div class="nb-tags">${x.tags.map(g => `<a href="#" data-tag="${esc(g)}">#${esc(g)}</a>`).join('')}</div>` : ''}
@@ -196,7 +266,8 @@
         <div><b>${ITEMS.filter(x => x.status === 'done').length}</b><span>منجز</span></div>
         <button type="button" class="nb-new" id="nb-new"><i class="bi bi-plus-lg"></i> سجل جديد <kbd>N</kbd></button>
       </div>
-      <div class="nb-quick">${ORDER.map(k => `<button type="button" data-quick="${k}" style="--c:${TYPES[k].color}" title="${TYPES[k].name} جديد"><i class="bi ${TYPES[k].icon}"></i><span>${TYPES[k].name}</span></button>`).join('')}</div>
+      <div class="nb-quick">${quickTypes().map(k => `<button type="button" data-quick="${k}" style="--c:${TYPES[k].color}" title="${TYPES[k].name} جديد"><i class="bi ${TYPES[k].icon}"></i><span>${TYPES[k].name}</span></button>`).join('')}
+        <button type="button" class="nb-all" id="nb-all" title="كل الأنواع (${ORDER.length})"><i class="bi bi-grid-3x3-gap-fill"></i><span>كل الأنواع</span></button></div>
       <div class="nb-bar">
         <div class="nb-views" role="tablist">${views.map(([k, l, i]) => `<button type="button" class="${st.view === k ? 'on' : ''}" data-view="${k}"><i class="bi ${i}"></i> ${l}</button>`).join('')}</div>
         <div class="nb-search"><i class="bi bi-search"></i><input id="nb-q" type="search" placeholder="ابحث في سجلاتك…" value="${esc(st.q)}"></div>
@@ -220,7 +291,8 @@
     bind();
   }
   function bind() {
-    $('#nb-new').addEventListener('click', () => edit(null, 'note'));
+    $('#nb-new').addEventListener('click', () => gallery());
+    $('#nb-all').addEventListener('click', () => gallery());
     document.querySelectorAll('[data-quick]').forEach(b => b.addEventListener('click', () => edit(null, b.dataset.quick)));
     document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { st.view = b.dataset.view; pref.set('view', st.view); render(); }));
     document.querySelectorAll('[data-ftype]').forEach(b => b.addEventListener('click', () => { st.type = b.dataset.ftype; render(); }));
@@ -258,19 +330,23 @@
   async function edit(x, type, when, fresh) {
     const isNew = !x || !!fresh;
     x = x ? JSON.parse(JSON.stringify(x)) : { id: 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), type: type || 'note', title: '', body: '', status: 'open', priority: 'normal',
-      tags: [], people: [], checklist: [], created: new Date().toISOString(), when: when || (['call', 'meeting', 'memo', 'report', 'event', 'conference', 'seminar'].includes(type) ? isoLocal(now()) : '') };
+      tags: [], people: [], checklist: [], created: new Date().toISOString(), when: when || (TYPES[type || 'note'].f.includes('when') && type !== 'reminder' ? isoLocal(now()) : '') };
     const ppl = await people();
+    if (TYPES[x.type] && TYPES[x.type].f.includes('course') && !COURSES.length) await courses();  // course suggestions only when needed
     const draw = () => {
       const t = T(x), has = f => t.f.includes(f);
       const input = (f, html) => has(f) ? `<div class="col-sm-6"><label class="small fw-bold">${LABEL[f]}</label>${html}</div>` : '';
       U.modal(`<span class="nb-mt" style="--c:${t.color}"><i class="bi ${t.icon}"></i></span> ${isNew ? t.name + ' جديد' : esc(x.title || t.name)}`, `
-        <div class="nb-typesel">${ORDER.map(k => `<button type="button" class="${x.type === k ? 'on' : ''}" data-settype="${k}" style="--c:${TYPES[k].color}"><i class="bi ${TYPES[k].icon}"></i>${TYPES[k].name}</button>`).join('')}</div>
+        <details class="nb-typepick"><summary><span class="nb-type" style="--c:${t.color}"><i class="bi ${t.icon}"></i> ${t.name}</span> <small>تغيير النوع</small></summary>
+          ${CATS.map(([cn, ci, ks]) => `<div class="nb-tcat"><b><i class="bi ${ci}"></i> ${cn}</b><div class="nb-typesel">${ks.map(k => `<button type="button" class="${x.type === k ? 'on' : ''}" data-settype="${k}" style="--c:${TYPES[k].color}"><i class="bi ${TYPES[k].icon}"></i>${TYPES[k].name}</button>`).join('')}</div></div>`).join('')}</details>
         <div class="row g-2 mt-1">
           <div class="col-12"><input class="form-control form-control-lg nb-title" id="e-title" placeholder="العنوان" value="${esc(x.title)}"></div>
           ${input('when', `<input type="datetime-local" class="form-control form-control-sm" id="e-when" value="${esc(x.when || '')}">`)}
           ${input('end', `<input type="datetime-local" class="form-control form-control-sm" id="e-end" value="${esc(x.end || '')}">`)}
           ${input('due', `<input type="datetime-local" class="form-control form-control-sm" id="e-due" value="${esc(x.due || '')}">`)}
-          ${input('direction', `<select class="form-select form-select-sm" id="e-direction">${['صادرة', 'واردة', 'فائتة'].map(v => `<option ${x.direction === v ? 'selected' : ''}>${v}</option>`).join('')}</select>`)}
+          ${input('direction', `<select class="form-select form-select-sm" id="e-direction">${(DIRECTION[x.type] || DIRECTION.call).map(v => `<option ${x.direction === v ? 'selected' : ''}>${v}</option>`).join('')}</select>`)}
+          ${input('amount', `<input type="number" min="0" step="0.01" class="form-control form-control-sm" id="e-amount" dir="ltr" value="${esc(x.amount || '')}" placeholder="0.00">`)}
+          ${input('course', `<input class="form-control form-control-sm" id="e-course" list="e-clist" value="${esc(x.course || '')}" placeholder="رمز المقرر أو اسمه"><datalist id="e-clist">${COURSES.map(c => `<option value="${esc(c)}">`).join('')}</datalist>`)}
           ${input('phone', `<input class="form-control form-control-sm" id="e-phone" dir="ltr" value="${esc(x.phone || '')}" placeholder="فرعي أو رقم">`)}
           ${input('place', `<input class="form-control form-control-sm" id="e-place" value="${esc(x.place || '')}" placeholder="قاعة، مكتب، Teams…">`)}
           ${input('org', `<input class="form-control form-control-sm" id="e-org" value="${esc(x.org || '')}" placeholder="الجهة / المنظِّم / المرسَل إليه">`)}
@@ -310,7 +386,7 @@
     // read the form into x (fields of other types are kept, so switching type loses nothing)
     const read = () => {
       const v = id => { const e = $('#' + id); return e ? e.value.trim() : undefined; };
-      ['title', 'body', 'when', 'end', 'due', 'direction', 'phone', 'place', 'org', 'ref', 'link', 'follow', 'related', 'outcome', 'decisions'].forEach(f => { const val = v('e-' + f); if (val !== undefined) x[f] = val; });
+      ['title', 'body', 'when', 'end', 'due', 'direction', 'phone', 'place', 'org', 'ref', 'link', 'follow', 'related', 'outcome', 'decisions', 'amount', 'course'].forEach(f => { const val = v('e-' + f); if (val !== undefined) x[f] = val; });
       x.status = v('e-status') || x.status; x.priority = v('e-prio') || x.priority;
       const tg = v('e-tags'); if (tg !== undefined) x.tags = tg.split(/[،,]/).map(s => s.trim()).filter(Boolean);
       const pin = $('#e-pin'); if (pin) x.pinned = pin.checked;
@@ -330,7 +406,8 @@
       draw(); setTimeout(() => { const i = $('#e-person'); if (i) i.focus(); }, 50);
     };
     const wire = () => {
-      document.querySelectorAll('[data-settype]').forEach(b => b.addEventListener('click', () => { read(); x.type = b.dataset.settype; if (TYPES[x.type].f.includes('when') && !x.when) x.when = isoLocal(now()); draw(); }));
+      document.querySelectorAll('[data-settype]').forEach(b => b.addEventListener('click', async () => { read(); x.type = b.dataset.settype; if (TYPES[x.type].f.includes('when') && !x.when) x.when = isoLocal(now());
+        if (TYPES[x.type].f.includes('course') && !COURSES.length) await courses(); draw(); }));
       const pi = $('#e-person');
       if (pi) {
         pi.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addPerson(pi.value); } });
@@ -365,7 +442,7 @@
   // ---------------------------------------------------------------- exports
   const rowsFor = l => l.slice().sort((a, b) => dateOf(a).localeCompare(dateOf(b)));
   function details(x) {
-    return [x.body, x.outcome && 'النتيجة: ' + x.outcome, x.decisions && 'القرارات: ' + x.decisions.split('\n').join(' · '),
+    return [x.course && 'المقرر: ' + x.course, x.amount && `المبلغ: ${x.amount} د.أ`, x.body, x.outcome && 'النتيجة: ' + x.outcome, x.decisions && 'القرارات: ' + x.decisions.split('\n').join(' · '),
       (x.checklist || []).length && 'البنود: ' + x.checklist.map(c => `${c.done ? '☑' : '☐'} ${c.text}${c.who ? ' (' + c.who + ')' : ''}${c.due ? ' ' + U.numDate(c.due) : ''}`).join(' · ')].filter(Boolean).join('\n');
   }
   function exportAs(kind) {
@@ -376,7 +453,8 @@
       return printReport({
         title: 'مفكرتي', subtitle: `${list.length} سجل${st.type ? ' · ' + TYPES[st.type].name : ''}${st.status ? ' · ' + STATUS[st.status][0] : ''}${st.q ? ' · بحث: ' + st.q : ''}`, orientation: 'landscape',
         source: 'سجلات شخصية محفوظة على جهاز المستخدم',
-        stats: [['سجل', list.length], ['مفتوح', list.filter(open).length], ['متأخر', list.filter(overdue).length], ['منجز', list.filter(x => x.status === 'done').length]],
+        stats: [['سجل', list.length], ['مفتوح', list.filter(open).length], ['متأخر', list.filter(overdue).length], ['منجز', list.filter(x => x.status === 'done').length]]
+          .concat(list.some(x => +x.amount) ? [['مجموع المبالغ (د.أ)', list.reduce((a, x) => a + (+x.amount || 0), 0).toLocaleString('en-US', { maximumFractionDigits: 2 })]] : []),
         sections: groups.map(k => ({ title: `${TYPES[k].name} (${list.filter(x => x.type === k).length})`, columns: ['التاريخ', 'العنوان', 'التفاصيل', 'الأشخاص / الجهة', 'الحالة'],
           widths: ['12%', '20%', '43%', '15%', '10%'],
           rows: rowsFor(list.filter(x => x.type === k)).map(x => [{ text: fmt(dateOf(x)), sub: x.due ? 'إنجاز ' + fmt(x.due) : '' }, { html: `<b>${esc(x.title)}</b>${x.place ? `<small>${esc(x.place)}</small>` : ''}` },
@@ -386,9 +464,9 @@
     }
     if (kind === 'csv') {
       const q = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
-      const head = ['النوع', 'العنوان', 'التاريخ', 'ينتهي', 'موعد الإنجاز', 'متابعة', 'الحالة', 'الأولوية', 'الأشخاص', 'الجهة', 'المكان', 'المرجع', 'التفاصيل', 'الوسوم', 'أُنشئ', 'عُدّل'];
+      const head = ['النوع', 'العنوان', 'التاريخ', 'ينتهي', 'موعد الإنجاز', 'متابعة', 'الحالة', 'الأولوية', 'الأشخاص', 'الجهة', 'المكان', 'المرجع', 'المقرر', 'المبلغ', 'التفاصيل', 'الوسوم', 'أُنشئ', 'عُدّل'];
       const lines = [head.map(q).join(',')].concat(rowsFor(list).map(x => [T(x).name, x.title, fmt(x.when), fmt(x.end), fmt(x.due), fmt(x.follow), STATUS[x.status || 'open'][0], PRIO[x.priority || 'normal'][0],
-        (x.people || []).map(p => p.name + (p.ext ? ` (${p.ext})` : '')).join('، '), x.org, x.place, x.ref, details(x), (x.tags || []).join('، '), fmt(isoLocal(new Date(x.created))), fmt(isoLocal(new Date(x.updated)))].map(q).join(',')));
+        (x.people || []).map(p => p.name + (p.ext ? ` (${p.ext})` : '')).join('، '), x.org, x.place, x.ref, x.course, x.amount, details(x), (x.tags || []).join('، '), fmt(isoLocal(new Date(x.created))), fmt(isoLocal(new Date(x.updated)))].map(q).join(',')));
       return U.download(`مفكرتي_${today()}.csv`, '\ufeff' + lines.join('\r\n'), 'text/csv;charset=utf-8');
     }
     if (kind === 'ics') {
@@ -476,9 +554,9 @@
     U.updatedLine(new Date().toISOString(), 'لا تُرسل سجلاتك إلى أي مكان');
     $('#pg-updated').textContent = `${ITEMS.length} سجل على هذا الجهاز`;
     $('#pg-actions').insertAdjacentHTML('afterbegin', `<button type="button" class="btn btn-update" id="nb-hero-new"><i class="bi bi-plus-lg"></i> سجل جديد</button>`);
-    $('#nb-hero-new').addEventListener('click', () => edit(null, 'note'));
+    $('#nb-hero-new').addEventListener('click', () => gallery());
     render();
-    document.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'n' && !e.ctrlKey && !e.metaKey && !/input|textarea|select/i.test(e.target.tagName) && !document.querySelector('.modal.show')) { e.preventDefault(); edit(null, 'note'); } });
+    document.addEventListener('keydown', e => { if (e.key.toLowerCase() === 'n' && !e.ctrlKey && !e.metaKey && !/input|textarea|select/i.test(e.target.tagName) && !document.querySelector('.modal.show')) { e.preventDefault(); gallery(); } });
     $('#pg-q').addEventListener('input', e => { st.q = e.target.value; render(); });
     remind(); setInterval(remind, 60000);
     if (window.Notification && Notification.permission === 'default' && ITEMS.some(x => x.type === 'reminder')) Notification.requestPermission().catch(() => {});
