@@ -1,0 +1,2335 @@
+{
+"updated": "2026-10-27T10:56:51Z",
+"source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
+"revision": "Rev.E",
+"revision_date": "2023-12-20",
+"official": {
+"status": "current",
+"sha256": "a587bf82b9bfb85e1c1169b13ca97820c22bf5517bab644c0e0b0958c4aeab0c",
+"revision": "Rev.E, 20/12/2023",
+"last_modified": "Tue, 06 Aug 2024 09:35:14 GMT",
+"size": 150447
+},
+"boxes": 86,
+"tree": {
+"id": "board",
+"name": "مجلس الأمناء",
+"kind": "board",
+"unit": {
+"id": "boardoftrustees",
+"name": "مجلس الأمناء",
+"count": 14,
+"academic": 0
+},
+"people": [
+{
+"id": "B:boardoftrustees:1",
+"name": "معالي د. غازي منور تركي الزبن",
+"job": "رئيس مجلس الأمناء",
+"role": "رئيس مجلس الأمناء",
+"type": "board",
+"ext": "1100",
+"email": "",
+"photo": "assets/photos/c79110fc4f76fe2e.jpg",
+"faculty": "boardoftrustees"
+},
+{
+"id": "B:boardoftrustees:4",
+"name": "أ.د. أيمن خالد عبد الكريم مساعده",
+"job": "عضو مجلس الأمناء",
+"role": "",
+"type": "board",
+"ext": "",
+"email": "",
+"photo": "assets/photos/0d087d8e58742c24.jpg",
+"faculty": "boardoftrustees"
+},
+{
+"id": "B:boardoftrustees:7",
+"name": "أ.د. توفيق عرفات",
+"job": "عضو مجلس الأمناء",
+"role": "",
+"type": "board",
+"ext": "",
+"email": "",
+"photo": "assets/photos/6a0110215e3623cc.jpg",
+"faculty": "boardoftrustees"
+},
+{
+"id": "B:boardoftrustees:5",
+"name": "أ.د. زياد عيد الرواضية",
+"job": "عضو مجلس الأمناء",
+"role": "",
+"type": "board",
+"ext": "",
+"email": "",
+"photo": "assets/photos/a35aff1ee80698b0.jpg",
+"faculty": "boardoftrustees"
+},
+{
+"id": "B:boardoftrustees:3",
+"name": "أ.د. محمد تركي محمد بني سلامة",
+"job": "عضو مجلس الأمناء",
+"role": "",
+"type": "board",
+"ext": "",
+"email": "",
+"photo": "",
+"faculty": "boardoftrustees"
+},
+{
+"id": "B:boardoftrustees:50",
+"name": "دينا محمود الداود",
+"job": "عضو مجلس الأمناء",
+"role": "",
+"type": "board",
+"ext": "",
+"email": "",
+"photo": "assets/photos/f7cb0650641eeb23.jpg",
+"faculty": "boardoftrustees"
+},
+{
+"id": "S:boardoftrustees:1",
+"name": "رولا النشاشيبي",
+"job": "مدير مكتب رئيس مجلس الأمناء وأمين سر مجلس الأمناء",
+"role": "",
+"type": "admin",
+"ext": "1100",
+"email": "rnashashibi@uop.edu.jo",
+"photo": "assets/photos/986ef65bfc165eed.jpg",
+"faculty": "boardoftrustees"
+},
+{
+"id": "B:boardoftrustees:6",
+"name": "زينة أيمن هزاع المجالي",
+"job": "عضو مجلس الأمناء",
+"role": "",
+"type": "board",
+"ext": "",
+"email": "",
+"photo": "assets/photos/40f60c53d650fd15.jpg",
+"faculty": "boardoftrustees"
+},
+{
+"id": "B:boardoftrustees:12",
+"name": "م. خالد اعريم خالد علي",
+"job": "عضو مجلس الأمناء",
+"role": "",
+"type": "board",
+"ext": "",
+"email": "",
+"photo": "assets/photos/bfcf2131a9919f3b.jpg",
+"faculty": "boardoftrustees"
+},
+{
+"id": "B:boardoftrustees:11",
+"name": "م. عبد الرحيم فتحي البقاعي",
+"job": "عضو مجلس الأمناء",
+"role": "",
+"type": "board",
+"ext": "",
+"email": "",
+"photo": "assets/photos/377fc43a7fbac799.jpg",
+"faculty": "boardoftrustees"
+},
+{
+"id": "B:boardoftrustees:49",
+"name": "م. محمد هشام محمد مازن الأنصاري",
+"job": "عضو مجلس الأمناء",
+"role": "",
+"type": "board",
+"ext": "",
+"email": "",
+"photo": "assets/photos/837824fa56828648.jpg",
+"faculty": "boardoftrustees"
+}
+],
+"children": [
+{
+"id": "board-academic",
+"name": "اللجنة الأكاديمية",
+"kind": "committee",
+"people": []
+},
+{
+"id": "board-finance",
+"name": "اللجنة الإدارية والمالية",
+"kind": "committee",
+"people": []
+},
+{
+"id": "audit",
+"name": "وحدة الرقابة والتدقيق",
+"kind": "unit",
+"dashed_to": "president",
+"note": "تتبع مجلس الأمناء، وترتبط برئيس الجامعة بخط متقطع",
+"people": []
+},
+{
+"id": "president",
+"name": "رئيس الجامعة",
+"kind": "president",
+"unit": {
+"id": "universitypresident",
+"name": "رئاسة الجامعة",
+"count": 4,
+"academic": 0
+},
+"people": [
+{
+"id": "B:boardoftrustees:2",
+"name": "أ.د. علي أبو غنيمة",
+"job": "رئيس الجامعة",
+"role": "رئيس الجامعة",
+"type": "board",
+"ext": "1300",
+"email": "president@uop.edu.jo",
+"photo": "assets/photos/3b2991e373fc1d73.jpg",
+"faculty": "boardoftrustees"
+}
+],
+"children": [
+{
+"id": "university-council",
+"name": "مجلس الجامعة",
+"kind": "council",
+"people": []
+},
+{
+"id": "deans-council",
+"name": "مجلس العمداء",
+"kind": "council",
+"people": []
+},
+{
+"id": "vp-academic",
+"name": "نائب الرئيس للشؤون الأكاديمية",
+"kind": "vp",
+"people": [
+{
+"id": "A:6600610062007500720075006200400075006F0070002E006500640075002E006A006F00",
+"name": "أ.د. فيصل أسعد فريد أبوالرب",
+"job": "نائب رئيس الجامعة",
+"role": "نائب رئيس الجامعة",
+"type": "academic",
+"ext": "1999",
+"email": "faburub@uop.edu.jo",
+"photo": "assets/photos/da6ebbf6516c9c27.jpg",
+"faculty": 3
+}
+]
+},
+{
+"id": "pr",
+"name": "دائرة العلاقات العامة والدولية",
+"kind": "department",
+"people": []
+},
+{
+"id": "funding",
+"name": "مكتب التمويل الخارجي ونقل التكنولوجيا",
+"kind": "office",
+"dashed_to": "asst-agreements",
+"people": [],
+"children": [
+{
+"id": "intl-education",
+"name": "مكتب التعليم الدولي",
+"kind": "office",
+"people": []
+}
+]
+},
+{
+"id": "asst-agreements",
+"name": "مساعد الرئيس للاتفاقيات والتعاون الدولي",
+"kind": "office",
+"people": [
+{
+"id": "A:6B006D0061006E0073006F006F007200400075006F0070002E006500640075002E006A006F00",
+"name": "أ.د.كنزا عبدالهادي حامد منصور",
+"job": "مساعد الرئيس للاتفاقيات والتعاون الدولي",
+"role": "مساعد عميد / رئيس",
+"type": "academic",
+"ext": "8113",
+"email": "kmansoor@uop.edu.jo",
+"photo": "assets/photos/2c3fbc4bbe544ea9.jpg",
+"faculty": 2
+},
+{
+"id": "A:6F002E006E00610069006D00400075006F0070002E006500640075002E006A006F00",
+"name": "د. اسامة منير يوسف نعيم",
+"job": "مساعد الرئيس للاتفاقيات والتعاون الدولي",
+"role": "مساعد عميد / رئيس",
+"type": "academic",
+"ext": "4324",
+"email": "o.naim@uop.edu.jo",
+"photo": "assets/photos/88864c8d85c7f93b.jpg",
+"faculty": 4
+}
+]
+},
+{
+"id": "asst-legal",
+"name": "مساعد الرئيس للشؤون القانونية",
+"kind": "office",
+"people": []
+},
+{
+"id": "presidency-office",
+"name": "مكتب الرئاسة",
+"kind": "office",
+"people": [
+{
+"id": "S:universitypresident:1",
+"name": "وفاء الخطيب",
+"job": "مديرة مكتب الرئيس - رئيس قسم شؤون الأكاديميين",
+"role": "",
+"type": "admin",
+"ext": "1400",
+"email": "walkhatib@uop.edu.jo",
+"photo": "assets/photos/df09c53695025dc0.jpg",
+"faculty": "universitypresident"
+}
+],
+"children": [
+{
+"id": "academics-affairs",
+"name": "شؤون الأكاديميين",
+"kind": "section",
+"people": [
+{
+"id": "S:universitypresident:1",
+"name": "وفاء الخطيب",
+"job": "مديرة مكتب الرئيس - رئيس قسم شؤون الأكاديميين",
+"role": "",
+"type": "admin",
+"ext": "1400",
+"email": "walkhatib@uop.edu.jo",
+"photo": "assets/photos/df09c53695025dc0.jpg",
+"faculty": "universitypresident"
+}
+]
+},
+{
+"id": "appointment",
+"name": "التعيين والترقية",
+"kind": "section",
+"people": []
+}
+]
+},
+{
+"id": "quality",
+"name": "وحدة ضمان الجودة والتخطيط والقياس",
+"kind": "unit",
+"unit": {
+"id": "qualityassuranceplanning",
+"name": "وحدة ضمان الجودة",
+"count": 3,
+"academic": 0
+},
+"people": [
+{
+"id": "A:530061006C00740061007200690066006900400075006F0070002E006500640075002E006A006F00",
+"name": "د. شادي محمود مصباح الطريفي",
+"job": "مساعد مدير وحدة ضمان الجودة والتخطيط والقياس",
+"role": "مدير",
+"type": "academic",
+"ext": "9327",
+"email": "saltarifi@uop.edu.jo",
+"photo": "assets/photos/f5ad965297527328.jpg",
+"faculty": 3
+}
+]
+},
+{
+"id": "scholarships",
+"name": "مكتب الإيفاد",
+"kind": "office",
+"people": []
+},
+{
+"id": "diwan",
+"name": "الديوان",
+"kind": "office",
+"people": [
+{
+"id": "S:universitypresident:20",
+"name": "رزان عبد الحكيم الجوابرة",
+"job": "سكرتاريا الديوان",
+"role": "",
+"type": "admin",
+"ext": "5310",
+"email": "razan.aljawabreh@uop.edu.jo",
+"photo": "assets/photos/c3ed656b6b7df62b.jpg",
+"faculty": "universitypresident"
+}
+]
+},
+{
+"id": "research",
+"name": "عمادة البحث العلمي والدراسات العليا",
+"kind": "deanship",
+"people": []
+},
+{
+"id": "f13",
+"name": "كلية طب الأسنان",
+"kind": "faculty",
+"unit": {
+"id": "13",
+"name": "كلية طب الأسنان",
+"count": 37,
+"academic": 32
+},
+"people": [
+{
+"id": "A:660069007200610073002E0061006C0073006F006C0065006900680061007400400075006F0070002E006500640075002E006A006F000D00",
+"name": "أ.د. فراس دخيل كامل السليحات",
+"job": "عميد الكلية وأستاذ في علوم طب الأسنان الأساسية",
+"role": "عميد",
+"type": "academic",
+"ext": "24000",
+"email": "firas.alsoleihat@uop.edu.jo",
+"photo": "assets/photos/42edad17be1d3787.jpg",
+"faculty": 13
+}
+],
+"children": [
+{
+"id": "f13-d0",
+"name": "قسم المعالجة الترميمية والعلوم الطبية الأساسية",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "المعالجة الترميمية والعلوم الطبية الأساسية",
+"count": 11,
+"people": []
+},
+{
+"id": "f13-d1",
+"name": "قسم تكنولوجيا صناعة الأسنان",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "تكنولوجيا صناعة الأسنان",
+"count": 3,
+"people": []
+},
+{
+"id": "f13-d2",
+"name": "قسم جراحة الفم والفكين وأمراض الفم واللثة",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "جراحة الفم والفكين وأمراض الفم واللثة",
+"count": 1,
+"people": []
+},
+{
+"id": "f13-d3",
+"name": "قسم طب وجراحة الأسنان",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "طب وجراحة الأسنان",
+"count": 18,
+"people": [
+{
+"id": "A:610079006D0061006E002E007300680069006E006E0061007100400075006F0070002E006500640075002E006A006F00",
+"name": "د. أيمن عبد الحفيظ محمد شناق",
+"job": "رئيس قسم تقويم الأسنان وطب أسنان الأطفال وطب الأسنان الوقائي",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "",
+"email": "ayman.shinnaq@uop.edu.jo",
+"photo": "assets/photos/6cc51469be27c25f.jpg",
+"faculty": 13
+},
+{
+"id": "A:61006200640065006C006B006100720069006D002E006100670068006100400075006F0070002E006500640075002E006A006F00",
+"name": "د. عبد الكريم شعبان ابراهيم آغا",
+"job": "رئيس قسم الاستعاضة السنية",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "24314",
+"email": "abdelkarim.agha@uop.edu.jo",
+"photo": "assets/photos/1cb336a6da93ce93.jpg",
+"faculty": 13
+}
+]
+}
+]
+},
+{
+"id": "f12",
+"name": "كلية الهندسة",
+"kind": "faculty",
+"unit": {
+"id": "12",
+"name": "كلية الهندسة",
+"count": 14,
+"academic": 8
+},
+"people": [
+{
+"id": "A:6E006900640061006C002E006800750073007300650069006E00400075006F0070002E006500640075002E006A006F00",
+"name": "د. نضال محمد عبد الرزاق حسين",
+"job": "عميد كلية الهندسة",
+"role": "عميد",
+"type": "academic",
+"ext": "2000",
+"email": "nidal.hussein@uop.edu.jo",
+"photo": "assets/photos/1b678aa883281362.jpg",
+"faculty": 12
+}
+],
+"children": [
+{
+"id": "f12-d0",
+"name": "قسم الهندسة المدنية",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "الهندسة المدنية",
+"count": 8,
+"people": [
+{
+"id": "A:71007500730069002E0061006C00710061007700610073006D0065006800400075006F0070002E006500640075002E006A006F00",
+"name": "د. قصي ابراهيم احمد القواسمه",
+"job": "رئيس قسم الهندسة المدنية ومساعد العميد للشؤون الأكاديمية والدراسات العليا",
+"role": "مساعد عميد / رئيس",
+"type": "academic",
+"ext": "2214",
+"email": "qusi.alqawasmeh@uop.edu.jo",
+"photo": "assets/photos/c013393c1c23b25e.jpg",
+"faculty": 12
+}
+]
+}
+]
+},
+{
+"id": "f4",
+"name": "كلية العمارة والتصميم",
+"kind": "faculty",
+"unit": {
+"id": "4",
+"name": "كلية العمارة والتصميم",
+"count": 51,
+"academic": 29
+},
+"people": [
+{
+"id": "A:720061006E00690061002E00610062007500720061006D006100640061006E00400075006F0070002E006500640075002E006A006F00",
+"name": "د. رانيا فايز عبد الله أبو رمضان",
+"job": "عميد",
+"role": "عميد",
+"type": "academic",
+"ext": "",
+"email": "rania.aburamadan@uop.edu.jo",
+"photo": "assets/photos/c6d5620ca82d46f9.jpg",
+"faculty": 4
+}
+],
+"children": [
+{
+"id": "f4-d0",
+"name": "قسم التحريك والوسائط المتعددة",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "التحريك والوسائط المتعددة",
+"count": 3,
+"people": [
+{
+"id": "A:6D0061006E0073006F00750072002E006D0061006E0073006F0075007200400075006F0070002E006500640075002E006A006F00",
+"name": "د. منصور محمد محمد منصور",
+"job": "رئيس قسم التحريك والوسائط المتعددة",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "4600",
+"email": "mansour.mansour@uop.edu.jo",
+"photo": "assets/photos/1973c4f65718e9f7.jpg",
+"faculty": 4
+}
+]
+},
+{
+"id": "f4-d1",
+"name": "قسم التصميم الجرافيكي",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "التصميم الجرافيكي",
+"count": 5,
+"people": [
+{
+"id": "A:6D006F006D0065007200400075006F0070002E006500640075002E006A006F00",
+"name": "د. محمد خيري عبد الصادق عمر",
+"job": "رئيس قسم التصميم الجرافيكي",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "4500",
+"email": "momer@uop.edu.jo",
+"photo": "assets/photos/455851edebe56833.jpg",
+"faculty": 4
+}
+]
+},
+{
+"id": "f4-d2",
+"name": "قسم التصميم الداخلي",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "التصميم الداخلي",
+"count": 10,
+"people": [
+{
+"id": "A:6D0061006E007300610072006900400075006F0070002E006500640075002E006A006F00",
+"name": "د. منى مروان محمود الأنصاري",
+"job": "نائب عميد كلية العمارة و التصميم , رئيس قسم التصميم الداخلي",
+"role": "نائب عميد",
+"type": "academic",
+"ext": "4202",
+"email": "mansari@uop.edu.jo",
+"photo": "assets/photos/25f536c9564e9875.jpg",
+"faculty": 4
+}
+]
+},
+{
+"id": "f4-d3",
+"name": "قسم تكنولوجيا تصميم الفيلم الرقمي",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "تكنولوجيا تصميم الفيلم الرقمي",
+"count": 4,
+"people": [
+{
+"id": "A:6C0061006D0061002E00610062007500680061007300730061006E00400075006F0070002E006500640075002E006A006F00",
+"name": "د. لما بلال صالح ابو حسان",
+"job": "رئيس قسم تكنولوجيا تصميم الفيلم الرقمي",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "4200",
+"email": "lama.abuhassan@uop.edu.jo",
+"photo": "assets/photos/815db7a4c8b80a4d.jpg",
+"faculty": 4
+}
+]
+},
+{
+"id": "f4-d4",
+"name": "قسم هندسة العمارة",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "هندسة العمارة",
+"count": 8,
+"people": []
+}
+]
+},
+{
+"id": "f9",
+"name": "كلية الحقوق",
+"kind": "faculty",
+"unit": {
+"id": "9",
+"name": "كلية الحقوق",
+"count": 17,
+"academic": 14
+},
+"people": [
+{
+"id": "A:6F006D00610072002E0065006D0061007200400075006F0070002E006500640075002E006A006F000D00",
+"name": "أ.د.عمر محمود عبدالرحمن اعمر",
+"job": "عميد كلية الحقوق",
+"role": "عميد",
+"type": "academic",
+"ext": "3421",
+"email": "omar.emar@uop.edu.jo",
+"photo": "assets/photos/fe81773153aacc9f.jpg",
+"faculty": 9
+}
+],
+"children": [
+{
+"id": "f9-d0",
+"name": "قسم الحقوق",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "الحقوق",
+"count": 2,
+"people": []
+},
+{
+"id": "f9-d1",
+"name": "قسم القانون الخاص",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "القانون الخاص",
+"count": 6,
+"people": [
+{
+"id": "A:680061006E00650065006E002E0061006C006D0061006E0073006F0075007200400075006F0070002E006500640075002E006A006F00",
+"name": "د. حنين منصور خالد المنصور",
+"job": "رئيس قسم القانون الخاص",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "3440",
+"email": "haneen.almansour@uop.edu.jo",
+"photo": "assets/photos/8d0fcb6be3330efe.jpg",
+"faculty": 9
+},
+{
+"id": "A:6D006A007500770061006900680061006E00400075006F0070002E006500640075002E006A006F00",
+"name": "د. معن عبدالرحيم عبدالعزيز جويحان",
+"job": "رئيس قسم القانون الخاص",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "3336",
+"email": "mjuwaihan@uop.edu.jo",
+"photo": "assets/photos/32441aeb86c12e23.jpg",
+"faculty": 9
+}
+]
+},
+{
+"id": "f9-d2",
+"name": "قسم القانون العام",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "القانون العام",
+"count": 6,
+"people": []
+}
+]
+},
+{
+"id": "f11",
+"name": "كلية الإعلام",
+"kind": "faculty",
+"unit": {
+"id": "11",
+"name": "كلية الإعلام",
+"count": 21,
+"academic": 16
+},
+"people": [
+{
+"id": "A:61006C0069002E006E0065006A006100640061007400400075006F0070002E006500640075002E006A006F00",
+"name": "أ.د. علي عقله عبد الرحمن نجادات",
+"job": "عميد",
+"role": "عميد",
+"type": "academic",
+"ext": "3000",
+"email": "ali.nejadat@uop.edu.jo",
+"photo": "assets/photos/29d039ffb9a6a47b.jpg",
+"faculty": 11
+}
+],
+"children": [
+{
+"id": "f11-d0",
+"name": "قسم الإذاعة والتلفزيون",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "الإذاعة والتلفزيون",
+"count": 5,
+"people": [
+{
+"id": "A:680061006400650065006C002E00730068007100610069007200400075006F0070002E006500640075002E006A006F00",
+"name": "د. هديل سمير مسعود شقير",
+"job": "رئيس قسم الإذاعة والتلفزيون",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "3100",
+"email": "hadeel.shqair@uop.edu.jo",
+"photo": "assets/photos/e917bed7071dd377.jpg",
+"faculty": 11
+}
+]
+},
+{
+"id": "f11-d1",
+"name": "قسم الصحافة والإعلام الرقمي",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "الصحافة والإعلام الرقمي",
+"count": 7,
+"people": [
+{
+"id": "A:410061006C006400650062006100690073006900400075006F0070002E006500640075002E006A006F00",
+"name": "د. عبد الكريم علي جبر الدبيسي",
+"job": "رئيس قسم الصحافة والإعلام الرقمي",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "3300",
+"email": "aaldebaisi@uop.edu.jo",
+"photo": "assets/photos/9be08b5ee9f1e7d6.jpg",
+"faculty": 11
+}
+]
+},
+{
+"id": "f11-d2",
+"name": "قسم العلاقات العامة والترويج الرقمي",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "العلاقات العامة والترويج الرقمي",
+"count": 4,
+"people": [
+{
+"id": "A:7A00610069006E00650068002E0061006C007A006F00750062006900400075006F0070002E006500640075002E006A006F00",
+"name": "د. زينة رافع مبارك الزعبي",
+"job": "رئيس قسم",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "3321",
+"email": "zaineh.alzoubi@uop.edu.jo",
+"photo": "assets/photos/9076c131bb200f32.jpg",
+"faculty": 11
+}
+]
+}
+]
+},
+{
+"id": "f1",
+"name": "كلية تكنولوجيا المعلومات",
+"kind": "faculty",
+"unit": {
+"id": "1",
+"name": "كلية تكنولوجيا المعلومات",
+"count": 51,
+"academic": 43
+},
+"people": [
+{
+"id": "A:61006D00610071006F00750073006900400075006F0070002E006500640075002E006A006F00",
+"name": "د. علي يونس عبد الرحمن المقوسي",
+"job": "عميد",
+"role": "عميد",
+"type": "academic",
+"ext": "1999",
+"email": "amaqousi@uop.edu.jo",
+"photo": "assets/photos/ddeb550f05d31822.jpg",
+"faculty": 1
+}
+],
+"children": [
+{
+"id": "innovation",
+"name": "مركز الإبداع والريادة",
+"kind": "center",
+"people": [
+{
+"id": "A:6D0061006C0065006B002E0061006C0073006F0075006400400075006F0070002E006500640075002E006A006F00",
+"name": "د. مالك احمد سالم السعود",
+"job": "مدير مركز الإبداع والريادة",
+"role": "مدير",
+"type": "academic",
+"ext": "9326",
+"email": "malek.alsoud@uop.edu.jo",
+"photo": "assets/photos/05761b5d869d5f05.jpg",
+"faculty": 3
+}
+]
+},
+{
+"id": "elearning",
+"name": "مركز التعليم الإلكتروني",
+"kind": "center",
+"people": [
+{
+"id": "A:77006800610064006900400075006F0070002E006500640075002E006A006F00",
+"name": "أ.د.وائل موسى محمد هادي",
+"job": "مدير مركز التعلم الإلكتروني",
+"role": "مدير",
+"type": "academic",
+"ext": "7223",
+"email": "whadi@uop.edu.jo",
+"photo": "assets/photos/3707c9ba54a0e9da.jpg",
+"faculty": 1
+}
+]
+},
+{
+"id": "sustainability",
+"name": "مكتب الاستدامة والمساواة",
+"kind": "office",
+"people": []
+},
+{
+"id": "f1-d3",
+"name": "قسم أمن المعلومات",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "أمن المعلومات",
+"count": 7,
+"people": []
+},
+{
+"id": "f1-d4",
+"name": "قسم علم البيانات والذكاء الاصطناعي",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "علم البيانات والذكاء الاصطناعي",
+"count": 10,
+"people": [
+{
+"id": "A:6D006F00680061006D006D00610064002E00610072006100660061006800400075006F0070002E006500640075002E006A006F000D00",
+"name": "د. محمد عماد مصطفى عرفة",
+"job": "رئيس قسم",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "7400",
+"email": "mohammad.arafah@uop.edu.jo",
+"photo": "assets/photos/71ba67046bdd9507.jpg",
+"faculty": 1
+}
+]
+},
+{
+"id": "f1-d5",
+"name": "قسم علم الحاسوب",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "علم الحاسوب",
+"count": 17,
+"people": [
+{
+"id": "A:6D006F00680061006D006D00610064002E0061006C006F007500640061007400400075006F0070002E006500640075002E006A006F00",
+"name": "د. محمد عطاالله محمد العودات",
+"job": "رئيس قسم علم الحاسوب",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "7301",
+"email": "mohammad.aloudat@uop.edu.jo",
+"photo": "assets/photos/69c414221fa04d9d.jpg",
+"faculty": 1
+}
+]
+},
+{
+"id": "f1-d6",
+"name": "قسم علم الحاسوب / الواقع الافتراضي والمعزز",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "علم الحاسوب / الواقع الافتراضي والمعزز",
+"count": 3,
+"people": []
+},
+{
+"id": "f1-d7",
+"name": "قسم هندسة البرمجيات",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "هندسة البرمجيات",
+"count": 6,
+"people": [
+{
+"id": "A:6B006F006D0061007200400075006F0070002E006500640075002E006A006F00",
+"name": "د. خليل عمر خليل عمر",
+"job": "رئيس قسم",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "7200",
+"email": "komar@uop.edu.jo",
+"photo": "assets/photos/26b85ae8357c3d0e.jpg",
+"faculty": 1
+}
+]
+}
+]
+},
+{
+"id": "f3",
+"name": "كلية العلوم الإدارية والمالية",
+"kind": "faculty",
+"unit": {
+"id": "3",
+"name": "كلية العلوم الإدارية والمالية",
+"count": 69,
+"academic": 61
+},
+"people": [],
+"children": [
+{
+"id": "incubator",
+"name": "حاضنة الأعمال",
+"kind": "center",
+"people": []
+},
+{
+"id": "consulting",
+"name": "مركز الدراسات والاستشارات الإدارية والمالية والفنية",
+"kind": "center",
+"people": []
+},
+{
+"id": "f3-d2",
+"name": "قسم ادارة الأعمال",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "ادارة الأعمال",
+"count": 12,
+"people": []
+},
+{
+"id": "f3-d3",
+"name": "قسم إدارة سلاسل التوريد والعلوم اللوجستية",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "إدارة سلاسل التوريد والعلوم اللوجستية",
+"count": 4,
+"people": [
+{
+"id": "A:690068007300730061006E002E00730061006D00610072006100400075006F0070002E006500640075002E006A006F00",
+"name": "د. احسان سمير كامل سمارة",
+"job": "رئيس قسم ادارة الاعمال& ادارة سلاسل التوريد والعلوم اللوجستية",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "9407",
+"email": "ihssan.samara@uop.edu.jo",
+"photo": "assets/photos/0ceef1b0c7d2297d.jpg",
+"faculty": 3
+}
+]
+},
+{
+"id": "f3-d4",
+"name": "قسم الأعمال والتجارة الالكترونية",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "الأعمال والتجارة الالكترونية",
+"count": 9,
+"people": [
+{
+"id": "A:770061007300650066002E006D006100740061007200400075006F0070002E006500640075002E006A006F00",
+"name": "د. واصف محمود سعد مطر",
+"job": "رئيس قسم",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "9500",
+"email": "wasef.matar@uop.edu.jo",
+"photo": "assets/photos/9ec48842de426505.jpg",
+"faculty": 3
+}
+]
+},
+{
+"id": "f3-d5",
+"name": "قسم التسويق",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "التسويق",
+"count": 1,
+"people": []
+},
+{
+"id": "f3-d6",
+"name": "قسم التسويق الرقمي",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "التسويق الرقمي",
+"count": 9,
+"people": [
+{
+"id": "A:73006D00610067006100740065006600400075006F0070002E006500640075002E006A006F00",
+"name": "د. سيما غالب مصطفى مقاطف",
+"job": "رئيس قسم التسويق والتسويق الرقمي",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "9301",
+"email": "smagatef@uop.edu.jo",
+"photo": "assets/photos/d8c278fae26b79f1.jpg",
+"faculty": 3
+}
+]
+},
+{
+"id": "f3-d7",
+"name": "قسم التكنولوجيا المالية",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "التكنولوجيا المالية",
+"count": 4,
+"people": [
+{
+"id": "A:6B0062007100610069006E00400075006F0070002E006500640075002E006A006F00",
+"name": "د. خلف سهيل عيسى البقاعين",
+"job": "رئيس قسمي التكنولوجيا المالية والعلوم المالية والمصرفية",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "9200",
+"email": "kbqain@uop.edu.jo",
+"photo": "assets/photos/f7dda40a462ccd65.jpg",
+"faculty": 3
+}
+]
+},
+{
+"id": "f3-d8",
+"name": "قسم العلوم المالية والمصرفية",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "العلوم المالية والمصرفية",
+"count": 8,
+"people": []
+},
+{
+"id": "f3-d9",
+"name": "قسم المحاسبة",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "المحاسبة",
+"count": 5,
+"people": [
+{
+"id": "A:7900680061006D0073006800610072006900400075006F0070002E006500640075002E006A006F000D00",
+"name": "د. ياسر محمد احمد همشري",
+"job": "رئيس قسم المحاسبة",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "9300",
+"email": "yhamshari@uop.edu.jo",
+"photo": "assets/photos/f3cd34b87a0b5ec7.jpg",
+"faculty": 3
+}
+]
+},
+{
+"id": "f3-d10",
+"name": "قسم ذكاء الأعمال وتحليل البيانات",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "ذكاء الأعمال وتحليل البيانات",
+"count": 9,
+"people": [
+{
+"id": "A:610068006D00610064002E00650079006100640061007400400075006F0070002E006500640075002E006A006F00",
+"name": "د. احمد علي صالح عيادات",
+"job": "رئيس قسم",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "",
+"email": "ahmad.eyadat@uop.edu.jo",
+"photo": "assets/photos/94138408f1a1f64a.jpg",
+"faculty": 3
+},
+{
+"id": "A:6D006F00680061006D006D00610064002E0061006C006B00680061006C0064007900400075006F0070002E006500640075002E006A006F00",
+"name": "د. محمد علي عبيد الخالدي",
+"job": "رئيس قسم ذكاء الاعمال وتحليل البيانات",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "ext. 9000",
+"email": "mohammad.alkhaldy@uop.edu.jo",
+"photo": "assets/photos/2778dd4792535337.jpg",
+"faculty": 3
+}
+]
+}
+]
+},
+{
+"id": "f2",
+"name": "كلية الصيدلة والعلوم الطبية",
+"kind": "faculty",
+"unit": {
+"id": "2",
+"name": "كلية الصيدلة والعلوم الطبية",
+"count": 54,
+"academic": 38
+},
+"people": [
+{
+"id": "A:6E00710069006E006E006100400075006F0070002E006500640075002E006A006F00",
+"name": "أ.د. نضال عادل محمد القنة",
+"job": "عميد كلية الصيدلة والعلوم الطبية",
+"role": "عميد",
+"type": "academic",
+"ext": "8000",
+"email": "nqinna@uop.edu.jo",
+"photo": "assets/photos/c9f9f0760663e421.jpg",
+"faculty": 2
+}
+],
+"children": [
+{
+"id": "nutrition",
+"name": "عيادة التغذية",
+"kind": "center",
+"unit": {
+"id": "nutritionclinic",
+"name": "مركز الابحاث والتثقيف التغذوي",
+"count": 3,
+"academic": 0
+},
+"people": []
+},
+{
+"id": "drug-studies",
+"name": "مركز الدراسات الدوائية",
+"kind": "center",
+"people": [
+{
+"id": "A:6D006F00680061006D006D00650064002E0061006200610064006C0065006800400075006F0070002E006500640075002E006A006F00",
+"name": "د. محمد مصطفى محمد العبادلة",
+"job": "مدير مركز الدراسات الدوائية",
+"role": "مدير",
+"type": "academic",
+"ext": "8800",
+"email": "mohammed.abadleh@uop.edu.jo",
+"photo": "assets/photos/d1216e356a00efc3.jpg",
+"faculty": 2
+}
+]
+},
+{
+"id": "f2-d2",
+"name": "قسم التحاليل الطبية",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "التحاليل الطبية",
+"count": 6,
+"people": [
+{
+"id": "A:6C006100620075007100610074006F007500730065006800400075006F0070002E006500640075002E006A006F00",
+"name": "د. لؤي فوزي محمد ابوقطوسه",
+"job": "رئيس قسم",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "8441",
+"email": "labuqatouseh@uop.edu.jo",
+"photo": "assets/photos/b02d65e2e10afbe9.jpg",
+"faculty": 2
+}
+]
+},
+{
+"id": "f2-d3",
+"name": "قسم التغذية",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "التغذية",
+"count": 10,
+"people": [
+{
+"id": "A:61007900610068002E007A0061006900640061006C006B0069006C0061006E006900400075006F0070002E006500640075002E006A006F00",
+"name": "د. آيه طلال عبد الله زيد الكيلاني",
+"job": "رئيس قسم التغذية",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "8400",
+"email": "ayah.zaidalkilani@uop.edu.jo",
+"photo": "assets/photos/71f2910d00fe4754.jpg",
+"faculty": 2
+}
+]
+},
+{
+"id": "f2-d4",
+"name": "قسم الصيدلة",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "الصيدلة",
+"count": 23,
+"people": [
+{
+"id": "A:61006100620075006B00680061006C0069006C00400075006F0070002E006500640075002E006A006F00",
+"name": "د. اسعد عبداللطيف اسعد ابوخليل",
+"job": "رئيس قسم الصيدلانيات والصيدلة التقنية",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "8214",
+"email": "aabukhalil@uop.edu.jo",
+"photo": "assets/photos/33d3f1df9f26df93.jpg",
+"faculty": 2
+},
+{
+"id": "A:61006E00610073002E006B00680061006C00650065006C00400075006F0070002E006500640075002E006A006F000D00",
+"name": "د. انس عبدالفتاح حسين خليل",
+"job": "رئيس قسم الصيدلة السريرية والممارسة الصيدلانية",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "8341",
+"email": "anas.khaleel@uop.edu.jo",
+"photo": "assets/photos/9b392faff8ee7e82.jpg",
+"faculty": 2
+},
+{
+"id": "A:640068006900610072007900400075006F0070002E006500640075002E006A006F00",
+"name": "د. دانيه حسين سلامة الحياري",
+"job": "رئيسة قسم الصيدلانيات والتكنولوجيا الصيدلانية",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "8203",
+"email": "dhiary@uop.edu.jo",
+"photo": "assets/photos/be798cc4838dc085.jpg",
+"faculty": 2
+},
+{
+"id": "A:72006F00770061006E002E0061006C0065006A00690065006C0061007400400075006F0070002E006500640075002E006A006F00",
+"name": "د.روان فهد ابراهيم العجيلات",
+"job": "رئيس قسم العلوم الصيدلانية و الطبية الحيوية",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "8149",
+"email": "rowan.alejielat@uop.edu.jo",
+"photo": "assets/photos/5fa428221ba959ea.jpg",
+"faculty": 2
+}
+]
+}
+]
+},
+{
+"id": "f5",
+"name": "كلية الآداب والعلوم",
+"kind": "faculty",
+"unit": {
+"id": "5",
+"name": "كلية الآداب والعلوم",
+"count": 90,
+"academic": 75
+},
+"people": [
+{
+"id": "A:770061007500640065006800400075006F0070002E006500640075002E006A006F00",
+"name": "أ.د. وسيم احمد نجيب عوده",
+"job": "عميد كلية الاداب والعلوم",
+"role": "عميد",
+"type": "academic",
+"ext": "6000",
+"email": "waudeh@uop.edu.jo",
+"photo": "assets/photos/8a4d6fa2bb83628e.jpg",
+"faculty": 5
+}
+],
+"children": [
+{
+"id": "languages",
+"name": "مركز اللغات",
+"kind": "center",
+"people": []
+},
+{
+"id": "early-childhood",
+"name": "مركز الطفولة المبكرة",
+"kind": "center",
+"people": [],
+"children": [
+{
+"id": "nursery",
+"name": "حضانة الأطفال",
+"kind": "unit",
+"unit": {
+"id": "petranursery",
+"name": "حضانة جامعة البترا",
+"count": 9,
+"academic": 0
+},
+"people": []
+},
+{
+"id": "kindergarten",
+"name": "روضة الأطفال",
+"kind": "unit",
+"people": []
+}
+]
+},
+{
+"id": "f5-d2",
+"name": "قسم العلوم الأساسية - متطلبات الجامعة",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "العلوم الأساسية - متطلبات الجامعة",
+"count": 20,
+"people": [
+{
+"id": "A:6D0061006C0071007500640061006800400075006F0070002E006500640075002E006A006F00",
+"name": "د. محمد ناجي سلامة القضاه",
+"job": "رئيس قسم العلوم الاساسية الانسانية",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "6111",
+"email": "malqudah@uop.edu.jo",
+"photo": "assets/photos/8575ca43a22f6ae9.jpg",
+"faculty": 5
+},
+{
+"id": "A:6E0068006100730061006E00610069006E00400075006F0070002E006500640075002E006A006F00",
+"name": "د. نبيل علي محمد حسنين",
+"job": "رئيس قسم اللغة العربية وآدابها",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "6100",
+"email": "nhasanain@uop.edu.jo",
+"photo": "assets/photos/1a9e0f3a9c7f1174.jpg",
+"faculty": 5
+}
+]
+},
+{
+"id": "f5-d3",
+"name": "قسم العلوم الأساسية / الرياضيات",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "العلوم الأساسية / الرياضيات",
+"count": 9,
+"people": [
+{
+"id": "A:6A0061006D0061006C002E006F00750064006500740061006C006C0061006800400075006F0070002E006500640075002E006A006F00",
+"name": "د. جمال عبد الرحيم فهد عودة الله",
+"job": "رئيس قسم الرياضيات",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "6600",
+"email": "jamal.oudetallah@uop.edu.jo",
+"photo": "assets/photos/778bfa3c1b7a0889.jpg",
+"faculty": 5
+}
+]
+},
+{
+"id": "f5-d4",
+"name": "قسم العلوم التربوية / التربية الرياضية",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "العلوم التربوية / التربية الرياضية",
+"count": 5,
+"people": [
+{
+"id": "A:7A006900610064002E007A006100790065006400400075006F0070002E006500640075002E006A006F00",
+"name": "أ.د.زياد عيسى ابراهيم زايد",
+"job": "رئيس قسم العلوم التربوية",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "6400",
+"email": "ziad.zayed@uop.edu.jo",
+"photo": "assets/photos/ae4873368f0d2136.jpg",
+"faculty": 5
+}
+]
+},
+{
+"id": "f5-d5",
+"name": "قسم العلوم التربوية / الطفولة المبكرة",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "العلوم التربوية / الطفولة المبكرة",
+"count": 4,
+"people": []
+},
+{
+"id": "f5-d6",
+"name": "قسم العلوم التربويه / تربية الطفل",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "العلوم التربويه / تربية الطفل",
+"count": 1,
+"people": []
+},
+{
+"id": "f5-d7",
+"name": "قسم العلوم التربويه / معلم الصف",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "العلوم التربويه / معلم الصف",
+"count": 6,
+"people": []
+},
+{
+"id": "f5-d8",
+"name": "قسم الكيمياء",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "الكيمياء",
+"count": 9,
+"people": [
+{
+"id": "A:6E0073007700770065006900640061006E00400075006F0070002E006500640075002E006A006F00",
+"name": "د. نهى اسماعيل حمودة سويدان",
+"job": "رئيس قسم",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "7214",
+"email": "nswweidan@uop.edu.jo",
+"photo": "assets/photos/bd87a1dc2524572a.jpg",
+"faculty": 5
+}
+]
+},
+{
+"id": "f5-d9",
+"name": "قسم اللغة الانجليزية /الترجمه",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "اللغة الانجليزية /الترجمه",
+"count": 6,
+"people": [
+{
+"id": "A:61006400610062006200610067006800400075006F0070002E006500640075002E006A006F00",
+"name": "د. علا محمد كامل علي الدباغ",
+"job": "رئيس قسم",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "6235",
+"email": "adabbagh@uop.edu.jo",
+"photo": "assets/photos/bbae7ff546cc4c1f.jpg",
+"faculty": 5
+},
+{
+"id": "A:6D0061006C007300680075006E006E0061007100400075006F0070002E006500640075002E006A006F00",
+"name": "د. محمد عواد محمد الشناق",
+"job": "رئيس قسم",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "6234",
+"email": "malshunnaq@uop.edu.jo",
+"photo": "assets/photos/0719b7fa7bf51aae.jpg",
+"faculty": 5
+}
+]
+},
+{
+"id": "f5-d10",
+"name": "قسم اللغة الانجليزية التطبيقية",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "اللغة الانجليزية التطبيقية",
+"count": 2,
+"people": []
+},
+{
+"id": "f5-d11",
+"name": "قسم اللغة الانجليزية وآدابها",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "اللغة الانجليزية وآدابها",
+"count": 5,
+"people": [
+{
+"id": "A:680061006D0072006F00400075006F0070002E006500640075002E006A006F00",
+"name": "د.هبة سليم مصطفى عمرو",
+"job": "رئيسة قسم اللغة الانجليزية وآدابها",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "6200",
+"email": "hamro@uop.edu.jo",
+"photo": "assets/photos/118f2f21bed15d09.jpg",
+"faculty": 5
+}
+]
+},
+{
+"id": "f5-d12",
+"name": "قسم اللغة العربية وآدابها",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "اللغة العربية وآدابها",
+"count": 5,
+"people": [
+{
+"id": "A:6D007500680061006D006D00610064002E006B006100770061006B007A0065006800400075006F0070002E006500640075002E006A006F000D00",
+"name": "د. محمد حسن بخيت قواقزة",
+"job": "رئيبس قسم اللغة العربية وآدابها",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "6100",
+"email": "muhammad.kawakzeh@uop.edu.jo",
+"photo": "assets/photos/26b49fc8a65e6ba4.jpg",
+"faculty": 5
+}
+]
+},
+{
+"id": "f5-d13",
+"name": "قسم اللغة الفرنسية واللغة الانجليزية وآدابهما",
+"kind": "academic-dept",
+"from_directory": true,
+"dept": "اللغة الفرنسية واللغة الانجليزية وآدابهما",
+"count": 4,
+"people": [
+{
+"id": "A:6C00750062006E0061002E0061006C006B006100730061007300620065006800400075006F0070002E006500640075002E006A006F00",
+"name": "د. لبنى خالد مسلم الكساسبه",
+"job": "رئيس قسم",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "6700",
+"email": "lubna.alkasasbeh@uop.edu.jo",
+"photo": "assets/photos/63a61a0fcdcb79bb.jpg",
+"faculty": 5
+}
+]
+}
+]
+},
+{
+"id": "academic-development",
+"name": "مركز التطوير الأكاديمي",
+"kind": "center",
+"people": []
+},
+{
+"id": "library",
+"name": "المكتبة",
+"kind": "center",
+"unit": {
+"id": "uoplibrary",
+"name": "مكتبة البترا",
+"count": 9,
+"academic": 0
+},
+"people": []
+},
+{
+"id": "safety",
+"name": "مكتب السلامة العامة والصحة المهنية",
+"kind": "office",
+"people": []
+},
+{
+"id": "continuing",
+"name": "مركز التعليم المستمر وخدمة المجتمع",
+"kind": "center",
+"unit": {
+"id": "continuingeducationcenter",
+"name": "مركز التعليم المستمر وخدمة المجتمع",
+"count": 2,
+"academic": 0
+},
+"people": [
+{
+"id": "S:continuingeducationcenter:1",
+"name": "سعد علي المغربي",
+"job": "مدير مركز التعليم المستمر وخدمة المجتمع",
+"role": "مدير",
+"type": "admin",
+"ext": "5750",
+"email": "salmughrabi@uop.edu.jo",
+"photo": "assets/photos/b8eb81cad4d09a3d.jpg",
+"faculty": "continuingeducationcenter"
+}
+]
+},
+{
+"id": "accreditation",
+"name": "مكتب الاعتماد",
+"kind": "office",
+"people": []
+},
+{
+"id": "student-affairs",
+"name": "عمادة شؤون الطلبة",
+"kind": "deanship",
+"unit": {
+"id": "studentsaffairs",
+"name": "عمادة شؤون الطلبة",
+"count": 16,
+"academic": 0
+},
+"people": [
+{
+"id": "A:610061006C0071006100690073006900400075006F0070002E006500640075002E006A006F00",
+"name": "د. عبير حسن سالم القيسي",
+"job": "القائم بأعمال عميد شؤون الطلبة",
+"role": "عميد",
+"type": "academic",
+"ext": "5800",
+"email": "aalqaisi@uop.edu.jo",
+"photo": "assets/photos/764db47ca8e0899d.jpg",
+"faculty": 9
+},
+{
+"id": "S:studentsaffairs:23",
+"name": "أسامة العواد",
+"job": "موظف إداري – مكتب عميد شؤون الطلبة",
+"role": "",
+"type": "admin",
+"ext": "5831",
+"email": "oalawwad@uop.edu.jo",
+"photo": "assets/photos/4dac082a374089d1.jpg",
+"faculty": "studentsaffairs"
+}
+],
+"children": [
+{
+"id": "careers",
+"name": "مكتب الإرشاد الوظيفي ومتابعة الخريجين / صندوق الملك عبدالله الثاني للتنمية",
+"kind": "office",
+"people": [
+{
+"id": "S:studentsaffairs:21",
+"name": "أشرف أبو صالحة",
+"job": "رئيس قسم متابعة الخريجين",
+"role": "رئيس قسم",
+"type": "admin",
+"ext": "5822",
+"email": "aabusalha@uop.edu.jo",
+"photo": "assets/photos/a8d1c8a3cb7b90ea.jpg",
+"faculty": "studentsaffairs"
+},
+{
+"id": "S:studentsaffairs:26",
+"name": "ميساء مصطفى",
+"job": "مديرة مكتب الارشاد الوظيفي ومتابعة الخريجين",
+"role": "",
+"type": "admin",
+"ext": "5840",
+"email": "mmustafa@uop.edu.jo",
+"photo": "assets/photos/2c931b50334eafb8.jpg",
+"faculty": "studentsaffairs"
+}
+]
+},
+{
+"id": "sports",
+"name": "قسم النشاط الرياضي",
+"kind": "section",
+"people": [
+{
+"id": "S:studentsaffairs:28",
+"name": "محمد العزام",
+"job": "رئيس قسم النشاط الرياضي",
+"role": "رئيس قسم",
+"type": "admin",
+"ext": "5850",
+"email": "malazzam@uop.edu.jo",
+"photo": "assets/photos/3b30a71274376095.jpg",
+"faculty": "studentsaffairs"
+}
+]
+},
+{
+"id": "culture",
+"name": "قسم النشاط الثقافي والفني والاجتماعي",
+"kind": "section",
+"people": [
+{
+"id": "S:studentsaffairs:24",
+"name": "عفاف العتيبي",
+"job": "رئيسة قسم النشاط الثقافي والفني والاجتماعي",
+"role": "رئيس قسم",
+"type": "admin",
+"ext": "5830",
+"email": "aalotaiby@uop.edu.jo",
+"photo": "assets/photos/a04005dada46b9bf.jpg",
+"faculty": "studentsaffairs"
+}
+]
+},
+{
+"id": "international-students",
+"name": "قسم شؤون الوافدين",
+"kind": "section",
+"people": [
+{
+"id": "S:studentsaffairs:22",
+"name": "محمد اللحام",
+"job": "رئيس قسم شؤون الوافدين",
+"role": "رئيس قسم",
+"type": "admin",
+"ext": "5823",
+"email": "mallaham@uop.edu.jo",
+"photo": "assets/photos/ab25b2b9fe733b43.jpg",
+"faculty": "studentsaffairs"
+}
+]
+},
+{
+"id": "housing",
+"name": "السكن الداخلي",
+"kind": "unit",
+"people": []
+},
+{
+"id": "student-services",
+"name": "دائرة الخدمات الطلابية",
+"kind": "department",
+"people": [
+{
+"id": "S:studentsaffairs:32",
+"name": "علاء فوزان أبو الغنم",
+"job": "رئيس قسم الخدمات الطلابية",
+"role": "رئيس قسم",
+"type": "admin",
+"ext": "5860",
+"email": "aabualghanam@uop.edu.jo",
+"photo": "assets/photos/92e790e1ce8b2dc1.jpg",
+"faculty": "studentsaffairs"
+}
+]
+},
+{
+"id": "security",
+"name": "قسم الأمن الجامعي",
+"kind": "section",
+"people": [
+{
+"id": "S:studentsaffairs:34",
+"name": "جهاد عبد الحميد السنيان",
+"job": "رئيس قسم الأمن الجامعي",
+"role": "رئيس قسم",
+"type": "admin",
+"ext": "5630",
+"email": "jehad.alsanian@uop.edu.jo",
+"photo": "assets/photos/3f6afbc8d7f81f22.jpg",
+"faculty": "studentsaffairs"
+}
+]
+},
+{
+"id": "counselling",
+"name": "مكتب الإرشاد النفسي والاجتماعي",
+"kind": "office",
+"people": []
+}
+]
+},
+{
+"id": "admission",
+"name": "عمادة القبول والتسجيل",
+"kind": "deanship",
+"unit": {
+"id": "admissionsandregistration",
+"name": "عمادة القبول والتسجيل",
+"count": 9,
+"academic": 0
+},
+"people": [
+{
+"id": "S:admissionsandregistration:2",
+"name": "غاده عدنان مناع",
+"job": "مساعد مدير القبول والتسجيل / رئيس قسم التسجيل",
+"role": "رئيس قسم",
+"type": "admin",
+"ext": "5020",
+"email": "gmana@uop.edu.jo",
+"photo": "",
+"faculty": "admissionsandregistration"
+},
+{
+"id": "S:admissionsandregistration:14",
+"name": "فؤاد الغبن",
+"job": "سكرتير مدير القبول والتسجيل",
+"role": "",
+"type": "admin",
+"ext": "5001",
+"email": "fghaben@uop.edu.jo",
+"photo": "assets/photos/9f0281cc18678b3b.jpg",
+"faculty": "admissionsandregistration"
+}
+],
+"children": [
+{
+"id": "admission-section",
+"name": "قسم القبول",
+"kind": "section",
+"people": [
+{
+"id": "S:admissionsandregistration:3",
+"name": "رشا ابو سخن",
+"job": "رئيس قسم القبول",
+"role": "رئيس قسم",
+"type": "admin",
+"ext": "5010",
+"email": "rsokhon@uop.edu.jo",
+"photo": "",
+"faculty": "admissionsandregistration"
+},
+{
+"id": "S:admissionsandregistration:6",
+"name": "عبدالرحيم حسين",
+"job": "مسجل / قسم القبول",
+"role": "",
+"type": "admin",
+"ext": "5011",
+"email": "ahussein@uop.edu.jo",
+"photo": "",
+"faculty": "admissionsandregistration"
+},
+{
+"id": "S:admissionsandregistration:5",
+"name": "مهند منذر الحسيني",
+"job": "مسجل / قسم القبول",
+"role": "",
+"type": "admin",
+"ext": "5012",
+"email": "mohannad.alhusaini@uop.edu.jo",
+"photo": "",
+"faculty": "admissionsandregistration"
+}
+]
+},
+{
+"id": "registration-section",
+"name": "قسم التسجيل",
+"kind": "section",
+"people": [
+{
+"id": "S:admissionsandregistration:2",
+"name": "غاده عدنان مناع",
+"job": "مساعد مدير القبول والتسجيل / رئيس قسم التسجيل",
+"role": "رئيس قسم",
+"type": "admin",
+"ext": "5020",
+"email": "gmana@uop.edu.jo",
+"photo": "",
+"faculty": "admissionsandregistration"
+}
+]
+},
+{
+"id": "documents-section",
+"name": "قسم الوثائق",
+"kind": "section",
+"people": [
+{
+"id": "S:admissionsandregistration:4",
+"name": "شيماء عبدالقادر جفال",
+"job": "مسجل / رئيس قسم الوثائق",
+"role": "رئيس قسم",
+"type": "admin",
+"ext": "5030",
+"email": "sjaffal@uop.edu.jo",
+"photo": "",
+"faculty": "admissionsandregistration"
+}
+]
+}
+]
+},
+{
+"id": "finance",
+"name": "الدائرة المالية",
+"kind": "department",
+"unit": {
+"id": "financedepartment",
+"name": "دائرة الشؤون المالية",
+"count": 11,
+"academic": 0
+},
+"people": [
+{
+"id": "S:financedepartment:1",
+"name": "نائل الدحلة",
+"job": "مدير الشؤون المالية",
+"role": "مدير",
+"type": "admin",
+"ext": "5400",
+"email": "naldahleh@uop.edu.jo",
+"photo": "assets/photos/9f02d96844e33c2b.jpg",
+"faculty": "financedepartment"
+}
+],
+"children": [
+{
+"id": "student-accounts",
+"name": "قسم محاسبة الطلبة",
+"kind": "section",
+"people": [
+{
+"id": "S:financedepartment:24",
+"name": "رائد عبد الحفيظ",
+"job": "رئيس قسم محاسبة الطلبة",
+"role": "رئيس قسم",
+"type": "admin",
+"ext": "5440",
+"email": "rahmad@uop.edu.jo",
+"photo": "",
+"faculty": "financedepartment"
+}
+]
+},
+{
+"id": "general-accounts",
+"name": "قسم المحاسبة العامة",
+"kind": "section",
+"people": [
+{
+"id": "S:financedepartment:19",
+"name": "مازن القنة",
+"job": "رئيس قسم المحاسبة العامة",
+"role": "رئيس قسم",
+"type": "admin",
+"ext": "5420",
+"email": "malqunneh@uop.edu.jo",
+"photo": "",
+"faculty": "financedepartment"
+}
+]
+},
+{
+"id": "payroll",
+"name": "قسم محاسبة الرواتب",
+"kind": "section",
+"people": []
+},
+{
+"id": "cashier",
+"name": "الصناديق",
+"kind": "section",
+"people": [
+{
+"id": "S:financedepartment:27",
+"name": "زهير أبو خضرا",
+"job": "أمين صندوق",
+"role": "",
+"type": "admin",
+"ext": "5472",
+"email": "mohammad.albdairat@uop.edu.jo",
+"photo": "",
+"faculty": "financedepartment"
+},
+{
+"id": "S:financedepartment:28",
+"name": "محمد برهم",
+"job": "أمين صندوق",
+"role": "",
+"type": "admin",
+"ext": "5471",
+"email": "mbarham@uop.edu.jo",
+"photo": "",
+"faculty": "financedepartment"
+}
+]
+},
+{
+"id": "grants",
+"name": "قسم المنح",
+"kind": "section",
+"people": [
+{
+"id": "S:financedepartment:23",
+"name": "تغريد الحباشنة",
+"job": "رئيس قسم المنح والخصومات",
+"role": "رئيس قسم",
+"type": "admin",
+"ext": "5463",
+"email": "thabashneh@uop.edu.jo",
+"photo": "",
+"faculty": "financedepartment"
+}
+]
+}
+]
+},
+{
+"id": "hr",
+"name": "دائرة الموارد البشرية",
+"kind": "department",
+"unit": {
+"id": "hrd",
+"name": "دائرة الموارد البشرية",
+"count": 4,
+"academic": 0
+},
+"people": [
+{
+"id": "S:hrd:1",
+"name": "فؤاد محمود محمد ابو صفيه",
+"job": "مدير دائرة الموارد البشرية",
+"role": "مدير",
+"type": "admin",
+"ext": "5200",
+"email": "fuad.abusafieh@uop.edu.jo",
+"photo": "",
+"faculty": "hrd"
+}
+],
+"children": [
+{
+"id": "personnel",
+"name": "قسم شؤون هيئة التدريس والموظفين والمستخدمين",
+"kind": "section",
+"people": []
+},
+{
+"id": "health-center",
+"name": "المركز الصحي",
+"kind": "center",
+"unit": {
+"id": "healthcarecenter",
+"name": "المركز الصحي",
+"count": 8,
+"academic": 0
+},
+"people": [
+{
+"id": "S:healthcarecenter:27",
+"name": "د. أحمد حمدالله سعيد جادالله",
+"job": "مدير المركز الصحي",
+"role": "مدير",
+"type": "admin",
+"ext": "5120",
+"email": "ahmad.jadallah@uop.edu.jo",
+"photo": "",
+"faculty": "healthcarecenter"
+}
+]
+}
+]
+},
+{
+"id": "computer-center",
+"name": "مركز الحاسوب والمعلومات والسيطرة",
+"kind": "center",
+"unit": {
+"id": "computercenter",
+"name": "مركز الحاسوب والمعلومات والسيطرة",
+"count": 14,
+"academic": 0
+},
+"people": [],
+"children": [
+{
+"id": "website",
+"name": "قسم الموقع الإلكتروني",
+"kind": "section",
+"people": [
+{
+"id": "S:computercenter:20",
+"name": "فراس عدنان",
+"job": "مساعد مدير الموقع الالكتروني",
+"role": "مدير",
+"type": "admin",
+"ext": "5551",
+"email": "fbadran@uop.edu.jo",
+"photo": "assets/photos/e32b651cfbef0929.jpg",
+"faculty": "computercenter"
+}
+]
+},
+{
+"id": "programming",
+"name": "قسم البرمجة والتطوير",
+"kind": "section",
+"people": []
+},
+{
+"id": "networks",
+"name": "قسم الشبكات والبنية التحتية",
+"kind": "section",
+"people": [
+{
+"id": "S:computercenter:26",
+"name": "نائل محمد خليل",
+"job": "رئيس قسم الشبكات",
+"role": "رئيس قسم",
+"type": "admin",
+"ext": "5540",
+"email": "nqaddomi@uop.edu.jo",
+"photo": "",
+"faculty": "computercenter"
+}
+]
+},
+{
+"id": "control",
+"name": "قسم السيطرة",
+"kind": "section",
+"people": []
+},
+{
+"id": "it-maintenance",
+"name": "قسم صيانة الحاسوب والأجهزة المكتبية",
+"kind": "section",
+"people": [
+{
+"id": "S:computercenter:27",
+"name": "أحمد محمد الدلابيح",
+"job": "فني / صيانة حاسوب وشبكات",
+"role": "",
+"type": "admin",
+"ext": "5546",
+"email": "ahmad.aldalabeeh@uop.edu.jo",
+"photo": "assets/photos/1c10250da30a7534.jpg",
+"faculty": "computercenter"
+},
+{
+"id": "S:computercenter:29",
+"name": "عبدالجواد شامخ الحمود",
+"job": "فني صيانة حاسوب",
+"role": "",
+"type": "admin",
+"ext": "5531",
+"email": "aalhmoud@uop.edu.jo",
+"photo": "assets/photos/dfba5370b4572315.jpg",
+"faculty": "computercenter"
+},
+{
+"id": "S:computercenter:30",
+"name": "ماهر غالب بكر",
+"job": "فني صيانة الاجهزة المكتبية",
+"role": "",
+"type": "admin",
+"ext": "5534",
+"email": "maodeh@uop.edu.jo",
+"photo": "assets/photos/b06215eca28741d4.jpg",
+"faculty": "computercenter"
+}
+]
+}
+]
+},
+{
+"id": "supplies",
+"name": "دائرة اللوازم",
+"kind": "department",
+"unit": {
+"id": "procurementsuppliesdepartment",
+"name": "دائرة اللوازم والمشتريات",
+"count": 5,
+"academic": 0
+},
+"people": [
+{
+"id": "S:procurementsuppliesdepartment:1",
+"name": "م. ثائر حمدان",
+"job": "مدير دائرة اللوازم والمشتريات",
+"role": "مدير",
+"type": "admin",
+"ext": "5900",
+"email": "thaer.hamdan@uop.edu.jo",
+"photo": "",
+"faculty": "procurementsuppliesdepartment"
+}
+],
+"children": [
+{
+"id": "custody",
+"name": "قسم العهدة",
+"kind": "section",
+"people": [
+{
+"id": "S:procurementsuppliesdepartment:2",
+"name": "أسامة محمد شنك",
+"job": "رئيس قسم العهدة",
+"role": "رئيس قسم",
+"type": "admin",
+"ext": "5950",
+"email": "oshannak@uop.edu.jo",
+"photo": "",
+"faculty": "procurementsuppliesdepartment"
+}
+]
+},
+{
+"id": "purchasing",
+"name": "قسم المشتريات",
+"kind": "section",
+"people": []
+},
+{
+"id": "stores",
+"name": "قسم المستودعات",
+"kind": "section",
+"people": []
+}
+]
+},
+{
+"id": "general-services",
+"name": "دائرة الخدمات العامة",
+"kind": "department",
+"unit": {
+"id": "generalservicesdepartment",
+"name": "دائرة الخدمات العامة",
+"count": 4,
+"academic": 0
+},
+"people": [
+{
+"id": "S:generalservicesdepartment:18",
+"name": "حمود نوري المناصير",
+"job": "مدير الدائرة",
+"role": "مدير",
+"type": "admin",
+"ext": "5600",
+"email": "halmanaseer@uop.edu.jo",
+"photo": "",
+"faculty": "generalservicesdepartment"
+}
+],
+"children": [
+{
+"id": "gardens",
+"name": "قسم الحدائق",
+"kind": "section",
+"people": []
+},
+{
+"id": "transport",
+"name": "قسم الحركة وصيانة المركبات",
+"kind": "section",
+"people": [
+{
+"id": "S:generalservicesdepartment:21",
+"name": "محمد حسن رمضان",
+"job": "رئيس قسم الحركة",
+"role": "رئيس قسم",
+"type": "admin",
+"ext": "5640",
+"email": "mramadan@uop.edu.jo",
+"photo": "assets/photos/e645973b92b23b42.jpg",
+"faculty": "generalservicesdepartment"
+}
+]
+},
+{
+"id": "restaurants",
+"name": "المطاعم والمرافق والسوق التجاري",
+"kind": "section",
+"people": []
+},
+{
+"id": "cleaning",
+"name": "قسم النظافة",
+"kind": "section",
+"people": []
+}
+]
+},
+{
+"id": "projects",
+"name": "دائرة المشاريع والصيانة",
+"kind": "department",
+"people": [],
+"children": [
+{
+"id": "engineering-office",
+"name": "المكتب الهندسي",
+"kind": "office",
+"people": []
+},
+{
+"id": "electromechanical",
+"name": "قسم الكهرباء والميكانيك",
+"kind": "section",
+"people": []
+},
+{
+"id": "civil-works",
+"name": "قسم الأشغال المدنية",
+"kind": "section",
+"people": []
+}
+]
+}
+]
+}
+]
+},
+"not_in_chart": [
+{
+"id": "adnan",
+"name": "مكتب المستشار الأعلى",
+"count": 1
+},
+{
+"id": "petraclub",
+"name": "نادي جامعة البترا",
+"count": 1
+}
+]
+}

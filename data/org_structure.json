@@ -1,0 +1,130 @@
+{
+  "_about": "Transcribed by hand from the official chart (the PDF's text layer is garbled and its hierarchy is only drawn lines). scripts/update_org.py compares the official PDF with pdf_sha256 every hour and flags any new version for review. kind: board, committee, president, council, vp, office, unit, department (دائرة), section (قسم), deanship, faculty, center. unit: the directory's unit/faculty id. match: job-title phrases of the people who belong to the box (\"@...\" = only within the box's unit). dashed: the chart draws this link as a dashed line.",
+  "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
+  "revision": "Rev.E",
+  "revision_date": "2023-12-20",
+  "pdf_sha256": "a587bf82b9bfb85e1c1169b13ca97820c22bf5517bab644c0e0b0958c4aeab0c",
+  "root": {
+    "id": "board", "name": "مجلس الأمناء", "kind": "board", "unit": "boardoftrustees", "match": ["رئيس مجلس الأمناء", "عضو مجلس الأمناء", "أمين سر مجلس الأمناء"],
+    "children": [
+      {"id": "board-academic", "name": "اللجنة الأكاديمية", "kind": "committee"},
+      {"id": "board-finance", "name": "اللجنة الإدارية والمالية", "kind": "committee"},
+      {"id": "audit", "name": "وحدة الرقابة والتدقيق", "kind": "unit", "match": ["الرقابة والتدقيق"], "dashed_to": "president",
+       "note": "تتبع مجلس الأمناء، وترتبط برئيس الجامعة بخط متقطع"},
+      {"id": "president", "name": "رئيس الجامعة", "kind": "president", "unit": "universitypresident", "match": ["^رئيس الجامعة"],
+       "children": [
+        {"id": "university-council", "name": "مجلس الجامعة", "kind": "council"},
+        {"id": "deans-council", "name": "مجلس العمداء", "kind": "council"},
+        {"id": "vp-academic", "name": "نائب الرئيس للشؤون الأكاديمية", "kind": "vp", "match": ["نائب رئيس الجامعة", "نائب الرئيس للشؤون الأكاديمية"]},
+        {"id": "pr", "name": "دائرة العلاقات العامة والدولية", "kind": "department", "match": ["العلاقات العامة والدولية", "دائرة العلاقات"]},
+        {"id": "funding", "name": "مكتب التمويل الخارجي ونقل التكنولوجيا", "kind": "office", "match": ["التمويل الخارجي", "نقل التكنولوجيا"], "dashed_to": "asst-agreements",
+         "children": [
+          {"id": "intl-education", "name": "مكتب التعليم الدولي", "kind": "office", "match": ["التعليم الدولي"]}
+         ]},
+        {"id": "asst-agreements", "name": "مساعد الرئيس للاتفاقيات والتعاون الدولي", "kind": "office", "match": ["مساعد الرئيس للاتفاقيات"]},
+        {"id": "asst-legal", "name": "مساعد الرئيس للشؤون القانونية", "kind": "office", "match": ["مساعد الرئيس للشؤون القانونية", "الشؤون القانونية"]},
+        {"id": "presidency-office", "name": "مكتب الرئاسة", "kind": "office", "match": ["مكتب الرئاسة", "مدير مكتب الرئيس", "مديرة مكتب الرئيس"],
+         "children": [
+          {"id": "academics-affairs", "name": "شؤون الأكاديميين", "kind": "section", "match": ["شؤون الأكاديميين"]},
+          {"id": "appointment", "name": "التعيين والترقية", "kind": "section", "match": ["التعيين والترقية"]}
+         ]},
+        {"id": "quality", "name": "وحدة ضمان الجودة والتخطيط والقياس", "kind": "unit", "unit": "qualityassuranceplanning", "match": ["وحدة ضمان الجودة"]},
+        {"id": "scholarships", "name": "مكتب الإيفاد", "kind": "office", "match": ["الإيفاد"]},
+        {"id": "diwan", "name": "الديوان", "kind": "office", "match": ["الديوان"]},
+        {"id": "research", "name": "عمادة البحث العلمي والدراسات العليا", "kind": "deanship", "match": ["البحث العلمي"]},
+        {"id": "f13", "name": "كلية طب الأسنان", "kind": "faculty", "unit": "13"},
+        {"id": "f12", "name": "كلية الهندسة", "kind": "faculty", "unit": "12"},
+        {"id": "f4", "name": "كلية العمارة والتصميم", "kind": "faculty", "unit": "4"},
+        {"id": "f9", "name": "كلية الحقوق", "kind": "faculty", "unit": "9"},
+        {"id": "f11", "name": "كلية الإعلام", "kind": "faculty", "unit": "11"},
+        {"id": "f1", "name": "كلية تكنولوجيا المعلومات", "kind": "faculty", "unit": "1",
+         "children": [
+          {"id": "innovation", "name": "مركز الإبداع والريادة", "kind": "center", "match": ["الإبداع والريادة"]},
+          {"id": "elearning", "name": "مركز التعليم الإلكتروني", "kind": "center", "match": ["مركز التعلم الإلكتروني", "مركز التعليم الإلكتروني"]},
+          {"id": "sustainability", "name": "مكتب الاستدامة والمساواة", "kind": "office", "match": ["الاستدامة"]}
+         ]},
+        {"id": "f3", "name": "كلية العلوم الإدارية والمالية", "kind": "faculty", "unit": "3",
+         "children": [
+          {"id": "incubator", "name": "حاضنة الأعمال", "kind": "center", "match": ["حاضنة الأعمال"]},
+          {"id": "consulting", "name": "مركز الدراسات والاستشارات الإدارية والمالية والفنية", "kind": "center", "match": ["الدراسات والاستشارات"]}
+         ]},
+        {"id": "f2", "name": "كلية الصيدلة والعلوم الطبية", "kind": "faculty", "unit": "2",
+         "children": [
+          {"id": "nutrition", "name": "عيادة التغذية", "kind": "center", "unit": "nutritionclinic"},
+          {"id": "drug-studies", "name": "مركز الدراسات الدوائية", "kind": "center", "match": ["الدراسات الدوائية"]}
+         ]},
+        {"id": "f5", "name": "كلية الآداب والعلوم", "kind": "faculty", "unit": "5",
+         "children": [
+          {"id": "languages", "name": "مركز اللغات", "kind": "center", "match": ["مركز اللغات"]},
+          {"id": "early-childhood", "name": "مركز الطفولة المبكرة", "kind": "center", "match": ["الطفولة المبكرة"],
+           "children": [
+            {"id": "nursery", "name": "حضانة الأطفال", "kind": "unit", "unit": "petranursery"},
+            {"id": "kindergarten", "name": "روضة الأطفال", "kind": "unit", "match": ["روضة"]}
+           ]}
+         ]},
+        {"id": "academic-development", "name": "مركز التطوير الأكاديمي", "kind": "center", "match": ["التطوير الأكاديمي"]},
+        {"id": "library", "name": "المكتبة", "kind": "center", "unit": "uoplibrary", "match": ["مدير المكتبة"]},
+        {"id": "safety", "name": "مكتب السلامة العامة والصحة المهنية", "kind": "office", "match": ["السلامة العامة"]},
+        {"id": "continuing", "name": "مركز التعليم المستمر وخدمة المجتمع", "kind": "center", "unit": "continuingeducationcenter", "match": ["التعليم المستمر"]},
+        {"id": "accreditation", "name": "مكتب الاعتماد", "kind": "office", "match": ["مكتب الاعتماد"]},
+        {"id": "student-affairs", "name": "عمادة شؤون الطلبة", "kind": "deanship", "unit": "studentsaffairs", "match": ["عميد شؤون الطلبة"],
+         "children": [
+          {"id": "careers", "name": "مكتب الإرشاد الوظيفي ومتابعة الخريجين / صندوق الملك عبدالله الثاني للتنمية", "kind": "office", "match": ["الإرشاد الوظيفي", "متابعة الخريجين"]},
+          {"id": "sports", "name": "قسم النشاط الرياضي", "kind": "section", "match": ["النشاط الرياضي"]},
+          {"id": "culture", "name": "قسم النشاط الثقافي والفني والاجتماعي", "kind": "section", "match": ["النشاط الثقافي"]},
+          {"id": "international-students", "name": "قسم شؤون الوافدين", "kind": "section", "match": ["شؤون الوافدين"]},
+          {"id": "housing", "name": "السكن الداخلي", "kind": "unit", "match": ["السكن الداخلي"]},
+          {"id": "student-services", "name": "دائرة الخدمات الطلابية", "kind": "department", "match": ["الخدمات الطلابية"]},
+          {"id": "security", "name": "قسم الأمن الجامعي", "kind": "section", "match": ["الأمن الجامعي"]},
+          {"id": "counselling", "name": "مكتب الإرشاد النفسي والاجتماعي", "kind": "office", "match": ["الإرشاد النفسي"]}
+         ]},
+        {"id": "admission", "name": "عمادة القبول والتسجيل", "kind": "deanship", "unit": "admissionsandregistration", "match": ["عميد القبول", "مدير القبول والتسجيل"],
+         "children": [
+          {"id": "admission-section", "name": "قسم القبول", "kind": "section", "match": ["قسم القبول"]},
+          {"id": "registration-section", "name": "قسم التسجيل", "kind": "section", "match": ["قسم التسجيل"]},
+          {"id": "documents-section", "name": "قسم الوثائق", "kind": "section", "match": ["قسم الوثائق"]}
+         ]},
+        {"id": "finance", "name": "الدائرة المالية", "kind": "department", "unit": "financedepartment", "match": ["مدير الشؤون المالية", "مدير الدائرة المالية"],
+         "children": [
+          {"id": "student-accounts", "name": "قسم محاسبة الطلبة", "kind": "section", "match": ["محاسبة الطلبة"]},
+          {"id": "general-accounts", "name": "قسم المحاسبة العامة", "kind": "section", "match": ["المحاسبة العامة"]},
+          {"id": "payroll", "name": "قسم محاسبة الرواتب", "kind": "section", "match": ["الرواتب"]},
+          {"id": "cashier", "name": "الصناديق", "kind": "section", "match": ["الصناديق", "أمين صندوق"]},
+          {"id": "grants", "name": "قسم المنح", "kind": "section", "match": ["قسم المنح"]}
+         ]},
+        {"id": "hr", "name": "دائرة الموارد البشرية", "kind": "department", "unit": "hrd", "match": ["مدير دائرة الموارد البشرية"],
+         "children": [
+          {"id": "personnel", "name": "قسم شؤون هيئة التدريس والموظفين والمستخدمين", "kind": "section", "match": ["شؤون هيئة التدريس", "شؤون الموظفين"]},
+          {"id": "health-center", "name": "المركز الصحي", "kind": "center", "unit": "healthcarecenter", "match": ["مدير المركز الصحي"]}
+         ]},
+        {"id": "computer-center", "name": "مركز الحاسوب والمعلومات والسيطرة", "kind": "center", "unit": "computercenter", "match": ["مدير مركز الحاسوب"],
+         "children": [
+          {"id": "website", "name": "قسم الموقع الإلكتروني", "kind": "section", "match": ["الموقع الإلكتروني"]},
+          {"id": "programming", "name": "قسم البرمجة والتطوير", "kind": "section", "match": ["قسم البرمجة"]},
+          {"id": "networks", "name": "قسم الشبكات والبنية التحتية", "kind": "section", "match": ["قسم الشبكات"]},
+          {"id": "control", "name": "قسم السيطرة", "kind": "section", "match": ["قسم السيطرة"]},
+          {"id": "it-maintenance", "name": "قسم صيانة الحاسوب والأجهزة المكتبية", "kind": "section", "match": ["صيانة الحاسوب", "@صيانة"]}
+         ]},
+        {"id": "supplies", "name": "دائرة اللوازم", "kind": "department", "unit": "procurementsuppliesdepartment", "match": ["مدير دائرة اللوازم"],
+         "children": [
+          {"id": "custody", "name": "قسم العهدة", "kind": "section", "match": ["قسم العهدة"]},
+          {"id": "purchasing", "name": "قسم المشتريات", "kind": "section", "match": ["قسم المشتريات"]},
+          {"id": "stores", "name": "قسم المستودعات", "kind": "section", "match": ["المستودعات"]}
+         ]},
+        {"id": "general-services", "name": "دائرة الخدمات العامة", "kind": "department", "unit": "generalservicesdepartment", "match": ["مدير دائرة الخدمات العامة", "@^مدير الدائرة$"],
+         "children": [
+          {"id": "gardens", "name": "قسم الحدائق", "kind": "section", "match": ["الحدائق"]},
+          {"id": "transport", "name": "قسم الحركة وصيانة المركبات", "kind": "section", "match": ["قسم الحركة"]},
+          {"id": "restaurants", "name": "المطاعم والمرافق والسوق التجاري", "kind": "section", "match": ["المطاعم", "السوق التجاري"]},
+          {"id": "cleaning", "name": "قسم النظافة", "kind": "section", "match": ["قسم النظافة"]}
+         ]},
+        {"id": "projects", "name": "دائرة المشاريع والصيانة", "kind": "department", "match": ["المشاريع والصيانة"],
+         "children": [
+          {"id": "engineering-office", "name": "المكتب الهندسي", "kind": "office", "match": ["المكتب الهندسي"]},
+          {"id": "electromechanical", "name": "قسم الكهرباء والميكانيك", "kind": "section", "match": ["الكهرباء والميكانيك"]},
+          {"id": "civil-works", "name": "قسم الأشغال المدنية", "kind": "section", "match": ["الأشغال المدنية"]}
+         ]}
+       ]}
+    ]
+  }
+}
