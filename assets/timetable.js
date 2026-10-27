@@ -420,7 +420,7 @@
 
     const heat = `<div class="card h-100"><div class="card-header d-flex flex-wrap justify-content-between gap-2"><span><i class="bi bi-grid-3x3-gap-fill"></i> خريطة التفرغ</span>
         <span class="fr-legend small"><span>مشغول</span>${[0, .25, .5, .75, 1].map(v => `<i style="--f:${v}"></i>`).join('')}<span>متفرغ</span></span></div>
-      <div class="table-responsive"><table class="fr-heat"><thead><tr><th></th>${days.map(d => `<th>${esc(DAYS[d])}</th>`).join('')}</tr></thead>
+      <div class="table-responsive"><table class="fr-heat"><colgroup><col class="fr-tcol">${days.map(() => "<col>").join("")}</colgroup><thead><tr><th>الوقت</th>${days.map(d => `<th>${esc(DAYS[d])}</th>`).join('')}</tr></thead>
       <tbody>${slots.map((t, i) => `<tr><th><bdi dir="ltr">${toTime(t)}</bdi></th>${days.map(d => {
         const f = freeN[d][i];
         return `<td><a href="#" data-cellf="${d}|${t}" style="--f:${(f / N).toFixed(3)}" class="${f === N ? 'all' : f === 0 ? 'none' : ''}"

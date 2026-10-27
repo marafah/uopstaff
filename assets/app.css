@@ -726,3 +726,8 @@ button.fr-person.g-unknown { border-style: dashed; }
 .m-online { background: #e8f1fd; border-color: #8fb6ea; color: #174a8c; }
 .m-async { background: #fff6e0; border-color: #ecc463; color: #6b4a00; }
 .tt-table .tt-code b.dim { font-weight: 800; } .tt-table .tt-name span.dim { font-weight: 700; }
+/* free-time map: equal day columns, narrow time column, no stray space */
+.fr-heat { table-layout: fixed; width: 100%; }
+.fr-heat col.fr-tcol { width: 64px; }
+.fr-heat thead th:first-child, .fr-heat tbody th { text-align: center; color: #091b22; font-weight: 800; padding: 0 4px; }
+.fr-heat td a { min-width: 0; }
