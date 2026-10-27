@@ -1,5 +1,5 @@
 {
-"updated": "2026-10-27T10:56:51Z",
+"updated": "2026-10-27T11:38:09Z",
 "main_line": "+96265799555",
 "main_line_display": "06 5799555",
 "faculties": [
@@ -14,13 +14,6 @@
 "id": "universitypresident",
 "name": "رئاسة الجامعة",
 "name_en": "University Presidency",
-"site": "https://www.uop.edu.jo",
-"unit": true
-},
-{
-"id": "adnan",
-"name": "مكتب المستشار الأعلى",
-"name_en": "Office of the Higher Consultant",
 "site": "https://www.uop.edu.jo",
 "unit": true
 },
@@ -220,14 +213,6 @@
 "faculty": "universitypresident"
 },
 {
-"key": "admin_adnan",
-"name": "الكادر الإداري – مكتب المستشار الأعلى",
-"kind": "admin",
-"url": "https://www.uop.edu.jo/Ar/adnan/Pages/AdministrativeStaff.aspx",
-"count": 2,
-"faculty": "adnan"
-},
-{
 "key": "admin_admissionsandregistration",
 "name": "الكادر الإداري – عمادة القبول والتسجيل",
 "kind": "admin",
@@ -354,6 +339,14 @@
 "url": "https://www.uop.edu.jo/Ar/ProcurementSuppliesDepartment/Pages/AdministrativeStaff.aspx",
 "count": 5,
 "faculty": "procurementsuppliesdepartment"
+},
+{
+"key": "admin_adnan",
+"name": "الكادر الإداري – مجلس الأمناء (صفحة إضافية)",
+"kind": "admin",
+"url": "https://www.uop.edu.jo/Ar/adnan/Pages/AdministrativeStaff.aspx",
+"count": 2,
+"faculty": "boardoftrustees"
 },
 {
 "key": "admin_fit",
@@ -747,6 +740,28 @@
 "photo_src": "https://www.uop.edu.jo/En/BoardofTrustees/PublishingImages/Staff/Miss.%20Rula%20Nashashibi%202.jpg"
 },
 {
+"id": "S:adnan:2",
+"type": "admin",
+"faculty": "boardoftrustees",
+"name": "قمر الصالحي",
+"name_en": "Qamar Al-Salhi",
+"job": "سكرتيرة تنفيذية بمكتب المستشار الأعلى للجامعة ومجلس أمنائها",
+"rank": "",
+"rank_order": 99,
+"role": "",
+"sort": 30,
+"department": "",
+"specialization": "",
+"qualification": "",
+"ext": "1150",
+"office": "مبنى الرئاسة",
+"email": "qamar.alsalhi@uop.edu.jo",
+"photo": "assets/photos/503b8aafe3584a1b.jpg",
+"profile": "https://www.uop.edu.jo/Ar/adnan/Pages/AdministrativeStaff.aspx",
+"source": "admin_adnan",
+"photo_src": "https://www.uop.edu.jo/En/adnan/PublishingImages/Staff/%D9%82%D9%85%D8%B1%20%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D8%AD%D9%8A.jpg"
+},
+{
 "id": "S:universitypresident:20",
 "type": "admin",
 "faculty": "universitypresident",
@@ -833,28 +848,6 @@
 "profile": "https://www.uop.edu.jo/Ar/UniversityPresident/Pages/AdministrativeStaff.aspx",
 "source": "admin_universitypresident",
 "photo_src": "https://www.uop.edu.jo/En/UniversityPresident/PublishingImages/Staff/Miss%20Wafaa%20Alkhatib.JPG"
-},
-{
-"id": "S:adnan:2",
-"type": "admin",
-"faculty": "adnan",
-"name": "قمر الصالحي",
-"name_en": "Qamar Al-Salhi",
-"job": "سكرتيرة تنفيذية بمكتب المستشار الأعلى للجامعة ومجلس أمنائها",
-"rank": "",
-"rank_order": 99,
-"role": "",
-"sort": 30,
-"department": "",
-"specialization": "",
-"qualification": "",
-"ext": "1150",
-"office": "مبنى الرئاسة",
-"email": "qamar.alsalhi@uop.edu.jo",
-"photo": "assets/photos/503b8aafe3584a1b.jpg",
-"profile": "https://www.uop.edu.jo/Ar/adnan/Pages/AdministrativeStaff.aspx",
-"source": "admin_adnan",
-"photo_src": "https://www.uop.edu.jo/En/adnan/PublishingImages/Staff/%D9%82%D9%85%D8%B1%20%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D8%AD%D9%8A.jpg"
 },
 {
 "id": "S:admissionsandregistration:3",

@@ -1,5 +1,5 @@
 {
-"updated": "2026-10-27T10:56:51Z",
+"updated": "2026-10-27T11:38:09Z",
 "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
 "revision": "Rev.E",
 "revision_date": "2023-12-20",
@@ -18,7 +18,7 @@
 "unit": {
 "id": "boardoftrustees",
 "name": "مجلس الأمناء",
-"count": 14,
+"count": 15,
 "academic": 0
 },
 "people": [
@@ -2826,11 +2826,6 @@
 ]
 },
 "not_in_chart": [
-{
-"id": "adnan",
-"name": "مكتب المستشار الأعلى",
-"count": 1
-},
 {
 "id": "petraclub",
 "name": "نادي جامعة البترا",

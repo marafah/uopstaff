@@ -90,15 +90,33 @@
 
   // ------------------------------------------------------------------ tree view
   function tree() {
+    const tel = ext => `tel:${D.main_line || '+96265799555'},${ext}`;
+    // one row per box: the box, the person in charge (photo, position), and one-tap contacts
+    const row = n => {
+      const h = headOf(n), c = staffCount(n), link = dirLink(n), more = n.kind === 'academic-dept' ? n.people.length - 1 : 0;
+      const who = h ? `<span class="org-tp">${avatar(h)}<span class="min-w-0"><b>${esc(h.name)}${more > 0 ? ` <em>+${more}</em>` : ''}</b><small>${esc(h.job || h.role || '')}</small></span></span>`
+        : n.members ? `<span class="org-tp"><span class="org-stack">${n.members.slice(0, 5).map(avatar).join('')}</span><span><b>${n.members.length} عضواً</b><small>حسب صفحة المجلس الرسمية</small></span></span>`
+        : n.kind === 'committee' ? '<span class="org-tp"></span>' : '<span class="org-tp none"><small>لا يظهر المسؤول في الدليل</small></span>';
+      return `<div class="org-tr ${tone(n)}${st.q && hits(n) ? ' hit' : ''}">
+        <span class="org-ti"><i class="bi ${KIND[n.kind][1]}"></i></span>
+        <span class="org-tt min-w-0"><a href="#" data-id="${esc(n.id)}">${esc(n.name)}</a>${dashMark(n)}
+          <small>${esc(kindLabel(n) || 'وحدة في المخطط')}${n.from_directory ? ' · من دليل الموظفين' : ''}${official(n).length ? ` · وحدات تابعة: ${official(n).length}` : ''}</small></span>
+        ${who}
+        <span class="org-ta">
+          ${h && h.ext ? `<a class="org-chip" href="${tel(h.ext)}" title="اتصال: ${esc(h.name)}"><i class="bi bi-telephone-fill"></i> <bdi dir="ltr">${esc(h.ext)}</bdi></a>` : ''}
+          ${h && h.email ? `<a class="org-chip ic" href="mailto:${esc(h.email)}" title="مراسلة: ${esc(h.email)}" aria-label="مراسلة ${esc(h.name)}"><i class="bi bi-envelope-fill"></i></a>` : ''}
+          ${c && link ? `<a class="org-chip cnt" href="${link}" title="موظفوها في دليل الموظفين"><i class="bi bi-people-fill"></i> ${c}</a>` : ''}
+          <a href="#" class="org-chip ic" data-id="${esc(n.id)}" title="التفاصيل" aria-label="تفاصيل ${esc(n.name)}"><i class="bi bi-info-circle-fill"></i></a>
+        </span></div>`;
+    };
     const li = n => {
       if (!subtreeHits(n)) return '';
-      const h = headOf(n), c = staffCount(n), ch = kids(n).map(li).join('');
-      const row = `<span class="org-tn ${tone(n)}${st.q && hits(n) ? ' hit' : ''}"><i class="bi ${KIND[n.kind][1]}"></i>
-        <a href="#" data-id="${esc(n.id)}">${esc(n.name)}</a>${dashMark(n)}${n.members ? `<small class="org-tc">${n.members.length} عضواً</small>` : ''}${n.from_directory ? '<em title="من دليل الموظفين؛ المخطط الرسمي يتوقف عند الكلية">من الدليل</em>' : ''}
-        ${h ? `<small class="org-th">${esc(h.name)}${h.ext ? ` · <bdi dir="ltr">${esc(h.ext)}</bdi>` : ''}</small>` : ''}${c ? `<small class="org-tc">${c}</small>` : ''}</span>`;
-      return ch ? `<li><details ${st.q || n.kind === 'board' || n.kind === 'president' ? 'open' : ''}><summary>${row}</summary><ul>${ch}</ul></details></li>` : `<li class="leaf">${row}</li>`;
+      const ch = kids(n).map(li).join('');
+      return ch ? `<li><details ${st.q || n.kind === 'board' || n.kind === 'president' ? 'open' : ''}><summary>${row(n)}</summary><ul>${ch}</ul></details></li>`
+        : `<li class="leaf">${row(n)}</li>`;
     };
     return `<div class="card org-treecard"><div class="card-header d-flex flex-wrap gap-2 align-items-center"><span><i class="bi bi-list-nested"></i> الشجرة الكاملة</span>
+        <small class="text-muted">المسؤول، الفرعي، البريد، وعدد الموظفين لكل وحدة</small>
         <span class="ms-auto d-flex gap-2"><button type="button" class="btn btn-sm btn-outline-secondary" id="o-open"><i class="bi bi-arrows-expand"></i> فتح الكل</button>
         <button type="button" class="btn btn-sm btn-outline-secondary" id="o-close"><i class="bi bi-arrows-collapse"></i> طي الكل</button></span></div>
       <div class="card-body"><ul class="org-tree">${li(D.tree) || '<li class="text-muted">لا نتائج لهذا البحث.</li>'}</ul></div></div>`;
@@ -181,10 +199,9 @@
   }
   function redraw() { $('#org-view').innerHTML = st.view === 'tree' ? tree() : chart(); bindView(); }
   function bindView() {
-    document.querySelectorAll('#org-view [data-id]').forEach(a => a.addEventListener('click', e => {
-      if (e.target.closest('summary') && e.target.tagName !== 'A') return;  // the row toggles; the name opens the details
-      e.preventDefault(); details(a.dataset.id);
-    }));
+    document.querySelectorAll('#org-view [data-id]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); details(a.dataset.id); }));
+    // a call, e-mail or directory link inside a row follows the link without opening/closing the row
+    document.querySelectorAll('.org-tree summary a:not([data-id])').forEach(a => a.addEventListener('click', e => e.stopPropagation()));
     const open = $('#o-open'), close = $('#o-close');
     if (open) open.addEventListener('click', () => document.querySelectorAll('.org-tree details').forEach(d => { d.open = true; }));
     if (close) close.addEventListener('click', () => document.querySelectorAll('.org-tree details').forEach(d => { d.open = false; }));

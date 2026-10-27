@@ -988,3 +988,51 @@ body.kiosk .now-what b { font-size: 1.05rem; }
 }
 .org-dashmark { color: #8a6300; font-weight: 800; letter-spacing: -1px; }
 .org-pc-n { font-size: .7rem; background: #8a6300; color: #fff; border-radius: 999px; padding: 0 7px; }
+/* tree rows: box, person in charge, one-tap contacts */
+.org-tree summary { display: block; }
+.org-tree summary::before { display: none; }
+.org-tr { display: grid; grid-template-columns: 2.1rem minmax(0, 1.1fr) minmax(0, 1fr) auto; gap: .6rem; align-items: center; background: #fff;
+  border: 1px solid #ece6d8; border-right: 4px solid var(--uop-navy); border-radius: 10px; padding: .45rem .6rem; margin: .3rem 0; transition: box-shadow .15s; }
+.org-tr:hover { box-shadow: 0 4px 14px rgba(9,27,34,.10); }
+.org-tr.acad { border-right-color: var(--uop-maroon); }
+.org-tr.gold { border-right-color: #b98a1c; }
+.org-tr.lead { border-right-color: var(--uop-navy); background: #f6f9fb; }
+.org-tr.hit { box-shadow: 0 0 0 2px #f0b400; background: #fffbea; }
+.org-ti { width: 2.1rem; height: 2.1rem; border-radius: 8px; background: #eef2f4; color: var(--uop-navy); display: inline-flex; align-items: center; justify-content: center; position: relative; }
+.org-tr.acad .org-ti { background: #f6e3e4; color: var(--uop-maroon); }
+.org-tr.gold .org-ti { background: #fbf1d6; color: #8a6300; }
+details > summary .org-ti::after { content: "\F282"; font-family: "bootstrap-icons"; position: absolute; bottom: -4px; left: -4px; width: 15px; height: 15px; border-radius: 50%;
+  background: var(--uop-navy); color: #fff; font-size: .55rem; display: flex; align-items: center; justify-content: center; transition: transform .15s; transform: rotate(90deg); }
+details[open] > summary .org-ti::after { transform: rotate(0deg); }
+.org-tt { display: flex; flex-direction: column; }
+.org-tt > a { color: #1b1b1b; font-weight: 800; text-decoration: none; line-height: 1.35; }
+.org-tt > a:hover { color: var(--uop-maroon); text-decoration: underline; }
+.org-tt small { color: #666; font-size: .74rem; }
+.org-tp { display: flex; gap: .5rem; align-items: center; min-width: 0; }
+.org-tp .org-av { width: 38px; height: 38px; box-shadow: 0 0 0 2px #fff, 0 0 0 3px #e3dccb; }
+.org-tp > span:last-child { display: flex; flex-direction: column; min-width: 0; }
+.org-tp b { font-size: .84rem; color: #1b1b1b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.org-tp b em { font-style: normal; font-size: .7rem; color: var(--uop-maroon); }
+.org-tp small { font-size: .74rem; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.org-tp.none small { color: #888; font-style: italic; }
+.org-stack { display: inline-flex; flex-direction: row-reverse; }
+.org-stack .org-av { width: 30px; height: 30px; margin-left: -9px; }
+.org-ta { display: flex; gap: .3rem; align-items: center; justify-content: flex-end; }
+.org-chip { display: inline-flex; align-items: center; gap: .3rem; height: 30px; padding: 0 .6rem; border-radius: 999px; border: 1px solid #e3dccb; background: #fff;
+  color: var(--uop-navy); font-size: .8rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.org-chip:hover { border-color: var(--uop-maroon); color: var(--uop-maroon); background: #fbf6f6; }
+.org-chip.ic { width: 30px; padding: 0; justify-content: center; }
+.org-chip.cnt { background: var(--uop-navy); color: #fff; border-color: var(--uop-navy); }
+.org-chip.cnt:hover { background: var(--uop-maroon); border-color: var(--uop-maroon); color: #fff; }
+@media (max-width: 1199.98px) {  /* name on its own line, then the person and the contacts */
+  .org-tr { grid-template-columns: 2.1rem minmax(0, 1fr) auto; row-gap: .35rem; }
+  .org-tt { grid-column: 2 / 4; }
+  .org-tp { grid-column: 2; }
+  .org-ta { grid-column: 3; }
+}
+@media (max-width: 575.98px) {
+  .org-tr { grid-template-columns: 2.1rem minmax(0, 1fr); }
+  .org-tt, .org-tp, .org-ta { grid-column: 2; }
+  .org-ta { justify-content: flex-start; flex-wrap: wrap; }
+  .org-tree ul { padding-right: .7rem; margin-right: .35rem; }
+}

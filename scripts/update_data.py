@@ -48,12 +48,13 @@ WWW = "https://www.uop.edu.jo"
 UNITS = [  # units of www.uop.edu.jo known to keep their own list: SharePoint web, Arabic name, English name
     ("BoardofTrustees", "مجلس الأمناء", "Board of Trustees"),
     ("UniversityPresident", "رئاسة الجامعة", "University Presidency"),
-    ("adnan", "مكتب المستشار الأعلى", "Office of the Higher Consultant"),
     ("AdmissionsAndRegistration", "عمادة القبول والتسجيل", "Admissions and Registration"),
     ("ComputerCenter", "مركز الحاسوب والمعلومات والسيطرة", "Computer Center"),
     ("ELearningCenter", "مركز التعلم الإلكتروني", "E-Learning Center"),
     ("ContinuingEducationCenter", "مركز التعليم المستمر وخدمة المجتمع", "Continuing Education Center"),
 ]
+# sub-sites that are not units of their own: their staff list is shown under another unit
+MERGED = {"adnan": "boardoftrustees"}  # the higher consultant's office: its staff serve the Board of Trustees
 TEMPLATE_WEB = "CenterTemplate"  # new unit sites start with a copy of this list; such copies are not real staff lists
 RANKS = [("أستاذ", "Professor", 1), ("أستاذ مشارك", "Associate Professor", 2), ("أستاذ مساعد", "Assistant Professor", 3),
          ("مدرس", "Lecturer", 4), ("محاضر", "Instructor", 5), ("مشرف مختبر", "Lab Supervisor", 6)]
@@ -353,13 +354,15 @@ def main():
     except Exception as e:
         failed.append(f"academic: {e}")
     units = discover_units(s, log)
-    admin_pages = [(key, ar, key, page, api) for key, ar, _en, page, api in units] + [
+    names = {key: ar for key, ar, *_ in units}
+    admin_pages = [(MERGED.get(key, key), names.get(MERGED.get(key), ar), key, page, api) for key, ar, _en, page, api in units] + [
         (fid, fac[0], fac[2], f"{site_url(fac[2])}/Ar/Pages/AllAdministrativeStaff.aspx", site_url(fac[2])) for fid, fac in faculties.items()]
     for fid, name, key, page, api in admin_pages:
         try:
             adm = fetch_admin(s, fid, key, name, page, api, log)
             members += adm
-            sources.append({"key": f"admin_{key}", "name": f"الكادر الإداري – {name}", "kind": "admin",
+            label = f"الكادر الإداري – {name}" + (" (صفحة إضافية)" if key in MERGED else "")
+            sources.append({"key": f"admin_{key}", "name": label, "kind": "admin",
                             "url": page, "count": len(adm), "faculty": fid})
         except Exception as e:
             failed.append(f"{name}: {e}")
