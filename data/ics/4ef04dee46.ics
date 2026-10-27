@@ -46,7 +46,7 @@ DTSTART;TZID=Asia/Amman:20261019T130000
 DTEND;TZID=Asia/Amman:20261019T160000
 RRULE:FREQ=WEEKLY;BYDAY=MO;UNTIL=20270119T205959Z
 SUMMARY:503171 مختبر علوم الحياة – ش7
-LOCATION:L37A – مينى كلية الصيدلة
+LOCATION:A24117 – مبنى طب الأسنان
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT

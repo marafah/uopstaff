@@ -1,6 +1,6 @@
 {
 "term": "الفصل الأول 2027/2026",
-"updated": "2026-10-27T04:41:30Z",
+"updated": "2026-10-27T05:16:51Z",
 "teaching": {
 "start": "2026-10-18",
 "end": "2027-01-19",
@@ -3098,7 +3098,7 @@
 {
 "id": "345d44bce7",
 "name": "د. لؤي فوزي محمد ابوقطوسه",
-"sections": 10,
+"sections": 9,
 "department": "التحاليل الطبية",
 "faculty": "الصيدلة والعلوم الطبية",
 "email": "labuqatouseh@uop.edu.jo",
@@ -5246,7 +5246,7 @@
 {
 "id": "937ae9afe4",
 "name": "م. رشا فرحان عبدالله السعدي",
-"sections": 6,
+"sections": 7,
 "department": "الصيدلة",
 "faculty": "الصيدلة والعلوم الطبية",
 "email": "rsadi@uop.edu.jo",
@@ -5446,7 +5446,7 @@
 {
 "id": "a98fe89e00",
 "name": "م. شذا عادل هلال الربطة",
-"sections": 6,
+"sections": 7,
 "department": "",
 "faculty": "",
 "ics": "data/ics/a98fe89e00.ics"
@@ -6039,7 +6039,7 @@
 {
 "id": "5c9a3c6221",
 "name": "هيئه تدريسيه",
-"sections": 4,
+"sections": 3,
 "department": "",
 "faculty": "",
 "ics": "data/ics/5c9a3c6221.ics"
