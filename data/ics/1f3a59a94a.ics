@@ -36,7 +36,7 @@ DTEND;TZID=Asia/Amman:20261018T123000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T110000
 SUMMARY:803132 الكتابة الصحفية (1) – ش1
-LOCATION:3311 – مبنى كلية الإعلام
+LOCATION:3211 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · الصحافة والإعلام ال
  رقمي – الإعلام
 END:VEVENT

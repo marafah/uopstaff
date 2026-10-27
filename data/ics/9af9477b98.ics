@@ -39,7 +39,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T110000
 SUMMARY:805383 إدارة الأزمات في العلاقات العامة
   – ش1
-LOCATION:3211 – مبنى كلية الإعلام
+LOCATION:3311 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · العلاقات العامة وال
  ترويج الرقمي – الإعلام
 END:VEVENT

@@ -29,14 +29,14 @@ DESCRIPTION:نظري · وجاهي · الصحافة والإعلام ال
  رقمي – الإعلام
 END:VEVENT
 BEGIN:VEVENT
-UID:1daf6af3107d4e6e@uopstaff
+UID:ecc921313a254499@uopstaff
 DTSTAMP:20261018T000000Z
-DTSTART;TZID=Asia/Amman:20261024T140000
-DTEND;TZID=Asia/Amman:20261024T170000
+DTSTART;TZID=Asia/Amman:20261024T130000
+DTEND;TZID=Asia/Amman:20261024T160000
 RRULE:FREQ=WEEKLY;BYDAY=SA;UNTIL=20270119T205959Z
 SUMMARY:803714 تطبيقات في انتاج الإعلام الرقمي 
  – ش1
-LOCATION:2303 – مبنى كلية الهندسة
+LOCATION:2401 – مبنى كلية الهندسة
 DESCRIPTION:نظري · وجاهي · الصحافة والإعلام ال
  رقمي – الإعلام
 END:VEVENT
@@ -61,7 +61,7 @@ RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:805486 تطبيقات الذكاء الاصطناعي في الإع
  لام – ش1
 LOCATION:3211 – مبنى كلية الإعلام
-DESCRIPTION:نظري · وجاهي · الإذاعة والتلفزيون 
- – الإعلام
+DESCRIPTION:نظري · وجاهي · العلاقات العامة وال
+ ترويج الرقمي – الإعلام
 END:VEVENT
 END:VCALENDAR
