@@ -1125,3 +1125,14 @@ table.ip-secs td small { display: inline; margin-inline-start: 6px; }
 .wk-gap { position: absolute; left: 0; right: 0; background: repeating-linear-gradient(135deg, #f3efe6 0 6px, #fff 6px 12px); border-top: 1px dashed #d8d1c0; border-bottom: 1px dashed #d8d1c0; }
 .wk-hours span { z-index: 1; }
 .wk-hours span:not(:first-of-type) { background: #fff; border-radius: 4px; }
+/* sections: one compact row per section, the course beside its sections */
+.ins-table td, .ins-table th { padding: .4rem .6rem; }
+.ins-table tr.ins-first > td { border-top: 2px solid #e3dccb; }
+.ins-table td.ins-course { --bs-table-bg: var(--cbg); --bs-table-accent-bg: var(--cbg); background: var(--cbg) !important; border-right: 5px solid var(--cc) !important; font-size: .86rem; line-height: 1.45; min-width: 220px; }
+.ins-course b { color: var(--cc); }
+.ins-course small { display: block; color: #5b6970; font-size: .74rem; }
+.ins-when .tt-when { display: flex !important; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; }
+.ins-when .tt-when + .tt-when { margin-top: 3px; padding-top: 3px; border-top: 1px dashed #e6e9ef; }
+.ins-when .tt-days { display: inline-flex; gap: 3px; flex-wrap: wrap; }
+.ins-room { white-space: nowrap; }
+.ins-room small { color: #5b6970; font-size: .74rem; }

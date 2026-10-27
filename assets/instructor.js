@@ -193,14 +193,15 @@
           <div class="ins-modes">${Object.entries(U.MODE).filter(([k]) => k !== 'غير متزامن').map(([k, v]) => `<span><i class="bi ${v.icon}"></i> ${k}</span>`).join('')}
             ${W.asyncSecs.length ? `<span class="ms-auto"><i class="bi bi-info-circle"></i> ${W.asyncSecs.length} ${W.asyncSecs.length > 2 && W.asyncSecs.length < 11 ? 'شعب لها' : 'شعبة لها'} لقاءات غير متزامنة (بلا وقت ثابت) لا تظهر في الجدول</span>` : ''}</div></div></section>
       <section class="card mb-3"><div class="card-header"><i class="bi bi-list-ul"></i> الشعب <small class="text-muted">${W.secs.length} شعبة في ${W.courses.length} مقرر</small></div>
-        <div class="table-responsive"><table class="table align-middle mb-0 tt-table ins-table"><colgroup><col style="width:9%"><col style="width:36%"><col style="width:27%"><col style="width:28%"></colgroup>
-          <thead><tr><th class="text-center">الشعبة</th><th>الأيام والوقت</th><th>القاعة</th><th>المسجلون</th></tr></thead>
-        <tbody>${groups.map(g => { const [c, bg] = W.color(g.s0.code); return `<tr class="ins-grp" style="--cc:${c};--cbg:${bg}"><td colspan="4"><i></i><b dir="ltr">${esc(g.s0.code)}</b> ${esc(g.s0.name)}
-            <span class="tt-act ${g.s0.activity === 'عملي' ? 'lab' : ''}">${esc(g.s0.activity)}</span>${g.s0.degree !== 'البكالوريوس' ? ` <span class="badge text-bg-warning">${esc(g.s0.degree)}</span>` : ''}
-            ${otherDept(g.s0) ? `<small>${esc(g.s0.department)}</small>` : ''}</td></tr>` + g.list.map(s => `<tr>
+        <div class="table-responsive"><table class="table align-middle mb-0 tt-table ins-table">
+          <thead><tr><th>المقرر</th><th class="text-center">الشعبة</th><th>الأيام والوقت</th><th>القاعة</th><th>المسجلون</th></tr></thead>
+        <tbody>${groups.map(g => { const [c, bg] = W.color(g.s0.code); return g.list.map((s, i) => `<tr class="${i ? '' : 'ins-first'}" style="--cc:${c};--cbg:${bg}">
+          ${i ? '' : `<td class="ins-course" rowspan="${g.list.length}"><b dir="ltr">${esc(s.code)}</b> ${esc(s.name)}
+            <span class="tt-act ${s.activity === 'عملي' ? 'lab' : ''}">${esc(s.activity)}</span>${s.degree !== 'البكالوريوس' ? ` <span class="badge text-bg-warning">${esc(s.degree)}</span>` : ''}
+            ${otherDept(s) ? `<small>${esc(s.department)}</small>` : ''}</td>`}
           <td class="text-center"><span class="tt-sec">${esc(s.section)}</span></td>
-          <td class="tt-whencell">${when(s)}</td>
-          <td class="tt-roomcell">${s.room === '0' ? '<span class="tt-none">قاعة افتراضية (0)</span>' : `<b>${esc(s.room)}</b><small>${esc(s.building)}</small>`}</td>
+          <td class="ins-when">${when(s)}</td>
+          <td class="ins-room">${s.room === '0' ? '<span class="tt-none">قاعة افتراضية (0)</span>' : `<b>${esc(s.room)}</b> <small>${esc(s.building)}</small>`}</td>
           <td>${seats(s)}</td></tr>`).join(''); }).join('')}</tbody></table></div></section>`;
 
     const sub = $('#i-sub');
