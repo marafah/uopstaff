@@ -49,7 +49,7 @@ DTEND;TZID=Asia/Amman:20261019T153000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:404250 اللغة الإنجليزية للأغراض الخاصة 
  – ش1
-LOCATION:06103 – مبنى كلية الآداب والعلوم
+LOCATION:6206 – مبنى كلية الآداب والعلوم
 DESCRIPTION:نظري · وجاهي · اللغة الانجليزية ال
  تطبيقية – الآداب والعلوم
 END:VEVENT
@@ -61,7 +61,7 @@ DTEND;TZID=Asia/Amman:20261019T110000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:404350 اللغة الإنجليزية للأعمال والإدا
  رة – ش1
-LOCATION:06210 – مبنى كلية الآداب والعلوم
+LOCATION:6206 – مبنى كلية الآداب والعلوم
 DESCRIPTION:نظري · وجاهي · اللغة الانجليزية ال
  تطبيقية – الآداب والعلوم
 END:VEVENT
