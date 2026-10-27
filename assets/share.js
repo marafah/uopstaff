@@ -7,9 +7,9 @@
   let current = '';
 
   const baseUrl = () => location.origin + location.pathname.replace(/index\.html$/, '');
-  // the site's main page (دليل الموظفين) is what the site address, the footer QR and the default share open
+  // the site's main page («أين أجد؟») is what the site address, the footer QR and the default share open
   const siteUrl = () => location.origin + location.pathname.replace(/[^/]*$/, '');
-  const SITE_TITLE = 'دليل موظفي جامعة البترا';
+  const SITE_TITLE = 'جامعة البترا – أين أجد؟';
   function viewLabel() {
     const p = new URLSearchParams(location.search);
     const parts = [];
@@ -37,7 +37,7 @@
     if (head) head.textContent = title;
     $('#share-url').value = current;
     $('#share-url-text').textContent = current.replace(/^https?:\/\//, '');
-    $('#qr-sub').textContent = label ? `امسح الرمز لفتح: ${label}` : what === 'site' ? 'امسح الرمز لفتح دليل الموظفين' : `امسح الرمز لفتح ${document.body.dataset.shareWhat || 'الدليل'}`;
+    $('#qr-sub').textContent = label ? `امسح الرمز لفتح: ${label}` : what === 'site' ? 'امسح الرمز لفتح الموقع' : `امسح الرمز لفتح ${document.body.dataset.shareWhat || 'الدليل'}`;
     $('#qr').innerHTML = qrFor(current).createSvgTag({ cellSize: 6, margin: 2, scalable: true })
       .replace(/fill="black"/g, `fill="${NAVY}"`);
     const text = `${title}${label ? ' – ' + label : ''}\n${current}`;

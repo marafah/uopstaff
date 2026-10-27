@@ -398,7 +398,7 @@
     const body = ({ today: viewToday, list: viewList, timeline: viewTimeline, calendar: viewCalendar, board: viewBoard, students: viewStudents }[st.view] || viewToday)(list);
     $('#nb-app').innerHTML = `
       <div class="nb-private"><i class="bi bi-shield-lock-fill"></i><span><b>خاص بك:</b> سجلاتك محفوظة على هذا الجهاز وهذا المتصفح فقط، ولا تُرسل إلى أي مكان. للنقل إلى جهاز آخر أو للاحتياط: «تصدير ← نسخة احتياطية».</span></div>
-      ${ITEMS.some(isDemo) ? `<div class="nb-demo"><i class="bi bi-magic"></i> تعرض المفكرة الآن ${ITEMS.filter(isDemo).length} سجلاً نموذجياً للتجربة (#${DEMO_TAG}). <button type="button" class="btn btn-sm btn-light" data-exp="undemo"><i class="bi bi-trash"></i> حذفها</button></div>` : ''}
+      ${ITEMS.some(isDemo) ? `<div class="nb-demo"><i class="bi bi-magic"></i> تعرض المفكرة الآن ${ITEMS.filter(isDemo).length} سجلاً نموذجياً للتجربة (#${DEMO_TAG}). <button type="button" class="btn btn-sm btn-light" data-exp="demo" title="استبدالها بأحدث نسخة من البيانات النموذجية"><i class="bi bi-arrow-repeat"></i> تحديثها</button> <button type="button" class="btn btn-sm btn-light" data-exp="undemo"><i class="bi bi-trash"></i> حذفها</button></div>` : ''}
       ${stale && !ITEMS.every(isDemo) ? `<div class="nb-backup"><i class="bi bi-cloud-arrow-down-fill"></i> ${last ? `آخر نسخة احتياطية ${U.ago(new Date(last).toISOString())}` : 'لم تحفظ نسخة احتياطية بعد'}. احفظ نسخة الآن حتى لا تفقد سجلاتك إن مُسح المتصفح. <button type="button" class="btn btn-sm btn-light" data-exp="json"><i class="bi bi-download"></i> نسخة احتياطية</button></div>` : ''}
       <div class="nb-kpis">
         <div><b>${ITEMS.length}</b><span>سجل</span></div><div><b>${openN}</b><span>مفتوح</span></div><div class="${late ? 'bad' : ''}"><b>${late}</b><span>متأخر</span></div>
@@ -428,6 +428,9 @@
         ${ORDER.filter(k => counts[k]).map(k => `<button type="button" class="${st.type === k ? 'on' : ''}" data-ftype="${k}" style="--c:${TYPES[k].color}"><i class="bi ${TYPES[k].icon}"></i> ${TYPES[k].name} <span>${counts[k]}</span></button>`).join('')}
         <select id="nb-fs" class="form-select form-select-sm"><option value="">كل الحالات</option>${Object.entries(STATUS).map(([k, [n]]) => `<option value="${k}" ${st.status === k ? 'selected' : ''}>${n}</option>`).join('')}</select>
         <select id="nb-fp" class="form-select form-select-sm"><option value="">كل الأولويات</option>${Object.entries(PRIO).map(([k, [n]]) => `<option value="${k}" ${st.prio === k ? 'selected' : ''}>${n}</option>`).join('')}</select>
+        <label class="nb-gpick"><i class="bi bi-collection"></i> تجميع حسب
+          <select id="nb-fg" class="form-select form-select-sm">${st.view === 'students' ? Object.entries(SGROUPS).map(([k, [l]]) => `<option value="${k}" ${(SGROUPS[st.sgroup] ? st.sgroup : 'rec') === k ? 'selected' : ''}>${l}</option>`).join('')
+            : Object.entries(GROUPS).map(([k, [l]]) => `<option value="${k}" ${st.view === 'list' && st.group === k ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
         ${tags.length ? `<select id="nb-ft" class="form-select form-select-sm"><option value="">كل الوسوم</option>${tags.map(g => `<option ${st.tag === g ? 'selected' : ''}>${esc(g)}</option>`).join('')}</select>` : ''}
       </div>
       <div id="nb-view" class="nb-v-${st.view}">${body}</div>`;
@@ -442,6 +445,12 @@
     document.querySelectorAll('[data-ftype]').forEach(b => b.addEventListener('click', () => { st.type = b.dataset.ftype; render(); }));
     $('#nb-fs').addEventListener('change', e => { st.status = e.target.value; render(); });
     $('#nb-fp').addEventListener('change', e => { st.prio = e.target.value; render(); });
+    // grouping from any view: records group in «كل السجلات», students in «طلابي»
+    $('#nb-fg').addEventListener('change', e => {
+      if (st.view === 'students') { st.sgroup = e.target.value; pref.set('sgroup', st.sgroup); }
+      else { st.group = e.target.value; pref.set('group', st.group); if (st.group !== 'none') { st.view = 'list'; pref.set('view', 'list'); } }
+      render();
+    });
     const ft = $('#nb-ft'); if (ft) ft.addEventListener('change', e => { st.tag = e.target.value; render(); });
     let t; $('#nb-q').addEventListener('input', e => { clearTimeout(t); t = setTimeout(() => { st.q = e.target.value; render(); const i = $('#nb-q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 200); });
     document.querySelectorAll('#nb-view .nb-card').forEach(c => c.addEventListener('click', e => { if (e.target.closest('[data-cycle],[data-tag]')) return; edit(ITEMS.find(x => x.id === c.dataset.id)); }));
@@ -710,6 +719,7 @@
   }
   async function loadDemo() {
     const items = demoItems();
+    await Promise.all(ITEMS.filter(isDemo).map(x => remove(x.id)));  // a refresh replaces older samples, never the person's own records
     await Promise.all(items.map(x => persist(x, true)));
     render(); toast(`<i class="bi bi-magic"></i> أُضيف ${items.length} سجلاً نموذجياً (موسومة #${DEMO_TAG}) — جرّب كل العروض والتصدير`);
   }

@@ -321,7 +321,7 @@
           <div class="ins-now ${nn.now ? 'live' : ''}"><i class="bi ${nn.icon}"></i> ${esc(nn.text)}</div>
           <div class="ins-cts">${contact || '<span class="text-muted small">لا توجد بيانات تواصل في دليل الموظفين.</span>'}</div>
           <div class="ins-links no-print">
-            ${I.directory_id ? `<a href="./?q=${encodeURIComponent(U.shortName(I.name).split(' ').slice(0, 2).join(' '))}"><i class="bi bi-person-lines-fill"></i> دليل الموظفين</a>` : ''}
+            ${I.directory_id ? `<a href="directory.html?q=${encodeURIComponent(U.shortName(I.name).split(' ').slice(0, 2).join(' '))}"><i class="bi bi-person-lines-fill"></i> دليل الموظفين</a>` : ''}
             ${I.profile ? `<a href="${esc(I.profile)}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i> الملف الرسمي</a>` : ''}
             <a href="timetable.html?inst=${encodeURIComponent(I.name)}"><i class="bi bi-table"></i> الجدول الدراسي</a>
           </div></div></section></div>

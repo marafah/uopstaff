@@ -35,8 +35,8 @@
   const kids = n => n.children || [];
   const official = n => kids(n).filter(c => !c.from_directory);
   const chain = id => { const out = []; for (let p = PARENT[id]; p; p = PARENT[p]) out.unshift(BY[p]); return out; };
-  const dirLink = n => n.kind === 'academic-dept' ? `index.html?faculty=${encodeURIComponent(BY[PARENT[n.id]].unit.id)}&dept=${encodeURIComponent(n.dept)}`
-    : n.unit ? `index.html?faculty=${encodeURIComponent(n.unit.id)}` : '';
+  const dirLink = n => n.kind === 'academic-dept' ? `directory.html?faculty=${encodeURIComponent(BY[PARENT[n.id]].unit.id)}&dept=${encodeURIComponent(n.dept)}`
+    : n.unit ? `directory.html?faculty=${encodeURIComponent(n.unit.id)}` : '';
   const staffCount = n => n.kind === 'academic-dept' ? n.count : n.unit ? n.unit.count : 0;
   const avatar = p => `<span class="org-av">${p.photo ? `<img src="${esc(p.photo)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}<i class="bi bi-person-fill"></i></span>`;
 
@@ -193,7 +193,7 @@
       </div>
       <div id="org-view">${st.view === 'tree' ? tree() : chart()}</div>
       ${D.not_in_chart.length ? `<p class="small text-muted mt-3"><i class="bi bi-info-circle"></i> وحدات في دليل الموظفين لا تظهر في المخطط الرسمي (${esc(D.revision)}):
-        ${D.not_in_chart.map(u => `<a href="index.html?faculty=${encodeURIComponent(u.id)}">${esc(u.name)}</a>`).join('، ')}.</p>` : ''}
+        ${D.not_in_chart.map(u => `<a href="directory.html?faculty=${encodeURIComponent(u.id)}">${esc(u.name)}</a>`).join('، ')}.</p>` : ''}
       <p class="small text-muted"><i class="bi bi-info-circle"></i> أسماء الوحدات وتبعياتها والخطوط المتقطعة (┄) كما في المخطط الرسمي حرفياً؛ تجميع الوحدات تحت العناوين أعلاه للعرض فقط. أعضاء المجالس من صفحاتها الرسمية، ومناصبهم فيها تحدّد المسؤول عن الوحدة المقابلة (العمداء ونائب الرئيس…)، ثم الأشخاص من مسمياتهم في دليل الموظفين. الأقسام الأكاديمية من الدليل لأن المخطط الرسمي يتوقف عند الكلية.</p>`;
     bind();
   }

@@ -29,7 +29,7 @@
       const ip = (m.email && insBy[m.email]) || insBy['n:' + m.name];
       out.push({ type: 'person', title: m.name, en: m.name_en, sub: [m.job || m.rank, m.department ? 'قسم ' + m.department : '', unit].filter(Boolean).join(' · '),
         photo: m.photo, ext: m.ext, email: m.email, role: m.role, office: m.office, job: norm(m.job), roleN: norm(m.role),
-        href: `./?q=${encodeURIComponent(U.shortName(m.name).split(' ').slice(0, 3).join(' '))}`, ins: ip ? ip.id : '',
+        href: `directory.html?q=${encodeURIComponent(U.shortName(m.name).split(' ').slice(0, 3).join(' '))}`, ins: ip ? ip.id : '',
         key: norm([m.name, m.name_en, m.job, m.rank, m.role, m.department, unit, m.office, m.email].join(' ')), name: strip(m.name), num: [m.ext].filter(Boolean) });
     });
     // courses (one entry per code and degree) and rooms

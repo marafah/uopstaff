@@ -1537,3 +1537,16 @@ body.scr-on > *:not(.scr):not(script):not(.modal) { display: none !important; }
 .nb-lgroup > h3 span, .nb-sgroup h3 .nb-cnt { background: #f1ede4; border-radius: 999px; padding: 0 .55rem; font-size: .78rem; font-weight: 700; color: #4b5563; }
 .nb-lgroup > h3 small { font-size: .75rem; color: #6b7280; font-weight: 400; } .nb-lgroup > h3 small.late { color: #b42318; font-weight: 700; }
 .nb-srec { color: inherit; text-decoration: none; } .nb-srec i { color: var(--c); } .nb-srec:hover { text-decoration: underline; }
+/* home page («أين أجد؟»): the university logo as a quiet watermark in the hero and behind the results */
+.home-hero { position: relative; overflow: hidden; padding: 2.2rem 0 2rem; background: radial-gradient(120% 140% at 0% 50%, #1f3a5a 0%, var(--uop-navy) 60%); }
+.home-hero > .container-fluid { position: relative; z-index: 1; }
+.home-hero h1 { font-size: 2rem; }
+.home-hero::after { content: ""; position: absolute; left: 3%; top: 50%; transform: translateY(-50%); width: min(560px, 52%); aspect-ratio: 1013 / 332;
+  background: url(logo.png) center / contain no-repeat; filter: brightness(0) invert(1); opacity: .1; pointer-events: none; }
+body[data-home] #fd-app { position: relative; isolation: isolate; min-height: max(440px, 52vh); padding-bottom: 1rem; }
+body[data-home] #fd-app::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: url(logo.png) center 85% / min(640px, 75%) no-repeat; opacity: .08; }
+@media (max-width: 575.98px) { .home-hero::after { width: 70%; left: 50%; transform: translate(-50%, -50%); opacity: .09; } .home-hero h1 { font-size: 1.6rem; } }
+@media print { .home-hero::after, body[data-home] #fd-app::before { display: none; } }
+.nb-gpick { display: inline-flex; align-items: center; gap: .35rem; font-size: .8rem; font-weight: 700; color: #4b5563; background: #f1ede4; border-radius: 999px; padding: .15rem .25rem .15rem .7rem; }
+.nb-gpick select { width: auto; border-radius: 999px; font-weight: 400; }

@@ -1,5 +1,6 @@
-"""Builds the extra pages (instructor, planner, now, trends) from the timetable page's shell, and writes the same
-site menu on every page, so all pages share one header, hero, footer and share panel.
+"""Builds the extra pages (the home page «أين أجد؟», instructor, planner, now, trends…) from the timetable page's shell,
+and writes the same site menu on every page, so all pages share one header, hero, footer and share panel.
+The staff directory lives at directory.html; old directory links to the site root are sent there.
 
     python scripts/make_pages.py
 """
@@ -7,9 +8,14 @@ import os
 import re
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
-MAIN = [("./", "bi-person-lines-fill", "دليل الموظفين"), ("timetable.html", "bi-table", "الجدول الدراسي"),
-        ("calendar.html", "bi-calendar3", "التقويم الجامعي"), ("now.html", "bi-broadcast", "الآن في الجامعة"),
-        ("find.html", "bi-search", "أين أجد؟")]
+MAIN = [("./", "bi-search", "أين أجد؟"), ("directory.html", "bi-person-lines-fill", "دليل الموظفين"),
+        ("timetable.html", "bi-table", "الجدول الدراسي"), ("calendar.html", "bi-calendar3", "التقويم الجامعي"),
+        ("now.html", "bi-broadcast", "الآن في الجامعة")]
+# links made when the directory was the home page carry its filters; the home page forwards them to directory.html
+DIR_PARAMS = ["type", "faculty", "dept", "rank", "role", "source", "view", "sort"]
+HOME_REDIRECT = ("<script>(function () { var p = new URLSearchParams(location.search);"
+                 " if (%s.some(function (k) { return p.has(k); })) location.replace('directory.html' + location.search + location.hash); })();</script>\n"
+                 % str(DIR_PARAMS).replace(" ", ""))
 MORE = [("notes.html", "bi-journal-richtext", "مفكرتي", "مكالمات واجتماعات ومتابعات وتذكيرات… محفوظة على جهازك فقط"),
         ("instructor.html", "bi-person-badge", "صفحة المدرس", "جدول كل مدرس وأوقات فراغه واشتراك تقويمه"),
         ("planner.html", "bi-calendar2-week", "مخطط جدولي", "اختر مقرراتك وشعبك بلا تعارض"),
@@ -46,7 +52,7 @@ PAGES = {
         desc="إشغال قاعات التدريس في جامعة البترا حسب اليوم والساعة والمبنى، القاعات الأقل استخداماً وأوقات الذروة.",
         hero="إشغال القاعات", sub="كم تُستخدم قاعات التدريس حسب اليوم والساعة والمبنى — لتوزيع القاعات والتخطيط للفصل القادم",
         search="ابحث عن قاعة برقمها…", about="محسوب من الجدول الدراسي على بوابة الجامعة، ويتحدّث كل ساعة."),
-    "find.html": dict(
+    "index.html": dict(
         title="أين أجد؟", short="أين أجد؟", what="البحث الشامل", app="fd-app", js="find.js",
         desc="بحث واحد في كل موقع جامعة البترا غير الرسمي: الأشخاص والفرعيات، المقررات، القاعات، الوحدات، ومواعيد التقويم.",
         hero="أين أجد…؟", sub="بحث واحد في كل الموقع: الأشخاص والفرعيات، المقررات والشعب، القاعات والمباني، الوحدات، ومواعيد التقويم",
@@ -111,12 +117,12 @@ def main():
         h = re.sub(r'<meta name="description" content="[^"]*">', f'<meta name="description" content="{p["desc"]}">', h)
         h = re.sub(r'<meta property="og:title" content="[^"]*">', f'<meta property="og:title" content="{p["title"]} – جامعة البترا">', h)
         h = re.sub(r'<meta property="og:description" content="[^"]*">', f'<meta property="og:description" content="{p["desc"]}">', h)
-        h = h.replace("https://marafah.github.io/uopstaff/timetable.html", f"https://marafah.github.io/uopstaff/{page}")
+        h = h.replace("https://marafah.github.io/uopstaff/timetable.html", "https://marafah.github.io/uopstaff/" + ("" if page == "index.html" else page))
         h = re.sub(r'data-share-title="[^"]*" data-share-what="[^"]*"', f'data-share-title="{p["title"]} – جامعة البترا" data-share-what="{p["what"]}"', h)
         h = h.replace('<span class="sys"><b>الجدول الدراسي</b>', f'<span class="sys"><b>{p["short"]}</b>')
         h = re.sub(r'<input class="uop-search" id="tt-top-q"[^>]*>',
                    f'<input class="uop-search" id="pg-q" type="search" placeholder="{p["search"]}" aria-label="بحث">', h)
-        h = re.sub(r'<header class="uop-hero">.*?</header>', f'''<header class="uop-hero">
+        h = re.sub(r'<header class="uop-hero">.*?</header>', f'''<header class="uop-hero{' home-hero' if page == 'index.html' else ''}">
   <div class="container-fluid px-4 hero-row">
     <div class="hero-text">
       <h1 id="pg-title">{p["hero"]}</h1>
@@ -132,7 +138,8 @@ def main():
 </main>''', h, flags=re.S)
         h = re.sub(r'(<h6 class="foot-h">)عن الجدول(</h6>)', rf'\g<1>عن {p["short"]}\2', h)
         h = re.sub(r'<div><b>الجدول الدراسي</b><small>جامعة البترا</small></div>', f'<div><b>{p["short"]}</b><small>جامعة البترا</small></div>', h)
-        icon = next(ic for href, ic, *_ in MAIN + MORE if href == page)
+        href_of = "./" if page == "index.html" else page
+        icon = next(ic for href, ic, *_ in MAIN + MORE if href == href_of)
         h = h.replace('<span class="foot-logo"><i class="bi bi-table"></i></span>', f'<span class="foot-logo"><i class="bi {icon}"></i></span>')
         h = re.sub(r'(<p class="foot-text">)شعب الفصل الحالي كما تنشرها.*?(</p>)', rf'\g<1>{p["about"]}\2', h, flags=re.S)
         h = h.replace('مشاركة الجدول الدراسي</h5>', f'مشاركة {p["short"]}</h5>').replace('الجدول كاملاً</label>', 'هذه الصفحة</label>')
@@ -140,10 +147,19 @@ def main():
         h = re.sub(r'<script src="https://cdn.jsdelivr.net/npm/xlsx@[^"]+" defer></script>\n', '', h)
         h = re.sub(r'<script src="assets/timetable\.js\?v=(\d+)"></script>',
                    lambda m: "\n".join(f'<script src="assets/{js}?v={m.group(1)}"></script>' for js in ["common.js"] + p.get("extra", []) + [p["js"]]), h)
-        h = set_nav(h, page)
+        h = set_nav(h, href_of)
+        if page == "index.html":
+            h = h.replace("<head>\n", "<head>\n" + HOME_REDIRECT, 1)
+            h = h.replace("<body", '<body data-home="1"', 1)
         with open(os.path.join(ROOT, page), "w", encoding="utf-8") as f:
             f.write(h)
-    for page, active in (("index.html", "./"), ("timetable.html", "timetable.html"), ("calendar.html", "calendar.html")):
+    # the old address of «أين أجد؟» keeps working
+    with open(os.path.join(ROOT, "find.html"), "w", encoding="utf-8") as f:
+        f.write('<!doctype html>\n<html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>أين أجد؟ – جامعة البترا</title>\n'
+                '<link rel="canonical" href="https://marafah.github.io/uopstaff/">\n'
+                '<script>location.replace("./" + location.search + location.hash);</script>\n'
+                '<meta http-equiv="refresh" content="0; url=./"></head><body><a href="./">أين أجد؟</a></body></html>\n')
+    for page, active in (("directory.html", "directory.html"), ("timetable.html", "timetable.html"), ("calendar.html", "calendar.html")):
         path = os.path.join(ROOT, page)
         with open(path, encoding="utf-8") as f:
             h = f.read()

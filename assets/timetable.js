@@ -150,7 +150,7 @@
     .then(d => { if (d) INST_ID = Object.fromEntries(d.instructors.map(i => [i.name, i.id])); }).catch(() => {});
   const instLink = s => INST_ID[s.instructor]
     ? `<a class="tt-inst" href="instructor.html?id=${INST_ID[s.instructor]}" title="صفحة ${esc(s.instructor)}: الجدول وأوقات الفراغ والتواصل">${esc(s.instructor)}</a>`
-    : `<a class="tt-inst" href="./?q=${encodeURIComponent(s.instructor.replace(/^(أ\.?\s?د|د|م|أ)\.?\s*/, '').split(' ').slice(0, 2).join(' '))}" title="ابحث عن ${esc(s.instructor)} في دليل الموظفين">${esc(s.instructor)}</a>`;
+    : `<a class="tt-inst" href="directory.html?q=${encodeURIComponent(s.instructor.replace(/^(أ\.?\s?د|د|م|أ)\.?\s*/, '').split(' ').slice(0, 2).join(' '))}" title="ابحث عن ${esc(s.instructor)} في دليل الموظفين">${esc(s.instructor)}</a>`;
 
   // ------------------------------------------------------------------ views
   const SORTS = {
