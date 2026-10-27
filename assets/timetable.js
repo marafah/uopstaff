@@ -597,11 +597,7 @@
     // KPI band
     const kpi = (v, l, sub, icon, tone) => `<div class="db-kpi ${tone || ''}"><i class="bi ${icon}"></i><div><b>${v}</b><span>${l}</span>${sub ? `<small>${sub}</small>` : ''}</div></div>`;
     const kpis = `<div class="db-kpis">
-      ${kpi(fmtN(list.length), 'شعبة', `${fmtN(new Set(list.map(s => s.code)).size)} مقرراً`, 'bi-collection-fill')}
-      ${kpi(fmtN(new Set(list.map(s => s.instructor)).size), 'مدرس', `${(list.length / Math.max(1, new Set(list.map(s => s.instructor)).size)).toFixed(1)} شعبة لكل مدرس`, 'bi-person-video3')}
-      ${kpi(fmtN(reg), 'طالب مسجّل', `من سعة ${fmtN(cap)}`, 'bi-people-fill')}
       ${kpi(pct(reg, cap) + '%', 'نسبة الامتلاء', `متوسط الشعبة ${avgClass} طالباً`, 'bi-speedometer2')}
-      ${kpi(fmtN(open), 'شعبة مفتوحة', `${fmtN(list.length - open)} مغلقة`, 'bi-unlock-fill', 'good')}
       ${kpi(fmtN(over.length), 'تجاوزت السعة', `${fmtN(near.length)} قاربت الامتلاء (≥90%)`, 'bi-exclamation-triangle-fill', over.length ? 'bad' : '')}
       ${kpi(onlineShare + '%', 'لقاءات غير وجاهية', 'إلكتروني كامل وغير متزامن ومدمج', 'bi-camera-video-fill')}
       ${kpi(fmtN(noRoom), 'شعبة بدون قاعة', 'القاعة في المصدر: 0', 'bi-door-closed', noRoom ? 'warn' : '')}

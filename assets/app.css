@@ -625,3 +625,6 @@ button.fr-person:hover { border-color: var(--uop-maroon); }
 .tt-table thead th a { white-space: normal; }
 .db-stats { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin-top: .6rem; font-size: .78rem; color: #555; }
 .db-stats b { color: var(--uop-navy); font-size: .9rem; }
+/* dashboard: only the four figures not already in the page's top cards, on one row */
+.db-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+@media (max-width: 767.98px) { .db-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
