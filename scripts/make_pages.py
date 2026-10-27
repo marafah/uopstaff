@@ -16,6 +16,28 @@ DIR_PARAMS = ["type", "faculty", "dept", "rank", "role", "source", "view", "sort
 HOME_REDIRECT = ("<script>(function () { var p = new URLSearchParams(location.search);"
                  " if (%s.some(function (k) { return p.has(k); })) location.replace('directory.html' + location.search + location.hash); })();</script>\n"
                  % str(DIR_PARAMS).replace(" ", ""))
+# the home page's header: the university gate and campus photos, from the official site's «الجامعة بالصور»
+HOME_PRELOAD = '<link rel="preload" as="image" href="assets/hero/gate-tile.jpg" media="(min-width: 992px)">\n'
+# a collage beside the title: the gate, and two tiles that cycle through campus photos
+CAMPUS = [(11, "حديقة الصنوبر"), (21, "ممرات الحرم الجامعي"), (20, "الطلبة في الحرم"), (10, "مختبرات الحاسوب"),
+          (6, "مباني الجامعة"), (3, "الطاقة الشمسية في الحرم"), (17, "المختبرات العلمية"), (26, "قاعة المؤتمرات")]
+
+
+def tile(photos):
+    imgs = "".join('<img src="assets/hero/campus-%d.jpg" alt="" data-cap="%s" loading="%s"%s>' % (n, c, "eager" if i == 0 else "lazy", ' class="on"' if i == 0 else "")
+                   for i, (n, c) in enumerate(photos))
+    return f'<figure class="hc-tile">{imgs}<figcaption>{photos[0][1]}</figcaption></figure>'
+
+
+HERO_COLLAGE = ('\n    <div class="hero-collage no-print" aria-hidden="true">'
+                '<figure class="hc-tile big"><img src="assets/hero/gate-tile.jpg" alt="" class="on"><figcaption>البوابة الرئيسية لجامعة البترا</figcaption></figure>'
+                + tile(CAMPUS[0::2]) + tile(CAMPUS[1::2]) + '</div>'
+                '\n    <script>(function () { if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;'
+                ' var ts = document.querySelectorAll(".hero-collage .hc-tile:not(.big)"), k = 0;'
+                ' setInterval(function () { var t = ts[k++ % ts.length], im = t.querySelectorAll("img"), i = [].indexOf.call(im, t.querySelector("img.on"));'
+                ' im[i].classList.remove("on"); var n = im[(i + 1) % im.length]; n.classList.add("on"); t.querySelector("figcaption").textContent = n.dataset.cap; }, 3500); })();</script>')
+HERO_CREDIT = ('\n  <a class="hero-credit no-print" href="https://www.uop.edu.jo" target="_blank" rel="noopener">'
+               '<i class="bi bi-camera"></i> الصور: الموقع الرسمي لجامعة البترا</a>')
 MORE = [("notes.html", "bi-journal-richtext", "مفكرتي", "مكالمات واجتماعات ومتابعات وتذكيرات… محفوظة على جهازك فقط"),
         ("instructor.html", "bi-person-badge", "صفحة المدرس", "جدول كل مدرس وأوقات فراغه واشتراك تقويمه"),
         ("planner.html", "bi-calendar2-week", "مخطط جدولي", "اختر مقرراتك وشعبك بلا تعارض"),
@@ -127,11 +149,11 @@ def main():
     <div class="hero-text">
       <h1 id="pg-title">{p["hero"]}</h1>
       <p id="pg-sub">{p["sub"]}</p>
-    </div>
+    {'' if page == 'index.html' else '</div>'}
     <aside class="update-box no-print" id="pg-actions" aria-label="إجراءات">
       <small class="update-when" id="pg-updated">—</small>
-    </aside>
-  </div>
+    </aside>{'</div>' + HERO_COLLAGE if page == 'index.html' else ''}
+  </div>{HERO_CREDIT if page == 'index.html' else ''}
 </header>''', h, flags=re.S)
         h = re.sub(r'<main class="container-fluid px-4" id="tt-app">.*?</main>', f'''<main class="container-fluid px-4" id="{p["app"]}">
   <div class="loading"><div><div class="spinner-border text-secondary"></div><div class="mt-2">جارٍ التحميل…</div></div></div>
@@ -149,7 +171,7 @@ def main():
                    lambda m: "\n".join(f'<script src="assets/{js}?v={m.group(1)}"></script>' for js in ["common.js"] + p.get("extra", []) + [p["js"]]), h)
         h = set_nav(h, href_of)
         if page == "index.html":
-            h = h.replace("<head>\n", "<head>\n" + HOME_REDIRECT, 1)
+            h = h.replace("<head>\n", "<head>\n" + HOME_REDIRECT + HOME_PRELOAD, 1)
             h = h.replace("<body", '<body data-home="1"', 1)
         with open(os.path.join(ROOT, page), "w", encoding="utf-8") as f:
             f.write(h)
