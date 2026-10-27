@@ -4,7 +4,7 @@
 (function () {
   'use strict';
   const U = window.UOP, { $, esc, norm, toMin, toTime, live } = U;
-  let IDX, TT, S;
+  let IDX, TT, S, OHD = { map: {} };
   const SITE = location.origin + location.pathname.replace(/[^/]*$/, '');
   const qs = () => new URLSearchParams(location.search);
   const FREE_FROM = 8 * 60, FREE_TO = 16 * 60;  // free times are looked for within the working day
@@ -42,11 +42,14 @@
   const initials = n => U.shortName(n).split(' ').slice(0, 2).map(w => w[0]).join(' ');
 
   // ---------------------------------------------------------------- the instructor's week
+  const OH_STYLE = '--cc:#15803d;--cbg:#e7f6ec';
   function build(I) {
+    const oh = OHD.map[I.id] && OHD.map[I.id].slots && OHD.map[I.id].slots.length ? OHD.map[I.id] : null;
     const secs = S.filter(s => s.instructor === I.name).sort((a, b) => a.code.localeCompare(b.code) || a.activity.localeCompare(b.activity, 'ar') || +a.section - +b.section);
     const courses = [...new Set(secs.map(s => s.code))];
     const color = code => PALETTE[courses.indexOf(code) % PALETTE.length];
-    const days = U.WEEK.filter(d => (d !== 'ج' && d !== 'س') || secs.some(s => s.meetings.some(m => m.day === d && live(m))));
+    const days = U.WEEK.filter(d => (d !== 'ج' && d !== 'س') || secs.some(s => s.meetings.some(m => m.day === d && live(m)))
+      || (OHD.map[I.id] && (OHD.map[I.id].slots || []).some(x => x.day === d)));
     const meetings = secs.flatMap(s => s.meetings.filter(live).map(m => ({ s, m })));
     const room = s => s.room === '0' ? 'قاعة افتراضية' : s.room;
     const items = meetings.map(({ s, m }) => {
@@ -55,10 +58,13 @@
         icon: m.mode === 'وجاهي' ? '' : mode.icon, style: `--cc:${c};--cbg:${bg}`, cls: 'cc',
         tip: `${s.code} ${s.name} – شعبة ${s.section} (${s.activity})\n${U.DAYS[m.day]} ${m.start}–${m.end} · ${m.mode}\n${s.room === '0' ? 'قاعة افتراضية (0)' : s.room + ' – ' + s.building}` };
     });
-    const busy = d => {  // merged busy intervals of a day
-      const iv = meetings.filter(x => x.m.day === d).map(x => [toMin(x.m.start), toMin(x.m.end), x.s]).sort((a, b) => a[0] - b[0]);
-      return iv;
-    };
+    const ohPlace = oh ? (oh.place || I.office || '') : '';
+    const ohItems = oh ? oh.slots.map(x => ({ day: x.day, start: x.start, end: x.end, title: 'ساعة مكتبية', line: ohPlace ? `المكان: ${ohPlace}` : '', sub: oh.mode || 'وجاهي',
+      icon: 'bi-person-raised-hand', style: OH_STYLE, cls: 'cc oh', oh: true, tip: `ساعة مكتبية ${U.DAYS[x.day]} ${x.start}–${x.end}${ohPlace ? ' · ' + ohPlace : ''}` })) : [];
+    items.push(...ohItems);
+    // busy intervals of a day: lectures (with their section) and office hours (section null)
+    const busy = d => meetings.filter(x => x.m.day === d).map(x => [toMin(x.m.start), toMin(x.m.end), x.s])
+      .concat(ohItems.filter(x => x.day === d).map(x => [toMin(x.start), toMin(x.end), null])).sort((a, b) => a[0] - b[0]);
     const free = d => {
       const taken = new Set();
       busy(d).forEach(([a, b]) => { for (let t = a; t < b; t += 30) taken.add(t); });
@@ -72,7 +78,7 @@
     };
     const slots = new Set();
     meetings.forEach(({ m }) => { for (let t = toMin(m.start); t < toMin(m.end); t += 30) slots.add(m.day + t); });
-    return { secs, courses, color, days, items, busy, free, room,
+    return { secs, courses, color, days, items, busy, free, room, oh, ohPlace,
       asyncSecs: secs.filter(s => s.meetings.some(m => !live(m))),
       hours: slots.size / 2, students: secs.reduce((a, s) => a + s.registered, 0) };
   }
@@ -87,14 +93,15 @@
     if (T.end && today > T.end) return { icon: 'bi-calendar-check', text: 'انتهت فترة التدريس لهذا الفصل' };
     const list = W.items.map(x => ({ ...x, a: toMin(x.start), b: toMin(x.end) }));
     if (!hol.has(today)) {
-      const cur = list.find(x => x.day === U.JS_DAY[amman.getDay()] && x.a <= mins && mins < x.b);
+      const cur = list.filter(x => x.day === U.JS_DAY[amman.getDay()] && x.a <= mins && mins < x.b).sort((a, b) => !!a.oh - !!b.oh)[0];  // a lecture before office hours
+      if (cur && cur.oh) return { now: true, oh: true, icon: 'bi-person-raised-hand', text: `ساعة مكتبية الآن حتى ${cur.end}${W.ohPlace ? ' · ' + W.ohPlace : ''}${W.oh.mode && W.oh.mode !== 'وجاهي' ? ' · ' + W.oh.mode : ''}` };
       if (cur) return { now: true, icon: 'bi-broadcast', text: `يحاضر الآن: ${cur.title} ${cur.line} · ${cur.sub} · حتى ${cur.end}` };
     }
     for (let k = 0; k < 14; k++) {
       const d = new Date(amman); d.setDate(d.getDate() + k);
       const key = ymd(d);
       if (hol.has(key) || (T.end && key > T.end)) continue;
-      const next = list.filter(x => x.day === U.JS_DAY[d.getDay()] && (k > 0 || x.a > mins)).sort((a, b) => a.a - b.a)[0];
+      const next = list.filter(x => !x.oh && x.day === U.JS_DAY[d.getDay()] && (k > 0 || x.a > mins)).sort((a, b) => a.a - b.a)[0];
       if (next) {
         const when = k === 0 ? 'اليوم' : k === 1 ? 'غداً' : U.DAYS[next.day];
         return { icon: 'bi-clock-history', text: `المحاضرة القادمة: ${when} ${next.start} · ${next.title} ${next.line} · ${next.sub}` };
@@ -110,6 +117,7 @@
     for (let t = FREE_FROM; t <= FREE_TO; t += 60) ticks.push(`<span style="right:${pos(t)}%">${toTime(t).slice(0, 2)}</span>`);
     const rows = W.days.map(d => {
       const busy = W.busy(d).filter(([a, b]) => b > FREE_FROM && a < FREE_TO).map(([a, b, s]) => {
+        if (!s) return `<i class="ft-busy ft-oh" style="right:${pos(a)}%;width:${pos(b) - pos(a)}%" title="ساعة مكتبية ${toTime(a)}–${toTime(b)}"><span>ساعة مكتبية</span></i>`;
         const [c, bg] = W.color(s.code);
         return `<i class="ft-busy" style="right:${pos(a)}%;width:${pos(b) - pos(a)}%;--cc:${c};--cbg:${bg}" title="${esc(`${s.code} ${s.name} – ${toTime(a)}–${toTime(b)}`)}"><span>${esc(s.code)}</span></i>`;
       }).join('');
@@ -118,7 +126,7 @@
       return `<div class="ft-row"><b>${esc(U.DAYS[d])}</b><div class="ft-track">${busy}${free}</div></div>`;
     }).join('');
     return `<div class="ft"><div class="ft-row ft-head"><b></b><div class="ft-ticks">${ticks.join('')}</div></div>${rows}</div>
-      <div class="ft-key"><span><i class="ft-sw free"></i> فراغ لساعة أو أكثر</span><span><i class="ft-sw busy"></i> محاضرة</span><span class="text-muted">المساحة البيضاء: فراغ أقل من ساعة</span></div>`;
+      <div class="ft-key"><span><i class="ft-sw free"></i> فراغ لساعة أو أكثر</span><span><i class="ft-sw busy"></i> محاضرة</span><span><i class="ft-sw oh"></i> ساعة مكتبية</span><span class="text-muted">المساحة البيضاء: فراغ أقل من ساعة</span></div>`;
   }
 
   const when = s => {
@@ -134,6 +142,147 @@
   };
   const seats = s => `<span class="tt-seats ${s.status === 'مغلقة' ? 'full' : 'open'}"><span class="tt-st">${esc(s.status)}</span>
     <span class="tt-bar"><i style="width:${Math.min(100, s.capacity ? 100 * s.registered / s.capacity : 100)}%"></i></span><bdi dir="ltr">${s.registered}/${s.capacity}</bdi></span>`;
+
+  // ---------------------------------------------------------------- office hours: card and editor
+  const ohList = oh => {
+    const by = {};
+    (oh.slots || []).forEach(x => (by[x.day] ||= []).push(`${x.start}–${x.end}`));
+    return U.WEEK.filter(d => by[d]).map(d => `${U.DAYS[d]} ${by[d].join('، ')}`);
+  };
+  function ohCard(I, W) {
+    const oh = W.oh;
+    const head = `<div class="card-header d-flex align-items-center gap-2"><span><i class="bi bi-person-raised-hand"></i> الساعات المكتبية</span>
+      <button type="button" class="btn btn-sm btn-outline-success ms-auto" id="oh-edit"><i class="bi bi-pencil-square"></i> ${oh ? 'تعديل' : 'أضف ساعاتك المكتبية'}</button></div>`;
+    if (!oh) return `${head}<div class="card-body py-3 text-muted small">لم يُدخل المدرس ساعاته المكتبية بعد. إن كنت المدرس فاضغط «أضف ساعاتك المكتبية»: نرسل رمزاً إلى بريدك الجامعي للتحقق، ثم تختار أوقاتك من جدولك مباشرة.</div>`;
+    const by = {};
+    oh.slots.forEach(x => (by[x.day] ||= []).push(x));
+    return `${head}<div class="card-body py-2">
+      <div class="oh-days">${U.WEEK.filter(d => by[d]).map(d => `<div><b>${esc(U.DAYS[d])}</b>${by[d].map(x => `<em dir="ltr">${x.start}–${x.end}</em>`).join('')}</div>`).join('')}</div>
+      <div class="oh-meta">${W.ohPlace ? `<span><i class="bi bi-geo-alt-fill"></i> ${esc(W.ohPlace)}</span>` : ''}<span><i class="bi ${oh.mode === 'عن بعد' ? 'bi-camera-video-fill' : 'bi-people-fill'}"></i> ${esc(oh.mode || 'وجاهي')}</span>
+        ${oh.link ? `<a href="${esc(oh.link)}" target="_blank" rel="noopener"><i class="bi bi-link-45deg"></i> رابط اللقاء عن بعد</a>` : ''}
+        <span class="text-muted">${OH.hoursText(OH.hours(oh.slots))} أسبوعياً${oh.updated ? ` · حُدّثت ${U.ago(oh.updated)}` : ''}</span></div>
+      ${oh.note ? `<p class="oh-note"><i class="bi bi-info-circle"></i> ${esc(oh.note)}</p>` : ''}</div>`;
+  }
+  function bindOh(I, W) {
+    const b = $('#oh-edit');
+    if (b) b.addEventListener('click', () => ohStart(I, W));
+    if (qs().get('oh') === 'edit') ohStart(I, W);
+  }
+  // step 1: prove the e-mail (a code sent to it), unless this browser already holds a valid key
+  async function ohStart(I, W) {
+    const cfg = await OH.config();
+    const own = I.email ? OH.keyFor(I.email) : null, admin = OH.anyKey().find(k => k.email !== String(I.email || '').toLowerCase());
+    if (own || admin || !cfg.api) return ohEditor(I, W, own || admin);
+    U.modal('<i class="bi bi-shield-lock"></i> تأكيد الهوية', `
+      <p class="small">لحماية الصفحة لا يعدّل الساعات المكتبية إلا صاحبها: نرسل رمزاً من 6 أرقام إلى البريد الجامعي المسجّل في دليل الموظفين، ويبقى هذا المتصفح موثوقاً 30 يوماً.</p>
+      <label class="small fw-bold" for="oh-mail">البريد</label>
+      <input class="form-control" id="oh-mail" dir="ltr" value="${esc(I.email || '')}" ${I.email ? 'readonly' : ''} placeholder="name@uop.edu.jo">
+      <div class="small mt-1"><a href="#" id="oh-other">${I.email ? 'أنا مدير الموقع وأُدخل نيابةً عن المدرس' : 'لا يوجد بريد للمدرس في الدليل: يُدخلها مدير الموقع ببريده'}</a></div>
+      <div class="d-flex gap-2 mt-3"><button type="button" class="btn btn-maroon" id="oh-send"><i class="bi bi-envelope-paper"></i> أرسل الرمز</button></div>
+      <div id="oh-step2" class="mt-3" hidden><label class="small fw-bold" for="oh-code">الرمز المرسَل إلى بريدك</label>
+        <div class="d-flex gap-2"><input class="form-control oh-code" id="oh-code" inputmode="numeric" maxlength="6" dir="ltr" autocomplete="one-time-code">
+          <button type="button" class="btn btn-success" id="oh-check"><i class="bi bi-check2-circle"></i> تحقّق</button></div></div>
+      <div id="oh-msg" class="small mt-2"></div>`);
+    const say = (t, ok) => { $('#oh-msg').innerHTML = `<span class="${ok ? 'text-success' : 'text-danger'}">${esc(t)}</span>`; };
+    $('#oh-other').addEventListener('click', e => { e.preventDefault(); const m = $('#oh-mail'); m.readOnly = false; m.value = ''; m.focus(); });
+    $('#oh-send').addEventListener('click', async () => {
+      const email = $('#oh-mail').value.trim(), btn = $('#oh-send');
+      if (!/^\S+@\S+\.\S+$/.test(email)) return say('اكتب بريداً صحيحاً.');
+      btn.disabled = true; say('جارٍ الإرسال…', true);
+      const r = await OH.post({ action: 'request', id: I.id, email });
+      btn.disabled = false;
+      if (!r.ok) return say(OH.msg(r));
+      say(`أرسلنا الرمز إلى ${email}؛ صالح ${r.minutes || 15} دقيقة. تفقّد صندوق الوارد أو البريد غير المرغوب.`, true);
+      $('#oh-step2').hidden = false; $('#oh-code').focus();
+    });
+    const check = async () => {
+      const email = $('#oh-mail').value.trim(), code = $('#oh-code').value.trim();
+      if (!/^\d{6}$/.test(code)) return say('الرمز 6 أرقام.');
+      const r = await OH.post({ action: 'verify', id: I.id, email, code });
+      if (!r.ok) return say(OH.msg(r) + (r.left ? ` (بقيت ${r.left} محاولات)` : ''));
+      OH.keepKey(email, r.key, r.days || 30);
+      bootstrap.Modal.getInstance($('#pgModal')).hide();
+      setTimeout(() => ohEditor(I, W, OH.keyFor(email)), 350);
+    };
+    $('#oh-check').addEventListener('click', check);
+    $('#oh-code').addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
+  }
+  // step 2: pick half hours on a week grid (lectures blocked), place, mode, note; a draft is kept as you go
+  async function ohEditor(I, W, key) {
+    const cfg = await OH.config();
+    const from = 8 * 60, to = 18 * 60, days = U.WEEK.filter(d => d !== 'ج' && (d !== 'س' || W.days.includes('س')));
+    const lect = {};
+    W.items.filter(x => !x.oh).forEach(x => { for (let t = toMin(x.start); t < toMin(x.end); t += 30) lect[x.day + '|' + t] = x.title.split(' · ')[0]; });
+    const saved = W.oh || { slots: [], place: '', mode: 'وجاهي', link: '', note: '' };
+    const d0 = OH.draft.get(I.id);
+    const useDraft = d0 && (!saved.updated || d0.at > Date.parse(saved.updated));
+    const st = useDraft ? d0 : { slots: saved.slots, place: saved.place || I.office || '', mode: saved.mode || 'وجاهي', link: saved.link || '', note: saved.note || '' };
+    const cells = OH.toCells(st.slots);
+    const rows = []; for (let t = from; t < to; t += 30) rows.push(t);
+    U.modal(`<i class="bi bi-person-raised-hand"></i> الساعات المكتبية: ${esc(I.name)}`, `
+      ${useDraft ? '<div class="alert alert-info small py-2"><i class="bi bi-clock-history"></i> استعدنا مسودة لم تُحفظ بعد من هذا المتصفح. احفظها أو عدّلها.</div>' : ''}
+      ${!cfg.api ? '<div class="alert alert-warning small py-2"><i class="bi bi-exclamation-triangle"></i> لم يُفعَّل حفظ الساعات المكتبية في الموقع بعد؛ ما تختاره يُحفظ مسودةً في هذا المتصفح حتى التفعيل.</div>' : ''}
+      <p class="small text-muted mb-2">انقر أو اسحب على الخانات لاختيار أنصاف الساعات. الخانات الرمادية محاضراتك ولا يمكن اختيارها.</p>
+      <div class="oh-grid-wrap"><table class="oh-grid"><thead><tr><th></th>${days.map(d => `<th>${esc(U.DAYS[d])}</th>`).join('')}</tr></thead><tbody>
+        ${rows.map(t => `<tr><th dir="ltr">${t % 60 ? '' : toTime(t)}</th>${days.map(d => { const k = d + '|' + t;
+          return lect[k] ? `<td class="lect" title="محاضرة ${esc(lect[k])}">${t % 60 === 0 || !lect[d + '|' + (t - 30)] ? esc(lect[k]) : ''}</td>` : `<td data-k="${k}" class="${cells.has(k) ? 'on' : ''}" title="${esc(U.DAYS[d])} ${toTime(t)}–${toTime(t + 30)}"></td>`; }).join('')}</tr>`).join('')}
+      </tbody></table></div>
+      <div class="oh-sum" id="oh-sum"></div>
+      <div class="row g-2 mt-1">
+        <div class="col-sm-6"><label class="small fw-bold" for="oh-place">المكان</label><input class="form-control form-control-sm" id="oh-place" value="${esc(st.place)}" placeholder="رقم المكتب، مثلاً 7410"></div>
+        <div class="col-sm-6"><label class="small fw-bold" for="oh-mode">الطريقة</label><select class="form-select form-select-sm" id="oh-mode">
+          ${['وجاهي', 'عن بعد', 'وجاهي وعن بعد'].map(m => `<option ${m === st.mode ? 'selected' : ''}>${m}</option>`).join('')}</select></div>
+        <div class="col-12" id="oh-link-row" ${st.mode === 'وجاهي' ? 'hidden' : ''}><label class="small fw-bold" for="oh-link">رابط اللقاء عن بعد (Teams)</label><input class="form-control form-control-sm" id="oh-link" dir="ltr" value="${esc(st.link)}" placeholder="https://teams.microsoft.com/…"></div>
+        <div class="col-12"><label class="small fw-bold" for="oh-note">ملاحظة للطلبة (اختياري)</label><input class="form-control form-control-sm" id="oh-note" maxlength="300" value="${esc(st.note)}" placeholder="مثلاً: يُفضّل الحجز المسبق بالبريد"></div>
+      </div>
+      <div class="d-flex flex-wrap gap-2 mt-3 align-items-center">
+        <button type="button" class="btn btn-success" id="oh-save" ${cfg.api ? '' : 'disabled'}><i class="bi bi-cloud-check"></i> حفظ ونشر</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="oh-clear"><i class="bi bi-eraser"></i> مسح الاختيار</button>
+        ${key ? `<span class="small text-muted ms-auto"><i class="bi bi-shield-check text-success"></i> متحقَّق: <span dir="ltr">${esc(key.email)}</span></span>` : ''}
+      </div><div id="oh-msg" class="small mt-2"></div>`);
+    const modal = $('#pgModal');
+    modal.querySelector('.modal-dialog').classList.add('modal-xl');
+    modal.addEventListener('hidden.bs.modal', () => modal.querySelector('.modal-dialog').classList.remove('modal-xl'), { once: true });
+    const val = () => ({ slots: OH.toSlots(cells), place: $('#oh-place').value.trim(), mode: $('#oh-mode').value, link: $('#oh-link').value.trim(), note: $('#oh-note').value.trim() });
+    const sum = () => {
+      const v = val();
+      $('#oh-sum').innerHTML = v.slots.length ? `<b>${OH.hoursText(OH.hours(v.slots))} أسبوعياً:</b> ${ohList(v).map(esc).join(' · ')}` : '<span class="text-muted">لم تختر أي وقت بعد.</span>';
+      OH.draft.set(I.id, v);  // nothing typed is lost: closing the page keeps it as a draft
+    };
+    let paint = null;
+    modal.querySelectorAll('.oh-grid td[data-k]').forEach(td => {
+      const set = on => { td.classList.toggle('on', on); on ? cells.add(td.dataset.k) : cells.delete(td.dataset.k); };
+      td.addEventListener('pointerdown', e => { e.preventDefault(); paint = !cells.has(td.dataset.k); set(paint); sum(); });
+      td.addEventListener('pointerenter', () => { if (paint !== null) { set(paint); sum(); } });
+    });
+    const stop = () => { paint = null; };
+    document.addEventListener('pointerup', stop);
+    modal.addEventListener('hidden.bs.modal', () => document.removeEventListener('pointerup', stop), { once: true });
+    ['oh-place', 'oh-link', 'oh-note'].forEach(id => $('#' + id).addEventListener('input', sum));
+    $('#oh-mode').addEventListener('change', e => { $('#oh-link-row').hidden = e.target.value === 'وجاهي'; sum(); });
+    $('#oh-clear').addEventListener('click', () => { cells.clear(); modal.querySelectorAll('.oh-grid td.on').forEach(td => td.classList.remove('on')); sum(); });
+    sum();
+    $('#oh-save').addEventListener('click', async () => {
+      const k = key || (I.email && OH.keyFor(I.email)) || OH.anyKey()[0];
+      if (!k) { bootstrap.Modal.getInstance(modal).hide(); return setTimeout(() => ohStart(I, W), 350); }
+      const v = val(), btn = $('#oh-save');
+      if (v.mode !== 'وجاهي' && v.link && !/^https:\/\//.test(v.link)) return ($('#oh-msg').innerHTML = '<span class="text-danger">الرابط يبدأ بـ https://</span>');
+      btn.disabled = true; $('#oh-msg').innerHTML = '<span class="text-muted">جارٍ الحفظ…</span>';
+      const r = await OH.post({ action: 'save', id: I.id, key: k.key, ...v });
+      btn.disabled = false;
+      if (!r.ok) {
+        if (r.error === 'login') { OH.dropKey(k.email); }
+        return ($('#oh-msg').innerHTML = `<span class="text-danger">${esc(OH.msg(r))}</span>`);
+      }
+      OH.draft.del(I.id);
+      OHD.map[I.id] = r.entry;
+      bootstrap.Modal.getInstance(modal).hide();
+      personView(I);
+      const t = document.createElement('div');
+      t.className = 'oh-toast'; t.innerHTML = '<i class="bi bi-check-circle-fill"></i> حُفظت الساعات المكتبية ونُشرت';
+      document.body.appendChild(t); setTimeout(() => t.remove(), 4000);
+    });
+  }
 
   function personView(I) {
     const W = build(I);
@@ -182,6 +331,7 @@
             <div class="stat-card"><div class="v">${W.courses.length}</div><div class="l"><i class="bi bi-journal-bookmark-fill"></i> مقرر</div></div>
             <div class="stat-card"><div class="v">${W.hours.toLocaleString('en-US')}</div><div class="l"><i class="bi bi-clock-fill"></i> ساعة حضور أسبوعياً</div></div>
             <div class="stat-card"><div class="v">${W.students}</div><div class="l"><i class="bi bi-people-fill"></i> طالباً مسجلاً</div></div></div>
+          <section class="card ins-oh" id="ins-oh">${ohCard(I, W)}</section>
           <section class="card flex-grow-1"><div class="card-header"><i class="bi bi-hourglass-split"></i> أوقات الفراغ <small class="text-muted">بين 08:00 و16:00</small></div>
             <div class="card-body">${timeline(W)}</div></section>
         </div>
@@ -207,6 +357,7 @@
     const sub = $('#i-sub');
     if (sub) sub.addEventListener('click', () => subscribe(I, icsUrl));
     $('#i-print').addEventListener('click', () => printPage(I, W, pageUrl));
+    bindOh(I, W);
   }
 
   function subscribe(I, url) {
@@ -247,7 +398,9 @@
       <td class="num"><b>${esc(s.section)}</b></td><td>${esc(whenText(s))}</td><td>${s.room === '0' ? 'قاعة افتراضية (0)' : `<b>${esc(s.room)}</b> <small>${esc(s.building)}</small>`}</td>
       <td class="num">${s.registered}/${s.capacity}</td><td class="num"><span class="pill ${s.status === 'مغلقة' ? 'no' : 'ok'}">${esc(s.status)}</span></td></tr>`; }).join('');
     const CSS = `<style>
-      .pi { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: stretch; margin-top: 10px; }
+      .pi { display: grid; grid-template-columns: auto ${W.oh ? 'auto ' : ''}1fr auto; gap: 14px; align-items: stretch; margin-top: 10px; }
+      .pi-oh { border: 2px solid #15803d; border-radius: 10px; padding: 6px 12px; background: #e7f6ec; display: flex; flex-direction: column; justify-content: center; gap: 1px; }
+      .pi-oh b { font-size: 11pt; color: #0d4f25; } .pi-oh span { font-size: 10.5pt; font-weight: 800; color: #000; } .pi-oh small { font-size: 9pt; color: #0d4f25; }
       .pi-card { display: flex; gap: 12px; align-items: center; border: 1.5px solid #091b22; border-radius: 10px; padding: 8px 12px; }
       .pi-card img { width: 66px; height: 66px; border-radius: 50%; object-fit: cover; object-position: top; border: 2px solid #901d23; }
       .pi-card dl { margin: 0; display: grid; grid-template-columns: auto auto; gap: 2px 10px; font-size: 10.5pt; }
@@ -285,6 +438,7 @@
           <div class="pi-card">${I.photo ? `<img src="${esc(new URL(I.photo, location.href).href)}" alt="">` : ''}
             <dl>${I.ext ? `<dt>الفرعي</dt><dd dir="ltr">${esc(I.ext)}</dd>` : ''}${I.office ? `<dt>المكتب</dt><dd>${esc(I.office)}</dd>` : ''}
               ${I.email ? `<dt>البريد</dt><dd dir="ltr">${esc(I.email)}</dd>` : ''}</dl></div>
+          ${W.oh ? `<div class="pi-oh"><b><i class="bi bi-person-raised-hand"></i> الساعات المكتبية</b>${ohList(W.oh).map(x => `<span>${esc(x)}</span>`).join('')}${W.ohPlace ? `<small>المكان: ${esc(W.ohPlace)}${W.oh.mode && W.oh.mode !== 'وجاهي' ? ' · ' + esc(W.oh.mode) : ''}</small>` : ''}</div>` : ''}
           <div class="pi-stats"><div><b>${W.secs.length}</b>شعبة</div><div><b>${W.courses.length}</b>مقرر</div><div><b>${W.hours}</b>ساعة حضور أسبوعياً</div><div><b>${W.students}</b>طالباً مسجلاً</div></div>
           <div class="pi-qr">${svg}<span>امسح الرمز للجدول المحدَّث وبيانات التواصل<b>${esc(url.replace(/^https?:\/\//, ''))}</b></span></div>
         </div>
@@ -300,8 +454,8 @@
   }
 
   // ---------------------------------------------------------------- start
-  Promise.all([U.getJSON('data/instructors.json'), U.getJSON('data/timetable.json')]).then(([idx, tt]) => {
-    IDX = idx; TT = tt; S = tt.sections;
+  Promise.all([U.getJSON('data/instructors.json'), U.getJSON('data/timetable.json'), window.OH ? OH.load().catch(() => ({ map: {} })) : { map: {} }]).then(([idx, tt, oh]) => {
+    IDX = idx; TT = tt; S = tt.sections; OHD = oh;
     U.setDays(tt.days);
     $('#foot-count').textContent = `${idx.instructors.length} مدرس · ${tt.term}`;
     U.updatedLine(tt.updated, 'يُراجَع كل ساعة');
