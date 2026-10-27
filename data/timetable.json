@@ -1,6 +1,6 @@
 {
-"updated": "2026-10-27T20:13:19Z",
-"checked": "2026-10-27T20:13:19Z",
+"updated": "2026-10-27T23:56:49Z",
+"checked": "2026-10-27T23:56:49Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1649,
@@ -16176,14 +16176,14 @@
 "time": "[ 09:30_10:30 ] ن وجاهي ر وجاهي س غير متزامن",
 "room": "9115",
 "section": "3",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "د. محمد اسلام محمود مصطفى نوفل",
 "building": "مبنى كلية العلوم الإدارية",
 "faculty": "العلوم الادارية والمالية",
 "department": "ذكاء الأعمال وتحليل البيانات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 24,
+"registered": 23,
 "capacity": 24,
 "meetings": [
 {
