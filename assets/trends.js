@@ -44,6 +44,7 @@
     let base = 0;
     H.times.forEach((t, i) => { if (+new Date(t) <= dayAgo) base = i; });
     const spanH = Math.round((+new Date(H.times[last]) - +new Date(H.times[base])) / 3600e3);
+    const span = 'آخر ' + U.count(Math.max(1, spanH), 'ساعة', 'ساعتين', 'ساعات', 'ساعة');  // Arabic number agreement
 
     const totals = H.times.map((t, ti) => {
       let reg = 0, closed = 0;
@@ -82,9 +83,9 @@
       <div class="card mb-3 no-print"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center">
         <select class="form-select form-select-sm w-auto" id="tr-fac"><option value="">كل الكليات</option>${facs.map(f => `<option ${f === st.fac ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select>
         <select class="form-select form-select-sm w-auto" id="tr-dept"><option value="">كل الأقسام</option>${depts.map(d => `<option ${d === st.dept ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select>
-        <span class="small text-muted ms-auto"><i class="bi bi-clock-history"></i> التتبع منذ ${esc(since)} · ${H.times.length} لقطة · التغيّر الأخير = آخر ${spanH} ساعة</span></div></div>
+        <span class="small text-muted ms-auto"><i class="bi bi-clock-history"></i> التتبع منذ ${esc(since)} · ${U.count(H.times.length, 'لقطة واحدة', 'لقطتان', 'لقطات', 'لقطة')} · التغيّر الأخير = ${span}</span></div></div>
       <div class="tr-kpis mb-3">
-        <div class="stat-card"><div class="v">${fmtN(now.reg)}</div><div class="l"><i class="bi bi-people-fill"></i> مسجّل الآن</div><small class="tr-delta ${dNow - dRef >= 0 ? 'up' : 'down'}">${signed(dNow - dRef)} آخر ${spanH} ساعة</small></div>
+        <div class="stat-card"><div class="v">${fmtN(now.reg)}</div><div class="l"><i class="bi bi-people-fill"></i> مسجّل الآن</div><small class="tr-delta ${dNow - dRef >= 0 ? 'up' : 'down'}">${signed(dNow - dRef)} ${span}</small></div>
         <div class="stat-card"><div class="v">${fmtN(now.closed)}</div><div class="l"><i class="bi bi-lock-fill"></i> شعبة مغلقة</div><small class="tr-delta">${signed(now.closed - first.closed)} منذ بدء التتبع</small></div>
         <div class="stat-card"><div class="v">${fmtN(over.length)}</div><div class="l"><i class="bi bi-exclamation-triangle-fill"></i> شعبة تجاوزت السعة</div><small class="tr-delta">${fmtN(over.reduce((a, s) => a + s.registered - s.capacity, 0))} طالباً فوق السعة</small></div>
         <div class="stat-card"><div class="v">${fmtN(needAll.length)}</div><div class="l"><i class="bi bi-plus-square-fill"></i> مقرر يحتاج شعبة إضافية</div><small class="tr-delta">لا مقاعد في أي شعبة</small></div>
@@ -98,14 +99,14 @@
       <div class="row g-3">
         <div class="col-xl-7"><section class="card"><div class="card-header d-flex flex-wrap gap-2 justify-content-between">
           <span><i class="bi bi-plus-square-fill text-danger"></i> مقررات تحتاج شعبة إضافية</span><span class="small text-muted">كل شعبها ممتلئة · الأكثر تجاوزاً أولاً${needAll.length > 25 ? ` · أول 25 من ${needAll.length}` : ''} · انقر للتفاصيل</span></div>
-          <div class="table-responsive"><table class="table align-middle mb-0 tt-table"><thead><tr><th>المقرر</th><th class="text-center">الشعب</th><th class="text-center">مسجّل / سعة</th><th class="text-center">فوق السعة</th><th class="text-center">آخر ${spanH} ساعة</th></tr></thead>
+          <div class="table-responsive"><table class="table align-middle mb-0 tt-table"><thead><tr><th>المقرر</th><th class="text-center">الشعب</th><th class="text-center">مسجّل / سعة</th><th class="text-center">فوق السعة</th><th class="text-center">${span}</th></tr></thead>
           <tbody>${need.map(c => `<tr class="tr-click" data-course="${esc(c.k)}"><td class="tt-name"><b dir="ltr">${esc(c.code)}</b> ${esc(c.name)}
               <div class="tt-tags"><span class="tt-act ${c.act === 'عملي' ? 'lab' : ''}">${esc(c.act)}</span>${c.deg !== 'البكالوريوس' ? `<span class="badge text-bg-warning">${esc(c.deg)}</span>` : ''}<span class="small text-muted">${esc(c.dept)}</span></div></td>
             <td class="text-center"><span class="tt-sec">${c.n}</span></td><td class="text-center"><bdi dir="ltr">${c.reg}/${c.cap}</bdi></td>
             <td class="text-center"><span class="db-over">${c.over ? '+' + c.over : '0'}</span></td><td class="text-center">${c.d ? `<b class="${c.d > 0 ? 'text-success' : 'text-danger'}">${signed(c.d)}</b>` : '—'}</td></tr>`).join('')
             || '<tr><td colspan="5" class="text-center text-muted py-4">لا مقررات ممتلئة بالكامل ضمن التصفية.</td></tr>'}</tbody></table></div></section></div>
         <div class="col-xl-5">
-          <section class="card mb-3"><div class="card-header"><i class="bi bi-lightning-charge-fill"></i> الأسرع امتلاءً (آخر ${spanH} ساعة)</div>
+          <section class="card mb-3"><div class="card-header"><i class="bi bi-lightning-charge-fill"></i> الأسرع امتلاءً (${span})</div>
             <div class="card-body">${fastest.length ? `<div class="db-hbars">${fastest.map(c => `<a href="#" class="db-hbar click" data-course="${esc(c.k)}" data-tip="${esc(c.code + ' ' + c.name)}">
               <span class="db-hl"><span dir="ltr">${esc(c.code)}</span> ${esc(c.name)}<small>${esc(c.act)} · ${c.left} مقعد متبقٍ</small></span>
               <span class="db-ht"><i style="width:${(100 * c.d / maxD).toFixed(1)}%"></i></span><b class="db-hv">+${c.d}</b></a>`).join('')}</div>`
@@ -142,7 +143,7 @@
   Promise.all([U.getJSON('data/timetable.json'), U.getJSON('data/seats_history.json')]).then(([tt, h]) => {
     TT = tt; S = tt.sections; H = h;
     U.setDays(tt.days);
-    $('#foot-count').textContent = `${H.times.length} لقطة · ${tt.term}`;
+    $('#foot-count').textContent = `${U.count(H.times.length, 'لقطة واحدة', 'لقطتان', 'لقطات', 'لقطة')} · ${tt.term}`;
     U.updatedLine(tt.updated, 'لقطة جديدة مع كل تحديث ساعي');
     render();
     let t;

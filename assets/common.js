@@ -20,10 +20,18 @@ window.UOP = (function () {
     const hs = h === 0 ? '' : h === 1 ? 'ساعة' : h === 2 ? 'ساعتان' : h <= 10 ? `${h} ساعات` : `${h} ساعة`;
     return half ? (hs ? hs + ' ونصف' : 'نصف ساعة') : hs || '—';
   }
+  const say = (n, one, two, few, many) => n === 1 ? one : n === 2 ? two : n <= 10 ? `${n} ${few}` : `${n} ${many}`;
+  function mins(m) {  // any number of minutes, to the minute: "17 دقيقة", "ساعة و20 دقيقة"
+    m = Math.max(0, Math.round(m));
+    if (m < 1) return 'لحظات';
+    const h = Math.floor(m / 60), r = m % 60, rm = say(r, 'دقيقة', 'دقيقتين', 'دقائق', 'دقيقة');
+    if (!h) return rm;
+    const hs = say(h, 'ساعة', 'ساعتين', 'ساعات', 'ساعة');
+    return r ? `${hs} و${rm}` : hs;
+  }
   function ago(iso) {
     const min = Math.max(0, Math.round((Date.now() - new Date(iso)) / 60000));
     if (min < 2) return 'قبل لحظات';
-    const say = (n, one, two, few, many) => n === 1 ? one : n === 2 ? two : n <= 10 ? `${n} ${few}` : `${n} ${many}`;
     if (min < 60) return 'قبل ' + say(min, 'دقيقة', 'دقيقتين', 'دقائق', 'دقيقة');
     const h = Math.round(min / 60);
     if (h < 24) return 'قبل ' + say(h, 'ساعة', 'ساعتين', 'ساعات', 'ساعة');
@@ -102,6 +110,6 @@ window.UOP = (function () {
     a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
-  return { $, esc, norm, WEEK, JS_DAY, MODE, toMin, toTime, live, dur, ago, numDate, getJSON, sectionKey, shortName, weekGrid, updatedLine, modal, download,
+  return { $, esc, norm, WEEK, JS_DAY, MODE, toMin, toTime, live, dur, mins, ago, count: say, numDate, getJSON, sectionKey, shortName, weekGrid, updatedLine, modal, download,
     setDays: d => { DAYS = d; }, get DAYS() { return DAYS; } };
 })();

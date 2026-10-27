@@ -21,10 +21,10 @@
         st.pick[partId(s)] = k;
       });
       st.deg = p.get('deg') || st.deg;
-    } else if (!p.toString()) {
-      try { const saved = JSON.parse(localStorage.getItem(STORE) || 'null'); if (saved) st = Object.assign(st, saved); } catch (e) { /* storage unavailable */ }
+    } else if (!p.getAll('c').some(c => c.trim())) {  // no plan in the link (other parameters such as ?t= don't count)
+      try { const saved = JSON.parse(localStorage.getItem(STORE) || 'null'); if (saved) st = Object.assign(st, saved, p.get('deg') ? { deg: p.get('deg') } : {}); } catch (e) { /* storage unavailable */ }
     }
-    p.getAll('c').forEach(c => { if (!st.courses.includes(c)) st.courses.push(c); });
+    p.getAll('c').forEach(c => { c = c.trim(); if (c.includes('|') && !st.courses.includes(c)) st.courses.push(c); });
     return st;
   }
   function writeState(st) {
@@ -170,7 +170,7 @@
     const ranked = found.map(score).sort((a, b) => a.s - b.s).slice(0, 6);
     U.modal('<i class="bi bi-magic"></i> توزيعات مقترحة بلا تعارض', ranked.length ? `<p class="small text-muted">الأفضل أولاً: شعب فيها مقاعد، ثم أقل أيام دوام، ثم أقل فراغات بين المحاضرات.${found.length >= 3000 ? ' (من أول 3000 توزيع ممكن)' : ` (من ${found.length} توزيعاً ممكناً)`}</p>
       ${ranked.map((r, i) => `<div class="pl-sug"><div class="d-flex flex-wrap gap-2 align-items-center mb-1"><b>الخيار ${i + 1}</b>
-          <span class="badge text-bg-light border">${r.days} أيام دوام</span><span class="badge text-bg-light border">فراغات ${U.dur(r.gaps)}</span>
+          <span class="badge text-bg-light border">${r.days} أيام دوام</span><span class="badge text-bg-light border">${r.gaps ? `فراغات ${U.dur(r.gaps)}` : 'بلا فراغات'}</span>
           ${r.closed ? `<span class="badge text-bg-danger">${r.closed} شعبة مغلقة</span>` : '<span class="badge text-bg-success">كل الشعب فيها مقاعد</span>'}
           <button type="button" class="btn btn-sm btn-primary ms-auto" data-apply="${i}">اعتماد هذا التوزيع</button></div>
         <div class="small">${r.combo.slice().sort((a, b) => a.code.localeCompare(b.code)).map(s => `<span class="d-inline-block me-3"><b dir="ltr">${esc(s.code)}</b> ${esc(s.activity)} ش${esc(s.section)}</span>`).join('')}</div></div>`).join('')}`

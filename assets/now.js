@@ -66,8 +66,8 @@
         <span class="now-time" dir="ltr">${x.m.start}–${x.m.end}</span>
         <span class="now-what"><b><span dir="ltr">${esc(x.s.code)}</span> ${esc(x.s.name)}</b><small>${esc(U.shortName(x.s.instructor))} · ش${esc(x.s.section)} · ${esc(x.s.department)}</small></span>
         <span class="now-room ${x.m.mode !== 'وجاهي' ? 'online' : ''}">${x.s.room === '0' || x.m.mode === 'الكتروني كامل' ? '<i class="bi bi-camera-video-fill"></i> إلكتروني' : `<b>${esc(x.s.room)}</b><small>${esc(x.s.building)}</small>`}</span>
-        ${x.a <= now.min ? `<span class="now-left"><i style="width:${Math.round(100 * (now.min - x.a) / (x.b - x.a))}%"></i><small>تنتهي بعد ${U.dur(x.b - now.min)}</small></span>`
-          : `<span class="now-left soon"><small>بعد ${U.dur(x.a - now.min)}</small></span>`}</a>`;
+        ${x.a <= now.min ? `<span class="now-left"><i style="width:${Math.round(100 * (now.min - x.a) / (x.b - x.a))}%"></i><small>تنتهي بعد ${U.mins(x.b - now.min)}</small></span>`
+          : `<span class="now-left soon"><small>بعد ${U.mins(x.a - now.min)}</small></span>`}</a>`;
 
     $('#pg-title').innerHTML = `الآن في الجامعة <span class="now-clock" dir="ltr">${now.clock}</span>`;
     $('#pg-sub').textContent = `${U.DAYS[now.day] || ''} ${U.numDate(now.iso)} · ${TT.term}${P.get('at') ? ' · (وقت محدد للعرض)' : ''}`;
