@@ -8,10 +8,10 @@ import re
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 MAIN = [("./", "bi-person-lines-fill", "دليل الموظفين"), ("timetable.html", "bi-table", "الجدول الدراسي"),
-        ("calendar.html", "bi-calendar3", "التقويم الجامعي")]
+        ("calendar.html", "bi-calendar3", "التقويم الجامعي"), ("now.html", "bi-broadcast", "الآن في الجامعة")]
 MORE = [("instructor.html", "bi-person-badge", "صفحة المدرس", "جدول كل مدرس وأوقات فراغه واشتراك تقويمه"),
         ("planner.html", "bi-calendar2-week", "مخطط جدولي", "اختر مقرراتك وشعبك بلا تعارض"),
-        ("now.html", "bi-broadcast", "الآن في الجامعة", "المحاضرات الجارية والقاعات الشاغرة الآن"),
+        ("room.html", "bi-door-open", "صفحة القاعة", "محاضرات كل قاعة الآن وجدولها، مع بطاقة باب QR"),
         ("trends.html", "bi-graph-up-arrow", "متابعة التسجيل", "امتلاء الشعب والمقررات التي تحتاج شعباً إضافية"),
         ("org.html", "bi-diagram-3-fill", "الهيكل التنظيمي", "من يتبع لمن، ومن المسؤول عن كل وحدة")]
 
@@ -31,6 +31,11 @@ PAGES = {
         desc="ما يجري الآن في جامعة البترا: المحاضرات الجارية والقادمة، القاعات الشاغرة، والمواعيد القريبة.",
         hero="الآن في الجامعة", sub="المحاضرات الجارية والقادمة، القاعات الشاغرة، والمواعيد القريبة — تتحدّث كل دقيقة",
         search="ابحث: مقرر، مدرس، قاعة…", about="لوحة حيّة من الجدول الدراسي والتقويم الجامعي، تصلح للعرض على شاشات الكليات (?kiosk=1)."),
+    "room.html": dict(
+        title="صفحة القاعة", short="صفحة القاعة", what="صفحة القاعة", app="room-app", js="room.js",
+        desc="صفحة كل قاعة في جامعة البترا: المحاضرة الجارية الآن، محاضرات اليوم، الجدول الأسبوعي، وأوقات الشغور.",
+        hero="صفحة القاعة", sub="ما يجري في كل قاعة الآن، جدولها الأسبوعي، ومتى تكون شاغرة",
+        search="ابحث عن قاعة برقمها…", about="جدول كل قاعة من بوابة الجامعة، مع بطاقة باب برمز QR تفتح هذه الصفحة."),
     "trends.html": dict(
         title="متابعة التسجيل", short="متابعة التسجيل", what="متابعة التسجيل", app="tr-app", js="trends.js",
         desc="متابعة التسجيل في جامعة البترا: امتلاء الشعب عبر الوقت، أسرع المقررات امتلاءً، والمقررات التي تحتاج شعباً إضافية.",
@@ -97,7 +102,7 @@ def main():
 </main>''', h, flags=re.S)
         h = re.sub(r'(<h6 class="foot-h">)عن الجدول(</h6>)', rf'\g<1>عن {p["short"]}\2', h)
         h = re.sub(r'<div><b>الجدول الدراسي</b><small>جامعة البترا</small></div>', f'<div><b>{p["short"]}</b><small>جامعة البترا</small></div>', h)
-        icon = next(ic for href, ic, *_ in MORE if href == page)
+        icon = next(ic for href, ic, *_ in MAIN + MORE if href == page)
         h = h.replace('<span class="foot-logo"><i class="bi bi-table"></i></span>', f'<span class="foot-logo"><i class="bi {icon}"></i></span>')
         h = re.sub(r'(<p class="foot-text">)شعب الفصل الحالي كما تنشرها.*?(</p>)', rf'\g<1>{p["about"]}\2', h, flags=re.S)
         h = h.replace('مشاركة الجدول الدراسي</h5>', f'مشاركة {p["short"]}</h5>').replace('الجدول كاملاً</label>', 'هذه الصفحة</label>')

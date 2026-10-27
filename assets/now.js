@@ -62,7 +62,7 @@
     const events = CAL.semesters.flatMap(s => s.events).filter(e => e.end >= now.iso && e.start <= endIso).sort((a, b) => a.start.localeCompare(b.start)).slice(0, 8);
     const facs = [...new Set(S.map(s => s.faculty))].sort((a, b) => a.localeCompare(b, 'ar'));
     const blds = [...new Set(S.map(s => s.building).filter(b => !/^-+$/.test(b)))].sort((a, b) => a.localeCompare(b, 'ar'));
-    const row = x => `<a class="now-row" href="${x.s.room === '0' ? '#' : 'timetable.html?room=' + encodeURIComponent(x.s.room)}" title="${esc(x.s.code + ' ' + x.s.name + ' – ' + x.s.instructor)}">
+    const row = x => `<a class="now-row" href="${x.s.room === '0' ? '#' : 'room.html?r=' + encodeURIComponent(x.s.room)}" title="${esc(x.s.code + ' ' + x.s.name + ' – ' + x.s.instructor)}">
         <span class="now-time" dir="ltr">${x.m.start}–${x.m.end}</span>
         <span class="now-what"><b><span dir="ltr">${esc(x.s.code)}</span> ${esc(x.s.name)}</b><small>${esc(U.shortName(x.s.instructor))} · ش${esc(x.s.section)} · ${esc(x.s.department)}</small></span>
         <span class="now-room ${x.m.mode !== 'وجاهي' ? 'online' : ''}">${x.s.room === '0' || x.m.mode === 'الكتروني كامل' ? '<i class="bi bi-camera-video-fill"></i> إلكتروني' : `<b>${esc(x.s.room)}</b><small>${esc(x.s.building)}</small>`}</span>
@@ -93,7 +93,7 @@
         <div class="col-xl-4">
           <section class="card mb-3"><div class="card-header"><i class="bi bi-door-open-fill"></i> قاعات شاغرة الآن <span class="small text-muted">وحتى متى</span></div>
             <div class="card-body py-2">${Object.entries(byBld).sort((a, b) => a[0].localeCompare(b[0], 'ar')).map(([b, rs]) => `<div class="now-bld"><b>${esc(b)}</b><div>${rs.map(x =>
-              `<span class="now-free" title="${x.until ? 'شاغرة حتى ' + toTime(x.until) : 'شاغرة لبقية اليوم'}">${esc(x.r)}<small dir="ltr">${x.until ? '→ ' + toTime(x.until) : 'كل اليوم'}</small></span>`).join('')}</div></div>`).join('')
+              `<a class="now-free" href="room.html?r=${encodeURIComponent(x.r)}" title="${x.until ? 'شاغرة حتى ' + toTime(x.until) : 'شاغرة لبقية اليوم'} · صفحة القاعة">${esc(x.r)}<small dir="ltr">${x.until ? '→ ' + toTime(x.until) : 'كل اليوم'}</small></a>`).join('')}</div></div>`).join('')
               || '<p class="text-muted mb-0">لا قاعات شاغرة ضمن التصفية.</p>'}</div></section>
           <section class="card"><div class="card-header"><i class="bi bi-calendar3"></i> مواعيد خلال أسبوعين</div>
             <div class="card-body py-2">${events.map(e => `<a class="now-ev" href="calendar.html?q=${encodeURIComponent(e.title.slice(0, 20))}"><span dir="ltr">${U.numDate(e.start)}${e.end !== e.start ? ' – ' + U.numDate(e.end) : ''}</span><b>${esc(e.title)}</b></a>`).join('')

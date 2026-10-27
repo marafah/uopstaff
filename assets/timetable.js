@@ -170,7 +170,7 @@
   // empty values in the source ("0" room, "-" building) shown as a clear label; the source value stays in the tooltip
   const roomCell = s => s.room === '0' || !s.room
     ? `<span class="tt-none" title="القاعة 0 في نظام الجامعة: قاعة افتراضية (تعليم إلكتروني أو قاعة لم تُحدَّد بعد)">قاعة افتراضية (0)</span>`
-    : `<a href="#" data-pick="room" data-v="${esc(s.room)}" class="tt-room">${esc(s.room)}</a>`;
+    : `<a href="#" data-pick="room" data-v="${esc(s.room)}" class="tt-room">${esc(s.room)}</a> <a href="room.html?r=${encodeURIComponent(s.room)}" class="tt-room-go" title="صفحة القاعة: ما يجري فيها الآن وجدولها" aria-label="صفحة القاعة ${esc(s.room)}"><i class="bi bi-door-open"></i></a>`;
   const bldCell = s => /^-+$/.test(s.building) || !s.building ? `<span class="tt-none" title="المبنى في المصدر: ${esc(s.building)}">—</span>` : esc(s.building);
   function tableView(list, st) {
     const shown = list.slice((st.page - 1) * PAGE, st.page * PAGE);

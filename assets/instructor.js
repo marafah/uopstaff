@@ -201,7 +201,7 @@
             ${otherDept(s) ? `<small>${esc(s.department)}</small>` : ''}</td>`}
           <td class="text-center"><span class="tt-sec">${esc(s.section)}</span></td>
           <td class="ins-when">${when(s)}</td>
-          <td class="ins-room">${s.room === '0' ? '<span class="tt-none">قاعة افتراضية (0)</span>' : `<b>${esc(s.room)}</b> <small>${esc(s.building)}</small>`}</td>
+          <td class="ins-room">${s.room === '0' ? '<span class="tt-none">قاعة افتراضية (0)</span>' : `<a href="room.html?r=${encodeURIComponent(s.room)}" title="صفحة القاعة"><b>${esc(s.room)}</b> <i class="bi bi-door-open"></i></a> <small>${esc(s.building)}</small>`}</td>
           <td>${seats(s)}</td></tr>`).join(''); }).join('')}</tbody></table></div></section>`;
 
     const sub = $('#i-sub');

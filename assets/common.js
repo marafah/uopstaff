@@ -38,6 +38,23 @@ window.UOP = (function () {
     const d = Math.round(h / 24);
     return 'قبل ' + say(d, 'يوم', 'يومين', 'أيام', 'يوماً');
   }
+  // the moment in Amman: date, day letter, minutes since midnight ("2026-10-27T10:30" in ?at= is read as Amman time)
+  function amman(at) {
+    let d = new Date();
+    if (at) {
+      const m = at.match(/^(\d{4}-\d{2}-\d{2})(?:T(\d{2}:\d{2})(?::(\d{2}))?)?(Z|[+-]\d{2}:\d{2})?$/);
+      const x = m ? new Date(`${m[1]}T${m[2] || '08:00'}:${m[3] || '00'}${m[4] || '+03:00'}`) : new Date(NaN);
+      if (!isNaN(x)) d = x;
+    }
+    const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Amman', year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hour12: false, weekday: 'short' }).formatToParts(d).map(x => [x.type, x.value]));
+    const hour = +p.hour % 24;
+    return { iso: `${p.year}-${p.month}-${p.day}`, day: JS_DAY[['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(p.weekday)],
+      min: hour * 60 + +p.minute, clock: `${String(hour).padStart(2, '0')}:${p.minute}` };
+  }
+  // one colour per course: [edge, background]
+  const PALETTE = [['#901d23', '#fbecec'], ['#0b4a66', '#e4f0f6'], ['#0f766e', '#e0f4f1'], ['#9a5b00', '#fdf1dc'], ['#6d28d9', '#f0e9fd'],
+    ['#15803d', '#e4f5e9'], ['#be185d', '#fce8f2'], ['#1d4ed8', '#e6edfd'], ['#7c4a1e', '#f4eadf'], ['#475569', '#edf0f4']];
   const numDate = iso => { const [y, m, d] = iso.slice(0, 10).split('-'); return `${+d}/${+m}/${y}`; };
   const getJSON = (url, fresh) => fetch(url + (fresh ? '?t=' + Date.now() : '?t=' + Math.floor(Date.now() / 600000)), { cache: fresh ? 'no-store' : 'no-cache' })
     .then(r => { if (!r.ok) throw new Error(url + ': ' + r.status); return r.json(); });
@@ -121,6 +138,6 @@ window.UOP = (function () {
     a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
-  return { $, esc, norm, WEEK, JS_DAY, MODE, toMin, toTime, live, dur, mins, ago, count: say, numDate, getJSON, sectionKey, shortName, weekGrid, updatedLine, modal, download,
+  return { $, esc, norm, WEEK, JS_DAY, MODE, toMin, toTime, live, dur, mins, ago, count: say, amman, PALETTE, numDate, getJSON, sectionKey, shortName, weekGrid, updatedLine, modal, download,
     setDays: d => { DAYS = d; }, get DAYS() { return DAYS; } };
 })();
