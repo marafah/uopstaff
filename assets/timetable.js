@@ -36,9 +36,9 @@
   function readState() {
     const p = new URLSearchParams(location.search);
     const st = { q: p.get('q') || '', view: p.get('view') || 'table', sort: p.get('sort') || 'code', page: +(p.get('page') || 1),
-      rows: p.get('rows') || 'time', seats: p.get('seats') || '',
+      rows: p.get('rows') || 'time', seats: p.get('seats') || '', names: p.get('names') || '',
       // free-time view: chosen instructors, working window, Saturday, asynchronous meetings
-      ppl: p.get('ppl') ? p.get('ppl').split('|') : [], from: p.get('from') || '08:00', to: p.get('to') || '16:00',
+      ppl: p.has('ppl') ? p.get('ppl').split('|').filter(Boolean) : null, ftab: p.get('ftab') || 'best', from: p.get('from') || '08:00', to: p.get('to') || '16:00',
       sat: p.get('sat') || '', async: p.get('async') || '',
       mx: p.get('mx') || 'load', mxday: p.get('mxday') || '' };
     FK.forEach(k => st[k] = p.get(k) || '');
@@ -50,8 +50,10 @@
     if (st.view !== 'table') p.set('view', st.view);
     if (st.sort !== 'code') p.set('sort', st.sort);
     if (st.rows !== 'time') p.set('rows', st.rows);
+    if (st.names) p.set('names', st.names);
     if (st.page > 1) p.set('page', st.page);
-    if (st.ppl.length) p.set('ppl', st.ppl.join('|'));
+    if (st.ppl) p.set('ppl', st.ppl.join('|'));
+    if (st.ftab !== 'best') p.set('ftab', st.ftab);
     if (st.from !== '08:00') p.set('from', st.from);
     if (st.to !== '16:00') p.set('to', st.to);
     if (st.sat) p.set('sat', st.sat);
@@ -114,7 +116,7 @@
       const b = blocks.find(x => x.k === k) || (blocks.push({ k, ms: [] }), blocks[blocks.length - 1]);
       b.ms.push(m);
     });
-    return blocks.map(b => `<div class="tt-when" title="${esc(s.time)}"><bdi dir="ltr" class="tt-time">${b.k}</bdi> ${b.ms.map(mtg).join('')}</div>`).join('');
+    return blocks.map(b => `<div class="tt-when" title="${esc(s.time)}"><bdi dir="ltr" class="tt-time">${b.k}</bdi> <span class="tt-days">${b.ms.map(mtg).join('')}</span></div>`).join('');
   }
   const seats = s => {
     const pct = Math.min(100, s.capacity ? 100 * s.registered / s.capacity : 100);
@@ -136,24 +138,33 @@
   function firstSlot(s) {
     return s._slot || (s._slot = s.meetings.map(m => WEEK.indexOf(m.day) + m.start).sort()[0] || '');
   }
-  const COLS = [['code', 'رمز المقرر'], ['name', 'اسم المقرر'], ['', 'النشاط'], ['time', 'الوقت'], ['room', 'القاعة'], ['', 'الشعبة'],
-    ['fill', 'الحالة / المقاعد'], ['inst', 'اسم المدرس'], ['', 'المبنى'], ['', 'الكلية / القسم']];
+  const COLS = [['code', 'رمز المقرر'], ['name', 'اسم المقرر / النشاط'], ['time', 'الوقت'], ['room', 'القاعة / المبنى'], ['', 'الشعبة'],
+    ['fill', 'الحالة / المقاعد'], ['inst', 'اسم المدرس'], ['', 'القسم / الكلية']];
+  // empty values in the source ("0" room, "-" building) shown as a clear label; the source value stays in the tooltip
+  const roomCell = s => s.room === '0' || !s.room
+    ? `<span class="tt-none" title="القاعة في المصدر: ${esc(s.room)}">بلا قاعة</span>`
+    : `<a href="#" data-pick="room" data-v="${esc(s.room)}" class="tt-room">${esc(s.room)}</a>`;
+  const bldCell = s => /^-+$/.test(s.building) || !s.building ? `<span class="tt-none" title="المبنى في المصدر: ${esc(s.building)}">—</span>` : esc(s.building);
   function tableView(list, st) {
     const shown = list.slice((st.page - 1) * PAGE, st.page * PAGE);
-    return `<div class="card"><div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0 tt-table">
+    const grouped = st.sort === 'code' || st.sort === 'name';
+    return `<div class="card tt-tcard"><div class="table-responsive tt-twrap"><table class="table align-middle mb-0 tt-table">
       <thead><tr><th>#</th>${COLS.map(([k, t]) => k ? `<th><a href="#" data-sort="${k}" class="${st.sort === k ? 'on' : ''}">${t} <i class="bi bi-arrow-down-up"></i></a></th>` : `<th>${t}</th>`).join('')}</tr></thead>
-      <tbody>${shown.map((s, i) => `<tr>
-        <td class="text-muted small">${(st.page - 1) * PAGE + i + 1}</td>
-        <td><b dir="ltr">${esc(s.code)}</b></td>
-        <td class="tt-name">${esc(s.name)}${s.degree !== 'البكالوريوس' ? ` <span class="badge text-bg-warning">${esc(s.degree)}</span>` : ''}</td>
-        <td><span class="badge ${s.activity === 'عملي' ? 'text-bg-info' : 'text-bg-light border'}">${esc(s.activity)}</span></td>
-        <td class="text-nowrap">${when(s)}</td>
-        <td><a href="#" data-pick="room" data-v="${esc(s.room)}" class="tt-room">${esc(s.room)}</a></td>
-        <td class="text-center">${esc(s.section)}</td>
-        <td>${seats(s)}</td>
-        <td class="small">${instLink(s)}</td>
-        <td class="small">${esc(s.building)}</td>
-        <td class="small text-muted">${esc(s.faculty)}<div>${esc(s.department)}</div></td></tr>`).join('')}</tbody></table></div>
+      <tbody>${shown.map((s, i) => {
+        const prev = shown[i - 1];
+        const same = grouped && prev && prev.code === s.code && prev.name === s.name;
+        return `<tr class="${same ? 'tt-same' : 'tt-first'}">
+        <td class="tt-n">${(st.page - 1) * PAGE + i + 1}</td>
+        <td class="tt-code"><b dir="ltr" class="${same ? 'dim' : ''}">${esc(s.code)}</b></td>
+        <td class="tt-name"><span class="${same ? 'dim' : ''}">${esc(s.name)}</span>
+          <div class="tt-tags"><span class="tt-act ${s.activity === 'عملي' ? 'lab' : ''}">${esc(s.activity)}</span>${s.degree !== 'البكالوريوس' ? `<span class="badge text-bg-warning">${esc(s.degree)}</span>` : ''}</div></td>
+        <td class="tt-whencell">${when(s)}</td>
+        <td class="tt-roomcell">${roomCell(s)}<small>${bldCell(s)}</small></td>
+        <td class="text-center"><span class="tt-sec">${esc(s.section)}</span></td>
+        <td class="tt-seatcell">${seats(s)}</td>
+        <td class="tt-instcell">${instLink(s)}</td>
+        <td class="tt-unit"><b>${esc(s.department)}</b><small>${esc(s.faculty)}</small></td></tr>`;
+      }).join('')}</tbody></table></div>
       ${pager(list.length, st)}</div>`;
   }
   function pager(n, st) {
@@ -173,7 +184,7 @@
         <span class="badge ${s.activity === 'عملي' ? 'text-bg-info' : 'text-bg-light border'}">${esc(s.activity)}</span></div>
       <h3 class="tt-card-t">${esc(s.name)}</h3>
       ${when(s)}
-      <div class="tt-card-l"><i class="bi bi-geo-alt-fill"></i> <a href="#" data-pick="room" data-v="${esc(s.room)}" class="tt-room">${esc(s.room)}</a> · ${esc(s.building)}</div>
+      <div class="tt-card-l"><i class="bi bi-geo-alt-fill"></i> ${roomCell(s)} · ${bldCell(s)}</div>
       <div class="tt-card-l"><i class="bi bi-person-fill"></i> ${instLink(s)}</div>
       <div class="tt-card-l text-muted"><i class="bi bi-bank2"></i> ${esc(s.faculty)} · ${esc(s.department)}</div>
       <div class="tt-card-f">${seats(s)}<span class="small text-muted">${esc(s.degree)} · ${esc(s.study_type)}</span></div>
@@ -193,7 +204,7 @@
         <span class="ms-auto small"><span class="badge text-bg-light border">${g.length} شعبة</span> <bdi dir="ltr" title="المسجلون/السعة لكل الشعب">${reg}/${cap}</bdi></span></summary>
         <div class="table-responsive"><table class="table table-sm mb-0 align-middle"><tbody>${g.map(s => `<tr>
           <td class="text-center" style="width:3rem">${esc(s.section)}</td><td style="width:4rem"><span class="badge ${s.activity === 'عملي' ? 'text-bg-info' : 'text-bg-light border'}">${esc(s.activity)}</span></td>
-          <td class="text-nowrap">${when(s)}</td><td><a href="#" data-pick="room" data-v="${esc(s.room)}" class="tt-room">${esc(s.room)}</a></td>
+          <td class="text-nowrap">${when(s)}</td><td>${roomCell(s)}</td>
           <td class="small">${instLink(s)}</td><td>${seats(s)}</td></tr>`).join('')}</tbody></table></div></details>`;
     }).join('')}</div><div class="card mt-3">${pager(keys.length, st)}</div>`;
   }
@@ -210,20 +221,23 @@
     }));
     const rowsAll = [...new Set([...cells.keys()].map(k => k.split('\u0000')[0]))]
       .sort((a, b) => rowsBy === 'time' ? a.localeCompare(b) : a.localeCompare(b, 'ar'));
-    const LIMIT = 6;
+    const names = !!st.names;
+    const LIMIT = names ? 8 : 6;
     const many = rowsAll.length > 120;
     const rowsShown = many ? rowsAll.slice(0, 120) : rowsAll;
     const chip = ({ s, m }) => `<a href="#" class="tt-chip ${(MODE[m.mode] || {}).cls || ''} ${s.activity === 'عملي' ? 'lab' : ''}" data-open="${S.indexOf(s)}"
         title="${esc(`${s.code} ${s.name} – شعبة ${s.section}\n${DAYS[m.day]} ${m.start}–${m.end} · ${m.mode}\n${s.room} · ${s.instructor}`)}">
-        <span class="tt-chip-c"><b dir="ltr">${esc(s.code)}</b><span class="tt-chip-s">ش${esc(s.section)}</span></span><small>${rowsBy === 'time' ? esc(s.room) : `<bdi dir="ltr">${m.start}–${m.end}</bdi>`}</small></a>`;
+        <span class="tt-chip-c"><b dir="ltr">${esc(s.code)}</b><span class="tt-chip-s">ش${esc(s.section)}</span></span>${names ? `<span class="tt-chip-n">${esc(s.name)}</span>` : ''}
+        <small>${rowsBy === 'time' ? esc(s.room) : `<bdi dir="ltr">${m.start}–${m.end}</bdi>`}${names && rowsBy !== 'inst' ? ` · ${esc(s.instructor)}` : ''}</small></a>`;
     return `<div class="card"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center small">
         <span class="fw-bold">الصفوف:</span>
         <div class="btn-group btn-group-sm">${[['time', 'الوقت'], ['room', 'القاعة'], ['inst', 'المدرس']].map(([k, t]) =>
           `<button type="button" class="btn ${rowsBy === k ? 'btn-primary' : 'btn-outline-primary'}" data-rows="${k}">${t}</button>`).join('')}</div>
-        <span class="text-muted">الأعمدة: أيام الأسبوع · ${rowsBy === 'time' ? 'كل خانة: رمز المقرر، الشعبة (ش) والقاعة' : 'كل خانة: رمز المقرر، الشعبة (ش) والوقت'}</span>
+        <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="tt-names" ${names ? 'checked' : ''}><label class="form-check-label fw-bold" for="tt-names">عرض اسم المقرر والمدرس</label></div>
+        <span class="text-muted">الأعمدة: أيام الأسبوع · كل خانة: رمز المقرر، الشعبة (ش)${names ? '، الاسم' : ''} و${rowsBy === 'time' ? 'القاعة' : 'الوقت'}</span>
         <span class="ms-auto d-flex flex-wrap gap-2">${Object.entries(MODE).map(([k, v]) => `<span class="tt-chip ${v.cls} static"><i class="bi ${v.icon}"></i> ${k}</span>`).join('')}</span></div>
       ${many ? `<div class="alert alert-info small m-2 mb-0">${rowsAll.length} صفاً؛ يُعرض أول 120. اختر كلية أو قسماً أو مبنى لعرض الكل.</div>` : ''}
-      <div class="table-responsive tt-grid-wrap"><table class="table table-bordered mb-0 tt-grid">
+      <div class="table-responsive tt-grid-wrap"><table class="table table-bordered mb-0 tt-grid ${names ? 'named' : ''}">
         <thead><tr><th class="tt-gh">${{ time: 'الوقت', room: 'القاعة', inst: 'المدرس' }[rowsBy]}</th>${days.map(d => `<th>${esc(DAYS[d])}</th>`).join('')}</tr></thead>
         <tbody>${rowsShown.map(r => `<tr><th class="tt-gh">${rowsBy === 'time' ? `<bdi dir="ltr">${esc(r)}</bdi>` : esc(r)}${rowsBy === 'room' && r === '0' ? '<small class="d-block fw-normal text-muted">بدون قاعة محددة</small>' : ''}</th>${days.map(d => {
           const items = (cells.get(r + '\u0000' + d) || []).sort((a, b) => a.m.start.localeCompare(b.m.start) || a.s.code.localeCompare(b.s.code));
@@ -256,11 +270,14 @@
     return half ? (hs ? hs + ' ونصف' : 'نصف ساعة') : hs;
   }
   function freeScope(st) {
-    if (st.ppl.length) return { people: st.ppl.filter(p => S.some(s => s.instructor === p)), custom: true };
-    if (st.inst) return { people: [st.inst], custom: false };
-    // instructors of the chosen faculty/department (the other filters describe sections, not people)
-    const people = [...new Set(S.filter(s => (!st.fac || s.faculty === st.fac) && (!st.dept || s.department === st.dept)).map(s => s.instructor))];
-    return { people: people.sort((a, b) => a.localeCompare(b, 'ar')), custom: false };
+    // pool = the instructors offered for selection (chosen instructor, or the faculty/department in the filters,
+    // plus anyone added by name); people = the ones selected (everyone in the pool until the user picks)
+    const base = st.inst ? [st.inst]
+      : [...new Set(S.filter(s => (!st.fac || s.faculty === st.fac) && (!st.dept || s.department === st.dept)).map(s => s.instructor))];
+    const valid = (st.ppl || []).filter(x => S.some(s => s.instructor === x));
+    const pool = [...new Set(base.concat(valid))].sort((a, b) => a.localeCompare(b, 'ar'));
+    const people = st.ppl ? valid.slice().sort((a, b) => a.localeCompare(b, 'ar')) : pool;
+    return { pool, people, custom: !!st.ppl };
   }
   function busyMap(people, st, days, slots) {
     const set = new Set(people), busy = {};
@@ -280,7 +297,7 @@
     const from = toMin(st.from), to = Math.max(toMin(st.to), from + 30);
     const slots = [];
     for (let t = from; t < to; t += 30) slots.push(t);
-    const { people, custom } = freeScope(st);
+    const { people } = freeScope(st);
     const N = people.length;
     const busy = busyMap(people, st, days, slots);
     const freeN = {};
@@ -299,11 +316,13 @@
     runs.sort((x, y) => y.n - x.n || days.indexOf(x.d) - days.indexOf(y.d) || x.a - y.a);
     const timesOpt = sel => { const o = []; for (let t = 7 * 60; t <= 23 * 60; t += 30) o.push(`<option ${toTime(t) === sel ? 'selected' : ''}>${toTime(t)}</option>`); return o.join(''); };
     const allNames = [...new Set(S.map(s => s.instructor))].sort((a, b) => a.localeCompare(b, 'ar'));
-    const scopeName = custom ? 'مجموعة مختارة' : st.inst ? esc(st.inst) : st.dept ? `قسم ${esc(st.dept)}` : st.fac ? `كلية ${esc(st.fac)}` : 'كل مدرسي الجامعة';
+    const { pool } = freeScope(st);
+    const scopeName = st.inst ? esc(st.inst) : st.dept ? `قسم ${esc(st.dept)}` : st.fac ? `كلية ${esc(st.fac)}` : 'كل مدرسي الجامعة';
+    const tab = ['best', 'map', 'busy'].includes(st.ftab) ? st.ftab : 'best';
 
     const head = `<div class="card mb-3 fr-head"><div class="card-body">
       <div class="d-flex flex-wrap gap-3 align-items-end">
-        <div class="fr-scope"><small>النطاق</small><b>${scopeName}</b><span>${N} مدرس · ${days.length} أيام · <bdi dir="ltr">${toTime(from)}–${toTime(to)}</bdi></span></div>
+        <div class="fr-scope"><small>النطاق</small><b>${scopeName}</b><span>${N} من ${pool.length} مدرس محددون · ${days.length} أيام · <bdi dir="ltr">${toTime(from)}–${toTime(to)}</bdi></span></div>
         <div class="d-flex flex-wrap gap-2 align-items-end ms-auto">
           <label class="small fr-lbl">من<select class="form-select form-select-sm" id="fr-from">${timesOpt(toTime(from))}</select></label>
           <label class="small fr-lbl">إلى<select class="form-select form-select-sm" id="fr-to">${timesOpt(toTime(to))}</select></label>
@@ -313,18 +332,24 @@
         </div>
       </div>
       <div class="fr-people mt-3">
-        <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
-          <span class="small fw-bold">المدرسون (${N})</span>
-          ${custom ? '<a href="#" class="small" id="fr-reset"><i class="bi bi-arrow-counterclockwise"></i> العودة إلى الكلية/القسم المختار في التصفية</a>'
-            : '<span class="small text-muted">من الكلية/القسم في التصفية. أزل أو أضف مدرسين لتكوين مجموعة خاصة (لجنة، فريق مقرر…).</span>'}
-          <div class="input-group input-group-sm ms-auto fr-add"><span class="input-group-text"><i class="bi bi-person-plus"></i></span>
-            <input class="form-control" id="fr-add" list="fr-names" placeholder="أضف مدرساً بالاسم…" autocomplete="off">
-            <datalist id="fr-names">${allNames.filter(n => !people.includes(n)).map(n => `<option value="${esc(n)}">`).join('')}</datalist></div>
+        <div class="fr-ptools">
+          <b class="small">اختر المدرسين <span class="badge rounded-pill text-bg-primary">${N} / ${pool.length}</span></b>
+          <button type="button" class="btn btn-sm btn-outline-primary" id="fr-all"><i class="bi bi-check2-all"></i> تحديد الكل</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="fr-none"><i class="bi bi-x-lg"></i> إلغاء التحديد</button>
+          <div class="input-group input-group-sm fr-find"><span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input class="form-control" id="fr-find" placeholder="ابحث في الأسماء…" autocomplete="off"></div>
+          <div class="input-group input-group-sm fr-add"><span class="input-group-text"><i class="bi bi-person-plus"></i></span>
+            <input class="form-control" id="fr-add" list="fr-names" placeholder="أضف مدرساً من قسم آخر…" autocomplete="off">
+            <datalist id="fr-names">${allNames.filter(n => !pool.includes(n)).map(n => `<option value="${esc(n)}">`).join('')}</datalist></div>
         </div>
-        <div class="fr-chips">${people.map(p => `<span class="fr-person">${esc(p)}<button type="button" data-drop="${esc(p)}" title="إزالة" aria-label="إزالة ${esc(p)}"><i class="bi bi-x"></i></button></span>`).join('')
-          || '<span class="text-muted small">لا يوجد مدرسون في النطاق الحالي؛ اختر كلية أو قسماً من التصفية أو أضف مدرسين بالاسم.</span>'}</div>
+        <p class="small text-muted mb-2"><i class="bi bi-hand-index"></i> انقر الاسم لتحديده أو إلغائه. مثال لاجتماع مدرسَين: «إلغاء التحديد» ثم انقر الاسمين.</p>
+        <div class="fr-chips">${pool.map(p => `<button type="button" class="fr-person ${people.includes(p) ? 'on' : ''}" data-toggle-p="${esc(p)}" aria-pressed="${people.includes(p)}">
+            <i class="bi ${people.includes(p) ? 'bi-check-circle-fill' : 'bi-circle'}"></i> ${esc(p)}</button>`).join('')
+          || '<span class="text-muted small">لا يوجد مدرسون في النطاق؛ اختر كلية أو قسماً من التصفية أو أضف مدرساً بالاسم.</span>'}</div>
       </div></div></div>`;
-    if (!N) return head;
+    if (!N) return head + (pool.length ? '<div class="card"><div class="card-body text-center text-muted py-4"><i class="bi bi-person-check fs-3 d-block mb-1"></i>اختر مدرساً واحداً على الأقل لعرض أوقات الفراغ.</div></div>' : '');
+    const tabs = `<ul class="nav nav-pills fr-tabs mb-3">${[['best', 'bi-stars', 'الأوقات المشتركة'], ['map', 'bi-grid-3x3-gap-fill', 'خريطة التفرغ'], ['busy', 'bi-bar-chart-steps', 'انشغال المدرسين']]
+      .map(([k, i, t]) => `<li class="nav-item"><a href="#" class="nav-link ${tab === k ? 'active' : ''}" data-ftab="${k}"><i class="bi ${i}"></i> ${t}</a></li>`).join('')}</ul>`;
 
     const all = best === N;
     const bestCard = `<div class="card mb-3 fr-bestcard"><div class="card-header"><i class="bi bi-stars"></i>
@@ -369,7 +394,7 @@
         return `<td><div class="fr-bar">${blocks.join('')}</div></td>`;
       }).join('')}<td class="small text-nowrap">${dur(h) || '—'}</td></tr>`).join('')}</tbody></table></div></div>`;
 
-    return head + bestCard + `<div class="row g-3"><div class="col-xxl-5">${heat}</div><div class="col-xxl-7">${strips}</div></div>`;
+    return head + tabs + (tab === 'map' ? heat : tab === 'busy' ? strips : bestCard);
   }
   function openFreeCell(st, d, t) {
     const { people } = freeScope(st);
@@ -384,18 +409,28 @@
           || '<li class="text-muted">لا أحد</li>'}</ul></div></div>`);
   }
   function bindFree(st) {
-    const people = freeScope(st).people;
+    const { pool, people } = freeScope(st);
     const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
     on('#fr-from', 'change', e => set({ from: e.target.value }));
     on('#fr-to', 'change', e => set({ to: e.target.value }));
     on('#fr-sat', 'change', e => set({ sat: e.target.checked ? '1' : '' }));
     on('#fr-async', 'change', e => set({ async: e.target.checked ? '1' : '' }));
-    on('#fr-reset', 'click', e => { e.preventDefault(); set({ ppl: [] }); });
+    on('#fr-all', 'click', () => set({ ppl: null }));
+    on('#fr-none', 'click', () => set({ ppl: [] }));
     on('#fr-add', 'change', e => {
       const v = e.target.value.trim();
       if (S.some(s => s.instructor === v) && !people.includes(v)) set({ ppl: people.concat([v]) });
     });
-    document.querySelectorAll('[data-drop]').forEach(b => b.addEventListener('click', () => set({ ppl: people.filter(p => p !== b.dataset.drop) })));
+    on('#fr-find', 'input', e => {
+      const q = norm(e.target.value.trim());
+      document.querySelectorAll('[data-toggle-p]').forEach(b => { b.hidden = !!q && !norm(b.dataset.toggleP).includes(q); });
+    });
+    document.querySelectorAll('[data-toggle-p]').forEach(b => b.addEventListener('click', () => {
+      const p = b.dataset.toggleP;
+      const next = people.includes(p) ? people.filter(x => x !== p) : people.concat([p]);
+      set({ ppl: next.length === pool.length && pool.every(x => next.includes(x)) ? null : next });
+    }));
+    document.querySelectorAll('[data-ftab]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); set({ ftab: a.dataset.ftab }); }));
     document.querySelectorAll('[data-cellf]').forEach(a => a.addEventListener('click', e => {
       e.preventDefault();
       const [d, t] = a.dataset.cellf.split('|');
@@ -614,8 +649,19 @@
       });
       return Object.entries(o).map(([k, d]) => [k, Object.values(d).reduce((a, x) => a + x.size, 0) / 2]).sort((a, b) => b[1] - a[1]);
     };
-    const instItems = hoursOf(s => s.instructor, Boolean).slice(0, 10).map(([k, h]) => ({ label: k, value: h, pick: ['inst', k],
-      tip: `${k}: ${h} ساعة مجدولة أسبوعياً (من كل شعبه)` }));
+    // teaching load as a distribution (how many instructors per band of weekly hours) — no names
+    // (instructors with only asynchronous sections have 0 scheduled hours and still count)
+    const hmap = new Map(hoursOf(s => s.instructor, Boolean));
+    const loads = [...new Set(list.map(s => s.instructor))].map(k => hmap.get(k) || 0);
+    const BANDS = [[0, 3], [3, 6], [6, 9], [9, 12], [12, 15], [15, 18], [18, Infinity]];
+    const loadItems = BANDS.map(([a, b]) => {
+      const n = loads.filter(h => h >= a && h < b).length;
+      const label = b === Infinity ? `${a}+` : `${a}–${b}`;
+      return { label, html: `<bdi dir="ltr">${label}</bdi>`, value: n, tip: `${n} مدرس بين ${a} و${b === Infinity ? 'أكثر' : b} ساعة أسبوعياً` };
+    });
+    const sorted = loads.slice().sort((a, b) => a - b);
+    const median = sorted.length ? (sorted.length % 2 ? sorted[(sorted.length - 1) / 2] : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2) : 0;
+    const avg = loads.length ? loads.reduce((a, h) => a + h, 0) / loads.length : 0;
     const roomH = hoursOf(s => s.room, r => r && r !== '0');
     const roomItems = roomH.slice(0, 10).map(([k, h]) => ({ label: k, sub: (S.find(s => s.room === k) || {}).building, value: h, pick: ['room', k],
       tip: `القاعة ${k}: ${h} ساعة إشغال أسبوعياً` }));
@@ -646,7 +692,9 @@
         ${panel('bi-speedometer2', 'الامتلاء حسب القسم', 'المسجلون ÷ السعة · الأحمر = ممتلئ أو أكثر', hbars(fillItems, { fmt: x => x.value + '%' }), 'w2')}
         ${panel('bi-toggle-on', 'المفتوحة والمغلقة', '<span class="text-success">■ مفتوحة</span> <span class="text-danger">■ مغلقة</span>',
           split(s => s.degree, 'الدرجة') + '<hr class="my-2">' + split(s => s.activity, 'النشاط') + '<hr class="my-2">' + split(s => s.study_type, 'نوع الدراسة'))}
-        ${panel('bi-person-workspace', 'الأكثر ساعات تدريس', 'أعلى 10 · ساعات أسبوعية من كل الشعب', hbars(instItems, { fmt: x => x.value + ' س' }))}
+        ${panel('bi-person-workspace', 'توزيع عبء التدريس', 'عدد المدرسين حسب ساعاتهم الأسبوعية المجدولة',
+          cols(loadItems) + `<div class="db-stats"><span>الوسيط <b>${median.toFixed(1).replace(/\.0$/, '')}</b> س</span><span>المتوسط <b>${avg.toFixed(1)}</b> س</span>
+            <span>الأعلى <b>${sorted.length ? sorted[sorted.length - 1] : 0}</b> س</span><span><b>${loads.length}</b> مدرس</span></div>`)}
         ${panel('bi-door-open', 'القاعات الأكثر إشغالاً', 'أعلى 10 · ساعات أسبوعية', hbars(roomItems, { fmt: x => x.value + ' س' }))}
         ${panel('bi-exclamation-triangle', 'شعب تجاوزت السعة', over.length ? `${over.length} شعبة · الأعلى تجاوزاً أولاً · انقر للتفاصيل` : '', watchRows || '<p class="text-muted small mb-0">لا توجد شعب تجاوزت سعتها.</p>')}
       </div>
@@ -781,10 +829,12 @@
     $('#tt-top-q').value = st.q;
     document.querySelectorAll('[data-clear]').forEach(a => a.addEventListener('click', e => {
       e.preventDefault();
-      set(a.dataset.clear === 'all' ? Object.assign(Object.fromEntries(['q', ...FK, 'seats'].map(k => [k, ''])), { ppl: [] }) : { [a.dataset.clear]: '' });
+      set(a.dataset.clear === 'all' ? Object.assign(Object.fromEntries(['q', ...FK, 'seats'].map(k => [k, ''])), { ppl: null }) : { [a.dataset.clear]: '' });
     }));
     document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => set({ view: b.dataset.view })));
     document.querySelectorAll('[data-rows]').forEach(b => b.addEventListener('click', () => set({ rows: b.dataset.rows })));
+    const nm = $('#tt-names');
+    if (nm) nm.addEventListener('change', e => set({ names: e.target.checked ? '1' : '' }));
     document.querySelectorAll('[data-sort]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); set({ sort: a.dataset.sort }); }));
     const sort = $('#tt-sort');
     if (sort) sort.addEventListener('change', e => set({ sort: e.target.value }));
@@ -795,7 +845,7 @@
     }));
     document.querySelectorAll('[data-pick]').forEach(a => a.addEventListener('click', e => {
       e.preventDefault();
-      set(Object.assign({ [a.dataset.pick]: a.dataset.v }, st.view === 'free' ? { view: 'table', ppl: [] } : {}));
+      set(Object.assign({ [a.dataset.pick]: a.dataset.v }, st.view === 'free' ? { view: 'table', ppl: null } : {}));
     }));
     document.querySelectorAll('[data-open]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); openSection(S[+a.dataset.open]); }));
     document.querySelectorAll('[data-cell]').forEach(a => a.addEventListener('click', e => {
