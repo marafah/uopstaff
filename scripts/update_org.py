@@ -18,6 +18,8 @@ import re
 import sys
 from datetime import datetime, timezone
 
+from urllib.parse import quote
+
 import requests
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
@@ -41,6 +43,86 @@ def depts(v):
 
 def person(m):
     return {k: m.get(k, "") for k in ("id", "name", "job", "role", "type", "ext", "email", "photo", "faculty")}
+
+
+WWW = "https://www.uop.edu.jo"
+PHOTOS = os.path.join(ROOT, "assets", "photos", "org")  # own folder: the directory update prunes assets/photos/*.jpg
+TITLE = re.compile(r"^(القائم باعمال )?(عميد|مدير|مديره) ")
+
+
+def cache_photo(s, src, used):
+    """A council member's official photo as a small local JPEG (same scheme as the directory's photos)."""
+    from PIL import Image
+    name = hashlib.sha1(src.encode("utf-8")).hexdigest()[:16] + ".jpg"
+    path = os.path.join(PHOTOS, name)
+    if not os.path.exists(path):
+        try:
+            r = s.get(src, timeout=40)
+            r.raise_for_status()
+            img = Image.open(io.BytesIO(r.content)).convert("RGB")
+            img.thumbnail((240, 240))
+            os.makedirs(PHOTOS, exist_ok=True)
+            img.save(path, "JPEG", quality=82, optimize=True, progressive=True)
+        except Exception:
+            return ""
+    used.add(name)
+    return f"assets/photos/org/{name}"
+
+
+def fetch_councils(nodes, by_mail, previous):
+    """Members of the councils from their official pages (www.uop.edu.jo/Ar/MoreAbout/Pages/…?staffid=N): one AllStaff
+    list per web, each item tagged with the councils it sits on (StaffTypeId). Returns {node id: [member, …]};
+    a council whose list cannot be read keeps its previous members."""
+    s = requests.Session()
+    s.headers["User-Agent"] = UA
+    out, used, lists = {}, set(), {}
+    for n in nodes:
+        src = n["members_from"]
+        try:
+            if src["web"] not in lists:
+                s.get(src["page"], timeout=60)  # SharePoint's anonymous session cookie
+                h = {"Accept": "application/json; odata=nometadata", "Referer": src["page"]}
+                api = f"{WWW}/En/{src['web']}/_api/web/lists/getbytitle('AllStaff')/items"
+                r = s.get(api + "?$top=500", headers=h, timeout=60)
+                r.raise_for_status()
+                lists[src["web"]] = (api, h, r.json()["value"])
+            api, h, items = lists[src["web"]]
+            members = []
+            for it in sorted((x for x in items if src["staff_type"] in (x.get("StaffTypeId") or [])), key=lambda x: (x.get("Order0") or 99, x["ID"])):
+                clean = lambda v: re.sub(r"\s+", " ", re.sub(r"[​-‏‪-‮⁠﻿]", "", str(v or ""))).strip()
+                email = clean(it.get("Email")).lower()
+                d = by_mail.get(email)
+                photo = d["photo"] if d and d.get("photo") else ""
+                if not photo:
+                    try:
+                        html = s.get(f"{api}({it['ID']})/FieldValuesAsHtml", headers=h, timeout=60).json().get("PublishingPageImage") or ""
+                        m = re.search(r'src="([^"]+)"', html)
+                        if m:
+                            photo = cache_photo(s, m.group(1) if m.group(1).startswith("http") else WWW + quote(m.group(1), safe="/%:"), used)
+                    except Exception:
+                        pass
+                members.append({"name": clean(it.get("TitleAR")) or clean(it.get("Title")), "position": clean(it.get("PositionAR")),
+                                "council_role": re.sub(r"^عضواً?$", "عضو", clean(it.get("RankAR"))), "ext": clean(it.get("Ext")),
+                                "email": email, "photo": photo, "directory_id": d["id"] if d else ""})
+            out[n["id"]] = members
+            print(f"{n['name']}: {len(members)} members")
+        except Exception as e:
+            print(f"{n['name']}: member list unavailable ({e}); keeping the previous one")
+            out[n["id"]] = previous.get(n["id"], [])
+            used.update(os.path.basename(m["photo"]) for m in out[n["id"]] if m["photo"].startswith("assets/photos/org/"))
+    if os.path.isdir(PHOTOS):
+        for f in os.listdir(PHOTOS):
+            if f.endswith(".jpg") and f not in used:
+                os.remove(os.path.join(PHOTOS, f))
+    return out
+
+
+def head_key(position):
+    """"القائم بأعمال عميد كلية الحقوق" -> "كليه الحقوق", "مدير مركز التعليم المستمر" -> "مركز التعليم المستمر"; None when the
+    position is not the head of a unit (a representative, a member)."""
+    p = norm(position)
+    m = TITLE.match(p)
+    return p[m.end():] if m else None
 
 
 def check_pdf(url, known_sha, previous):
@@ -94,12 +176,35 @@ def main():
             home[d][str(m["faculty"])] += 1
     home = {d: max(c, key=c.get) for d, c in home.items()}
 
+    # councils: official member lists; their positions also name unit heads ("عميد كلية الحقوق")
+    def all_nodes(n):
+        yield n
+        for c in n.get("children", []):
+            yield from all_nodes(c)
+    councils = [n for n in all_nodes(struct["root"]) if n.get("members_from")]
+    by_mail = {m["email"]: m for m in members if m["email"]}
+    prev_members = {}
+    if previous.get("tree"):
+        prev_members = {n["id"]: n.get("members", []) for n in all_nodes(previous["tree"]) if n.get("members") is not None}
+    council_members = fetch_councils(councils, by_mail, prev_members)
+    heads, seen = [], set()
+    for ms in council_members.values():
+        for m in ms:
+            if (m["name"], m["position"]) not in seen:
+                seen.add((m["name"], m["position"]))
+                heads.append(m)
+
+    def official_heads(node):
+        k = re.sub(r"^عماده ", "", norm(node["name"]))
+        return [m for m in heads if norm(m["position"]) == norm(node["name"])
+                or (head_key(m["position"]) and (k == head_key(m["position"]) or k.startswith(head_key(m["position"]) + " ")))]
+
     used_units, matched_ids = set(), set()
 
     def build(node, ctx_unit):
         unit = str(node["unit"]) if node.get("unit") is not None else None
         ctx = unit or ctx_unit
-        out = {k: v for k, v in node.items() if k not in ("children", "match", "unit")}
+        out = {k: v for k, v in node.items() if k not in ("children", "match", "unit", "members_from")}
         people = []
         for pat in node.get("match", []):
             scoped = pat.startswith("@")
@@ -124,6 +229,12 @@ def main():
             out["unit"] = {"id": unit, "name": u["name"] if u else "", "count": len(unit_staff),
                            "academic": sum(m["type"] == "academic" for m in unit_staff)}
         out["people"] = [person(m) for m in people]
+        oh = official_heads(node)
+        if oh:
+            out["official_heads"] = oh
+        if node.get("members_from"):
+            out["members"] = council_members.get(node["id"], [])
+            out["members_page"] = node["members_from"]["page"]
         kids = [build(c, ctx) for c in node.get("children", [])]
         if node["kind"] == "faculty" and unit:
             # academic departments (from the directory: the official chart stops at the faculty)

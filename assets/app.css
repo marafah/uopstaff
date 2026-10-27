@@ -921,7 +921,7 @@ body.kiosk .now-what b { font-size: 1.05rem; }
 .org-box.lead { border-top-color: var(--uop-navy); background: #f4f8fa; }
 .org-box.big { padding: .9rem 1rem; }
 .org-box.big .org-n { font-size: 1.15rem; }
-.org-box.hit, .org-sub a.hit, .org-tn.hit > a { box-shadow: 0 0 0 2px #f0b400; background: #fffbea; }
+.org-box.hit, .org-pill.hit, .org-sub a.hit, .org-tn.hit > a { box-shadow: 0 0 0 2px #f0b400; background: #fffbea; }
 .org-k { font-size: .74rem; color: #555; font-weight: 700; }
 .org-k i { color: var(--uop-navy); }
 .org-box.acad .org-k i { color: var(--uop-maroon); }
@@ -986,3 +986,5 @@ body.kiosk .now-what b { font-size: 1.05rem; }
   .org-row > .org-box { order: 1; }
   .org-row > .org-side:last-child { order: 3; }
 }
+.org-dashmark { color: #8a6300; font-weight: 800; letter-spacing: -1px; }
+.org-pc-n { font-size: .7rem; background: #8a6300; color: #fff; border-radius: 999px; padding: 0 7px; }

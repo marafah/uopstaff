@@ -162,7 +162,7 @@
 "name": "وحدة الرقابة والتدقيق",
 "kind": "unit",
 "dashed_to": "president",
-"note": "تتبع مجلس الأمناء، وترتبط برئيس الجامعة بخط متقطع",
+"note": "ترتبط بمجلس الأمناء، وبرئيس الجامعة بخط متقطع في المخطط الرسمي",
 "people": []
 },
 {
@@ -188,18 +188,377 @@
 "faculty": "boardoftrustees"
 }
 ],
+"official_heads": [
+{
+"name": "أ.د. علي أبو غنيمة",
+"position": "رئيس الجامعة",
+"council_role": "رئيس المجلس",
+"ext": "1300",
+"email": "president@uop.edu.jo",
+"photo": "assets/photos/3b2991e373fc1d73.jpg",
+"directory_id": "B:boardoftrustees:2"
+}
+],
 "children": [
 {
 "id": "university-council",
 "name": "مجلس الجامعة",
 "kind": "council",
-"people": []
+"people": [],
+"members": [
+{
+"name": "أ.د. علي أبو غنيمة",
+"position": "رئيس الجامعة",
+"council_role": "رئيس المجلس",
+"ext": "1300",
+"email": "president@uop.edu.jo",
+"photo": "assets/photos/3b2991e373fc1d73.jpg",
+"directory_id": "B:boardoftrustees:2"
+},
+{
+"name": "أ.د. مياس الريماوي",
+"position": "نائب الرئيس للشؤون الأكاديمية",
+"council_role": "عضو",
+"ext": "1110",
+"email": "malremawi@uop.edu.jo",
+"photo": "assets/photos/75c7f708d460c026.jpg",
+"directory_id": "A:6D0061006C00720065006D00610077006900400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "أ.د.عمر إعمر",
+"position": "القائم بأعمال عميد كلية الحقوق",
+"council_role": "عضو",
+"ext": "3400",
+"email": "omar.emar@uop.edu.jo",
+"photo": "assets/photos/fe81773153aacc9f.jpg",
+"directory_id": "A:6F006D00610072002E0065006D0061007200400075006F0070002E006500640075002E006A006F000D00"
+},
+{
+"name": "د. محمد الخالدي",
+"position": "القائم بأعمال عميد كلية العلوم الإدارية والمالية",
+"council_role": "عضو",
+"ext": "9000",
+"email": "mohammad.alkhaldy@uop.edu.jo",
+"photo": "assets/photos/2778dd4792535337.jpg",
+"directory_id": "A:6D006F00680061006D006D00610064002E0061006C006B00680061006C0064007900400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "د. رانيا أبو رمضان",
+"position": "القائم بأعمال عميد كلية العمارة والتصميم",
+"council_role": "عضو",
+"ext": "4000",
+"email": "rania.aburamadan@uop.edu.jo",
+"photo": "assets/photos/c6d5620ca82d46f9.jpg",
+"directory_id": "A:720061006E00690061002E00610062007500720061006D006100640061006E00400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "أ.د. فراس السليحات",
+"position": "ممثل كلية طب الأسنان",
+"council_role": "عضو",
+"ext": "24000",
+"email": "firas.alsoleihat@uop.edu.jo",
+"photo": "assets/photos/42edad17be1d3787.jpg",
+"directory_id": "A:660069007200610073002E0061006C0073006F006C0065006900680061007400400075006F0070002E006500640075002E006A006F000D00"
+},
+{
+"name": "د. ناصر المغربي",
+"position": "ممثل كلية العمارة والتصميم",
+"council_role": "عضو",
+"ext": "2323",
+"email": "nalmughrabi@uop.edu.jo",
+"photo": "assets/photos/bac0c5c87c7ec64b.jpg",
+"directory_id": "A:6E0061006C006D007500670068007200610062006900400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "د. منى بسطامي",
+"position": "ممثل كلية الصيدلة والعلوم الطبية",
+"council_role": "عضو",
+"ext": "8212",
+"email": "mbustami@uop.edu.jo",
+"photo": "assets/photos/c88466dfb7a09b0d.jpg",
+"directory_id": "A:6D00620075007300740061006D006900400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "د. عبير القيسي",
+"position": "المساعد القانوني للجامعة",
+"council_role": "عضو",
+"ext": "5800",
+"email": "aalqaisi@uop.edu.jo",
+"photo": "assets/photos/764db47ca8e0899d.jpg",
+"directory_id": "A:610061006C0071006100690073006900400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "أ.د. عنبر شلاش",
+"position": "ممثل كلية العلوم الإدارية والمالية",
+"council_role": "عضو",
+"ext": "9305",
+"email": "ashlash@uop.edu.jo",
+"photo": "assets/photos/90d075fb73bf5112.jpg",
+"directory_id": "A:6100730068006C00610073006800400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "د. إبراهيم الخصاونة",
+"position": "ممثل كلية الإعلام",
+"council_role": "عضو",
+"ext": "3126",
+"email": "ikhasawneh@uop.edu.jo",
+"photo": "assets/photos/1e10ad3941c2c323.jpg",
+"directory_id": "A:69006B00680061007300610077006E0065006800400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "د. علاء أبو سماحة",
+"position": "ممثل كلية تكنولوجيا المعلومات",
+"council_role": "عضو",
+"ext": "7200",
+"email": "ala.abusamaha@uop.edu.jo",
+"photo": "assets/photos/1f7256cd6ece4ed3.jpg",
+"directory_id": "A:61006C0061002E00610062007500730061006D00610068006100400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "أ.د. خالد رمضان",
+"position": "ممثل كلية الهندسة",
+"council_role": "عضو",
+"ext": "2221",
+"email": "kramadan@uop.edu.jo",
+"photo": "assets/photos/a9e2729f652722d9.jpg",
+"directory_id": "A:6B00720061006D006100640061006E00400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "د. فتحي الفاعوري",
+"position": "ممثل كلية الحقوق",
+"council_role": "عضو",
+"ext": "3420",
+"email": "falfaouri@uop.edu.jo",
+"photo": "assets/photos/fb6f983a67d06b66.jpg",
+"directory_id": "A:660061006C00660061006F00750072006900400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "د. عبد المنعم الطويق",
+"position": "ممثل كلية الآداب والعلوم",
+"council_role": "عضو",
+"ext": "6500",
+"email": "aaltweiq@uop.edu.jo",
+"photo": "assets/photos/10fed5132a3aff08.jpg",
+"directory_id": "A:610061006C0074007700650069007100400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "د. أحمد القاسم",
+"position": "مدير وحدة ضمان الجودة والتخطيط والقياس",
+"council_role": "عضو",
+"ext": "1800",
+"email": "aelqasem@uop.edu.jo",
+"photo": "assets/photos/e24816020af6c08b.jpg",
+"directory_id": "A:610065006C0071006100730065006D00400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "السيد سعد المغربي",
+"position": "مدير مركز التعليم المستمر",
+"council_role": "عضو",
+"ext": "5750",
+"email": "salmughrabi@uop.edu.jo",
+"photo": "assets/photos/b8eb81cad4d09a3d.jpg",
+"directory_id": "S:continuingeducationcenter:1"
+},
+{
+"name": "د. تغريد أبو حمدان",
+"position": "مديرة مركز التطوير الأكاديمي",
+"council_role": "عضو",
+"ext": "1830",
+"email": "tabuhamdan@uop.edu.jo",
+"photo": "assets/photos/bda4397f67d1d7dc.jpg",
+"directory_id": "A:7400610062007500680061006D00640061006E00400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "العضو المنتخب للمنطقة من أمانة عمان",
+"position": "ممثل من المجتمع المحلي",
+"council_role": "عضو",
+"ext": "",
+"email": "",
+"photo": "",
+"directory_id": ""
+},
+{
+"name": "د. عمران بدارنة",
+"position": "ممثل من خارج الجامعة من ذوي الإختصاص في تكنولوجيا المعلومات",
+"council_role": "عضو",
+"ext": "",
+"email": "",
+"photo": "",
+"directory_id": ""
+},
+{
+"name": "السيد رمزي شويحات",
+"position": "ممثل من خارج الجامعة من ذوي الإختصاص في تكنولوجيا المعلومات",
+"council_role": "عضو",
+"ext": "",
+"email": "",
+"photo": "",
+"directory_id": ""
+},
+{
+"name": "السيد خالد شحيط",
+"position": "ممثل الخريجين",
+"council_role": "عضو",
+"ext": "",
+"email": "",
+"photo": "",
+"directory_id": ""
+},
+{
+"name": "الطالب يوسف المجالي",
+"position": "ممثل طلبة الجامعة",
+"council_role": "عضو",
+"ext": "",
+"email": "",
+"photo": "",
+"directory_id": ""
+},
+{
+"name": "الطالبة آية حيمور",
+"position": "ممثل طلبة الجامعة",
+"council_role": "عضو",
+"ext": "",
+"email": "",
+"photo": "",
+"directory_id": ""
+},
+{
+"name": "الآنسة وفاء الخطيب",
+"position": "أمين سر المجلس",
+"council_role": "عضو",
+"ext": "1400",
+"email": "walkhatib@uop.edu.jo",
+"photo": "assets/photos/df09c53695025dc0.jpg",
+"directory_id": "S:universitypresident:1"
+}
+],
+"members_page": "https://www.uop.edu.jo/Ar/MoreAbout/Pages/UniversityBoard.aspx?staffid=3"
 },
 {
 "id": "deans-council",
 "name": "مجلس العمداء",
 "kind": "council",
-"people": []
+"people": [],
+"members": [
+{
+"name": "أ.د. علي أبو غنيمة",
+"position": "رئيس الجامعة",
+"council_role": "رئيس المجلس",
+"ext": "1300",
+"email": "president@uop.edu.jo",
+"photo": "assets/photos/3b2991e373fc1d73.jpg",
+"directory_id": "B:boardoftrustees:2"
+},
+{
+"name": "أ.د. مياس الريماوي",
+"position": "نائب الرئيس للشؤون الأكاديمية",
+"council_role": "عضو",
+"ext": "1110",
+"email": "malremawi@uop.edu.jo",
+"photo": "assets/photos/75c7f708d460c026.jpg",
+"directory_id": "A:6D0061006C00720065006D00610077006900400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "د. هديل شقير",
+"position": "عميد كلية الإعلام",
+"council_role": "عضو",
+"ext": "3000",
+"email": "hadeel.shqair@uop.edu.jo",
+"photo": "assets/photos/e917bed7071dd377.jpg",
+"directory_id": "A:680061006400650065006C002E00730068007100610069007200400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "أ.د.عمر إعمر",
+"position": "القائم بأعمال عميد كلية الحقوق",
+"council_role": "عضو",
+"ext": "3400",
+"email": "omar.emar@uop.edu.jo",
+"photo": "assets/photos/fe81773153aacc9f.jpg",
+"directory_id": "A:6F006D00610072002E0065006D0061007200400075006F0070002E006500640075002E006A006F000D00"
+},
+{
+"name": "أ.د. وسيم عودة",
+"position": "عميد كلية الآداب والعلوم",
+"council_role": "عضو",
+"ext": "6000",
+"email": "waudeh@uop.edu.jo",
+"photo": "assets/photos/8a4d6fa2bb83628e.jpg",
+"directory_id": "A:770061007500640065006800400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "د. محمد الخالدي",
+"position": "القائم بأعمال عميد كلية العلوم الإدارية والمالية",
+"council_role": "عضو",
+"ext": "9000",
+"email": "mohammad.alkhaldy@uop.edu.jo",
+"photo": "assets/photos/2778dd4792535337.jpg",
+"directory_id": "A:6D006F00680061006D006D00610064002E0061006C006B00680061006C0064007900400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "أ.د. نضال القنة",
+"position": "عميد كلية الصيدلة والعلوم الطبية",
+"council_role": "عضو",
+"ext": "8000",
+"email": "nqinna@uop.edu.jo",
+"photo": "assets/photos/c9f9f0760663e421.jpg",
+"directory_id": "A:6E00710069006E006E006100400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "د. رانيا أبو رمضان",
+"position": "القائم بأعمال عميد كلية العمارة والتصميم",
+"council_role": "عضو",
+"ext": "4000",
+"email": "rania.aburamadan@uop.edu.jo",
+"photo": "assets/photos/c6d5620ca82d46f9.jpg",
+"directory_id": "A:720061006E00690061002E00610062007500720061006D006100640061006E00400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "أ.د. فراس السليحات",
+"position": "ممثل كلية طب الأسنان",
+"council_role": "عضو",
+"ext": "24000",
+"email": "firas.alsoleihat@uop.edu.jo",
+"photo": "assets/photos/42edad17be1d3787.jpg",
+"directory_id": "A:660069007200610073002E0061006C0073006F006C0065006900680061007400400075006F0070002E006500640075002E006A006F000D00"
+},
+{
+"name": "أ.د. نهى الخليلي",
+"position": "عميد البحث العلمي والدراسات العليا",
+"council_role": "عضو",
+"ext": "1990",
+"email": "nuhak@uop.edu.jo",
+"photo": "assets/photos/30204a0b5a15ea90.jpg",
+"directory_id": "A:4E007500680061006B00400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "د. علي المقوسي",
+"position": "عميد كلية تكنولوجيا المعلومات",
+"council_role": "عضو",
+"ext": "7000",
+"email": "amaqousi@uop.edu.jo",
+"photo": "assets/photos/ddeb550f05d31822.jpg",
+"directory_id": "A:61006D00610071006F00750073006900400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "د. عبير القيسي",
+"position": "المساعد القانوني للجامعة",
+"council_role": "عضو",
+"ext": "5800",
+"email": "aalqaisi@uop.edu.jo",
+"photo": "assets/photos/764db47ca8e0899d.jpg",
+"directory_id": "A:610061006C0071006100690073006900400075006F0070002E006500640075002E006A006F00"
+},
+{
+"name": "د. نضال حسين",
+"position": "عميد كلية الهندسة",
+"council_role": "عضو",
+"ext": "2000",
+"email": "nidal.hussein@uop.edu.jo",
+"photo": "assets/photos/1b678aa883281362.jpg",
+"directory_id": "A:6E006900640061006C002E006800750073007300650069006E00400075006F0070002E006500640075002E006A006F00"
+}
+],
+"members_page": "https://www.uop.edu.jo/Ar/MoreAbout/Pages/BoardDeans.aspx?staffid=1"
 },
 {
 "id": "vp-academic",
@@ -217,6 +576,17 @@
 "photo": "assets/photos/da6ebbf6516c9c27.jpg",
 "faculty": 3
 }
+],
+"official_heads": [
+{
+"name": "أ.د. مياس الريماوي",
+"position": "نائب الرئيس للشؤون الأكاديمية",
+"council_role": "عضو",
+"ext": "1110",
+"email": "malremawi@uop.edu.jo",
+"photo": "assets/photos/75c7f708d460c026.jpg",
+"directory_id": "A:6D0061006C00720065006D00610077006900400075006F0070002E006500640075002E006A006F00"
+}
 ]
 },
 {
@@ -230,6 +600,7 @@
 "name": "مكتب التمويل الخارجي ونقل التكنولوجيا",
 "kind": "office",
 "dashed_to": "asst-agreements",
+"note": "يرتبط بمساعد الرئيس للاتفاقيات والتعاون الدولي بخط متقطع في المخطط الرسمي",
 "people": [],
 "children": [
 {
@@ -243,7 +614,7 @@
 {
 "id": "asst-agreements",
 "name": "مساعد الرئيس للاتفاقيات والتعاون الدولي",
-"kind": "office",
+"kind": "assistant",
 "people": [
 {
 "id": "A:6B006D0061006E0073006F006F007200400075006F0070002E006500640075002E006A006F00",
@@ -272,7 +643,7 @@
 {
 "id": "asst-legal",
 "name": "مساعد الرئيس للشؤون القانونية",
-"kind": "office",
+"kind": "assistant",
 "people": []
 },
 {
@@ -296,7 +667,7 @@
 {
 "id": "academics-affairs",
 "name": "شؤون الأكاديميين",
-"kind": "section",
+"kind": "other",
 "people": [
 {
 "id": "S:universitypresident:1",
@@ -314,7 +685,7 @@
 {
 "id": "appointment",
 "name": "التعيين والترقية",
-"kind": "section",
+"kind": "other",
 "people": []
 }
 ]
@@ -341,6 +712,17 @@
 "photo": "assets/photos/f5ad965297527328.jpg",
 "faculty": 3
 }
+],
+"official_heads": [
+{
+"name": "د. أحمد القاسم",
+"position": "مدير وحدة ضمان الجودة والتخطيط والقياس",
+"council_role": "عضو",
+"ext": "1800",
+"email": "aelqasem@uop.edu.jo",
+"photo": "assets/photos/e24816020af6c08b.jpg",
+"directory_id": "A:610065006C0071006100730065006D00400075006F0070002E006500640075002E006A006F00"
+}
 ]
 },
 {
@@ -352,7 +734,7 @@
 {
 "id": "diwan",
 "name": "الديوان",
-"kind": "office",
+"kind": "other",
 "people": [
 {
 "id": "S:universitypresident:20",
@@ -371,7 +753,18 @@
 "id": "research",
 "name": "عمادة البحث العلمي والدراسات العليا",
 "kind": "deanship",
-"people": []
+"people": [],
+"official_heads": [
+{
+"name": "أ.د. نهى الخليلي",
+"position": "عميد البحث العلمي والدراسات العليا",
+"council_role": "عضو",
+"ext": "1990",
+"email": "nuhak@uop.edu.jo",
+"photo": "assets/photos/30204a0b5a15ea90.jpg",
+"directory_id": "A:4E007500680061006B00400075006F0070002E006500640075002E006A006F00"
+}
+]
 },
 {
 "id": "f13",
@@ -481,6 +874,17 @@
 "faculty": 12
 }
 ],
+"official_heads": [
+{
+"name": "د. نضال حسين",
+"position": "عميد كلية الهندسة",
+"council_role": "عضو",
+"ext": "2000",
+"email": "nidal.hussein@uop.edu.jo",
+"photo": "assets/photos/1b678aa883281362.jpg",
+"directory_id": "A:6E006900640061006C002E006800750073007300650069006E00400075006F0070002E006500640075002E006A006F00"
+}
+],
 "children": [
 {
 "id": "f12-d0",
@@ -526,6 +930,17 @@
 "email": "rania.aburamadan@uop.edu.jo",
 "photo": "assets/photos/c6d5620ca82d46f9.jpg",
 "faculty": 4
+}
+],
+"official_heads": [
+{
+"name": "د. رانيا أبو رمضان",
+"position": "القائم بأعمال عميد كلية العمارة والتصميم",
+"council_role": "عضو",
+"ext": "4000",
+"email": "rania.aburamadan@uop.edu.jo",
+"photo": "assets/photos/c6d5620ca82d46f9.jpg",
+"directory_id": "A:720061006E00690061002E00610062007500720061006D006100640061006E00400075006F0070002E006500640075002E006A006F00"
 }
 ],
 "children": [
@@ -647,6 +1062,17 @@
 "faculty": 9
 }
 ],
+"official_heads": [
+{
+"name": "أ.د.عمر إعمر",
+"position": "القائم بأعمال عميد كلية الحقوق",
+"council_role": "عضو",
+"ext": "3400",
+"email": "omar.emar@uop.edu.jo",
+"photo": "assets/photos/fe81773153aacc9f.jpg",
+"directory_id": "A:6F006D00610072002E0065006D0061007200400075006F0070002E006500640075002E006A006F000D00"
+}
+],
 "children": [
 {
 "id": "f9-d0",
@@ -702,7 +1128,7 @@
 },
 {
 "id": "f11",
-"name": "كلية الإعلام",
+"name": "كلية الاعلام",
 "kind": "faculty",
 "unit": {
 "id": "11",
@@ -721,6 +1147,17 @@
 "email": "ali.nejadat@uop.edu.jo",
 "photo": "assets/photos/29d039ffb9a6a47b.jpg",
 "faculty": 11
+}
+],
+"official_heads": [
+{
+"name": "د. هديل شقير",
+"position": "عميد كلية الإعلام",
+"council_role": "عضو",
+"ext": "3000",
+"email": "hadeel.shqair@uop.edu.jo",
+"photo": "assets/photos/e917bed7071dd377.jpg",
+"directory_id": "A:680061006400650065006C002E00730068007100610069007200400075006F0070002E006500640075002E006A006F00"
 }
 ],
 "children": [
@@ -812,10 +1249,21 @@
 "faculty": 1
 }
 ],
+"official_heads": [
+{
+"name": "د. علي المقوسي",
+"position": "عميد كلية تكنولوجيا المعلومات",
+"council_role": "عضو",
+"ext": "7000",
+"email": "amaqousi@uop.edu.jo",
+"photo": "assets/photos/ddeb550f05d31822.jpg",
+"directory_id": "A:61006D00610071006F00750073006900400075006F0070002E006500640075002E006A006F00"
+}
+],
 "children": [
 {
 "id": "innovation",
-"name": "مركز الإبداع والريادة",
+"name": "مركز الابداع والريادة",
 "kind": "center",
 "people": [
 {
@@ -833,7 +1281,7 @@
 },
 {
 "id": "elearning",
-"name": "مركز التعليم الإلكتروني",
+"name": "مركز التعليم الالكتروني",
 "kind": "center",
 "people": [
 {
@@ -940,7 +1388,7 @@
 },
 {
 "id": "f3",
-"name": "كلية العلوم الإدارية والمالية",
+"name": "كلية العلوم الادارية والمالية",
 "kind": "faculty",
 "unit": {
 "id": "3",
@@ -949,11 +1397,22 @@
 "academic": 61
 },
 "people": [],
+"official_heads": [
+{
+"name": "د. محمد الخالدي",
+"position": "القائم بأعمال عميد كلية العلوم الإدارية والمالية",
+"council_role": "عضو",
+"ext": "9000",
+"email": "mohammad.alkhaldy@uop.edu.jo",
+"photo": "assets/photos/2778dd4792535337.jpg",
+"directory_id": "A:6D006F00680061006D006D00610064002E0061006C006B00680061006C0064007900400075006F0070002E006500640075002E006A006F00"
+}
+],
 "children": [
 {
 "id": "incubator",
-"name": "حاضنة الأعمال",
-"kind": "center",
+"name": "حاضنة الاعمال",
+"kind": "other",
 "people": []
 },
 {
@@ -1151,11 +1610,22 @@
 "faculty": 2
 }
 ],
+"official_heads": [
+{
+"name": "أ.د. نضال القنة",
+"position": "عميد كلية الصيدلة والعلوم الطبية",
+"council_role": "عضو",
+"ext": "8000",
+"email": "nqinna@uop.edu.jo",
+"photo": "assets/photos/c9f9f0760663e421.jpg",
+"directory_id": "A:6E00710069006E006E006100400075006F0070002E006500640075002E006A006F00"
+}
+],
 "children": [
 {
 "id": "nutrition",
 "name": "عيادة التغذية",
-"kind": "center",
+"kind": "clinic",
 "unit": {
 "id": "nutritionclinic",
 "name": "مركز الابحاث والتثقيف التغذوي",
@@ -1303,6 +1773,17 @@
 "faculty": 5
 }
 ],
+"official_heads": [
+{
+"name": "أ.د. وسيم عودة",
+"position": "عميد كلية الآداب والعلوم",
+"council_role": "عضو",
+"ext": "6000",
+"email": "waudeh@uop.edu.jo",
+"photo": "assets/photos/8a4d6fa2bb83628e.jpg",
+"directory_id": "A:770061007500640065006800400075006F0070002E006500640075002E006A006F00"
+}
+],
 "children": [
 {
 "id": "languages",
@@ -1318,8 +1799,8 @@
 "children": [
 {
 "id": "nursery",
-"name": "حضانة الأطفال",
-"kind": "unit",
+"name": "حضانة الاطفال",
+"kind": "other",
 "unit": {
 "id": "petranursery",
 "name": "حضانة جامعة البترا",
@@ -1330,8 +1811,8 @@
 },
 {
 "id": "kindergarten",
-"name": "روضة الأطفال",
-"kind": "unit",
+"name": "روضة الاطفال",
+"kind": "other",
 "people": []
 }
 ]
@@ -1566,14 +2047,25 @@
 },
 {
 "id": "academic-development",
-"name": "مركز التطوير الأكاديمي",
+"name": "مركز التطوير الاكاديمي",
 "kind": "center",
-"people": []
+"people": [],
+"official_heads": [
+{
+"name": "د. تغريد أبو حمدان",
+"position": "مديرة مركز التطوير الأكاديمي",
+"council_role": "عضو",
+"ext": "1830",
+"email": "tabuhamdan@uop.edu.jo",
+"photo": "assets/photos/bda4397f67d1d7dc.jpg",
+"directory_id": "A:7400610062007500680061006D00640061006E00400075006F0070002E006500640075002E006A006F00"
+}
+]
 },
 {
 "id": "library",
 "name": "المكتبة",
-"kind": "center",
+"kind": "other",
 "unit": {
 "id": "uoplibrary",
 "name": "مكتبة البترا",
@@ -1609,6 +2101,17 @@
 "email": "salmughrabi@uop.edu.jo",
 "photo": "assets/photos/b8eb81cad4d09a3d.jpg",
 "faculty": "continuingeducationcenter"
+}
+],
+"official_heads": [
+{
+"name": "السيد سعد المغربي",
+"position": "مدير مركز التعليم المستمر",
+"council_role": "عضو",
+"ext": "5750",
+"email": "salmughrabi@uop.edu.jo",
+"photo": "assets/photos/b8eb81cad4d09a3d.jpg",
+"directory_id": "S:continuingeducationcenter:1"
 }
 ]
 },
@@ -1655,7 +2158,7 @@
 "children": [
 {
 "id": "careers",
-"name": "مكتب الإرشاد الوظيفي ومتابعة الخريجين / صندوق الملك عبدالله الثاني للتنمية",
+"name": "مكتب الارشاد الوظيفي ومتابعة الخريجين/ صندوق الملك عبدالله الثاني للتنمية",
 "kind": "office",
 "people": [
 {
@@ -1739,7 +2242,7 @@
 {
 "id": "housing",
 "name": "السكن الداخلي",
-"kind": "unit",
+"kind": "other",
 "people": []
 },
 {
@@ -1762,7 +2265,7 @@
 },
 {
 "id": "security",
-"name": "قسم الأمن الجامعي",
+"name": "قسم الامن الجامعي",
 "kind": "section",
 "people": [
 {
@@ -1968,7 +2471,7 @@
 {
 "id": "cashier",
 "name": "الصناديق",
-"kind": "section",
+"kind": "other",
 "people": [
 {
 "id": "S:financedepartment:27",
@@ -2128,11 +2631,13 @@
 "id": "control",
 "name": "قسم السيطرة",
 "kind": "section",
+"dashed": true,
+"note": "يرتبط بمركز الحاسوب والمعلومات والسيطرة بخط متقطع في المخطط الرسمي",
 "people": []
 },
 {
 "id": "it-maintenance",
-"name": "قسم صيانة الحاسوب والأجهزة المكتبية",
+"name": "قسم صيانة الحاسوب والاجهزة المكتبية",
 "kind": "section",
 "people": [
 {
@@ -2260,7 +2765,7 @@
 },
 {
 "id": "transport",
-"name": "قسم الحركة وصيانة المركبات",
+"name": "قسم الحركة و صيانة المركبات",
 "kind": "section",
 "people": [
 {
@@ -2279,7 +2784,7 @@
 {
 "id": "restaurants",
 "name": "المطاعم والمرافق والسوق التجاري",
-"kind": "section",
+"kind": "other",
 "people": []
 },
 {
@@ -2310,7 +2815,7 @@
 },
 {
 "id": "civil-works",
-"name": "قسم الأشغال المدنية",
+"name": "قسم الاشغال المدنية",
 "kind": "section",
 "people": []
 }
