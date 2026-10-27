@@ -51,10 +51,20 @@ window.UOP = (function () {
     const timed = items.filter(x => x.start);
     const lo = Math.min(opts.from || 8 * 60, ...timed.map(x => toMin(x.start)));
     const hi = Math.max(opts.to || 16 * 60, ...timed.map(x => toMin(x.end)));
-    const from = Math.floor(lo / 60) * 60, to = Math.ceil(hi / 60) * 60, PX = opts.px || 54;
-    const H = (to - from) / 60 * PX;
+    const from = Math.floor(lo / 60) * 60, to = Math.ceil(hi / 60) * 60, PX = opts.px || 54, GAP = 28;
+    // opts.compact: only the hours that have a lecture; each run of empty hours becomes a thin marked strip
+    let used = [];
+    for (let t = from; t < to; t += 60) if (!opts.compact || timed.some(x => toMin(x.start) < t + 60 && toMin(x.end) > t)) used.push(t);
+    if (!used.length) used = [from];
+    const base = {};
+    let y = 0;
+    const gaps = [];
+    used.forEach((t, i) => { if (i && t !== used[i - 1] + 60) { gaps.push(y); y += GAP; } base[t] = y; y += PX; });
+    const Y = t => { const h = Math.floor(t / 60) * 60; return h in base ? base[h] + (t - h) / 60 * PX : base[h - 60] + PX; };
+    const H = y;
+    // hour labels: every used hour, plus the end of each run of hours
     const hours = [];
-    for (let t = from; t <= to; t += 60) hours.push(t);
+    used.forEach((t, i) => { hours.push(t); if (i === used.length - 1 || used[i + 1] !== t + 60) hours.push(t + 60); });
     const col = d => {
       const its = timed.filter(x => x.day === d).sort((a, b) => toMin(a.start) - toMin(b.start) || toMin(b.end) - toMin(a.end));
       const lanes = [];  // greedy lanes for overlapping blocks
@@ -65,9 +75,9 @@ window.UOP = (function () {
         x._lane = i;
       });
       its.forEach(x => { x._lanes = lanes.length; });
-      return `<div class="wk-col">${hours.slice(0, -1).map(t => `<i class="wk-line" style="top:${(t - from) / 60 * PX}px"></i>`).join('')}
+      return `<div class="wk-col">${used.map(t => `<i class="wk-line" style="top:${base[t]}px"></i>`).join('')}${gaps.map(g => `<i class="wk-gap" style="top:${g}px;height:${GAP}px"></i>`).join('')}
         ${its.map(x => {
-          const top = (toMin(x.start) - from) / 60 * PX, h = Math.max(22, (toMin(x.end) - toMin(x.start)) / 60 * PX - 3);
+          const top = Y(toMin(x.start)), h = Math.max(22, Y(toMin(x.end)) - top - 3);
           const w = 100 / x._lanes;
           // optional: x.style (e.g. a course colour), x.icon, x.line (a second line such as the course name)
           return `<${x.href ? `a href="${esc(x.href)}"` : x.data ? `a href="#" ${x.data}` : 'div'} class="wk-ev ${x.cls || ''}" style="top:${top}px;height:${h}px;right:calc(${w * x._lane}% + 2px);width:calc(${w}% - 4px);${x.style || ''}" title="${esc(x.tip || '')}">
@@ -76,7 +86,7 @@ window.UOP = (function () {
     };
     const untimed = items.filter(x => !x.start);
     return `<div class="wk ${opts.cls || ''}"><div class="wk-head"><span></span>${days.map(d => `<b>${esc(DAYS[d] || d)}</b>`).join('')}</div>
-      <div class="wk-body" style="height:${H}px"><div class="wk-hours">${hours.map(t => `<span style="top:${(t - from) / 60 * PX}px">${toTime(t)}</span>`).join('')}</div>
+      <div class="wk-body" style="height:${H}px"><div class="wk-hours">${gaps.map(g => `<i class="wk-gap" style="top:${g}px;height:${GAP}px"></i>`).join('')}${hours.map(t => `<span style="top:${Y(t)}px">${toTime(t)}</span>`).join('')}</div>
       ${days.map(col).join('')}</div>${untimed.length ? `<div class="wk-untimed">${untimed.map(x => `<span class="tt-chip ${x.cls || ''} static">${esc(x.title)}${x.sub ? ' · ' + esc(x.sub) : ''}</span>`).join('')}</div>` : ''}</div>`;
   }
   let DAYS = { 'ح': 'الأحد', 'ن': 'الاثنين', 'ث': 'الثلاثاء', 'ر': 'الأربعاء', 'خ': 'الخميس', 'س': 'السبت', 'ج': 'الجمعة' };

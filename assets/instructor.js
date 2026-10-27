@@ -189,7 +189,7 @@
       <section class="card mb-3"><div class="card-header d-flex flex-wrap gap-2 align-items-center"><span><i class="bi bi-calendar-week"></i> الجدول الأسبوعي</span>
         <span class="ins-legend ms-auto">${W.courses.map(c => { const s = W.secs.find(x => x.code === c), [col, bg] = W.color(c);
           return `<span style="--cc:${col};--cbg:${bg}"><i></i><b dir="ltr">${esc(c)}</b> ${esc(s.name)}</span>`; }).join('')}</span></div>
-        <div class="card-body">${W.items.length ? U.weekGrid(W.items, { days: W.days, px: 64, cls: 'wk-ins' }) : '<p class="text-muted mb-0">لا لقاءات بوقت ثابت.</p>'}
+        <div class="card-body">${W.items.length ? U.weekGrid(W.items, { days: W.days, px: 64, cls: 'wk-ins', compact: true }) : '<p class="text-muted mb-0">لا لقاءات بوقت ثابت.</p>'}
           <div class="ins-modes">${Object.entries(U.MODE).filter(([k]) => k !== 'غير متزامن').map(([k, v]) => `<span><i class="bi ${v.icon}"></i> ${k}</span>`).join('')}
             ${W.asyncSecs.length ? `<span class="ms-auto"><i class="bi bi-info-circle"></i> ${W.asyncSecs.length} ${W.asyncSecs.length > 2 && W.asyncSecs.length < 11 ? 'شعب لها' : 'شعبة لها'} لقاءات غير متزامنة (بلا وقت ثابت) لا تظهر في الجدول</span>` : ''}</div></div></section>
       <section class="card mb-3"><div class="card-header"><i class="bi bi-list-ul"></i> الشعب <small class="text-muted">${W.secs.length} شعبة في ${W.courses.length} مقرر</small></div>
@@ -223,41 +223,78 @@
         <button class="btn btn-primary" type="button" onclick="navigator.clipboard && navigator.clipboard.writeText(document.getElementById('i-sub-url').value)"><i class="bi bi-clipboard"></i> نسخ الرابط</button></div>`);
   }
 
-  // one A4 page whatever the number of sections: contact + QR, figures, free times, the week, all sections
+  // One A4 page whatever the number of sections, built for paper: the week as a table of the actual lecture times
+  // (no empty hours, so little scaling and large text), dark text with course-coloured edges (clear in black and white too)
   function printPage(I, W, url) {
     const q = qrcode(0, 'M');
     q.addData(unescape(encodeURIComponent(url)));
     q.make();
-    const svg = q.createSvgTag({ cellSize: 5, margin: 1, scalable: true }).replace(/fill="black"/g, 'fill="#091b22"');
-    const free = W.days.map(d => {
+    const svg = q.createSvgTag({ cellSize: 5, margin: 1, scalable: true }).replace(/fill="black"/g, 'fill="#000"');
+    const days = W.days.filter(d => d !== 'ج' || W.items.some(x => x.day === d));
+    const slots = [...new Set(W.items.map(x => x.start + '–' + x.end))]
+      .sort((a, b) => toMin(a.slice(0, 5)) - toMin(b.slice(0, 5)) || toMin(a.slice(6)) - toMin(b.slice(6)));
+    const entry = x => `<div class="pw-e" style="${x.style}"><b dir="ltr">${esc(x.title.replace(' · ش', ' / ش'))}</b>${x.icon ? ' <i class="bi ' + x.icon + '"></i>' : ''}
+      <span>${esc(x.line)}</span><small>${esc(x.sub)}</small></div>`;
+    const week = `<table class="pw"><thead><tr><th class="pw-t">الوقت</th>${days.map(d => `<th>${esc(U.DAYS[d])}</th>`).join('')}</tr></thead><tbody>
+      ${slots.map(k => `<tr><th class="pw-t" dir="ltr">${k}</th>${days.map(d => `<td>${W.items.filter(x => x.day === d && x.start + '–' + x.end === k).map(entry).join('')}</td>`).join('')}</tr>`).join('')}
+      </tbody></table>`;
+    const free = days.map(d => {
       const runs = W.free(d).filter(r => r[1] - r[0] >= 60);
-      return `<tr><th>${esc(U.DAYS[d])}</th><td>${runs.map(r => `<bdi dir="ltr">${toTime(r[0])}–${toTime(r[1])}</bdi>`).join('، ') || '—'}</td></tr>`;
+      return `<tr><th>${esc(U.DAYS[d])}</th><td dir="ltr">${runs.map(r => `${toTime(r[0])}–${toTime(r[1])}`).join('  ·  ') || '—'}</td></tr>`;
     }).join('');
-    const rows = W.secs.map(s => { const [c] = W.color(s.code); return `<tr><td><i class="ip-sw" style="background:${c}"></i><b dir="ltr">${esc(s.code)}</b> ${esc(s.name)}<small>${esc(s.activity)}${s.degree !== 'البكالوريوس' ? ' · ' + esc(s.degree) : ''}</small></td>
-      <td class="num">${esc(s.section)}</td><td>${esc(whenText(s))}</td><td>${s.room === '0' ? 'قاعة افتراضية (0)' : `${esc(s.room)}<small>${esc(s.building)}</small>`}</td>
-      <td class="num">${s.registered}/${s.capacity}</td><td><span class="pill ${s.status === 'مغلقة' ? 'no' : 'ok'}">${esc(s.status)}</span></td></tr>`; }).join('');
+    const rows = W.secs.map(s => { const [c] = W.color(s.code); return `<tr><td class="pc" style="border-inline-start:5px solid ${c}"><b dir="ltr">${esc(s.code)}</b> ${esc(s.name)} <small>${esc(s.activity)}${s.degree !== 'البكالوريوس' ? ' · ' + esc(s.degree) : ''}</small></td>
+      <td class="num"><b>${esc(s.section)}</b></td><td>${esc(whenText(s))}</td><td>${s.room === '0' ? 'قاعة افتراضية (0)' : `<b>${esc(s.room)}</b> <small>${esc(s.building)}</small>`}</td>
+      <td class="num">${s.registered}/${s.capacity}</td><td class="num"><span class="pill ${s.status === 'مغلقة' ? 'no' : 'ok'}">${esc(s.status)}</span></td></tr>`; }).join('');
+    const CSS = `<style>
+      .pi { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: stretch; margin-top: 10px; }
+      .pi-card { display: flex; gap: 12px; align-items: center; border: 1.5px solid #091b22; border-radius: 10px; padding: 8px 12px; }
+      .pi-card img { width: 66px; height: 66px; border-radius: 50%; object-fit: cover; object-position: top; border: 2px solid #901d23; }
+      .pi-card dl { margin: 0; display: grid; grid-template-columns: auto auto; gap: 2px 10px; font-size: 10.5pt; }
+      .pi-card dt { color: #444; } .pi-card dd { margin: 0; font-weight: 800; color: #000; }
+      .pi-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+      .pi-stats div { border: 1.5px solid #091b22; border-top-width: 4px; border-radius: 10px; padding: 6px 10px; font-size: 10pt; color: #222; display: flex; flex-direction: column; justify-content: center; }
+      .pi-stats b { font-size: 19pt; color: #000; line-height: 1.1; }
+      .pi-qr { display: flex; gap: 8px; align-items: center; border: 1.5px solid #091b22; border-radius: 10px; padding: 6px 10px; max-width: 250px; }
+      .pi-qr svg { width: 74px; height: 74px; flex: 0 0 auto; }
+      .pi-qr span { font-size: 8.5pt; color: #111; line-height: 1.35; } .pi-qr b { display: block; font-size: 7.5pt; color: #000; word-break: break-all; direction: ltr; text-align: left; }
+      table.pw { margin-top: 6px; table-layout: fixed; }
+      table.pw thead th { background: #091b22 !important; color: #fff !important; text-align: center; font-size: 11pt; padding: 6px; }
+      table.pw th.pw-t { width: 92px; }
+      table.pw tbody th.pw-t { background: #f1ede4 !important; color: #000; font-size: 10pt; font-weight: 800; text-align: center; border: 1px solid #c9c2b2; white-space: nowrap; }
+      table.pw td { padding: 4px; border: 1px solid #c9c2b2; vertical-align: top; background: #fff !important; }
+      .pw-e { border: 1px solid #b9b2a2; border-inline-start: 6px solid var(--cc); border-radius: 6px; padding: 3px 7px; background: var(--cbg); line-height: 1.3; }
+      .pw-e + .pw-e { margin-top: 4px; }
+      .pw-e b { font-size: 10.5pt; color: #000; } .pw-e i { color: #000; font-size: 9pt; }
+      .pw-e span { display: block; font-size: 9.5pt; font-weight: 700; color: #111; }
+      .pw-e small { display: block; font-size: 9pt; color: #222; font-weight: 700; }
+      .pb { display: grid; grid-template-columns: 1fr 250px; gap: 14px; align-items: start; }
+      table.ps td, table.pf td, table.pf th { font-size: 10pt; color: #000; }
+      table.ps td small { display: inline; color: #444; font-size: 8.5pt; }
+      table.ps thead th { font-size: 10pt; }
+      table.pf th { background: #f1ede4 !important; width: 72px; text-align: start; padding: 4px 6px; border: 1px solid #c9c2b2; }
+      table.pf td { border: 1px solid #c9c2b2; padding: 4px 6px; font-weight: 700; text-align: right; }
+      .pn { font-size: 9pt; color: #333; margin: 4px 0 0; }
+      h3.sec { font-size: 12.5pt; margin: 12px 0 4px; }
+    </style>`;
     printReport({
       title: I.name, subtitle: [I.job && I.job !== I.rank ? I.job : '', I.rank, I.department, I.faculty].filter(Boolean).join(' · '),
       orientation: 'landscape', fit: true, source: IDX.term,
-      css: ['https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css', 'assets/app.css'],
-      raw: `<div class="ip">
-        <aside class="ip-side">
-          <div class="ip-card">
-            ${I.photo ? `<img class="ip-photo" src="${esc(new URL(I.photo, location.href).href)}" alt="">` : ''}
+      css: ['https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css'],
+      raw: `${CSS}<div class="pi">
+          <div class="pi-card">${I.photo ? `<img src="${esc(new URL(I.photo, location.href).href)}" alt="">` : ''}
             <dl>${I.ext ? `<dt>الفرعي</dt><dd dir="ltr">${esc(I.ext)}</dd>` : ''}${I.office ? `<dt>المكتب</dt><dd>${esc(I.office)}</dd>` : ''}
-              ${!I.ext && !I.office ? '<dt>التواصل</dt><dd>—</dd>' : ''}</dl>
-            ${I.email ? `<div class="ip-mail"><i class="bi bi-envelope-fill"></i> <span dir="ltr">${esc(I.email)}</span></div>` : ''}
-          </div>
-          <div class="ip-stats"><div><b>${W.secs.length}</b>شعبة</div><div><b>${W.courses.length}</b>مقرر</div><div><b>${W.hours}</b>ساعة أسبوعياً</div><div><b>${W.students}</b>طالباً</div></div>
-          <h3 class="sec">أوقات الفراغ (08:00–16:00)</h3><table class="ip-free">${free}</table>
-          <div class="ip-qr">${svg}<span>امسح الرمز للجدول المحدَّث وبيانات التواصل<b dir="ltr">${esc(url.replace(/^https?:\/\//, ''))}</b></span></div>
-        </aside>
-        <main class="ip-main"><h3 class="sec">الجدول الأسبوعي</h3>
-          ${W.items.length ? U.weekGrid(W.items.map(x => ({ ...x, title: `${x.title} · ${x.sub}`, sub: '' })), { days: W.days, px: 46, cls: 'wk-ins' }) : '<p>لا لقاءات بوقت ثابت.</p>'}
-          ${W.asyncSecs.length ? `<p class="ip-note">${W.asyncSecs.length} شعبة لها لقاءات غير متزامنة (بلا وقت ثابت) لا تظهر في الجدول.</p>` : ''}</main>
-      </div>
-      <h3 class="sec">الشعب (${W.secs.length})</h3>
-      <table class="ip-secs"><thead><tr><th>المقرر</th><th class="num">الشعبة</th><th>الأيام والوقت</th><th>القاعة</th><th class="num">المسجلون</th><th>الحالة</th></tr></thead><tbody>${rows}</tbody></table>`,
+              ${I.email ? `<dt>البريد</dt><dd dir="ltr">${esc(I.email)}</dd>` : ''}</dl></div>
+          <div class="pi-stats"><div><b>${W.secs.length}</b>شعبة</div><div><b>${W.courses.length}</b>مقرر</div><div><b>${W.hours}</b>ساعة حضور أسبوعياً</div><div><b>${W.students}</b>طالباً مسجلاً</div></div>
+          <div class="pi-qr">${svg}<span>امسح الرمز للجدول المحدَّث وبيانات التواصل<b>${esc(url.replace(/^https?:\/\//, ''))}</b></span></div>
+        </div>
+        <h3 class="sec">الجدول الأسبوعي</h3>
+        ${W.items.length ? week : '<p>لا لقاءات بوقت ثابت.</p>'}
+        ${W.asyncSecs.length ? `<p class="pn">إضافة إلى ذلك: ${W.asyncSecs.length} شعبة لها لقاءات غير متزامنة (بلا وقت حضور ثابت)، مذكورة في جدول الشعب.</p>` : ''}
+        <div class="pb">
+          <div><h3 class="sec">الشعب (${W.secs.length})</h3>
+            <table class="ps"><thead><tr><th>المقرر</th><th class="num">الشعبة</th><th>الأيام والوقت</th><th>القاعة</th><th class="num">المسجلون</th><th class="num">الحالة</th></tr></thead><tbody>${rows}</tbody></table></div>
+          <div><h3 class="sec">أوقات الفراغ (08:00–16:00)</h3><table class="pf">${free}</table></div>
+        </div>`,
     });
   }
 

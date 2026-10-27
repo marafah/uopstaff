@@ -8,7 +8,7 @@ window.printReport = (function () {
   const now = () => new Date().toLocaleString('ar-JO-u-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   const CSS = `
-  @page { size: A4 __ORIENT__; margin: 14mm 12mm 16mm; }
+  @page { size: A4 __ORIENT__; margin: __MARGIN__; }
   * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   html, body { margin: 0; background: #fff; color: #1f2d33; font-family: Tajawal, 'Segoe UI', Tahoma, sans-serif; font-size: 10.5pt; }
   .page { padding: 0; }
@@ -41,7 +41,9 @@ window.printReport = (function () {
   .empty { color: #999; text-align: center; padding: 20px; }
   footer.rf { position: fixed; bottom: -10mm; left: 0; right: 0; display: flex; justify-content: space-between; font-size: 7.5pt; color: #777; border-top: 1px solid #ddd; padding-top: 3px; }
   .note { margin-top: 10px; font-size: 8pt; color: #666; }
-  body.fit footer.rf { bottom: 0; }  /* one-page report: the footer inside the page, never pushed to a page of its own */
+  /* one-page report: no page margin (so the browser prints no date/title/URL lines); margins inside the page instead,
+     sized so the content keeps the measured width; the footer inside the page, never on a page of its own */
+  @media print { body.fit { padding: 10mm 12mm 0; } body.fit footer.rf { bottom: 6mm; left: 12mm; right: 12mm; } }
   @media screen { footer.rf { position: static; margin-top: 14px; } }
   `;
 
@@ -87,7 +89,7 @@ window.printReport = (function () {
     const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${esc(o.title)}</title>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap">
       ${(o.css || []).map(h => `<link rel="stylesheet" href="${new URL(h, location.href).href}">`).join('')}
-      <style>${CSS.replace('__ORIENT__', orient)}${o.raw ? RAW_CSS : ''}</style></head><body class="${o.fit ? 'fit' : ''}">
+      <style>${CSS.replace('__ORIENT__', orient).replace('__MARGIN__', o.fit ? '0' : '14mm 12mm 16mm')}${o.raw ? RAW_CSS : ''}</style></head><body class="${o.fit ? 'fit' : ''}">
       <div class="page">
         <header class="rh"><img src="${logo}" alt="">
           <div class="t"><small>جامعة البترا</small><h1>${esc(o.title)}</h1>${o.subtitle ? `<h2>${esc(o.subtitle)}</h2>` : ''}</div>
@@ -109,7 +111,7 @@ window.printReport = (function () {
       if (o.fit) {
         // o.fit: everything on one page — the whole report is scaled to the printable width and height
         const page = w.document.querySelector('.page');
-        const height = (orient === 'landscape' ? 680 : 1009) - 44;  // A4 minus the page margins and the footer line, in CSS px
+        const height = (orient === 'landscape' ? 794 : 1123) - 38 - 64;  // A4 minus the top margin and the footer zone, in CSS px
         const scale = Math.min(1, printable / page.scrollWidth, height / page.scrollHeight);
         if (scale < 1) page.style.zoom = scale.toFixed(3);
       } else if (raw && raw.scrollWidth > printable) raw.style.zoom = (printable / raw.scrollWidth).toFixed(3);  // a wide matrix: page width, not cut

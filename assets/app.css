@@ -1122,3 +1122,6 @@ table.ip-free td { border: 1px solid #e3dccb; font-size: 8.5pt; padding: 3px 6px
 .ip-main .wk-hours span { font-size: 7pt; }
 .ip-sw { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-inline-end: 4px; }
 table.ip-secs td small { display: inline; margin-inline-start: 6px; }
+.wk-gap { position: absolute; left: 0; right: 0; background: repeating-linear-gradient(135deg, #f3efe6 0 6px, #fff 6px 12px); border-top: 1px dashed #d8d1c0; border-bottom: 1px dashed #d8d1c0; }
+.wk-hours span { z-index: 1; }
+.wk-hours span:not(:first-of-type) { background: #fff; border-radius: 4px; }
