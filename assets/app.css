@@ -1537,33 +1537,12 @@ body.scr-on > *:not(.scr):not(script):not(.modal) { display: none !important; }
 .nb-lgroup > h3 span, .nb-sgroup h3 .nb-cnt { background: #f1ede4; border-radius: 999px; padding: 0 .55rem; font-size: .78rem; font-weight: 700; color: #4b5563; }
 .nb-lgroup > h3 small { font-size: .75rem; color: #6b7280; font-weight: 400; } .nb-lgroup > h3 small.late { color: #b42318; font-weight: 700; }
 .nb-srec { color: inherit; text-decoration: none; } .nb-srec i { color: var(--c); } .nb-srec:hover { text-decoration: underline; }
-/* home page («أين أجد؟»): the title beside a photo collage of the campus (photos from the official site) */
-.home-hero { position: relative; overflow: hidden; padding: 2rem 0 2.1rem; color: #fff;
-  background: linear-gradient(270deg, rgba(9, 27, 34, .97) 0%, rgba(9, 27, 34, .9) 45%, rgba(9, 27, 34, .8) 100%), url(hero/gate-800.jpg) center 60% / cover no-repeat var(--uop-navy); }
+/* home page («أين أجد؟»): a plain header, a little larger, with the university's maroon and gold underline */
+.home-hero { position: relative; padding: 2rem 0 2.1rem; }
 .home-hero::before { content: ""; position: absolute; inset: auto 0 0 0; height: 4px; background: linear-gradient(90deg, var(--uop-maroon), #c9a227 50%, var(--uop-maroon)); }
-.home-hero .hero-row { position: relative; flex-wrap: nowrap; }
-.home-hero .hero-text { flex: 1 1 auto; }
-.home-hero h1 { font-size: 2.3rem; font-weight: 800; }
-.home-hero p { opacity: .88; max-width: 560px; font-size: .95rem; line-height: 1.8; }
-.home-hero .update-box { align-items: flex-start; margin-top: .9rem; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .14); border-radius: 12px; padding: .4rem .75rem; display: inline-flex; }
-.hero-collage { flex: 0 0 auto; display: grid; grid-template-columns: 330px 150px; grid-template-rows: 1fr 1fr; gap: 10px; height: 214px; }
-.hc-tile { position: relative; overflow: hidden; border-radius: 14px; box-shadow: 0 10px 28px rgba(0, 0, 0, .35); outline: 1px solid rgba(255, 255, 255, .18); outline-offset: -1px; background: #13303b; }
-.hc-tile.big { grid-row: 1 / 3; }
-.hc-tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1.2s ease, transform 7s ease; transform: scale(1.04); }
-.hc-tile img.on { opacity: 1; transform: scale(1); }
-.hc-tile figcaption { position: absolute; inset: auto 0 0 0; padding: 1.4rem .6rem .4rem; font-size: .72rem; font-weight: 700; color: #fff; background: linear-gradient(transparent, rgba(0, 0, 0, .6)); }
-@media (max-width: 1199.98px) { .hero-collage { grid-template-columns: 270px 124px; height: 180px; } }
-@media (max-width: 991.98px) {
-  .hero-collage { display: none; }
-  .home-hero { background: linear-gradient(180deg, rgba(9, 27, 34, .72) 0%, rgba(9, 27, 34, .9) 100%), url(hero/gate-800.jpg) center 55% / cover no-repeat var(--uop-navy); }
-  .home-hero .hero-row { flex-wrap: wrap; } }
+.home-hero h1 { font-size: 2.2rem; font-weight: 800; }
+.home-hero p { max-width: 640px; font-size: .95rem; line-height: 1.8; }
 @media (max-width: 575.98px) { .home-hero h1 { font-size: 1.7rem; } }
-@media (prefers-reduced-motion: reduce) { .hc-tile img { transition: none; transform: none; } }
-.home-hero .hero-credit { position: absolute; left: .8rem; bottom: .45rem; font-size: .68rem; color: rgba(255, 255, 255, .7); text-decoration: none; }
-.home-hero .hero-credit:hover { color: #fff; }
-@media (max-width: 767.98px) {
-  .home-hero { min-height: 210px; background: linear-gradient(180deg, rgba(9, 27, 34, .7) 0%, rgba(9, 27, 34, .88) 100%), url(hero/gate-800.jpg) center 55% / cover no-repeat var(--uop-navy); }
-  .home-hero h1 { font-size: 1.7rem; } }
-@media print { .home-hero { background: #fff; color: #000; } .home-hero::before, .home-hero .hero-credit, .hero-collage { display: none; } }
+@media print { .home-hero::before { display: none; } }
 .nb-gpick { display: inline-flex; align-items: center; gap: .35rem; font-size: .8rem; font-weight: 700; color: #4b5563; background: #f1ede4; border-radius: 999px; padding: .15rem .25rem .15rem .7rem; }
 .nb-gpick select { width: auto; border-radius: 999px; font-weight: 400; }
