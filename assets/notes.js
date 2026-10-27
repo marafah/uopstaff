@@ -135,26 +135,51 @@
   function courses() {
     return U.getJSON('data/timetable.json').then(d => { const m = {}; d.sections.forEach(s => { m[s.code] = `${s.code} ${s.name.replace(/\s*-\s*(نظري|عملي)\s*$/, '')}`; }); COURSES = Object.values(m).sort(); }).catch(() => {});
   }
-  // the quick-add bar: the types this person uses most, then the usual ones
+  // the quick-add bar: the types the person chose (☆ in the gallery), else the ones they use most, then the usual ones
+  const favs = () => (pref.get('fav', null) || []).filter(k => TYPES[k]);
   function quickTypes() {
+    if (pref.get('fav', null)) return favs();
     const used = {}; ITEMS.forEach(x => { used[x.type] = (used[x.type] || 0) + 1; });
     const top = Object.keys(used).filter(k => TYPES[k]).sort((a, b) => used[b] - used[a]);
     return [...new Set(top.concat(QUICK_DEFAULT))].slice(0, 10);
   }
-  // all types, grouped, with a search box
-  function gallery() {
-    U.modal('<i class="bi bi-plus-circle-fill"></i> سجل جديد: اختر النوع', `
+  // all types, grouped, with a search box; ☆ puts a type on the quick-add bar (custom: opened from «تخصيص»)
+  function gallery(custom) {
+    let bar = quickTypes(), changed = false;
+    const star = k => { const on = bar.includes(k); return `<button type="button" class="nb-star ${on ? 'on' : ''}" data-star="${k}" title="${on ? 'إزالة من' : 'إضافة إلى'} شريط الإضافة السريعة" aria-pressed="${on}"><i class="bi ${on ? 'bi-star-fill' : 'bi-star'}"></i></button>`; };
+    U.modal(custom ? '<i class="bi bi-sliders"></i> تخصيص شريط الإضافة السريعة' : '<i class="bi bi-plus-circle-fill"></i> سجل جديد: اختر النوع', `
+      <div class="nb-favbar"><i class="bi bi-star-fill"></i> <span>انقر النجمة لإضافة النوع إلى شريط الإضافة السريعة أعلى الصفحة أو إزالته منه — يظهر بالترتيب الذي تختاره.</span>
+        <b id="g-n"></b><button type="button" class="btn btn-sm btn-link" id="g-auto" ${pref.get('fav', null) ? '' : 'hidden'}>رجوع إلى التلقائي (الأكثر استخداماً)</button></div>
       <div class="nb-search mb-3"><i class="bi bi-search"></i><input id="g-q" type="search" placeholder="ابحث عن نوع: اجتماع، كتاب، امتحان، سفر…" autocomplete="off"></div>
-      <div id="g-list">${CATS.map(([cn, ci, ks]) => `<section class="nb-gcat"><h3><i class="bi ${ci}"></i> ${cn}</h3><div class="nb-gtypes">${ks.map(k => `<button type="button" data-g="${k}" data-n="${esc(norm(TYPES[k].name))}" style="--c:${TYPES[k].color}">
-        <i class="bi ${TYPES[k].icon}"></i><b>${TYPES[k].name}</b><small>${TYPES[k].f.filter(f => ['when', 'due', 'people', 'place', 'decisions', 'checklist', 'amount', 'course', 'ref'].includes(f)).slice(0, 2).map(f => LABEL[f].replace(' (دينار)', '')).join(' · ') || 'نص حر'}</small></button>`).join('')}</div></section>`).join('')}</div>`);
+      <div id="g-list">${CATS.map(([cn, ci, ks]) => `<section class="nb-gcat"><h3><i class="bi ${ci}"></i> ${cn}</h3><div class="nb-gtypes">${ks.map(k => `<div class="nb-gt" data-n="${esc(norm(TYPES[k].name))}"><button type="button" data-g="${k}" style="--c:${TYPES[k].color}">
+        <i class="bi ${TYPES[k].icon}"></i><b>${TYPES[k].name}</b><small>${TYPES[k].f.filter(f => ['when', 'due', 'people', 'place', 'decisions', 'checklist', 'amount', 'course', 'ref'].includes(f)).slice(0, 2).map(f => LABEL[f].replace(' (دينار)', '')).join(' · ') || 'نص حر'}</small></button>${star(k)}</div>`).join('')}</div></section>`).join('')}</div>`);
     const m = $('#pgModal'); m.querySelector('.modal-dialog').classList.add('modal-xl');
-    m.addEventListener('hidden.bs.modal', () => m.querySelector('.modal-dialog').classList.remove('modal-xl'), { once: true });
+    const count = () => { $('#g-n').textContent = `في الشريط: ${bar.length}`; };
+    count();
+    m.addEventListener('hidden.bs.modal', () => { m.querySelector('.modal-dialog').classList.remove('modal-xl'); if (changed) render(); }, { once: true });
     m.querySelectorAll('[data-g]').forEach(b => b.addEventListener('click', () => { bootstrap.Modal.getInstance(m).hide(); setTimeout(() => edit(null, b.dataset.g), 320); }));
+    bindStars();
+    function bindStars() {
+      m.querySelectorAll('[data-star]').forEach(b => { if (b.dataset.bound) return; b.dataset.bound = 1; b.addEventListener('click', () => {
+        const k = b.dataset.star;
+        bar = bar.includes(k) ? bar.filter(x => x !== k) : bar.concat(k);
+        pref.set('fav', bar); changed = true; render();  // the bar behind the window updates at once
+        const on = bar.includes(k);
+        b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); b.title = `${on ? 'إزالة من' : 'إضافة إلى'} شريط الإضافة السريعة`;
+        b.innerHTML = `<i class="bi ${on ? 'bi-star-fill' : 'bi-star'}"></i>`;
+        count(); $('#g-auto').hidden = false;
+      }); });
+    }
+    $('#g-auto').addEventListener('click', () => {
+      pref.set('fav', null); changed = true; bar = quickTypes(); render();
+      m.querySelectorAll('[data-star]').forEach(b => { const on = bar.includes(b.dataset.star); b.classList.toggle('on', on); b.innerHTML = `<i class="bi ${on ? 'bi-star-fill' : 'bi-star'}"></i>`; });
+      count(); $('#g-auto').hidden = true;
+    });
     const q = $('#g-q');
     q.addEventListener('input', () => { const v = norm(q.value.trim());
-      m.querySelectorAll('[data-g]').forEach(b => { b.hidden = !!v && !b.dataset.n.includes(v); });
-      m.querySelectorAll('.nb-gcat').forEach(c => { c.hidden = ![...c.querySelectorAll('[data-g]')].some(b => !b.hidden); }); });
-    q.addEventListener('keydown', e => { if (e.key === 'Enter') { const b = m.querySelector('[data-g]:not([hidden])'); if (b) b.click(); } });
+      m.querySelectorAll('.nb-gt').forEach(b => { b.hidden = !!v && !b.dataset.n.includes(v); });
+      m.querySelectorAll('.nb-gcat').forEach(c => { c.hidden = ![...c.querySelectorAll('.nb-gt')].some(b => !b.hidden); }); });
+    q.addEventListener('keydown', e => { if (e.key === 'Enter') { const b = m.querySelector('.nb-gt:not([hidden]) [data-g]'); if (b) b.click(); } });
     setTimeout(() => q.focus(), 350);
   }
   function filtered() {
@@ -267,7 +292,8 @@
         <button type="button" class="nb-new" id="nb-new"><i class="bi bi-plus-lg"></i> سجل جديد <kbd>N</kbd></button>
       </div>
       <div class="nb-quick">${quickTypes().map(k => `<button type="button" data-quick="${k}" style="--c:${TYPES[k].color}" title="${TYPES[k].name} جديد"><i class="bi ${TYPES[k].icon}"></i><span>${TYPES[k].name}</span></button>`).join('')}
-        <button type="button" class="nb-all" id="nb-all" title="كل الأنواع (${ORDER.length})"><i class="bi bi-grid-3x3-gap-fill"></i><span>كل الأنواع</span></button></div>
+        <button type="button" class="nb-all" id="nb-all" title="كل الأنواع (${ORDER.length})"><i class="bi bi-grid-3x3-gap-fill"></i><span>كل الأنواع</span></button>
+        <button type="button" class="nb-custom" id="nb-custom" title="اختر الأنواع التي تظهر في هذا الشريط"><i class="bi bi-sliders"></i><span>تخصيص</span></button></div>
       <div class="nb-bar">
         <div class="nb-views" role="tablist">${views.map(([k, l, i]) => `<button type="button" class="${st.view === k ? 'on' : ''}" data-view="${k}"><i class="bi ${i}"></i> ${l}</button>`).join('')}</div>
         <div class="nb-search"><i class="bi bi-search"></i><input id="nb-q" type="search" placeholder="ابحث في سجلاتك…" value="${esc(st.q)}"></div>
@@ -293,6 +319,7 @@
   function bind() {
     $('#nb-new').addEventListener('click', () => gallery());
     $('#nb-all').addEventListener('click', () => gallery());
+    $('#nb-custom').addEventListener('click', () => gallery(true));
     document.querySelectorAll('[data-quick]').forEach(b => b.addEventListener('click', () => edit(null, b.dataset.quick)));
     document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => { st.view = b.dataset.view; pref.set('view', st.view); render(); }));
     document.querySelectorAll('[data-ftype]').forEach(b => b.addEventListener('click', () => { st.type = b.dataset.ftype; render(); }));
@@ -475,7 +502,7 @@
       return U.download(`مفكرتي_${today()}.ics`, ics(dated), 'text/calendar;charset=utf-8');
     }
     if (kind === 'json') {
-      U.download(`مفكرتي_نسخة_احتياطية_${today()}.json`, JSON.stringify({ app: 'uop-notebook', version: 1, exported: new Date().toISOString(), count: ITEMS.length, items: ITEMS }, null, 1), 'application/json');
+      U.download(`مفكرتي_نسخة_احتياطية_${today()}.json`, JSON.stringify({ app: 'uop-notebook', version: 1, exported: new Date().toISOString(), count: ITEMS.length, settings: { quickTypes: pref.get('fav', null) }, items: ITEMS }, null, 1), 'application/json');
       pref.set('backup', Date.now()); render(); return toast('<i class="bi bi-check-circle-fill"></i> حُفظت النسخة الاحتياطية في مجلد التنزيلات');
     }
     if (kind === 'import') {
@@ -484,6 +511,7 @@
         try {
           const d = JSON.parse(r.result), its = Array.isArray(d) ? d : d.items;
           if (!Array.isArray(its) || its.some(x => !x.id || !x.type)) throw new Error('bad');
+          if (d.settings && Array.isArray(d.settings.quickTypes) && !pref.get('fav', null)) pref.set('fav', d.settings.quickTypes.filter(k => TYPES[k]));  // the chosen quick-add bar comes along
           const have = new Map(ITEMS.map(x => [x.id, x]));
           let added = 0, newer = 0;
           for (const x of its) { const o = have.get(x.id); if (!o) { added++; } else if ((x.updated || '') > (o.updated || '')) { newer++; } else continue;
