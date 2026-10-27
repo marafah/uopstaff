@@ -109,6 +109,7 @@
         ${office ? `<span class="sc-item sc-office" title="المكتب: ${esc(office)}"><i class="bi bi-door-open-fill"></i><span>${esc(office)}</span></span>` : ''}
         <span class="sc-fill"></span>
         ${m.email ? `<a href="mailto:${esc(m.email)}" class="sc-icon" title="مراسلة: ${esc(m.email)}" aria-label="مراسلة ${esc(m.email)}"><i class="bi bi-envelope-fill"></i></a>` : ''}
+        ${INS_PAGE[m.email] ? `<a href="instructor.html?id=${INS_PAGE[m.email]}" class="sc-icon" title="الجدول الأسبوعي وأوقات الفراغ" aria-label="صفحة المدرس"><i class="bi bi-calendar-week"></i></a>` : ''}
         ${m.profile ? `<a href="${esc(m.profile)}" target="_blank" rel="noopener" class="sc-profile" title="${m.type === 'academic' ? 'الملف الرسمي' : 'صفحة الكادر'} على موقع الجامعة"
           aria-label="${m.type === 'academic' ? 'الملف الرسمي' : 'صفحة الكادر'}"><i class="bi bi-box-arrow-up-left"></i></a>` : ''}
       </div>
@@ -478,19 +479,19 @@
       f.url ? 'URL:' + f.url : '', f.office ? 'NOTE:' + vEsc('المكتب: ' + f.office) : '', 'END:VCARD']
       .filter(Boolean).map(fold).join('\r\n') + '\r\n';
   }
-  function qp(text) {  // quoted-printable of the UTF-8 bytes, soft line breaks at 75 characters
+  function qp(text, used) {  // quoted-printable of the UTF-8 bytes; soft line breaks keep lines within 76 characters
     const bytes = new TextEncoder().encode(text);
-    let out = '', line = '';
+    let out = '', line = ' '.repeat(used || 0);
     bytes.forEach(b => {
       const tok = (b >= 33 && b <= 126 && b !== 61) ? String.fromCharCode(b) : '=' + b.toString(16).toUpperCase().padStart(2, '0');
       if (line.length + tok.length > 73) { out += line + '=\r\n'; line = ''; }
       line += tok;
     });
-    return out + line;
+    return (out + line).slice(used || 0);
   }
   function vcard21(m) {
     const f = vFields(m);
-    const u = (name, value) => `${name};CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:${qp(value)}`;
+    const u = (name, value) => { const head = `${name};CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:`; return head + qp(value, head.length); };
     return ['BEGIN:VCARD', 'VERSION:2.1',
       u('N', f.n.join(';')), u('FN', f.fn), u('ORG', f.org.join(';')), u('TITLE', f.title),
       'TEL;WORK;VOICE:' + f.tel, f.email ? 'EMAIL;PREF;INTERNET:' + f.email : '', f.url ? 'URL;WORK:' + f.url : '',
@@ -563,7 +564,11 @@
   }
 
   // ---------------------------------------------------------------- start
-  fetch('data/staff.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => {
+  // instructors teaching this term (e-mail -> instructor page id), for the calendar button on their cards
+  let INS_PAGE = {};
+  const insReady = fetch('data/instructors.json?t=' + Math.floor(Date.now() / 600000), { cache: 'no-cache' }).then(r => r.ok ? r.json() : null)
+    .then(d => { if (d) INS_PAGE = Object.fromEntries(d.instructors.filter(i => i.email).map(i => [i.email, i.id])); }).catch(() => {});
+  fetch('data/staff.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(d => insReady.then(() => d)).then(d => {
     DATA = d;
     d.faculties.forEach(f => FAC[f.id] = f);
     d.sources.forEach(s => SRC[s.key] = s);

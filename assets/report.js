@@ -8,7 +8,7 @@ window.printReport = (function () {
   const now = () => new Date().toLocaleString('ar-JO-u-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   const CSS = `
-  @page { size: A4 var(--orient); margin: 14mm 12mm 16mm; }
+  @page { size: A4 __ORIENT__; margin: 14mm 12mm 16mm; }
   * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   html, body { margin: 0; background: #fff; color: #1f2d33; font-family: Tajawal, 'Segoe UI', Tahoma, sans-serif; font-size: 10.5pt; }
   .page { padding: 0; }
@@ -86,7 +86,7 @@ window.printReport = (function () {
     const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${esc(o.title)}</title>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap">
       ${(o.css || []).map(h => `<link rel="stylesheet" href="${new URL(h, location.href).href}">`).join('')}
-      <style>:root{--orient:${orient};--screenw:${orient === 'landscape' ? '297mm' : '210mm'}}${CSS}${o.raw ? RAW_CSS : ''}</style></head><body>
+      <style>${CSS.replace('__ORIENT__', orient)}${o.raw ? RAW_CSS : ''}</style></head><body>
       <div class="page">
         <header class="rh"><img src="${logo}" alt="">
           <div class="t"><small>جامعة البترا</small><h1>${esc(o.title)}</h1>${o.subtitle ? `<h2>${esc(o.subtitle)}</h2>` : ''}</div>

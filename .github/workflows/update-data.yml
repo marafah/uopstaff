@@ -25,6 +25,9 @@ jobs:
         # any mismatch fails this step only: the previous timetable stays, the other updates are still saved
         continue-on-error: true
         run: python scripts/update_timetable.py
+      - name: Instructor pages, calendar subscriptions, seat history
+        continue-on-error: true
+        run: python scripts/build_extras.py
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"

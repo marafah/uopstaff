@@ -1,0 +1,83 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//timetable//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:محاضرات د. طارق محمد خير اسماعيل ط
+ لافحة
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT1H
+X-PUBLISHED-TTL:PT1H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:a031ae87fa0f87ed@uopstaff
+DTSTAMP:20261018T000000Z
+DTSTART;TZID=Asia/Amman:20261018T100000
+DTEND;TZID=Asia/Amman:20261018T110000
+RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
+EXDATE;TZID=Asia/Amman:20270105T100000
+SUMMARY:304101 مقدمة في الأعمال الالكترونية – ش
+ 3
+LOCATION:9119 – مبنى كلية العلوم الإدارية
+DESCRIPTION:نظري · وجاهي · الأعمال والتجارة ال
+ الكترونية – العلوم الادارية والمالية
+END:VEVENT
+BEGIN:VEVENT
+UID:00c01bacd0acbdfd@uopstaff
+DTSTAMP:20261018T000000Z
+DTSTART;TZID=Asia/Amman:20261018T130000
+DTEND;TZID=Asia/Amman:20261018T140000
+RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
+EXDATE;TZID=Asia/Amman:20270105T130000
+SUMMARY:304311 إدارة شبكات التواصل الاجتماعي وا
+ لعلاقة الالكترونية مع الزبائن – ش3
+LOCATION:9119 – مبنى كلية العلوم الإدارية
+DESCRIPTION:نظري · وجاهي · الأعمال والتجارة ال
+ الكترونية – العلوم الادارية والمالية
+END:VEVENT
+BEGIN:VEVENT
+UID:2aae8df42f81fb3c@uopstaff
+DTSTAMP:20261018T000000Z
+DTSTART;TZID=Asia/Amman:20261018T120000
+DTEND;TZID=Asia/Amman:20261018T130000
+RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
+EXDATE;TZID=Asia/Amman:20270105T120000
+SUMMARY:304401 الإدارة الالكترونية لسلسلة التز
+ ويد – ش3
+LOCATION:9124 – مبنى كلية العلوم الإدارية
+DESCRIPTION:نظري · وجاهي · الأعمال والتجارة ال
+ الكترونية – العلوم الادارية والمالية
+END:VEVENT
+BEGIN:VEVENT
+UID:af8aa6b5c9da5680@uopstaff
+DTSTAMP:20261018T000000Z
+DTSTART;TZID=Asia/Amman:20261019T110000
+DTEND;TZID=Asia/Amman:20261019T123000
+RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
+SUMMARY:304412 أدوات وتطبيقات الأعمال الإلكترو
+ نية – ش2
+LOCATION:9003 – مبنى كلية العلوم الإدارية
+DESCRIPTION:نظري · وجاهي · الأعمال والتجارة ال
+ الكترونية – العلوم الادارية والمالية
+END:VEVENT
+BEGIN:VEVENT
+UID:11831700838e62f5@uopstaff
+DTSTAMP:20261018T000000Z
+DTSTART;TZID=Asia/Amman:20261019T123000
+DTEND;TZID=Asia/Amman:20261019T140000
+RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
+SUMMARY:304412 أدوات وتطبيقات الأعمال الإلكترو
+ نية – ش3
+LOCATION:9118 – مبنى كلية العلوم الإدارية
+DESCRIPTION:نظري · وجاهي · الأعمال والتجارة ال
+ الكترونية – العلوم الادارية والمالية
+END:VEVENT
+END:VCALENDAR

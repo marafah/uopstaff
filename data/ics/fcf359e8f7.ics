@@ -1,0 +1,83 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//timetable//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:محاضرات د. حسام الدين حسين سلمى بر
+ هم
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT1H
+X-PUBLISHED-TTL:PT1H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:2ef23a7362b094a7@uopstaff
+DTSTAMP:20261018T000000Z
+DTSTART;TZID=Asia/Amman:20261018T130000
+DTEND;TZID=Asia/Amman:20261018T140000
+RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
+EXDATE;TZID=Asia/Amman:20270105T130000
+SUMMARY:304499 مهارات مهنية في الأعمال والتجارة
+  الالكترونية – ش1
+LOCATION:9217 – مبنى كلية العلوم الإدارية
+DESCRIPTION:نظري · وجاهي · الأعمال والتجارة ال
+ الكترونية – العلوم الادارية والمالية
+END:VEVENT
+BEGIN:VEVENT
+UID:ceb6c5862cb5ef94@uopstaff
+DTSTAMP:20261018T000000Z
+DTSTART;TZID=Asia/Amman:20261019T123000
+DTEND;TZID=Asia/Amman:20261019T140000
+RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
+SUMMARY:307203 اداره و تصميم جداول البيانات للا
+ عمال الذكيه VBA – ش1
+LOCATION:9217 – مبنى كلية العلوم الإدارية
+DESCRIPTION:نظري · وجاهي · ذكاء الأعمال وتحليل 
+ البيانات – العلوم الادارية والمالية
+END:VEVENT
+BEGIN:VEVENT
+UID:f4944e87fff10a08@uopstaff
+DTSTAMP:20261018T000000Z
+DTSTART;TZID=Asia/Amman:20261019T110000
+DTEND;TZID=Asia/Amman:20261019T120000
+RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
+SUMMARY:307304 ذكاء الاعمال و تنقيب البيانات – 
+ ش2
+LOCATION:9216 – مبنى كلية العلوم الإدارية
+DESCRIPTION:نظري · وجاهي · ذكاء الأعمال وتحليل 
+ البيانات – العلوم الادارية والمالية
+END:VEVENT
+BEGIN:VEVENT
+UID:ec1bc84b9d9e66d8@uopstaff
+DTSTAMP:20261018T000000Z
+DTSTART;TZID=Asia/Amman:20261018T110000
+DTEND;TZID=Asia/Amman:20261018T120000
+RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
+EXDATE;TZID=Asia/Amman:20270105T110000
+SUMMARY:307402 ادارة و تحليل بيانات الاعمال الت
+ نبؤية وعرضها – ش1
+LOCATION:9416 – مبنى كلية العلوم الإدارية
+DESCRIPTION:نظري · وجاهي · ذكاء الأعمال وتحليل 
+ البيانات – العلوم الادارية والمالية
+END:VEVENT
+BEGIN:VEVENT
+UID:92c07e60489ddaca@uopstaff
+DTSTAMP:20261018T000000Z
+DTSTART;TZID=Asia/Amman:20261018T090000
+DTEND;TZID=Asia/Amman:20261018T100000
+RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
+EXDATE;TZID=Asia/Amman:20270105T090000
+SUMMARY:307402 ادارة و تحليل بيانات الاعمال الت
+ نبؤية وعرضها – ش2
+LOCATION:9002 – مبنى كلية العلوم الإدارية
+DESCRIPTION:نظري · وجاهي · ذكاء الأعمال وتحليل 
+ البيانات – العلوم الادارية والمالية
+END:VEVENT
+END:VCALENDAR

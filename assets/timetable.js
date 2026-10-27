@@ -144,7 +144,13 @@
     return `<span class="tt-seats ${s.status === 'مغلقة' ? 'full' : 'open'}" title="المسجلون ${s.registered} من سعة ${s.capacity}">
       <span class="tt-st">${esc(s.status)}</span><span class="tt-bar"><i style="width:${pct}%"></i></span><bdi dir="ltr">${s.registered}/${s.capacity}</bdi></span>`;
   };
-  const instLink = s => `<a class="tt-inst" href="./?q=${encodeURIComponent(s.instructor.replace(/^(أ\.?\s?د|د|م|أ)\.?\s*/, '').split(' ').slice(0, 2).join(' '))}" title="ابحث عن ${esc(s.instructor)} في دليل الموظفين">${esc(s.instructor)}</a>`;
+  // instructor name -> instructor page (data/instructors.json); before it loads, the directory search
+  let INST_ID = {};
+  fetch('data/instructors.json?t=' + Math.floor(Date.now() / 600000), { cache: 'no-cache' }).then(r => r.ok ? r.json() : null)
+    .then(d => { if (d) INST_ID = Object.fromEntries(d.instructors.map(i => [i.name, i.id])); }).catch(() => {});
+  const instLink = s => INST_ID[s.instructor]
+    ? `<a class="tt-inst" href="instructor.html?id=${INST_ID[s.instructor]}" title="صفحة ${esc(s.instructor)}: الجدول وأوقات الفراغ والتواصل">${esc(s.instructor)}</a>`
+    : `<a class="tt-inst" href="./?q=${encodeURIComponent(s.instructor.replace(/^(أ\.?\s?د|د|م|أ)\.?\s*/, '').split(' ').slice(0, 2).join(' '))}" title="ابحث عن ${esc(s.instructor)} في دليل الموظفين">${esc(s.instructor)}</a>`;
 
   // ------------------------------------------------------------------ views
   const SORTS = {
@@ -1097,7 +1103,9 @@
     showUpdated(d);
     render();
   }
-  fetch('data/timetable.json?t=' + Math.floor(Date.now() / 600000), { cache: 'no-cache' }).then(r => r.json()).then(d => {
+  Promise.all([fetch('data/timetable.json?t=' + Math.floor(Date.now() / 600000), { cache: 'no-cache' }).then(r => r.json()),
+    fetch('data/instructors.json?t=' + Math.floor(Date.now() / 600000), { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).catch(() => null)]).then(([d, ins]) => {
+    if (ins) INST_ID = Object.fromEntries(ins.instructors.map(i => [i.name, i.id]));
     DATA = d;
     S = d.sections;
     DAYS = d.days;

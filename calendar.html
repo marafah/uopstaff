@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="assets/app.css?v=202610270746">
+  <link rel="stylesheet" href="assets/app.css?v=202610270807">
 </head>
 <body data-share-title="التقويم الجامعي – جامعة البترا" data-share-what="التقويم الجامعي">
 <nav class="navbar uop-topbar py-0 sticky-top no-print">
@@ -27,6 +27,15 @@
       <a href="./"><i class="bi bi-person-lines-fill"></i> دليل الموظفين</a>
       <a href="timetable.html"><i class="bi bi-table"></i> الجدول الدراسي</a>
       <a class="active" href="calendar.html" aria-current="page"><i class="bi bi-calendar3"></i> التقويم الجامعي</a>
+      <div class="dropdown site-more">
+        <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-grid-3x3-gap-fill"></i> المزيد</a>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="instructor.html"><i class="bi bi-person-badge"></i><span><b>صفحة المدرس</b><small>جدول كل مدرس وأوقات فراغه واشتراك تقويمه</small></span></a></li>
+          <li><a class="dropdown-item" href="planner.html"><i class="bi bi-calendar2-week"></i><span><b>مخطط جدولي</b><small>اختر مقرراتك وشعبك بلا تعارض</small></span></a></li>
+          <li><a class="dropdown-item" href="now.html"><i class="bi bi-broadcast"></i><span><b>الآن في الجامعة</b><small>المحاضرات الجارية والقاعات الشاغرة الآن</small></span></a></li>
+          <li><a class="dropdown-item" href="trends.html"><i class="bi bi-graph-up-arrow"></i><span><b>متابعة التسجيل</b><small>امتلاء الشعب والمقررات التي تحتاج شعباً إضافية</small></span></a></li>
+        </ul>
+      </div>
     </nav>
     <div class="d-flex align-items-center gap-2 my-2 ms-auto">
       <input class="uop-search" id="cal-q" type="search" placeholder="ابحث في المواعيد: امتحان، عطلة، انسحاب…" aria-label="بحث في التقويم">
@@ -161,8 +170,8 @@
 <div class="copy-toast" id="copy-toast" role="status" aria-live="polite"><i class="bi bi-clipboard-check-fill"></i> <span></span></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
-<script src="assets/calendar.js?v=202610270746"></script>
-<script src="assets/report.js?v=202610270746"></script>
-<script src="assets/share.js?v=202610270746"></script>
+<script src="assets/calendar.js?v=202610270807"></script>
+<script src="assets/report.js?v=202610270807"></script>
+<script src="assets/share.js?v=202610270807"></script>
 </body>
 </html>
