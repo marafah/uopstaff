@@ -7,6 +7,9 @@
   let current = '';
 
   const baseUrl = () => location.origin + location.pathname.replace(/index\.html$/, '');
+  // the site's main page (دليل الموظفين) is what the site address, the footer QR and the default share open
+  const siteUrl = () => location.origin + location.pathname.replace(/[^/]*$/, '');
+  const SITE_TITLE = 'دليل موظفي جامعة البترا';
   function viewLabel() {
     const p = new URLSearchParams(location.search);
     const parts = [];
@@ -23,20 +26,23 @@
     return q;
   }
   function update() {
-    const what = document.querySelector('input[name=shareWhat]:checked').value;
     const hasView = !!location.search;
     $('#sw-view').disabled = !hasView;
-    if (!hasView) $('#sw-all').checked = true;
-    current = (what === 'view' && hasView) ? location.href : baseUrl();
+    if (!hasView && $('#sw-view').checked) ($('#sw-site') || $('#sw-all')).checked = true;
+    const what = document.querySelector('input[name=shareWhat]:checked').value;
+    current = what === 'site' ? siteUrl() : (what === 'view' && hasView) ? location.href : baseUrl();
     const label = what === 'view' && hasView ? viewLabel() : '';
+    const title = what === 'site' ? SITE_TITLE : TITLE;
+    const head = document.querySelector('#qr-card .qr-head b');
+    if (head) head.textContent = title;
     $('#share-url').value = current;
     $('#share-url-text').textContent = current.replace(/^https?:\/\//, '');
-    $('#qr-sub').textContent = label ? `امسح الرمز لفتح: ${label}` : `امسح الرمز لفتح ${document.body.dataset.shareWhat || 'الدليل'}`;
+    $('#qr-sub').textContent = label ? `امسح الرمز لفتح: ${label}` : what === 'site' ? 'امسح الرمز لفتح دليل الموظفين' : `امسح الرمز لفتح ${document.body.dataset.shareWhat || 'الدليل'}`;
     $('#qr').innerHTML = qrFor(current).createSvgTag({ cellSize: 6, margin: 2, scalable: true })
       .replace(/fill="black"/g, `fill="${NAVY}"`);
-    const text = `${TITLE}${label ? ' – ' + label : ''}\n${current}`;
+    const text = `${title}${label ? ' – ' + label : ''}\n${current}`;
     $('#share-wa').href = 'https://wa.me/?text=' + encodeURIComponent(text);
-    $('#share-mail').href = `mailto:?subject=${encodeURIComponent(TITLE)}&body=${encodeURIComponent(text)}`;
+    $('#share-mail').href = `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(text)}`;
     $('#share-native').hidden = !navigator.share;
   }
   function copy(text) {
@@ -77,7 +83,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     $('#year').textContent = new Date().getFullYear();
     // small QR of the directory link in the footer (opens the share panel)
-    $('#foot-qr').innerHTML = qrFor(baseUrl()).createSvgTag({ cellSize: 4, margin: 2, scalable: true }).replace(/fill="black"/g, `fill="${NAVY}"`);
+    $('#foot-qr').innerHTML = qrFor(siteUrl()).createSvgTag({ cellSize: 4, margin: 2, scalable: true }).replace(/fill="black"/g, `fill="${NAVY}"`);
     const modal = $('#shareModal');
     modal.addEventListener('show.bs.modal', update);
     document.querySelectorAll('input[name=shareWhat]').forEach(r => r.addEventListener('change', update));
