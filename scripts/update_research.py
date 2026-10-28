@@ -373,15 +373,22 @@ def oa_find_authors(prof, member, overrides, pool):
     return found[:4], how
 
 
-WORK_SELECT = ('id,doi,title,publication_year,type,cited_by_count,open_access,primary_location,'
-               'authorships,primary_topic,sustainable_development_goals,biblio,fwci')
+WORK_SELECT_BASIC = ('id,doi,title,publication_year,type,cited_by_count,open_access,primary_location,'
+                     'authorships,primary_topic,sustainable_development_goals,biblio,fwci')
+# the document page also shows the abstract, keywords, topics, language, references and citations per year
+WORK_SELECT = WORK_SELECT_BASIC + ',abstract_inverted_index,keywords,topics,language,publication_date,referenced_works_count,counts_by_year,ids'
+SEL = {'works': WORK_SELECT}
 
 
 def oa_works_for(author_ids):
     works, cursor = [], '*'
     flt = 'author.id:' + '|'.join(author_ids)
     while cursor and len(works) < 2500:
-        j = oa_get('works', {'filter': flt, 'per_page': 200, 'cursor': cursor, 'select': WORK_SELECT})
+        j = oa_get('works', {'filter': flt, 'per_page': 200, 'cursor': cursor, 'select': SEL['works']})
+        if not j and SEL['works'] != WORK_SELECT_BASIC and not OA_STATE['down'] and not works:
+            SEL['works'] = WORK_SELECT_BASIC   # an unknown field must never cost the whole run
+            log('  ! OpenAlex refused the detailed field list; using the basic one')
+            continue
         if not j:
             break
         works += j.get('results', [])
@@ -497,6 +504,115 @@ def scopus_search_docs(researchers_ids=()):
             if r is not None and sid not in r['Author(s) ID'].split(';'):
                 r['Author(s) ID'] = ';'.join(x for x in [r['Author(s) ID'], sid] if x)
     return rows
+
+
+# Jordanian universities in Scopus (affiliation IDs from Scopus' own affiliation facet for AFFILCOUNTRY(jordan))
+JO_SCOPUS = [
+    ('60064180', 'The University of Jordan', 'الجامعة الأردنية'), ('60051534', 'Jordan University of Science and Technology', 'جامعة العلوم والتكنولوجيا الأردنية'),
+    ('60044088', 'Hashemite University', 'الجامعة الهاشمية'), ('60044065', 'Yarmouk University', 'جامعة اليرموك'),
+    ('60062395', 'Al-Balqa Applied University', 'جامعة البلقاء التطبيقية'), ('60043655', 'Applied Science Private University', 'جامعة العلوم التطبيقية الخاصة'),
+    ('60058937', 'Al-Ahliyya Amman University', 'جامعة عمان الأهلية'), ('60042753', 'Zarqa University', 'جامعة الزرقاء'),
+    ('60035301', 'Mutah University', 'جامعة مؤتة'), ('60067411', 'Al-Zaytoonah University of Jordan', 'جامعة الزيتونة الأردنية'),
+    ('60036479', 'Al al-Bayt University', 'جامعة آل البيت'), ('60109124', 'Middle East University', 'جامعة الشرق الأوسط'),
+    ('60139033', 'Jadara University', 'جامعة جدارا'), ('60067706', 'Isra University', 'جامعة الإسراء'),
+    ('60040839', 'University of Petra', 'جامعة البترا'), ('60056335', 'Princess Sumaya University for Technology', 'جامعة الأميرة سمية للتكنولوجيا'),
+    ('60070287', 'German Jordanian University', 'الجامعة الألمانية الأردنية'), ('60105841', 'Al-Hussein Bin Talal University', 'جامعة الحسين بن طلال'),
+    ('60087691', 'Amman Arab University', 'جامعة عمان العربية'), ('60054151', 'Philadelphia University', 'جامعة فيلادلفيا'),
+    ('60035155', 'Tafila Technical University', 'جامعة الطفيلة التقنية'), ('60049668', 'Jerash University', 'جامعة جرش'),
+    ('60070289', 'Irbid National University', 'جامعة إربد الأهلية'), ('60276501', 'Ajloun National University', 'جامعة عجلون الوطنية'),
+    ('60115127', 'American University of Madaba', 'الجامعة الأمريكية في مادبا'), ('60108351', 'The World Islamic Sciences and Education University', 'جامعة العلوم الإسلامية العالمية'),
+    ('60122214', 'Aqaba University of Technology', 'جامعة العقبة للتكنولوجيا'), ('60276062', 'Al Hussein Technical University', 'جامعة الحسين التقنية'),
+]
+SUBJ = {'AGRI': 'العلوم الزراعية والحيوية', 'ARTS': 'الآداب والعلوم الإنسانية', 'BIOC': 'الكيمياء الحيوية والوراثة', 'BUSI': 'الأعمال والإدارة والمحاسبة',
+        'CENG': 'الهندسة الكيميائية', 'CHEM': 'الكيمياء', 'COMP': 'علم الحاسوب', 'DECI': 'علوم القرار', 'DENT': 'طب الأسنان',
+        'EART': 'علوم الأرض والكواكب', 'ECON': 'الاقتصاد والمالية', 'ENER': 'الطاقة', 'ENGI': 'الهندسة', 'ENVI': 'العلوم البيئية',
+        'HEAL': 'المهن الصحية', 'IMMU': 'المناعة والأحياء الدقيقة', 'MATE': 'علوم المواد', 'MATH': 'الرياضيات', 'MEDI': 'الطب',
+        'NEUR': 'علم الأعصاب', 'NURS': 'التمريض', 'PHAR': 'الصيدلة والسموم', 'PHYS': 'الفيزياء والفلك', 'PSYC': 'علم النفس',
+        'SOCI': 'العلوم الاجتماعية', 'VETE': 'الطب البيطري', 'MULT': 'متعدد التخصصات'}
+
+SC_BUDGET = {'used': 0, 'remaining': None}
+
+
+def scopus_count(query):
+    """Number of Scopus documents matching a query: one request, nothing downloaded."""
+    if SC_BUDGET['remaining'] is not None and SC_BUDGET['remaining'] < 300:
+        return None   # keep a safety margin of the weekly quota
+    for attempt in range(4):
+        r = http('GET', 'https://api.elsevier.com/content/search/scopus', headers=scopus_headers(), tries=2,
+                 params={'query': query, 'count': 1, 'field': 'eid'})
+        SC_BUDGET['used'] += 1
+        time.sleep(0.25)   # about 4 requests a second, under Scopus' limit of 9
+        if r is None:
+            return None
+        rem = r.headers.get('X-RateLimit-Remaining')
+        if rem and rem.isdigit():
+            SC_BUDGET['remaining'] = int(rem)
+        if r.status_code == 429:
+            time.sleep(min(60, 5 * (attempt + 1)))
+            continue
+        if r.status_code != 200:
+            return None
+        try:
+            return int(r.json()['search-results']['opensearch:totalResults'])
+        except (KeyError, ValueError, TypeError):
+            return None
+    return None
+
+
+def scopus_h_index(afid):
+    """Institution h-index in Scopus: documents sorted by citations, read until citations < rank."""
+    h, start = 0, 0
+    while start < 2000:
+        r = http('GET', 'https://api.elsevier.com/content/search/scopus', headers=scopus_headers(), tries=2,
+                 params={'query': f'AF-ID({afid})', 'count': 25, 'start': start, 'sort': '-citedby-count', 'field': 'citedby-count'})
+        SC_BUDGET['used'] += 1
+        time.sleep(0.25)
+        if r is None or r.status_code != 200:
+            return None
+        cites = [int(e.get('citedby-count') or 0) for e in r.json().get('search-results', {}).get('entry', []) if 'error' not in e]
+        if not cites:
+            break
+        for i, c in enumerate(cites, start + 1):
+            if c >= i:
+                h = i
+            else:
+                return h
+        start += 25
+    return h
+
+
+def scopus_universities(prev):
+    """Weekly Scopus profile of every Jordanian university: documents per year, open access, subject areas, h-index.
+    About 50 requests per university (≈1,500 a week, well inside the free key's 20,000 weekly quota)."""
+    if not SCOPUS_KEY:
+        return (prev or {}).get('scopus_universities') or []
+    old = {u['afid']: u for u in (prev or {}).get('scopus_universities') or []}
+    out, years = [], range(THIS_YEAR - 14, THIS_YEAR + 1)
+    for afid, name, ar in JO_SCOPUS:
+        base = f'AF-ID({afid})'
+        total = scopus_count(base)
+        if total is None:   # quota or access problem: keep last week's figures
+            if afid in old:
+                out.append(old[afid])
+            continue
+        by_year = {}
+        for y in years:
+            n = scopus_count(f'{base} AND PUBYEAR IS {y}')
+            if n is not None:
+                by_year[str(y)] = n
+        oa = scopus_count(f'{base} AND OPENACCESS(1)')
+        subj = {}
+        for code in SUBJ:
+            n = scopus_count(f'{base} AND SUBJAREA({code})')
+            if n:
+                subj[code] = n
+        h = scopus_h_index(afid)
+        out.append({'afid': afid, 'name': name, 'name_ar': ar, 'docs': total, 'by_year': by_year,
+                    'oa_share': round(oa / total, 3) if oa is not None and total else None,
+                    'subjects': sorted(subj.items(), key=lambda x: -x[1]), 'h': h if h is not None else (old.get(afid) or {}).get('h')})
+        log(f'  scopus {name}: {total} documents, h {h}')
+    log(f'scopus universities: {len(out)} universities, {SC_BUDGET["used"]} requests, quota left {SC_BUDGET["remaining"]}')
+    return out
 
 
 def scopus_csv_rows():
@@ -753,6 +869,177 @@ def institution_extras():
 
 
 # ------------------------------------------------------------------------------- main
+# ------------------------------------------------------------------------------- document details
+DETAIL_SHARDS = 64
+
+
+def detail_shard(wid):
+    """FNV-1a over the id, so the page computes the same file number (assets/rs-doc.js)."""
+    h = 2166136261
+    for ch in str(wid):
+        h = ((h ^ ord(ch)) * 16777619) & 0xFFFFFFFF
+    return h % DETAIL_SHARDS
+
+
+def oa_abstract(inv):
+    """OpenAlex keeps abstracts as an inverted index (word -> positions)."""
+    if not isinstance(inv, dict) or not inv:
+        return ''
+    pos = {}
+    for word, idx in inv.items():
+        for i in idx or []:
+            pos[i] = word
+    return ' '.join(pos[i] for i in sorted(pos))
+
+
+def clip(s, n):
+    s = re.sub(r'\s+', ' ', html.unescape(str(s or ''))).strip()
+    return s if len(s) <= n else s[:n].rsplit(' ', 1)[0] + ' …'
+
+
+def split_list(s, sep=';'):
+    return [x.strip() for x in html.unescape(str(s or '')).split(sep) if x.strip()]
+
+
+def oa_detail(w, rid_by_oa):
+    """Everything the document page shows that OpenAlex knows about a work."""
+    loc = w.get('primary_location') or {}
+    src = loc.get('source') or {}
+    bib = w.get('biblio') or {}
+    authors, insts = [], {}
+    for a in w.get('authorships') or []:
+        if not isinstance(a, dict):
+            continue
+        au = a.get('author') or {}
+        aff = []
+        for inst in a.get('institutions') or []:
+            nm = (inst or {}).get('display_name')
+            if not nm:
+                continue
+            iid = (inst.get('id') or '').split('/')[-1]
+            insts.setdefault(nm, {'n': nm, 'cc': inst.get('country_code') or '', 'id': iid, 'uop': iid == UOP_OA})
+            aff.append(nm)
+        if not aff:
+            aff = [clip(x, 200) for x in (a.get('raw_affiliation_strings') or [])[:2]]
+        aid = (au.get('id') or '').split('/')[-1]
+        authors.append({'n': au.get('display_name') or a.get('raw_author_name') or '', 'aff': aff,
+                        'orcid': orcid_id(au.get('orcid') or ''), 'oa': aid, 'rid': rid_by_oa.get(aid, ''),
+                        'corr': bool(a.get('is_corresponding')), 'uop': any(insts.get(x, {}).get('uop') for x in aff)})
+    topics = []
+    for t in (w.get('topics') or [])[:3]:
+        topics.append({'t': t.get('display_name', ''), 'sf': (t.get('subfield') or {}).get('display_name', ''),
+                       'f': (t.get('field') or {}).get('display_name', ''), 'd': (t.get('domain') or {}).get('display_name', ''),
+                       's': round(t.get('score') or 0, 2)})
+    ids = w.get('ids') or {}
+    fp, lp = bib.get('first_page') or '', bib.get('last_page') or ''
+    return {
+        'abs': clip(oa_abstract(w.get('abstract_inverted_index')), 4000), 'abs_src': 'OpenAlex',
+        'kw': [k.get('display_name') for k in (w.get('keywords') or []) if k.get('display_name')][:12],
+        'authors': authors, 'insts': list(insts.values()), 'topics': topics,
+        'sdg': [{'n': x.get('display_name'), 's': round(x.get('score') or 0, 2)} for x in (w.get('sustainable_development_goals') or []) if x.get('display_name')],
+        'vol': bib.get('volume') or '', 'iss': bib.get('issue') or '', 'pages': f'{fp}–{lp}' if fp and lp and fp != lp else fp,
+        'issn': src.get('issn') or ([src['issn_l']] if src.get('issn_l') else []), 'pub': src.get('host_organization_name') or '',
+        'lang': w.get('language') or '', 'date': w.get('publication_date') or '', 'refs': w.get('referenced_works_count'),
+        'cby': sorted([[c['year'], c.get('cited_by_count', 0)] for c in (w.get('counts_by_year') or []) if c.get('year')]),
+        'pmid': (ids.get('pmid') or '').split('/')[-1], 'land': loc.get('landing_page_url') or '', 'lic': loc.get('license') or '',
+        'pdf': loc.get('pdf_url') or '', 'doaj': True if src.get('is_in_doaj') else '',
+    }
+
+
+def scopus_detail(row, sid_to_rid):
+    """Details from a Scopus export row (or the API's standard view, which carries fewer fields)."""
+    authors = []
+    full = split_list(row.get('Author full names'))
+    affs = split_list(row.get('Authors with affiliations'))
+    for i, a in enumerate(full or split_list(row.get('Authors'))):
+        m = re.match(r'(.*?)\s*\((\d+)\)\s*$', a)
+        name, sid = (m.group(1), m.group(2)) if m else (a, '')
+        if ',' in name:
+            last, first = name.split(',', 1)
+            name = f'{first.strip()} {last.strip()}'
+        aff = affs[i].split(',', 1)[1].strip() if i < len(affs) and ',' in affs[i] else ''
+        authors.append({'n': name, 'sc': sid, 'aff': [aff] if aff else [], 'rid': sid_to_rid.get(sid, ''),
+                        'uop': 'petra' in aff.lower()})
+    ps, pe = (row.get('Page start') or '').strip(), (row.get('Page end') or '').strip()
+    return {
+        'abs': clip(row.get('Abstract'), 4000) if (row.get('Abstract') or '').strip() not in ('', '[No abstract available]') else '',
+        'abs_src': 'Scopus', 'kw_a': split_list(row.get('Author Keywords'))[:15], 'kw_i': split_list(row.get('Index Keywords'))[:15],
+        'sc_authors': authors, 'vol': row.get('Volume') or '', 'iss': row.get('Issue') or '', 'art': row.get('Art. No.') or '',
+        'pages': f'{ps}–{pe}' if ps and pe else ps, 'issn': split_list(row.get('ISSN'), ';'), 'isbn': split_list(row.get('ISBN')),
+        'pub': row.get('Publisher') or '', 'lang': row.get('Language of Original Document') or '',
+        'fund': split_list(row.get('Funding Details'))[:12], 'fund_txt': clip(row.get('Funding Texts') or row.get('Funding Text 1'), 1500),
+        'conf': row.get('Conference name') or '', 'stage': row.get('Publication Stage') or '', 'sc_type': row.get('Document Type') or '',
+        'sc_oa': row.get('Open Access') or '', 'pmid': row.get('PubMed ID') or '', 'sc_link': row.get('Link') or '',
+        'corr': clip(row.get('Correspondence Address'), 300),
+    }
+
+
+def wos_detail(row):
+    """Details from a Web of Science full record (tab-delimited export)."""
+    authors, by_name = [], {}
+    for m in re.finditer(r'\[([^\]]+)\]\s*([^\[]+)', row.get('C1') or ''):
+        addr = m.group(2).strip().rstrip(';').strip()
+        for nm in m.group(1).split(';'):
+            by_name.setdefault(nm.strip(), []).append(addr)
+    for nm in split_list(row.get('AF') or row.get('AU')):
+        disp = nm
+        if ',' in nm:
+            last, first = nm.split(',', 1)
+            disp = f'{first.strip()} {last.strip()}'
+        aff = by_name.get(nm, [])
+        authors.append({'n': disp, 'aff': aff[:3], 'uop': any('petra' in a.lower() for a in aff)})
+    bp, ep = (row.get('BP') or '').strip(), (row.get('EP') or '').strip()
+    try:
+        nr = int((row.get('NR') or '').strip())
+    except ValueError:
+        nr = None
+    return {
+        'abs': clip(row.get('AB'), 4000), 'abs_src': 'Web of Science', 'kw_a': split_list(row.get('DE'))[:15],
+        'kw_plus': split_list(row.get('ID'))[:15], 'wos_authors': authors, 'vol': (row.get('VL') or '').strip(),
+        'iss': (row.get('IS') or '').strip(), 'art': (row.get('AR') or '').strip(), 'pages': f'{bp}–{ep}' if bp and ep else bp,
+        'pub': (row.get('PU') or '').strip().title(), 'lang': (row.get('LA') or '').strip(), 'refs': nr,
+        'fund': split_list(row.get('FU'))[:12], 'fund_txt': clip(row.get('FX'), 1500), 'wos_cat': split_list(row.get('WC')),
+        'wos_area': split_list(row.get('SC')), 'wos_index': split_list(row.get('WE')), 'pmid': (row.get('PM') or '').strip(),
+        'wos_type': (row.get('DT') or '').strip(), 'conf': (row.get('CT') or '').strip(), 'pdate': (row.get('PD') or '').strip(),
+        'issn': [x for x in [(row.get('SN') or '').strip(), (row.get('EI') or '').strip()] if x],
+        'rp': clip(re.sub(r'\(corresponding author\)', '', row.get('RP') or ''), 300),
+        'z9': (row.get('Z9') or '').strip(), 'u2': (row.get('U2') or '').strip(), 'wos_oa': (row.get('OA') or '').strip(),
+    }
+
+
+def merge_detail(store, key, d):
+    cur = store.setdefault(key, {})
+    rank = {'Scopus': 3, 'Web of Science': 2, 'OpenAlex': 1}   # the reference databases' abstracts first
+    if d.get('abs') and (not cur.get('abs') or rank.get(d.get('abs_src'), 0) > rank.get(cur.get('abs_src'), 0)):
+        cur['abs'], cur['abs_src'] = d['abs'], d.get('abs_src', '')
+    for k, v in d.items():
+        if v in ('', None, [], {}) or k in ('abs', 'abs_src'):
+            continue
+        if k not in cur or cur[k] in ('', None, [], {}):
+            cur[k] = v
+
+
+def save_details(works_out, details, prev_dir):
+    """data/research/details/<n>.json: one small file per shard, read only by the document page."""
+    ddir = os.path.join(OUT, 'details')
+    os.makedirs(ddir, exist_ok=True)
+    old = {}
+    for path in glob.glob(os.path.join(prev_dir, '*.json')):
+        old.update(load_json(path, {}) or {})
+    shards = defaultdict(dict)
+    for w in works_out:
+        d = dict(details.get(w.get('_key'), {}))
+        for k, v in (old.get(w['id']) or {}).items():   # keep what an earlier run knew (e.g. when OpenAlex was limited)
+            if k not in d or d[k] in ('', None, [], {}):
+                d[k] = v
+        if d:
+            shards[detail_shard(w['id'])][w['id']] = d
+    for n in range(DETAIL_SHARDS):
+        with open(os.path.join(ddir, f'{n}.json'), 'w', encoding='utf-8') as f:
+            json.dump(shards.get(n, {}), f, ensure_ascii=False, separators=(',', ':'))
+    log(f'details: {sum(len(x) for x in shards.values())} documents in {DETAIL_SHARDS} files')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--limit', type=int, default=0, help='only the first N researchers (testing)')
@@ -811,6 +1098,7 @@ def main():
         return key
 
     pool = uop_authors()
+    DET = {}   # work key -> details for the document page
     prev_works = defaultdict(list)
     for w in (load_json(os.path.join(OUT, 'works.json'), {}) or {}).get('works', []):
         for r_ in w.get('r', []):
@@ -876,6 +1164,10 @@ def main():
             if key not in all_works and rec['doi'] == '' and (rec['nt'] + str(rec['y'] or '')) in title_index:
                 key = title_index[rec['nt'] + str(rec['y'] or '')]
             my_keys.append(add_work(key, rec, rid))
+            try:
+                merge_detail(DET, key, oa_detail(w, {a: rid for a in oa_ids}))
+            except Exception as e:  # noqa: BLE001  (details are extra; never lose the work for them)
+                log(f'  ! details {wid}: {e}')
             if rec['topic']:
                 topics[(rec['topic'], rec['f'])] += 1
             for c in cc:
@@ -907,12 +1199,16 @@ def main():
                 w.setdefault('uop_ids', []).append(p['uop_id'])
                 if key not in my_keys:
                     my_keys.append(key)
+                if p.get('abs'):
+                    merge_detail(DET, key, {'uop_abs': p['abs']})
             else:
                 rec = {'id': f'u{p["uop_id"]}', 't': p['t'][:400], 'y': p['y'], 'v': p['v'], 'type': p['type'], 'doi': p['doi'],
                        'url': p['url'], 'c': 0, 'oa': '', 'au': p['au'], 'src': 'u', 'nt': nt, 'pub': p['pub'],
                        'vol': p['vol'], 'pages': p['pages'], 'sdg': [s for s in p['sdg'] if s][:3]}
                 key = 'd:' + p['doi'] if p['doi'] else 'u:' + str(p['uop_id'])
                 my_keys.append(add_work(key, rec, rid))
+                if p.get('abs'):
+                    merge_detail(DET, key, {'uop_abs': p['abs']})
 
         cites = [all_works[k].get('c') or 0 for k in my_keys]
         by_year = defaultdict(lambda: [0, 0])
@@ -1017,6 +1313,7 @@ def main():
         else:
             continue   # a university document whose authors are not current staff
         w = all_works[key]
+        merge_detail(DET, key, scopus_detail(row, sid_to_rid))
         w['sc'] = max(w.get('sc') or 0, sc_c)
         if row.get('EID'):
             w['eid'] = row['EID']
@@ -1089,6 +1386,7 @@ def main():
             if not key:
                 continue
             w = all_works[key]
+            merge_detail(DET, key, wos_detail(row))
             w['src'] = ''.join(sorted(set(w.get('src', '') + 'w')))
             w['wc'] = max(w.get('wc') or 0, tc)
             if row.get('UT'):
@@ -1145,9 +1443,12 @@ def main():
         r.pop('_keys', None)
 
     works_out = []
-    for w in all_works.values():
+    for key, w in all_works.items():
         w.pop('nt', None)
         works_out.append({k: v for k, v in w.items() if v not in ('', None, [])})
+        works_out[-1]['_key'] = key
+        if DET.get(key):
+            works_out[-1]['det'] = 1   # the document page has more to show
     works_out.sort(key=lambda w: (-(w.get('y') or 0), -(w.get('c') or 0)))
 
     now = dt.datetime.now(dt.timezone.utc).isoformat(timespec='minutes')
@@ -1169,9 +1470,15 @@ def main():
     if not args.limit and not args.only:
         meta['institution'] = institution_extras()
     save_json('researchers.json', {'meta': meta, 'researchers': researchers})
+    if not args.limit and not args.only:
+        save_details(works_out, DET, os.path.join(OUT, 'details'))
+    for w in works_out:
+        w.pop('_key', None)
     save_json('works.json', {'updated': now, 'works': works_out})
     if not args.skip_unis and not args.limit and not args.only:
-        save_json('universities.json', {'updated': now, 'uop': UOP_OA, 'universities': universities()})
+        prev_u = load_json(os.path.join(OUT, 'universities.json'), {}) or {}
+        save_json('universities.json', {'updated': now, 'uop': UOP_OA, 'uop_afid': UOP_AFID, 'universities': universities(),
+                                         'scopus_universities': scopus_universities(prev_u), 'subjects': SUBJ})
 
 
 if __name__ == '__main__':
