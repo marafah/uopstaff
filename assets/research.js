@@ -132,24 +132,25 @@
   R.sjrUrl = id => `https://www.scimagojr.com/journalsearch.php?q=${id}&tip=sid`;
   R.HOME_AFID = '60040839';
   // Scopus status of a journal (official Scopus Source List): discontinued for quality reasons, or no longer covered
+  // [label, explanation, level, discontinued?] for a Scopus source-list entry {d, p, s, end}
+  R.flagVerdict = function (f, year) {
+    if (!f) return null;
+    const end = f.end || f.dy;
+    if (f.d) {
+      if (year && end && year <= end) return ['مجلة حذفها Scopus لاحقاً', `حذفها Scopus من قاعدته (Discontinued) بعد ${end}؛ هذا البحث نُشر قبل الحذف فيبقى مفهرساً`, 'warn', true];
+      return ['مجلة حذفها Scopus', `حذفها Scopus من قاعدته (Discontinued)${end ? '، آخر تغطية ' + end : ''}، غالباً لأسباب تتعلق بالجودة أو أخلاقيات النشر؛ ما يُنشر بعدها لا يُفهرس`, 'bad', true];
+    }
+    if (f.p) return ['تغيّر وضعها في Scopus', `توقفت تغطيتها${end ? ' بعد ' + end : ''} بسبب تغيير في سياسة المجلة (اسم أو ناشر أو نطاق)، لا لأسباب الجودة`, 'warn', false];
+    if (f.s === 'i' && (!year || !end || year > end)) return ['خارج تغطية Scopus', `لم تعد مفهرسة في Scopus${end ? ' منذ ' + end : ''}`, 'warn', false];
+    return null;
+  };
   R.scopusFlags = async function () {
     if (R._flags) return R._flags;
     const F = (await R.load('scopus_flags')).flags || {};
     const byIssn = {}, byTitle = {};
     for (const [id, f] of Object.entries(F)) { f.id = id; (f.issn || []).forEach(i => { byIssn[i] = f; }); byTitle[R.norm(f.t)] = byTitle[R.norm(f.t)] || f; }
     const find = (issns, title) => { for (const i of issns || []) { const k = String(i).replace('-', '').toUpperCase(); if (byIssn[k]) return byIssn[k]; } return title ? byTitle[R.norm(title)] : null; };
-    R._flags = { F, find,
-      verdict(f, year) {   // [label, explanation, level, discontinued?]
-        if (!f) return null;
-        const end = f.end || f.dy;
-        if (f.d) {
-          if (year && end && year <= end) return ['مجلة حذفها Scopus لاحقاً', `حذفها Scopus من قاعدته (Discontinued) بعد ${end}؛ هذا البحث نُشر قبل الحذف فيبقى مفهرساً`, 'warn', true];
-          return ['مجلة حذفها Scopus', `حذفها Scopus من قاعدته (Discontinued)${end ? '، آخر تغطية ' + end : ''}، غالباً لأسباب تتعلق بالجودة أو أخلاقيات النشر؛ ما يُنشر بعدها لا يُفهرس`, 'bad', true];
-        }
-        if (f.p) return ['تغيّر وضعها في Scopus', `توقفت تغطيتها${end ? ' بعد ' + end : ''} بسبب تغيير في سياسة المجلة (اسم أو ناشر أو نطاق)، لا لأسباب الجودة`, 'warn', false];
-        if (f.s === 'i' && (!year || !end || year > end)) return ['خارج تغطية Scopus', `لم تعد مفهرسة في Scopus${end ? ' منذ ' + end : ''}`, 'warn', false];
-        return null;
-      } };
+    R._flags = { F, find, verdict: R.flagVerdict };
     return R._flags;
   };
 
@@ -193,7 +194,7 @@
     Chart.defaults.plugins.tooltip.rtl = true;
     Chart.defaults.plugins.tooltip.textDirection = 'rtl';
     Chart.defaults.maintainAspectRatio = false;
-    if (!R._lbl) { R._lbl = 1; Chart.register(R.labelsPlugin); }
+    if (!R._lbl) { R._lbl = 1; try { Chart.register(R.labelsPlugin); } catch (e) {} }
     const t = cfg.type, op = cfg.options = cfg.options || {}, pl = op.plugins = op.plugins || {};
     if ((t === 'doughnut' || t === 'pie') && pl.rsLabels !== false) {
       // legend shows value and share

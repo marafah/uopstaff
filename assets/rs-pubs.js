@@ -31,10 +31,16 @@
     <div class="fld"><label for="w-sort">ترتيب</label><select id="w-sort" class="form-select">${opt('y', 'الأحدث', '')}${opt('c', 'الأكثر اقتباساً (Scopus)', '')}${opt('fwci', 'الأعلى FWCI', '')}</select></div>
     <div class="btns"><button class="btn btn-rs-o" id="w-csv" title="المنشورات الظاهرة حسب التصفية"><i class="bi bi-download"></i> CSV</button><a class="btn btn-rs" href="data/research/export/documents.csv" download="uop-documents-all.csv" title="كل المنشورات بكل التفاصيل؛ يصلح أساساً لملف التعديلات اليدوية"><i class="bi bi-file-earmark-spreadsheet"></i> كل التفاصيل</a></div>
   </div>
-  <div class="rs-grid wide my-3"><div class="rs-card"><div class="d-flex flex-wrap gap-3 align-items-center mb-2" id="w-sum"></div><div class="rs-chart short"><canvas id="w-chart"></canvas></div></div></div>
+  <div class="rs-pquick no-print"><span class="lbl"><i class="bi bi-lightning-charge-fill"></i> اختيارات سريعة:</span>
+    <button class="rs-chip" data-pq="q12"><i class="bi bi-award-fill"></i> Q1 و Q2</button><button class="rs-chip" data-pq="q1"><i class="bi bi-trophy-fill"></i> Q1 فقط</button>
+    <button class="rs-chip" data-pq="oa"><i class="bi bi-unlock-fill"></i> وصول مفتوح</button><button class="rs-chip" data-pq="wos"><i class="bi bi-journal-check"></i> في Web of Science</button>
+    <button class="rs-chip" data-pq="intl"><i class="bi bi-globe-americas"></i> تعاون دولي</button><button class="rs-chip" data-pq="hot"><i class="bi bi-fire"></i> الأكثر اقتباساً (10+)</button>
+    <button class="rs-chip" data-pq="year"><i class="bi bi-calendar-event-fill"></i> هذا العام</button><button class="rs-chip reset" data-pq=""><i class="bi bi-x-circle"></i> مسح</button></div>
+  <div class="rs-ins-stats rs-pstats" id="w-sum"></div>
+  <div class="rs-card my-3"><h3 class="rs-ph"><i class="bi bi-bar-chart-fill" style="color:#901d23"></i> المنشورات سنوياً <small>الكل مقابل الوصول المفتوح</small></h3><div class="rs-chart" style="height:300px"><canvas id="w-chart"></canvas></div></div>
   <details class="rs-card my-3" id="w-jo"><summary class="rs-h mb-0" style="cursor:pointer"><i class="bi bi-globe-central-south-asia"></i>مقارنة بالجامعات الأردنية للفترة المختارة <small>حسب Scopus · اضغط للعرض</small></summary>
     <div id="w-jo-body" class="mt-3"></div></details>
-  <div class="d-flex flex-wrap gap-2 align-items-center mb-2 no-print"><span class="small text-muted">طريقة العرض:</span>
+  <div class="d-flex flex-wrap gap-2 align-items-center mb-2 no-print rs-pviewbar"><span class="fw-bold" id="w-count"></span><span class="small text-muted ms-auto">طريقة العرض:</span>
     <div class="rs-seg" id="w-view"><button data-v="list"><i class="bi bi-list-ul"></i> قائمة</button><button data-v="cards"><i class="bi bi-grid-3x2-gap"></i> بطاقات</button><button data-v="table"><i class="bi bi-table"></i> جدول</button><button data-v="compact"><i class="bi bi-list-nested"></i> مختصر حسب السنة</button></div></div>
   <div class="rs-pubs" id="w-list"></div>
   <div class="rs-pager" id="w-pager"></div>`;
@@ -62,6 +68,13 @@
       if (st.src === 'nos' && (w.src || '').includes('s')) return false;
       if (st.q4 && !(st.q4 === 'Q12' ? (w.q === 'Q1' || w.q === 'Q2') : st.q4 === 'none' ? !w.q : w.q === st.q4)) return false;
       if (st.src && st.src.length === 1 && !(w.src || '').includes(st.src)) return false;
+      if (st.pq === 'q12' && !(w.q === 'Q1' || w.q === 'Q2')) return false;
+      if (st.pq === 'q1' && w.q !== 'Q1') return false;
+      if (st.pq === 'oa' && !R.isOA(w)) return false;
+      if (st.pq === 'wos' && !(w.src || '').includes('w')) return false;
+      if (st.pq === 'intl' && !(w.cc || []).some(c => c !== 'JO')) return false;
+      if (st.pq === 'hot' && ((w.sc ?? w.c) || 0) < 10) return false;
+      if (st.pq === 'year' && w.y !== Y) return false;
       return !q.length || q.every(t => w._q.includes(t));
     });
     const s = st.sort;
@@ -70,16 +83,53 @@
   }
   let PER = 50;
   st.view = R.store.get('rs-pub-view', 'list');
+  const QC = { Q1: '#1d7a3e', Q2: '#1f6f78', Q3: '#b8892b', Q4: '#c75b12' };
+  const typeIc = t => ({ article: 'bi-file-earmark-text-fill', review: 'bi-journal-richtext', 'conference-paper': 'bi-easel2-fill', 'book-chapter': 'bi-book-half', book: 'bi-book-fill' }[t] || 'bi-file-earmark-fill');
+  const people = w => (w.r || []).map(id => byId[id]).filter(Boolean);
+  const pchips = w => people(w).map(r => `<a class="rs-pchip" href="${R.profileUrl(r)}">${R.avatar(r, 'xs')}<span>${R.esc(r.name)}</span></a>`).join('');
+  const intl = w => (w.cc || []).some(c => c !== 'JO');
+  const badges = w => [
+    w.y ? `<span class="rs-b yr"><i class="bi bi-calendar3"></i> ${w.y}</span>` : '',
+    w.q ? `<span class="rs-b q" style="--bc:${QC[w.q]}"><i class="bi bi-award-fill"></i> ${w.q}</span>` : '',
+    `<span class="rs-b ty"><i class="bi ${typeIc(w.type)}"></i> ${R.esc(R.typeAr(w.type))}</span>`,
+    R.isOA(w) ? `<span class="rs-b oa"><i class="bi bi-unlock-fill"></i> وصول مفتوح${R.OA_AR[w.oa] ? ' · ' + R.OA_AR[w.oa] : ''}</span>` : '',
+    intl(w) ? `<span class="rs-b in" title="${R.esc((w.cc || []).join('، '))}"><i class="bi bi-globe-americas"></i> تعاون دولي</span>` : '',
+    w.fwci != null ? `<span class="rs-b fw" title="مؤشر الاقتباس الموزون حسب المجال (1 = المتوسط العالمي)"><i class="bi bi-speedometer2"></i> FWCI ${w.fwci}</span>` : '',
+    w._flag ? `<span class="rs-b bad" title="${R.esc(w._flag[1])}"><i class="bi bi-exclamation-octagon-fill"></i> ${R.esc(w._flag[0])}</span>` : '',
+    w.man ? '<span class="rs-b man"><i class="bi bi-pencil-square"></i> تعديل يدوي</span>' : ''].join('');
+  const srcB = w => (w.src || '').split('').sort((a, b) => 'swougm'.indexOf(a) - 'swougm'.indexOf(b)).map(x => `<span class="rs-src-dot s-${x}" title="${R.SRC[x] ? R.SRC[x].name : x}">${R.SRC[x] ? R.SRC[x].name : x}</span>`).join('');
+  const metrics = w => `<div class="rs-pmet">
+      <div class="mm sc"><b>${w.sc != null ? R.n(w.sc) : '–'}</b><span>Scopus</span></div>
+      <div class="mm wo"><b>${w.wc != null ? R.n(w.wc) : '–'}</b><span>WoS</span></div>
+      <div class="mm ox"><b>${w.c != null ? R.n(w.c) : '–'}</b><span>OpenAlex</span></div></div>`;
+  const links = w => {
+    const a = [], oid = w.oid || (/^W\d+$/.test(w.id) ? w.id : '');
+    a.push(`<a class="rs-ib info" href="${R.docUrl(w)}" title="كل التفاصيل"><i class="bi bi-info-lg"></i></a>`);
+    if (w.doi) a.push(`<a class="rs-ib doi" href="https://doi.org/${R.esc(w.doi)}" target="_blank" rel="noopener" title="DOI"><i class="bi bi-link-45deg"></i></a>`);
+    if (w.eid) a.push(`<a class="rs-ib sc" href="${R.scopusDocUrl(w.eid)}" target="_blank" rel="noopener" title="Scopus"><i class="bi bi-graph-up-arrow"></i></a>`);
+    if (w.ut) a.push(`<a class="rs-ib wos" href="https://www.webofscience.com/wos/woscc/full-record/${encodeURIComponent(w.ut)}" target="_blank" rel="noopener" title="Web of Science"><i class="bi bi-journal-check"></i></a>`);
+    if (oid) a.push(`<a class="rs-ib sj" href="${R.oaWorkUrl(oid)}" target="_blank" rel="noopener" title="OpenAlex"><i class="bi bi-globe2"></i></a>`);
+    if (w.oaurl) a.push(`<a class="rs-ib web" href="${R.esc(w.oaurl)}" target="_blank" rel="noopener" title="النص الكامل"><i class="bi bi-file-earmark-pdf-fill"></i></a>`);
+    return `<div class="lk">${a.join('')}</div>`;
+  };
   const cites = w => w.sc != null ? `<b>${R.n(w.sc)}</b><small>Scopus</small>` : `<b>${R.n(w.c)}</b><small>OpenAlex</small>`;
   const uopChips = w => (w.r || []).map(id => byId[id]).filter(Boolean).map(r => `<a class="rs-chip" href="${R.profileUrl(r)}">${R.esc(r.name)}</a>`).join('');
   const VIEWS = {
-    list: { per: 50, wrap: 'rs-pubs', item: w => R.pubHTML(w, { byId, showUop: true }) },
-    cards: { per: 48, wrap: 'rs-pubgrid', item: w => `<article class="rs-pubcard">
-        <div class="top">${w.y ? `<span class="rs-tag y">${w.y}</span>` : ''}${R.qTag(w.q)}${R.isOA(w) ? '<span class="rs-tag oa"><i class="bi bi-unlock"></i></span>' : ''}${w._flag ? `<span class="rs-tag ${w._flag[2]}" title="${R.esc(w._flag[1])}"><i class="bi bi-exclamation-octagon"></i></span>` : ''}<span class="c">${cites(w)}</span></div>
-        <a class="t" href="${R.docUrl(w)}">${R.esc(w.t)}</a>
-        <div class="v ltr">${R.esc(w.v || '')}</div>
-        <div class="who">${uopChips(w)}</div>
-        <div class="lnk">${R.workLinks(w)}</div></article>` },
+    list: { per: 40, wrap: 'rs-plist', item: w => `<article class="rs-pitem${w._flag && w._flag[3] ? ' flagged' : ''}" style="--qc:${QC[w.q] || '#c9c2b2'}">
+        <div class="body"><div class="bd">${badges(w)}</div>
+          <a class="t ltr" href="${R.docUrl(w)}">${R.esc(w.t)}</a>
+          ${w.v ? `<div class="v ltr"><i class="bi bi-journal-bookmark-fill"></i> ${R.esc(w.v)}</div>` : ''}
+          ${w.au ? `<div class="au ltr"><i class="bi bi-people-fill"></i> ${R.esc(w.au.length > 220 ? w.au.slice(0, 218) + '…' : w.au)}</div>` : ''}
+          <div class="who">${pchips(w)}</div>
+          <div class="ft"><span class="srcs"><i class="bi bi-database-fill-check"></i> ${srcB(w)}</span>${links(w)}</div></div>
+        ${metrics(w)}</article>` },
+    cards: { per: 48, wrap: 'rs-pgrid', item: w => `<article class="rs-pcard${w._flag && w._flag[3] ? ' flagged' : ''}" style="--qc:${QC[w.q] || '#c9c2b2'}">
+        <div class="bd">${badges(w)}</div>
+        <a class="t ltr" href="${R.docUrl(w)}">${R.esc(w.t)}</a>
+        ${w.v ? `<div class="v ltr"><i class="bi bi-journal-bookmark-fill"></i> ${R.esc(w.v)}</div>` : ''}
+        <div class="who">${pchips(w)}</div>
+        ${metrics(w)}
+        <div class="ft"><span class="srcs">${srcB(w)}</span>${links(w)}</div></article>` },
     table: { per: 100, wrap: 'rs-scroll', table: true },
     compact: { per: 200, wrap: 'rs-compact' }
   };
@@ -88,9 +138,16 @@
     PER = (VIEWS[st.view] || VIEWS.list).per;
     const pages = Math.ceil(rows.length / PER);
     st.page = Math.min(st.page, Math.max(0, pages - 1));
-    R.$('#w-sum').innerHTML = `<span><b class="fs-5">${R.n(rows.length)}</b> منشور</span><span><b class="fs-5">${R.n(R.sum(rows.map(w => w.sc || 0)))}</b> اقتباس Scopus</span><span><b class="fs-5">${R.n(rows.filter(w => w.q === 'Q1' || w.q === 'Q2').length)}</b> في Q1 و Q2</span><span><b class="fs-5">${R.n(rows.filter(w => (w.src || '').includes('w')).length)}</b> في Web of Science</span>
-      <span><b class="fs-5">${R.pct(rows.filter(R.isOA).length / (rows.length || 1))}</b> وصول مفتوح</span><span><b class="fs-5">${R.n(rows.filter(w => (w.src || '').includes('s')).length)}</b> في Scopus</span>
-      <span><b class="fs-5">${R.n(rows.filter(w => (w.cc || []).some(c => c !== 'JO')).length)}</b> بتعاون دولي</span>`;
+    const n = rows.length || 1, stt = (ic, col, v, l) => `<div class="st" style="--sc:${col}"><i class="bi ${ic}"></i><div><b>${v}</b><span>${l}</span></div></div>`;
+    R.$('#w-sum').innerHTML = stt('bi-file-earmark-text-fill', '#901d23', R.n(rows.length), 'منشور')
+      + stt('bi-graph-up-arrow', '#e9711c', R.n(rows.filter(w => (w.src || '').includes('s')).length), 'في Scopus')
+      + stt('bi-quote', '#e0a100', R.n(R.sum(rows.map(w => w.sc || 0))), 'اقتباس Scopus')
+      + stt('bi-award-fill', '#1d7a3e', R.n(rows.filter(w => w.q === 'Q1' || w.q === 'Q2').length), `في Q1 و Q2 · ${R.pct(rows.filter(w => w.q === 'Q1' || w.q === 'Q2').length / n)}`)
+      + stt('bi-journal-check', '#5e33bf', R.n(rows.filter(w => (w.src || '').includes('w')).length), 'في Web of Science')
+      + stt('bi-unlock-fill', '#1f8a8a', R.pct(rows.filter(R.isOA).length / n), 'وصول مفتوح')
+      + stt('bi-globe-americas', '#2b5ea7', R.n(rows.filter(intl).length), 'بتعاون دولي');
+    R.$('#w-count').innerHTML = `<i class="bi bi-list-ol"></i> ${R.n(rows.length)} نتيجة${pages > 1 ? ` · صفحة ${st.page + 1} من ${pages}` : ''}`;
+    R.$$('[data-pq]').forEach(x => x.classList.toggle('on', !!st.pq && x.dataset.pq === st.pq));
     const ys = []; for (let y = st.from; y <= st.to; y++) ys.push(y);
     R.chart('w-chart', { type: 'bar', data: { labels: ys, datasets: [{ label: 'منشورات', data: ys.map(y => rows.filter(w => w.y === y).length), backgroundColor: '#901d23', borderRadius: 3 }, { label: 'مفتوحة الوصول', data: ys.map(y => rows.filter(w => w.y === y && R.isOA(w)).length), backgroundColor: '#2f7d32', borderRadius: 3 }] }, options: { plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } } });
     const V = VIEWS[st.view] || VIEWS.list;
@@ -100,15 +157,15 @@
     const part = rows.slice(st.page * PER, st.page * PER + PER);
     const empty = '<div class="rs-empty"><i class="bi bi-journal-x"></i>لا توجد منشورات مطابقة</div>';
     if (st.view === 'table') {
-      box.innerHTML = part.length ? `<table class="rs-table rs-pubtable"><thead><tr><th>السنة</th><th>العنوان</th><th>المجلة / المصدر</th><th>التصنيف</th><th>النوع</th><th class="num">Scopus</th><th class="num">WoS</th><th class="num">OpenAlex</th><th>باحثو البترا</th><th>روابط</th></tr></thead><tbody>
-        ${part.map(w => `<tr><td class="num">${w.y || ''}</td><td><a href="${R.docUrl(w)}" class="ltr d-block">${R.esc(w.t)}</a>${w._flag ? `<span class="rs-tag ${w._flag[2]}" title="${R.esc(w._flag[1])}">${R.esc(w._flag[0])}</span>` : ''}</td>
-          <td class="ltr"><small>${R.esc(w.v || '')}</small></td><td>${R.qTag(w.q)}</td><td><small>${R.esc(R.typeAr(w.type))}</small></td>
-          <td class="num">${w.sc != null ? R.n(w.sc) : '–'}</td><td class="num">${w.wc != null ? R.n(w.wc) : '–'}</td><td class="num">${w.c != null && (w.src || '').includes('o') ? R.n(w.c) : '–'}</td>
-          <td><small>${(w.r || []).map(id => byId[id]).filter(Boolean).map(r => `<a href="${R.profileUrl(r)}">${R.esc(r.name)}</a>`).join('، ')}</small></td>
-          <td class="text-nowrap rs-mini-links">${R.workLinks(w)}</td></tr>`).join('')}</tbody></table>` : empty;
+      box.innerHTML = part.length ? `<table class="rs-jt2 rs-ptab"><thead><tr><th class="c"><i class="bi bi-calendar3 ic-y"></i> السنة</th><th><i class="bi bi-file-earmark-text-fill ic-m"></i> العنوان</th><th><i class="bi bi-journal-bookmark-fill ic-p"></i> المجلة</th><th class="c"><i class="bi bi-award-fill ic-g"></i> التصنيف</th><th class="c"><i class="bi bi-quote ic-o"></i> Scopus</th><th class="c"><i class="bi bi-quote ic-p"></i> WoS</th><th class="c"><i class="bi bi-quote ic-b"></i> OpenAlex</th><th><i class="bi bi-people-fill ic-t"></i> باحثو البترا</th><th class="c"><i class="bi bi-link-45deg"></i> روابط</th></tr></thead><tbody>
+        ${part.map(w => `<tr class="${w._flag && w._flag[3] ? 'flagged' : ''}"><td class="c"><span class="rs-b yr">${w.y || '–'}</span></td>
+          <td class="jt"><a href="${R.docUrl(w)}" class="ltr">${R.esc(w.t)}</a><div class="tg">${[`<span class="rs-b ty"><i class="bi ${typeIc(w.type)}"></i> ${R.esc(R.typeAr(w.type))}</span>`, R.isOA(w) ? '<span class="rs-b oa"><i class="bi bi-unlock-fill"></i> مفتوح</span>' : '', intl(w) ? '<span class="rs-b in"><i class="bi bi-globe-americas"></i> دولي</span>' : '', w._flag ? `<span class="rs-b bad" title="${R.esc(w._flag[1])}"><i class="bi bi-exclamation-octagon-fill"></i> ${R.esc(w._flag[0])}</span>` : ''].join('')}</div></td>
+          <td class="ltr vv">${R.esc(w.v || '')}</td><td class="c">${w.q ? `<span class="rs-qpill q-${w.q.toLowerCase()}">${w.q}</span>` : '<span class="na">—</span>'}</td>
+          <td class="c"><b class="cn sc">${w.sc != null ? R.n(w.sc) : '–'}</b></td><td class="c"><b class="cn wo">${w.wc != null ? R.n(w.wc) : '–'}</b></td><td class="c"><b class="cn ox">${w.c != null ? R.n(w.c) : '–'}</b></td>
+          <td><div class="who">${pchips(w)}</div></td><td class="c">${links(w)}</td></tr>`).join('')}</tbody></table>` : empty;
     } else if (st.view === 'compact') {
       const by = {}; part.forEach(w => { (by[w.y || 'بدون سنة'] = by[w.y || 'بدون سنة'] || []).push(w); });
-      box.innerHTML = Object.keys(by).sort((a, b) => b - a).map(y => `<h4 class="rs-sub">${y} <small class="text-muted">(${by[y].length})</small></h4><ol class="rs-compact-list">${by[y].map(w => `<li><a href="${R.docUrl(w)}" class="ltr">${R.esc(w.t)}</a> <small class="text-muted ltr">— ${R.esc(w.v || '')}</small> ${R.qTag(w.q)} <small class="text-muted">${w.sc != null ? R.n(w.sc) + ' اقتباس' : ''}</small></li>`).join('')}</ol>`).join('') || empty;
+      box.innerHTML = Object.keys(by).sort((a, b) => b - a).map(y => `<div class="rs-yblock"><h4><span class="yy"><i class="bi bi-calendar3"></i> ${y}</span><span class="nn">${by[y].length} منشور</span></h4><ol class="rs-compact-list">${by[y].map(w => `<li>${w.q ? `<span class="rs-qpill q-${w.q.toLowerCase()}">${w.q}</span>` : '<span class="rs-qpill">—</span>'} <a href="${R.docUrl(w)}" class="ltr">${R.esc(w.t)}</a> <small class="text-muted ltr">— ${R.esc(w.v || '')}</small> ${w.sc != null ? `<span class="rs-b sc"><i class="bi bi-quote"></i> ${R.n(w.sc)}</span>` : ''}</li>`).join('')}</ol></div>`).join('') || empty;
     } else {
       box.innerHTML = part.map(V.item).join('') || empty;
     }
@@ -155,6 +212,7 @@
       ${L.map((o, i) => `<tr class="${o === home ? 'me' : ''}"><td class="num">${i + 1}</td><td><b>${R.esc(o.ar)}</b></td><td class="num">${R.n(o.docs)}</td><td class="num">${o.cpd.toFixed(1)}</td><td class="num">${R.pct(o.q12s)}</td><td class="num">${R.pct(o.intls)}</td><td class="num">${R.pct(o.oas)}</td></tr>`).join('')}</tbody></table></div>
       <p class="rs-note mt-2 mb-0">${st.from}–${st.to} · من تصدير Scopus لكل الجامعات الأردنية (اقتباسات محدّثة أسبوعياً). قد تختلف أعداد البترا هنا عن قائمة المنشورات أعلاه لأن القائمة تجمع مصادر أخرى أيضاً. <a href="jordan.html?from=${st.from}&to=${st.to}">مقارنة تفصيلية حسب المجال والتخصص والمجلات</a></p>`;
   }
+  app.addEventListener('click', e => { const b = e.target.closest('[data-pq]'); if (!b) return; st.pq = st.pq === b.dataset.pq ? '' : b.dataset.pq; st.page = 0; render(); });
   R.$('#w-view').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; st.view = b.dataset.v; st.page = 0; R.store.set('rs-pub-view', st.view); render(); });
   R.$('#w-jo').addEventListener('toggle', joCompare);
   ['#w-from', '#w-to'].forEach(id => R.$(id).addEventListener('change', () => setTimeout(joCompare, 0)));

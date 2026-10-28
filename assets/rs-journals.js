@@ -3,22 +3,25 @@
 (async function () {
   'use strict';
   const app = R.$('#rs-app');
-  let J, T = {};
-  try { J = await R.load('journals'); } catch (e) { R.fail(app, e); return; }
-  try { T = (await R.load('jordan/journal_times')).journals || {}; } catch (e) { T = {}; }
-  let FL = null;
-  try { FL = await R.scopusFlags(); } catch (e) { FL = null; }
+  let J, T = {}, FL = null;
+  // the directory itself is enough to draw the page; review times arrive in parallel, the full Scopus list only when the checker needs it
+  const [jr, tr] = await Promise.allSettled([R.load('journals'), R.load('jordan/journal_times')]);
+  if (jr.status !== 'fulfilled') { R.fail(app, jr.reason); return; }
+  J = jr.value; T = tr.status === 'fulfilled' ? (tr.value.journals || {}) : {};
+  if (!J.cols.includes('fl')) { try { FL = await R.scopusFlags(); } catch (e) { FL = null; } }
+  const loadFL = async () => { if (!FL) { try { FL = await R.scopusFlags(); } catch (e) { FL = null; } } return FL; };
   R.updated({ updated: J.updated });
   const K = Object.fromEntries(J.cols.map((c, i) => [c, i]));
   const esc = R.esc, UNI = J.universities, HOME = UNI.findIndex(u => u[0] === R.HOME_AFID);
   const rows = J.rows.map(r => {
     const jo = r[K.jo] || null;
-    const cats = (r[K.cats] || '').split('; ').filter(Boolean).map(x => x.split('|'));
+    const cr = r[K.cats];
+    const cats = Array.isArray(cr) ? cr.map(c => [J.catn[c[0]], c[1] ? 'Q' + c[1] : '']) : (cr || '').split('; ').filter(Boolean).map(x => x.split('|'));
     return { id: r[K.id], t: r[K.t], type: r[K.type], issn: r[K.issn], pub: J.publishers[r[K.pub]] || '', oa: r[K.oa], q: r[K.q], sjr: r[K.sjr], h: r[K.h], rank: r[K.rank],
       country: J.countries[r[K.country]] || '', cats, areas: (r[K.areas] || []).map(i => J.areas[i]), cpd2: +r[K.cpd2] || 0, cov: r[K.cov],
       jo: jo && { docs: jo[0], cpd: jo[1], y5: jo[2], unis: jo[3], kw: jo[4] }, tm: T[r[K.id]] || null,
-      fl: FL ? FL.verdict(FL.F[r[K.id]] || null) : null,
-      _s: R.norm([r[K.t], r[K.issn], (r[K.cats] || ''), J.publishers[r[K.pub]]].join(' ')) };
+      fl: K.fl !== undefined ? (r[K.fl] ? R.flagVerdict({ d: r[K.fl][0], p: r[K.fl][1], end: r[K.fl][2], s: r[K.fl][3] ? 'i' : 'a' }) : null) : FL ? FL.verdict(FL.F[r[K.id]] || null) : null,
+      _s: R.norm([r[K.t], r[K.issn], cats.map(c => c[0]).join(' '), J.publishers[r[K.pub]]].join(' ')) };
   });
   const byId = Object.fromEntries(rows.map(r => [r.id, r]));
   const fmtIssn = s => s.split(' ').filter(Boolean).map(x => x.length === 8 ? x.slice(0, 4) + '-' + x.slice(4) : x);
@@ -57,18 +60,29 @@
   <section data-tab="check" class="rs-section rs-card"><h3><i class="bi bi-shield-exclamation"></i>تحقّق من مجلة قبل الإرسال</h3>
     <div class="rs-toolbar"><div class="fld grow"><label for="jn-check">اسم المجلة أو ISSN</label><input id="jn-check" class="form-control ltr" type="search" placeholder="e.g. Journal of Theoretical and Applied Information Technology  أو  1992-8645"></div></div>
     <div id="jn-verdict" class="mt-2"></div>
-    <p class="rs-note mt-2 mb-0">المصدر: قائمة مصادر Scopus الرسمية (${FL ? 'سبتمبر 2026' : 'غير محمّلة'}) — المجلات التي حذفها Scopus (Discontinued) والمجلات التي لم تعد مفهرسة، مع تصنيف SCImago. الأبحاث المنشورة بعد تاريخ الحذف لا تظهر في Scopus ولا تُحسب للباحث أو للجامعة.</p></section>
+    <p class="rs-note mt-2 mb-0">المصدر: قائمة مصادر Scopus الرسمية (${J.flags_src || 'سبتمبر 2026'}) — المجلات التي حذفها Scopus (Discontinued) والمجلات التي لم تعد مفهرسة، مع تصنيف SCImago. الأبحاث المنشورة بعد تاريخ الحذف لا تظهر في Scopus ولا تُحسب للباحث أو للجامعة.</p></section>
   <section data-tab="suggest" class="rs-section rs-card no-print"><h3><i class="bi bi-magic"></i>اقترح مجلة لبحثي</h3>
       <div class="fld"><label for="jn-find">عنوان البحث أو كلماته المفتاحية (بالإنجليزية)</label><textarea id="jn-find" class="form-control ltr" rows="3" placeholder="e.g. deep learning intrusion detection for IoT networks"></textarea></div>
       <div class="d-flex gap-2 flex-wrap mt-2 align-items-center"><button class="btn btn-rs" id="jn-go"><i class="bi bi-stars"></i> اقترح</button>
         <label class="form-check m-0"><input class="form-check-input" type="checkbox" id="jn-good" checked> <span class="form-check-label">Q1 و Q2 فقط</span></label>
         <small class="text-muted">يطابق كلماتك مع موضوعات الأبحاث الأردنية في كل مجلة ومع تخصصاتها في SCImago.</small></div>
 </section>
-  <section data-tab="insights" class="rs-section rs-grid two">
-    <div class="rs-card"><h3><i class="bi bi-pie-chart"></i>تصنيف المجلات التي ينشر فيها الأردنيون <small class="fw-normal text-muted">حسب عدد الأبحاث</small></h3><div class="rs-chart"><canvas id="jn-ch-q"></canvas></div></div>
-    <div class="rs-card"><h3><i class="bi bi-bar-chart"></i>أكثر المجلات نشراً للأردنيين</h3><div class="rs-chart tall"><canvas id="jn-ch-top"></canvas></div></div>
-    <div class="rs-card"><h3><i class="bi bi-building"></i>أكثر الناشرين</h3><div class="rs-chart tall"><canvas id="jn-ch-pub"></canvas></div></div>
-    <div class="rs-card"><h3><i class="bi bi-x-octagon"></i>مجلات حذفها Scopus نشر فيها أردنيون كثيراً</h3><div class="rs-scroll" style="max-height:380px"><table class="rs-table" id="jn-disc"></table></div></div>
+  <section data-tab="insights" class="rs-section">
+    <nav class="rs-subtabs no-print" id="jn-itabs">
+      <button data-i="q" class="on"><i class="bi bi-pie-chart-fill" style="color:#1d7a3e"></i> التصنيف (Q1–Q4)</button>
+      <button data-i="top"><i class="bi bi-bar-chart-fill" style="color:#b8892b"></i> أكثر المجلات</button>
+      <button data-i="pub"><i class="bi bi-building-fill" style="color:#2b5ea7"></i> الناشرون</button>
+      <button data-i="oa"><i class="bi bi-unlock-fill" style="color:#1f8a8a"></i> الوصول المفتوح</button>
+      <button data-i="ctry"><i class="bi bi-globe2" style="color:#7b3fbf"></i> دول المجلات</button>
+      <button data-i="disc"><i class="bi bi-x-octagon-fill" style="color:#c0392b"></i> مجلات حذفها Scopus</button>
+    </nav>
+    <div class="rs-card rs-ins">
+      <div class="rs-ins-head"><h3 id="jn-ititle"></h3><p class="rs-note mb-0" id="jn-inote"></p></div>
+      <div class="rs-ins-stats" id="jn-istats"></div>
+      <div class="rs-ins-legend" id="jn-ileg"></div>
+      <div class="rs-chart" id="jn-ibox" style="height:520px"><canvas id="jn-ich"></canvas></div>
+      <div class="rs-scroll" id="jn-itable"></div>
+    </div>
   </section>
 
   <section data-tab="browse suggest" class="rs-section">
@@ -192,6 +206,7 @@
     const q = R.norm(qs), issn = qs.replace(/[^0-9xX]/g, '').toUpperCase();
     const box = R.$('#jn-verdict');
     if (q.length < 3 && issn.length < 8) { box.innerHTML = ''; return; }
+    if (!FL && !check.waiting) { check.waiting = 1; loadFL().then(f => { if (f) check(qs); }); }
     let hits = rows.filter(r => (issn.length === 8 && r.issn.includes(issn)) || (q.length >= 3 && R.norm(r.t).includes(q)));
     const extra = FL ? Object.values(FL.F).filter(f => !byId[f.id] && ((issn.length === 8 && (f.issn || []).includes(issn)) || (q.length >= 3 && R.norm(f.t).includes(q)))) : [];
     hits = hits.sort((a, b) => (R.norm(a.t) === q ? -1 : 0) - (R.norm(b.t) === q ? -1 : 0) || b.sjr - a.sjr).slice(0, 6);
@@ -212,6 +227,7 @@
     R.$$('#jn-tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
     R.$$('[data-tab]', app).forEach(el => { el.hidden = !el.dataset.tab.split(' ').includes(t); });
     if (t === 'insights') insights();
+    if (t === 'check') loadFL();
     const u = new URL(location); u.searchParams.set('tab', t); history.replaceState(null, '', u);
   }
   R.$('#jn-tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (b) showTab(b.dataset.t); });
@@ -230,20 +246,67 @@
   // manual filter changes clear the highlighted quick option
   app.addEventListener('change', e => { if (e.target.closest('.rs-filters, #jn-jo, select, input')) R.$$('[data-quick]', app).forEach(x => { x.classList.remove('on'); x.setAttribute('aria-pressed', false); }); });
   let insDone = false;
+  let insTab = 'q';
+  const QC = { Q1: '#1d7a3e', Q2: '#1f6f78', Q3: '#b8892b', Q4: '#c75b12', '': '#9aa3a7' };
+  const qLegend = (extra) => Object.entries({ Q1: 'Q1', Q2: 'Q2', Q3: 'Q3', Q4: 'Q4', '': 'بلا تصنيف' }).map(([k, l]) => `<span><i style="background:${QC[k]}"></i>${l}</span>`).join('') + (extra || '');
+  const stat = (ic, col, v, l) => `<div class="st" style="--sc:${col}"><i class="bi ${ic}"></i><div><b>${v}</b><span>${l}</span></div></div>`;
   function insights() {
-    if (insDone) return; insDone = true;
-    const used = rows.filter(r => r.jo);
-    const qd = { Q1: 0, Q2: 0, Q3: 0, Q4: 0, '': 0 }; used.forEach(r => { qd[r.q || ''] += r.jo.docs; });
-    R.chart('jn-ch-q', { type: 'doughnut', data: { labels: ['Q1', 'Q2', 'Q3', 'Q4', 'بلا تصنيف'], datasets: [{ data: [qd.Q1, qd.Q2, qd.Q3, qd.Q4, qd['']], backgroundColor: ['#1d7a3e', '#1f6f78', '#b8892b', '#c75b12', '#bbb'] }] }, options: { plugins: { legend: { position: 'right' } } } });
-    const top = used.slice().sort((a, b) => b.jo.docs - a.jo.docs).slice(0, 15);
-    R.chart('jn-ch-top', { type: 'bar', data: { labels: top.map(r => r.t.length > 38 ? r.t.slice(0, 36) + '…' : r.t), datasets: [{ label: 'أبحاث أردنية', data: top.map(r => r.jo.docs), backgroundColor: top.map(r => r.fl ? '#c0392b' : ({ Q1: '#1d7a3e', Q2: '#1f6f78', Q3: '#b8892b', Q4: '#c75b12' }[r.q] || '#999')), borderRadius: 3 }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { y: { ticks: { font: { size: 12 } } } } } });
-    const pubs = {}; used.forEach(r => { pubs[r.pub] = (pubs[r.pub] || 0) + r.jo.docs; });
-    const tp = Object.entries(pubs).sort((a, b) => b[1] - a[1]).slice(0, 12);
-    R.chart('jn-ch-pub', { type: 'bar', data: { labels: tp.map(x => x[0].slice(0, 34)), datasets: [{ label: 'أبحاث أردنية', data: tp.map(x => x[1]), backgroundColor: '#091b22', borderRadius: 3 }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { y: { ticks: { font: { size: 12 } } } } } });
-    const disc = used.filter(r => r.fl && r.fl[3]).sort((a, b) => b.jo.docs - a.jo.docs).slice(0, 25);
-    R.$('#jn-disc').innerHTML = `<thead><tr><th>المجلة</th><th class="num">أبحاث أردنية</th><th class="num">البترا</th></tr></thead><tbody>${disc.map(r => `<tr><td class="ltr"><a href="#" data-j="${r.id}">${esc(r.t)}</a><br><small class="text-muted">${esc(r.fl[1])}</small></td><td class="num">${R.n(r.jo.docs)}</td><td class="num">${(r.jo.unis.find(u => u[0] === HOME) || [0, 0])[1] || '–'}</td></tr>`).join('')}</tbody>`;
+    insDone = true;
+    const used = rows.filter(r => r.jo), totDocs = used.reduce((t, r) => t + r.jo.docs, 0);
+    R.$$('#jn-itabs button').forEach(b => b.classList.toggle('on', b.dataset.i === insTab));
+    const T = (t, n) => { R.$('#jn-ititle').innerHTML = t; R.$('#jn-inote').innerHTML = n || ''; };
+    const box = R.$('#jn-ibox'), tbl = R.$('#jn-itable'), leg = R.$('#jn-ileg'), sts = R.$('#jn-istats');
+    box.hidden = false; tbl.innerHTML = ''; leg.innerHTML = ''; sts.innerHTML = '';
+    const lbl = (t, n) => t.length > n ? t.slice(0, n - 1) + '…' : t;
+    if (insTab === 'q') {
+      const qd = { Q1: 0, Q2: 0, Q3: 0, Q4: 0, '': 0 }, qj = { Q1: 0, Q2: 0, Q3: 0, Q4: 0, '': 0 };
+      used.forEach(r => { qd[r.q || ''] += r.jo.docs; qj[r.q || '']++; });
+      T('<i class="bi bi-pie-chart-fill" style="color:#1d7a3e"></i> في أي تصنيف ينشر الباحثون الأردنيون؟', `${R.n(totDocs)} بحثاً أردنياً في ${R.n(used.length)} مجلة · الربع الأفضل للمجلة في SCImago ${J.sjr_year}`);
+      sts.innerHTML = ['Q1', 'Q2', 'Q3', 'Q4', ''].map(k => stat('bi-award-fill', QC[k], `${(100 * qd[k] / (totDocs || 1)).toFixed(1)}%`, `${k || 'بلا تصنيف'} · ${R.n(qd[k])} بحثاً · ${R.n(qj[k])} مجلة`)).join('');
+      box.style.height = '460px';
+      R.chart('jn-ich', { type: 'doughnut', data: { labels: ['Q1', 'Q2', 'Q3', 'Q4', 'بلا تصنيف'], datasets: [{ data: ['Q1', 'Q2', 'Q3', 'Q4', ''].map(k => qd[k]), backgroundColor: ['Q1', 'Q2', 'Q3', 'Q4', ''].map(k => QC[k]), borderWidth: 3, borderColor: '#fff' }] }, options: { cutout: '52%', plugins: { legend: { position: 'right', labels: { font: { size: 15 }, padding: 16 } } } } });
+    } else if (insTab === 'top') {
+      const top = used.slice().sort((a, b) => b.jo.docs - a.jo.docs).slice(0, 25);
+      T('<i class="bi bi-bar-chart-fill" style="color:#b8892b"></i> أكثر 25 مجلة نشراً للباحثين الأردنيين', 'لون الشريط = تصنيف المجلة؛ الأحمر = مجلة حذفها Scopus. اضغط على شريط لفتح تفاصيل المجلة.');
+      leg.innerHTML = qLegend('<span><i style="background:#c0392b"></i>حذفها Scopus</span>');
+      box.style.height = (top.length * 30 + 60) + 'px';
+      R.chart('jn-ich', { type: 'bar', data: { labels: top.map(r => `${lbl(r.t, 52)}  (${r.q || '–'})`), datasets: [{ label: 'أبحاث أردنية', data: top.map(r => r.jo.docs), backgroundColor: top.map(r => r.fl && r.fl[3] ? '#c0392b' : QC[r.q || '']), borderRadius: 4, barPercentage: .82 }] },
+        options: { indexAxis: 'y', onClick: (e, el) => { if (el[0]) detail(top[el[0].index].id); }, plugins: { legend: { display: false }, tooltip: { callbacks: { title: c => top[c[0].dataIndex].t, label: c => { const r = top[c.dataIndex]; return [`أبحاث أردنية: ${R.n(r.jo.docs)}`, `SJR ${r.sjr ? r.sjr.toFixed(2) : '–'} · ${r.q || 'بلا تصنيف'}`, `${r.jo.cpd} اقتباس/بحث`]; } } } }, scales: { x: { title: { display: true, text: 'عدد الأبحاث الأردنية', font: { size: 13, weight: '700' } } }, y: { ticks: { autoSkip: false, font: { size: 13 } } } } } });
+    } else if (insTab === 'pub') {
+      const P = {}; used.forEach(r => { const p = P[r.pub] = P[r.pub] || { d: 0, j: 0, q1: 0 }; p.d += r.jo.docs; p.j++; if (r.q === 'Q1') p.q1 += r.jo.docs; });
+      const tp = Object.entries(P).sort((a, b) => b[1].d - a[1].d).slice(0, 20);
+      T('<i class="bi bi-building-fill" style="color:#2b5ea7"></i> أكثر 20 ناشراً للأبحاث الأردنية', 'الجزء الأخضر = الأبحاث في مجلات Q1 لدى الناشر، والأزرق = بقية الأبحاث.');
+      leg.innerHTML = '<span><i style="background:#1d7a3e"></i>في مجلات Q1</span><span><i style="background:#2b5ea7"></i>تصنيفات أخرى</span>';
+      box.style.height = (tp.length * 30 + 70) + 'px';
+      R.chart('jn-ich', { type: 'bar', data: { labels: tp.map(([n, p]) => `${lbl(n, 44)}  · ${p.j} مجلة`), datasets: [{ label: 'في مجلات Q1', data: tp.map(x => x[1].q1), backgroundColor: '#1d7a3e' }, { label: 'تصنيفات أخرى', data: tp.map(x => x[1].d - x[1].q1), backgroundColor: '#2b5ea7', borderRadius: 4 }] },
+        options: { indexAxis: 'y', plugins: { legend: { display: false }, tooltip: { callbacks: { footer: c => `المجموع: ${R.n(tp[c[0].dataIndex][1].d)}` } } }, scales: { x: { stacked: true, title: { display: true, text: 'عدد الأبحاث الأردنية', font: { size: 13, weight: '700' } } }, y: { stacked: true, ticks: { autoSkip: false, font: { size: 13 } } } } } });
+      tbl.innerHTML = `<table class="rs-jt2 mt-3"><thead><tr><th>#</th><th>الناشر</th><th class="c">أبحاث أردنية</th><th class="c">مجلات</th><th class="c">نسبة Q1</th></tr></thead><tbody>${tp.map(([n, p], i) => `<tr><td class="c n">${i + 1}</td><td class="ltr"><b>${esc(n)}</b></td><td class="c"><b class="big">${R.n(p.d)}</b></td><td class="c">${p.j}</td><td class="c">${(100 * p.q1 / p.d).toFixed(0)}%</td></tr>`).join('')}</tbody></table>`;
+    } else if (insTab === 'oa') {
+      const g = { 0: [0, 0], 1: [0, 0], 2: [0, 0] }; used.forEach(r => { const k = r.oa || 0; g[k][0] += r.jo.docs; g[k][1]++; });
+      const L = ['اشتراك / هجين', 'وصول مفتوح (برسوم غالباً)', 'ماسي (بلا رسوم)'], C = ['#6b7a80', '#1f8a8a', '#7b3fbf'];
+      T('<i class="bi bi-unlock-fill" style="color:#1f8a8a"></i> أين ينشر الأردنيون: وصول مفتوح أم اشتراك؟', 'حسب تصنيف SCImago / DOAJ للمجلة.');
+      sts.innerHTML = [0, 1, 2].map(k => stat(['bi-lock-fill', 'bi-unlock-fill', 'bi-gem'][k], C[k], `${(100 * g[k][0] / (totDocs || 1)).toFixed(1)}%`, `${L[k]} · ${R.n(g[k][0])} بحثاً · ${R.n(g[k][1])} مجلة`)).join('');
+      box.style.height = '440px';
+      R.chart('jn-ich', { type: 'doughnut', data: { labels: L, datasets: [{ data: [0, 1, 2].map(k => g[k][0]), backgroundColor: C, borderWidth: 3, borderColor: '#fff' }] }, options: { cutout: '52%', plugins: { legend: { position: 'right', labels: { font: { size: 15 }, padding: 16 } } } } });
+    } else if (insTab === 'ctry') {
+      const Cn = {}; used.forEach(r => { const c = Cn[r.country || '—'] = Cn[r.country || '—'] || [0, 0]; c[0] += r.jo.docs; c[1]++; });
+      const tc = Object.entries(Cn).sort((a, b) => b[1][0] - a[1][0]).slice(0, 15);
+      T('<i class="bi bi-globe2" style="color:#7b3fbf"></i> دول المجلات التي ينشر فيها الأردنيون', 'دولة الناشر كما في SCImago.');
+      box.style.height = (tc.length * 32 + 60) + 'px';
+      R.chart('jn-ich', { type: 'bar', data: { labels: tc.map(([n, c]) => `${n}  · ${c[1]} مجلة`), datasets: [{ label: 'أبحاث أردنية', data: tc.map(x => x[1][0]), backgroundColor: tc.map(([n]) => n === 'Jordan' ? '#901d23' : '#7b3fbf'), borderRadius: 4 }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { y: { ticks: { autoSkip: false, font: { size: 13 } } } } } });
+    } else if (insTab === 'disc') {
+      const disc = used.filter(r => r.fl && r.fl[3]).sort((a, b) => b.jo.docs - a.jo.docs);
+      const top = disc.slice(0, 15), dd = disc.reduce((t, r) => t + r.jo.docs, 0);
+      T('<i class="bi bi-x-octagon-fill" style="color:#c0392b"></i> مجلات حذفها Scopus ونشر فيها أردنيون', 'الأبحاث المنشورة قبل سنة الحذف تبقى مفهرسة؛ ما يُنشر بعدها لا يُفهرس.');
+      sts.innerHTML = stat('bi-x-octagon-fill', '#c0392b', R.n(disc.length), 'مجلة محذوفة') + stat('bi-file-earmark-x-fill', '#c75b12', R.n(dd), 'بحثاً أردنياً فيها') + stat('bi-bank2', '#901d23', R.n(disc.reduce((t, r) => t + ((r.jo.unis.find(u => u[0] === HOME) || [0, 0])[1] || 0), 0)), 'منها للبترا');
+      box.style.height = (top.length * 30 + 50) + 'px';
+      R.chart('jn-ich', { type: 'bar', data: { labels: top.map(r => `${lbl(r.t, 50)}  (حتى ${r.fl[4] || '?'})`), datasets: [{ label: 'أبحاث أردنية', data: top.map(r => r.jo.docs), backgroundColor: '#c0392b', borderRadius: 4 }] }, options: { indexAxis: 'y', onClick: (e, el) => { if (el[0]) detail(top[el[0].index].id); }, plugins: { legend: { display: false } }, scales: { y: { ticks: { autoSkip: false, font: { size: 13 } } } } } });
+      tbl.innerHTML = `<table class="rs-jt2 mt-3"><thead><tr><th>#</th><th>المجلة</th><th>السبب</th><th class="c">أبحاث أردنية</th><th class="c">البترا</th></tr></thead><tbody>${disc.slice(0, 40).map((r, i) => `<tr class="flagged"><td class="c n">${i + 1}</td><td class="jt"><a href="#" data-j="${r.id}" class="ltr">${esc(r.t)}</a></td><td><small>${esc(r.fl[1])}</small></td><td class="c"><b class="big">${R.n(r.jo.docs)}</b></td><td class="c">${(r.jo.unis.find(u => u[0] === HOME) || [0, 0])[1] || '–'}</td></tr>`).join('')}</tbody></table>`;
+    }
   }
-  R.$('#jn-disc').addEventListener('click', e => { const a = e.target.closest('[data-j]'); if (a) { e.preventDefault(); detail(a.dataset.j); } });
+  R.$('#jn-itabs').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (!b) return; insTab = b.dataset.i; insights(); });
+
+  R.$('#jn-itable').addEventListener('click', e => { const a = e.target.closest('[data-j]'); if (a) { e.preventDefault(); detail(a.dataset.j); } });
 
   showTab(st.tab);
   render();

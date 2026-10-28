@@ -72,17 +72,25 @@
         <div class="form-check"><input class="form-check-input" type="checkbox" data-cmp="${r.id}" id="c-${r.id}"${R.cmp.has(r.id) ? ' checked' : ''}><label class="form-check-label" for="c-${r.id}">مقارنة</label></div></div>
     </div>`;
   }
-  const cols = [['name', 'الباحث'], ['dept', 'القسم'], ['sc_docs', 'Scopus وثائق'], ['sc_cites', 'Scopus اقتباسات'], ['sc_h', 'Scopus h'], ['q12', 'Q1+Q2'], ['works', 'OpenAlex منشورات'], ['h', 'OpenAlex h'], ['scholar', 'Scholar'], ['links', 'المطابقة'], ['cmp', '']];
+  const cols = [['name', 'الباحث', 'bi-person-fill', 'ic-m'], ['dept', 'القسم والكلية', 'bi-diagram-3-fill', 'ic-p'], ['sc_docs', 'وثائق Scopus', 'bi-file-earmark-text-fill', 'ic-o'], ['sc_cites', 'اقتباسات Scopus', 'bi-quote', 'ic-y'], ['sc_h', 'h-index Scopus', 'bi-graph-up-arrow', 'ic-g'], ['q12', 'Q1 + Q2', 'bi-award-fill', 'ic-t'], ['works', 'منشورات OpenAlex', 'bi-globe2', 'ic-b'], ['h', 'h OpenAlex', 'bi-graph-up', 'ic-b'], ['scholar', 'Scholar', 'bi-google', 'ic-y'], ['links', 'المطابقة', 'bi-patch-check-fill', 'ic-g'], ['cmp', 'مقارنة', 'bi-intersect', '']];
+  const RK = { 'أستاذ': '#901d23', 'أستاذ مشارك': '#1f6f78', 'أستاذ مساعد': '#b8892b', 'مدرس': '#6b7a80', 'محاضر': '#6b7a80' };
   function table(rows) {
-    return `<div class="rs-card p-0"><div class="rs-scroll"><table class="rs-table"><thead><tr>${cols.map(([k, t]) => `<th class="${['name', 'dept', 'links', 'cmp'].includes(k) ? '' : 'num'}${st.sort === k ? ' sorted' : ''}" ${['dept', 'links', 'cmp'].includes(k) ? '' : `data-sort="${k}"`}>${t}</th>`).join('')}</tr></thead><tbody>
-      ${rows.map(r => { const sc = r.sc || {}, q = sc.q || {}, su = R.scUrl(r); return `<tr><td><a class="d-flex gap-2 align-items-center text-decoration-none" href="${R.profileUrl(r)}">${R.avatar(r, 'sm')}<span><b>${R.esc(r.name)}</b><br><small class="text-muted">${R.esc(r.rank)}</small></span></a></td>
-        <td><small>${R.esc(r.dept)}</small><br><small class="text-muted">${R.esc(r.faculty)}</small></td>
-        <td class="num">${su ? `<a class="rs-sc" href="${R.esc(su)}" target="_blank" rel="noopener">${R.n(sc.docs || 0)}</a>` : R.n(sc.docs || 0)}</td><td class="num">${R.n(sc.cites || 0)}</td><td class="num"><b>${sc.h || 0}</b></td><td class="num">${(q.Q1 || 0) + (q.Q2 || 0)}</td>
-        <td class="num">${R.n(r.works)}</td><td class="num">${r.h}</td>
-        <td class="num">${r.scholar ? `<a href="${R.esc(r.links.scholar)}" target="_blank" rel="noopener">${R.n(r.scholar.cites)}</a>` : '–'}</td>
-        <td>${R.scBadge(r)}</td>
-        <td><input class="form-check-input" type="checkbox" data-cmp="${r.id}" title="أضف للمقارنة"${R.cmp.has(r.id) ? ' checked' : ''}></td></tr>`; }).join('')}
-    </tbody></table></div></div>`;
+    const mx = k => Math.max(1, ...rows.map(r => val(r, k)));
+    const mC = mx('sc_cites'), mD = mx('sc_docs');
+    const hT = h => h >= 20 ? 'h4' : h >= 10 ? 'h3' : h >= 5 ? 'h2' : h > 0 ? 'h1' : 'h0';
+    return `<div class="rs-scroll rs-jtwrap"><table class="rs-jt2 rs-rtab"><thead><tr>${cols.map(([k, t, ic, c]) => `<th class="${['name', 'dept'].includes(k) ? '' : 'c'}${st.sort === k ? ' sorted' : ''}" ${['dept', 'links', 'cmp'].includes(k) ? '' : `data-sort="${k}" title="رتّب حسب ${t}"`}><i class="bi ${ic} ${c}"></i> ${t}${st.sort === k ? ' <i class="bi bi-sort-down"></i>' : ''}</th>`).join('')}</tr></thead><tbody>
+      ${rows.map((r, n) => { const sc = r.sc || {}, q = sc.q || {}, su = R.scUrl(r), q12 = (q.Q1 || 0) + (q.Q2 || 0); const by = {}; Object.entries(sc.by_year || {}).forEach(([y, v]) => by[y] = [v]);
+        return `<tr><td class="who"><a href="${R.profileUrl(r)}"><span class="rk">${n + 1}</span>${R.avatar(r, 'sm')}<span><b>${R.esc(r.name)}</b>${r.rank ? `<span class="rs-rank" style="--rc:${RK[r.rank] || '#6b7a80'}">${R.esc(r.rank)}</span>` : ''}</span></a></td>
+        <td class="dp"><b>${R.esc(r.dept)}</b><small><i class="bi bi-bank2"></i> ${R.esc(r.faculty)}</small></td>
+        <td class="c"><div class="cellv">${su ? `<a class="pill or" href="${R.esc(su)}" target="_blank" rel="noopener" title="افتح في Scopus">${R.n(sc.docs || 0)} <i class="bi bi-box-arrow-up-left"></i></a>` : `<span class="pill gr">${R.n(sc.docs || 0)}</span>`}<span class="bar o"><i style="width:${(100 * (sc.docs || 0) / mD).toFixed(0)}%"></i></span></div></td>
+        <td class="c"><div class="cellv"><b class="big">${R.n(sc.cites || 0)}</b><span class="bar y"><i style="width:${(100 * (sc.cites || 0) / mC).toFixed(0)}%"></i></span></div></td>
+        <td class="c"><span class="hb ${hT(sc.h || 0)}">${sc.h || 0}</span></td>
+        <td class="c">${q12 ? `<span class="pill qg"><i class="bi bi-award-fill"></i> ${q12}</span>` : '<span class="na">0</span>'}</td>
+        <td class="c">${R.n(r.works)}</td><td class="c">${r.h || 0}</td>
+        <td class="c">${r.scholar ? `<a class="pill bl" href="${R.esc(r.links.scholar)}" target="_blank" rel="noopener">${R.n(r.scholar.cites)}</a>` : '<span class="na">—</span>'}</td>
+        <td class="c">${R.scBadge(r)}</td>
+        <td class="c"><input class="form-check-input big-cb" type="checkbox" data-cmp="${r.id}" title="أضف للمقارنة"${R.cmp.has(r.id) ? ' checked' : ''}></td></tr>`; }).join('')}
+    </tbody></table></div>`;
   }
 
   function render() {
