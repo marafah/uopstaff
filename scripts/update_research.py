@@ -61,6 +61,7 @@ SCOPUS_TOKEN = os.environ.get('SCOPUS_INSTTOKEN', '')
 SERPAPI_KEY = os.environ.get('SERPAPI_KEY', '')
 WOS_KEY = os.environ.get('WOS_API_KEY', '')
 SCHOLAR_ON = os.environ.get('SCHOLAR', '1') != '0'
+QUICK = os.environ.get('QUICK', '0') == '1'   # an upload (manual edits, exports): skip the heavy weekly Scopus steps
 THIS_YEAR = dt.date.today().year
 
 S = requests.Session()
@@ -531,6 +532,7 @@ SUBJ = {'AGRI': 'العلوم الزراعية والحيوية', 'ARTS': 'ال�
         'SOCI': 'العلوم الاجتماعية', 'VETE': 'الطب البيطري', 'MULT': 'متعدد التخصصات'}
 
 SC_BUDGET = {'used': 0, 'remaining': None}
+CITES = {}
 
 
 def scopus_count(query):
@@ -581,6 +583,206 @@ def scopus_h_index(afid):
     return h
 
 
+def _scopus_eids(query):
+    """Every (EID, citations) for a query: 25 per request, standard view (works off-campus with the free key).
+    The search API pages up to 5,000 results per query, so callers split larger sets by year."""
+    out, start, total = {}, 0, None
+    while total is None or start < min(total, 5000):
+        if SC_BUDGET['remaining'] is not None and SC_BUDGET['remaining'] < 300:
+            return out, total, 'quota'
+        r = http('GET', 'https://api.elsevier.com/content/search/scopus', headers=scopus_headers(), tries=3,
+                 params={'query': query, 'count': 25, 'start': start, 'field': 'eid,citedby-count'})
+        SC_BUDGET['used'] += 1
+        time.sleep(0.25)
+        if r is None:
+            return out, total, 'error'
+        rem = r.headers.get('X-RateLimit-Remaining')
+        if rem and rem.isdigit():
+            SC_BUDGET['remaining'] = int(rem)
+        if r.status_code == 429:
+            time.sleep(30)
+            continue
+        if r.status_code != 200:
+            return out, total, 'error'
+        sr = r.json().get('search-results', {})
+        total = int(sr.get('opensearch:totalResults') or 0)
+        entries = [e for e in sr.get('entry', []) if 'error' not in e]
+        if not entries:
+            break
+        for e in entries:
+            if e.get('eid'):
+                out[e['eid']] = int(e.get('citedby-count') or 0)
+        start += 25
+    return out, total, 'ok'
+
+
+def _scopus_range(afid, y0, y1, acc):
+    """Collect a university's documents published y0..y1, halving the range while it holds more than 5,000."""
+    q = f'AF-ID({afid}) AND PUBYEAR > {y0 - 1} AND PUBYEAR < {y1 + 1}'
+    n = scopus_count(q)
+    if n is None:
+        return 'error'
+    if n == 0:
+        return 'ok'
+    if n > 5000 and y1 > y0:
+        mid = (y0 + y1) // 2
+        a = _scopus_range(afid, y0, mid, acc)
+        return a if a != 'ok' else _scopus_range(afid, mid + 1, y1, acc)
+    got, _, state = _scopus_eids(q)
+    acc.update(got)
+    return state
+
+
+def jordan_citations(prev_path):
+    """Weekly: citations of every Scopus document of every Jordanian university (EID -> times cited).
+    About 5,500 requests for ~136,000 documents; the export files under data/research/universities_export
+    hold the full details, this keeps their citations current."""
+    old = load_json(prev_path, {}) or {}
+    if not SCOPUS_KEY:
+        return old
+    out = {'updated': dt.date.today().isoformat(), 'universities': {}, 'eid': dict(old.get('eid') or {})}
+    for afid, name, _ in JO_SCOPUS:
+        acc = {}
+        state = _scopus_range(afid, 1950, THIS_YEAR + 1, acc)
+        prev_u = (old.get('universities') or {}).get(afid) or {}
+        if state != 'ok' and len(acc) < (prev_u.get('docs') or 0):   # incomplete: keep last week's figures
+            out['universities'][afid] = prev_u
+            log(f'  citations {name}: incomplete ({state}), kept previous')
+            if state == 'quota':
+                break
+            continue
+        for eid, c in acc.items():
+            out['eid'][eid[7:] if eid.startswith('2-s2.0-') else eid] = c
+        cites = sorted(acc.values(), reverse=True)
+        out['universities'][afid] = {'docs': len(acc), 'cites': sum(cites), 'h': h_index(cites),
+                                     'cited_share': round(sum(1 for c in cites if c) / len(cites), 3) if cites else 0,
+                                     'eids': sorted(e[7:] if e.startswith('2-s2.0-') else e for e in acc)}
+        log(f'  citations {name}: {len(acc)} documents, {sum(cites)} citations, h {h_index(cites)}')
+    log(f'jordan citations: {len(out["eid"])} documents, {SC_BUDGET["used"]} requests, quota left {SC_BUDGET["remaining"]}')
+    return out
+
+
+def _cr_date(v):
+    try:
+        parts = (v.get('date-parts') or [[]])[0]
+        if len(parts) == 3:
+            return dt.date(*parts)
+    except (TypeError, ValueError, AttributeError):
+        return None
+    return None
+
+
+def _assert_date(s):
+    for fmt in ('%d %B %Y', '%d %b %Y', '%Y-%m-%d', '%B %d, %Y', '%d/%m/%Y'):
+        try:
+            return dt.datetime.strptime(s.strip(), fmt).date()
+        except (ValueError, AttributeError):
+            continue
+    return None
+
+
+def journal_times(max_calls=4000):
+    """Weekly, free: how long journals take, read from Crossref for a sample of recent Jordanian papers.
+    Publishers deposit 'received', 'accepted' and online-publication dates (Elsevier, Springer, Taylor & Francis, MDPI, ...).
+    Results accumulate in data/research/jordan/journal_times.json; a few thousand DOIs per run."""
+    src = load_json(os.path.join(OUT, 'jordan', 'journal_dois.json'), {}) or {}
+    path = os.path.join(OUT, 'jordan', 'journal_times.json')
+    cache = load_json(path, {}) or {}
+    done = cache.setdefault('_dois', {})
+    todo = [(jid, d) for jid, ds in src.items() for d in ds if d.lower() not in done]
+    random.shuffle(todo)
+    calls = 0
+    for jid, doi in todo[:max_calls]:
+        r = http('GET', f'https://api.crossref.org/works/{requests.utils.quote(doi)}', tries=2,
+                 params={'mailto': MAILTO}, headers={'User-Agent': f'uopstaff-research (mailto:{MAILTO})'})
+        calls += 1
+        time.sleep(0.12)
+        if r is None or r.status_code != 200:
+            if r is not None and r.status_code == 429:
+                time.sleep(30)
+            done[doi.lower()] = None
+            continue
+        m = r.json().get('message', {})
+        a = {(x.get('name') or '').lower(): x.get('value') for x in m.get('assertion') or [] if isinstance(x, dict)}
+        rec = _assert_date(a.get('received', '') or '') if a.get('received') else None
+        acc = _assert_date(a.get('accepted', '') or '') if a.get('accepted') else None
+        pub = _cr_date(m.get('published-online') or {}) or _cr_date(m.get('published-print') or {})
+        if not pub and a.get('published'):
+            pub = _assert_date(a['published'])
+        done[doi.lower()] = [jid, (acc - rec).days if rec and acc else None, (pub - acc).days if acc and pub else None,
+                             (pub - rec).days if rec and pub else None]
+    stats = collections.defaultdict(lambda: [[], [], []])
+    for v in done.values():
+        if not v:
+            continue
+        for i in range(3):
+            if v[i + 1] is not None and 0 <= v[i + 1] <= 1500:
+                stats[v[0]][i].append(v[i + 1])
+
+    def med(xs):
+        xs = sorted(xs)
+        return xs[len(xs) // 2] if xs else None
+    cache['journals'] = {jid: {'n': max(len(x) for x in v), 'accept': med(v[0]), 'publish': med(v[1]), 'total': med(v[2])}
+                         for jid, v in stats.items() if any(v)}
+    cache['updated'] = dt.date.today().isoformat()
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(cache, f, separators=(',', ':'))
+    log(f'journal times: {calls} Crossref lookups, timings for {len(cache["journals"])} journals')
+
+
+def rebuild_jordan_cube():
+    """Recompute the university comparison (jordan/cube.json and h-index rows) from jordan/docs.tsv with this
+    week's citations (jordan_citations.json)."""
+    d = os.path.join(OUT, 'jordan')
+    path, cpath = os.path.join(d, 'docs.tsv'), os.path.join(d, 'cube.json')
+    if not os.path.exists(path) or not os.path.exists(cpath):
+        return
+    cube = load_json(cpath, {})
+    now = (CITES or {}).get('eid') or {}
+    rows = []
+    with open(path, encoding='utf-8') as f:
+        next(f)
+        for line in f:
+            e, y, us, ar, ca, q, intl, oa, conf, c = line.rstrip('\n').split('\t')
+            rows.append((int(y) if y else 0, [int(x) for x in us.split(',') if x], [int(x) for x in ar.split(',') if x],
+                         [int(x) for x in ca.split(',') if x], q, intl == '1', oa == '1', conf == '1', int(now.get(e, c) or 0)))
+    QI = {'Q1': 0, 'Q2': 1, 'Q3': 2, 'Q4': 3}
+
+    def build(which):
+        acc = defaultdict(lambda: [0] * 9)
+        for y, us, ar, ca, q, intl, oa, conf, c in rows:
+            y = y if y >= 1990 else 1989
+            for u in us:
+                for k in ([-1] if which == 'all' else ar if which == 'area' else ca):
+                    v = acc[(u, y, k)]
+                    v[0] += 1
+                    v[1] += c
+                    if q in QI:
+                        v[2 + QI[q]] += 1
+                    v[6] += intl
+                    v[7] += oa
+                    v[8] += conf
+        return [[k[0], k[1], k[2]] + v for k, v in acc.items()]
+    cube.update({'all': build('all'), 'area': build('area'), 'cat': build('cat'), 'cites_updated': dt.date.today().isoformat()})
+    save_json(os.path.join('jordan', 'cube.json'), cube)
+    upath = os.path.join(d, 'unis.json')
+    unis = load_json(upath, {})
+    if unis:
+        Y = max(r[0] for r in rows)
+        tab = defaultdict(list)
+        for y, us, ar, ca, q, intl, oa, conf, c in rows:
+            for u in us:
+                for span in ('all', '10', '5'):
+                    if span != 'all' and not (y and y > Y - int(span)):
+                        continue
+                    tab[(u, span, -1)].append(c)
+                    for a in ar:
+                        tab[(u, span, a)].append(c)
+        unis['h'] = [[u, s_, k, h_index(c)] for (u, s_, k), c in tab.items()]
+        save_json(os.path.join('jordan', 'unis.json'), unis)
+    log(f'jordan comparison rebuilt from {len(rows)} documents')
+
+
 def scopus_universities(prev):
     """Weekly Scopus profile of every Jordanian university: documents per year, open access, subject areas, h-index.
     About 50 requests per university (≈1,500 a week, well inside the free key's 20,000 weekly quota)."""
@@ -606,8 +808,11 @@ def scopus_universities(prev):
             n = scopus_count(f'{base} AND SUBJAREA({code})')
             if n:
                 subj[code] = n
-        h = scopus_h_index(afid)
+        cu = (CITES.get('universities') or {}).get(afid) or {}
+        h = cu.get('h') if cu else scopus_h_index(afid)
         out.append({'afid': afid, 'name': name, 'name_ar': ar, 'docs': total, 'by_year': by_year,
+                    'cites': cu.get('cites'), 'cpd': round(cu['cites'] / cu['docs'], 2) if cu.get('docs') else None,
+                    'cited_share': cu.get('cited_share'),
                     'oa_share': round(oa / total, 3) if oa is not None and total else None,
                     'subjects': sorted(subj.items(), key=lambda x: -x[1]), 'h': h if h is not None else (old.get(afid) or {}).get('h')})
         log(f'  scopus {name}: {total} documents, h {h}')
@@ -1587,6 +1792,9 @@ def main():
     if SCHOLAR_ON:
         todo = [r for r in researchers if r['scholar_id']]
         todo.sort(key=lambda r: r.get('scholar_at') or '')   # the oldest first, so blocking rotates fairly
+        # a few dozen profiles a week, slowly: every profile is refreshed about once a month and Scholar sees
+        # far fewer requests (it blocks bursts, not a handful of visits)
+        todo = todo[:int(os.environ.get('SCHOLAR_MAX', '0') or 0) or (len(todo) if SERPAPI_KEY else 40)]
         done = 0
         for r in todo:
             try:
@@ -1655,7 +1863,23 @@ def main():
     for w in works_out:
         w.pop('_key', None)
     save_json('works.json', {'updated': now, 'works': works_out})
-    if not args.skip_unis and not args.limit and not args.only:
+    if not QUICK and not args.limit and not args.only and os.path.exists(os.path.join(OUT, 'jordan', 'journal_dois.json')):
+        try:
+            journal_times()
+        except Exception as e:  # noqa: BLE001  (an extra; never fail the run for it)
+            log(f'  ! journal times: {e}')
+    if QUICK:
+        log('quick run: universities and Jordan-wide citations kept from the weekly run')
+    if not args.skip_unis and not args.limit and not args.only and not QUICK:
+        cpath = os.path.join(OUT, 'jordan_citations.json')
+        CITES.update(jordan_citations(cpath))
+        if CITES:
+            with open(cpath, 'w', encoding='utf-8') as f:   # compact: ~3 MB for every Jordanian document
+                json.dump(CITES, f, separators=(',', ':'))
+        try:
+            rebuild_jordan_cube()
+        except Exception as e:  # noqa: BLE001
+            log(f'  ! jordan comparison: {e}')
         prev_u = load_json(os.path.join(OUT, 'universities.json'), {}) or {}
         save_json('universities.json', {'updated': now, 'uop': UOP_OA, 'uop_afid': UOP_AFID, 'universities': universities(),
                                          'scopus_universities': scopus_universities(prev_u), 'subjects': SUBJ})
