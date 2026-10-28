@@ -1,0 +1,4 @@
+{
+  "_help": "Manual OpenAlex matches. Key: the staff e-mail (or instructor uid). Value: one or more OpenAlex author IDs (https://openalex.org/authors/A...). Use this when a researcher shows 'يحتاج تحقق' or 'غير مطابق', or when OpenAlex split one person into several profiles.",
+  "_example@uop.edu.jo": { "openalex": ["A5110215331"] }
+}
