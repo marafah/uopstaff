@@ -54,17 +54,6 @@ DESCRIPTION:نظري · وجاهي · علم البيانات والذكا
  ء الاصطناعي – تكنولوجيا المعلومات
 END:VEVENT
 BEGIN:VEVENT
-UID:d184de31d5f237ca@uopstaff
-DTSTAMP:20261018T000000Z
-DTSTART;TZID=Asia/Amman:20261019T093000
-DTEND;TZID=Asia/Amman:20261019T110000
-RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
-SUMMARY:606360 الذكاء الاصطناعي – ش2
-LOCATION:7202 – مبنى كلية تكنولوجيا المعلومات
-DESCRIPTION:نظري · وجاهي · علم البيانات والذكا
- ء الاصطناعي – تكنولوجيا المعلومات
-END:VEVENT
-BEGIN:VEVENT
 UID:eec767bf1ac53712@uopstaff
 DTSTAMP:20261018T000000Z
 DTSTART;TZID=Asia/Amman:20261019T110000

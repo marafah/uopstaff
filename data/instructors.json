@@ -1,6 +1,6 @@
 {
 "term": "الفصل الأول 2027/2026",
-"updated": "2026-10-28T05:55:38Z",
+"updated": "2026-10-28T13:06:52Z",
 "teaching": {
 "start": "2026-10-18",
 "end": "2027-01-19",
@@ -1620,7 +1620,7 @@
 {
 "id": "cc5a03fc13",
 "name": "د. حسان هاشم اسحق العدوان",
-"sections": 1,
+"sections": 4,
 "department": "",
 "faculty": "",
 "ics": "data/ics/cc5a03fc13.ics"
@@ -2504,7 +2504,7 @@
 {
 "id": "71dd5d4233",
 "name": "د. عبد الرؤوف محمد أحمد اشتيوي",
-"sections": 5,
+"sections": 4,
 "department": "علم البيانات والذكاء الاصطناعي",
 "faculty": "تكنولوجيا المعلومات",
 "email": "aishtaiwi@uop.edu.jo",
@@ -3162,6 +3162,14 @@
 "directory_id": "A:6C0061006D0061002E00610062007500680061007300730061006E00400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/2bb75e46a2.ics"
+},
+{
+"id": "9569416d0b",
+"name": "د. لميس راتب احمد الزعبي",
+"sections": 1,
+"department": "",
+"faculty": "",
+"ics": "data/ics/9569416d0b.ics"
 },
 {
 "id": "be01e8d1e0",
@@ -4353,12 +4361,12 @@
 "department": "الكيمياء",
 "faculty": "الآداب والعلوم",
 "email": "nswweidan@uop.edu.jo",
-"ext": "7214",
+"ext": "7115",
 "office": "",
 "photo": "assets/photos/bd87a1dc2524572a.jpg",
 "rank": "أستاذ مشارك",
-"job": "رئيس قسم",
-"role": "رئيس قسم",
+"job": "رئيس القسم",
+"role": "",
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6E0073007700770065006900640061006E00400075006F0070002E006500640075002E006A006F00",
 "name_en": "Noha Sweidan",
 "directory_id": "A:6E0073007700770065006900640061006E00400075006F0070002E006500640075002E006A006F00",
@@ -6012,7 +6020,7 @@
 {
 "id": "922452285c",
 "name": "م.وسن حداد",
-"sections": 6,
+"sections": 5,
 "department": "الإذاعة والتلفزيون",
 "faculty": "الإعلام",
 "email": "whaddad@uop.edu.jo",

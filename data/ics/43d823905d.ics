@@ -46,7 +46,7 @@ DTSTART;TZID=Asia/Amman:20261019T093000
 DTEND;TZID=Asia/Amman:20261019T110000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:103222 معادلات تفاضلية – ش1
-LOCATION:7101 – مبنى كلية تكنولوجيا المعلومات
+LOCATION:7216 – مبنى كلية تكنولوجيا المعلومات
 DESCRIPTION:نظري · وجاهي · العلوم الأساسية / ال
  رياضيات – الآداب والعلوم
 END:VEVENT

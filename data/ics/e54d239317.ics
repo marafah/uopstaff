@@ -25,7 +25,7 @@ DTEND;TZID=Asia/Amman:20261018T133000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T120000
 SUMMARY:701111 مدخل إلى علم القانون – ش3
-LOCATION:3404 – مبنى كلية الإعلام
+LOCATION:3503 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · القانون الخاص – الح
  قوق
 END:VEVENT
