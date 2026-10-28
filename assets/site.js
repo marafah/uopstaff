@@ -80,6 +80,8 @@
     ['jordan.html', 'bi-globe-central-south-asia', 'مقارنة الجامعات الأردنية', 'حسب المجال والتخصص والفترة والتصنيف والمجلات'],
     ['journals.html', 'bi-journal-bookmark-fill', 'دليل المجلات', 'التصنيف ومدة القرار ومجلات مقترحة لبحثك'],
     ['experts.html', 'bi-person-check', 'ابحث عن خبير', 'باحثو الأردن حسب الموضوع'],
+    ['simulator.html', 'bi-sliders', 'محاكي التصنيفات', 'ماذا لو رفعنا نسبة Q1 أو التعاون الدولي؟'],
+    ['reports.html', 'bi-calendar-check', 'التقرير الشهري', 'الأبحاث الجديدة واقتباساتها لكل كلية'],
     ['universities.html', 'bi-bank', 'مؤشرات الجامعات الأسبوعية', 'أعداد Scopus و OpenAlex المحدّثة أسبوعياً'],
     ['network.html', 'bi-diagram-3', 'شبكة التعاون', 'من يكتب مع من داخل الجامعة']
   ];
