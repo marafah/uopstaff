@@ -26,10 +26,10 @@
     <div class="fld"><label for="w-field">المجال</label><select id="w-field" class="form-select">${opt('', 'الكل', st.field)}${fields.map(f => opt(f, f, st.field)).join('')}</select></div>
     <div class="fld"><label for="w-type">النوع</label><select id="w-type" class="form-select">${opt('', 'الكل', '')}${types.map(t => opt(t, t, '')).join('')}</select></div>
     <div class="fld"><label for="w-oa">الوصول</label><select id="w-oa" class="form-select">${opt('', 'الكل', '')}${opt('open', 'مفتوح', '')}${opt('closed', 'مغلق', '')}</select></div>
-    <div class="fld"><label for="w-src">المصدر</label><select id="w-src" class="form-select">${opt('s', 'Scopus (المعتمد)', st.src)}${opt('', 'كل المصادر', st.src)}${opt('w', 'Web of Science', st.src)}${opt('nos', 'خارج Scopus', st.src)}${opt('o', 'OpenAlex', st.src)}${opt('u', 'صفحة المدرس', st.src)}${opt('uonly', 'صفحة المدرس فقط', st.src)}${opt('nodoi', 'بلا DOI', st.src)}</select></div>
+    <div class="fld"><label for="w-src">المصدر</label><select id="w-src" class="form-select">${opt('s', 'Scopus (المعتمد)', st.src)}${opt('', 'كل المصادر', st.src)}${opt('w', 'Web of Science', st.src)}${opt('nos', 'خارج Scopus', st.src)}${opt('o', 'OpenAlex', st.src)}${opt('u', 'صفحة المدرس', st.src)}${opt('uonly', 'صفحة المدرس فقط', st.src)}${opt('nodoi', 'بلا DOI', st.src)}${opt('man', 'معدّل يدوياً', st.src)}</select></div>
     <div class="fld"><label for="w-q4">تصنيف المجلة</label><select id="w-q4" class="form-select">${opt('', 'الكل', st.q4)}${opt('Q1', 'Q1', st.q4)}${opt('Q12', 'Q1 و Q2', st.q4)}${opt('Q2', 'Q2', st.q4)}${opt('Q3', 'Q3', st.q4)}${opt('Q4', 'Q4', st.q4)}${opt('none', 'غير مصنّف', st.q4)}</select></div>
     <div class="fld"><label for="w-sort">ترتيب</label><select id="w-sort" class="form-select">${opt('y', 'الأحدث', '')}${opt('c', 'الأكثر اقتباساً (Scopus)', '')}${opt('fwci', 'الأعلى FWCI', '')}</select></div>
-    <div class="btns"><button class="btn btn-rs-o" id="w-csv"><i class="bi bi-download"></i> CSV</button></div>
+    <div class="btns"><button class="btn btn-rs-o" id="w-csv" title="المنشورات الظاهرة حسب التصفية"><i class="bi bi-download"></i> CSV</button><a class="btn btn-rs" href="data/research/export/documents.csv" download="uop-documents-all.csv" title="كل المنشورات بكل التفاصيل؛ يصلح أساساً لملف التعديلات اليدوية"><i class="bi bi-file-earmark-spreadsheet"></i> كل التفاصيل</a></div>
   </div>
   <div class="rs-grid wide my-3"><div class="rs-card"><div class="d-flex flex-wrap gap-3 align-items-center mb-2" id="w-sum"></div><div class="rs-chart short"><canvas id="w-chart"></canvas></div></div></div>
   <div class="rs-pubs" id="w-list"></div>
@@ -53,6 +53,7 @@
       if (st.oa === 'closed' && R.isOA(w)) return false;
       if (st.src === 'uonly' && w.src !== 'u') return false;
       if (st.src === 'nodoi' && w.doi) return false;
+      if (st.src === 'man' && !w.man) return false;
       if (st.src === 'nos' && (w.src || '').includes('s')) return false;
       if (st.q4 && !(st.q4 === 'Q12' ? (w.q === 'Q1' || w.q === 'Q2') : st.q4 === 'none' ? !w.q : w.q === st.q4)) return false;
       if (st.src && st.src.length === 1 && !(w.src || '').includes(st.src)) return false;

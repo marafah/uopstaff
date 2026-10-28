@@ -115,6 +115,7 @@
     ['Web of Science', 'w', wosUrl, w.wc, w.ut, 'bi-journal', '#5e33bf', d.z9 && +d.z9 !== w.wc ? `${R.n(d.z9)} اقتباس في كل قواعد Clarivate` : 'المصدر المعتمد في الجامعة'],
     ['OpenAlex', 'o', oid ? R.oaWorkUrl(oid) : '', w.c, oid, 'bi-globe2', '#1d4f80', 'مصدر مفتوح شامل'],
     ['صفحة المدرس', 'u', w.url || '', null, '', 'bi-building', '#901d23', 'قائمة الأبحاث على موقع الجامعة'],
+    ...(src.includes('m') ? [['إدخال يدوي', 'm', '', null, '', 'bi-pencil-square', '#6b4c9a', 'من ملف التعديلات اليدوية']] : []),
   ];
 
   app.innerHTML = `
@@ -122,9 +123,10 @@
 
   <section class="rs-section rs-card rs-doc-head">
     <div class="tags">${w.y ? `<span class="rs-tag y">${w.y}</span>` : ''}<span class="rs-tag">${esc(R.typeAr(w.type))}</span>${R.qTag(w.q)}${R.isOA(w) ? `<span class="rs-tag oa"><i class="bi bi-unlock"></i> وصول ${R.OA_AR[w.oa] || 'مفتوح'}</span>` : ''}
-      ${src.split('').sort((a, b) => 'swoug'.indexOf(a) - 'swoug'.indexOf(b)).map(s => R.SRC[s] ? `<span class="rs-tag src-${s}"><i class="bi bi-check2"></i> ${R.SRC[s].name}</span>` : '').join('')}
+      ${src.split('').sort((a, b) => 'swougm'.indexOf(a) - 'swougm'.indexOf(b)).map(s => R.SRC[s] ? `<span class="rs-tag src-${s}"><i class="bi bi-check2"></i> ${R.SRC[s].name}</span>` : '').join('')}
       ${(d.wos_index || []).map(x => `<span class="rs-tag" title="${esc(x)}">${esc((x.match(/\(([^)]+)\)/) || [])[1] || x)}</span>`).join('')}</div>
     <h2 class="title" dir="auto">${esc(w.t)}</h2>
+    ${w.man ? `<div class="rs-note mb-2"><i class="bi bi-pencil-square"></i> بعض بيانات هذا المنشور مُدخلة أو مصحّحة يدوياً${d.note ? `: ${esc(d.note)}` : ''}.</div>` : ''}
     <div class="by" dir="auto">${authors.slice(0, 12).map(a => { const r = a.rid && byId[a.rid]; return r ? `<a href="${R.profileUrl(r)}"><b>${esc(a.n)}</b></a>` : esc(a.n); }).join('، ')}${authors.length > 12 ? ` <span class="text-muted">و ${authors.length - 12} آخرون</span>` : ''}</div>
     <div class="venue">${w.v ? `<i class="bi bi-journal-bookmark"></i> <span class="ltr">${esc(w.v)}</span>` : ''}${venueBits.length ? ` <span class="text-muted">· ${venueBits.join(' · ')}</span>` : ''}${d.pub ? ` <span class="text-muted">· ${esc(d.pub)}</span>` : ''}</div>
     <div class="rs-links mt-2">${ext(scUrl, 'Scopus', 'bi-bar-chart-line', '#e9711c')}${ext(wosUrl, 'Web of Science', 'bi-journal', '#5e33bf')}${ext(doiUrl, 'DOI', 'bi-link-45deg', '#091b22')}${ext(oid ? R.oaWorkUrl(oid) : '', 'OpenAlex', 'bi-globe2', '#1d4f80')}${ext(pmUrl, 'PubMed', 'bi-capsule', '#326599')}${ext(w.oaurl || d.pdf, 'النص الكامل (مفتوح)', 'bi-unlock', '#17663a')}${ext(w.url && !(w.doi && w.url.includes(w.doi)) ? w.url : d.land && !doiUrl ? d.land : '', 'صفحة الناشر', 'bi-box-arrow-up-left', '#555')}

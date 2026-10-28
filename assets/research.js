@@ -56,7 +56,8 @@
     u: { name: 'صفحة المدرس', color: '#901d23', icon: 'bi-building' },
     s: { name: 'Scopus', color: '#e9711c', icon: 'bi-bar-chart-line' },
     w: { name: 'Web of Science', color: '#5e33bf', icon: 'bi-journal' },
-    g: { name: 'Google Scholar', color: '#4285f4', icon: 'bi-google' }
+    g: { name: 'Google Scholar', color: '#4285f4', icon: 'bi-google' },
+    m: { name: 'إدخال يدوي', color: '#6b4c9a', icon: 'bi-pencil-square' }
   };
   R.oaAuthorUrl = id => `https://openalex.org/authors/${id}`;
   R.oaWorkUrl = id => `https://openalex.org/works/${id}`;
@@ -127,7 +128,7 @@
 
   R.pubHTML = function (w, opts) {
     opts = opts || {};
-    const src = (w.src || '').split('').sort((a, b) => 'swoug'.indexOf(a) - 'swoug'.indexOf(b)).map(s => `<span class="rs-tag src-${s}" title="المصدر: ${R.SRC[s] ? R.SRC[s].name : s}">${R.SRC[s] ? R.SRC[s].name : s}</span>`).join('');
+    const src = (w.src || '').split('').sort((a, b) => 'swougm'.indexOf(a) - 'swougm'.indexOf(b)).map(s => `<span class="rs-tag src-${s}" title="المصدر: ${R.SRC[s] ? R.SRC[s].name : s}">${R.SRC[s] ? R.SRC[s].name : s}</span>`).join('');
     const who = opts.byId ? (w.r || []).map(id => opts.byId[id]).filter(Boolean) : [];
     return `<article class="rs-pub">
       <div class="t"><a href="${R.docUrl(w)}" title="كل تفاصيل المنشور">${R.esc(w.t)}</a></div>
@@ -135,7 +136,7 @@
       ${w.au ? `<div class="a">${R.esc(w.au)}</div>` : ''}
       <div class="m">${w.y ? `<span class="rs-tag y">${w.y}</span>` : ''}${R.qTag(w.q)}${w.v ? `<span class="ltr">${R.esc(w.v)}</span>` : ''}
         <span class="rs-tag">${R.esc(R.typeAr(w.type))}</span>${R.isOA(w) ? `<span class="rs-tag oa"><i class="bi bi-unlock"></i> ${R.OA_AR[w.oa] || 'مفتوح'}</span>` : ''}
-        ${w.fwci != null ? `<span class="rs-tag" title="مؤشر الاقتباس الموزون حسب المجال (1 = المتوسط العالمي)">FWCI ${w.fwci}</span>` : ''}${src}
+        ${w.man ? '<span class="rs-tag man" title="صُحّحت بيانات هذا المنشور أو أُضيف يدوياً عبر ملف التعديلات"><i class="bi bi-pencil-square"></i> تعديل يدوي</span>' : ''}${w.fwci != null ? `<span class="rs-tag" title="مؤشر الاقتباس الموزون حسب المجال (1 = المتوسط العالمي)">FWCI ${w.fwci}</span>` : ''}${src}
         ${who.length && opts.showUop ? who.map(r => `<a class="rs-chip" href="${R.profileUrl(r)}">${R.esc(r.name)}</a>`).join('') : ''}</div>
       <div class="lnk"><a href="${R.docUrl(w)}" style="color:#901d23"><i class="bi bi-file-earmark-text"></i> التفاصيل</a>${R.workLinks(w)}</div>
     </article>`;

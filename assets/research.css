@@ -266,3 +266,4 @@ a.rs-chip:hover { border-color: var(--rs-maroon); color: var(--rs-maroon); }
 .rs-kv { table-layout: fixed; width: 100%; }
 .rs-kv td, .rs-kv td * { overflow-wrap: anywhere; white-space: normal; }
 @media (max-width: 600px) { .rs-kv th { width: 38%; } .rs-doc-head .title { font-size: 1.1rem; } }
+.rs-tag.man, .rs-tag.src-m { background: #efe8f7; color: #6b4c9a; }
