@@ -4,7 +4,7 @@ Run after changing the template:  python scripts/make_research_pages.py"""
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-V = '202610290300'
+V = '202610291500'
 CHART = '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>'
 D3 = '<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>'
 
@@ -34,6 +34,12 @@ PAGES = [
     ('experts.html', 'ابحث عن خبير', 'ابحث عن خبير',
      'باحثو الجامعات الأردنية حسب الموضوع: لشريك بحثي أو محكّم أو ممتحن خارجي',
      'bi-person-check', 'rs-experts.js', []),
+    ('simulator.html', 'محاكي المؤشرات', 'محاكي المؤشرات',
+     'ماذا يحدث لمؤشرات الجامعة وترتيبها بين الجامعات الأردنية لو رفعنا نسبة Q1 أو التعاون الدولي أو الإنتاج',
+     'bi-sliders', 'rs-sim.js', [CHART]),
+    ('reports.html', 'التقرير الشهري', 'التقرير الشهري',
+     'تقرير كل كلية لكل شهر: الأبحاث الجديدة والاقتباسات المكتسبة والباحثون النشطون، جاهز للطباعة',
+     'bi-calendar2-check', 'rs-reports.js', [CHART]),
     ('compare.html', 'المقارنة البحثية', 'المقارنة البحثية',
      'قارن حتى 4 باحثين، أو الكليات والأقسام، بالجداول والرسوم',
      'bi-bar-chart-steps', 'rs-compare.js', [CHART]),
@@ -76,6 +82,8 @@ MENU = [  # research menu items: file, icon, title, description
     ('jordan.html', 'bi-globe-central-south-asia', 'مقارنة الجامعات الأردنية', 'حسب المجال والتخصص والفترة والتصنيف والمجلات'),
     ('journals.html', 'bi-journal-bookmark-fill', 'دليل المجلات', 'التصنيف ومدة القرار ومجلات مقترحة لبحثك'),
     ('experts.html', 'bi-person-check', 'ابحث عن خبير', 'باحثو الأردن حسب الموضوع'),
+    ('simulator.html', 'bi-sliders', 'محاكي المؤشرات', 'أثر رفع Q1 والتعاون الدولي على الترتيب'),
+    ('reports.html', 'bi-calendar2-check', 'التقرير الشهري', 'الأبحاث الجديدة واقتباساتها لكل كلية'),
     ('universities.html', 'bi-bank', 'مؤشرات الجامعات الأسبوعية', 'أعداد Scopus و OpenAlex المحدّثة أسبوعياً'),
     ('network.html', 'bi-diagram-3', 'شبكة التعاون', 'من يكتب مع من داخل الجامعة'),
 ]

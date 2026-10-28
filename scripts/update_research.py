@@ -730,6 +730,27 @@ def journal_times(max_calls=4000):
     log(f'journal times: {calls} Crossref lookups, timings for {len(cache["journals"])} journals')
 
 
+def simulator_base(rows, Y):
+    """Inputs for the indicator simulator (last five complete-ish years, Y-4..Y): per university the counts and
+    citations by journal quartile x international collaboration, plus open access and the h-index of the window."""
+    keys = ['Q1', 'Q2', 'Q3', 'Q4', '']
+    per = defaultdict(lambda: {'n': [[0, 0] for _ in keys], 'c': [[0, 0] for _ in keys], 'oa': 0, 'cites': []})
+    for y, us, ar, ca, q, intl, oa, conf, c in rows:
+        if not y or y < Y - 4 or y > Y:
+            continue
+        qi = keys.index(q) if q in keys else 4
+        for u in us:
+            p = per[u]
+            p['n'][qi][int(intl)] += 1
+            p['c'][qi][int(intl)] += c
+            p['oa'] += oa
+            p['cites'].append(c)
+    out = {}
+    for u, p in per.items():
+        out[u] = {'n': p['n'], 'c': p['c'], 'oa': p['oa'], 'h': h_index(p['cites']), 'docs': len(p['cites']), 'cites': sum(p['cites'])}
+    return {'years': [Y - 4, Y], 'keys': keys, 'unis': out}
+
+
 def rebuild_jordan_cube():
     """Recompute the university comparison (jordan/cube.json and h-index rows) from jordan/docs.tsv with this
     week's citations (jordan_citations.json)."""
@@ -768,7 +789,7 @@ def rebuild_jordan_cube():
     upath = os.path.join(d, 'unis.json')
     unis = load_json(upath, {})
     if unis:
-        Y = max(r[0] for r in rows)
+        Y = min(max(r[0] for r in rows), THIS_YEAR)   # next year's rows are articles in press
         tab = defaultdict(list)
         for y, us, ar, ca, q, intl, oa, conf, c in rows:
             for u in us:
@@ -779,6 +800,7 @@ def rebuild_jordan_cube():
                     for a in ar:
                         tab[(u, span, a)].append(c)
         unis['h'] = [[u, s_, k, h_index(c)] for (u, s_, k), c in tab.items()]
+        unis['sim'] = simulator_base(rows, Y)
         save_json(os.path.join('jordan', 'unis.json'), unis)
     log(f'jordan comparison rebuilt from {len(rows)} documents')
 
@@ -1389,6 +1411,34 @@ def export_documents(works_out, merged, researchers):
     log(f'export: {len(works_out)} documents in export/documents.csv')
 
 
+def track_months(works_out, details):
+    """Monthly faculty reports (reports.html): when each work first appeared ('fs'), its publication date ('pd'),
+    and a citation snapshot per month (data/research/cites_monthly.json) so the report can show citations gained."""
+    today = dt.date.today().isoformat()
+    path = os.path.join(OUT, 'first_seen.json')
+    first = load_json(path, None)
+    boot = first is None   # first run: date existing works by their publication date, not by today
+    first = first or {}
+    for w in works_out:
+        d = details.get(w['id']) or {}
+        pd = (d.get('date') or '')[:10]
+        if pd:
+            w['pd'] = pd
+        if w['id'] not in first:
+            first[w['id']] = (pd or (f"{w['y']}-01-01" if w.get('y') else today)) if boot else today
+        w['fs'] = first[w['id']]
+    save_json('first_seen.json', first)
+    cpath = os.path.join(OUT, 'cites_monthly.json')
+    cm = load_json(cpath, {}) or {}
+    month = today[:7]
+    cm[month] = {w['id']: [w.get('sc') or 0, w.get('c') or 0, w.get('wc') or 0] for w in works_out}
+    for k in sorted(cm)[:-14]:   # keep about a year of snapshots
+        cm.pop(k)
+    with open(cpath, 'w', encoding='utf-8') as f:
+        json.dump(cm, f, separators=(',', ':'))
+    log(f'monthly tracking: {len(first)} works, snapshots for {", ".join(sorted(cm))}')
+
+
 def save_details(works_out, details, prev_dir):
     """data/research/details/<n>.json: one small file per shard, read only by the document page."""
     ddir = os.path.join(OUT, 'details')
@@ -1860,6 +1910,7 @@ def main():
     if not args.limit and not args.only:
         merged = save_details(works_out, DET, os.path.join(OUT, 'details'))
         export_documents(works_out, merged, researchers)
+        track_months(works_out, merged)
     for w in works_out:
         w.pop('_key', None)
     save_json('works.json', {'updated': now, 'works': works_out})
@@ -1870,6 +1921,12 @@ def main():
             log(f'  ! journal times: {e}')
     if QUICK:
         log('quick run: universities and Jordan-wide citations kept from the weekly run')
+        if not args.limit and not args.only:   # still rebuild the comparison locally from the cached citations (no API calls)
+            CITES.update(load_json(os.path.join(OUT, 'jordan_citations.json'), {}) or {})
+            try:
+                rebuild_jordan_cube()
+            except Exception as e:  # noqa: BLE001
+                log(f'  ! jordan comparison: {e}')
     if not args.skip_unis and not args.limit and not args.only and not QUICK:
         cpath = os.path.join(OUT, 'jordan_citations.json')
         CITES.update(jordan_citations(cpath))
