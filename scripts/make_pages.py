@@ -13,28 +13,33 @@ DIR_PARAMS = ["type", "faculty", "dept", "rank", "role", "source", "view", "sort
 HOME_REDIRECT = ("<script>(function () { var p = new URLSearchParams(location.search);"
                  " if (%s.some(function (k) { return p.has(k); })) location.replace('directory.html' + location.search + location.hash); })();</script>\n"
                  % str(DIR_PARAMS).replace(" ", ""))
-# the site menu: six items; the directory and the timetable open a menu of the pages that grow out of them
+# the site menu: eight items; the directory, the timetable, the instructor's pages and the student's pages each open a
+# menu of the pages that belong with them
 MENU = [
     ("./", "bi-search", "أين أجد؟", "بحث واحد في الأشخاص والمقررات والقاعات والوحدات والمواعيد", [
         ("changes.html", "bi-lightning-charge", "ما الجديد؟", "ما تغيّر في الجدول والدليل والتقويم، ساعة بساعة")]),
     ("directory.html", "bi-person-lines-fill", "دليل الموظفين", "الهيئة التدريسية والكادر الإداري: الفرعي والمكتب والبريد", [
-        ("org.html", "bi-diagram-3-fill", "الهيكل التنظيمي", "من يتبع لمن، ومن المسؤول عن كل وحدة"),
-        ("office-hours.html", "bi-person-raised-hand", "الساعات المكتبية", "ساعات كل مدرس حسب القسم والكلية، تصدير وطباعة مع QR"),
-        ("phones.html", "bi-telephone", "دليل الفرعيات", "الأرقام الفرعية حسب الكلية والقسم، للطباعة على المكاتب")]),
+        ("phones.html", "bi-telephone", "دليل الفرعيات", "الأرقام الفرعية حسب الكلية والقسم، للطباعة على المكاتب"),
+        ("org.html", "bi-diagram-3-fill", "الهيكل التنظيمي", "من يتبع لمن، ومن المسؤول عن كل وحدة")]),
     ("timetable.html", "bi-table", "الجدول الدراسي", "شعب الفصل الحالي ومواعيدها وقاعاتها ومدرسوها", [
-        ("instructor.html", "bi-person-badge", "صفحة المدرس", "جدول كل مدرس وأوقات فراغه واشتراك تقويمه"),
-        ("makeup.html", "bi-arrow-repeat", "محاضرة تعويضية", "وقت لا يتعارض مع محاضرات المدرس، وقاعة شاغرة"),
-        ("load.html", "bi-bar-chart-line", "عبء المدرسين", "شعب كل مدرس وطلبته وساعات تدريسه، حسب القسم"),
-        ("planner.html", "bi-calendar2-week", "مخطط جدولي", "اختر مقرراتك وشعبك بلا تعارض"),
-        ("together.html", "bi-people", "جدولنا معاً", "أوقات فراغ مشتركة لمجموعة طلبة ومشرفهم"),
         ("room.html", "bi-door-open", "صفحة القاعة", "محاضرات كل قاعة الآن وجدولها، مع بطاقة باب QR"),
-        ("usage.html", "bi-grid-3x3-gap-fill", "إشغال القاعات", "نسب الإشغال حسب اليوم والساعة والمبنى، للتخطيط"),
         ("trends.html", "bi-graph-up-arrow", "متابعة التسجيل", "امتلاء الشعب والمقررات التي تحتاج شعباً إضافية"),
+        ("load.html", "bi-bar-chart-line", "عبء المدرسين", "شعب كل مدرس وطلبته وساعات تدريسه، حسب القسم"),
+        ("usage.html", "bi-grid-3x3-gap-fill", "إشغال القاعات", "نسب الإشغال حسب اليوم والساعة والمبنى، للتخطيط"),
         ("screen.html", "bi-display", "شاشة المبنى", "للشاشات في مداخل الكليات: الجاري والقادم والشاغر")]),
+    ("instructor.html", "bi-person-badge", "للمدرس", "جدول كل مدرس وأوقات فراغه واشتراك تقويمه", [
+        ("office-hours.html", "bi-person-raised-hand", "الساعات المكتبية", "ساعات كل مدرس حسب القسم والكلية، تصدير وطباعة مع QR"),
+        ("makeup.html", "bi-arrow-repeat", "محاضرة تعويضية", "وقت لا يتعارض مع محاضرات المدرس، وقاعة شاغرة")]),
+    ("planner.html", "bi-mortarboard", "للطلبة", "اختر مقرراتك وشعبك بلا تعارض", [
+        ("together.html", "bi-people", "جدولنا معاً", "أوقات فراغ مشتركة لمجموعة طلبة ومشرفهم")]),
     ("calendar.html", "bi-calendar3", "التقويم الجامعي", "", []),
     ("now.html", "bi-broadcast", "الآن في الجامعة", "", []),
     ("notes.html", "bi-journal-richtext", "مفكرتي", "", []),
 ]
+# a menu named for its users opens with its main page under that page's own name and icon
+HEAD = {"instructor.html": ("bi-person-badge", "صفحة المدرس"), "planner.html": ("bi-calendar2-week", "مخطط جدولي")}
+# on phones and tablets the menu is two rows of four, so the long names are shortened there
+SHORT = {"directory.html": "الدليل", "timetable.html": "الجدول", "calendar.html": "التقويم", "now.html": "الآن"}
 MAIN = [(href, ic, t) for href, ic, t, _, _ in MENU]
 MORE = [c for *_, kids in MENU for c in kids]
 
@@ -124,18 +129,19 @@ PAGES = {
 
 def nav(active):
     out = []
-    # a menu opens toward the middle of the bar: the first one (at the right edge, in Arabic) from its start
+    # a menu opens toward the middle of the bar: all but the last of each phone row of four (at its left edge, in Arabic) from their start
     for n, (href, ic, t, desc, kids) in enumerate(MENU):
         on = active == href or any(c[0] == active for c in kids)
+        label = f'<span class="nav-full">{t}</span><span class="nav-short">{SHORT[href]}</span>' if href in SHORT else t
         if not kids:
-            out.append('      <a %shref="%s"%s><i class="bi %s"></i> %s</a>' % ('class="active" ' if on else "", href, ' aria-current="page"' if on else "", ic, t))
+            out.append('      <a %shref="%s"%s><i class="bi %s"></i> %s</a>' % ('class="active" ' if on else "", href, ' aria-current="page"' if on else "", ic, label))
             continue
         item = lambda h, i, tt, d: ('          <li><a class="dropdown-item%s" href="%s"%s><i class="bi %s"></i><span><b>%s</b><small>%s</small></span></a></li>'
                                     % (" active" if h == active else "", h, ' aria-current="page"' if h == active else "", i, tt, d))
         out.append(f'''      <div class="dropdown site-more">
-        <a href="{href}" class="dropdown-toggle{' active' if on else ''}" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi {ic}"></i> {t}</a>
-        <ul class="dropdown-menu{'' if n < 2 else ' dropdown-menu-end'}">
-{item(href, ic, t, desc)}
+        <a href="{href}" class="dropdown-toggle{' active' if on else ''}" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi {ic}"></i> {label}</a>
+        <ul class="dropdown-menu{'' if n % 4 < 3 else ' dropdown-menu-end'}">
+{item(href, *HEAD.get(href, (ic, t)), desc)}
           <li><hr class="dropdown-divider"></li>
 {chr(10).join(item(*c) for c in kids)}
         </ul>
@@ -197,7 +203,7 @@ def main():
         h = re.sub(r'(<h6 class="foot-h">)عن الجدول(</h6>)', rf'\g<1>عن {p["short"]}\2', h)
         h = re.sub(r'<div><b>الجدول الدراسي</b><small>جامعة البترا</small></div>', f'<div><b>{p["short"]}</b><small>جامعة البترا</small></div>', h)
         href_of = "./" if page == "index.html" else page
-        icon = next(ic for href, ic, *_ in MAIN + MORE if href == href_of)
+        icon = HEAD[href_of][0] if href_of in HEAD else next(ic for href, ic, *_ in MAIN + MORE if href == href_of)
         h = h.replace('<span class="foot-logo"><i class="bi bi-table"></i></span>', f'<span class="foot-logo"><i class="bi {icon}"></i></span>')
         h = re.sub(r'(<p class="foot-text">)شعب الفصل الحالي كما تنشرها.*?(</p>)', rf'\g<1>{p["about"]}\2', h, flags=re.S)
         h = h.replace('مشاركة الجدول الدراسي</h5>', f'مشاركة {p["short"]}</h5>').replace('الجدول كاملاً</label>', 'هذه الصفحة</label>')
