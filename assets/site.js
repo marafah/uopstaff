@@ -95,6 +95,6 @@
   }
   const rsHere = RS.some(r => r[0] === here) || here === 'researcher.html';
   const old = nav.querySelector('a[href="research.html"]');
-  if (old) old.closest('.dropdown, a').remove();
+  if (old) return;   // the page already has the research menu
   nav.insertBefore(menu('research.html', 'bi-mortarboard-fill', 'البحث العلمي', 'البحث', RS.map(r => li(...r)).join(''), rsHere), more);
 })();
