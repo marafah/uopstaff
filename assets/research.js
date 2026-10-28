@@ -5,6 +5,38 @@
   const V = document.currentScript && document.currentScript.src.split('v=')[1] || Date.now();
 
   R.state = {};
+
+  // ---- access gate: the research pages open only after signing in (checked in the browser against a SHA-256 hash)
+  const GATE = 'e1ebfc7594699cb5f05115abec21192e43ccc20273593b6662d1d4e9e91d854b';
+  const sha = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map(x => x.toString(16).padStart(2, '0')).join('');
+  const authed = () => { try { return localStorage.getItem('rs-auth') === GATE || sessionStorage.getItem('rs-auth') === GATE; } catch (e) { return false; } };
+  R.gate = new Promise(res => {
+    if (authed()) { res(); return; }
+    document.documentElement.classList.add('rs-locked');
+    const show = () => {
+      const d = document.createElement('div'); d.className = 'rs-gate'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');
+      d.innerHTML = `<form class="box" autocomplete="on"><div class="ic"><i class="bi bi-shield-lock-fill"></i></div><h2>البحث العلمي — دخول</h2><p>هذا القسم متاح للمخوّلين فقط. أدخل اسم المستخدم وكلمة المرور.</p>
+        <label>اسم المستخدم<input name="u" class="form-control" autocomplete="username" required></label>
+        <label>كلمة المرور<div class="pw"><input name="p" type="password" class="form-control" autocomplete="current-password" required><button type="button" class="eye" aria-label="إظهار كلمة المرور"><i class="bi bi-eye"></i></button></div></label>
+        <label class="rem"><input type="checkbox" name="r" checked> تذكّرني على هذا الجهاز</label>
+        <div class="err" hidden><i class="bi bi-exclamation-triangle-fill"></i> اسم المستخدم أو كلمة المرور غير صحيحة</div>
+        <button class="btn btn-rs w-100" type="submit"><i class="bi bi-box-arrow-in-left"></i> دخول</button>
+        <a class="back" href="index.html"><i class="bi bi-arrow-right"></i> العودة إلى الصفحة الرئيسية</a></form>`;
+      document.body.appendChild(d);
+      const f = d.querySelector('form'); f.u.focus();
+      d.querySelector('.eye').onclick = () => { f.p.type = f.p.type === 'password' ? 'text' : 'password'; };
+      f.onsubmit = async e => {
+        e.preventDefault();
+        const h = await sha('uopstaff-research|' + f.u.value.trim() + '|' + f.p.value);
+        if (h !== GATE) { d.querySelector('.err').hidden = false; f.p.value = ''; f.p.focus(); return; }
+        try { (f.r.checked ? localStorage : sessionStorage).setItem('rs-auth', GATE); } catch (e2) { /* storage blocked: session only */ }
+        d.remove(); document.documentElement.classList.remove('rs-locked'); res();
+      };
+    };
+    if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
+  });
+  R.gate.then(() => { const add = () => { if (document.querySelector('.rs-logout')) return; const b = document.createElement('button'); b.className = 'rs-logout no-print'; b.title = 'تسجيل الخروج من قسم البحث العلمي'; b.innerHTML = '<i class="bi bi-box-arrow-right"></i> خروج'; b.onclick = () => R.logout(); document.body.appendChild(b); }; document.body ? add() : document.addEventListener('DOMContentLoaded', add); });
+  R.logout = () => { try { localStorage.removeItem('rs-auth'); sessionStorage.removeItem('rs-auth'); } catch (e) { /* ignore */ } location.reload(); };
   R.$ = (s, el) => (el || document).querySelector(s);
   R.$$ = (s, el) => [...(el || document).querySelectorAll(s)];
   R.esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -27,8 +59,8 @@
   const cache = {};
   R.load = function (name) {
     if (!cache[name]) {
-      cache[name] = fetch(`data/research/${name}.json?v=${V}`, { cache: 'no-cache' })
-        .then(r => { if (!r.ok) throw new Error(name + ': ' + r.status); return r.json(); });
+      cache[name] = R.gate.then(() => fetch(`data/research/${name}.json?v=${V}`, { cache: 'no-cache' })
+        .then(r => { if (!r.ok) throw new Error(name + ': ' + r.status); return r.json(); }));
     }
     return cache[name];
   };

@@ -667,3 +667,17 @@ button.rs-chip.reset i { color: #a33; }
 .rs-npaper .v { color: #5e33bf; font-size: .85rem; }
 .rs-npaper .nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: .3rem; width: 100%; text-align: center; }
 .rs-npaper .nums div { background: #fdf0e5; border-radius: 10px; padding: .3rem; } .rs-npaper .nums b { display: block; color: #c4570c; } .rs-npaper .nums span { font-size: .68rem; }
+/* access gate */
+html.rs-locked #rs-app, html.rs-locked .rs-hero, html.rs-locked main { visibility: hidden; }
+.rs-gate { position: fixed; inset: 0; z-index: 3000; display: grid; place-items: center; padding: 16px; background: radial-gradient(circle at 50% 30%, rgba(144,29,35,.92), rgba(9,27,34,.97)); backdrop-filter: blur(4px); }
+.rs-gate .box { width: min(100%, 400px); background: #fff; border-radius: 18px; padding: 1.6rem 1.5rem; box-shadow: 0 20px 60px rgba(0,0,0,.35); display: flex; flex-direction: column; gap: .7rem; text-align: center; }
+.rs-gate .ic { width: 64px; height: 64px; margin: 0 auto; border-radius: 50%; background: #f8e3e5; color: #901d23; display: grid; place-items: center; font-size: 1.8rem; }
+.rs-gate h2 { font-size: 1.3rem; font-weight: 800; color: #091b22; margin: 0; }
+.rs-gate p { color: #4f5e64; font-size: .92rem; margin: 0; }
+.rs-gate label { text-align: start; font-weight: 700; font-size: .9rem; color: #091b22; display: flex; flex-direction: column; gap: .25rem; }
+.rs-gate .pw { position: relative; } .rs-gate .pw .eye { position: absolute; inset-inline-end: .4rem; top: 50%; transform: translateY(-50%); border: 0; background: none; color: #4f5e64; }
+.rs-gate .rem { flex-direction: row; align-items: center; gap: .4rem; font-weight: 600; }
+.rs-gate .err { background: #fde7e4; color: #a02a1c; border-radius: 10px; padding: .45rem; font-size: .88rem; font-weight: 700; }
+.rs-gate .back { font-size: .85rem; color: #4f5e64; }
+.rs-logout { position: fixed; bottom: 16px; inset-inline-start: 16px; z-index: 900; border: 1px solid #e3d9c5; background: #fff; color: #901d23; border-radius: 30px; padding: .35rem .85rem; font-weight: 700; font-size: .85rem; box-shadow: 0 4px 14px rgba(9,27,34,.15); }
+.rs-logout:hover { background: #901d23; color: #fff; }
