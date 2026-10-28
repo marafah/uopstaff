@@ -13,8 +13,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<link rel="stylesheet" href="assets/app.css?v=202610281900">
-<link rel="stylesheet" href="assets/research.css?v=202610281900">
+<link rel="stylesheet" href="assets/app.css?v=202610282000">
+<link rel="stylesheet" href="assets/research.css?v=202610282000">
 </head>
 <body data-share-title="المنشورات – جامعة البترا" data-share-what="المنشورات">
 <nav class="navbar uop-topbar py-0 sticky-top no-print">
@@ -92,6 +92,7 @@
     </nav>
     <div class="d-flex align-items-center gap-2 my-2 ms-auto">
       <input class="uop-search" id="pg-q" type="search" placeholder="ابحث عن باحث أو موضوع…" aria-label="بحث عن باحث">
+      <button type="button" class="btn btn-share" data-bs-toggle="modal" data-bs-target="#shareModal" title="مشاركة الصفحة ورمز QR"><i class="bi bi-qr-code"></i><span class="d-none d-sm-inline"> مشاركة</span></button>
     </div>
   </div>
 </nav>
@@ -116,39 +117,91 @@
   <div class="container-fluid px-4">
     <div class="foot-grid">
       <section class="foot-col">
-        <h6 class="foot-h">عن صفحات البحث العلمي</h6>
-        <div class="foot-brand"><span class="foot-logo"><i class="bi bi-mortarboard-fill"></i></span>
-          <div><b>البحث العلمي</b><small>جامعة البترا</small></div></div>
-        <p class="foot-text">تجمع روابط الباحثين وقوائم أبحاثهم من صفحات المدرسين على موقع الجامعة، وتكمّلها من OpenAlex و Scopus و Google Scholar، مع رابط تحقق لكل رقم. تُحدَّث أسبوعياً.</p>
+        <h6 class="foot-h">عن المنشورات</h6>
+        <div class="foot-brand"><span class="foot-logo"><i class="bi bi-journal-text"></i></span>
+          <div><b>المنشورات</b><small>جامعة البترا</small></div></div>
+        <p class="foot-text">روابط الباحثين وقوائم أبحاثهم من صفحات المدرسين على موقع الجامعة، مع OpenAlex و Scopus و Google Scholar، ورابط تحقق لكل رقم. تتحدّث أسبوعياً.</p>
+        <div class="foot-tags">
+          <span class="foot-tag"><i class="bi bi-collection"></i> <span id="foot-count">—</span></span>
+          <span class="foot-tag"><i class="bi bi-arrow-repeat"></i> <span id="foot-updated">—</span></span>
+        </div>
+        <a class="foot-link" href="https://www.scopus.com/pages/organization/60040839" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i> جامعة البترا في Scopus</a>
       </section>
       <section class="foot-col">
-        <h6 class="foot-h">صفحات البحث</h6>
-        <ul class="list-unstyled small mb-0">
-          <li><a href="research.html"><i class="bi bi-mortarboard"></i> لوحة البحث العلمي</a></li>
-          <li><a href="researchers.html"><i class="bi bi-person-lines-fill"></i> الباحثون</a></li>
-          <li><a href="publications.html"><i class="bi bi-journal-text"></i> المنشورات</a></li>
-          <li><a href="compare.html"><i class="bi bi-bar-chart-steps"></i> المقارنة</a></li>
-          <li><a href="universities.html"><i class="bi bi-bank"></i> الجامعات الأردنية</a></li>
-          <li><a href="network.html"><i class="bi bi-diagram-3"></i> شبكة التعاون</a></li>
-        </ul>
+        <h6 class="foot-h">فريق العمل</h6>
+        <div class="credit-card">
+          <div class="credit-line">
+            <span class="credit-role"><i class="bi bi-code-slash"></i> تصميم وتطوير</span>
+            <a class="credit-person lead" href="directory.html?q=%D8%B9%D8%B1%D9%81%D8%A9">د. محمد عرفة</a>
+          </div>
+          <div class="credit-line">
+            <span class="credit-role"><i class="bi bi-compass"></i> بتوجيه ودعم من</span>
+            <a class="credit-person" href="directory.html?q=%D8%A7%D9%84%D9%85%D9%82%D9%88%D8%B3%D9%8A">د. علي المقوسي</a>
+          </div>
+        </div>
       </section>
-      <section class="foot-col">
-        <h6 class="foot-h">المصادر</h6>
-        <ul class="list-unstyled small mb-0">
-          <li><a href="https://openalex.org/institutions/I36622005" target="_blank" rel="noopener">جامعة البترا في OpenAlex</a></li>
-          <li><a href="https://www.scopus.com/pages/organization/60040839" target="_blank" rel="noopener">جامعة البترا في Scopus</a></li>
-          <li><a href="https://www.uop.edu.jo" target="_blank" rel="noopener">موقع الجامعة الرسمي</a></li>
-        </ul>
+      <section class="foot-col foot-share">
+        <h6 class="foot-h">شارك الموقع</h6>
+        <div class="foot-share-row">
+          <button type="button" class="foot-qr" id="foot-qr" data-bs-toggle="modal" data-bs-target="#shareModal" title="مشاركة الدليل ورمز QR" aria-label="مشاركة الدليل ورمز QR"></button>
+          <div>
+            <p class="foot-text mb-2">امسح الرمز بكاميرا الهاتف لفتح الموقع، أو شارك الرابط.</p>
+            <div class="foot-url" dir="ltr">marafah.github.io/uopstaff</div>
+            <button type="button" class="btn btn-sm btn-light mt-2" data-bs-toggle="modal" data-bs-target="#shareModal"><i class="bi bi-share-fill"></i> مشاركة</button>
+            <button type="button" class="btn btn-sm btn-light mt-2 ms-1" id="app-install"><i class="bi bi-phone"></i> ثبّت التطبيق</button>
+          </div>
+        </div>
       </section>
     </div>
-    <p class="foot-text mt-3 mb-0 small">صفحة غير رسمية. المرجع المعتمد لبيانات أعضاء الهيئة التدريسية هو موقع جامعة البترا، ولأرقام الاقتباس منصّة كل مصدر.</p>
+  </div>
+  <div class="foot-bottom">
+    <div class="container-fluid px-4">
+      <span><i class="bi bi-info-circle"></i> صفحة غير رسمية تعرض البيانات المنشورة على الموقع الرسمي للجامعة وفي قواعد البيانات البحثية؛ المرجع المعتمد هو الموقع الرسمي ومنصّة كل مصدر.</span>
+      <span class="foot-copy">© <span id="year">2026</span></span>
+    </div>
   </div>
 </footer>
 
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content share-modal">
+      <div class="modal-header"><h5 class="modal-title fw-bold" id="shareTitle"><i class="bi bi-share-fill"></i> مشاركة المنشورات</h5>
+        <button type="button" class="btn-close ms-0" data-bs-dismiss="modal" aria-label="إغلاق"></button></div>
+      <div class="modal-body">
+        <div class="btn-group w-100 mb-3" role="group" aria-label="ما الذي تشاركه">
+          <input type="radio" class="btn-check" name="shareWhat" id="sw-site" value="site" checked><label class="btn btn-outline-primary btn-sm" for="sw-site"><i class="bi bi-house"></i> الموقع</label>
+          <input type="radio" class="btn-check" name="shareWhat" id="sw-all" value="all"><label class="btn btn-outline-primary btn-sm" for="sw-all"><i class="bi bi-file-earmark"></i> هذه الصفحة</label>
+          <input type="radio" class="btn-check" name="shareWhat" id="sw-view" value="view"><label class="btn btn-outline-primary btn-sm" for="sw-view"><i class="bi bi-funnel"></i> النتيجة الحالية</label>
+        </div>
+        <div class="qr-card" id="qr-card">
+          <div class="qr-head"><b>المنشورات – جامعة البترا</b><small id="qr-sub">امسح الرمز لفتح الصفحة</small></div>
+          <div class="qr-box" id="qr"></div>
+          <div class="qr-url" id="share-url-text" dir="ltr"></div>
+        </div>
+        <div class="input-group input-group-sm mt-3">
+          <input class="form-control" id="share-url" readonly dir="ltr" aria-label="الرابط">
+          <button class="btn btn-primary" type="button" id="copy-link"><i class="bi bi-clipboard"></i> نسخ الرابط</button>
+        </div>
+        <div class="share-actions mt-3">
+          <a class="btn btn-sm btn-whatsapp" id="share-wa" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> واتساب</a>
+          <a class="btn btn-sm btn-outline-secondary" id="share-mail"><i class="bi bi-envelope"></i> بريد</a>
+          <button class="btn btn-sm btn-outline-secondary" type="button" id="share-native" hidden><i class="bi bi-box-arrow-up"></i> مشاركة…</button>
+          <button class="btn btn-sm btn-outline-success" type="button" id="qr-download"><i class="bi bi-download"></i> تنزيل رمز QR</button>
+          <button class="btn btn-sm btn-outline-dark" type="button" id="qr-print"><i class="bi bi-printer"></i> طباعة بطاقة</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="copy-toast" id="copy-toast" role="status" aria-live="polite"><i class="bi bi-clipboard-check-fill"></i> <span></span></div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="assets/research.js?v=202610281900"></script>
-<script src="assets/rs-pubs.js?v=202610281900"></script>
-<script src="assets/site.js?v=202610281900"></script>
+<script src="assets/research.js?v=202610282000"></script>
+<script src="assets/rs-pubs.js?v=202610282000"></script>
+<script src="assets/common.js?v=202610282000"></script>
+<script src="assets/share.js?v=202610282000"></script>
+<script src="assets/site.js?v=202610282000"></script>
 </body>
 </html>
