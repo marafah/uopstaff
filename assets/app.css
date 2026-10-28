@@ -1734,14 +1734,13 @@ html[data-theme="dark"] .modal-backdrop.show { opacity: .25; }
 /* Top bar: keep the menu beside the logo when the search box wraps to a second row */
 .uop-topbar .container-fluid { justify-content: flex-start; }
 
-/* Page title as a slim light strip under the top bar (was a tall dark band): more room for the content */
-.uop-hero { background: transparent !important; color: var(--uop-navy) !important; padding: .9rem 0 .2rem !important; }
-.uop-hero .hero-row { align-items: center; gap: .4rem 1rem; min-height: 0; }
-.uop-hero h1 { font-size: 1.25rem !important; color: var(--uop-navy) !important; margin: 0; }
-.uop-hero p { font-size: .85rem; color: #6c6a64 !important; margin: .1rem 0 0 !important; }
+/* Page title as a slim dark strip under the top bar, the same on every page */
+.uop-hero { background: var(--uop-navy) !important; color: #fff !important; padding: .55rem 0 !important; }
+.uop-hero .hero-row { align-items: center; gap: .3rem 1rem; min-height: 0; }
+.uop-hero h1 { font-size: 1.15rem !important; color: #fff !important; margin: 0; line-height: 1.35; }
+.uop-hero p { font-size: .8rem; color: rgba(255,255,255,.72) !important; margin: .05rem 0 0 !important; }
 .uop-hero .update-box { flex-direction: row !important; gap: .6rem; align-items: center; }
-.uop-hero .update-when { color: #6c6a64 !important; }
-.uop-hero .btn { box-shadow: none; border: 1px solid var(--uop-sand); }
-html[data-theme="dark"] .uop-hero { filter: none; }   /* light strip: let it invert with the page */
+.uop-hero .update-when { color: rgba(255,255,255,.7) !important; font-size: .75rem; }
+.uop-hero .btn { padding: .2rem .8rem; font-size: .85rem; }
 /* a narrower search box keeps the whole top bar on one line on wide screens */
 .uop-search { width: 200px; }
