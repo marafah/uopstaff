@@ -65,6 +65,7 @@
   R.scopusDocUrl = eid => `https://www.scopus.com/record/display.uri?eid=${encodeURIComponent(eid)}&origin=resultslist`;
   R.scopusOrgUrl = id => `https://www.scopus.com/pages/organization/${id}`;
   R.scholarUrl = id => `https://scholar.google.com/citations?user=${id}&hl=en`;
+  R.docUrl = w => `publication.html?id=${encodeURIComponent(w.id)}`;
   R.profileUrl = r => `researcher.html?id=${encodeURIComponent(r.id)}`;
   R.srcBadge = (txt, href, icon) => href
     ? `<a class="rs-src" href="${R.esc(href)}" target="_blank" rel="noopener" title="افتح المصدر للتحقق"><i class="bi ${icon || 'bi-box-arrow-up-left'}"></i>${R.esc(txt)}</a>`
@@ -129,14 +130,14 @@
     const src = (w.src || '').split('').sort((a, b) => 'swoug'.indexOf(a) - 'swoug'.indexOf(b)).map(s => `<span class="rs-tag src-${s}" title="المصدر: ${R.SRC[s] ? R.SRC[s].name : s}">${R.SRC[s] ? R.SRC[s].name : s}</span>`).join('');
     const who = opts.byId ? (w.r || []).map(id => opts.byId[id]).filter(Boolean) : [];
     return `<article class="rs-pub">
-      <div class="t">${R.esc(w.t)}</div>
+      <div class="t"><a href="${R.docUrl(w)}" title="كل تفاصيل المنشور">${R.esc(w.t)}</a></div>
       <div class="c">${w.sc != null ? `<b>${R.n(w.sc)}</b><span>اقتباس Scopus${w.wc != null ? `<br>WoS: ${R.n(w.wc)}` : ''}${w.c != null && w.c !== w.sc ? `<br>OpenAlex: ${R.n(w.c)}` : ''}</span>` : `<b>${R.n(w.c)}</b><span>اقتباس OpenAlex</span>`}</div>
       ${w.au ? `<div class="a">${R.esc(w.au)}</div>` : ''}
       <div class="m">${w.y ? `<span class="rs-tag y">${w.y}</span>` : ''}${R.qTag(w.q)}${w.v ? `<span class="ltr">${R.esc(w.v)}</span>` : ''}
         <span class="rs-tag">${R.esc(R.typeAr(w.type))}</span>${R.isOA(w) ? `<span class="rs-tag oa"><i class="bi bi-unlock"></i> ${R.OA_AR[w.oa] || 'مفتوح'}</span>` : ''}
         ${w.fwci != null ? `<span class="rs-tag" title="مؤشر الاقتباس الموزون حسب المجال (1 = المتوسط العالمي)">FWCI ${w.fwci}</span>` : ''}${src}
         ${who.length && opts.showUop ? who.map(r => `<a class="rs-chip" href="${R.profileUrl(r)}">${R.esc(r.name)}</a>`).join('') : ''}</div>
-      <div class="lnk">${R.workLinks(w)}</div>
+      <div class="lnk"><a href="${R.docUrl(w)}" style="color:#901d23"><i class="bi bi-file-earmark-text"></i> التفاصيل</a>${R.workLinks(w)}</div>
     </article>`;
   };
 
