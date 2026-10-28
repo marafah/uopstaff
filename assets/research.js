@@ -189,9 +189,14 @@
     const days = Math.round((Date.now() - d) / 864e5);
     const when = days <= 0 ? 'اليوم' : days === 1 ? 'أمس' : `قبل ${days} يوماً`;
     el.textContent = `آخر تحديث ${when} (${d.toLocaleDateString('en-GB')}) · يُحدَّث أسبوعياً`;
+    const fu = document.getElementById('foot-updated'), fc = document.getElementById('foot-count');
+    if (fu) fu.textContent = `تحديث أسبوعي · ${d.toLocaleDateString('en-GB')}`;
+    if (fc && meta.researchers) fc.textContent = `${meta.researchers} باحث · ${R.n(meta.works)} منشور`;
   };
   R.fail = function (el, e) {
     console.error(e);
+    const u = document.getElementById('pg-updated');
+    if (u) u.textContent = 'البيانات قيد الإعداد';
     el.innerHTML = `<div class="rs-empty"><i class="bi bi-cloud-slash"></i>تعذّر تحميل بيانات البحث العلمي.<br><small>تُبنى البيانات تلقائياً عبر GitHub Actions ‏(Update research data). إن كانت هذه أول مرة، شغّل الإجراء من تبويب Actions.</small></div>`;
   };
 

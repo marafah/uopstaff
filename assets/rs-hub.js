@@ -62,7 +62,7 @@
 
   <section class="rs-section rs-tiles">
     <a class="rs-tile" href="researchers.html"><i class="bi bi-person-lines-fill"></i><span><b>الباحثون</b><small>بحث وتصفية حسب الكلية والقسم والرتبة، وترتيب حسب h-index والاقتباسات</small></span></a>
-    <a class="rs-tile" href="publications.html"><i class="bi bi-journal-text"></i><span><b>المنشورات</b><small>كل الأبحاث مع رابط DOI وOpenAlex وScopus للتحقق، وتصدير CSV</small></span></a>
+    <a class="rs-tile" href="publications.html"><i class="bi bi-journal-text"></i><span><b>المنشورات</b><small>كل الأبحاث مع رابط DOI و OpenAlex و Scopus للتحقق، وتصدير CSV</small></span></a>
     <a class="rs-tile" href="compare.html"><i class="bi bi-bar-chart-steps"></i><span><b>المقارنة</b><small>قارن حتى 4 باحثين أو كليات أو أقسام بالرسوم</small></span></a>
     <a class="rs-tile" href="universities.html"><i class="bi bi-bank"></i><span><b>الجامعات الأردنية</b><small>موقع جامعة البترا بين الجامعات الأردنية في الإنتاج والاقتباس</small></span></a>
     <a class="rs-tile" href="network.html"><i class="bi bi-diagram-3"></i><span><b>شبكة التعاون</b><small>من يكتب مع من داخل الجامعة، وعبر الكليات</small></span></a>
@@ -83,7 +83,7 @@
     <div class="rs-scroll"><table class="rs-table"><thead><tr><th>الكلية</th><th class="num">باحثون</th><th class="num">منشورات</th><th class="num">آخر 5 سنوات</th><th class="num">اقتباسات</th><th class="num">وسيط h</th><th class="num">Scholar</th><th class="num">Scopus</th><th class="num">ORCID</th></tr></thead>
     <tbody>${facRows.map(f => `<tr><td><a href="researchers.html?fac=${encodeURIComponent(f.f)}">${R.esc(f.f)}</a></td><td class="num">${f.n}</td><td class="num">${R.n(f.works)}</td><td class="num">${R.n(f.w5)}</td><td class="num">${R.n(f.cites)}</td><td class="num">${f.h}</td>
       ${['scholar', 'scopus', 'orcid'].map(k => `<td class="num" title="${f[k]} من ${f.n}"><div class="rs-barwrap"><div class="rs-bar" style="width:${Math.round(100 * f[k] / (f.n || 1))}%;background:${k === 'scholar' ? '#4285f4' : k === 'scopus' ? '#e9711c' : '#7fae22'}"></div></div><small>${Math.round(100 * f[k] / (f.n || 1))}%</small></td>`).join('')}</tr>`).join('')}</tbody></table></div>
-    <p class="rs-note mt-2 mb-0">أعمدة Scholar وScopus وORCID تبيّن نسبة من أضاف رابط ملفه البحثي في صفحة المدرس على موقع الجامعة؛ إكمالها يرفع دقة المطابقة.</p>
+    <p class="rs-note mt-2 mb-0">أعمدة Scholar و Scopus و ORCID تبيّن نسبة من أضاف رابط ملفه البحثي في صفحة المدرس على موقع الجامعة؛ إكمالها يرفع دقة المطابقة.</p>
   </section>
 
   <section class="rs-section rs-grid">
@@ -103,11 +103,11 @@
   <section class="rs-section rs-card rs-note">
     <h3><i class="bi bi-info-circle"></i>عن البيانات ومصادرها</h3>
     <ul class="mb-0">
-      <li><b>صفحة المدرس (موقع الجامعة):</b> روابط Google Scholar وScopus وORCID وJOIP، والاهتمامات البحثية، وقائمة الأبحاث كما أدخلها كل عضو هيئة تدريس.</li>
+      <li><b>صفحة المدرس (موقع الجامعة):</b> روابط Google Scholar و Scopus و ORCID و JOIP، والاهتمامات البحثية، وقائمة الأبحاث كما أدخلها كل عضو هيئة تدريس.</li>
       <li><b>OpenAlex</b> (<a href="${uop ? R.oaInstUrl(uop.id) : 'https://openalex.org'}" target="_blank" rel="noopener">openalex.org</a>): الأبحاث والاقتباسات والمجالات والمؤلفون المشاركون. تُطابَق الملفات عبر ORCID أولاً ثم بالاسم والانتماء للجامعة، وتظهر طريقة المطابقة على كل باحث.</li>
       <li><b>Scopus</b> (<a href="${R.scopusOrgUrl(meta.scopus_afid || '60040839')}" target="_blank" rel="noopener">صفحة الجامعة</a>): ${meta.scopus_mode === 'api' ? 'تُقرأ عبر واجهة Elsevier البرمجية.' : meta.scopus_mode === 'csv' ? 'من ملف التصدير الموضوع في data/research/scopus_export.' : 'روابط ملفات المؤلفين. أضف مفتاح Elsevier أو ملف تصدير CSV لعرض أرقام Scopus.'}</li>
       <li><b>Google Scholar</b>: ${meta.scholar_mode === 'off' ? 'روابط الملفات فقط.' : 'الاقتباسات وh-index من الملف العام لكل باحث متى أمكن قراءته، مع تاريخ آخر قراءة.'}</li>
-      <li>كل منشور يحمل روابط التحقق (DOI وOpenAlex وScopus والناشر). الأرقام تختلف بين المصادر لاختلاف تغطيتها، لذا يُذكر مصدر كل رقم.</li>
+      <li>كل منشور يحمل روابط التحقق (DOI و OpenAlex و Scopus والناشر). الأرقام تختلف بين المصادر لاختلاف تغطيتها، لذا يُذكر مصدر كل رقم.</li>
     </ul>
   </section>`;
 
