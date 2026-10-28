@@ -73,7 +73,7 @@
     const L = r.links || {}, cls = 'rs-link' + (big ? ' lg' : '');
     const items = [
       ['Google Scholar', L.scholar, '#4285f4', 'bi-google'],
-      ['Scopus', L.scopus || (r.scopus_id && R.scopusAuthorUrl(r.scopus_id)), '#e9711c', 'bi-bar-chart-line'],
+      ['Scopus', L.scopus || ((r.scopus_ids || [])[0] && R.scopusAuthorUrl(r.scopus_ids[0])), '#e9711c', 'bi-bar-chart-line'],
       ['ORCID', L.orcid, '#a6ce39', 'bi-person-vcard'],
       ['OpenAlex', (r.oa_ids || [])[0] && R.oaAuthorUrl(r.oa_ids[0]), '#1d4f80', 'bi-globe2'],
       ['JOIP', L.joip, '#007a3d', 'bi-flag'],
@@ -95,6 +95,16 @@
     return '<span class="rs-verify warn" title="مطابقة تقريبية بالاسم: يُرجى التحقق من رابط OpenAlex"><i class="bi bi-exclamation-triangle"></i>يحتاج تحقق</span>';
   };
 
+  R.scBadge = function (r) {
+    const m = r.scopus_match;
+    if (!(r.scopus_ids || []).length) return '<span class="rs-verify none" title="لا يوجد ملف Scopus مرتبط بهذا الباحث في وثائق الجامعة"><i class="bi bi-dash-circle"></i>Scopus: غير مطابق</span>';
+    if (m === 'link') return '<span class="rs-verify ok" title="رقم مؤلف Scopus من صفحة المدرس على موقع الجامعة"><i class="bi bi-patch-check-fill"></i>Scopus: من صفحة المدرس</span>';
+    if (m === 'name') return '<span class="rs-verify ok" title="طوبق بالاسم بين مؤلفي الجامعة في Scopus"><i class="bi bi-check-circle"></i>Scopus: مطابق بالاسم</span>';
+    return '<span class="rs-verify warn" title="مطابقة بالاسم الأول واسم العائلة: تحقّق من رابط Scopus"><i class="bi bi-exclamation-triangle"></i>Scopus: يحتاج تحقق</span>';
+  };
+  R.qTag = q => q ? `<span class="rs-tag q${q[1]}" title="تصنيف المجلة حسب SJR (من بيانات Scopus)">${q}</span>` : '';
+  R.scUrl = r => (r.links || {}).scopus || ((r.scopus_ids || [])[0] ? R.scopusAuthorUrl(r.scopus_ids[0]) : '');
+
   R.workLinks = function (w) {
     const a = [];
     if (w.doi) a.push(`<a href="https://doi.org/${R.esc(w.doi)}" target="_blank" rel="noopener"><i class="bi bi-link-45deg"></i> DOI</a>`);
@@ -114,13 +124,13 @@
 
   R.pubHTML = function (w, opts) {
     opts = opts || {};
-    const src = (w.src || '').split('').map(s => `<span class="rs-tag src-${s}" title="المصدر: ${R.SRC[s] ? R.SRC[s].name : s}">${R.SRC[s] ? R.SRC[s].name : s}</span>`).join('');
+    const src = (w.src || '').split('').sort((a, b) => 'soug'.indexOf(a) - 'soug'.indexOf(b)).map(s => `<span class="rs-tag src-${s}" title="المصدر: ${R.SRC[s] ? R.SRC[s].name : s}">${R.SRC[s] ? R.SRC[s].name : s}</span>`).join('');
     const who = opts.byId ? (w.r || []).map(id => opts.byId[id]).filter(Boolean) : [];
     return `<article class="rs-pub">
       <div class="t">${R.esc(w.t)}</div>
-      <div class="c"><b>${R.n(w.c)}</b><span>اقتباس${w.sc != null && w.sc !== w.c ? `<br>Scopus: ${R.n(w.sc)}` : ''}</span></div>
+      <div class="c">${w.sc != null ? `<b>${R.n(w.sc)}</b><span>اقتباس Scopus${w.c != null && w.c !== w.sc ? `<br>OpenAlex: ${R.n(w.c)}` : ''}</span>` : `<b>${R.n(w.c)}</b><span>اقتباس OpenAlex</span>`}</div>
       ${w.au ? `<div class="a">${R.esc(w.au)}</div>` : ''}
-      <div class="m">${w.y ? `<span class="rs-tag y">${w.y}</span>` : ''}${w.v ? `<span class="ltr">${R.esc(w.v)}</span>` : ''}
+      <div class="m">${w.y ? `<span class="rs-tag y">${w.y}</span>` : ''}${R.qTag(w.q)}${w.v ? `<span class="ltr">${R.esc(w.v)}</span>` : ''}
         <span class="rs-tag">${R.esc(R.typeAr(w.type))}</span>${R.isOA(w) ? `<span class="rs-tag oa"><i class="bi bi-unlock"></i> ${R.OA_AR[w.oa] || 'مفتوح'}</span>` : ''}
         ${w.fwci != null ? `<span class="rs-tag" title="مؤشر الاقتباس الموزون حسب المجال (1 = المتوسط العالمي)">FWCI ${w.fwci}</span>` : ''}${src}
         ${who.length && opts.showUop ? who.map(r => `<a class="rs-chip" href="${R.profileUrl(r)}">${R.esc(r.name)}</a>`).join('') : ''}</div>

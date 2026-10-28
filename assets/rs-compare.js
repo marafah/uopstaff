@@ -38,6 +38,8 @@
     const active = rs.filter(r => r.works);
     return {
       id: name, name, n: rs.length, works: ws.length, w5: ws.filter(w => (w.y || 0) >= Y - 4).length, cites: R.sum(ws.map(w => w.c)),
+      sc: ws.filter(w => (w.src || '').includes('s')).length, scc: R.sum(ws.filter(w => (w.src || '').includes('s')).map(w => w.sc || 0)),
+      q12: ws.filter(w => (w.src || '').includes('s') && (w.q === 'Q1' || w.q === 'Q2')).length, sch: R.median(rs.filter(r => r.sc).map(r => r.sc.h)),
       perCap: rs.length ? ws.length / rs.length : 0, h: R.median(active.map(r => r.h)), hmax: Math.max(0, ...rs.map(r => r.h)),
       oa: ws.filter(w => w.oa).length ? ws.filter(R.isOA).length / ws.filter(w => w.oa).length : 0,
       scholar: rs.length ? rs.filter(r => r.links.scholar).length / rs.length : 0, scopus: rs.length ? rs.filter(r => r.links.scopus || r.scopus_id).length / rs.length : 0,
@@ -103,35 +105,39 @@
     const col = k => P.map(r => r[k]);
     const joint = works.filter(w => P.filter(r => (w.r || []).includes(r.id)).length >= 2);
     const years = []; for (let y = Y - 11; y <= Y; y++) years.push(y);
-    const radarK = [['h', 'h-index'], ['cites', 'الاقتباسات'], ['works', 'المنشورات'], ['w5', 'آخر 5 سنوات'], ['c5', 'اقتباسات حديثة'], ['i10', 'i10'], ['ext_coauthors', 'تعاون خارجي']];
+    const radarK = [['sc.h', 'h في Scopus'], ['sc.cites', 'اقتباسات Scopus'], ['sc.docs', 'وثائق Scopus'], ['sc.w5', 'Scopus آخر 5 سنوات'], ['q12', 'Q1 + Q2'], ['works', 'كل المنشورات'], ['ext_coauthors', 'تعاون خارجي']];
+    const gk = (r, k) => k === 'q12' ? (((r.sc || {}).q || {}).Q1 || 0) + (((r.sc || {}).q || {}).Q2 || 0) : k.startsWith('sc.') ? ((r.sc || {})[k.slice(3)] || 0) : (r[k] || 0);
     out.innerHTML = `
     <section class="rs-section rs-card"><h3><i class="bi bi-table"></i>جدول المقارنة <small class="fw-normal text-muted">الخلية الخضراء = الأعلى</small></h3>
       <div class="rs-scroll full"><table class="rs-table rs-mtable"><thead><tr><th></th>${P.map((r, i) => `<th class="num"><span class="sw d-inline-block rounded-circle" style="width:10px;height:10px;background:${COL[i]}"></span> ${R.esc(r.name)}</th>`).join('')}</tr></thead><tbody>
         <tr><td>الرتبة</td>${P.map(r => `<td class="num">${R.esc(r.rank)}</td>`).join('')}</tr>
         <tr><td>القسم</td>${P.map(r => `<td class="num"><small>${R.esc(r.dept)}</small></td>`).join('')}</tr>
+        ${row('وثائق Scopus (بانتماء البترا)', P.map(r => (r.sc || {}).docs || 0), null, R.srcBadge('Scopus', '', 'bi-bar-chart-line'))}
+        ${row('اقتباسات Scopus', P.map(r => (r.sc || {}).cites || 0))}${row('h-index في Scopus', P.map(r => (r.sc || {}).h || 0))}
+        ${row('وثائق Scopus آخر 5 سنوات', P.map(r => (r.sc || {}).w5 || 0))}
+        ${row('أبحاث Q1', P.map(r => ((r.sc || {}).q || {}).Q1 || 0))}${row('أبحاث Q2', P.map(r => ((r.sc || {}).q || {}).Q2 || 0))}
         ${row('المنشورات (كل المصادر)', col('works'))}${row('منشورات آخر 5 سنوات', col('w5'))}
-        ${row('الاقتباسات', col('cites'), null, R.srcBadge('OpenAlex'))}${row('اقتباسات آخر 5 سنوات', col('c5'))}
-        ${row('h-index', col('h'))}${row('i10-index', col('i10'))}
+        ${row('اقتباسات OpenAlex', col('cites'), null, R.srcBadge('OpenAlex'))}${row('اقتباسات آخر 5 سنوات', col('c5'))}
+        ${row('h-index (OpenAlex)', col('h'))}${row('i10-index', col('i10'))}
         ${row('متوسط الاقتباس للبحث', P.map(r => r.works ? r.cites / r.works : 0), v => (+v).toFixed(1))}
         ${row('الوصول المفتوح', col('oa_share'), v => R.pct(v))}
         ${row('Google Scholar: اقتباسات', P.map(r => (r.scholar || {}).cites), null, R.srcBadge('Scholar', '', 'bi-google'))}
         ${row('Google Scholar: h-index', P.map(r => (r.scholar || {}).h))}
-        ${row('Scopus: وثائق', P.map(r => (r.scopus || {}).docs), null, R.srcBadge('Scopus', '', 'bi-bar-chart-line'))}
-        ${row('Scopus: h-index', P.map(r => (r.scopus || {}).h))}
+        ${row('Scopus API: h-index (كل المسيرة)', P.map(r => (r.scopus || {}).h))}
         ${row('مؤلفون مشاركون خارجيون', col('ext_coauthors'))}${row('دول متعاونة', P.map(r => (r.countries || []).filter(c => c[0] !== 'JO').length))}
         <tr><td>أبرز المواضيع</td>${P.map(r => `<td><small>${(r.topics || []).slice(0, 3).map(t => R.esc(t[0])).join('<br>')}</small></td>`).join('')}</tr>
         <tr><td>روابط التحقق</td>${P.map(r => `<td>${R.linkList(r)}</td>`).join('')}</tr>
       </tbody></table></div></section>
     <section class="rs-section rs-grid">
       <div class="rs-card"><h3><i class="bi bi-bullseye"></i>الملف النسبي <small class="fw-normal text-muted">المئين داخل الجامعة (0–100)</small></h3><div class="rs-chart tall"><canvas id="c-radar"></canvas></div></div>
-      <div class="rs-card"><h3><i class="bi bi-bar-chart"></i>المنشورات سنوياً</h3><div class="rs-chart"><canvas id="c-wy"></canvas></div>
+      <div class="rs-card"><h3><i class="bi bi-bar-chart"></i>وثائق Scopus سنوياً</h3><div class="rs-chart"><canvas id="c-wy"></canvas></div>
         <h3 class="mt-3"><i class="bi bi-graph-up"></i>الاقتباسات سنوياً</h3><div class="rs-chart short"><canvas id="c-cy"></canvas></div></div>
     </section>
     <section class="rs-section rs-card"><h3><i class="bi bi-people"></i>أبحاث مشتركة بينهم (${joint.length})</h3>
       <div class="rs-pubs">${joint.map(w => R.pubHTML(w, { byId, showUop: true })).join('') || '<div class="text-muted small">لا توجد أبحاث مشتركة بين الباحثين المختارين.</div>'}</div></section>`;
-    const allv = k => list.map(r => r[k] || 0);
-    R.chart('c-radar', { type: 'radar', data: { labels: radarK.map(k => k[1]), datasets: P.map((r, i) => ({ label: r.name, data: radarK.map(([k]) => R.percentile(allv(k), r[k] || 0)), borderColor: COL[i], backgroundColor: R.alpha(COL[i], .12), pointBackgroundColor: COL[i] })) }, options: { scales: { r: { min: 0, max: 100, ticks: { stepSize: 25, backdropColor: 'transparent' } } } } });
-    R.chart('c-wy', { type: 'bar', data: { labels: years, datasets: P.map((r, i) => ({ label: r.name, data: years.map(y => (r.by_year[y] || [0])[0]), backgroundColor: COL[i], borderRadius: 3 })) }, options: { scales: { y: { beginAtZero: true } } } });
+    const allv = k => list.map(r => gk(r, k));
+    R.chart('c-radar', { type: 'radar', data: { labels: radarK.map(k => k[1]), datasets: P.map((r, i) => ({ label: r.name, data: radarK.map(([k]) => R.percentile(allv(k), gk(r, k))), borderColor: COL[i], backgroundColor: R.alpha(COL[i], .12), pointBackgroundColor: COL[i] })) }, options: { scales: { r: { min: 0, max: 100, ticks: { stepSize: 25, backdropColor: 'transparent' } } } } });
+    R.chart('c-wy', { type: 'bar', data: { labels: years, datasets: P.map((r, i) => ({ label: r.name, data: years.map(y => ((r.sc || {}).by_year || {})[y] || 0), backgroundColor: COL[i], borderRadius: 3 })) }, options: { scales: { y: { beginAtZero: true } } } });
     R.chart('c-cy', { type: 'line', data: { labels: years, datasets: P.map((r, i) => ({ label: r.name, data: years.map(y => (r.by_year[y] || [0, 0])[1]), borderColor: COL[i], backgroundColor: COL[i], tension: .3 })) }, options: { scales: { y: { beginAtZero: true } } } });
   }
 
@@ -144,7 +150,7 @@
     if (G.length < 2) { out.innerHTML = '<div class="rs-empty"><i class="bi bi-building"></i>اختر مجموعتين على الأقل.</div>'; return; }
     const years = []; for (let y = Y - 11; y <= Y; y++) years.push(y);
     const fields = Object.entries(G.reduce((m, g) => { Object.entries(g.topics).forEach(([k, v]) => m[k] = (m[k] || 0) + v); return m; }, {})).sort((a, b) => b[1] - a[1]).slice(0, 10).map(x => x[0]);
-    const metrics = [['n', 'عدد الباحثين'], ['works', 'المنشورات (دون تكرار)'], ['w5', 'منشورات آخر 5 سنوات'], ['perCap', 'منشورات لكل باحث', v => (+v).toFixed(1)], ['cites', 'الاقتباسات'], ['h', 'وسيط h-index'], ['hmax', 'أعلى h-index'], ['intl', 'منشورات بتعاون دولي'], ['oa', 'الوصول المفتوح', R.pct], ['scholar', 'نسبة من لديهم Scholar', R.pct], ['scopus', 'نسبة من لديهم Scopus', R.pct], ['orcid', 'نسبة من لديهم ORCID', R.pct]];
+    const metrics = [['n', 'عدد الباحثين'], ['sc', 'وثائق Scopus'], ['scc', 'اقتباسات Scopus'], ['sch', 'وسيط h في Scopus'], ['q12', 'أبحاث Q1 و Q2'], ['works', 'المنشورات (دون تكرار)'], ['w5', 'منشورات آخر 5 سنوات'], ['perCap', 'منشورات لكل باحث', v => (+v).toFixed(1)], ['cites', 'الاقتباسات'], ['h', 'وسيط h-index'], ['hmax', 'أعلى h-index'], ['intl', 'منشورات بتعاون دولي'], ['oa', 'الوصول المفتوح', R.pct], ['scholar', 'نسبة من لديهم Scholar', R.pct], ['scopus', 'نسبة من لديهم Scopus', R.pct], ['orcid', 'نسبة من لديهم ORCID', R.pct]];
     out.innerHTML = `
     <section class="rs-section rs-card"><h3><i class="bi bi-table"></i>جدول المقارنة</h3><div class="rs-scroll full"><table class="rs-table rs-mtable"><thead><tr><th></th>${G.map((g, i) => `<th class="num"><span class="d-inline-block rounded-circle" style="width:10px;height:10px;background:${COL[i]}"></span> ${R.esc(g.name)}</th>`).join('')}</tr></thead><tbody>
       ${metrics.map(([k, t, f]) => row(t, G.map(g => g[k]), f)).join('')}</tbody></table></div></section>
@@ -154,7 +160,7 @@
       <div class="rs-card rs-span-2"><h3><i class="bi bi-diagram-2"></i>توزيع المجالات</h3><div class="rs-chart"><canvas id="g-f"></canvas></div></div>
     </section>`;
     R.chart('g-y', { type: 'line', data: { labels: years, datasets: G.map((g, i) => ({ label: g.name, data: years.map(y => g.by[y] || 0), borderColor: COL[i], backgroundColor: COL[i], tension: .3 })) } });
-    const rk = [['works', 'المنشورات'], ['w5', 'آخر 5 سنوات'], ['perCap', 'لكل باحث'], ['cites', 'الاقتباسات'], ['h', 'وسيط h'], ['intl', 'تعاون دولي'], ['oa', 'وصول مفتوح']];
+    const rk = [['sc', 'وثائق Scopus'], ['scc', 'اقتباسات Scopus'], ['q12', 'Q1 + Q2'], ['works', 'المنشورات'], ['w5', 'آخر 5 سنوات'], ['perCap', 'لكل باحث'], ['cites', 'الاقتباسات'], ['h', 'وسيط h'], ['intl', 'تعاون دولي'], ['oa', 'وصول مفتوح']];
     R.chart('g-r', { type: 'radar', data: { labels: rk.map(k => k[1]), datasets: G.map((g, i) => ({ label: g.name, data: rk.map(([k]) => { const mx = Math.max(...G.map(x => x[k])) || 1; return Math.round(100 * g[k] / mx); }), borderColor: COL[i], backgroundColor: R.alpha(COL[i], .1) })) }, options: { scales: { r: { min: 0, max: 100, ticks: { backdropColor: 'transparent' } } } } });
     R.chart('g-f', { type: 'bar', data: { labels: fields, datasets: G.map((g, i) => ({ label: g.name, data: fields.map(f => g.topics[f] || 0), backgroundColor: COL[i], borderRadius: 3 })) }, options: { scales: { x: { ticks: { font: { size: 10 } } } } } });
   }

@@ -176,7 +176,7 @@ a.rs-chip:hover { border-color: var(--rs-maroon); color: var(--rs-maroon); }
 .rs-suggest .list.show { display: block; }
 .rs-suggest .list button { display: flex; gap: .5rem; align-items: center; width: 100%; border: 0; background: none; padding: .45rem .6rem; text-align: start; font-size: .85rem; }
 .rs-suggest .list button:hover, .rs-suggest .list button.act { background: var(--rs-soft); }
-.rs-seg { display: inline-flex; border: 1px solid var(--rs-line); border-radius: 10px; overflow: hidden; background: #fff; }
+.rs-seg { display: inline-flex; flex-wrap: wrap; max-width: 100%; border: 1px solid var(--rs-line); border-radius: 10px; overflow: hidden; background: #fff; }
 .rs-seg button { border: 0; background: none; padding: .35rem .8rem; font-size: .85rem; font-weight: 700; color: var(--rs-muted); }
 .rs-seg button.on { background: var(--rs-maroon); color: #fff; }
 
@@ -210,3 +210,11 @@ a.rs-chip:hover { border-color: var(--rs-maroon); color: var(--rs-maroon); }
   .rs-toolbar, .rs-tray, .rs-person .foot .form-check { display: none !important; }
   .rs-card, .rs-kpi, .rs-person { box-shadow: none; break-inside: avoid; }
 }
+
+/* journal quartiles (SJR, from Scopus data) */
+.rs-tag.q1 { background: #1d7a3e; color: #fff; }
+.rs-tag.q2 { background: #1f6f78; color: #fff; }
+.rs-tag.q3 { background: #b8892b; color: #fff; }
+.rs-tag.q4 { background: #8c8577; color: #fff; }
+.rs-kpi.scopus::before { background: #e9711c; }
+.rs-sc { color: #c75b12; font-weight: 800; }
