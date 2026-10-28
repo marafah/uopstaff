@@ -1,0 +1,222 @@
+/* jordan.html: compare Jordanian universities in Scopus by field, speciality, period, quartile, journals and collaboration */
+(async function () {
+  'use strict';
+  const app = R.$('#rs-app');
+  let C, D;
+  try { [C, D] = await R.loadAll(['jordan/cube', 'jordan/unis']); } catch (e) { R.fail(app, e); return; }
+  R.updated({ updated: C.cites_updated || C.updated });
+  const U = C.unis.map(([afid, en, ar], i) => ({ i, afid, en, ar }));
+  const HOME = U.find(u => u.afid === R.HOME_AFID) || U[0];
+  const prof = Object.fromEntries((D.universities || []).map(u => [u.afid, u]));
+  const Y = D.year || new Date().getFullYear();
+  const AREAS = C.areas, CATS = C.cats;
+  const COLS = Object.fromEntries(C.cols.map((c, i) => [c, i]));
+  const esc = R.esc, pct = v => R.pct(v, 0);
+
+  // default selection: Petra and the four universities closest in size
+  const sizeOf = u => C.all.filter(r => r[0] === u.i).reduce((s, r) => s + r[3], 0);
+  U.forEach(u => { u.size = sizeOf(u); });
+  const near = U.filter(u => u !== HOME).sort((a, b) => Math.abs(a.size - HOME.size) - Math.abs(b.size - HOME.size)).slice(0, 4).map(u => u.i);
+  const st = {
+    sel: (R.store.get('rs-jo-sel', null) || [HOME.i, ...near]).filter(i => U[i]),
+    from: +R.param('from') || Y - 9, to: +R.param('to') || Y, area: R.param('area') === '' ? -1 : (+R.param('area') || -1),
+    cat: -1, metric: 'docs', sort: 'docs'
+  };
+
+  // ---------------------------------------------------------------- aggregation for the current filters
+  function rowsFor() {
+    if (st.cat >= 0) return C.cat.filter(r => r[2] === st.cat);
+    if (st.area >= 0) return C.area.filter(r => r[2] === st.area);
+    return C.all;
+  }
+  function stats() {
+    const out = U.map(u => ({ u, docs: 0, cites: 0, q1: 0, q2: 0, q3: 0, q4: 0, intl: 0, oa: 0, conf: 0, years: {} }));
+    for (const r of rowsFor()) {
+      const y = r[1];
+      if (y < st.from || y > st.to) continue;
+      const o = out[r[0]];
+      o.docs += r[3]; o.cites += r[4]; o.q1 += r[5]; o.q2 += r[6]; o.q3 += r[7]; o.q4 += r[8]; o.intl += r[9]; o.oa += r[10]; o.conf += r[11];
+      o.years[y] = (o.years[y] || [0, 0]); o.years[y][0] += r[3]; o.years[y][1] += r[4];
+    }
+    const span = st.from <= 1990 ? 'all' : (Y - st.from + 1 <= 5 && st.to >= Y - 1 ? '5' : (Y - st.from + 1 <= 10 && st.to >= Y - 1 ? '10' : ''));
+    const hk = st.cat >= 0 ? null : st.area;
+    for (const o of out) {
+      const qk = o.q1 + o.q2 + o.q3 + o.q4;
+      Object.assign(o, { cpd: o.docs ? o.cites / o.docs : 0, q1s: qk ? o.q1 / qk : 0, q12: qk ? (o.q1 + o.q2) / qk : 0, intls: o.docs ? o.intl / o.docs : 0,
+        oas: o.docs ? o.oa / o.docs : 0, confs: o.docs ? o.conf / o.docs : 0, qk });
+      const h = span && hk !== null ? (D.h || []).find(r => r[0] === o.u.i && r[1] === span && r[2] === hk) : null;
+      o.h = h ? h[3] : null;
+    }
+    return { out, span };
+  }
+
+  const M = {
+    docs: ['الوثائق', v => R.n(v)], cites: ['الاقتباسات', v => R.n(v)], cpd: ['اقتباس لكل وثيقة', v => v.toFixed(1)], h: ['h-index', v => v == null ? '–' : R.n(v)],
+    q1s: ['نسبة Q1', pct], q12: ['نسبة Q1 و Q2', pct], intls: ['تعاون دولي', pct], oas: ['وصول مفتوح', pct], confs: ['أوراق مؤتمرات', pct]
+  };
+  const color = (u, k) => u.i === HOME.i ? '#901d23' : R.colors[(k % (R.colors.length - 1)) + 1];
+  const yearOpts = sel => { let h = ''; for (let y = Y; y >= 1990; y--) h += `<option value="${y}"${y === sel ? ' selected' : ''}>${y}</option>`; return h; };
+  const areaOpts = () => `<option value="-1">كل المجالات</option>` + AREAS.map((a, i) => [i, a]).sort((x, y) => R.areaAr(x[1]).localeCompare(R.areaAr(y[1]), 'ar'))
+    .map(([i, a]) => `<option value="${i}"${i === st.area ? ' selected' : ''}>${esc(R.areaAr(a))}</option>`).join('');
+  const catOpts = () => {
+    const list = CATS.map((c, i) => [i, c]).filter(([i]) => st.area < 0 || (C.cat_area[i] || []).includes(st.area)).sort((a, b) => a[1].localeCompare(b[1]));
+    return `<option value="-1">كل التخصصات${st.area >= 0 ? ' في المجال' : ''}</option>` + list.map(([i, c]) => `<option value="${i}"${i === st.cat ? ' selected' : ''}>${esc(c)}</option>`).join('');
+  };
+
+  app.innerHTML = `
+  <section class="rs-section rs-card no-print">
+    <div class="rs-toolbar mb-2">
+      <div class="fld"><label for="j-from">من سنة</label><select id="j-from" class="form-select">${yearOpts(st.from)}</select></div>
+      <div class="fld"><label for="j-to">إلى سنة</label><select id="j-to" class="form-select">${yearOpts(st.to)}</select></div>
+      <div class="fld"><label>فترة سريعة</label><div class="rs-seg" id="j-span"><button data-s="5">5 سنوات</button><button data-s="10">10 سنوات</button><button data-s="all">الكل</button></div></div>
+      <div class="fld grow"><label for="j-area">المجال المعرفي</label><select id="j-area" class="form-select">${areaOpts()}</select></div>
+      <div class="fld grow"><label for="j-cat">التخصص الدقيق (فئات SCImago)</label><select id="j-cat" class="form-select ltr">${catOpts()}</select></div>
+    </div>
+    <label class="small fw-bold mb-1 d-block">الجامعات المختارة للمقارنة <small class="text-muted fw-normal">(اضغط لإضافة أو إزالة؛ حتى 8)</small></label>
+    <div class="rs-chips" id="j-unis"></div>
+  </section>
+
+  <section class="rs-section rs-card"><h3><i class="bi bi-table"></i>المقارنة <small class="fw-normal text-muted" id="j-scope"></small></h3>
+    <div class="rs-scroll"><table class="rs-table" id="j-table"></table></div>
+    <p class="rs-note mt-2 mb-0" id="j-hnote"></p></section>
+
+  <section class="rs-section rs-grid wide">
+    <div class="rs-card"><h3><i class="bi bi-graph-up"></i>الوثائق سنوياً</h3><div class="rs-chart"><canvas id="j-years"></canvas></div></div>
+    <div class="rs-card"><h3><i class="bi bi-bar-chart-steps"></i>توزيع التصنيف Q1–Q4 <small class="fw-normal text-muted">نسبة من الوثائق المصنّفة</small></h3><div class="rs-chart"><canvas id="j-q"></canvas></div></div>
+    <div class="rs-card"><h3><i class="bi bi-award"></i>الأثر: اقتباس لكل وثيقة</h3><div class="rs-chart"><canvas id="j-cpd"></canvas></div></div>
+    <div class="rs-card"><h3><i class="bi bi-globe2"></i>الانفتاح: تعاون دولي ووصول مفتوح</h3><div class="rs-chart"><canvas id="j-open"></canvas></div></div>
+  </section>
+
+  <section class="rs-section rs-card"><h3><i class="bi bi-sort-down"></i>ترتيب كل الجامعات الأردنية حسب
+    <select id="j-metric" class="form-select form-select-sm d-inline-block w-auto">${Object.entries(M).map(([k, v]) => `<option value="${k}">${v[0]}</option>`).join('')}</select></h3>
+    <div class="rs-chart" id="j-rank-wrap" style="height:${U.length * 22 + 60}px"><canvas id="j-rank"></canvas></div></section>
+
+  <section class="rs-section rs-card" id="j-fields-card"><h3><i class="bi bi-diagram-3"></i><span id="j-fields-title"></span></h3>
+    <div class="rs-scroll"><table class="rs-table" id="j-fields"></table></div></section>
+
+  <section class="rs-section rs-grid wide">
+    <div class="rs-card"><h3><i class="bi bi-journal-bookmark"></i>أكثر المجلات نشراً <select id="j-ju" class="form-select form-select-sm d-inline-block w-auto"></select> <small class="fw-normal text-muted">كل السنوات</small></h3>
+      <div class="rs-scroll" style="max-height:440px"><table class="rs-table" id="j-journals"></table></div></div>
+    <div class="rs-card"><h3><i class="bi bi-people"></i>التعاون بين الجامعات المختارة <small class="fw-normal text-muted">وثائق مشتركة، كل السنوات</small></h3>
+      <div class="rs-scroll"><table class="rs-table rs-heat" id="j-matrix"></table></div>
+      <h4 class="rs-sub mt-3">أكثر الدول تعاوناً</h4><div id="j-countries"></div></div>
+  </section>
+
+  <section class="rs-section rs-card" id="j-gaps"><h3><i class="bi bi-lightbulb"></i>${esc(HOME.ar)}: الفجوات والفرص <small class="fw-normal text-muted">للفترة المختارة</small></h3>
+    <div class="rs-grid wide">
+      <div><h4 class="rs-sub">حصة المجالات مقارنة بالأردن</h4><div class="rs-chart tall"><canvas id="j-gap-areas"></canvas></div>
+        <p class="rs-note">الأعمدة الحمراء: مجالات حصة البترا فيها أقل من الحصة الأردنية (فرص توسّع أو توظيف).</p></div>
+      <div><h4 class="rs-sub">موضوعات صاعدة في الأردن (آخر 4 سنوات) وحضور البترا</h4>
+        <div class="rs-scroll" style="max-height:420px"><table class="rs-table" id="j-rising"></table></div>
+        <p class="rs-note">معامل النمو = حصة الموضوع في آخر 4 سنوات ÷ حصته في السنوات الست قبلها. <a href="experts.html">ابحث عن خبير</a> في أي موضوع.</p></div>
+    </div></section>
+
+  <p class="rs-note">المصدر: تصدير Scopus لكل الجامعات الأردنية (${R.n(D.total.docs)} وثيقة فريدة) بتاريخ ${esc(D.updated)}، والاقتباسات تُحدَّث أسبوعياً${C.cites_updated ? ` (آخر تحديث ${esc(C.cites_updated)})` : ''}. التصنيف والمجالات من SCImago SJR. الوثيقة المشتركة تُحسب لكل جامعة مشاركة. للتفاصيل الكاملة: <a href="journals.html">دليل المجلات</a> · <a href="experts.html">ابحث عن خبير</a> · <a href="universities.html">مؤشرات أسبوعية</a>.</p>`;
+
+  function chips() {
+    R.$('#j-unis').innerHTML = U.slice().sort((a, b) => b.size - a.size).map(u => `<button type="button" class="btn btn-sm ${st.sel.includes(u.i) ? 'btn-rs' : 'btn-rs-o'}" data-u="${u.i}"${u.i === HOME.i ? ' style="font-weight:800"' : ''}>${esc(u.ar)}</button>`).join('');
+  }
+  let S;
+  function render() {
+    R.store.set('rs-jo-sel', st.sel);
+    S = stats();
+    const sel = st.sel.map(i => S.out[i]);
+    const scope = [st.cat >= 0 ? CATS[st.cat] : st.area >= 0 ? R.areaAr(AREAS[st.area]) : 'كل المجالات', `${st.from}–${st.to}`].join(' · ');
+    R.$('#j-scope').textContent = scope;
+    R.$('#j-hnote').textContent = S.span && st.cat < 0 ? 'h-index محسوب لكل جامعة على الوثائق المطابقة للفترة والمجال.' : 'h-index يظهر للفترات: كل السنوات، آخر 5 سنوات، آخر 10 سنوات، وعلى مستوى المجال (لا التخصص الدقيق).';
+    // ranks among all universities under the same filters
+    const rank = k => { const s = S.out.filter(o => o.docs).sort((a, b) => (b[k] ?? -1) - (a[k] ?? -1)); return o => s.indexOf(o) + 1; };
+    const rk = Object.fromEntries(Object.keys(M).map(k => [k, rank(k)]));
+    const cols = ['docs', 'cites', 'cpd', 'h', 'q1s', 'q12', 'intls', 'oas', 'confs'];
+    const rows = sel.slice().sort((a, b) => (b[st.sort] ?? -1) - (a[st.sort] ?? -1));
+    R.$('#j-table').innerHTML = `<thead><tr><th>الجامعة</th>${cols.map(k => `<th class="num${st.sort === k ? ' sorted' : ''}" data-sort="${k}">${M[k][0]}</th>`).join('')}<th>تحقق</th></tr></thead><tbody>
+      ${rows.map(o => `<tr class="${o.u.i === HOME.i ? 'me' : ''}"><td><b>${esc(o.u.ar)}</b><br><small class="text-muted ltr">${esc(o.u.en)}</small></td>
+        ${cols.map(k => `<td class="num">${M[k][1](o[k])}${o.docs && o[k] != null ? `<br><small class="text-muted">#${rk[k](o)}</small>` : ''}</td>`).join('')}
+        <td>${R.srcBadge('Scopus', R.scopusOrgUrl(o.u.afid), 'bi-bar-chart-line')}</td></tr>`).join('')}</tbody>`;
+    // yearly
+    const ys = []; for (let y = st.from; y <= Math.min(st.to, Y); y++) ys.push(y);
+    R.chart('j-years', { type: 'line', data: { labels: ys, datasets: sel.map((o, k) => ({ label: o.u.ar, data: ys.map(y => (o.years[y] || [0])[0]), borderColor: color(o.u, k), backgroundColor: color(o.u, k), borderWidth: o.u.i === HOME.i ? 3.5 : 2, tension: .3 })) }, options: { interaction: { mode: 'index', intersect: false } } });
+    // quartiles
+    const qc = ['#1d7a3e', '#1f6f78', '#b8892b', '#c75b12'];
+    R.chart('j-q', { type: 'bar', data: { labels: sel.map(o => o.u.ar), datasets: ['q1', 'q2', 'q3', 'q4'].map((q, k) => ({ label: q.toUpperCase(), data: sel.map(o => o.qk ? +(100 * o[q] / o.qk).toFixed(1) : 0), backgroundColor: qc[k] })) },
+      options: { indexAxis: 'y', scales: { x: { stacked: true, max: 100, ticks: { callback: v => v + '%' } }, y: { stacked: true } } } });
+    R.chart('j-cpd', { type: 'bar', data: { labels: sel.map(o => o.u.ar), datasets: [{ label: 'اقتباس لكل وثيقة', data: sel.map(o => +o.cpd.toFixed(2)), backgroundColor: sel.map((o, k) => color(o.u, k)), borderRadius: 4 }] }, options: { plugins: { legend: { display: false } } } });
+    R.chart('j-open', { type: 'bar', data: { labels: sel.map(o => o.u.ar), datasets: [{ label: 'تعاون دولي %', data: sel.map(o => +(100 * o.intls).toFixed(1)), backgroundColor: '#1f6f78', borderRadius: 3 }, { label: 'وصول مفتوح %', data: sel.map(o => +(100 * o.oas).toFixed(1)), backgroundColor: '#b8892b', borderRadius: 3 }] }, options: { scales: { y: { ticks: { callback: v => v + '%' } } } } });
+    rankChart();
+    fields();
+    journals();
+    matrix();
+    gaps();
+    const u = new URL(location); u.searchParams.set('from', st.from); u.searchParams.set('to', st.to); st.area >= 0 ? u.searchParams.set('area', st.area) : u.searchParams.delete('area'); history.replaceState(null, '', u);
+  }
+  function rankChart() {
+    const k = st.metric, s = S.out.filter(o => o.docs && o[k] != null).sort((a, b) => b[k] - a[k]);
+    R.$('#j-rank-wrap').style.height = (s.length * 22 + 60) + 'px';
+    R.chart('j-rank', { type: 'bar', data: { labels: s.map(o => o.u.ar), datasets: [{ label: M[k][0], data: s.map(o => /s$|12$/.test(k) ? +(100 * o[k]).toFixed(1) : +(+o[k]).toFixed(2)), backgroundColor: s.map(o => o.u.i === HOME.i ? '#901d23' : st.sel.includes(o.u.i) ? '#b8892b' : '#c9c2b2'), borderRadius: 3 }] },
+      options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { y: { ticks: { autoSkip: false, font: { size: 11 } } } }, onClick: (e, el) => { if (el[0]) window.open(R.scopusOrgUrl(s[el[0].index].u.afid), '_blank', 'noopener'); } } });
+  }
+  // fields or specialities inside the chosen field, for the selected universities
+  function fields() {
+    const inCat = st.area >= 0;
+    R.$('#j-fields-title').textContent = inCat ? `التخصصات الدقيقة في مجال ${R.areaAr(AREAS[st.area])}` : 'المجالات المعرفية: عدد الوثائق والحصة والأثر';
+    const src = inCat ? C.cat : C.area, names = inCat ? CATS : AREAS;
+    const keep = inCat ? new Set(CATS.map((c, i) => i).filter(i => (C.cat_area[i] || []).includes(st.area))) : null;
+    const t = {};
+    const tot = Object.fromEntries(st.sel.map(i => [i, S.out[i].docs || 1]));
+    for (const r of src) {
+      if (r[1] < st.from || r[1] > st.to || !st.sel.includes(r[0]) || (keep && !keep.has(r[2]))) continue;
+      const x = (t[r[2]] = t[r[2]] || {}); const v = (x[r[0]] = x[r[0]] || [0, 0]); v[0] += r[3]; v[1] += r[4];
+    }
+    const keys = Object.keys(t).map(Number).sort((a, b) => Object.values(t[b]).reduce((s, v) => s + v[0], 0) - Object.values(t[a]).reduce((s, v) => s + v[0], 0)).slice(0, 30);
+    const totAll = inCat ? null : Object.fromEntries(st.sel.map(i => [i, S.out[i].docs || 1]));
+    R.$('#j-fields').innerHTML = `<thead><tr><th>${inCat ? 'التخصص' : 'المجال'}</th>${st.sel.map(i => `<th class="num">${esc(U[i].ar)}<br><small class="fw-normal">وثائق · ${inCat ? 'اقتباس/وثيقة' : 'الحصة · اقتباس/وثيقة'}</small></th>`).join('')}</tr></thead><tbody>
+      ${keys.map(k => `<tr><td class="${inCat ? 'ltr' : ''}"><a href="#" data-pick="${k}">${esc(inCat ? names[k] : R.areaAr(names[k]))}</a></td>${st.sel.map(i => { const v = (t[k] || {})[i]; return v ? `<td class="num"><b>${R.n(v[0])}</b><br><small class="text-muted">${inCat ? '' : pct(v[0] / totAll[i]) + ' · '}${(v[1] / v[0]).toFixed(1)}</small></td>` : '<td class="num text-muted">–</td>'; }).join('')}</tr>`).join('')}</tbody>`;
+  }
+  function journals() {
+    const pick = R.$('#j-ju'), cur = +pick.value || st.sel[0];
+    pick.innerHTML = st.sel.map(i => `<option value="${i}"${i === cur ? ' selected' : ''}>${esc(U[i].ar)}</option>`).join('');
+    const u = +pick.value;
+    const list = (D.journals || []).filter(r => r[0] === u).sort((a, b) => b[2] - a[2]).slice(0, 40);
+    R.$('#j-journals').innerHTML = `<thead><tr><th>المجلة / المصدر</th><th>التصنيف</th><th class="num">الوثائق</th><th class="num">اقتباس/وثيقة</th></tr></thead><tbody>
+      ${list.map(r => { const m = D.jmeta[r[1]] || [D.jnames[r[1]] || r[1].replace(/^n:/, ''), '', 0, 0]; const isS = !String(r[1]).startsWith('n:');
+        return `<tr><td class="ltr">${isS ? `<a href="journals.html?id=${r[1]}">${esc(m[0])}</a>` : esc(m[0])}${m[3] ? ' <span class="rs-tag oa">OA</span>' : ''}</td><td>${R.qTag(m[1]) || '<small class="text-muted">—</small>'}</td><td class="num">${R.n(r[2])}</td><td class="num">${(r[3] / r[2]).toFixed(1)}</td></tr>`; }).join('')}</tbody>`;
+  }
+  function matrix() {
+    const ids = D.matrix.ids, m = D.matrix.m, pos = Object.fromEntries(ids.map((a, i) => [a, i]));
+    const sel = st.sel.map(i => U[i]);
+    const mx = Math.max(1, ...sel.flatMap(a => sel.map(b => a === b ? 0 : m[pos[a.afid]][pos[b.afid]])));
+    R.$('#j-matrix').innerHTML = `<thead><tr><th></th>${sel.map(u => `<th class="num"><small>${esc(u.ar)}</small></th>`).join('')}</tr></thead><tbody>${sel.map(a => `<tr><th><small>${esc(a.ar)}</small></th>${sel.map(b => { if (a === b) return '<td class="num text-muted">—</td>'; const v = m[pos[a.afid]][pos[b.afid]]; return `<td class="num" style="background:${R.alpha('#901d23', .08 + .7 * v / mx)};color:${v / mx > .55 ? '#fff' : 'inherit'}">${R.n(v)}</td>`; }).join('')}</tr>`).join('')}</tbody>`;
+    R.$('#j-countries').innerHTML = sel.map(u => { const p = prof[u.afid]; if (!p) return ''; return `<div class="mb-2"><b class="small">${esc(u.ar)}</b><div class="rs-chips mt-1">${(p.countries || []).slice(0, 8).map(([c, n]) => `<span class="rs-chip"><span class="ltr">${esc(c)}</span> <small class="text-muted">${R.n(n)}</small></span>`).join('')}</div></div>`; }).join('');
+  }
+  function gaps() {
+    const tot = {}, home = {};
+    let nTot = 0, nHome = 0;
+    for (const r of C.area) {
+      if (r[1] < st.from || r[1] > st.to) continue;
+      tot[r[2]] = (tot[r[2]] || 0) + r[3];
+      if (r[0] === HOME.i) home[r[2]] = (home[r[2]] || 0) + r[3];
+    }
+    for (const r of C.all) { if (r[1] < st.from || r[1] > st.to) continue; nTot += r[3]; if (r[0] === HOME.i) nHome += r[3]; }
+    // national total counts each document once per university: share is close enough for profile comparison
+    const rows = AREAS.map((a, i) => [R.areaAr(a), (home[i] || 0) / (nHome || 1), (tot[i] || 0) / (nTot || 1)]).map(r => [r[0], r[1] - r[2], r[1], r[2]]).sort((a, b) => a[1] - b[1]);
+    R.chart('j-gap-areas', { type: 'bar', data: { labels: rows.map(r => r[0]), datasets: [{ label: 'الفرق بالنقاط المئوية', data: rows.map(r => +(100 * r[1]).toFixed(1)), backgroundColor: rows.map(r => r[1] < 0 ? '#c0392b' : '#1d7a3e'), borderRadius: 3 }] },
+      options: { indexAxis: 'y', plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => { const r = rows[c.dataIndex]; return `البترا ${pct(r[2])} · الأردن ${pct(r[3])}`; } } } }, scales: { y: { ticks: { autoSkip: false, font: { size: 10 } } } } } });
+    R.$('#j-rising').innerHTML = `<thead><tr><th>الموضوع</th><th class="num">وثائق أردنية</th><th class="num">النمو</th><th class="num">البترا</th><th>الأنشط</th></tr></thead><tbody>
+      ${(D.rising || []).slice(0, 60).map(([k, n, g, by]) => { const top = Object.entries(by).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([i]) => U[i] ? U[i].ar : '').join('، ');
+        return `<tr><td class="ltr"><a href="experts.html?q=${encodeURIComponent(k)}" title="خبراء في هذا الموضوع">${esc(k)}</a></td><td class="num">${R.n(n)}</td><td class="num">×${g}</td><td class="num ${by[HOME.i] ? '' : 'text-danger fw-bold'}">${R.n(by[HOME.i] || 0)}</td><td><small>${esc(top)}</small></td></tr>`; }).join('')}</tbody>`;
+  }
+
+  chips();
+  render();
+  R.$('#j-unis').addEventListener('click', e => { const b = e.target.closest('[data-u]'); if (!b) return; const i = +b.dataset.u; st.sel = st.sel.includes(i) ? st.sel.filter(x => x !== i) : st.sel.concat(i).slice(-8); if (!st.sel.length) st.sel = [HOME.i]; chips(); render(); });
+  R.$('#j-from').onchange = e => { st.from = +e.target.value; if (st.from > st.to) st.to = st.from; render(); };
+  R.$('#j-to').onchange = e => { st.to = +e.target.value; if (st.to < st.from) st.from = st.to; render(); };
+  R.$('#j-span').onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return; const s = b.dataset.s; st.to = Y; st.from = s === 'all' ? 1990 : Y - +s + 1; R.$('#j-from').value = st.from; R.$('#j-to').value = st.to; render(); };
+  R.$('#j-area').onchange = e => { st.area = +e.target.value; st.cat = -1; R.$('#j-cat').innerHTML = catOpts(); render(); };
+  R.$('#j-cat').onchange = e => { st.cat = +e.target.value; render(); };
+  R.$('#j-metric').onchange = e => { st.metric = e.target.value; rankChart(); };
+  R.$('#j-ju').onchange = journals;
+  R.$('#j-table').addEventListener('click', e => { const t = e.target.closest('th[data-sort]'); if (t) { st.sort = t.dataset.sort; render(); } });
+  R.$('#j-fields').addEventListener('click', e => { const a = e.target.closest('[data-pick]'); if (!a) return; e.preventDefault(); const k = +a.dataset.pick;
+    if (st.area < 0) { st.area = k; R.$('#j-area').value = k; R.$('#j-cat').innerHTML = catOpts(); } else { st.cat = k; R.$('#j-cat').value = k; } render(); R.$('#j-scope').scrollIntoView({ behavior: 'smooth' }); });
+})();

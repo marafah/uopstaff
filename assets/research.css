@@ -267,3 +267,14 @@ a.rs-chip:hover { border-color: var(--rs-maroon); color: var(--rs-maroon); }
 .rs-kv td, .rs-kv td * { overflow-wrap: anywhere; white-space: normal; }
 @media (max-width: 600px) { .rs-kv th { width: 38%; } .rs-doc-head .title { font-size: 1.1rem; } }
 .rs-tag.man, .rs-tag.src-m { background: #efe8f7; color: #6b4c9a; }
+
+/* jordan.html, journals.html, experts.html */
+.rs-table tr.me td, .rs-table tr.me th { background: #f6e7e8; }
+.rs-heat td { min-width: 54px; }
+.rs-jtable td { vertical-align: top; }
+.rs-jtable small { line-height: 1.35; }
+.rs-seg { display: inline-flex; flex-wrap: wrap; gap: .25rem; }
+.rs-seg button { border: 1px solid var(--rs-line); background: var(--rs-card); border-radius: 30px; padding: .2rem .7rem; font-size: .8rem; }
+.rs-seg button:hover { border-color: var(--rs-maroon); color: var(--rs-maroon); }
+mark { background: #fff1a8; padding: 0 .1rem; }
+#jn-modal .modal-title { font-weight: 800; color: var(--rs-navy); }

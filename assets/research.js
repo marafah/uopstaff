@@ -125,6 +125,12 @@
   R.typeAr = t => R.TYPE_AR[(t || '').toLowerCase()] || t || 'أخرى';
   R.OA_AR = { gold: 'ذهبي', green: 'أخضر', hybrid: 'هجين', bronze: 'برونزي', diamond: 'ماسي', closed: 'مغلق', oa: 'مفتوح' };
   R.isOA = w => w.oa && w.oa !== 'closed';
+  R.AREA_AR = { 'Medicine': 'الطب', 'Engineering': 'الهندسة', 'Computer Science': 'علم الحاسوب', 'Social Sciences': 'العلوم الاجتماعية', 'Mathematics': 'الرياضيات', 'Business, Management and Accounting': 'الأعمال والإدارة والمحاسبة', 'Pharmacology, Toxicology and Pharmaceutics': 'الصيدلة والسموم', 'Biochemistry, Genetics and Molecular Biology': 'الكيمياء الحيوية والوراثة', 'Chemistry': 'الكيمياء', 'Materials Science': 'علوم المواد', 'Physics and Astronomy': 'الفيزياء والفلك', 'Agricultural and Biological Sciences': 'العلوم الزراعية والحيوية', 'Environmental Science': 'العلوم البيئية', 'Energy': 'الطاقة', 'Economics, Econometrics and Finance': 'الاقتصاد والمالية', 'Arts and Humanities': 'الآداب والعلوم الإنسانية', 'Chemical Engineering': 'الهندسة الكيميائية', 'Decision Sciences': 'علوم القرار', 'Immunology and Microbiology': 'المناعة والأحياء الدقيقة', 'Earth and Planetary Sciences': 'علوم الأرض والكواكب', 'Health Professions': 'المهن الصحية', 'Nursing': 'التمريض', 'Psychology': 'علم النفس', 'Neuroscience': 'علم الأعصاب', 'Dentistry': 'طب الأسنان', 'Veterinary': 'الطب البيطري', 'Multidisciplinary': 'متعدد التخصصات' };
+  R.areaAr = a => R.AREA_AR[a] || a;
+  R.COUNTRY_AR = (() => { try { const dn = new Intl.DisplayNames(['ar'], { type: 'region' }); return n => n; } catch (e) { return n => n; } })();
+  R.scopusSourceUrl = id => `https://www.scopus.com/sourceid/${id}`;
+  R.sjrUrl = id => `https://www.scimagojr.com/journalsearch.php?q=${id}&tip=sid`;
+  R.HOME_AFID = '60040839';
 
   R.pubHTML = function (w, opts) {
     opts = opts || {};
