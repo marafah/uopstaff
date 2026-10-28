@@ -45,6 +45,8 @@ from collections import Counter, defaultdict
 
 import requests
 
+csv.field_size_limit(1 << 30)   # Scopus exports carry very long author/affiliation fields
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, 'data')
 OUT = os.path.join(DATA, 'research')
@@ -275,6 +277,7 @@ def uop_profile(member):
 
 # ------------------------------------------------------------------------------- 2. OpenAlex
 OA_STATE = {'down': False, 'calls': 0}
+SC_META = {}
 
 
 def oa_get(path, params=None):
@@ -465,6 +468,88 @@ def scopus_csv_rows():
     if rows:
         log(f'scopus csv: {len(rows)} rows')
     return rows
+
+
+def scopus_author_pool(rows):
+    """Authors with a University of Petra affiliation on at least one document of the export:
+    Scopus author ID -> names and document count. Used to find researchers whose staff page has no Scopus link."""
+    pool = {}
+    for row in rows:
+        names = [x.strip() for x in (row.get('Author full names') or '').split(';') if x.strip()]
+        shorts = [x.strip() for x in (row.get('Authors') or '').split(';') if x.strip()]
+        affs = [x.strip() for x in (row.get('Authors with affiliations') or '').split(';') if x.strip()]
+        petra = set()   # short names ("Makhadmeh S.N.") whose affiliation text mentions Petra
+        for af in affs:
+            if 'petra' in af.lower():
+                petra.add(af.split(',', 1)[0].strip())
+        for i, nm in enumerate(names):
+            m = re.match(r'(.+?)\s*\((\d{6,})\)\s*$', nm)
+            if not m:
+                continue
+            full, sid = m.group(1), m.group(2)
+            short = shorts[i] if len(shorts) == len(names) else ''
+            if not short or short not in petra:
+                continue
+            if ',' in full:   # "Surname, Given Names" -> "Given Names Surname"
+                last, first = full.split(',', 1)
+                full = f'{first.strip()} {last.strip()}'
+            p = pool.setdefault(sid, {'names': set(), 'docs': 0})
+            p['names'].add(full)
+            p['docs'] += 1
+    return pool
+
+
+def match_scopus(name, pool):
+    """Scopus IDs for a staff name (English) among the university's Scopus authors, and how they were found."""
+    if not name or not pool:
+        return [], ''
+    nk = name_key(name)
+    strong, loose = [], []
+    for sid, p in pool.items():
+        full = max(difflib.SequenceMatcher(None, nk, name_key(n)).ratio() for n in p['names'])
+        fl = max(name_score(name, n) for n in p['names'])
+        if full >= 0.86:
+            strong.append((full, p['docs'], sid))
+        elif fl >= 0.92:
+            loose.append((fl, p['docs'], sid))
+    if strong:
+        return [x[2] for x in sorted(strong, reverse=True)][:3], 'name'
+    if loose:
+        return [sorted(loose, reverse=True)[0][2]], 'name~'
+    return [], ''
+
+
+def issn_key(s):
+    return re.sub(r'[^0-9X]', '', (s or '').upper())
+
+
+def sjr_quartiles():
+    """ISSN -> best SJR quartile (SCImago, computed from Scopus data). Kept in data/research/sjr.csv and refreshed
+    twice a year; a copy placed there by hand is used as is."""
+    path = os.path.join(OUT, 'sjr.csv')
+    fresh = os.path.exists(path) and time.time() - os.path.getmtime(path) < 180 * 86400
+    if not fresh:
+        r = http('GET', 'https://www.scimagojr.com/journalrank.php?out=xls', tries=2, timeout=120,
+                 headers={'User-Agent': 'Mozilla/5.0 (uopstaff research pages)'})
+        if r is not None and r.status_code == 200 and ';' in r.text[:500] and 'Issn' in r.text[:500]:
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(r.text)
+            log('SJR list downloaded')
+        elif not os.path.exists(path):
+            log('  ! SJR list not available: journal quartiles are left out this time')
+            return {}
+    q = {}
+    with open(path, encoding='utf-8-sig', newline='') as f:
+        for row in csv.DictReader(f, delimiter=';'):
+            best = (row.get('SJR Best Quartile') or '').strip()
+            if best not in ('Q1', 'Q2', 'Q3', 'Q4'):
+                continue
+            for i in re.split(r'[,\s]+', row.get('Issn') or ''):
+                k = issn_key(i)
+                if len(k) == 8 and (k not in q or best < q[k]):
+                    q[k] = best
+    log(f'SJR quartiles for {len(q)} ISSNs')
+    return q
 
 
 # ------------------------------------------------------------------------------- 4. Google Scholar
@@ -768,43 +853,83 @@ def main():
         log(f'[{n}/{len(members)}] {r["name_en"] or r["name"]}: oa={",".join(oa_ids) or "-"} ({how or "no match"}) '
             f'works={r["works"]} cites={r["cites"]} h={r["h"]} uop={r["uop_pubs"]}/{matched_uop}' + (' [previous OpenAlex data]' if reused else ''))
 
-    # -- 3. Scopus documents (API or CSV export): flag works and add Scopus citation counts
+    # -- 3. Scopus (the university's reference source): documents from the API or the CSV export
     sc_rows = scopus_search_docs() + scopus_csv_rows()
-    sid_to_rid = {r['scopus_id']: r['id'] for r in researchers if r['scopus_id']}
+    seen_eid, uniq = set(), []
+    for row in sc_rows:   # several exports may overlap
+        k = row.get('EID') or norm_title(row.get('Title')) + str(row.get('Year'))
+        if k not in seen_eid:
+            seen_eid.add(k)
+            uniq.append(row)
+    sc_rows = uniq
+    sc_pool = scopus_author_pool(sc_rows)
+    quart = sjr_quartiles()
+    for r in researchers:   # Scopus author IDs: the staff-page link first, then the name among the university's Scopus authors
+        ids = [r['scopus_id']] if r['scopus_id'] else []
+        how = 'link' if ids else ''
+        if not ids:
+            ids, how = match_scopus(r['name_en'], sc_pool)
+        r['scopus_ids'], r['scopus_match'] = ids, how
+    sid_to_rid = {sid: r['id'] for r in researchers for sid in r['scopus_ids']}
+    by_rid = {r['id']: r for r in researchers}
     sc_flagged = 0
     for row in sc_rows:
         doi = clean_doi(row.get('DOI'))
         nt = norm_title(row.get('Title'))
         y = str(row.get('Year') or '')
         key = 'd:' + doi if doi and 'd:' + doi in all_works else title_index.get(nt + y)
-        rids = [sid_to_rid[a.strip()] for a in re.split(r'[;,]', row.get('Author(s) ID') or '') if a.strip() in sid_to_rid]
+        rids = list(dict.fromkeys(sid_to_rid[a.strip()] for a in re.split(r'[;,]', row.get('Author(s) ID') or '') if a.strip() in sid_to_rid))
         try:
             sc_c = int(str(row.get('Cited by') or '0').strip() or 0)
         except ValueError:
             sc_c = 0
+        issns = [issn_key(x) for x in re.split(r'[;,\s]+', row.get('ISSN') or '') if x.strip()]
+        q = next((quart[i] for i in issns if i in quart), '')
         if key:
             w = all_works[key]
             w['src'] = ''.join(sorted(set(w.get('src', '') + 's')))
-            w['sc'] = max(w.get('sc') or 0, sc_c)
-            if row.get('EID'):
-                w['eid'] = row['EID']
             sc_flagged += 1
         elif rids:
             key = 'd:' + doi if doi else 's:' + (row.get('EID') or nt)
             add_work(key, {'id': row.get('EID') or ('s' + nt[:12]), 't': row.get('Title', '')[:400], 'y': int(y) if y.isdigit() else None,
-                           'v': row.get('Source title', ''), 'type': (row.get('Document Type') or '').lower(), 'doi': doi,
-                           'c': sc_c, 'sc': sc_c, 'eid': row.get('EID') or '', 'oa': 'oa' if row.get('Open Access') else '', 'au': (row.get('Authors') or '')[:300],
-                           'src': 's', 'nt': nt}, rids[0])
-        if key:
-            for rid in rids:
-                if rid not in all_works[key]['r']:
-                    all_works[key]['r'].append(rid)
-                    r = next(x for x in researchers if x['id'] == rid)
-                    r['_keys'].append(key)
+                           'v': row.get('Source title', ''), 'type': (row.get('Document Type') or '').lower(), 'doi': doi, 'c': sc_c,
+                           'oa': 'oa' if row.get('Open Access') else 'closed', 'au': (row.get('Authors') or '')[:300], 'src': 's', 'nt': nt}, rids[0])
+        else:
+            continue   # a university document whose authors are not current staff
+        w = all_works[key]
+        w['sc'] = max(w.get('sc') or 0, sc_c)
+        if row.get('EID'):
+            w['eid'] = row['EID']
+        if q:
+            w['q'] = q
+        if row.get('Document Type'):
+            w['st'] = row['Document Type']
+        for rid in rids:
+            if rid not in w['r']:
+                w['r'].append(rid)
+            if key not in by_rid[rid]['_keys']:
+                by_rid[rid]['_keys'].append(key)
+    for w in all_works.values():   # quartiles for journals of works Scopus did not list (e.g. older papers)
+        if 'q' not in w and w.get('issn') and issn_key(w['issn']) in quart:
+            w['q'] = quart[issn_key(w['issn'])]
     if sc_rows:
-        log(f'scopus: {sc_flagged} documents matched to existing works')
-    for r in researchers:   # counts after the Scopus pass
-        r['in_scopus'] = sum(1 for k in r['_keys'] if 's' in all_works[k].get('src', ''))
+        log(f'scopus: {len(sc_rows)} documents, {len(sc_pool)} university authors, {sc_flagged} matched to existing works')
+    for r in researchers:   # Scopus metrics over the documents with the university's affiliation
+        ks = [k for k in r['_keys'] if 's' in all_works[k].get('src', '')]
+        cites = [all_works[k].get('sc') or 0 for k in ks]
+        by = Counter(all_works[k].get('y') for k in ks if all_works[k].get('y'))
+        qs = Counter(all_works[k].get('q') for k in ks if all_works[k].get('q'))
+        r['in_scopus'] = len(ks)
+        r['sc'] = {'docs': len(ks), 'cites': sum(cites), 'h': h_index(cites), 'i10': sum(1 for c in cites if c >= 10),
+                   'w5': sum(1 for k in ks if (all_works[k].get('y') or 0) >= THIS_YEAR - 4),
+                   'q': {k: qs.get(k, 0) for k in ('Q1', 'Q2', 'Q3', 'Q4')},
+                   'by_year': {str(y): n for y, n in sorted(by.items())}} if ks else None
+    SC_META.update({'docs': len(sc_rows), 'cites': sum(int(str(x.get('Cited by') or 0) or 0) for x in sc_rows),
+                    'by_year': dict(sorted(Counter(str(x.get('Year')) for x in sc_rows if x.get('Year')).items())),
+                    'types': Counter(x.get('Document Type') for x in sc_rows if x.get('Document Type')).most_common(10),
+                    'sources': Counter(x.get('Source title') for x in sc_rows if x.get('Source title')).most_common(25),
+                    'quartiles': dict(Counter(next((quart[i] for i in [issn_key(z) for z in re.split(r'[;,\s]+', x.get('ISSN') or '')] if i in quart), 'none') for x in sc_rows)),
+                    'authors': len(sc_pool), 'has_quartiles': bool(quart)})
 
     # -- 4. Google Scholar (best effort; previous values are kept when blocked)
     if SCHOLAR_ON:
@@ -853,8 +978,10 @@ def main():
         'updated': now, 'openalex_institution': UOP_OA, 'scopus_afid': UOP_AFID,
         'researchers': len(covered), 'works': len(works_out),
         'with': {k: sum(1 for r in covered if r['links'].get(k)) for k in ('scholar', 'scopus', 'orcid', 'joip', 'researchgate')},
+        'matched_scopus': sum(1 for r in covered if r.get('scopus_ids')),
         'matched_openalex': sum(1 for r in covered if r['oa_ids']),
         'openalex_calls': OA_STATE['calls'], 'openalex_limited': OA_STATE['down'],
+        'scopus_export': SC_META or (prev.get('meta') or {}).get('scopus_export'),
         'scopus_mode': 'api' if SCOPUS_KEY else ('csv' if glob.glob(os.path.join(OUT, 'scopus_export', '*.csv')) else 'links'),
         'scholar_mode': 'serpapi' if SERPAPI_KEY else ('direct' if SCHOLAR_ON else 'off'),
         'scopus_affiliation': scopus_affiliation() or (prev.get('meta') or {}).get('scopus_affiliation'),
