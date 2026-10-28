@@ -1,5 +1,5 @@
 {
-"updated": "2026-10-27T11:38:09Z",
+"updated": "2026-10-28T05:49:24Z",
 "main_line": "+96265799555",
 "main_line_display": "06 5799555",
 "faculties": [
@@ -194,7 +194,7 @@
 "name": "الهيئة التدريسية – خدمة الملفات الأكاديمية",
 "kind": "academic",
 "url": "https://services.uop.edu.jo/InstructorProfile/Services/api/MemberInfo/GetFaculty?fact=0&deptID=0",
-"count": 316
+"count": 317
 },
 {
 "key": "admin_boardoftrustees",
@@ -3849,7 +3849,7 @@
 "photo_src": ""
 },
 {
-"id": "A:400075006F0070002E006500640075002E006A006F00",
+"id": "A:660061006900730061006C002E0072006100740072006F0075007400400075006F0070002E006500640075002E006A006F00",
 "type": "academic",
 "faculty": 1,
 "name": "م. فيصل مهند طلال الرطروط",
@@ -3859,14 +3859,14 @@
 "rank_order": 6,
 "role": "",
 "sort": 10,
-"department": "علم الحاسوب، التحاليل الطبية، هندسة العمارة، العلوم الأساسية - متطلبات الجامعة، طب وجراحة الأسنان",
+"department": "علم الحاسوب",
 "specialization": "",
 "qualification": "",
 "ext": "",
 "office": "",
-"email": "@uop.edu.jo",
+"email": "faisal.ratrout@uop.edu.jo",
 "photo": "",
-"profile": "https://fit.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=400075006F0070002E006500640075002E006A006F00",
+"profile": "https://fit.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=660061006900730061006C002E0072006100740072006F0075007400400075006F0070002E006500640075002E006A006F00",
 "source": "academic_api",
 "photo_src": ""
 },
@@ -4727,6 +4727,28 @@
 "profile": "https://pharma.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=620061006B00650072002E0061006C0062006F007700400075006F0070002E006500640075002E006A006F00",
 "source": "academic_api",
 "photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20261006.jpeg"
+},
+{
+"id": "A:400075006F0070002E006500640075002E006A006F00",
+"type": "academic",
+"faculty": 2,
+"name": "د. حنان كامل محمد سعد",
+"name_en": "Hanan K.M.Saad",
+"job": "عضو هيئة تدريس",
+"rank": "أستاذ مساعد",
+"rank_order": 3,
+"role": "",
+"sort": 10,
+"department": "التحاليل الطبية، هندسة العمارة، العلوم الأساسية - متطلبات الجامعة، طب وجراحة الأسنان",
+"specialization": "",
+"qualification": "",
+"ext": "",
+"office": "",
+"email": "@uop.edu.jo",
+"photo": "",
+"profile": "https://pharma.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=400075006F0070002E006500640075002E006A006F00",
+"source": "academic_api",
+"photo_src": ""
 },
 {
 "id": "A:660061006400690061002E006D0069006C00680065006D00400075006F0070002E006500640075002E006A006F00",
@@ -10361,6 +10383,28 @@
 "photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/2006055.jpg"
 },
 {
+"id": "A:6E006900760069006E002E0065007A007A0061007400400075006F0070002E006500640075002E006A006F00",
+"type": "academic",
+"faculty": 11,
+"name": "د. نيفين عزت جمال الدين محمود عزت",
+"name_en": "",
+"job": "مساعد العميد للشؤون الطلابية والجودة",
+"rank": "أستاذ مشارك",
+"rank_order": 2,
+"role": "مساعد عميد / رئيس",
+"sort": 4,
+"department": "العلاقات العامة والترويج الرقمي",
+"specialization": "الإعلام – الإعلان - الإعلام الترويجي الرقمي",
+"qualification": "",
+"ext": "3210",
+"office": "3235",
+"email": "nivin.ezzat@uop.edu.jo",
+"photo": "assets/photos/5ae91340517b2807.jpg",
+"profile": "https://mass.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6E006900760069006E002E0065007A007A0061007400400075006F0070002E006500640075002E006A006F00",
+"source": "academic_api",
+"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20241061.JPG"
+},
+{
 "id": "A:410061006C006400650062006100690073006900400075006F0070002E006500640075002E006A006F00",
 "type": "academic",
 "faculty": 11,
@@ -10491,28 +10535,6 @@
 "profile": "https://mass.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6D006D0061007A0061006800650072006100400075006F0070002E006500640075002E006A006F00",
 "source": "academic_api",
 "photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/2006044.jpeg"
-},
-{
-"id": "A:6E006900760069006E002E0065007A007A0061007400400075006F0070002E006500640075002E006A006F00",
-"type": "academic",
-"faculty": 11,
-"name": "د. نيفين عزت جمال الدين محمود عزت",
-"name_en": "",
-"job": "العلاقات العامة والترويج الرقمي",
-"rank": "أستاذ مشارك",
-"rank_order": 2,
-"role": "",
-"sort": 10,
-"department": "العلاقات العامة والترويج الرقمي",
-"specialization": "الإعلام – الإعلان - الإعلام الترويجي الرقمي",
-"qualification": "",
-"ext": "3332",
-"office": "3332",
-"email": "nivin.ezzat@uop.edu.jo",
-"photo": "assets/photos/5ae91340517b2807.jpg",
-"profile": "https://mass.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6E006900760069006E002E0065007A007A0061007400400075006F0070002E006500640075002E006A006F00",
-"source": "academic_api",
-"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20241061.JPG"
 },
 {
 "id": "A:61007900610068002E0061006200640075006C00720061006800650065006D00400075006F0070002E006500640075002E006A006F00",

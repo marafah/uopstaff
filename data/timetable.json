@@ -1,9 +1,9 @@
 {
-"updated": "2026-10-27T23:56:49Z",
-"checked": "2026-10-27T23:56:49Z",
+"updated": "2026-10-28T05:55:38Z",
+"checked": "2026-10-28T05:55:38Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
-"count": 1649,
+"count": 1648,
 "days": {
 "ح": "الأحد",
 "ن": "الاثنين",
@@ -15039,14 +15039,14 @@
 "time": "[ 08:00_09:30 ] ن وجاهي ر وجاهي",
 "room": "9220",
 "section": "2",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "م. حسين واصف محمود المؤقت",
 "building": "مبنى كلية العلوم الإدارية",
 "faculty": "العلوم الادارية والمالية",
 "department": "الأعمال والتجارة الالكترونية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 24,
+"registered": 23,
 "capacity": 24,
 "meetings": [
 {
@@ -48909,43 +48909,6 @@
 ]
 },
 {
-"code": "9400115",
-"name": "السلامة المرورية",
-"activity": "نظري",
-"time": "[ 08:00_09:00 ] ن وجاهي ر وجاهي س غير متزامن",
-"room": "06002",
-"section": "1",
-"status": "مفتوحة",
-"instructor": "المعهد المروري الأردني",
-"building": "مبنى كلية الآداب والعلوم",
-"faculty": "الآداب والعلوم",
-"department": "العلوم الأساسية - متطلبات الجامعة",
-"degree": "البكالوريوس",
-"study_type": "صباحي",
-"registered": 0,
-"capacity": 60,
-"meetings": [
-{
-"day": "ن",
-"start": "08:00",
-"end": "09:00",
-"mode": "وجاهي"
-},
-{
-"day": "ر",
-"start": "08:00",
-"end": "09:00",
-"mode": "وجاهي"
-},
-{
-"day": "س",
-"start": "08:00",
-"end": "09:00",
-"mode": "غير متزامن"
-}
-]
-},
-{
 "code": "9400123",
 "name": "مهارات الاتصال والتواصل باللغة الانجليزية (1)",
 "activity": "نظري",
@@ -54755,14 +54718,14 @@
 }
 },
 "checks": {
-"rows": 1649,
-"details_read": 1649,
+"rows": 1648,
+"details_read": 1648,
 "filters": [
 "degree",
 "study_type",
 "faculty",
 "department"
 ],
-"status_vs_seats": 1649
+"status_vs_seats": 1648
 }
 }
