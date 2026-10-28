@@ -278,3 +278,6 @@ a.rs-chip:hover { border-color: var(--rs-maroon); color: var(--rs-maroon); }
 .rs-seg button:hover { border-color: var(--rs-maroon); color: var(--rs-maroon); }
 mark { background: #fff1a8; padding: 0 .1rem; }
 #jn-modal .modal-title { font-weight: 800; color: var(--rs-navy); }
+
+.rs-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 900px) { .rs-grid.two { grid-template-columns: 1fr; } }
