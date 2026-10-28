@@ -711,7 +711,7 @@ def journal_times(max_calls=4000):
             pub = _assert_date(a['published'])
         done[doi.lower()] = [jid, (acc - rec).days if rec and acc else None, (pub - acc).days if acc and pub else None,
                              (pub - rec).days if rec and pub else None]
-    stats = collections.defaultdict(lambda: [[], [], []])
+    stats = defaultdict(lambda: [[], [], []])
     for v in done.values():
         if not v:
             continue
