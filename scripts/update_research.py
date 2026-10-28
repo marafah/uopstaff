@@ -305,9 +305,15 @@ def oa_find_authors(prof, member, overrides):
             how = 'orcid'
     name = member.get('name_en') or ''
     if name:
-        cands = []
-        for flt in (f'affiliations.institution.id:{UOP_OA}', f'last_known_institutions.id:{UOP_OA}'):
-            j = oa_get('authors', {'search': name_key(name), 'filter': flt, 'per_page': 25, 'select': AUTHOR_SELECT})
+        cands, short_q = [], False
+        toks = name_key(name).split()
+        queries = [' '.join(toks)]
+        if len(toks) > 2:   # OpenAlex often keeps only first + family name ("Alaa Abu Samaha")
+            queries += [f'{toks[0]} {toks[-1]}', f'{toks[0]} {toks[1]} {toks[-1]}']
+        for q, flt in [(q, f) for q in queries for f in (f'affiliations.institution.id:{UOP_OA}', f'last_known_institutions.id:{UOP_OA}')]:
+            if cands and q != queries[0]:
+                break
+            j = oa_get('authors', {'search': q, 'filter': flt, 'per_page': 25, 'select': AUTHOR_SELECT})
             for a in (j or {}).get('results', []):
                 if not a.get('id'):
                     continue
@@ -316,11 +322,12 @@ def oa_find_authors(prof, member, overrides):
                 if a.get('orcid') and orcid and orcid_id(a['orcid']) != orcid:
                     continue  # someone else's ORCID
                 cands.append((sc, a['id'].split('/')[-1]))
+                short_q = q != queries[0]
         strong = sorted({c for c in cands if c[0] >= 0.86}, reverse=True)
         for _, aid in strong:
             if aid not in found:
                 found.append(aid)
-                how = how or 'name'
+                how = how or ('name~' if short_q else 'name')
         if not found:
             best = max(cands, default=(0, ''))
             if best[0] >= 0.78:
