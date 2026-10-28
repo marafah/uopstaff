@@ -52,7 +52,8 @@ jobs:
           SCOPUS_INSTTOKEN: ${{ secrets.SCOPUS_INSTTOKEN }}
           SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
           WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
-          SCHOLAR: ${{ github.event_name == 'push' && '0' || '1' }}   # quick rebuild after an upload; Scholar is refreshed weekly
+          SCHOLAR: ${{ github.event_name == 'push' && '0' || '1' }}
+          QUICK: ${{ github.event_name == 'push' && '1' || '0' }}   # an upload rebuilds quickly; the heavy Scopus steps run weekly   # quick rebuild after an upload; Scholar is refreshed weekly
         run: |
           if [ -n "${{ github.event.inputs.only }}" ]; then
             echo "Single-researcher runs are for checking a match; the published data is not changed."
