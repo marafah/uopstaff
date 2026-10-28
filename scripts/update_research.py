@@ -301,7 +301,7 @@ def oa_find_authors(prof, member, overrides):
     if orcid:
         j = oa_get('authors', {'filter': f'orcid:{orcid}', 'select': AUTHOR_SELECT})
         if j and j.get('results'):
-            found = [a['id'].split('/')[-1] for a in j['results']]
+            found = [a['id'].split('/')[-1] for a in j['results'] if a.get('id')]
             how = 'orcid'
     name = member.get('name_en') or ''
     if name:
@@ -309,8 +309,10 @@ def oa_find_authors(prof, member, overrides):
         for flt in (f'affiliations.institution.id:{UOP_OA}', f'last_known_institutions.id:{UOP_OA}'):
             j = oa_get('authors', {'search': name_key(name), 'filter': flt, 'per_page': 25, 'select': AUTHOR_SELECT})
             for a in (j or {}).get('results', []):
-                names = [a.get('display_name', '')] + (a.get('display_name_alternatives') or [])
-                sc = max(name_score(name, n) for n in names)
+                if not a.get('id'):
+                    continue
+                names = [a.get('display_name') or ''] + (a.get('display_name_alternatives') or [])
+                sc = max(name_score(name, n or '') for n in names)
                 if a.get('orcid') and orcid and orcid_id(a['orcid']) != orcid:
                     continue  # someone else's ORCID
                 cands.append((sc, a['id'].split('/')[-1]))
@@ -483,7 +485,7 @@ def universities():
             by_year.setdefault(c['year'], [c.get('works_count', 0), 0])[1] = c.get('cited_by_count', 0)
         oa_count = sum(g['count'] for g in oa_g.get('group_by', []) if str(g.get('key')).lower() == 'true')
         total = sum(g['count'] for g in oa_g.get('group_by', [])) or inst.get('works_count', 0)
-        countries = [[g.get('key', '').split('/')[-1], g['count']] for g in intl.get('group_by', [])][:40]
+        countries = [[(g.get('key') or '').split('/')[-1], g['count']] for g in intl.get('group_by', [])][:40]
         out.append({
             'id': iid, 'name': name, 'name_ar': ar, 'acr': (inst.get('display_name_acronyms') or [''])[0],
             'url': inst.get('homepage_url') or '', 'ror': inst.get('ror') or '',
@@ -510,7 +512,7 @@ def institution_extras():
     funders = oa_get('works', {'filter': base, 'group_by': 'grants.funder'}) or {}
     pick = lambda j, n=30: [[g.get('key_display_name') or g.get('key'), g['count']] for g in j.get('group_by', []) if g.get('key') not in (None, 'unknown')][:n]
     return {'subfields': pick(sub), 'sdgs': pick(sdg, 17), 'sources': pick(src, 40), 'types': pick(typ),
-            'oa_status': pick(oas), 'countries': [[g.get('key', '').split('/')[-1], g['count']] for g in ctry.get('group_by', [])][:80],
+            'oa_status': pick(oas), 'countries': [[(g.get('key') or '').split('/')[-1], g['count']] for g in ctry.get('group_by', [])][:80],
             'funders': pick(funders, 25)}
 
 
@@ -572,21 +574,32 @@ def main():
         cur['src'] = ''.join(sorted(set(cur.get('src', '') + w.get('src', ''))))
         return key
 
+    def safe_works(prof, m, rid, oa_ids):
+        try:
+            return oa_works_for(oa_ids) if oa_ids else []
+        except Exception as e:  # noqa: BLE001
+            log(f'  ! works for {m.get("name_en")}: {e}')
+            return []
+
     for n, m in enumerate(members, 1):
         prof = profiles.get(m['id'])
         if not prof:
             continue
         rid = short_id(prof['uid'])
         oa_ids, how = oa_find_authors(prof, m, overrides)
-        works = oa_works_for(oa_ids) if oa_ids else []
+        works = safe_works(prof, m, short_id(prof['uid']), oa_ids)
         my_keys, topics, countries, coauth_ext, sdgs = [], Counter(), Counter(), Counter(), Counter()
         for w in works:
-            wid = w['id'].split('/')[-1]
+            if not isinstance(w, dict):
+                continue
+            wid = (w.get('id') or '').split('/')[-1]
+            if not wid:
+                continue
             loc = w.get('primary_location') or {}
             srcd = loc.get('source') or {}
-            auths = w.get('authorships') or []
-            cc = sorted({c for a in auths for c in (a.get('countries') or [])})
-            names = [a.get('author', {}).get('display_name', '') for a in auths]
+            auths = [a for a in (w.get('authorships') or []) if isinstance(a, dict)]
+            cc = sorted({c for a in auths for c in (a.get('countries') or []) if c})
+            names = [(a.get('author') or {}).get('display_name') or '' for a in auths]
             topic = (w.get('primary_topic') or {})
             rec = {
                 'id': wid, 't': html.unescape(w.get('title') or '')[:400], 'y': w.get('publication_year'),
@@ -597,7 +610,7 @@ def main():
                 'sf': (topic.get('subfield') or {}).get('display_name') or '', 'cc': cc,
                 'na': len(auths), 'au': ', '.join(names[:8]) + (' …' if len(names) > 8 else ''),
                 'fwci': round(w['fwci'], 2) if isinstance(w.get('fwci'), (int, float)) else None,
-                'sdg': [s.get('display_name') for s in (w.get('sustainable_development_goals') or [])][:3],
+                'sdg': [s.get('display_name') for s in (w.get('sustainable_development_goals') or []) if s and s.get('display_name')][:3],
                 'src': 'o', 'nt': norm_title(w.get('title')), 'oid': wid,
             }
             key = 'd:' + rec['doi'] if rec['doi'] else 'w:' + wid
@@ -611,7 +624,7 @@ def main():
             for s in rec['sdg']:
                 sdgs[s] += 1
             for a in auths:
-                aid = (a.get('author') or {}).get('id', '').split('/')[-1]
+                aid = ((a.get('author') or {}).get('id') or '').split('/')[-1]
                 if aid and aid not in oa_ids:
                     coauth_ext[aid] += 1
         # university-listed publications: match to OpenAlex by DOI, then by title
@@ -652,8 +665,9 @@ def main():
         if oa_ids:
             for aid in oa_ids:
                 a = oa_get(f'authors/{aid}', {'select': 'counts_by_year,display_name'}) or {}
-                for c in a.get('counts_by_year', []):
-                    by_year[int(c['year'])][1] += c.get('cited_by_count', 0)
+                for c in a.get('counts_by_year') or []:
+                    if c.get('year'):
+                        by_year[int(c['year'])][1] += c.get('cited_by_count') or 0
 
         links = dict(prof['links'])
         sid = scopus_id(links.get('scopus', ''))
