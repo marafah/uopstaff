@@ -1730,3 +1730,6 @@ html[data-theme="dark"] .modal-backdrop.show { opacity: .25; }
   .oc-card.side { width: 100%; }
 }
 @media print { .oc-card, .oc-col { break-inside: avoid; } }
+
+/* Top bar: keep the menu beside the logo when the search box wraps to a second row */
+.uop-topbar .container-fluid { justify-content: flex-start; }
