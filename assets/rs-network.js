@@ -23,18 +23,25 @@
   <div class="rs-toolbar no-print mb-2">
     <div class="fld grow"><label for="n-q">ابحث عن باحث في الشبكة</label><input id="n-q" class="form-control" type="search" placeholder="اسم الباحث…"></div>
     <div class="fld"><label for="n-fac">الكلية</label><select id="n-fac" class="form-select"><option value="">كل الكليات</option>${facs.map(f => `<option>${R.esc(f)}</option>`).join('')}</select></div>
-    <div class="fld"><label for="n-min">أبحاث مشتركة على الأقل</label><select id="n-min" class="form-select"><option>1</option><option>2</option><option>3</option><option>5</option></select></div>
+    <div class="fld"><label for="n-min">أبحاث مشتركة على الأقل</label><select id="n-min" class="form-select"><option>1</option><option selected>2</option><option>3</option><option>5</option></select></div>
     <div class="fld"><label class="form-check-label" for="n-cross">&nbsp;</label><div class="form-check mt-1"><input class="form-check-input" type="checkbox" id="n-cross"><label class="form-check-label small" for="n-cross">بين الكليات فقط</label></div></div>
   </div>
-  <div class="rs-legend mb-2" id="n-legend">${facs.map(f => `<span data-f="${R.esc(f)}"><i style="background:${R.facColor(f)}"></i>${R.esc(f)}</span>`).join('')}</div>
+  <nav class="rs-tabs no-print" id="n-tabs"><button data-t="graph" class="on"><i class="bi bi-diagram-3-fill"></i> الشبكة</button><button data-t="charts"><i class="bi bi-bar-chart-fill"></i> رسوم بيانية</button><button data-t="people"><i class="bi bi-person-lines-fill"></i> جدول الباحثين</button><button data-t="pairs"><i class="bi bi-people-fill"></i> أقوى الثنائيات</button><button data-t="matrix"><i class="bi bi-grid-3x3-gap-fill"></i> بين الكليات</button></nav>
+  <div data-tab="graph"><div class="rs-legend mb-2" id="n-legend">${facs.map(f => `<span data-f="${R.esc(f)}"><i style="background:${R.facColor(f)}"></i>${R.esc(f)}</span>`).join('')}</div>
   <div class="rs-netbar no-print"><div class="st" id="n-stats"></div>
     <div class="btns"><button class="rs-nbtn" id="n-zin" title="تكبير"><i class="bi bi-zoom-in"></i></button><button class="rs-nbtn" id="n-zout" title="تصغير"><i class="bi bi-zoom-out"></i></button><button class="rs-nbtn" id="n-fit" title="ملاءمة الشاشة"><i class="bi bi-arrows-fullscreen"></i></button><button class="rs-nbtn" id="n-lab" title="إظهار كل الأسماء"><i class="bi bi-fonts"></i> الأسماء</button></div></div>
   <div class="rs-net" id="n-box"><svg id="n-svg"></svg><div class="tip" id="n-tip"></div></div>
-  <p class="rs-note mt-2"><i class="bi bi-info-circle-fill" style="color:#2b5ea7"></i> حجم الدائرة = عدد المنشورات · سُمك الخط = عدد الأبحاث المشتركة · لون الخط = لون الكلية للتعاون داخلها، ورمادي-أزرق للتعاون بين كليتين · تظهر أسماء الأكثر تعاوناً، ومرّر الفأرة على أي باحث لرؤية شركائه، وانقر لفتح ملفه.</p>
-  <section class="rs-section rs-grid">
-    <div class="rs-card"><h3><i class="bi bi-people"></i>أقوى ثنائيات التعاون</h3><div class="rs-scroll" style="max-height:420px"><table class="rs-table"><tbody>
-      ${[...edgesAll].sort((a, b) => b.w - a.w).slice(0, 25).map(e => `<tr><td><a href="${R.profileUrl(byId[e.source])}">${R.esc(byId[e.source].name)}</a></td><td><i class="bi bi-arrow-left-right text-muted"></i></td><td><a href="${R.profileUrl(byId[e.target])}">${R.esc(byId[e.target].name)}</a></td><td class="num"><b>${e.w}</b></td><td><a class="rs-src" href="compare.html?ids=${e.source},${e.target}">قارن</a></td></tr>`).join('')}</tbody></table></div></div>
-    <div class="rs-card"><h3><i class="bi bi-grid-3x3"></i>مصفوفة التعاون بين الكليات</h3><div class="rs-scroll" id="n-matrix"></div></div>
+  <p class="rs-note mt-2"><i class="bi bi-info-circle-fill" style="color:#2b5ea7"></i> حجم الدائرة = عدد المنشورات · سُمك الخط = عدد الأبحاث المشتركة · لون الخط = لون الكلية للتعاون داخلها، ورمادي-أزرق للتعاون بين كليتين · كل كلية في منطقتها · تظهر أسماء الأكثر تعاوناً، ومرّر الفأرة على أي باحث لرؤية شركائه، وانقر لفتح ملفه.</p></div>
+  <section class="rs-section rs-grid two" data-tab="charts" hidden>
+    <div class="rs-card"><h3><i class="bi bi-trophy-fill"></i>الأكثر تعاوناً داخل الجامعة <small class="fw-normal text-muted">عدد الشركاء</small></h3><div class="rs-chart" style="height:560px"><canvas id="n-ch-top"></canvas></div></div>
+    <div class="rs-card"><h3><i class="bi bi-bank2"></i>التعاون حسب الكلية <small class="fw-normal text-muted">داخل الكلية مقابل مع كليات أخرى (أبحاث مشتركة)</small></h3><div class="rs-chart" style="height:560px"><canvas id="n-ch-fac"></canvas></div></div>
+  </section>
+  <section class="rs-section rs-card" data-tab="people" hidden><h3><i class="bi bi-person-lines-fill"></i>كل الباحثين وشركاؤهم <button class="btn btn-sm btn-rs-o ms-auto" id="n-csv"><i class="bi bi-download"></i> CSV</button></h3>
+    <div class="rs-scroll" style="max-height:75vh"><table class="rs-table" id="n-people"></table></div></section>
+  <section class="rs-section rs-grid two" data-tab="pairs matrix" hidden>
+    <div class="rs-card" data-tab="pairs"><h3><i class="bi bi-people"></i>أقوى ثنائيات التعاون</h3><div class="rs-scroll" style="max-height:620px"><table class="rs-table"><thead><tr><th>الباحث</th><th></th><th>الشريك</th><th class="num">أبحاث مشتركة</th><th></th></tr></thead><tbody>
+      ${[...edgesAll].sort((a, b) => b.w - a.w).slice(0, 60).map(e => `<tr><td><a href="${R.profileUrl(byId[e.source])}"><b>${R.esc(byId[e.source].name)}</b></a><br><span class="rs-fdot" style="--fc:${R.facColor(byId[e.source].faculty)}">${R.esc(byId[e.source].faculty)}</span></td><td><i class="bi bi-arrow-left-right" style="color:#b8892b"></i></td><td><a href="${R.profileUrl(byId[e.target])}"><b>${R.esc(byId[e.target].name)}</b></a><br><span class="rs-fdot" style="--fc:${R.facColor(byId[e.target].faculty)}">${R.esc(byId[e.target].faculty)}</span></td><td class="num"><span class="pill qg">${e.w}</span></td><td><a class="rs-src" href="compare.html?ids=${e.source},${e.target}">قارن</a></td></tr>`).join('')}</tbody></table></div></div>
+    <div class="rs-card" data-tab="matrix"><h3><i class="bi bi-grid-3x3"></i>مصفوفة التعاون بين الكليات <small class="fw-normal text-muted">عدد الأبحاث المشتركة · الأغمق = أكثر</small></h3><div class="rs-scroll" id="n-matrix"></div></div>
   </section>`;
 
   // faculty × faculty matrix
@@ -43,6 +50,24 @@
   const short = f => f.replace(/^كلية\s+/, '').split(/\s+/).slice(0, 2).join(' ');
   R.$('#n-matrix').innerHTML = `<table class="rs-table"><thead><tr><th></th>${facs.map(f => `<th class="num" title="${R.esc(f)}"><small>${R.esc(short(f))}</small></th>`).join('')}</tr></thead><tbody>${facs.map(a => `<tr><td><small>${R.esc(short(a))}</small></td>${facs.map(b => { const v = M[[a, b].sort().join('|')] || 0; return `<td class="num" style="background:${v ? R.alpha('#901d23', .1 + .8 * v / mx) : 'transparent'};color:${v / mx > .5 ? '#fff' : 'inherit'}">${v || ''}</td>`; }).join('')}</tr>`).join('')}</tbody></table>`;
 
+  // per-researcher summary
+  const P = {}; edgesAll.forEach(e => [[e.source, e.target], [e.target, e.source]].forEach(([a, b]) => { const p = P[a] = P[a] || { n: 0, w: 0, x: 0 }; p.n++; p.w += e.w; if (byId[a].faculty !== byId[b].faculty) p.x++; }));
+  const PL = Object.entries(P).map(([id, p]) => Object.assign({ r: byId[id] }, p)).sort((a, b) => b.n - a.n || b.w - a.w);
+  R.$('#n-people').innerHTML = `<thead><tr><th>#</th><th>الباحث</th><th>الكلية</th><th class="num">الشركاء</th><th class="num">أبحاث مشتركة</th><th class="num">شركاء من كليات أخرى</th><th class="num">منشوراته</th></tr></thead><tbody>${PL.map((p, i) => `<tr><td class="num">${i + 1}</td><td><a class="d-flex align-items-center gap-2 text-decoration-none" href="${R.profileUrl(p.r)}">${R.avatar(p.r, 'sm')}<b style="color:#901d23">${R.esc(p.r.name)}</b></a></td><td><span class="rs-fdot" style="--fc:${R.facColor(p.r.faculty)}">${R.esc(p.r.faculty)}</span></td><td class="num"><span class="pill bl">${p.n}</span></td><td class="num"><span class="pill qg">${p.w}</span></td><td class="num">${p.x ? `<span class="pill or">${p.x}</span>` : '–'}</td><td class="num">${R.n(p.r.works)}</td></tr>`).join('')}</tbody>`;
+  R.$('#n-csv').onclick = () => R.csv(PL.map(p => ({ name: p.r.name, faculty: p.r.faculty, dept: p.r.dept, partners: p.n, joint_papers: p.w, cross_faculty_partners: p.x, publications: p.r.works })), 'uop-collaboration.csv');
+  let chartsDone = false;
+  function charts() {
+    if (chartsDone) return; chartsDone = true;
+    const top = PL.slice(0, 20);
+    R.chart('n-ch-top', { type: 'bar', data: { labels: top.map(p => p.r.name.replace(/^(أ\.?\s*د\.?|د\.|أ\.)\s*/, '')), datasets: [{ label: 'شركاء', data: top.map(p => p.n), backgroundColor: top.map(p => R.facColor(p.r.faculty)), borderRadius: 4 }] }, options: { indexAxis: 'y', plugins: { legend: { display: false }, tooltip: { callbacks: { afterLabel: c => `${top[c.dataIndex].w} بحث مشترك · ${top[c.dataIndex].r.faculty}` } } }, scales: { y: { ticks: { autoSkip: false, font: { size: 12 } } } } } });
+    const F = {}; facs.forEach(f => F[f] = { in: 0, out: 0 }); edgesAll.forEach(e => { const a = byId[e.source].faculty, b = byId[e.target].faculty; if (a === b) F[a].in += e.w; else { F[a].out += e.w; F[b].out += e.w; } });
+    const fl = facs.filter(f => F[f].in + F[f].out).sort((a, b) => (F[b].in + F[b].out) - (F[a].in + F[a].out));
+    R.chart('n-ch-fac', { type: 'bar', data: { labels: fl, datasets: [{ label: 'داخل الكلية', data: fl.map(f => F[f].in), backgroundColor: '#901d23' }, { label: 'مع كليات أخرى', data: fl.map(f => F[f].out), backgroundColor: '#1f6f78', borderRadius: 4 }] }, options: { indexAxis: 'y', scales: { x: { stacked: true }, y: { stacked: true, ticks: { autoSkip: false, font: { size: 12 } } } }, plugins: { legend: { position: 'top' } } } });
+  }
+  R.$('#n-tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; const t = b.dataset.t;
+    R.$$('#n-tabs button').forEach(x => x.classList.toggle('on', x === b));
+    R.$$('[data-tab]', app).forEach(el => { el.hidden = !el.dataset.tab.split(' ').includes(t); });
+    if (t === 'charts') charts(); if (t === 'graph') draw(); });
   if (!window.d3) { R.$('#n-box').innerHTML = '<div class="rs-empty">تعذّر تحميل مكتبة الرسم</div>'; return; }
   const svg = d3.select('#n-svg'), tip = R.$('#n-tip');
   const g = svg.append('g');
@@ -51,7 +76,9 @@
   let labelsAll = false;
   function fit(N, W, H, rad) {
     const xs = N.map(d => d.x), ys = N.map(d => d.y), pad = 40;
-    const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad, y0 = Math.min(...ys) - pad, y1 = Math.max(...ys) + pad + 16;
+    xs.sort((a, b) => a - b); ys.sort((a, b) => a - b); const qq = (a, p) => a[Math.min(a.length - 1, Math.max(0, Math.round(p * (a.length - 1))))];
+    const lo = N.length > 40 ? .02 : 0, hi = 1 - lo;
+    const x0 = qq(xs, lo) - pad, x1 = qq(xs, hi) + pad, y0 = qq(ys, lo) - pad, y1 = qq(ys, hi) + pad + 16;
     const k = Math.min(2, .95 * Math.min(W / (x1 - x0), H / (y1 - y0)));
     svg.call(zoom.transform, d3.zoomIdentity.translate(W / 2, H / 2).scale(k).translate(-(x0 + x1) / 2, -(y0 + y1) / 2));
   }
@@ -76,10 +103,11 @@
     const hit = d => q && d.r._q.includes(q);
     const topIds = new Set(N.slice().sort((a, b) => (deg[b.id] || 0) - (deg[a.id] || 0)).slice(0, labelsAll ? N.length : Math.min(30, Math.ceil(N.length * .35))).map(d => d.id));
     const short = d => d.r.name.replace(/^(أ\.?\s*د\.?|د\.|أ\.|م\.)\s*/, '').split(/\s+/).slice(0, 2).join(' ');
+    const byIdF = l => { const a = l.source.r || byId[l.source], b = l.target.r || byId[l.target]; return a.faculty === b.faculty; };
     const mw = Math.max(1, ...E.map(e => e.w));
     const link = g.append('g').attr('fill', 'none').selectAll('path').data(E).join('path')
       .attr('stroke', e => byId[e.source].faculty === byId[e.target].faculty ? R.facColor(byId[e.source].faculty) : '#7d8f99')
-      .attr('stroke-opacity', .35).attr('stroke-width', d => 1 + 5 * Math.sqrt(d.w / mw)).attr('stroke-linecap', 'round');
+      .attr('stroke-opacity', d => d.w >= 3 ? .55 : d.w === 2 ? .35 : .18).attr('stroke-width', d => .8 + 5 * Math.sqrt(d.w / mw)).attr('stroke-linecap', 'round');
     const node = g.append('g').selectAll('g').data(N).join('g').style('cursor', 'pointer');
     node.append('circle').attr('r', rad).attr('fill', d => R.facColor(d.r.faculty)).attr('fill-opacity', .92)
       .attr('stroke', d => hit(d) ? '#ffd34d' : '#fff').attr('stroke-width', d => hit(d) ? 5 : 2);
@@ -96,15 +124,23 @@
       tip.style.display = 'flex';
       tip.innerHTML = `<b>${R.esc(d.r.name)}</b><span class="f" style="--fc:${R.facColor(d.r.faculty)}">${R.esc(d.r.faculty)}</span><small>${R.esc(d.r.dept)}</small><div class="nn"><span><b>${d.r.works}</b> منشور</span><span><b>${d.r.h}</b> h</span><span><b>${(nb[d.id] || new Set()).size}</b> شريك</span><span><b>${deg[d.id] || 0}</b> بحث مشترك</span></div>`;
     }).on('mousemove', ev => { const b = R.$('#n-box').getBoundingClientRect(); tip.style.left = Math.min(b.width - 250, ev.clientX - b.left + 14) + 'px'; tip.style.top = (ev.clientY - b.top + 14) + 'px'; })
-      .on('mouseleave', () => { node.style('opacity', 1); lab.style('display', d => topIds.has(d.id) || hit(d) ? null : 'none'); link.attr('stroke-opacity', .35); tip.style.display = 'none'; })
+      .on('mouseleave', () => { node.style('opacity', 1); lab.style('display', d => topIds.has(d.id) || hit(d) ? null : 'none'); link.attr('stroke-opacity', d => d.w >= 3 ? .55 : d.w === 2 ? .35 : .18); tip.style.display = 'none'; })
       .on('click', (ev, d) => { if (ev.defaultPrevented) return; location.href = R.profileUrl(d.r); });
     const curve = d => { const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y, dr = Math.sqrt(dx * dx + dy * dy) * 1.6; return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`; };
     const tick = () => { link.attr('d', curve); node.attr('transform', d => `translate(${d.x},${d.y})`); };
-    sim = d3.forceSimulation(N).force('link', d3.forceLink(E).id(d => d.id).distance(l => 60 + 50 / Math.sqrt(l.w)).strength(.35))
+    // each faculty gets its own area around a circle: groups stay apart and links between faculties stand out
+    const FL = [...new Set(N.map(d => d.r.faculty))].sort((a, b) => N.filter(d => d.r.faculty === b).length - N.filter(d => d.r.faculty === a).length);
+    const RR = Math.max(260, Math.sqrt(N.length) * 55), FC = {};
+    FL.forEach((f, i) => { const a = 2 * Math.PI * i / FL.length - Math.PI / 2; FC[f] = FL.length === 1 ? { x: W / 2, y: H / 2 } : { x: W / 2 + RR * Math.cos(a), y: H / 2 + RR * .75 * Math.sin(a) }; });
+    sim = d3.forceSimulation(N).force('link', d3.forceLink(E).id(d => d.id).distance(l => 50 + 40 / Math.sqrt(l.w)).strength(l => byIdF(l) ? .3 : .04))
       .force('charge', d3.forceManyBody().strength(d => -230 - 14 * rad(d)))
       .force('collide', d3.forceCollide().radius(d => rad(d) + (topIds.has(d.id) ? 18 : 6)).iterations(3))
-      .force('x', d3.forceX(W / 2).strength(.05)).force('y', d3.forceY(H / 2).strength(.07)).stop();
+      .force('x', d3.forceX(d => FC[d.r.faculty].x).strength(.12)).force('y', d3.forceY(d => FC[d.r.faculty].y).strength(.12)).stop();
     for (let k = 0; k < 400; k++) sim.tick();   // settle before showing: no jumping
+    if (FL.length > 1) g.insert('g', ':first-child').selectAll('text').data(FL).join('text').attr('class', 'rs-nfac')
+      .attr('x', f => { const ns = N.filter(d => d.r.faculty === f); return d3.mean(ns, d => d.x); })
+      .attr('y', f => { const ns = N.filter(d => d.r.faculty === f); return d3.min(ns, d => d.y) - 28; })
+      .attr('text-anchor', 'middle').attr('fill', f => R.facColor(f)).text(f => f);
     tick(); fit(N, W, H, rad);
     sim.on('tick', tick);
     node.call(d3.drag().on('start', (ev, d) => { if (!ev.active) sim.alphaTarget(.2).restart(); d.fx = d.x; d.fy = d.y; })

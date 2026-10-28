@@ -10,7 +10,7 @@
   const { list, byId } = R.indexResearchers(data);
   R.updated(data.meta || {});
   const esc = R.esc;
-  const works = (wdata.works || []).map(w => Object.assign(w, { _m: (w.pd || w.fs || (w.y ? w.y + '-01-01' : '')).slice(0, 7), _fac: [...new Set((w.r || []).map(id => byId[id] && byId[id].faculty).filter(Boolean))] }));
+  const works = (wdata.works || []).map(w => Object.assign(w, { _m: (w.pd || w.fs || '').slice(0, 7), _fac: [...new Set((w.r || []).map(id => byId[id] && byId[id].faculty).filter(Boolean))] }));
   const W = Object.fromEntries(works.map(w => [w.id, w]));
   const now = new Date();
   const ym = d => d.toISOString().slice(0, 7);
@@ -56,6 +56,7 @@
     R.$('#pg-sub').textContent = `${st.fac || 'جامعة البترا'} · ${fmt(m)}`;
     R.$('#rp-body').innerHTML = `
     <section class="rs-section rs-card rs-doc-head"><h2 class="title">${esc(title)}</h2>
+      ${(() => { const y = +m.slice(0, 4), u = works.filter(w => w.y === y && !w._m && inFac(w)).length; return u ? `<div class="rs-alert-warn mt-2 mb-1"><i class="bi bi-info-circle-fill"></i> ${R.n(u)} منشوراً من سنة ${y} لا يُعرف شهر نشرها بعد (لا تاريخ دقيق في OpenAlex أو Web of Science)، فلا تدخل في أي شهر. <a href="publications.html?from=${y}&to=${y}${st.fac ? '&fac=' + encodeURIComponent(st.fac) : ''}">اعرضها في صفحة المنشورات</a></div>` : ''; })()}
       <div class="text-muted small">أُعدّ تلقائياً من Scopus و Web of Science و OpenAlex وصفحات المدرسين · ${m === months[0] ? 'الشهر الحالي لم يكتمل بعد' : 'شهر مكتمل'}</div></section>
     <nav class="rs-tabs no-print" id="rp-tabs"><button data-t="sum"><i class="bi bi-speedometer2"></i> الملخص</button><button data-t="pubs"><i class="bi bi-journal-plus"></i> المنشورات الجديدة <span class="rs-cnt">${R.n(neu.length)}</span></button><button data-t="cites"><i class="bi bi-fire"></i> الاقتباسات</button><button data-t="people"><i class="bi bi-people-fill"></i> الباحثون <span class="rs-cnt">${R.n(active.length)}</span></button><button data-t="all"><i class="bi bi-printer"></i> التقرير كاملاً</button></nav>
     <section class="rs-section rs-kpis" data-tab="sum">

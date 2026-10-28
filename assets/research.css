@@ -637,3 +637,6 @@ button.rs-chip.reset i { color: #a33; }
 .rs-nbtn:hover { border-color: #901d23; color: #901d23; } .rs-nbtn.on { background: #901d23; color: #fff; border-color: #901d23; }
 .rs-legend span { background: #fff; border: 1px solid #e3d9c5; border-radius: 30px; padding: .2rem .7rem; font-weight: 700; font-size: .85rem; cursor: pointer; }
 .rs-legend span.off { opacity: .4; text-decoration: line-through; }
+.rs-nfac { font-size: 17px; font-weight: 800; paint-order: stroke; stroke: #fffdf8; stroke-width: 5px; opacity: .9; pointer-events: none; }
+.rs-fdot { display: inline-flex; align-items: center; gap: .3rem; font-size: .8rem; font-weight: 700; color: #33424a; }
+.rs-fdot::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--fc); }
