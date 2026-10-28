@@ -62,6 +62,7 @@
     <div class="rs-kpi scopus"><div class="v">${R.n(su ? su.docs : 0)}</div><div class="l"><i class="bi bi-bar-chart-line"></i>وثيقة في Scopus ${R.srcBadge('افتح', scUrl, 'bi-box-arrow-up-left')}</div><div class="d">بانتماء جامعة البترا · ${R.n(su ? su.w5 : 0)} في آخر 5 سنوات</div></div>
     <div class="rs-kpi scopus"><div class="v">${R.n(su ? su.cites : 0)}</div><div class="l"><i class="bi bi-quote"></i>اقتباس في Scopus</div><div class="d">h-index: <b>${su ? su.h : 0}</b> · i10: ${su ? su.i10 : 0}</div></div>
     <div class="rs-kpi navy"><div class="v">${(sq.Q1 || 0) + (sq.Q2 || 0)}</div><div class="l"><i class="bi bi-award"></i>أبحاث Q1 و Q2</div><div class="d">Q1 ${sq.Q1 || 0} · Q2 ${sq.Q2 || 0} · Q3 ${sq.Q3 || 0} · Q4 ${sq.Q4 || 0}</div></div>
+    ${r.wos ? `<div class="rs-kpi wos"><div class="v">${R.n(r.wos.docs)}</div><div class="l"><i class="bi bi-journal"></i>وثيقة في Web of Science</div><div class="d">${R.n(r.wos.cites)} اقتباس · h ${r.wos.h}</div></div>` : ''}
     ${sc ? `<div class="rs-kpi scopus"><div class="v">${R.n(sc.h)}</div><div class="l"><i class="bi bi-bar-chart-line"></i>h-index في Scopus (كل المسيرة)</div><div class="d">${R.n(sc.docs)} وثيقة · ${R.n(sc.cites)} اقتباس</div></div>` : ''}
     <div class="rs-kpi teal"><div class="v">${R.n(r.works)}</div><div class="l"><i class="bi bi-journal-text"></i>كل المنشورات ${R.srcBadge('OpenAlex', oaUrl, 'bi-globe2')}</div><div class="d">${R.n(r.cites)} اقتباس · h ${r.h}</div></div>
     ${sch ? `<div class="rs-kpi"><div class="v">${R.n(sch.cites)}</div><div class="l"><i class="bi bi-google"></i>Google Scholar ${R.srcBadge(r.scholar_at || 'افتح', L.scholar, 'bi-box-arrow-up-left')}</div><div class="d">h ${R.n(sch.h)} · i10 ${R.n(sch.i10)}</div></div>` : ''}
@@ -71,16 +72,17 @@
     <div class="rs-card"><h3><i class="bi bi-clipboard-data"></i>الأرقام حسب المصدر <small class="fw-normal text-muted">لكل مصدر تغطيته الخاصة؛ افتح الرابط للتحقق</small></h3>
       <div class="rs-scroll"><table class="rs-table rs-mtable"><thead><tr><th></th>
         <th class="num">Scopus ${scUrl ? `<a href="${R.esc(scUrl)}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i></a>` : ''}<br><small class="text-muted fw-normal">بانتماء البترا</small></th>
+        <th class="num">Web of Science<br><small class="text-muted fw-normal">بانتماء البترا</small></th>
         <th class="num">OpenAlex ${oaUrl ? `<a href="${oaUrl}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i></a>` : ''}</th>
         <th class="num">Scholar ${L.scholar ? `<a href="${R.esc(L.scholar)}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i></a>` : ''}</th>
         <th class="num">Scopus API<br><small class="text-muted fw-normal">كل المسيرة</small></th>
         <th class="num">صفحة المدرس ${r.profile ? `<a href="${R.esc(r.profile)}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i></a>` : ''}</th></tr></thead>
       <tbody>
-        <tr><td>المنشورات</td>${cell(su ? su.docs : null)}${cell(oaW.length)}${cell(null)}${cell(sc ? sc.docs : null)}${cell(r.uop_pubs, '', r.uop_pubs ? `<br><small class="text-muted">${r.uop_matched} مطابَق</small>` : '')}</tr>
-        <tr><td>الاقتباسات</td>${cell(su ? su.cites : null)}${cell(R.sum(oaW.map(w => w.c)))}${cell(sch ? sch.cites : null)}${cell(sc ? sc.cites : null)}${cell(null)}</tr>
-        <tr><td>h-index</td>${cell(su ? su.h : null)}${cell(r.h)}${cell(sch ? sch.h : null)}${cell(sc ? sc.h : null)}${cell(null)}</tr>
-        <tr><td>i10-index</td>${cell(su ? su.i10 : null)}${cell(r.i10)}${cell(sch ? sch.i10 : null)}${cell(null)}${cell(null)}</tr>
-        <tr><td>Q1 + Q2</td>${cell(su ? (sq.Q1 || 0) + (sq.Q2 || 0) : null)}${cell(null)}${cell(null)}${cell(null)}${cell(null)}</tr>
+        <tr><td>المنشورات</td>${cell(su ? su.docs : null)}${cell(r.wos ? r.wos.docs : null)}${cell(oaW.length)}${cell(null)}${cell(sc ? sc.docs : null)}${cell(r.uop_pubs, '', r.uop_pubs ? `<br><small class="text-muted">${r.uop_matched} مطابَق</small>` : '')}</tr>
+        <tr><td>الاقتباسات</td>${cell(su ? su.cites : null)}${cell(r.wos ? r.wos.cites : null)}${cell(R.sum(oaW.map(w => w.c)))}${cell(sch ? sch.cites : null)}${cell(sc ? sc.cites : null)}${cell(null)}</tr>
+        <tr><td>h-index</td>${cell(su ? su.h : null)}${cell(r.wos ? r.wos.h : null)}${cell(r.h)}${cell(sch ? sch.h : null)}${cell(sc ? sc.h : null)}${cell(null)}</tr>
+        <tr><td>i10-index</td>${cell(su ? su.i10 : null)}${cell(null)}${cell(r.i10)}${cell(sch ? sch.i10 : null)}${cell(null)}${cell(null)}</tr>
+        <tr><td>Q1 + Q2</td>${cell(su ? (sq.Q1 || 0) + (sq.Q2 || 0) : null)}${cell(null)}${cell(null)}${cell(null)}${cell(null)}${cell(null)}</tr>
       </tbody></table></div>
       <p class="rs-note mt-2 mb-0">${!L.scholar && !L.scopus && !L.orcid ? '<i class="bi bi-exclamation-circle text-warning"></i> لم تُضف روابط Scholar أو Scopus أو ORCID في صفحة المدرس على موقع الجامعة؛ إضافتها تحسّن دقة البيانات.' : ''}
         ${sch && r.scholar_at ? `أرقام Scholar مقروءة بتاريخ ${r.scholar_at}. ` : ''}${L.scholar && !sch ? 'أرقام Google Scholar غير متاحة حالياً؛ افتح الملف من الرابط. ' : ''}</p>
@@ -115,7 +117,7 @@
     <div class="rs-toolbar no-print mb-2">
       <div class="fld grow"><label for="p-q">بحث في العناوين</label><input id="p-q" class="form-control" type="search" placeholder="كلمة من العنوان أو المجلة…"></div>
       <div class="fld"><label for="p-type">النوع</label><select id="p-type" class="form-select"><option value="">الكل</option></select></div>
-      <div class="fld"><label for="p-src">المصدر</label><select id="p-src" class="form-select"><option value="">كل المصادر</option><option value="s">Scopus</option><option value="sq12">Scopus · Q1 و Q2</option><option value="o">OpenAlex</option><option value="u">صفحة المدرس</option><option value="nos">خارج Scopus</option><option value="uonly">في صفحة المدرس فقط</option></select></div>
+      <div class="fld"><label for="p-src">المصدر</label><select id="p-src" class="form-select"><option value="">كل المصادر</option><option value="s">Scopus</option><option value="sq12">Scopus · Q1 و Q2</option><option value="w">Web of Science</option><option value="o">OpenAlex</option><option value="u">صفحة المدرس</option><option value="nos">خارج Scopus</option><option value="uonly">في صفحة المدرس فقط</option></select></div>
       <div class="fld"><label for="p-sort">ترتيب</label><select id="p-sort" class="form-select"><option value="y">الأحدث</option><option value="c">الأكثر اقتباساً</option></select></div>
       <div class="btns"><button class="btn btn-rs-o" id="p-csv"><i class="bi bi-download"></i> CSV</button><button class="btn btn-rs-o" id="p-bib"><i class="bi bi-braces"></i> BibTeX</button></div>
     </div>

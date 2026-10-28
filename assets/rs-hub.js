@@ -31,6 +31,7 @@
     ['bi-bar-chart-line', R.n(SX.docs), 'وثيقة في Scopus (بانتماء البترا)', `<a href="${scUrl}" target="_blank" rel="noopener">${R.n(scY5)} في آخر 5 سنوات · افتح Scopus ↗</a>`, 'scopus'],
     ['bi-quote', R.k(SX.cites), 'اقتباس في Scopus', `متوسط ${(SX.cites / (SX.docs || 1)).toFixed(1)} لكل وثيقة`, 'scopus'],
     ['bi-award', sqTot ? R.pct(((sq.Q1 || 0) + (sq.Q2 || 0)) / sqTot) : '–', 'من المجلات المصنفة في Q1 و Q2', `Q1 ${R.n(sq.Q1 || 0)} · Q2 ${R.n(sq.Q2 || 0)} · Q3 ${R.n(sq.Q3 || 0)} · Q4 ${R.n(sq.Q4 || 0)}`, 'navy'],
+    ...(meta.wos_export ? [['bi-journal', R.n(meta.wos_export.docs), 'وثيقة في Web of Science', `${R.k(meta.wos_export.cites)} اقتباس · ${R.n(list.filter(r => r.wos).length)} باحث حالي`, 'wos']] : []),
     ['bi-people', R.n(list.filter(r => r.sc).length), 'باحث حالي لديه وثائق في Scopus', `من ${R.n(list.length)} عضو هيئة تدريس`, ''],
     ['bi-graph-up', R.median(scHs).toFixed(1), 'وسيط h-index في Scopus', `الأعلى ${Math.max(0, ...scHs)}`, 'teal'],
     ['bi-journal-text', R.n(works.length), 'كل المنشورات (مصادر مكمّلة)', `OpenAlex و صفحات المدرسين · ${R.k(cites)} اقتباس`, ''],

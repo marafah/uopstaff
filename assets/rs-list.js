@@ -20,9 +20,9 @@
     <div class="fld"><label for="f-dept">القسم</label><select id="f-dept" class="form-select"></select></div>
     <div class="fld"><label for="f-rank">الرتبة</label><select id="f-rank" class="form-select">${opt('', 'كل الرتب', '')}${ranks.map(r => opt(r, r, '')).join('')}</select></div>
     <div class="fld"><label for="f-has">الملفات البحثية</label><select id="f-has" class="form-select">
-      ${opt('', 'الكل', '')}${opt('scholar', 'لديه Google Scholar', '')}${opt('scopus', 'لديه وثائق في Scopus', '')}${opt('noscopus', 'بلا وثائق في Scopus', '')}${opt('orcid', 'لديه ORCID', '')}${opt('none', 'بلا أي رابط بحثي', '')}${opt('verify', 'مطابقة تحتاج تحقق', '')}${opt('nomatch', 'غير مطابق في OpenAlex', '')}</select></div>
+      ${opt('', 'الكل', '')}${opt('scholar', 'لديه Google Scholar', '')}${opt('scopus', 'لديه وثائق في Scopus', '')}${opt('noscopus', 'بلا وثائق في Scopus', '')}${opt('wos', 'لديه وثائق في Web of Science', '')}${opt('orcid', 'لديه ORCID', '')}${opt('none', 'بلا أي رابط بحثي', '')}${opt('verify', 'مطابقة تحتاج تحقق', '')}${opt('nomatch', 'غير مطابق في OpenAlex', '')}</select></div>
     <div class="fld"><label for="f-sort">ترتيب حسب</label><select id="f-sort" class="form-select">
-      <optgroup label="Scopus (المعتمد)">${opt('sc_h', 'h-index في Scopus', st.sort)}${opt('sc_docs', 'وثائق Scopus', st.sort)}${opt('sc_cites', 'اقتباسات Scopus', st.sort)}${opt('sc_w5', 'وثائق Scopus آخر 5 سنوات', st.sort)}${opt('q12', 'أبحاث Q1 و Q2', st.sort)}</optgroup>
+      <optgroup label="Scopus (المعتمد)">${opt('sc_h', 'h-index في Scopus', st.sort)}${opt('sc_docs', 'وثائق Scopus', st.sort)}${opt('sc_cites', 'اقتباسات Scopus', st.sort)}${opt('sc_w5', 'وثائق Scopus آخر 5 سنوات', st.sort)}${opt('q12', 'أبحاث Q1 و Q2', st.sort)}${opt('wos_docs', 'وثائق Web of Science', st.sort)}${opt('wos_h', 'h-index في Web of Science', st.sort)}</optgroup>
       <optgroup label="مصادر أخرى">${opt('h', 'h-index (OpenAlex)', st.sort)}${opt('cites', 'اقتباسات OpenAlex', st.sort)}${opt('works', 'كل المنشورات', st.sort)}${opt('scholar', 'اقتباسات Google Scholar', st.sort)}${opt('name', 'الاسم', st.sort)}</optgroup></select></div>
     <div class="btns">
       <div class="rs-seg" id="f-view"><button data-v="cards" title="بطاقات"><i class="bi bi-grid-3x3-gap"></i></button><button data-v="table" title="جدول"><i class="bi bi-table"></i></button></div>
@@ -40,7 +40,7 @@
   const scv = (r, k) => (r.sc || {})[k] || 0;
   const val = (r, k) => k === 'scholar' ? ((r.scholar || {}).cites || -1)
     : k === 'q12' ? (((r.sc || {}).q || {}).Q1 || 0) + (((r.sc || {}).q || {}).Q2 || 0)
-    : k.startsWith('sc_') ? scv(r, k.slice(3)) : (r[k] || 0);
+    : k.startsWith('sc_') ? scv(r, k.slice(3)) : k.startsWith('wos_') ? ((r.wos || {})[k.slice(4)] || 0) : (r[k] || 0);
   function filtered() {
     const q = R.norm(st.q).split(' ').filter(Boolean);
     let out = list.filter(r =>
@@ -50,7 +50,7 @@
         : st.has === 'verify' ? (r.oa_match === 'name~' || r.scopus_match === 'name~')
         : st.has === 'nomatch' ? !(r.oa_ids || []).length
         : st.has === 'noscopus' ? !(r.sc && r.sc.docs)
-        : st.has === 'scopus' ? (r.sc && r.sc.docs) : r.links[st.has])));
+        : st.has === 'scopus' ? (r.sc && r.sc.docs) : st.has === 'wos' ? (r.wos && r.wos.docs) : r.links[st.has])));
     out.sort(st.sort === 'name' ? (a, b) => a.name.localeCompare(b.name, 'ar') : (a, b) => val(b, st.sort) - val(a, st.sort) || scv(b, 'cites') - scv(a, 'cites') || b.cites - a.cites);
     return out;
   }
@@ -66,6 +66,7 @@
         <div><b>${R.n(sc.docs || 0)}</b><span>وثيقة Scopus</span></div><div><b>${R.k(sc.cites || 0)}</b><span>اقتباس Scopus</span></div>
         <div><b>${sc.h || 0}</b><span>h في Scopus</span></div><div><b>${(q.Q1 || 0) + (q.Q2 || 0)}</b><span>Q1 + Q2</span></div></div>
       <div title="وثائق Scopus سنوياً ${Y - 9}–${Y}">${R.spark(by, Y - 9, Y)}</div>
+      ${r.wos ? `<div class="rs-note">Web of Science: <b>${R.n(r.wos.docs)}</b> وثيقة · ${R.n(r.wos.cites)} اقتباس · h <b>${r.wos.h}</b></div>` : ''}
       <div class="rs-note">OpenAlex: ${R.n(r.works)} منشور · ${R.n(r.cites)} اقتباس · h ${r.h}${sch ? ` · Google Scholar: ${R.n(sch.cites)} اقتباس، h ${R.n(sch.h)} ${R.srcBadge(r.scholar_at ? 'قُرئ ' + r.scholar_at : 'Scholar', r.links.scholar, 'bi-google')}` : ''}</div>
       <div class="foot">${R.scBadge(r)}${R.matchBadge(r)}${R.linkList(r)}
         <div class="form-check"><input class="form-check-input" type="checkbox" data-cmp="${r.id}" id="c-${r.id}"${R.cmp.has(r.id) ? ' checked' : ''}><label class="form-check-label" for="c-${r.id}">مقارنة</label></div></div>
@@ -118,6 +119,7 @@
     citations_openalex: r.cites, h_index: r.h, i10: r.i10, scholar_citations: (r.scholar || {}).cites || '', scholar_h: (r.scholar || {}).h || '',
     scopus_docs_uop: (r.sc || {}).docs || 0, scopus_citations_uop: (r.sc || {}).cites || 0, scopus_h_uop: (r.sc || {}).h || 0,
     q1: ((r.sc || {}).q || {}).Q1 || 0, q2: ((r.sc || {}).q || {}).Q2 || 0, q3: ((r.sc || {}).q || {}).Q3 || 0, q4: ((r.sc || {}).q || {}).Q4 || 0,
+    wos_docs_uop: (r.wos || {}).docs || 0, wos_citations_uop: (r.wos || {}).cites || 0, wos_h_uop: (r.wos || {}).h || 0,
     scopus_author_ids: (r.scopus_ids || []).join(' '), scopus_match: r.scopus_match || '', openalex_match: r.oa_match || '',
     openalex: (r.oa_ids || []).map(R.oaAuthorUrl).join(' '), scholar: r.links.scholar || '', scopus: r.links.scopus || '', orcid: r.links.orcid || '', staff_page: r.profile || ''
   })), 'uop-researchers.csv'));

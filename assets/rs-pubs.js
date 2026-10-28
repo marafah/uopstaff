@@ -26,7 +26,7 @@
     <div class="fld"><label for="w-field">المجال</label><select id="w-field" class="form-select">${opt('', 'الكل', st.field)}${fields.map(f => opt(f, f, st.field)).join('')}</select></div>
     <div class="fld"><label for="w-type">النوع</label><select id="w-type" class="form-select">${opt('', 'الكل', '')}${types.map(t => opt(t, t, '')).join('')}</select></div>
     <div class="fld"><label for="w-oa">الوصول</label><select id="w-oa" class="form-select">${opt('', 'الكل', '')}${opt('open', 'مفتوح', '')}${opt('closed', 'مغلق', '')}</select></div>
-    <div class="fld"><label for="w-src">المصدر</label><select id="w-src" class="form-select">${opt('s', 'Scopus (المعتمد)', st.src)}${opt('', 'كل المصادر', st.src)}${opt('nos', 'خارج Scopus', st.src)}${opt('o', 'OpenAlex', st.src)}${opt('u', 'صفحة المدرس', st.src)}${opt('uonly', 'صفحة المدرس فقط', st.src)}${opt('nodoi', 'بلا DOI', st.src)}</select></div>
+    <div class="fld"><label for="w-src">المصدر</label><select id="w-src" class="form-select">${opt('s', 'Scopus (المعتمد)', st.src)}${opt('', 'كل المصادر', st.src)}${opt('w', 'Web of Science', st.src)}${opt('nos', 'خارج Scopus', st.src)}${opt('o', 'OpenAlex', st.src)}${opt('u', 'صفحة المدرس', st.src)}${opt('uonly', 'صفحة المدرس فقط', st.src)}${opt('nodoi', 'بلا DOI', st.src)}</select></div>
     <div class="fld"><label for="w-q4">تصنيف المجلة</label><select id="w-q4" class="form-select">${opt('', 'الكل', st.q4)}${opt('Q1', 'Q1', st.q4)}${opt('Q12', 'Q1 و Q2', st.q4)}${opt('Q2', 'Q2', st.q4)}${opt('Q3', 'Q3', st.q4)}${opt('Q4', 'Q4', st.q4)}${opt('none', 'غير مصنّف', st.q4)}</select></div>
     <div class="fld"><label for="w-sort">ترتيب</label><select id="w-sort" class="form-select">${opt('y', 'الأحدث', '')}${opt('c', 'الأكثر اقتباساً (Scopus)', '')}${opt('fwci', 'الأعلى FWCI', '')}</select></div>
     <div class="btns"><button class="btn btn-rs-o" id="w-csv"><i class="bi bi-download"></i> CSV</button></div>
@@ -67,7 +67,7 @@
     const rows = filtered();
     const pages = Math.ceil(rows.length / PER);
     st.page = Math.min(st.page, Math.max(0, pages - 1));
-    R.$('#w-sum').innerHTML = `<span><b class="fs-5">${R.n(rows.length)}</b> منشور</span><span><b class="fs-5">${R.n(R.sum(rows.map(w => w.sc || 0)))}</b> اقتباس Scopus</span><span><b class="fs-5">${R.n(rows.filter(w => w.q === 'Q1' || w.q === 'Q2').length)}</b> في Q1 و Q2</span>
+    R.$('#w-sum').innerHTML = `<span><b class="fs-5">${R.n(rows.length)}</b> منشور</span><span><b class="fs-5">${R.n(R.sum(rows.map(w => w.sc || 0)))}</b> اقتباس Scopus</span><span><b class="fs-5">${R.n(rows.filter(w => w.q === 'Q1' || w.q === 'Q2').length)}</b> في Q1 و Q2</span><span><b class="fs-5">${R.n(rows.filter(w => (w.src || '').includes('w')).length)}</b> في Web of Science</span>
       <span><b class="fs-5">${R.pct(rows.filter(R.isOA).length / (rows.length || 1))}</b> وصول مفتوح</span><span><b class="fs-5">${R.n(rows.filter(w => (w.src || '').includes('s')).length)}</b> في Scopus</span>
       <span><b class="fs-5">${R.n(rows.filter(w => (w.cc || []).some(c => c !== 'JO')).length)}</b> بتعاون دولي</span>`;
     const ys = []; for (let y = st.from; y <= st.to; y++) ys.push(y);
@@ -83,7 +83,7 @@
   depSel.addEventListener('change', e => { st.dept = e.target.value; st.page = 0; render(); });
   R.$('#w-pager').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (b) { st.page = +b.dataset.p; render(); R.$('#w-sum').scrollIntoView({ behavior: 'smooth' }); } });
   R.$('#w-csv').onclick = () => R.csv(filtered().map(w => ({
-    year: w.y, title: w.t, venue: w.v, quartile: w.q || '', type: w.type, scopus_citations: w.sc ?? '', openalex_citations: w.c ?? '', in_scopus: (w.src || '').includes('s') ? 'yes' : 'no', fwci: w.fwci ?? '', open_access: w.oa || '', field: w.f || '',
+    year: w.y, title: w.t, venue: w.v, quartile: w.q || '', type: w.type, scopus_citations: w.sc ?? '', openalex_citations: w.c ?? '', in_scopus: (w.src || '').includes('s') ? 'yes' : 'no', in_wos: (w.src || '').includes('w') ? 'yes' : 'no', wos_citations: w.wc ?? '', wos: w.ut ? 'https://www.webofscience.com/wos/woscc/full-record/' + w.ut : '', fwci: w.fwci ?? '', open_access: w.oa || '', field: w.f || '',
     uop_authors: (w.r || []).map(id => byId[id] ? byId[id].name : '').join(' | '), faculties: w._fac.join(' | '), authors: w.au || '',
     doi: w.doi ? 'https://doi.org/' + w.doi : '', openalex: (w.oid || (/^W/.test(w.id) ? w.id : '')) ? R.oaWorkUrl(w.oid || w.id) : '', scopus: w.eid ? R.scopusDocUrl(w.eid) : '', link: w.url || '', sources: w.src
   })), 'uop-publications.csv');

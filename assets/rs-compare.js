@@ -116,6 +116,7 @@
         ${row('اقتباسات Scopus', P.map(r => (r.sc || {}).cites || 0))}${row('h-index في Scopus', P.map(r => (r.sc || {}).h || 0))}
         ${row('وثائق Scopus آخر 5 سنوات', P.map(r => (r.sc || {}).w5 || 0))}
         ${row('أبحاث Q1', P.map(r => ((r.sc || {}).q || {}).Q1 || 0))}${row('أبحاث Q2', P.map(r => ((r.sc || {}).q || {}).Q2 || 0))}
+        ${row('وثائق Web of Science', P.map(r => (r.wos || {}).docs || 0), null, R.srcBadge('WoS', '', 'bi-journal'))}${row('اقتباسات Web of Science', P.map(r => (r.wos || {}).cites || 0))}${row('h-index في Web of Science', P.map(r => (r.wos || {}).h || 0))}
         ${row('المنشورات (كل المصادر)', col('works'))}${row('منشورات آخر 5 سنوات', col('w5'))}
         ${row('اقتباسات OpenAlex', col('cites'), null, R.srcBadge('OpenAlex'))}${row('اقتباسات آخر 5 سنوات', col('c5'))}
         ${row('h-index (OpenAlex)', col('h'))}${row('i10-index', col('i10'))}

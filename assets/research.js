@@ -55,6 +55,7 @@
     o: { name: 'OpenAlex', color: '#1d4f80', icon: 'bi-globe2' },
     u: { name: 'صفحة المدرس', color: '#901d23', icon: 'bi-building' },
     s: { name: 'Scopus', color: '#e9711c', icon: 'bi-bar-chart-line' },
+    w: { name: 'Web of Science', color: '#5e33bf', icon: 'bi-journal' },
     g: { name: 'Google Scholar', color: '#4285f4', icon: 'bi-google' }
   };
   R.oaAuthorUrl = id => `https://openalex.org/authors/${id}`;
@@ -110,6 +111,7 @@
     if (w.doi) a.push(`<a href="https://doi.org/${R.esc(w.doi)}" target="_blank" rel="noopener"><i class="bi bi-link-45deg"></i> DOI</a>`);
     const oid = w.oid || (/^W\d+$/.test(w.id) ? w.id : '');
     if (oid) a.push(`<a href="${R.oaWorkUrl(oid)}" target="_blank" rel="noopener" style="color:#1d4f80"><i class="bi bi-globe2"></i> OpenAlex</a>`);
+    if (w.ut) a.push(`<a href="https://www.webofscience.com/wos/woscc/full-record/${encodeURIComponent(w.ut)}" target="_blank" rel="noopener" style="color:#5e33bf"><i class="bi bi-journal"></i> Web of Science</a>`);
     if (w.eid) a.push(`<a href="${R.scopusDocUrl(w.eid)}" target="_blank" rel="noopener" style="color:#c75b12"><i class="bi bi-bar-chart-line"></i> Scopus</a>`);
     if (w.url && !(w.doi && w.url.includes(w.doi))) a.push(`<a href="${R.esc(w.url)}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i> رابط الناشر</a>`);
     if (w.oaurl) a.push(`<a href="${R.esc(w.oaurl)}" target="_blank" rel="noopener" style="color:#17663a"><i class="bi bi-unlock"></i> النص الكامل</a>`);
@@ -124,11 +126,11 @@
 
   R.pubHTML = function (w, opts) {
     opts = opts || {};
-    const src = (w.src || '').split('').sort((a, b) => 'soug'.indexOf(a) - 'soug'.indexOf(b)).map(s => `<span class="rs-tag src-${s}" title="المصدر: ${R.SRC[s] ? R.SRC[s].name : s}">${R.SRC[s] ? R.SRC[s].name : s}</span>`).join('');
+    const src = (w.src || '').split('').sort((a, b) => 'swoug'.indexOf(a) - 'swoug'.indexOf(b)).map(s => `<span class="rs-tag src-${s}" title="المصدر: ${R.SRC[s] ? R.SRC[s].name : s}">${R.SRC[s] ? R.SRC[s].name : s}</span>`).join('');
     const who = opts.byId ? (w.r || []).map(id => opts.byId[id]).filter(Boolean) : [];
     return `<article class="rs-pub">
       <div class="t">${R.esc(w.t)}</div>
-      <div class="c">${w.sc != null ? `<b>${R.n(w.sc)}</b><span>اقتباس Scopus${w.c != null && w.c !== w.sc ? `<br>OpenAlex: ${R.n(w.c)}` : ''}</span>` : `<b>${R.n(w.c)}</b><span>اقتباس OpenAlex</span>`}</div>
+      <div class="c">${w.sc != null ? `<b>${R.n(w.sc)}</b><span>اقتباس Scopus${w.wc != null ? `<br>WoS: ${R.n(w.wc)}` : ''}${w.c != null && w.c !== w.sc ? `<br>OpenAlex: ${R.n(w.c)}` : ''}</span>` : `<b>${R.n(w.c)}</b><span>اقتباس OpenAlex</span>`}</div>
       ${w.au ? `<div class="a">${R.esc(w.au)}</div>` : ''}
       <div class="m">${w.y ? `<span class="rs-tag y">${w.y}</span>` : ''}${R.qTag(w.q)}${w.v ? `<span class="ltr">${R.esc(w.v)}</span>` : ''}
         <span class="rs-tag">${R.esc(R.typeAr(w.type))}</span>${R.isOA(w) ? `<span class="rs-tag oa"><i class="bi bi-unlock"></i> ${R.OA_AR[w.oa] || 'مفتوح'}</span>` : ''}

@@ -218,3 +218,5 @@ a.rs-chip:hover { border-color: var(--rs-maroon); color: var(--rs-maroon); }
 .rs-tag.q4 { background: #8c8577; color: #fff; }
 .rs-kpi.scopus::before { background: #e9711c; }
 .rs-sc { color: #c75b12; font-weight: 800; }
+.rs-tag.src-w { background: #ece6fb; color: #5e33bf; }
+.rs-kpi.wos::before { background: #5e33bf; }
