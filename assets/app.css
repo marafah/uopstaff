@@ -1567,6 +1567,20 @@ body.scr-on > *:not(.scr):not(script):not(.modal) { display: none !important; }
 .ph-ext { font-size: 1rem; color: #091b22; font-variant-numeric: tabular-nums; text-align: left; }
 .ph-name a { color: #1f2d33; text-decoration: none; font-size: .86rem; } .ph-name a:hover { text-decoration: underline; } .ph-row.lead .ph-name a { font-weight: 800; }
 .ph-name small { display: block; font-size: .72rem; color: #6b7280; }
+/* one unit chosen: its sections as cards across the page */
+.ph-one > h2 { font-size: 1.25rem; font-weight: 800; color: var(--uop-navy); display: flex; align-items: center; gap: .5rem; margin: 0 0 .6rem; }
+.ph-one > h2 small { font-size: .78rem; background: var(--uop-navy); color: #fff; border-radius: 999px; padding: 1px 10px; }
+.ph-toc { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1rem; }
+.ph-toc a { display: inline-flex; align-items: center; gap: .35rem; background: #fff; border: 1px solid #e3dccb; border-radius: 999px; padding: .25rem .75rem; font-size: .82rem; font-weight: 700; color: #1f2d33; text-decoration: none; }
+.ph-toc a:hover { border-color: var(--uop-maroon); color: var(--uop-maroon); }
+.ph-toc small { font-size: .7rem; background: #f1ede4; color: #4b5563; border-radius: 999px; padding: 0 .45rem; }
+.ph-depts { column-gap: 1rem; }
+.ph-dept { break-inside: avoid; display: inline-block; width: 100%; background: #fff; border: 1px solid #ece6d8; border-radius: 12px; overflow: hidden; margin-bottom: 1rem; scroll-margin-top: 90px; }
+.ph-dept h3 { display: flex; align-items: center; gap: .5rem; margin: 0; padding: .55rem .8rem; background: #33505d; color: #fff; font-size: .9rem; font-weight: 800; }
+.ph-dept.lead h3 { background: var(--uop-maroon); }
+.ph-dept h3 small { margin-inline-start: auto; font-size: .72rem; background: rgba(255,255,255,.2); border-radius: 999px; padding: 0 .5rem; }
+.ph-dept .ph-list { padding: .25rem .8rem .45rem; }
+.ph-dept .ph-row:last-child { border-bottom: 0; }
 
 /* جدولنا معاً */
 .tg-members { display: grid; gap: .4rem; }
