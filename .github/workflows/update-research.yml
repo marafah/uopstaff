@@ -21,6 +21,8 @@ on:
       - 'data/research/scopus_export/**'   # a new Scopus CSV export triggers a rebuild
       - 'data/research/wos_export/**'      # a new Web of Science export too
       - 'data/research/overrides.json'
+      - 'data/research/manual/**'          # manual corrections and additions (CSV)
+      - 'data/research/universities_export/**'   # Scopus exports of other Jordanian universities
 
 permissions:
   contents: write
@@ -50,6 +52,7 @@ jobs:
           SCOPUS_INSTTOKEN: ${{ secrets.SCOPUS_INSTTOKEN }}
           SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
           WOS_API_KEY: ${{ secrets.WOS_API_KEY }}
+          SCHOLAR: ${{ github.event_name == 'push' && '0' || '1' }}   # quick rebuild after an upload; Scholar is refreshed weekly
         run: |
           if [ -n "${{ github.event.inputs.only }}" ]; then
             echo "Single-researcher runs are for checking a match; the published data is not changed."
