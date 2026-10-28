@@ -149,7 +149,7 @@
   if (SX && sqTot) R.chart('c-q', { type: 'doughnut', data: { labels: ['Q1', 'Q2', 'Q3', 'Q4', 'غير مصنّف'], datasets: [{ data: ['Q1', 'Q2', 'Q3', 'Q4', 'none'].map(k => sq[k] || 0), backgroundColor: ['#1d7a3e', '#1f6f78', '#b8892b', '#8c8577', '#d9d3c4'] }] }, options: { plugins: { legend: { position: 'right' } }, cutout: '58%' } });
   R.chart('c-oa', { type: 'doughnut', data: { labels: oaSt.map(x => R.OA_AR[x[0]] || x[0]), datasets: [{ data: oaSt.map(x => x[1]), backgroundColor: oaSt.map(x => oaColors[x[0]] || '#888') }] }, options: { plugins: { legend: { position: 'right' } }, cutout: '58%' } });
   R.chart('c-ctry', { type: 'bar', data: { labels: countries.map(c => { try { return regionName.of(c[0]); } catch (e) { return c[0]; } }), datasets: [{ data: countries.map(c => c[1]), backgroundColor: '#1f6f78', borderRadius: 4 }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } } } });
-  R.chart('c-sdg', { type: 'bar', data: { labels: sdgs.map(s => s[0]), datasets: [{ data: sdgs.map(s => s[1]), backgroundColor: '#2f7d32', borderRadius: 4 }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { y: { ticks: { font: { size: 10 } } } } } });
+  R.chart('c-sdg', { type: 'bar', data: { labels: sdgs.map(s => s[0]), datasets: [{ data: sdgs.map(s => s[1]), backgroundColor: '#2f7d32', borderRadius: 4 }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { y: { ticks: { font: { size: 12 } } } } } });
 
   // top researchers
   const labels = { 'sc.h': 'h-index', 'sc.cites': 'اقتباس', 'sc.docs': 'وثيقة', 'sc.w5': 'وثيقة', q12: 'بحث' };

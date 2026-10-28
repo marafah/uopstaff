@@ -172,7 +172,7 @@
     const k = st.metric, s = S.out.filter(o => o.docs && o[k] != null).sort((a, b) => b[k] - a[k]);
     R.$('#j-rank-wrap').style.height = (s.length * 22 + 60) + 'px';
     R.chart('j-rank', { type: 'bar', data: { labels: s.map(o => o.u.ar), datasets: [{ label: M[k][0], data: s.map(o => /s$|12$/.test(k) ? +(100 * o[k]).toFixed(1) : +(+o[k]).toFixed(2)), backgroundColor: s.map(o => o.u.i === HOME.i ? '#901d23' : st.sel.includes(o.u.i) ? '#b8892b' : '#c9c2b2'), borderRadius: 3 }] },
-      options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { y: { ticks: { autoSkip: false, font: { size: 11 } } } }, onClick: (e, el) => { if (el[0]) window.open(R.scopusOrgUrl(s[el[0].index].u.afid), '_blank', 'noopener'); } } });
+      options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { y: { ticks: { autoSkip: false, font: { size: 12 } } } }, onClick: (e, el) => { if (el[0]) window.open(R.scopusOrgUrl(s[el[0].index].u.afid), '_blank', 'noopener'); } } });
   }
   // fields or specialities inside the chosen field, for the selected universities
   function fields() {
@@ -220,7 +220,7 @@
     // national total counts each document once per university: share is close enough for profile comparison
     const rows = AREAS.map((a, i) => [R.areaAr(a), (home[i] || 0) / (nHome || 1), (tot[i] || 0) / (nTot || 1)]).map(r => [r[0], r[1] - r[2], r[1], r[2]]).sort((a, b) => a[1] - b[1]);
     R.chart('j-gap-areas', { type: 'bar', data: { labels: rows.map(r => r[0]), datasets: [{ label: 'الفرق بالنقاط المئوية', data: rows.map(r => +(100 * r[1]).toFixed(1)), backgroundColor: rows.map(r => r[1] < 0 ? '#c0392b' : '#1d7a3e'), borderRadius: 3 }] },
-      options: { indexAxis: 'y', plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => { const r = rows[c.dataIndex]; return `البترا ${pct(r[2])} · الأردن ${pct(r[3])}`; } } } }, scales: { y: { ticks: { autoSkip: false, font: { size: 10 } } } } } });
+      options: { indexAxis: 'y', plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => { const r = rows[c.dataIndex]; return `البترا ${pct(r[2])} · الأردن ${pct(r[3])}`; } } } }, scales: { y: { ticks: { autoSkip: false, font: { size: 12 } } } } } });
     R.$('#j-rising').innerHTML = `<thead><tr><th>الموضوع</th><th class="num">وثائق أردنية</th><th class="num">النمو</th><th class="num">البترا</th><th>الأنشط</th></tr></thead><tbody>
       ${(D.rising || []).slice(0, 60).map(([k, n, g, by]) => { const top = Object.entries(by).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([i]) => U[i] ? U[i].ar : '').join('، ');
         return `<tr><td class="ltr"><a href="experts.html?q=${encodeURIComponent(k)}" title="خبراء في هذا الموضوع">${esc(k)}</a></td><td class="num">${R.n(n)}</td><td class="num">×${g}</td><td class="num ${by[HOME.i] ? '' : 'text-danger fw-bold'}">${R.n(by[HOME.i] || 0)}</td><td><small>${esc(top)}</small></td></tr>`; }).join('')}</tbody>`;

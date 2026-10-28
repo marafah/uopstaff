@@ -78,7 +78,7 @@
       </article>`; }).join('')}</div>`;
     // results by university and related topics
     const byU2 = Object.entries(byU).sort((a, b) => b[1] - a[1]).slice(0, 12);
-    R.chart('ex-ch-u', { type: 'bar', data: { labels: byU2.map(([u]) => UN[u] || u), datasets: [{ label: 'باحثون', data: byU2.map(x => x[1]), backgroundColor: byU2.map(([u]) => UCOL[u] || '#999'), borderRadius: 3 }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { y: { ticks: { font: { size: 10 } } } } } });
+    R.chart('ex-ch-u', { type: 'bar', data: { labels: byU2.map(([u]) => UN[u] || u), datasets: [{ label: 'باحثون', data: byU2.map(x => x[1]), backgroundColor: byU2.map(([u]) => UCOL[u] || '#999'), borderRadius: 3 }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { y: { ticks: { font: { size: 12 } } } } } });
     const qn = R.norm(st.q), rel = {};
     data.slice(0, 400).forEach(r => r.kw.split('; ').forEach(k => { if (k && (!qn || !R.norm(k).includes(qn))) rel[k] = (rel[k] || 0) + 1; }));
     R.$('#ex-rel').innerHTML = Object.entries(rel).sort((a, b) => b[1] - a[1]).slice(0, 20).map(([k, n]) => `<button class="rs-chip soft" data-kw="${esc(k)}" data-add="1"><span class="ltr">${esc(k)}</span> <small class="text-muted">${n}</small></button>`).join('') || '<span class="text-muted small">ابحث عن موضوع لتظهر موضوعات قريبة</span>';

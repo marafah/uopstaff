@@ -185,13 +185,68 @@
     Chart.defaults.font.family = 'Tajawal, "Segoe UI", Tahoma, sans-serif';
     Chart.defaults.color = '#4a4a46';
     Chart.defaults.borderColor = '#eee8da';
-    Chart.defaults.plugins.legend.labels.boxWidth = 12;
+    Chart.defaults.font.size = 13;
+    Chart.defaults.plugins.legend.labels.boxWidth = 14;
+    Chart.defaults.plugins.legend.labels.font = { size: 13.5 };
+    Chart.defaults.plugins.tooltip.titleFont = { size: 14, weight: '700' };
+    Chart.defaults.plugins.tooltip.bodyFont = { size: 13 };
     Chart.defaults.plugins.tooltip.rtl = true;
     Chart.defaults.plugins.tooltip.textDirection = 'rtl';
     Chart.defaults.maintainAspectRatio = false;
+    if (!R._lbl) { R._lbl = 1; Chart.register(R.labelsPlugin); }
+    const t = cfg.type, op = cfg.options = cfg.options || {}, pl = op.plugins = op.plugins || {};
+    if ((t === 'doughnut' || t === 'pie') && pl.rsLabels !== false) {
+      // legend shows value and share
+      pl.legend = Object.assign({ position: 'right' }, pl.legend || {});
+      pl.legend.labels = Object.assign({}, pl.legend.labels || {}, { generateLabels: ch => {
+        const base = Chart.overrides.doughnut.plugins.legend.labels.generateLabels(ch), d = ch.data.datasets[0].data, tot = d.reduce((x, y) => x + (+y || 0), 0) || 1;
+        return base.map((l, i) => Object.assign(l, { text: `${l.text}: ${R.n(d[i])} (${(100 * d[i] / tot).toFixed(0)}%)` })); } });
+    }
+    if (t === 'bar' && pl.rsLabels !== false) {
+      const hz = op.indexAxis === 'y', stacked = op.scales && Object.values(op.scales).some(x => x && x.stacked);
+      if (!stacked) { op.layout = op.layout || {}; op.layout.padding = Object.assign({}, hz ? { right: 56, left: 4 } : { top: 20 }, op.layout.padding || {}); }
+    }
     const c = new Chart(el, cfg);
     R.charts[el.id] = c;
     return c;
+  };
+  // value labels on bars and doughnut slices (opt out: options.plugins.rsLabels = false)
+  R.labelsPlugin = {
+    id: 'rsLabels',
+    afterDatasetsDraw(ch) {
+      const t = ch.config.type, o = ch.options.plugins.rsLabels;
+      if (o === false || !(t === 'bar' || t === 'doughnut' || t === 'pie')) return;
+      const ctx = ch.ctx, hz = ch.options.indexAxis === 'y';
+      const vAxis = ch.scales[hz ? 'x' : 'y'];
+      const fmt = v => { if (v == null || v === '' || isNaN(v)) return ''; let s = Number.isInteger(+v) ? R.n(+v) : (+v).toFixed(Math.abs(v) < 10 ? 2 : 1);
+        try { const cb = vAxis && vAxis.options.ticks.callback; if (cb && cb.length <= 1 && t === 'bar') { const r = cb.call(vAxis, +v); if (typeof r === 'string' && /%|\+/.test(r)) s = (Number.isInteger(+v) ? R.n(+v) : (+v).toFixed(1)) + (r.includes('%') ? '%' : ''); } } catch (e) {}
+        return s; };
+      ctx.save(); ctx.font = '700 12.5px Tajawal, "Segoe UI", sans-serif'; ctx.textBaseline = 'middle';
+      if (t === 'bar') {
+        const sets = ch.data.datasets.map((d, i) => [d, ch.getDatasetMeta(i)]).filter(([d, m]) => !m.hidden && m.visible !== false);
+        const n = sets.reduce((a, [d]) => a + d.data.length, 0);
+        if (n > 90) { ctx.restore(); return; }
+        const stacked = Object.values(ch.options.scales || {}).some(x => x && x.stacked);
+        sets.forEach(([d, m]) => m.data.forEach((bar, i) => {
+          const v = d.data[i]; const raw = typeof v === 'object' && v ? (hz ? v.x : v.y) : v; if (!raw) return;
+          const txt = fmt(raw); const w = ctx.measureText(txt).width; const p = bar.getProps(['x', 'y', 'base', 'width', 'height'], true);
+          if (stacked) { const len = hz ? Math.abs(p.x - p.base) : Math.abs(p.base - p.y); if (len < w + 8 || (!hz && p.width < 18)) return;
+            ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.fillText(txt, hz ? (p.x + p.base) / 2 : p.x, hz ? p.y : (p.y + p.base) / 2); return; }
+          ctx.fillStyle = '#2b3438';
+          if (hz) { const neg = raw < 0; ctx.textAlign = neg ? 'right' : 'left'; ctx.fillText(txt, p.x + (neg ? -4 : 4), p.y); }
+          else { if (p.width < w * .6 && m.data.length > 20) return; ctx.textAlign = 'center'; ctx.fillText(txt, p.x, p.y - 9); }
+        }));
+      } else {
+        const d = ch.data.datasets[0], m = ch.getDatasetMeta(0), tot = d.data.reduce((a, b) => a + (+b || 0), 0) || 1;
+        ctx.textAlign = 'center';
+        m.data.forEach((arc, i) => { const v = +d.data[i]; if (!v || v / tot < .04 || m.data[i].hidden) return;
+          const a = (arc.startAngle + arc.endAngle) / 2, r = (arc.innerRadius + arc.outerRadius) / 2;
+          const x = arc.x + Math.cos(a) * r, y = arc.y + Math.sin(a) * r;
+          ctx.fillStyle = '#fff'; ctx.font = '800 15px Tajawal, sans-serif'; ctx.fillText((100 * v / tot).toFixed(0) + '%', x, y - 7);
+          ctx.font = '600 12px Tajawal, sans-serif'; ctx.fillText(R.n(v), x, y + 8); });
+      }
+      ctx.restore();
+    }
   };
   R.spark = function (byYear, from, to) {
     const ys = []; for (let y = from; y <= to; y++) ys.push((byYear[y] || [0])[0]);

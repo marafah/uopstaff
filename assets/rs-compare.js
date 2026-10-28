@@ -181,7 +181,7 @@
     R.chart('g-y', { type: 'line', data: { labels: years, datasets: G.map((g, i) => ({ label: g.name, data: years.map(y => g.by[y] || 0), borderColor: COL[i], backgroundColor: COL[i], tension: .3 })) } });
     const rk = [['sc', 'وثائق Scopus'], ['scc', 'اقتباسات Scopus'], ['q12', 'Q1 + Q2'], ['works', 'المنشورات'], ['w5', 'آخر 5 سنوات'], ['perCap', 'لكل باحث'], ['cites', 'الاقتباسات'], ['h', 'وسيط h'], ['intl', 'تعاون دولي'], ['oa', 'وصول مفتوح']];
     R.chart('g-r', { type: 'radar', data: { labels: rk.map(k => k[1]), datasets: G.map((g, i) => ({ label: g.name, data: rk.map(([k]) => { const mx = Math.max(...G.map(x => x[k])) || 1; return Math.round(100 * g[k] / mx); }), borderColor: COL[i], backgroundColor: R.alpha(COL[i], .1) })) }, options: { scales: { r: { min: 0, max: 100, ticks: { backdropColor: 'transparent' } } } } });
-    R.chart('g-f', { type: 'bar', data: { labels: fields, datasets: G.map((g, i) => ({ label: g.name, data: fields.map(f => g.topics[f] || 0), backgroundColor: COL[i], borderRadius: 3 })) }, options: { scales: { x: { ticks: { font: { size: 10 } } } } } });
+    R.chart('g-f', { type: 'bar', data: { labels: fields, datasets: G.map((g, i) => ({ label: g.name, data: fields.map(f => g.topics[f] || 0), backgroundColor: COL[i], borderRadius: 3 })) }, options: { scales: { x: { ticks: { font: { size: 12 } } } } } });
   }
 
   render();

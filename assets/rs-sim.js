@@ -129,7 +129,7 @@
     R.chart('sm-rank', { type: 'bar', data: { labels: list.map(x => x.u.ar), datasets: [
       { label: 'بعد السيناريو', data: list.map(x => +x.score.toFixed(1)), backgroundColor: list.map(x => x.u.i === st.u ? '#901d23' : '#c9c2b2'), borderRadius: 3 },
       { label: 'الآن', data: list.map(x => x.u.i === st.u ? +B.score.toFixed(1) : null), backgroundColor: '#b8892b', borderRadius: 3 }] },
-      options: { indexAxis: 'y', scales: { y: { stacked: false, ticks: { autoSkip: false, font: { size: 11 } } } } } });
+      options: { indexAxis: 'y', scales: { y: { stacked: false, ticks: { autoSkip: false, font: { size: 12 } } } } } });
   }
   render();
   ['q1', 'intl', 'out', 'oa'].forEach(k => R.$(`#sm-${k}`).addEventListener('input', e => { st[k] = +e.target.value; render(); }));

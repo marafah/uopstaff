@@ -48,12 +48,11 @@
         <div class="fld"><label for="jn-stat">حالة Scopus</label><select id="jn-stat" class="form-select"><option value="">الكل</option><option value="ok" selected>نشطة فقط</option><option value="bad">حذفها Scopus</option><option value="warn">متوقفة / تغيّر وضعها</option></select></div>
         <div class="fld"><label for="jn-sort">ترتيب</label><select id="jn-sort" class="form-select"><option value="sjr">SJR (الأعلى)</option><option value="h">h-index</option><option value="jo">الأكثر نشراً للأردنيين</option><option value="jocpd">اقتباس الأبحاث الأردنية</option><option value="fast">الأسرع قبولاً</option><option value="pub">الأسرع نشراً بعد القبول</option></select></div>
       </div>
-      <label class="form-check mt-2"><input class="form-check-input" type="checkbox" id="jn-jo"${st.jo ? ' checked' : ''}> <span class="form-check-label">فقط المجلات التي نشر فيها باحثون أردنيون</span></label>
       <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
-        <label class="form-check m-0"><input class="form-check-input" type="checkbox" id="jn-jo"${st.jo ? ' checked' : ''}> <span class="form-check-label">نشر فيها أردنيون</span></label>
+        <label class="form-check m-0"><input class="form-check-input" type="checkbox" id="jn-jo"${st.jo ? ' checked' : ''}> <span class="form-check-label">فقط مجلات نشر فيها باحثون أردنيون</span></label>
         <span class="text-muted small ms-2">اختيارات سريعة:</span>
-        <button class="rs-chip" data-quick="q1oa">Q1 مفتوحة الوصول</button><button class="rs-chip" data-quick="diamond">ماسية (بلا رسوم)</button>
-        <button class="rs-chip" data-quick="fast">الأسرع قبولاً</button><button class="rs-chip" data-quick="jo">الأكثر نشراً للأردنيين</button><button class="rs-chip" data-quick="petra">مجلات البترا</button><button class="rs-chip" data-quick="reset">مسح</button>
+        <button class="rs-chip" data-quick="q1oa"><i class="bi bi-unlock-fill"></i> Q1 مفتوحة الوصول</button><button class="rs-chip" data-quick="diamond"><i class="bi bi-gem"></i> ماسية (بلا رسوم)</button>
+        <button class="rs-chip" data-quick="fast"><i class="bi bi-lightning-charge-fill"></i> الأسرع قبولاً</button><button class="rs-chip" data-quick="jo"><i class="bi bi-people-fill"></i> الأكثر نشراً للأردنيين</button><button class="rs-chip" data-quick="petra"><i class="bi bi-bank2"></i> مجلات البترا</button><button class="rs-chip reset" data-quick="reset"><i class="bi bi-x-circle"></i> مسح</button>
       </div></section>
   <section data-tab="check" class="rs-section rs-card"><h3><i class="bi bi-shield-exclamation"></i>تحقّق من مجلة قبل الإرسال</h3>
     <div class="rs-toolbar"><div class="fld grow"><label for="jn-check">اسم المجلة أو ISSN</label><input id="jn-check" class="form-control ltr" type="search" placeholder="e.g. Journal of Theoretical and Applied Information Technology  أو  1992-8645"></div></div>
@@ -226,7 +225,10 @@
     if (k === 'fast') set('sort', 'fast', '#jn-sort');
     if (k === 'jo') { set('jo', true, '#jn-jo'); set('sort', 'jo', '#jn-sort'); }
     if (k === 'petra') { st.petra = true; set('sort', 'jo', '#jn-sort'); }
+    R.$$('[data-quick]', app).forEach(x => { const on = x === b && k !== 'reset'; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on); });
     st.page = 0; render(); });
+  // manual filter changes clear the highlighted quick option
+  app.addEventListener('change', e => { if (e.target.closest('.rs-filters, #jn-jo, select, input')) R.$$('[data-quick]', app).forEach(x => { x.classList.remove('on'); x.setAttribute('aria-pressed', false); }); });
   let insDone = false;
   function insights() {
     if (insDone) return; insDone = true;
@@ -234,10 +236,10 @@
     const qd = { Q1: 0, Q2: 0, Q3: 0, Q4: 0, '': 0 }; used.forEach(r => { qd[r.q || ''] += r.jo.docs; });
     R.chart('jn-ch-q', { type: 'doughnut', data: { labels: ['Q1', 'Q2', 'Q3', 'Q4', 'بلا تصنيف'], datasets: [{ data: [qd.Q1, qd.Q2, qd.Q3, qd.Q4, qd['']], backgroundColor: ['#1d7a3e', '#1f6f78', '#b8892b', '#c75b12', '#bbb'] }] }, options: { plugins: { legend: { position: 'right' } } } });
     const top = used.slice().sort((a, b) => b.jo.docs - a.jo.docs).slice(0, 15);
-    R.chart('jn-ch-top', { type: 'bar', data: { labels: top.map(r => r.t.length > 38 ? r.t.slice(0, 36) + '…' : r.t), datasets: [{ label: 'أبحاث أردنية', data: top.map(r => r.jo.docs), backgroundColor: top.map(r => r.fl ? '#c0392b' : ({ Q1: '#1d7a3e', Q2: '#1f6f78', Q3: '#b8892b', Q4: '#c75b12' }[r.q] || '#999')), borderRadius: 3 }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { y: { ticks: { font: { size: 10 } } } } } });
+    R.chart('jn-ch-top', { type: 'bar', data: { labels: top.map(r => r.t.length > 38 ? r.t.slice(0, 36) + '…' : r.t), datasets: [{ label: 'أبحاث أردنية', data: top.map(r => r.jo.docs), backgroundColor: top.map(r => r.fl ? '#c0392b' : ({ Q1: '#1d7a3e', Q2: '#1f6f78', Q3: '#b8892b', Q4: '#c75b12' }[r.q] || '#999')), borderRadius: 3 }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { y: { ticks: { font: { size: 12 } } } } } });
     const pubs = {}; used.forEach(r => { pubs[r.pub] = (pubs[r.pub] || 0) + r.jo.docs; });
     const tp = Object.entries(pubs).sort((a, b) => b[1] - a[1]).slice(0, 12);
-    R.chart('jn-ch-pub', { type: 'bar', data: { labels: tp.map(x => x[0].slice(0, 34)), datasets: [{ label: 'أبحاث أردنية', data: tp.map(x => x[1]), backgroundColor: '#091b22', borderRadius: 3 }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { y: { ticks: { font: { size: 10 } } } } } });
+    R.chart('jn-ch-pub', { type: 'bar', data: { labels: tp.map(x => x[0].slice(0, 34)), datasets: [{ label: 'أبحاث أردنية', data: tp.map(x => x[1]), backgroundColor: '#091b22', borderRadius: 3 }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { y: { ticks: { font: { size: 12 } } } } } });
     const disc = used.filter(r => r.fl && r.fl[3]).sort((a, b) => b.jo.docs - a.jo.docs).slice(0, 25);
     R.$('#jn-disc').innerHTML = `<thead><tr><th>المجلة</th><th class="num">أبحاث أردنية</th><th class="num">البترا</th></tr></thead><tbody>${disc.map(r => `<tr><td class="ltr"><a href="#" data-j="${r.id}">${esc(r.t)}</a><br><small class="text-muted">${esc(r.fl[1])}</small></td><td class="num">${R.n(r.jo.docs)}</td><td class="num">${(r.jo.unis.find(u => u[0] === HOME) || [0, 0])[1] || '–'}</td></tr>`).join('')}</tbody>`;
   }

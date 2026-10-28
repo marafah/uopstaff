@@ -434,3 +434,13 @@ button.rs-chip { cursor: pointer; }
 .rs-xcard .m b { color: var(--rs-navy); font-size: 1.05rem; } .rs-xcard .m span { font-size: .72rem; color: #5f6b70; }
 .rs-xcard .kws .rs-chip { font-size: .8rem; }
 .rs-xcard .foot { justify-content: flex-end; }
+/* quick-filter chips: clear selected + keyboard focus */
+button.rs-chip[data-quick] { font-size: .88rem; padding: .3rem .8rem; border: 1px solid var(--rs-line); background: #fff; color: var(--rs-navy); transition: background .15s, color .15s, box-shadow .15s; }
+button.rs-chip[data-quick] i { color: #b8892b; }
+button.rs-chip[data-quick]:hover { border-color: var(--rs-maroon); color: var(--rs-maroon); }
+button.rs-chip[data-quick].on { background: var(--rs-maroon); border-color: var(--rs-maroon); color: #fff; box-shadow: 0 2px 8px rgba(144,29,35,.35); }
+button.rs-chip[data-quick].on i { color: #ffd34d; }
+button.rs-chip.reset i { color: #a33; }
+.rs-seg button:focus-visible, .rs-tabs button:focus-visible, button.rs-chip:focus-visible, .rs-ib:focus-visible, .btn:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid #e0a100; outline-offset: 2px; }
+.form-check-input:checked { background-color: var(--rs-maroon); border-color: var(--rs-maroon); }
+.form-check-label { font-size: .95rem; }

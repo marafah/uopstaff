@@ -95,7 +95,7 @@
   function bar() {
     const s = [...U].sort((a, b) => b[metric] - a[metric]);
     R.chart('u-bar', { type: 'bar', data: { labels: s.map(u => u.label), datasets: [{ label: metrics[metric][0], data: s.map(u => metric === 'growth' || metric === 'oa_share' ? +(u[metric] * 100).toFixed(1) : +(+u[metric]).toFixed(2)), backgroundColor: s.map(barColor), borderRadius: 3 }] },
-      options: { indexAxis: 'y', plugins: { legend: { display: false } }, onClick: (e, el) => { if (el[0]) window.open(R.oaInstUrl(s[el[0].index].id), '_blank', 'noopener'); }, scales: { y: { ticks: { autoSkip: false, font: { size: 11 } } } } } });
+      options: { indexAxis: 'y', plugins: { legend: { display: false } }, onClick: (e, el) => { if (el[0]) window.open(R.oaInstUrl(s[el[0].index].id), '_blank', 'noopener'); }, scales: { y: { ticks: { autoSkip: false, font: { size: 12 } } } } } });
   }
   function line() {
     R.store.set('rs-unis', sel);
@@ -112,7 +112,7 @@
     const share = u => { const t = R.sum((u.fields || []).map(f => f[1])) || 1; const m = {}; (u.fields || []).forEach(f => m[f[0]] = 100 * f[1] / t); return m; };
     const a = share(uop), b = share(other);
     const labels = Object.keys(Object.assign({}, a, b)).sort((x, y) => ((b[y] || 0) + (a[y] || 0)) - ((b[x] || 0) + (a[x] || 0))).slice(0, 14);
-    R.chart('u-fields', { type: 'bar', data: { labels, datasets: [{ label: uop.label, data: labels.map(l => +(a[l] || 0).toFixed(1)), backgroundColor: '#901d23', borderRadius: 3 }, { label: other.label, data: labels.map(l => +(b[l] || 0).toFixed(1)), backgroundColor: '#1f6f78', borderRadius: 3 }] }, options: { indexAxis: 'y', scales: { x: { ticks: { callback: v => v + '%' } }, y: { ticks: { font: { size: 10 } } } } } });
+    R.chart('u-fields', { type: 'bar', data: { labels, datasets: [{ label: uop.label, data: labels.map(l => +(a[l] || 0).toFixed(1)), backgroundColor: '#901d23', borderRadius: 3 }, { label: other.label, data: labels.map(l => +(b[l] || 0).toFixed(1)), backgroundColor: '#1f6f78', borderRadius: 3 }] }, options: { indexAxis: 'y', scales: { x: { ticks: { callback: v => v + '%' } }, y: { ticks: { font: { size: 12 } } } } } });
   }
   function table() {
     const s = [...U].sort((a, b) => b[sortK] - a[sortK]);
@@ -125,13 +125,13 @@
   if (sUop) {
     let sm = 'docs', sk = 'docs';
     const SUB = udata.subjects || {};
-    const sBar = () => { const s = [...SU].sort((a, b) => b[sm] - a[sm]); R.chart('s-bar', { type: 'bar', data: { labels: s.map(u => u.label), datasets: [{ label: SM[sm][0], data: s.map(u => sm === 'growth' || sm === 'oa' ? +(u[sm] * 100).toFixed(1) : u[sm]), backgroundColor: s.map(u => u === sUop ? '#901d23' : '#e9a25f'), borderRadius: 3 }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } }, onClick: (e, el) => { if (el[0]) window.open(R.scopusOrgUrl(s[el[0].index].afid), '_blank', 'noopener'); }, scales: { y: { ticks: { autoSkip: false, font: { size: 11 } } } } } }); };
+    const sBar = () => { const s = [...SU].sort((a, b) => b[sm] - a[sm]); R.chart('s-bar', { type: 'bar', data: { labels: s.map(u => u.label), datasets: [{ label: SM[sm][0], data: s.map(u => sm === 'growth' || sm === 'oa' ? +(u[sm] * 100).toFixed(1) : u[sm]), backgroundColor: s.map(u => u === sUop ? '#901d23' : '#e9a25f'), borderRadius: 3 }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } }, onClick: (e, el) => { if (el[0]) window.open(R.scopusOrgUrl(s[el[0].index].afid), '_blank', 'noopener'); }, scales: { y: { ticks: { autoSkip: false, font: { size: 12 } } } } } }); };
     const peersS = [...SU].filter(u => u !== sUop).sort((a, b) => Math.abs(a.docs - sUop.docs) - Math.abs(b.docs - sUop.docs)).slice(0, 4);
     R.$('#s-vs').value = peersS[0] ? peersS[0].afid : R.$('#s-vs').value;
     const sLine = () => { const ys = []; for (let y = Y - 14; y <= Y; y++) ys.push(y); R.chart('s-line', { type: 'line', data: { labels: ys, datasets: [sUop, ...peersS].map((u, i) => ({ label: u.label, data: ys.map(y => (u.by_year || {})[y] || 0), borderColor: i ? R.colors[i % R.colors.length] : '#901d23', backgroundColor: i ? R.colors[i % R.colors.length] : '#901d23', borderWidth: i ? 2 : 3.5, tension: .3 })) }, options: { interaction: { mode: 'index', intersect: false } } }); };
     const sFields = () => { const o = SU.find(u => u.afid === R.$('#s-vs').value); const sh = u => { const m = {}; (u.subjects || []).forEach(([c, n]) => m[c] = 100 * n / (u.docs || 1)); return m; }; const a = sh(sUop), b = sh(o);
       const codes = Object.keys(Object.assign({}, a, b)).sort((x, y) => ((a[y] || 0) + (b[y] || 0)) - ((a[x] || 0) + (b[x] || 0))).slice(0, 14);
-      R.chart('s-fields', { type: 'bar', data: { labels: codes.map(c => SUB[c] || c), datasets: [{ label: sUop.label, data: codes.map(c => +(a[c] || 0).toFixed(1)), backgroundColor: '#901d23', borderRadius: 3 }, { label: o.label, data: codes.map(c => +(b[c] || 0).toFixed(1)), backgroundColor: '#e9711c', borderRadius: 3 }] }, options: { indexAxis: 'y', scales: { x: { ticks: { callback: v => v + '%' } }, y: { ticks: { font: { size: 10 } } } } } }); };
+      R.chart('s-fields', { type: 'bar', data: { labels: codes.map(c => SUB[c] || c), datasets: [{ label: sUop.label, data: codes.map(c => +(a[c] || 0).toFixed(1)), backgroundColor: '#901d23', borderRadius: 3 }, { label: o.label, data: codes.map(c => +(b[c] || 0).toFixed(1)), backgroundColor: '#e9711c', borderRadius: 3 }] }, options: { indexAxis: 'y', scales: { x: { ticks: { callback: v => v + '%' } }, y: { ticks: { font: { size: 12 } } } } } }); };
     const sTable = () => { const s = [...SU].sort((a, b) => b[sk] - a[sk]); const th = (k, t) => `<th class="num${sk === k ? ' sorted' : ''}" data-sort="${k}">${t}</th>`;
       R.$('#s-table').innerHTML = `<thead><tr><th class="num">#</th><th>الجامعة</th>${Object.entries(SM).map(([k, v]) => th(k, v[0])).join('')}<th>أكبر مجال</th><th>تحقق</th></tr></thead><tbody>${s.map((u, i) => `<tr class="${u === sUop ? 'me' : ''}"><td class="num">${i + 1}</td><td><b>${R.esc(u.label)}</b><br><small class="text-muted ltr">${R.esc(u.name)}</small></td>${Object.entries(SM).map(([k, v]) => `<td class="num">${v[1](u[k])}</td>`).join('')}<td>${(u.subjects || [])[0] ? R.esc(SUB[u.subjects[0][0]] || u.subjects[0][0]) : '–'}</td><td>${R.srcBadge('Scopus ' + u.afid, R.scopusOrgUrl(u.afid), 'bi-bar-chart-line')}</td></tr>`).join('')}</tbody>`; };
     R.$('#s-metric').addEventListener('change', e => { sm = e.target.value; sBar(); });

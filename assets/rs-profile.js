@@ -148,7 +148,7 @@
   });
   if ((r.topics || []).length) R.chart('p-topics', {
     type: 'bar', data: { labels: r.topics.map(t => t[0]), datasets: [{ data: r.topics.map(t => t[2]), backgroundColor: r.topics.map(t => R.facColor(t[1])), borderRadius: 4 }] },
-    options: { indexAxis: 'y', plugins: { legend: { display: false }, tooltip: { callbacks: { afterLabel: c => r.topics[c.dataIndex][1] } } }, scales: { y: { ticks: { font: { size: 11 } } } } }
+    options: { indexAxis: 'y', plugins: { legend: { display: false }, tooltip: { callbacks: { afterLabel: c => r.topics[c.dataIndex][1] } } }, scales: { y: { ticks: { font: { size: 12 } } } } }
   });
 
   // publications
