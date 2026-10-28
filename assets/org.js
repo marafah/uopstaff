@@ -49,43 +49,44 @@
   function subtreeHits(n) { return hits(n) || kids(n).some(subtreeHits); }
 
   // ------------------------------------------------------------------ chart view
-  function head(n, small) {
-    const h = headOf(n);
-    return h ? `<div class="org-head">${avatar(h)}<span><b>${esc(h.name)}</b><small>${esc(h.job || h.role)}</small></span></div>`
-      : n.members ? `<div class="org-head"><small>${n.members.length} عضواً حسب صفحة المجلس الرسمية</small></div>`
-      : small ? '' : '<div class="org-head none"><small>لا يظهر المسؤول في دليل الموظفين</small></div>';
+  // a compact box in the chart: what it is, who runs it, how many people the directory lists for it
+  function card(n, cls) {
+    const h = headOf(n), c = staffCount(n), sub = official(n).length, acad = kids(n).filter(k => k.from_directory).length;
+    const who = h ? `<span class="oc-who">${avatar(h)}<span><b>${esc(h.name)}</b><small>${esc(h.job || h.role || '')}</small></span></span>`
+      : n.members ? `<span class="oc-who"><span class="org-stack">${n.members.slice(0, 4).map(avatar).join('')}</span><span><b>${n.members.length} عضواً</b><small>حسب صفحة المجلس الرسمية</small></span></span>`
+      : '';
+    const facts = [c ? `<span title="في دليل الموظفين"><i class="bi bi-people-fill"></i> ${c}</span>` : '',
+      acad ? `<span title="أقسام أكاديمية"><i class="bi bi-journal-bookmark"></i> ${acad} ${acad > 10 || acad < 3 ? 'قسم' : 'أقسام'}</span>` : '',
+      sub && cls !== 'big' ? `<span title="وحدات تابعة"><i class="bi bi-diagram-3"></i> ${sub}</span>` : ''].join('');
+    return `<button type="button" class="oc-card ${tone(n)} ${cls || ''}${st.q && hits(n) ? ' hit' : ''}" data-id="${esc(n.id)}">
+      <span class="oc-t"><i class="bi ${KIND[n.kind][1]}"></i><span><small>${esc(kindLabel(n) || 'وحدة')}${dashMark(n)}</small><b>${esc(n.name)}</b></span></span>
+      ${who}${facts ? `<span class="oc-f">${facts}</span>` : ''}</button>`;
   }
-  function box(n, cls) {
-    const c = staffCount(n), sub = official(n), acad = kids(n).filter(k => k.from_directory);
-    const match = st.q && hits(n);
-    return `<button type="button" class="org-box ${tone(n)} ${cls || ''}${match ? ' hit' : ''}" data-id="${esc(n.id)}">
-      <span class="org-k"><i class="bi ${KIND[n.kind][1]}"></i> ${esc(kindLabel(n))}${dashMark(n)}</span>
-      <b class="org-n">${esc(n.name)}</b>
-      ${head(n, cls === 'mini')}
-      ${c || sub.length || acad.length ? `<span class="org-chips">${c ? `<span><i class="bi bi-people-fill"></i> ${c} في الدليل</span>` : ''}${sub.length ? `<span><i class="bi bi-diagram-3"></i> ${sub.length} ${sub.length > 10 || sub.length < 3 ? 'وحدة تابعة' : 'وحدات تابعة'}</span>` : ''}${acad.length ? `<span><i class="bi bi-journal-bookmark"></i> ${acad.length} ${acad.length > 10 || acad.length < 3 ? 'قسم أكاديمي' : 'أقسام أكاديمية'}</span>` : ''}</span>` : ''}
-    </button>`;
-  }
-  function subList(n) {
+  // the units under a box, folded under it (opened while searching)
+  function subs(n) {
     const sub = official(n).filter(subtreeHits);
     if (!sub.length) return '';
-    return `<ul class="org-sub">${sub.map(c => `<li><a href="#" data-id="${esc(c.id)}" class="${st.q && hits(c) ? 'hit' : ''}"><i class="bi ${KIND[c.kind][1]}"></i> ${esc(c.name)}${dashMark(c)}${headOf(c) ? `<small>${esc(headOf(c).name)}</small>` : ''}</a>${official(c).length ? `<ul>${official(c).map(g => `<li><a href="#" data-id="${esc(g.id)}"><i class="bi ${KIND[g.kind][1]}"></i> ${esc(g.name)}${dashMark(g)}</a></li>`).join('')}</ul>` : ''}</li>`).join('')}</ul>`;
+    const li = c => `<li><a href="#" data-id="${esc(c.id)}" class="${st.q && hits(c) ? 'hit' : ''}"><i class="bi ${KIND[c.kind][1]}"></i> ${esc(c.name)}${dashMark(c)}</a>${official(c).length ? `<ul>${official(c).map(li).join('')}</ul>` : ''}</li>`;
+    return `<details class="oc-sub"${st.q ? ' open' : ''}><summary>${sub.length} ${sub.length > 10 || sub.length < 3 ? 'وحدة تابعة' : 'وحدات تابعة'}</summary><ul>${sub.map(li).join('')}</ul></details>`;
+  }
+  // a tier of the trunk: the main box in the middle, the boxes attached to it on either side
+  function tier(main, start, end, note) {
+    const wing = (list, side, big) => `<div class="oc-wing ${side}"><div class="oc-stack${list.length > 1 ? ' many' : ''}">${list.map(n => big ? card(n, 'side') : `<button type="button" class="oc-pill${st.q && hits(n) ? ' hit' : ''}" data-id="${esc(n.id)}"><i class="bi ${KIND[n.kind][1]}"></i> ${esc(n.name)}${n.members ? ` <span class="org-pc-n">${n.members.length}</span>` : ''}</button>`).join('')}</div>${big && note ? `<small class="oc-note">${note}</small>` : ''}</div>`;
+    return `<div class="oc-tier">${wing(start, 's', false)}<div class="oc-mid">${card(main, 'big')}</div>${wing(end, 'e', true)}</div>`;
   }
   function chart() {
-    const b = D.tree, pres = BY.president, vp = BY['vp-academic'];
-    const side = (list, title) => `<div class="org-side"><small>${title}</small>${list.map(c => `<button type="button" class="org-pill${st.q && hits(c) ? ' hit' : ''}" data-id="${esc(c.id)}"><i class="bi ${KIND[c.kind][1]}"></i> ${esc(c.name)}${c.members ? ` <span class="org-pc-n">${c.members.length}</span>` : ''}</button>`).join('')}</div>`;
-    const top = `<section class="org-top">
-        <div class="org-row">${side(kids(b).filter(c => c.kind === 'committee'), 'لجان المجلس')}${box(b, 'big')}
-          <div class="org-side">${box(BY.audit, 'mini')}<small class="org-dash"><i class="bi bi-three-dots"></i> ترتبط برئيس الجامعة بخط متقطع</small></div></div>
-        <i class="org-v"></i>
-        <div class="org-row">${side(kids(pres).filter(c => c.kind === 'council'), 'المجالس')}${box(pres, 'big')}<div class="org-side">${box(vp, 'mini')}</div></div>
-        <i class="org-v"></i></section>`;
-    const groups = GROUPS.map(([title, icon, ids]) => {
+    const b = D.tree, pres = BY.president;
+    const top = `${tier(b, kids(b).filter(c => c.kind === 'committee'), [BY.audit], '<i class="bi bi-three-dots"></i> ترتبط برئيس الجامعة بخط متقطع')}
+      <i class="oc-stem"></i>
+      ${tier(pres, kids(pres).filter(c => c.kind === 'council'), [BY['vp-academic']])}
+      <i class="oc-stem"></i>`;
+    const cols = GROUPS.map(([title, icon, ids], i) => {
       const nodes = ids.map(id => BY[id]).filter(subtreeHits);
       if (!nodes.length) return '';
-      return `<section class="org-group"><h2><i class="bi ${icon}"></i> ${title} <span>${nodes.length}</span></h2>
-        <div class="org-grid">${nodes.map(n => `<div class="org-cell">${box(n)}${subList(n)}</div>`).join('')}</div></section>`;
+      return `<section class="oc-col${i === 1 ? ' acad' : ''}"><h2 class="oc-hd"><i class="bi ${icon}"></i> <span>${title}</span> <em>${nodes.length}</em></h2>
+        <ul class="oc-list">${nodes.map(n => `<li class="oc-it">${card(n)}${subs(n)}</li>`).join('')}</ul></section>`;
     }).join('');
-    return top + (groups || '<div class="alert alert-light border">لا نتائج لهذا البحث.</div>');
+    return `<div class="oc">${top}<div class="oc-cols">${cols || '<div class="alert alert-light border w-100">لا نتائج لهذا البحث.</div>'}</div></div>`;
   }
 
   // ------------------------------------------------------------------ tree view
