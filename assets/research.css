@@ -640,3 +640,17 @@ button.rs-chip.reset i { color: #a33; }
 .rs-nfac { font-size: 17px; font-weight: 800; paint-order: stroke; stroke: #fffdf8; stroke-width: 5px; opacity: .9; pointer-events: none; }
 .rs-fdot { display: inline-flex; align-items: center; gap: .3rem; font-size: .8rem; font-weight: 700; color: #33424a; }
 .rs-fdot::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--fc); }
+.rs-netwrap { display: grid; grid-template-columns: 1fr 320px; gap: .8rem; }
+@media (max-width: 992px) { .rs-netwrap { grid-template-columns: 1fr; } }
+.rs-npanel { background: #fff; border: 1px solid #e3d9c5; border-radius: 14px; padding: .9rem; max-height: 72vh; overflow: auto; box-shadow: var(--rs-shadow); display: flex; flex-direction: column; gap: .6rem; }
+.rs-npanel .empty { margin: auto; text-align: center; color: #4f5e64; display: flex; flex-direction: column; gap: .3rem; align-items: center; }
+.rs-npanel .empty i { font-size: 2rem; color: #b8892b; }
+.rs-npanel .hd { display: flex; gap: .6rem; align-items: center; } .rs-npanel .hd > div { display: flex; flex-direction: column; gap: .1rem; }
+.rs-npanel .hd b { color: #901d23; font-size: 1.02rem; } .rs-npanel .hd small { color: #4f5e64; }
+.rs-npanel .nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: .3rem; text-align: center; }
+.rs-npanel .nums div { background: #f8f3ea; border-radius: 10px; padding: .35rem .1rem; } .rs-npanel .nums b { display: block; color: #091b22; font-size: 1.1rem; } .rs-npanel .nums span { font-size: .7rem; color: #4f5e64; }
+.rs-npanel .nums div:nth-child(1) b { color: #901d23; } .rs-npanel .nums div:nth-child(2) b { color: #1d7a3e; } .rs-npanel .nums div:nth-child(3) b { color: #2b5ea7; } .rs-npanel .nums div:nth-child(4) b { color: #b8892b; }
+.rs-npanel .btns { display: flex; gap: .3rem; flex-wrap: wrap; }
+.rs-npanel .lst-h { font-weight: 800; color: #091b22; } .rs-npanel .lst-h i { color: #1f6f78; }
+.rs-npanel .lst a { display: flex; align-items: center; gap: .4rem; padding: .3rem .2rem; border-bottom: 1px dashed #eee7da; text-decoration: none; color: #091b22; font-size: .9rem; }
+.rs-npanel .lst a:hover { background: #f8eeee; } .rs-npanel .lst .n { flex: 1; } .rs-npanel .lst .w { background: #e3f3e8; color: #17663a; font-weight: 800; border-radius: 30px; padding: 0 .55rem; }
