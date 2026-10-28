@@ -153,6 +153,10 @@ def fake_http(method, url, tries=4, **kw):
             m = re.search(r'orcid:([\dX-]+)', flt)
             if m:
                 return Resp({'results': [{'id': 'https://openalex.org/' + p['pid'], 'orcid': p['orcid']} for p in people.values() if p['orcid'] == m.group(1)]})
+            if 'affiliations.institution.id' in flt and not q.get('search'):
+                return Resp({'results': [{'id': 'https://openalex.org/' + p['pid'], 'display_name': p['name_en'], 'display_name_alternatives': [],
+                                          'orcid': ('https://orcid.org/' + p['orcid']) if p['orcid'] else None, 'works_count': p['n']} for p in people.values()],
+                             'meta': {'next_cursor': None}})
             s = q.get('search', '')
             res = [{'id': 'https://openalex.org/' + p['pid'], 'display_name': p['name_en'], 'display_name_alternatives': [], 'orcid': ('https://orcid.org/' + p['orcid']) if p['orcid'] else None}
                    for p in people.values() if p['name_en'].lower().replace(' ', '') in s.replace(' ', '') or s.replace(' ', '') in p['name_en'].lower().replace(' ', '')]

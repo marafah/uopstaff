@@ -108,6 +108,8 @@ def http(method, url, tries=4, **kw):
     for i in range(tries):
         try:
             r = S.request(method, url, **kw)
+            if r.status_code == 429 and kw.get('params', {}).get('mailto'):
+                return r   # OpenAlex: oa_get() decides (rate limit vs. daily budget)
             if r.status_code in (429, 500, 502, 503, 504):
                 raise requests.HTTPError(f'{r.status_code}')
             return r
@@ -272,26 +274,64 @@ def uop_profile(member):
 
 
 # ------------------------------------------------------------------------------- 2. OpenAlex
+OA_STATE = {'down': False, 'calls': 0}
+
+
 def oa_get(path, params=None):
+    """GET from OpenAlex. Since 2026 OpenAlex meters use per day (a free API key gives 10x the keyless budget);
+    when the budget is spent it answers 429 for the rest of the day, so the run stops asking and reuses the
+    previous data instead of recording everyone as unmatched."""
+    if OA_STATE['down']:
+        return None
     params = dict(params or {})
     params['mailto'] = MAILTO
     if OA_KEY:
         params['api_key'] = OA_KEY
-    r = http('GET', OA + path, params=params)
-    time.sleep(0.12)  # stay well under the polite limit
-    if r is None or r.status_code != 200:
-        return None
-    try:
-        return r.json()
-    except ValueError:
-        return None
+    for attempt in range(4):
+        r = http('GET', OA + path, params=params)
+        OA_STATE['calls'] += 1
+        time.sleep(0.12 if OA_KEY else 0.15)  # under the per-second limit
+        if r is not None and r.status_code == 429:
+            ra = r.headers.get('Retry-After', '')
+            wait = int(ra) if ra.isdigit() else 4 * (attempt + 1)
+            if wait > 90 or attempt == 3:
+                OA_STATE['down'] = True
+                log(f'  ! OpenAlex limit reached after {OA_STATE["calls"]} calls (add an OPENALEX_API_KEY secret for a larger daily budget); '
+                    'the remaining researchers keep their previous OpenAlex data')
+                return None
+            time.sleep(wait)
+            continue
+        if r is None or r.status_code != 200:
+            return None
+        try:
+            return r.json()
+        except ValueError:
+            return None
+    return None
 
 
 AUTHOR_SELECT = 'id,display_name,display_name_alternatives,orcid,works_count,cited_by_count,summary_stats,last_known_institutions,affiliations'
 
 
-def oa_find_authors(prof, member, overrides):
-    """Return a list of OpenAlex author IDs for one researcher (several when OpenAlex split the profile)."""
+def uop_authors():
+    """Every OpenAlex author ever affiliated with the university, read once with cheap list calls
+    (OpenAlex charges text search 10x more than filtering), then matched to staff names locally."""
+    out, cursor = {}, '*'
+    while cursor and len(out) < 30000:
+        j = oa_get('authors', {'filter': f'affiliations.institution.id:{UOP_OA}', 'per_page': 200, 'cursor': cursor, 'select': AUTHOR_SELECT})
+        if not j or not j.get('results'):
+            break
+        for a in j['results']:
+            if a.get('id'):
+                a['_names'] = [n for n in [a.get('display_name')] + (a.get('display_name_alternatives') or []) if n]
+                out[a['id'].split('/')[-1]] = a
+        cursor = (j.get('meta') or {}).get('next_cursor')
+    log(f'OpenAlex: {len(out)} authors affiliated with the university')
+    return list(out.values())
+
+
+def oa_find_authors(prof, member, overrides, pool):
+    """Return (OpenAlex author IDs, how) for one researcher; several IDs when OpenAlex split the person."""
     ov = overrides.get(prof['uid']) or overrides.get(member.get('email', '').lower()) or {}
     if ov.get('openalex'):
         ids = ov['openalex'] if isinstance(ov['openalex'], list) else [ov['openalex']]
@@ -299,39 +339,32 @@ def oa_find_authors(prof, member, overrides):
     orcid = orcid_id(prof['links'].get('orcid', ''))
     found, how = [], ''
     if orcid:
-        j = oa_get('authors', {'filter': f'orcid:{orcid}', 'select': AUTHOR_SELECT})
-        if j and j.get('results'):
-            found = [a['id'].split('/')[-1] for a in j['results'] if a.get('id')]
+        found = [a['id'].split('/')[-1] for a in pool if a.get('orcid') and orcid_id(a['orcid']) == orcid]
+        if not found:
+            j = oa_get('authors', {'filter': f'orcid:{orcid}', 'select': AUTHOR_SELECT})
+            found = [a['id'].split('/')[-1] for a in (j or {}).get('results', []) if a.get('id')]
+        if found:
             how = 'orcid'
     name = member.get('name_en') or ''
-    if name:
-        cands, short_q = [], False
-        toks = name_key(name).split()
-        queries = [' '.join(toks)]
-        if len(toks) > 2:   # OpenAlex often keeps only first + family name ("Alaa Abu Samaha")
-            queries += [f'{toks[0]} {toks[-1]}', f'{toks[0]} {toks[1]} {toks[-1]}']
-        for q, flt in [(q, f) for q in queries for f in (f'affiliations.institution.id:{UOP_OA}', f'last_known_institutions.id:{UOP_OA}')]:
-            if cands and q != queries[0]:
-                break
-            j = oa_get('authors', {'search': q, 'filter': flt, 'per_page': 25, 'select': AUTHOR_SELECT})
-            for a in (j or {}).get('results', []):
-                if not a.get('id'):
-                    continue
-                names = [a.get('display_name') or ''] + (a.get('display_name_alternatives') or [])
-                sc = max(name_score(name, n or '') for n in names)
-                if a.get('orcid') and orcid and orcid_id(a['orcid']) != orcid:
-                    continue  # someone else's ORCID
-                cands.append((sc, a['id'].split('/')[-1]))
-                short_q = q != queries[0]
-        strong = sorted({c for c in cands if c[0] >= 0.86}, reverse=True)
-        for _, aid in strong:
-            if aid not in found:
-                found.append(aid)
-                how = how or ('name~' if short_q else 'name')
+    if name and pool:
+        nk = name_key(name)
+        cands = []
+        for a in pool:
+            if a.get('orcid') and orcid and orcid_id(a['orcid']) != orcid:
+                continue  # someone else's ORCID
+            full = max(difflib.SequenceMatcher(None, nk, name_key(n)).ratio() for n in a['_names'])
+            fl = max(name_score(name, n) for n in a['_names'])
+            if fl >= 0.78:
+                cands.append((full, fl, a.get('works_count') or 0, a['id'].split('/')[-1]))
+        strong = [c for c in cands if c[0] >= 0.86]            # same full name: also catches split profiles
+        for c in sorted(strong, reverse=True):
+            if c[3] not in found:
+                found.append(c[3])
+                how = how or 'name'
         if not found:
-            best = max(cands, default=(0, ''))
-            if best[0] >= 0.78:
-                found, how = [best[1]], 'name~'
+            loose = sorted([c for c in cands if c[1] >= 0.92], key=lambda c: (-c[1], -c[2]))
+            if loose:                                          # first + family name only: shown as "needs checking"
+                found, how = [loose[0][3]], 'name~'
     return found[:4], how
 
 
@@ -581,6 +614,12 @@ def main():
         cur['src'] = ''.join(sorted(set(cur.get('src', '') + w.get('src', ''))))
         return key
 
+    pool = uop_authors()
+    prev_works = defaultdict(list)
+    for w in (load_json(os.path.join(OUT, 'works.json'), {}) or {}).get('works', []):
+        for r_ in w.get('r', []):
+            prev_works[r_].append(w)
+
     def safe_works(prof, m, rid, oa_ids):
         try:
             return oa_works_for(oa_ids) if oa_ids else []
@@ -593,9 +632,26 @@ def main():
         if not prof:
             continue
         rid = short_id(prof['uid'])
-        oa_ids, how = oa_find_authors(prof, m, overrides)
-        works = safe_works(prof, m, short_id(prof['uid']), oa_ids)
+        old = prev_by_uid.get(prof['uid'], {})
+        reused = False
+        if OA_STATE['down'] and old.get('oa_ids'):
+            oa_ids, how, works, reused = old['oa_ids'], old.get('oa_match', ''), [], True
+        else:
+            oa_ids, how = oa_find_authors(prof, m, overrides, pool)
+            works = safe_works(prof, m, short_id(prof['uid']), oa_ids)
+            if OA_STATE['down'] and old.get('oa_ids'):   # the limit was hit during this researcher
+                oa_ids, how, works, reused = old['oa_ids'], old.get('oa_match', ''), [], True
         my_keys, topics, countries, coauth_ext, sdgs = [], Counter(), Counter(), Counter(), Counter()
+        if reused:   # keep last run's OpenAlex works for this researcher
+            for pw in prev_works.get(old.get('id', ''), []):
+                if 'o' not in (pw.get('src') or ''):
+                    continue
+                rec = {k: v for k, v in pw.items() if k != 'r'}
+                rec['src'], rec['nt'] = 'o', norm_title(rec.get('t'))
+                key = 'd:' + rec['doi'] if rec.get('doi') else 'w:' + (rec.get('oid') or rec['id'])
+                my_keys.append(add_work(key, rec, rid))
+                if rec.get('topic'):
+                    topics[(rec['topic'], rec.get('f', ''))] += 1
         for w in works:
             if not isinstance(w, dict):
                 continue
@@ -669,7 +725,10 @@ def main():
             if y:
                 by_year[int(y)][0] += 1
         # citations received per year: OpenAlex keeps it on the author records
-        if oa_ids:
+        if reused:
+            for y, v in (old.get('by_year') or {}).items():
+                by_year[int(y)][1] = v[1]
+        elif oa_ids:
             for aid in oa_ids:
                 a = oa_get(f'authors/{aid}', {'select': 'counts_by_year,display_name'}) or {}
                 for c in a.get('counts_by_year') or []:
@@ -679,7 +738,6 @@ def main():
         links = dict(prof['links'])
         sid = scopus_id(links.get('scopus', ''))
         gid = scholar_id(links.get('scholar', ''))
-        old = prev_by_uid.get(prof['uid'], {})
         fac = faculties.get(str(m.get('faculty')), {})
         r = {
             'id': rid, 'uid': prof['uid'], 'name': m.get('name', ''), 'name_en': m.get('name_en', ''),
@@ -708,7 +766,7 @@ def main():
         r['_keys'] = my_keys
         researchers.append(r)
         log(f'[{n}/{len(members)}] {r["name_en"] or r["name"]}: oa={",".join(oa_ids) or "-"} ({how or "no match"}) '
-            f'works={r["works"]} cites={r["cites"]} h={r["h"]} uop={r["uop_pubs"]}/{matched_uop}')
+            f'works={r["works"]} cites={r["cites"]} h={r["h"]} uop={r["uop_pubs"]}/{matched_uop}' + (' [previous OpenAlex data]' if reused else ''))
 
     # -- 3. Scopus documents (API or CSV export): flag works and add Scopus citation counts
     sc_rows = scopus_search_docs() + scopus_csv_rows()
@@ -796,6 +854,7 @@ def main():
         'researchers': len(covered), 'works': len(works_out),
         'with': {k: sum(1 for r in covered if r['links'].get(k)) for k in ('scholar', 'scopus', 'orcid', 'joip', 'researchgate')},
         'matched_openalex': sum(1 for r in covered if r['oa_ids']),
+        'openalex_calls': OA_STATE['calls'], 'openalex_limited': OA_STATE['down'],
         'scopus_mode': 'api' if SCOPUS_KEY else ('csv' if glob.glob(os.path.join(OUT, 'scopus_export', '*.csv')) else 'links'),
         'scholar_mode': 'serpapi' if SERPAPI_KEY else ('direct' if SCHOLAR_ON else 'off'),
         'scopus_affiliation': scopus_affiliation() or (prev.get('meta') or {}).get('scopus_affiliation'),
