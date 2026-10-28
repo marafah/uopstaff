@@ -98,3 +98,21 @@
   if (old) return;   // the page already has the research menu
   nav.insertBefore(menu('research.html', 'bi-mortarboard-fill', 'البحث العلمي', 'البحث', RS.map(r => li(...r)).join(''), rsHere), more);
 })();
+
+// ---------------------------------------------------------------- page title moved into the top bar (beside search) instead of
+// a separate dark band, to save vertical space; it goes back for printing
+(function () {
+  const hero = document.querySelector('.uop-hero'), bar = document.querySelector('.uop-topbar > .container-fluid');
+  const text = hero && hero.querySelector('.hero-text');
+  if (!hero || !bar || !text || hero.dataset.moved) return;
+  hero.dataset.moved = '1';
+  const row = text.parentElement, upd = hero.querySelector('.update-box');
+  const tools = bar.querySelector('.d-flex.align-items-center.gap-2');
+  const brk = document.createElement('div'); brk.className = 'bar-break';
+  const slot = document.createElement('div'); slot.className = 'bar-title';
+  const up = () => { slot.append(text); if (upd) slot.append(upd); bar.insertBefore(brk, tools); bar.insertBefore(slot, tools); hero.style.display = 'none'; };
+  const down = () => { row.prepend(text); if (upd) row.append(upd); hero.style.display = ''; };
+  up();
+  window.addEventListener('beforeprint', down);   // printouts keep the page title as before
+  window.addEventListener('afterprint', up);
+})();
