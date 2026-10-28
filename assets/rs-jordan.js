@@ -1,7 +1,7 @@
 /* jordan.html: compare Jordanian universities in Scopus by field, speciality, period, quartile, journals and collaboration */
 (async function () {
   'use strict';
-  const app = R.$('#rs-app');
+  const app = window.RS_JO_MOUNT || R.$('#rs-app');   // compare.html mounts this view inside its own page
   let C, D;
   try { [C, D] = await R.loadAll(['jordan/cube', 'jordan/unis']); } catch (e) { R.fail(app, e); return; }
   R.updated({ updated: C.cites_updated || C.updated });
@@ -76,33 +76,49 @@
     <div class="rs-chips" id="j-unis"></div>
   </section>
 
-  <section class="rs-section rs-card"><h3><i class="bi bi-table"></i>المقارنة <small class="fw-normal text-muted" id="j-scope"></small></h3>
-    <div class="rs-scroll"><table class="rs-table" id="j-table"></table></div>
-    <p class="rs-note mt-2 mb-0" id="j-hnote"></p></section>
+  <nav class="rs-tabs no-print" id="j-tabs">
+    <button data-t="overview"><i class="bi bi-speedometer2"></i> نظرة عامة</button><button data-t="charts"><i class="bi bi-bar-chart-line"></i> الرسوم البيانية</button>
+    <button data-t="tables"><i class="bi bi-table"></i> الجداول</button><button data-t="fields"><i class="bi bi-diagram-3"></i> المجالات والتخصصات</button>
+    <button data-t="journals"><i class="bi bi-journal-bookmark"></i> المجلات</button><button data-t="collab"><i class="bi bi-people"></i> التعاون</button>
+    <button data-t="quality"><i class="bi bi-shield-check"></i> جودة النشر</button><button data-t="gaps"><i class="bi bi-lightbulb"></i> فرص البترا</button>
+    <button data-t="all"><i class="bi bi-layout-text-window-reverse"></i> عرض الكل</button></nav>
 
-  <section class="rs-section rs-grid two">
+  <section data-tab="overview" class="rs-section"><div class="rs-scorecards" id="j-cards"></div></section>
+  <section data-tab="overview" class="rs-section rs-grid two">
+    <div class="rs-card"><h3><i class="bi bi-bullseye"></i>الملف البحثي <small class="fw-normal text-muted">كل مؤشر نسبةً لأعلى جامعة أردنية (100)</small></h3><div class="rs-chart tall"><canvas id="j-radar"></canvas></div></div>
+    <div class="rs-card"><h3><i class="bi bi-circle-half"></i>الحجم مقابل الأثر <small class="fw-normal text-muted">كل الجامعات · حجم الدائرة = h-index</small></h3><div class="rs-chart tall"><canvas id="j-bubble"></canvas></div></div>
+  </section>
+  <section data-tab="charts" class="rs-section rs-grid two">
     <div class="rs-card"><h3><i class="bi bi-graph-up"></i>الوثائق سنوياً</h3><div class="rs-chart"><canvas id="j-years"></canvas></div></div>
     <div class="rs-card"><h3><i class="bi bi-bar-chart-steps"></i>توزيع التصنيف Q1–Q4 <small class="fw-normal text-muted">نسبة من الوثائق المصنّفة</small></h3><div class="rs-chart"><canvas id="j-q"></canvas></div></div>
     <div class="rs-card"><h3><i class="bi bi-award"></i>الأثر: اقتباس لكل وثيقة</h3><div class="rs-chart"><canvas id="j-cpd"></canvas></div></div>
     <div class="rs-card"><h3><i class="bi bi-globe2"></i>الانفتاح: تعاون دولي ووصول مفتوح</h3><div class="rs-chart"><canvas id="j-open"></canvas></div></div>
   </section>
-
-  <section class="rs-section rs-card"><h3><i class="bi bi-sort-down"></i>ترتيب كل الجامعات الأردنية حسب
+  <section data-tab="charts" class="rs-section rs-card"><h3><i class="bi bi-sort-down"></i>ترتيب كل الجامعات الأردنية حسب
     <select id="j-metric" class="form-select form-select-sm d-inline-block w-auto">${Object.entries(M).map(([k, v]) => `<option value="${k}">${v[0]}</option>`).join('')}</select></h3>
     <div class="rs-chart" id="j-rank-wrap" style="height:${U.length * 22 + 60}px"><canvas id="j-rank"></canvas></div></section>
-
-  <section class="rs-section rs-card" id="j-fields-card"><h3><i class="bi bi-diagram-3"></i><span id="j-fields-title"></span></h3>
+  <section data-tab="tables" class="rs-section rs-card"><h3><i class="bi bi-table"></i>المقارنة <small class="fw-normal text-muted" id="j-scope"></small></h3>
+    <div class="rs-scroll"><table class="rs-table" id="j-table"></table></div>
+    <p class="rs-note mt-2 mb-0" id="j-hnote"></p></section>
+  <section data-tab="tables" class="rs-section rs-card"><h3><i class="bi bi-list-ol"></i>كل الجامعات الأردنية <small class="fw-normal text-muted">للفترة والمجال المختارين · اضغط عنوان العمود للترتيب</small>
+    <button class="btn btn-sm btn-rs-o ms-auto" id="j-csv"><i class="bi bi-download"></i> CSV</button></h3>
+    <div class="rs-scroll" style="max-height:620px"><table class="rs-table" id="j-alltable"></table></div></section>
+  <section data-tab="fields" class="rs-section rs-card"><h3><i class="bi bi-grid-3x3"></i>خريطة المجالات <small class="fw-normal text-muted">نسبة وثائق كل جامعة في كل مجال · الأغمق = تركيز أعلى · اضغط مجالاً لتصفية الصفحة</small></h3>
+    <div class="rs-scroll"><table class="rs-table rs-heatmap" id="j-heat"></table></div></section>
+  <section data-tab="fields" class="rs-section rs-card" id="j-fields-card"><h3><i class="bi bi-diagram-3"></i><span id="j-fields-title"></span></h3>
     <div class="rs-scroll"><table class="rs-table" id="j-fields"></table></div></section>
-
-  <section class="rs-section rs-grid wide">
+  <section data-tab="journals" class="rs-section rs-grid wide">
     <div class="rs-card"><h3><i class="bi bi-journal-bookmark"></i>أكثر المجلات نشراً <select id="j-ju" class="form-select form-select-sm d-inline-block w-auto"></select> <small class="fw-normal text-muted">كل السنوات</small></h3>
       <div class="rs-scroll" style="max-height:440px"><table class="rs-table" id="j-journals"></table></div></div>
+  </section>
+  <section data-tab="collab" class="rs-section rs-grid wide">
     <div class="rs-card"><h3><i class="bi bi-people"></i>التعاون بين الجامعات المختارة <small class="fw-normal text-muted">وثائق مشتركة، كل السنوات</small></h3>
       <div class="rs-scroll"><table class="rs-table rs-heat" id="j-matrix"></table></div>
       <h4 class="rs-sub mt-3">أكثر الدول تعاوناً</h4><div id="j-countries"></div></div>
   </section>
-
-  <section class="rs-section rs-card" id="j-gaps"><h3><i class="bi bi-lightbulb"></i>${esc(HOME.ar)}: الفجوات والفرص <small class="fw-normal text-muted">للفترة المختارة</small></h3>
+  <section data-tab="quality" class="rs-section rs-card" id="j-disc-card"><h3><i class="bi bi-shield-exclamation"></i>النشر في مجلات حذفها Scopus <small class="fw-normal text-muted">كل السنوات · مجلات نشرت فيها الجامعة 3 أبحاث أو أكثر</small></h3>
+    <div id="j-disc"><div class="rs-loading">جارٍ التحميل…</div></div></section>
+  <section data-tab="gaps" class="rs-section rs-card" id="j-gaps"><h3><i class="bi bi-lightbulb"></i>${esc(HOME.ar)}: الفجوات والفرص <small class="fw-normal text-muted">للفترة المختارة</small></h3>
     <div class="rs-grid wide">
       <div><h4 class="rs-sub">حصة المجالات مقارنة بالأردن</h4><div class="rs-chart tall"><canvas id="j-gap-areas"></canvas></div>
         <p class="rs-note">الأعمدة الحمراء: مجالات حصة البترا فيها أقل من الحصة الأردنية (فرص توسّع أو توظيف).</p></div>
@@ -143,6 +159,9 @@
     R.chart('j-cpd', { type: 'bar', data: { labels: sel.map(o => o.u.ar), datasets: [{ label: 'اقتباس لكل وثيقة', data: sel.map(o => +o.cpd.toFixed(2)), backgroundColor: sel.map((o, k) => color(o.u, k)), borderRadius: 4 }] }, options: { plugins: { legend: { display: false } } } });
     R.chart('j-open', { type: 'bar', data: { labels: sel.map(o => o.u.ar), datasets: [{ label: 'تعاون دولي %', data: sel.map(o => +(100 * o.intls).toFixed(1)), backgroundColor: '#1f6f78', borderRadius: 3 }, { label: 'وصول مفتوح %', data: sel.map(o => +(100 * o.oas).toFixed(1)), backgroundColor: '#b8892b', borderRadius: 3 }] }, options: { scales: { y: { ticks: { callback: v => v + '%' } } } } });
     rankChart();
+    overview(sel);
+    allTable();
+    heat();
     fields();
     journals();
     matrix();
@@ -179,7 +198,8 @@
     const list = (D.journals || []).filter(r => r[0] === u).sort((a, b) => b[2] - a[2]).slice(0, 40);
     R.$('#j-journals').innerHTML = `<thead><tr><th>المجلة / المصدر</th><th>التصنيف</th><th class="num">الوثائق</th><th class="num">اقتباس/وثيقة</th></tr></thead><tbody>
       ${list.map(r => { const m = D.jmeta[r[1]] || [D.jnames[r[1]] || r[1].replace(/^n:/, ''), '', 0, 0]; const isS = !String(r[1]).startsWith('n:');
-        return `<tr><td class="ltr">${isS ? `<a href="journals.html?id=${r[1]}">${esc(m[0])}</a>` : esc(m[0])}${m[3] ? ' <span class="rs-tag oa">OA</span>' : ''}</td><td>${R.qTag(m[1]) || '<small class="text-muted">—</small>'}</td><td class="num">${R.n(r[2])}</td><td class="num">${(r[3] / r[2]).toFixed(1)}</td></tr>`; }).join('')}</tbody>`;
+        const fl = FLAGS && isS ? FLAGS.verdict(FLAGS.F[r[1]] || null) : null;
+        return `<tr><td class="ltr">${isS ? `<a href="journals.html?id=${r[1]}">${esc(m[0])}</a>` : esc(m[0])}${m[3] ? ' <span class="rs-tag oa">OA</span>' : ''}${fl ? ` <span class="rs-tag ${fl[2]}" title="${esc(fl[1])}">${esc(fl[0])}</span>` : ''}</td><td>${R.qTag(m[1]) || '<small class="text-muted">—</small>'}</td><td class="num">${R.n(r[2])}</td><td class="num">${(r[3] / r[2]).toFixed(1)}</td></tr>`; }).join('')}</tbody>`;
   }
   function matrix() {
     const ids = D.matrix.ids, m = D.matrix.m, pos = Object.fromEntries(ids.map((a, i) => [a, i]));
@@ -206,7 +226,87 @@
         return `<tr><td class="ltr"><a href="experts.html?q=${encodeURIComponent(k)}" title="خبراء في هذا الموضوع">${esc(k)}</a></td><td class="num">${R.n(n)}</td><td class="num">×${g}</td><td class="num ${by[HOME.i] ? '' : 'text-danger fw-bold'}">${R.n(by[HOME.i] || 0)}</td><td><small>${esc(top)}</small></td></tr>`; }).join('')}</tbody>`;
   }
 
+  // ---------------------------------------------------------------- tabs
+  st.tab = R.param('tab') || R.store.get('rs-jo-tab', 'overview');
+  function showTab(t) {
+    st.tab = t; R.store.set('rs-jo-tab', t);
+    R.$$('#j-tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+    R.$$('[data-tab]', app).forEach(el => { el.hidden = t !== 'all' && el.dataset.tab !== t; });
+    const u = new URL(location); u.searchParams.set('tab', t); history.replaceState(null, '', u);
+  }
+  R.$('#j-tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; showTab(b.dataset.t); render(); });
+
+  // ---------------------------------------------------------------- overview: scorecards, radar, bubble
+  const RADAR = [['docs', 'الحجم'], ['cpd', 'الأثر'], ['h', 'h-index'], ['q12', 'Q1 و Q2'], ['intls', 'تعاون دولي'], ['oas', 'وصول مفتوح']];
+  function overview(sel) {
+    const all = S.out.filter(o => o.docs);
+    const rk = k => { const s2 = all.slice().sort((a, b) => (b[k] ?? -1) - (a[k] ?? -1)); return o => s2.indexOf(o) + 1; };
+    const R6 = Object.fromEntries(['docs', 'cpd', 'h', 'q12', 'intls'].map(k => [k, rk(k)]));
+    const card = (o, k) => `<div class="rs-scorecard${o.u.i === HOME.i ? ' home' : ''}" style="--c:${color(o.u, k)}">
+        <div class="hd"><b>${esc(o.u.ar)}</b><a href="${R.scopusOrgUrl(o.u.afid)}" target="_blank" rel="noopener" title="Scopus"><i class="bi bi-box-arrow-up-left"></i></a></div>
+        <div class="big">${R.n(o.docs)}<small>وثيقة · #${R6.docs(o)}</small></div>
+        <div class="rows">
+          <div><span>اقتباس/وثيقة</span><b>${o.cpd.toFixed(1)}</b><i>#${R6.cpd(o)}</i></div>
+          <div><span>h-index</span><b>${o.h == null ? '–' : R.n(o.h)}</b><i>${o.h == null ? '' : '#' + R6.h(o)}</i></div>
+          <div><span>Q1 و Q2</span><b>${pct(o.q12)}</b><i>#${R6.q12(o)}</i></div>
+          <div><span>تعاون دولي</span><b>${pct(o.intls)}</b><i>#${R6.intls(o)}</i></div>
+        </div>
+        <div class="bar" title="نسبة Q1/Q2/Q3/Q4">${['q1', 'q2', 'q3', 'q4'].map((q, j) => `<span style="flex:${o[q] || 0};background:${['#1d7a3e', '#1f6f78', '#b8892b', '#c75b12'][j]}"></span>`).join('')}</div></div>`;
+    R.$('#j-cards').innerHTML = sel.filter(o => o.docs).sort((a, b) => b.docs - a.docs).map(o => card(o, st.sel.indexOf(o.u.i))).join('') || '<div class="rs-empty">لا وثائق للفترة والمجال المختارين</div>';
+    if (R.$('#j-radar').closest('[hidden]')) return;
+    const mx = Object.fromEntries(RADAR.map(([k]) => [k, Math.max(1e-9, ...all.map(o => o[k] || 0))]));
+    R.chart('j-radar', { type: 'radar', data: { labels: RADAR.map(r => r[1]), datasets: sel.filter(o => o.docs).map(o => { const k = st.sel.indexOf(o.u.i); return { label: o.u.ar, data: RADAR.map(([key]) => +(100 * (o[key] || 0) / mx[key]).toFixed(1)), borderColor: color(o.u, k), backgroundColor: R.alpha(color(o.u, k), o.u.i === HOME.i ? .25 : .06), borderWidth: o.u.i === HOME.i ? 3 : 1.5, pointRadius: 2 }; }) },
+      options: { scales: { r: { min: 0, max: 100, ticks: { display: false }, pointLabels: { font: { size: 12, weight: 'bold' } } } } } });
+    R.chart('j-bubble', { type: 'bubble', data: { datasets: [{ label: 'الجامعات', data: all.map(o => ({ x: o.docs, y: +o.cpd.toFixed(2), r: Math.max(4, Math.sqrt(o.h || 1) * 1.8), o })),
+      backgroundColor: all.map(o => o.u.i === HOME.i ? R.alpha('#901d23', .85) : st.sel.includes(o.u.i) ? R.alpha('#b8892b', .7) : R.alpha('#1f6f78', .25)), borderColor: all.map(o => o.u.i === HOME.i ? '#901d23' : st.sel.includes(o.u.i) ? '#b8892b' : '#1f6f78') }] },
+      options: { plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.raw.o.u.ar}: ${R.n(c.raw.x)} وثيقة · ${c.raw.y} اقتباس/وثيقة · h ${c.raw.o.h ?? '–'}` } } },
+        scales: { x: { type: 'logarithmic', title: { display: true, text: 'عدد الوثائق (لوغاريتمي)' } }, y: { title: { display: true, text: 'اقتباس لكل وثيقة' } } },
+        onClick: (e, el) => { if (!el[0]) return; const i = all[el[0].index].u.i; if (!st.sel.includes(i)) { st.sel = st.sel.concat(i).slice(-8); chips(); render(); } } } });
+  }
+  // ---------------------------------------------------------------- all universities table
+  let allSort = 'docs';
+  function allTable() {
+    const cols = ['docs', 'cites', 'cpd', 'h', 'q1s', 'q12', 'intls', 'oas', 'confs'];
+    const L = S.out.filter(o => o.docs).sort((a, b) => (b[allSort] ?? -1) - (a[allSort] ?? -1));
+    const mx = Object.fromEntries(cols.map(k => [k, Math.max(1e-9, ...L.map(o => o[k] || 0))]));
+    R.$('#j-alltable').innerHTML = `<thead><tr><th class="num">#</th><th>الجامعة</th>${cols.map(k => `<th class="num${allSort === k ? ' sorted' : ''}" data-asort="${k}">${M[k][0]}</th>`).join('')}</tr></thead><tbody>
+      ${L.map((o, i) => `<tr class="${o.u.i === HOME.i ? 'me' : st.sel.includes(o.u.i) ? 'sel' : ''}"><td class="num">${i + 1}</td><td><b>${esc(o.u.ar)}</b></td>${cols.map(k => `<td class="num rs-barcell" style="--w:${o[k] == null ? 0 : (100 * o[k] / mx[k]).toFixed(0)}%">${M[k][1](o[k])}</td>`).join('')}</tr>`).join('')}</tbody>`;
+  }
+  // ---------------------------------------------------------------- field heat map (selected universities x fields)
+  function heat() {
+    if (R.$('#j-heat').closest('[hidden]')) return;
+    const t = {}, tot = {};
+    for (const r of C.area) { if (r[1] < st.from || r[1] > st.to || !st.sel.includes(r[0])) continue; t[r[0]] = t[r[0]] || {}; t[r[0]][r[2]] = (t[r[0]][r[2]] || 0) + r[3]; }
+    st.sel.forEach(i => { tot[i] = S.out[i].docs || 1; });
+    const areas = AREAS.map((a, k) => [k, st.sel.reduce((s2, i) => s2 + ((t[i] || {})[k] || 0) / tot[i], 0)]).sort((a, b) => b[1] - a[1]).map(x => x[0]);
+    const mx = Math.max(1e-9, ...st.sel.flatMap(i => areas.map(k => ((t[i] || {})[k] || 0) / tot[i])));
+    R.$('#j-heat').innerHTML = `<thead><tr><th>المجال</th>${st.sel.map(i => `<th class="num"><small>${esc(U[i].ar)}</small></th>`).join('')}</tr></thead><tbody>
+      ${areas.map(k => `<tr><td><a href="#" data-pick="${k}">${esc(R.areaAr(AREAS[k]))}</a></td>${st.sel.map(i => { const v = ((t[i] || {})[k] || 0) / tot[i]; const a = v / mx;
+        return `<td class="num" style="background:${R.alpha(i === HOME.i ? '#901d23' : '#1f6f78', .06 + .8 * a)};color:${a > .55 ? '#fff' : 'inherit'}" title="${R.n((t[i] || {})[k] || 0)} وثيقة">${v ? R.pct(v, 0) : '–'}</td>`; }).join('')}</tr>`).join('')}</tbody>`;
+  }
+  R.$('#j-alltable').addEventListener('click', e => { const th = e.target.closest('th[data-asort]'); if (th) { allSort = th.dataset.asort; allTable(); } });
+  R.$('#j-heat').addEventListener('click', e => { const a = e.target.closest('[data-pick]'); if (!a) return; e.preventDefault(); st.area = +a.dataset.pick; st.cat = -1; R.$('#j-area').value = st.area; R.$('#j-cat').innerHTML = catOpts(); showTab('fields'); render(); });
+  R.$('#j-csv').onclick = () => R.csv(S.out.filter(o => o.docs).map(o => ({ university: o.u.ar, university_en: o.u.en, from: st.from, to: st.to, field: st.cat >= 0 ? CATS[st.cat] : st.area >= 0 ? AREAS[st.area] : 'all',
+    documents: o.docs, citations: o.cites, citations_per_doc: o.cpd.toFixed(2), h_index: o.h ?? '', q1_share: o.q1s.toFixed(3), q1q2_share: o.q12.toFixed(3), international: o.intls.toFixed(3), open_access: o.oas.toFixed(3), conference_share: o.confs.toFixed(3), scopus: R.scopusOrgUrl(o.u.afid) })), `jordan-universities-${st.from}-${st.to}.csv`);
+
+  let FLAGS = null;
+  function disc() {
+    if (!FLAGS) return;
+    const tot = {}, bad = {}, top = {};
+    for (const r of D.journals || []) {
+      tot[r[0]] = (tot[r[0]] || 0) + r[2];
+      const f = FLAGS.F[r[1]];
+      if (f && f.d) { bad[r[0]] = (bad[r[0]] || 0) + r[2]; (top[r[0]] = top[r[0]] || []).push([f.t, r[2], f.dy || f.end || '']); }
+    }
+    const rows = U.map(u => ({ u, n: bad[u.i] || 0, s: (bad[u.i] || 0) / (U[u.i].size || 1) })).sort((a, b) => b.s - a.s);
+    R.$('#j-disc').innerHTML = `<div class="rs-scroll" style="max-height:460px"><table class="rs-table"><thead><tr><th>الجامعة</th><th class="num">أبحاث في مجلات محذوفة</th><th class="num">من كل أبحاثها</th><th>أكثر هذه المجلات</th></tr></thead><tbody>
+      ${rows.map(x => `<tr class="${x.u.i === HOME.i ? 'me' : ''}"><td><b>${esc(x.u.ar)}</b></td><td class="num">${R.n(x.n)}</td><td class="num">${R.pct(x.s, 1)}</td><td class="ltr"><small>${(top[x.u.i] || []).sort((a, b) => b[1] - a[1]).slice(0, 3).map(t => `${esc(t[0])} (${t[1]}${t[2] ? ', ' + t[2] : ''})`).join('<br>')}</small></td></tr>`).join('')}</tbody></table></div>
+      <p class="rs-note mt-2 mb-0">من قائمة Scopus الرسمية للمجلات المحذوفة (Discontinued). الأبحاث المنشورة قبل تاريخ الحذف تبقى في Scopus، لكن ارتفاع النسبة مؤشر جودة يستحق المراجعة. <a href="journals.html">تحقّق من أي مجلة قبل الإرسال</a>.</p>`;
+  }
+  R.scopusFlags().then(F => { FLAGS = F; disc(); journals(); }).catch(() => { R.$('#j-disc').innerHTML = '<div class="rs-note">تعذّر تحميل قائمة Scopus.</div>'; });
+
   chips();
+  showTab(st.tab);
   render();
   R.$('#j-unis').addEventListener('click', e => { const b = e.target.closest('[data-u]'); if (!b) return; const i = +b.dataset.u; st.sel = st.sel.includes(i) ? st.sel.filter(x => x !== i) : st.sel.concat(i).slice(-8); if (!st.sel.length) st.sel = [HOME.i]; chips(); render(); });
   R.$('#j-from').onchange = e => { st.from = +e.target.value; if (st.from > st.to) st.to = st.from; render(); };

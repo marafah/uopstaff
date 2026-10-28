@@ -20,12 +20,13 @@
 
   app.innerHTML = `
     <div class="d-flex flex-wrap gap-2 align-items-center mb-3 no-print">
-      <div class="rs-seg" id="c-mode"><button data-m="people">باحثون</button><button data-m="faculty">كليات</button><button data-m="dept">أقسام</button></div>
+      <div class="rs-seg" id="c-mode"><button data-m="people">باحثون</button><button data-m="faculty">كليات</button><button data-m="dept">أقسام</button><button data-m="uni">جامعات أردنية</button></div>
       <div class="rs-suggest flex-grow-1" style="max-width:520px"><input id="c-q" class="form-control" type="search" autocomplete="off"><div class="list" id="c-list"></div></div>
       <button class="btn btn-rs-o" id="c-share" title="انسخ رابط هذه المقارنة"><i class="bi bi-link-45deg"></i> رابط المقارنة</button>
     </div>
     <div class="rs-pick mb-3" id="c-slots"></div>
-    <div id="c-out"></div>`;
+    <div id="c-out"></div>
+    <div id="c-uni" hidden></div>`;
 
   // ------------------------------------------------------------------ groups (faculties / departments)
   const facs = R.faculties(list);
@@ -86,8 +87,25 @@
   function bestCls(vals, i, low) { const v = vals[i]; const best = low ? Math.min(...vals) : Math.max(...vals); return vals.length > 1 && v === best && v > 0 ? ' style="background:#e3f3e8;font-weight:800"' : ''; }
   function row(label, vals, fmt, src) { return `<tr><td>${label}${src ? ' ' + src : ''}</td>${vals.map((v, i) => `<td class="num"${bestCls(vals.map(x => +x || 0), i)}>${fmt ? fmt(v) : R.n(v)}</td>`).join('')}</tr>`; }
 
+  let uniLoaded = false;
+  function renderUni() {   // Jordanian universities: the full comparison view of jordan.html, inside this page
+    const box = R.$('#c-uni');
+    if (uniLoaded) return;
+    uniLoaded = true;
+    box.innerHTML = '<div class="rs-loading">جارٍ تحميل بيانات الجامعات الأردنية…</div>';
+    window.RS_JO_MOUNT = box;
+    const sc = document.createElement('script');
+    sc.src = 'assets/rs-jordan.js?v=' + ((document.querySelector('script[src*="rs-compare.js"]') || {}).src || '').split('v=')[1];
+    document.body.appendChild(sc);
+  }
   function render() {
     R.$$('#c-mode button').forEach(b => b.classList.toggle('on', b.dataset.m === mode));
+    const uni = mode === 'uni';
+    ['#c-out', '#c-slots'].forEach(s => { R.$(s).hidden = uni; });
+    R.$('.rs-suggest').style.display = uni ? 'none' : '';
+    R.$('#c-share').style.display = uni ? 'none' : '';
+    R.$('#c-uni').hidden = !uni;
+    if (uni) { const u = new URL(location); u.searchParams.set('mode', 'uni'); u.searchParams.delete('ids'); u.searchParams.delete('g'); history.replaceState(null, '', u); return renderUni(); }
     q.placeholder = mode === 'people' ? 'أضف باحثاً بالاسم أو التخصص… (حتى 4)' : mode === 'faculty' ? 'أضف كلية… (حتى 6)' : 'أضف قسماً… (حتى 6)';
     const u = new URL(location); u.searchParams.set('mode', mode);
     if (mode === 'people') { u.searchParams.set('ids', picks.join(',')); u.searchParams.delete('g'); } else { u.searchParams.set('g', groups.join('|')); u.searchParams.delete('ids'); }

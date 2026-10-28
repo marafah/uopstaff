@@ -131,6 +131,27 @@
   R.scopusSourceUrl = id => `https://www.scopus.com/sourceid/${id}`;
   R.sjrUrl = id => `https://www.scimagojr.com/journalsearch.php?q=${id}&tip=sid`;
   R.HOME_AFID = '60040839';
+  // Scopus status of a journal (official Scopus Source List): discontinued for quality reasons, or no longer covered
+  R.scopusFlags = async function () {
+    if (R._flags) return R._flags;
+    const F = (await R.load('scopus_flags')).flags || {};
+    const byIssn = {}, byTitle = {};
+    for (const [id, f] of Object.entries(F)) { f.id = id; (f.issn || []).forEach(i => { byIssn[i] = f; }); byTitle[R.norm(f.t)] = byTitle[R.norm(f.t)] || f; }
+    const find = (issns, title) => { for (const i of issns || []) { const k = String(i).replace('-', '').toUpperCase(); if (byIssn[k]) return byIssn[k]; } return title ? byTitle[R.norm(title)] : null; };
+    R._flags = { F, find,
+      verdict(f, year) {   // [label, explanation, level, discontinued?]
+        if (!f) return null;
+        const end = f.end || f.dy;
+        if (f.d) {
+          if (year && end && year <= end) return ['مجلة حذفها Scopus لاحقاً', `حذفها Scopus من قاعدته (Discontinued) بعد ${end}؛ هذا البحث نُشر قبل الحذف فيبقى مفهرساً`, 'warn', true];
+          return ['مجلة حذفها Scopus', `حذفها Scopus من قاعدته (Discontinued)${end ? '، آخر تغطية ' + end : ''}، غالباً لأسباب تتعلق بالجودة أو أخلاقيات النشر؛ ما يُنشر بعدها لا يُفهرس`, 'bad', true];
+        }
+        if (f.p) return ['تغيّر وضعها في Scopus', `توقفت تغطيتها${end ? ' بعد ' + end : ''} بسبب تغيير في سياسة المجلة (اسم أو ناشر أو نطاق)، لا لأسباب الجودة`, 'warn', false];
+        if (f.s === 'i' && (!year || !end || year > end)) return ['خارج تغطية Scopus', `لم تعد مفهرسة في Scopus${end ? ' منذ ' + end : ''}`, 'warn', false];
+        return null;
+      } };
+    return R._flags;
+  };
 
   R.pubHTML = function (w, opts) {
     opts = opts || {};
@@ -142,7 +163,7 @@
       ${w.au ? `<div class="a">${R.esc(w.au)}</div>` : ''}
       <div class="m">${w.y ? `<span class="rs-tag y">${w.y}</span>` : ''}${R.qTag(w.q)}${w.v ? `<span class="ltr">${R.esc(w.v)}</span>` : ''}
         <span class="rs-tag">${R.esc(R.typeAr(w.type))}</span>${R.isOA(w) ? `<span class="rs-tag oa"><i class="bi bi-unlock"></i> ${R.OA_AR[w.oa] || 'مفتوح'}</span>` : ''}
-        ${w.man ? '<span class="rs-tag man" title="صُحّحت بيانات هذا المنشور أو أُضيف يدوياً عبر ملف التعديلات"><i class="bi bi-pencil-square"></i> تعديل يدوي</span>' : ''}${w.fwci != null ? `<span class="rs-tag" title="مؤشر الاقتباس الموزون حسب المجال (1 = المتوسط العالمي)">FWCI ${w.fwci}</span>` : ''}${src}
+        ${w._flag ? `<span class="rs-tag bad" title="${R.esc(w._flag[1])}"><i class="bi bi-exclamation-octagon"></i> ${R.esc(w._flag[0])}</span>` : ''}${w.man ? '<span class="rs-tag man" title="صُحّحت بيانات هذا المنشور أو أُضيف يدوياً عبر ملف التعديلات"><i class="bi bi-pencil-square"></i> تعديل يدوي</span>' : ''}${w.fwci != null ? `<span class="rs-tag" title="مؤشر الاقتباس الموزون حسب المجال (1 = المتوسط العالمي)">FWCI ${w.fwci}</span>` : ''}${src}
         ${who.length && opts.showUop ? who.map(r => `<a class="rs-chip" href="${R.profileUrl(r)}">${R.esc(r.name)}</a>`).join('') : ''}</div>
       <div class="lnk"><a href="${R.docUrl(w)}" style="color:#901d23"><i class="bi bi-file-earmark-text"></i> التفاصيل</a>${R.workLinks(w)}</div>
     </article>`;

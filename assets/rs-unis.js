@@ -30,45 +30,62 @@
   const SM = { docs: ['وثائق Scopus', R.n], h: ['h-index', R.n], last5: ['وثائق آخر 5 سنوات', R.n], growth: ['النمو (5 سنوات)', v => (v >= 0 ? '+' : '') + R.pct(v)], oa: ['الوصول المفتوح', v => R.pct(v)] };
   const sRank = k => [...SU].sort((a, b) => b[k] - a[k]).findIndex(u => u === sUop) + 1;
   const scHTML = sUop ? `
-  <section class="rs-section"><h2><i class="bi bi-bar-chart-line"></i>حسب Scopus <small>المصدر المعتمد · ${SU.length} جامعة أردنية · يُحدَّث أسبوعياً</small></h2>
+  <section class="rs-section" data-tab="overview"><h2><i class="bi bi-bar-chart-line"></i>حسب Scopus <small>المصدر المعتمد · ${SU.length} جامعة أردنية · يُحدَّث أسبوعياً</small></h2>
     <div class="rs-kpis">${Object.entries(SM).map(([k, v], n) => `<div class="rs-kpi scopus"><div class="v">#${sRank(k)} <small class="fs-6 text-muted">من ${SU.length}</small></div><div class="l">${v[0]}</div><div class="d">جامعة البترا: <b>${v[1](sUop[k])}</b> ${R.srcBadge('تحقق', R.scopusOrgUrl(sUop.afid))}</div></div>`).join('')}</div>
   </section>
-  <section class="rs-section rs-card">
+  <section class="rs-section rs-card" data-tab="ranking">
     <h3><i class="bi bi-bar-chart"></i>ترتيب الجامعات في Scopus حسب <select id="s-metric" class="form-select form-select-sm d-inline-block w-auto">${Object.entries(SM).map(([k, v]) => `<option value="${k}">${v[0]}</option>`).join('')}</select> <small class="fw-normal text-muted">اضغط على جامعة لفتح صفحتها في Scopus</small></h3>
     <div class="rs-chart tall" style="height:${Math.max(380, SU.length * 22)}px"><canvas id="s-bar"></canvas></div>
   </section>
-  <section class="rs-section rs-grid wide">
-    <div class="rs-card"><h3><i class="bi bi-graph-up"></i>وثائق Scopus سنوياً <small class="fw-normal text-muted">البترا مقابل الجامعات المختارة أدناه</small></h3><div class="rs-chart"><canvas id="s-line"></canvas></div></div>
-    <div class="rs-card"><h3><i class="bi bi-diagram-2"></i>المجالات في Scopus: البترا مقابل <select id="s-vs" class="form-select form-select-sm d-inline-block w-auto">${SU.filter(u => u !== sUop).map(u => `<option value="${u.afid}">${R.esc(u.label)}</option>`).join('')}</select></h3>
+  <section class="rs-section rs-card" data-tab="trends"><h3><i class="bi bi-graph-up"></i>وثائق Scopus سنوياً <small class="fw-normal text-muted">البترا مقابل أقرب 4 جامعات حجماً</small></h3><div class="rs-chart"><canvas id="s-line"></canvas></div></section>
+  <section class="rs-section rs-grid wide" data-tab="fields">
+    <div class="rs-card rs-span-2"><h3><i class="bi bi-diagram-2"></i>المجالات في Scopus: البترا مقابل <select id="s-vs" class="form-select form-select-sm d-inline-block w-auto">${SU.filter(u => u !== sUop).map(u => `<option value="${u.afid}">${R.esc(u.label)}</option>`).join('')}</select></h3>
       <div class="rs-chart tall"><canvas id="s-fields"></canvas></div><p class="rs-note mb-0">النسبة من وثائق كل جامعة (قد تُصنَّف الوثيقة في أكثر من مجال).</p></div>
   </section>
-  <section class="rs-section rs-card"><h3><i class="bi bi-table"></i>الجامعات الأردنية في Scopus</h3>
+  <section class="rs-section rs-card" data-tab="table"><h3><i class="bi bi-table"></i>الجامعات الأردنية في Scopus <button class="btn btn-sm btn-rs-o ms-2 no-print" id="s-csv"><i class="bi bi-download"></i> CSV</button></h3>
     <div class="rs-scroll"><table class="rs-table" id="s-table"></table></div>
     <p class="rs-note mt-2 mb-0">الأعداد من واجهة Scopus الرسمية حسب رقم انتماء كل جامعة (AF-ID)؛ افتح رابط الجامعة للتحقق. h-index للمؤسسة محسوب من وثائقها الأعلى اقتباساً.</p>
   </section>
-  <h2 class="rs-h mt-4"><i class="bi bi-globe2"></i>مصدر مكمّل: OpenAlex <small>تغطية أوسع تشمل ما لا يفهرسه Scopus</small></h2>` : '';
+` : '';
 
-  app.innerHTML = scHTML + `
-  <section class="rs-section rs-kpis">
+  const OAH = t => `<h2 class="rs-h mt-4" data-tab="${t}"><i class="bi bi-globe2"></i>مصدر مكمّل: OpenAlex <small>تغطية أوسع تشمل ما لا يفهرسه Scopus</small></h2>`;
+  const pos = sUop ? Object.entries(SM).map(([k, v]) => { const r = sRank(k); return { k, l: v[0], r, pct: 100 * (SU.length - r) / Math.max(1, SU.length - 1), val: v[1](sUop[k]) }; }) : [];
+  const better = sUop ? SU.filter(u => u !== sUop && u.docs > sUop.docs).sort((a, b) => a.docs - b.docs).slice(0, 2) : [];
+  const worse = sUop ? SU.filter(u => u !== sUop && u.docs <= sUop.docs).sort((a, b) => b.docs - a.docs).slice(0, 2) : [];
+  const peerCard = (u, tag) => `<div class="rs-peer${u === sUop ? ' me' : ''}"><small>${tag}</small><b>${R.esc(u.label)}</b><div><span>${R.n(u.docs)} وثيقة</span><span>h ${u.h}</span><span>${R.pct(u.oa)} مفتوح</span></div><div class="g ${u.growth >= 0 ? 'up' : 'dn'}">${u.growth >= 0 ? '▲' : '▼'} ${R.pct(Math.abs(u.growth))} نمو</div></div>`;
+  const TABS = [['overview', 'bi-speedometer2', 'نظرة عامة'], ['ranking', 'bi-bar-chart', 'الترتيب'], ['trends', 'bi-graph-up', 'الاتجاهات'], ['fields', 'bi-diagram-2', 'المجالات'], ['table', 'bi-table', 'الجداول'], ['all', 'bi-grid-3x3', 'الكل']];
+  app.innerHTML = `
+  <nav class="rs-tabs no-print" id="u-tabs">${TABS.map(([k, i, t]) => `<button data-t="${k}"><i class="bi ${i}"></i> ${t}</button>`).join('')}
+    <span class="ms-auto d-flex gap-1 align-items-center small">${R.srcBadge('Scopus', R.scopusOrgUrl(meta.scopus_afid || '60040839'), 'bi-bar-chart-line')}${R.srcBadge('OpenAlex', R.oaInstUrl(uop.id), 'bi-globe2')}</span></nav>` + scHTML + (sUop ? `
+  <section class="rs-section rs-grid wide" data-tab="overview">
+    <div class="rs-card"><h3><i class="bi bi-bullseye"></i>موقع البترا في كل مؤشر <small class="fw-normal text-muted">طول الشريط = نسبة الجامعات التي تتقدم عليها البترا</small></h3>
+      <div class="rs-posbars">${pos.map(p => `<div><span>${p.l}</span><div class="bar"><i style="width:${p.pct.toFixed(0)}%"></i></div><b>#${p.r}</b><small>${p.val}</small></div>`).join('')}</div></div>
+    <div class="rs-card"><h3><i class="bi bi-people"></i>الجامعات الأقرب حجماً في Scopus</h3>
+      <div class="rs-peers">${better.reverse().map(u => peerCard(u, 'أكبر قليلاً')).join('')}${peerCard(sUop, 'جامعة البترا')}${worse.map(u => peerCard(u, 'أصغر قليلاً')).join('')}</div>
+      <p class="rs-note mb-0 mt-2">للمقارنة التفصيلية حسب المجال والفترة والربعية افتح <a href="jordan.html">مقارنة الجامعات الأردنية</a> أو <a href="simulator.html">محاكي التصنيفات</a>.</p></div>
+  </section>` : '') + OAH('overview') + `
+  <section class="rs-section rs-kpis" data-tab="overview">
     ${[['works', 'bi-journal-text'], ['cites', 'bi-quote'], ['h', 'bi-graph-up'], ['cpw', 'bi-award'], ['growth', 'bi-rocket-takeoff']].map(([k, i], n) => `
       <div class="rs-kpi ${['', 'gold', 'navy', 'teal', ''][n]}"><div class="v">#${rank(k)} <small class="fs-6 text-muted">من ${U.length}</small></div><div class="l"><i class="bi ${i}"></i>${metrics[k][0]}</div><div class="d">جامعة البترا: <b>${metrics[k][1](uop[k])}</b></div></div>`).join('')}
     <div class="rs-kpi"><div class="v" style="font-size:1rem">تحقّق</div><div class="d d-flex flex-column gap-1 mt-1">${R.srcBadge('البترا في OpenAlex', R.oaInstUrl(uop.id), 'bi-globe2')}${R.srcBadge('البترا في Scopus', R.scopusOrgUrl(meta.scopus_afid || '60040839'), 'bi-bar-chart-line')}</div></div>
   </section>
 
-  <section class="rs-section rs-card">
+  ${OAH('ranking')}<section class="rs-section rs-card" data-tab="ranking">
     <h3><i class="bi bi-bar-chart"></i>ترتيب الجامعات حسب <select id="u-metric" class="form-select form-select-sm d-inline-block w-auto">${Object.entries(metrics).map(([k, v]) => `<option value="${k}">${v[0]}</option>`).join('')}</select> ${R.srcBadge('OpenAlex', 'https://openalex.org/institutions?filter=country_code:JO', 'bi-globe2')}</h3>
     <div class="rs-chart tall" style="height:${Math.max(380, U.length * 22)}px"><canvas id="u-bar"></canvas></div>
   </section>
 
-  <section class="rs-section rs-grid wide">
+  ${OAH('trends')}<section class="rs-section rs-grid wide" data-tab="trends">
     <div class="rs-card rs-span-2"><h3><i class="bi bi-graph-up"></i>المنشورات سنوياً <small class="fw-normal text-muted">اختر الجامعات من القائمة أدناه</small></h3>
-      <div class="rs-chips mb-2" id="u-chips"></div><div class="rs-chart"><canvas id="u-line"></canvas></div></div>
-    <div class="rs-card"><h3><i class="bi bi-bullseye"></i>الحجم مقابل الأثر <small class="fw-normal text-muted">حجم الدائرة = h-index</small></h3><div class="rs-chart tall"><canvas id="u-bubble"></canvas></div></div>
-    <div class="rs-card"><h3><i class="bi bi-diagram-2"></i>المجالات: البترا مقابل <select id="u-vs" class="form-select form-select-sm d-inline-block w-auto">${U.filter(u => u.id !== uop.id).map(u => `<option value="${u.id}"${u.id === peers[0] ? ' selected' : ''}>${R.esc(u.label)}</option>`).join('')}</select></h3>
+      <div class="rs-chips mb-2" id="u-chips"></div><div class="rs-chart"><canvas id="u-line"></canvas></div></div></section>
+  <section class="rs-section rs-grid wide" data-tab="overview">
+    <div class="rs-card rs-span-2"><h3><i class="bi bi-bullseye"></i>الحجم مقابل الأثر (OpenAlex) <small class="fw-normal text-muted">حجم الدائرة = h-index</small></h3><div class="rs-chart tall"><canvas id="u-bubble"></canvas></div></div></section>
+  ${OAH('fields')}<section class="rs-section rs-grid wide" data-tab="fields">
+    <div class="rs-card rs-span-2"><h3><i class="bi bi-diagram-2"></i>المجالات: البترا مقابل <select id="u-vs" class="form-select form-select-sm d-inline-block w-auto">${U.filter(u => u.id !== uop.id).map(u => `<option value="${u.id}"${u.id === peers[0] ? ' selected' : ''}>${R.esc(u.label)}</option>`).join('')}</select></h3>
       <div class="rs-chart tall"><canvas id="u-fields"></canvas></div><p class="rs-note mb-0">النسبة من منشورات كل جامعة، لتُقارَن الجامعات المختلفة الحجم.</p></div>
   </section>
 
-  <section class="rs-section rs-card">
+  ${OAH('table')}<section class="rs-section rs-card" data-tab="table">
     <h3><i class="bi bi-table"></i>جدول الجامعات الأردنية</h3>
     <div class="rs-scroll"><table class="rs-table" id="u-table"></table></div>
     <p class="rs-note mt-2 mb-0">المصدر: OpenAlex لكل الجامعات بالطريقة نفسها، لذا المقارنة متّسقة. أرقام Scopus الرسمية للبترا على <a href="${R.scopusOrgUrl(meta.scopus_afid || '60040839')}" target="_blank" rel="noopener">صفحتها في Scopus</a>. النمو = منشورات آخر 5 سنوات مكتملة مقارنة بالخمس التي قبلها.</p>
@@ -120,11 +137,23 @@
     R.$('#s-metric').addEventListener('change', e => { sm = e.target.value; sBar(); });
     R.$('#s-vs').addEventListener('change', sFields);
     R.$('#s-table').addEventListener('click', e => { const t = e.target.closest('th[data-sort]'); if (t) { sk = t.dataset.sort; sTable(); } });
-    sBar(); sLine(); sFields(); sTable();
+    window.__sAll = () => { sBar(); sLine(); sFields(); sTable(); };
   }
+  let tab = R.param('tab') || R.store.get('rs-un-tab', 'overview');
+  if (!TABS.some(t => t[0] === tab)) tab = 'overview';
+  const draw = () => { bar(); line(); bubble(); fields(); table(); if (sUop) window.__sAll(); };
+  function showTab(t) {
+    tab = t; R.store.set('rs-un-tab', t);
+    R.$$('#u-tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+    R.$$('[data-tab]', app).forEach(el => { el.hidden = t !== 'all' && el.dataset.tab !== t; });
+    const u = new URL(location); u.searchParams.set('tab', t); history.replaceState(null, '', u);
+  }
+  R.$('#u-tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; showTab(b.dataset.t); draw(); });
+  if (sUop) R.$('#s-csv').addEventListener('click', () => R.csv([...SU].sort((a, b) => b.docs - a.docs).map(u => Object.assign({ university: u.label, name: u.name, afid: u.afid }, ...Object.keys(SM).map(k => ({ [k]: k === 'growth' || k === 'oa' ? +(u[k] * 100).toFixed(1) : u[k] })))), 'jordan-universities-scopus.csv'));
+  showTab(tab);
   R.$('#u-metric').addEventListener('change', e => { metric = e.target.value; bar(); });
   R.$('#u-chips').addEventListener('click', e => { const b = e.target.closest('[data-u]'); if (!b) return; const id = b.dataset.u; sel = sel.includes(id) ? sel.filter(x => x !== id) : sel.concat(id).slice(-8); line(); bar(); });
   R.$('#u-vs').addEventListener('change', fields);
   R.$('#u-table').addEventListener('click', e => { const t = e.target.closest('th[data-sort]'); if (t) { sortK = t.dataset.sort; table(); } });
-  bar(); line(); bubble(); fields(); table();
+  draw();
 })();
