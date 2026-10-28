@@ -29,14 +29,15 @@
     <div class="fld"><label for="ex-sort">ترتيب</label><select id="ex-sort" class="form-select"><option value="rel">الأقرب للموضوع</option><option value="c">الاقتباسات</option><option value="docs">الوثائق</option><option value="d5">النشاط (آخر 5 سنوات)</option></select></div>
     <div class="btns"><button class="btn btn-rs-o" id="ex-csv"><i class="bi bi-download"></i> CSV</button></div>
   </div><label class="form-check mt-2"><input class="form-check-input" type="checkbox" id="ex-act" checked> <span class="form-check-label">نشطون فقط (نشروا خلال آخر 3 سنوات)</span></label></section>
-  <section class="rs-section no-print"><div class="small text-muted mb-1">موضوعات شائعة:</div><div class="rs-chips" id="ex-pop">${popular.map(k => `<button class="rs-chip soft" data-kw="${esc(k)}"><span class="ltr">${esc(k)}</span></button>`).join('')}</div></section>
-  <section class="rs-section rs-grid two" id="ex-viz">
+  <nav class="rs-tabs no-print" id="ex-tabs"><button data-t="res" class="on"><i class="bi bi-person-badge-fill"></i> الخبراء</button><button data-t="viz"><i class="bi bi-bar-chart-fill"></i> تحليلات</button><button data-t="top"><i class="bi bi-tags-fill"></i> الموضوعات</button></nav>
+  <section class="rs-section rs-card no-print" data-tab="top"><div class="rs-sec-label"><i class="bi bi-fire"></i> أكثر الموضوعات شيوعاً بين الباحثين الأردنيين <small class="text-muted fw-normal">اضغط موضوعاً لعرض خبرائه</small></div><div class="rs-chips" id="ex-pop">${popular.map(k => `<button class="rs-chip soft" data-kw="${esc(k)}"><span class="ltr">${esc(k)}</span></button>`).join('')}</div></section>
+  <section class="rs-section rs-grid two" id="ex-viz" data-tab="viz top">
     <div class="rs-card"><h3><i class="bi bi-bank"></i>الخبراء حسب الجامعة <small class="fw-normal text-muted">للبحث الحالي</small></h3><div class="rs-chart short"><canvas id="ex-ch-u"></canvas></div></div>
     <div class="rs-card"><h3><i class="bi bi-diagram-2"></i>موضوعات قريبة <small class="fw-normal text-muted">تظهر مع بحثك · اضغط لتضييق النتائج</small></h3><div class="rs-chips" id="ex-rel"></div></div>
   </section>
-  <div class="d-flex flex-wrap gap-2 align-items-center mb-2"><div class="d-flex flex-wrap gap-2 align-items-center" id="ex-sum"></div>
+  <div data-tab="res"><div class="d-flex flex-wrap gap-2 align-items-center mb-2"><div class="d-flex flex-wrap gap-2 align-items-center" id="ex-sum"></div>
     <div class="rs-seg ms-auto no-print" id="ex-view"><button data-v="cards"><i class="bi bi-person-badge"></i> بطاقات</button><button data-v="table"><i class="bi bi-table"></i> جدول</button></div></div>
-  <div id="ex-out"></div><div class="rs-pager" id="ex-pager"></div>
+  <div id="ex-out"></div><div class="rs-pager" id="ex-pager"></div></div>
   <p class="rs-note mt-3">من تصدير Scopus لكل الجامعات الأردنية (${esc(E.updated)}). الجامعة = أكثر انتماء ظهر في وثائق الباحث. الموضوعات = أكثر كلماته المفتاحية. افتح ملف Scopus للتحقق قبل التواصل.</p>`;
   function filtered() {
     const q = R.norm(st.q).split(' ').filter(Boolean);
@@ -92,8 +93,12 @@
   R.$('#ex-min').onchange = e => { st.min = +e.target.value; st.page = 0; render(); };
   R.$('#ex-sort').onchange = e => { st.sort = e.target.value; render(); };
   R.$('#ex-act').onchange = e => { st.active = e.target.checked; st.page = 0; render(); };
+  let tab = 'res';
+  const showTab = t => { tab = t; R.$$('#ex-tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t)); R.$$('[data-tab]', app).forEach(el => { el.hidden = !el.dataset.tab.split(' ').includes(t); }); if (t !== 'res') render(); };
+  R.$('#ex-tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (b) showTab(b.dataset.t); });
+  showTab('res');
   R.$('#ex-view').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; st.view = b.dataset.v; R.store.set('rs-ex-view', st.view); st.page = 0; render(); });
-  app.addEventListener('click', e => { const b = e.target.closest('[data-kw]'); if (!b) return; e.preventDefault();
+  app.addEventListener('click', e => { const b = e.target.closest('[data-kw]'); if (!b) return; e.preventDefault(); if (!b.dataset.add) showTab('res');
     st.q = b.dataset.add && st.q ? st.q + ' ' + b.dataset.kw : b.dataset.kw; R.$('#ex-q').value = st.q; st.page = 0; render(); window.scrollTo({ top: R.$('#ex-sum').getBoundingClientRect().top + scrollY - 140, behavior: 'smooth' }); });
   R.$('#ex-pager').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (b) { st.page = +b.dataset.p; render(); } });
   R.$('#ex-csv').onclick = () => R.csv(filtered().map(r => ({ name: r.n, university: UN[r.u] || r.u, documents: r.docs, last_5_years: r.d5, citations: r.c, last_year: r.last, topics: r.kw, scopus: 'https://www.scopus.com/authid/detail.uri?authorId=' + r.sid })), 'jordan-experts.csv');

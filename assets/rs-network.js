@@ -27,8 +27,10 @@
     <div class="fld"><label class="form-check-label" for="n-cross">&nbsp;</label><div class="form-check mt-1"><input class="form-check-input" type="checkbox" id="n-cross"><label class="form-check-label small" for="n-cross">بين الكليات فقط</label></div></div>
   </div>
   <div class="rs-legend mb-2" id="n-legend">${facs.map(f => `<span data-f="${R.esc(f)}"><i style="background:${R.facColor(f)}"></i>${R.esc(f)}</span>`).join('')}</div>
+  <div class="rs-netbar no-print"><div class="st" id="n-stats"></div>
+    <div class="btns"><button class="rs-nbtn" id="n-zin" title="تكبير"><i class="bi bi-zoom-in"></i></button><button class="rs-nbtn" id="n-zout" title="تصغير"><i class="bi bi-zoom-out"></i></button><button class="rs-nbtn" id="n-fit" title="ملاءمة الشاشة"><i class="bi bi-arrows-fullscreen"></i></button><button class="rs-nbtn" id="n-lab" title="إظهار كل الأسماء"><i class="bi bi-fonts"></i> الأسماء</button></div></div>
   <div class="rs-net" id="n-box"><svg id="n-svg"></svg><div class="tip" id="n-tip"></div></div>
-  <p class="rs-note mt-2">حجم الدائرة = عدد المنشورات، وسُمك الخط = عدد الأبحاث المشتركة. اسحب الدوائر، وقرّب بعجلة الفأرة، وانقر على باحث لفتح ملفه.</p>
+  <p class="rs-note mt-2"><i class="bi bi-info-circle-fill" style="color:#2b5ea7"></i> حجم الدائرة = عدد المنشورات · سُمك الخط = عدد الأبحاث المشتركة · لون الخط = لون الكلية للتعاون داخلها، ورمادي-أزرق للتعاون بين كليتين · تظهر أسماء الأكثر تعاوناً، ومرّر الفأرة على أي باحث لرؤية شركائه، وانقر لفتح ملفه.</p>
   <section class="rs-section rs-grid">
     <div class="rs-card"><h3><i class="bi bi-people"></i>أقوى ثنائيات التعاون</h3><div class="rs-scroll" style="max-height:420px"><table class="rs-table"><tbody>
       ${[...edgesAll].sort((a, b) => b.w - a.w).slice(0, 25).map(e => `<tr><td><a href="${R.profileUrl(byId[e.source])}">${R.esc(byId[e.source].name)}</a></td><td><i class="bi bi-arrow-left-right text-muted"></i></td><td><a href="${R.profileUrl(byId[e.target])}">${R.esc(byId[e.target].name)}</a></td><td class="num"><b>${e.w}</b></td><td><a class="rs-src" href="compare.html?ids=${e.source},${e.target}">قارن</a></td></tr>`).join('')}</tbody></table></div></div>
@@ -44,7 +46,15 @@
   if (!window.d3) { R.$('#n-box').innerHTML = '<div class="rs-empty">تعذّر تحميل مكتبة الرسم</div>'; return; }
   const svg = d3.select('#n-svg'), tip = R.$('#n-tip');
   const g = svg.append('g');
-  svg.call(d3.zoom().scaleExtent([.2, 6]).on('zoom', e => g.attr('transform', e.transform)));
+  const zoom = d3.zoom().scaleExtent([.2, 6]).on('zoom', e => g.attr('transform', e.transform));
+  svg.call(zoom).on('dblclick.zoom', null);
+  let labelsAll = false;
+  function fit(N, W, H, rad) {
+    const xs = N.map(d => d.x), ys = N.map(d => d.y), pad = 40;
+    const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad, y0 = Math.min(...ys) - pad, y1 = Math.max(...ys) + pad + 16;
+    const k = Math.min(2, .95 * Math.min(W / (x1 - x0), H / (y1 - y0)));
+    svg.call(zoom.transform, d3.zoomIdentity.translate(W / 2, H / 2).scale(k).translate(-(x0 + x1) / 2, -(y0 + y1) / 2));
+  }
   const hidden = new Set();
   let sim;
 
@@ -59,32 +69,56 @@
     g.selectAll('*').remove();
     if (sim) sim.stop();
     if (!N.length) { g.append('text').attr('x', W / 2).attr('y', H / 2).attr('text-anchor', 'middle').attr('fill', '#888').text('لا توجد روابط بهذه الشروط'); return; }
-    const rad = d => 4 + Math.sqrt(d.r.works || 1) * 1.6;
-    const link = g.append('g').attr('stroke', '#9c958a').attr('stroke-opacity', .45).selectAll('line').data(E).join('line').attr('stroke-width', d => Math.min(8, .8 + d.w * .9));
+    const maxW = Math.max(1, ...N.map(d => d.r.works || 1));
+    const rad = d => 6 + 16 * Math.sqrt((d.r.works || 1) / maxW);
+    const deg = {}; E.forEach(e => { deg[e.source] = (deg[e.source] || 0) + e.w; deg[e.target] = (deg[e.target] || 0) + e.w; });
+    const q = R.norm(R.$('#n-q').value);
+    const hit = d => q && d.r._q.includes(q);
+    const topIds = new Set(N.slice().sort((a, b) => (deg[b.id] || 0) - (deg[a.id] || 0)).slice(0, labelsAll ? N.length : Math.min(30, Math.ceil(N.length * .35))).map(d => d.id));
+    const short = d => d.r.name.replace(/^(أ\.?\s*د\.?|د\.|أ\.|م\.)\s*/, '').split(/\s+/).slice(0, 2).join(' ');
+    const mw = Math.max(1, ...E.map(e => e.w));
+    const link = g.append('g').attr('fill', 'none').selectAll('path').data(E).join('path')
+      .attr('stroke', e => byId[e.source].faculty === byId[e.target].faculty ? R.facColor(byId[e.source].faculty) : '#7d8f99')
+      .attr('stroke-opacity', .35).attr('stroke-width', d => 1 + 5 * Math.sqrt(d.w / mw)).attr('stroke-linecap', 'round');
     const node = g.append('g').selectAll('g').data(N).join('g').style('cursor', 'pointer');
-    node.append('circle').attr('r', rad).attr('fill', d => R.facColor(d.r.faculty)).attr('stroke', '#fff').attr('stroke-width', 1.5);
-    node.append('text').text(d => d.r.name.replace(/^(أ\.?\s*د\.?|د\.|أ\.)\s*/, '').split(/\s+/).slice(0, 2).join(' ')).attr('font-size', 10).attr('dy', d => rad(d) + 11).attr('text-anchor', 'middle').attr('fill', '#333').style('pointer-events', 'none').style('display', N.length > 120 ? 'none' : null);
+    node.append('circle').attr('r', rad).attr('fill', d => R.facColor(d.r.faculty)).attr('fill-opacity', .92)
+      .attr('stroke', d => hit(d) ? '#ffd34d' : '#fff').attr('stroke-width', d => hit(d) ? 5 : 2);
+    node.filter(d => d.r.photo && rad(d) >= 14).append('clipPath').attr('id', d => 'cp' + d.id).append('circle').attr('r', d => rad(d) - 2);
+    node.filter(d => d.r.photo && rad(d) >= 14).append('image').attr('href', d => d.r.photo).attr('x', d => -rad(d) + 2).attr('y', d => -rad(d) + 2).attr('width', d => 2 * rad(d) - 4).attr('height', d => 2 * rad(d) - 4).attr('clip-path', d => `url(#cp${d.id})`).attr('preserveAspectRatio', 'xMidYMid slice').style('pointer-events', 'none');
+    const lab = node.append('text').text(short).attr('class', 'rs-nlab').attr('dy', d => rad(d) + 14).attr('text-anchor', 'middle')
+      .style('display', d => topIds.has(d.id) || hit(d) ? null : 'none');
     const nb = {}; E.forEach(e => { (nb[e.source] = nb[e.source] || new Set()).add(e.target); (nb[e.target] = nb[e.target] || new Set()).add(e.source); });
     node.on('mouseenter', (ev, d) => {
-      node.style('opacity', o => o.id === d.id || (nb[d.id] && nb[d.id].has(o.id)) ? 1 : .15);
-      link.style('stroke-opacity', l => l.source.id === d.id || l.target.id === d.id ? .9 : .05);
-      tip.style.display = 'block';
-      tip.innerHTML = `<b>${R.esc(d.r.name)}</b><br>${R.esc(d.r.dept)}<br>${d.r.works} منشور · h ${d.r.h} · ${(nb[d.id] || new Set()).size} شريك`;
-    }).on('mousemove', ev => { const b = R.$('#n-box').getBoundingClientRect(); tip.style.left = (ev.clientX - b.left + 12) + 'px'; tip.style.top = (ev.clientY - b.top + 12) + 'px'; })
-      .on('mouseleave', () => { node.style('opacity', 1); link.style('stroke-opacity', null); tip.style.display = 'none'; })
-      .on('click', (ev, d) => { location.href = R.profileUrl(d.r); });
-    node.call(d3.drag().on('start', (ev, d) => { if (!ev.active) sim.alphaTarget(.3).restart(); d.fx = d.x; d.fy = d.y; })
+      const on = o => o.id === d.id || (nb[d.id] && nb[d.id].has(o.id));
+      node.style('opacity', o => on(o) ? 1 : .12);
+      lab.style('display', o => on(o) ? null : 'none');
+      link.attr('stroke-opacity', l => l.source.id === d.id || l.target.id === d.id ? .9 : .04);
+      tip.style.display = 'flex';
+      tip.innerHTML = `<b>${R.esc(d.r.name)}</b><span class="f" style="--fc:${R.facColor(d.r.faculty)}">${R.esc(d.r.faculty)}</span><small>${R.esc(d.r.dept)}</small><div class="nn"><span><b>${d.r.works}</b> منشور</span><span><b>${d.r.h}</b> h</span><span><b>${(nb[d.id] || new Set()).size}</b> شريك</span><span><b>${deg[d.id] || 0}</b> بحث مشترك</span></div>`;
+    }).on('mousemove', ev => { const b = R.$('#n-box').getBoundingClientRect(); tip.style.left = Math.min(b.width - 250, ev.clientX - b.left + 14) + 'px'; tip.style.top = (ev.clientY - b.top + 14) + 'px'; })
+      .on('mouseleave', () => { node.style('opacity', 1); lab.style('display', d => topIds.has(d.id) || hit(d) ? null : 'none'); link.attr('stroke-opacity', .35); tip.style.display = 'none'; })
+      .on('click', (ev, d) => { if (ev.defaultPrevented) return; location.href = R.profileUrl(d.r); });
+    const curve = d => { const dx = d.target.x - d.source.x, dy = d.target.y - d.source.y, dr = Math.sqrt(dx * dx + dy * dy) * 1.6; return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`; };
+    const tick = () => { link.attr('d', curve); node.attr('transform', d => `translate(${d.x},${d.y})`); };
+    sim = d3.forceSimulation(N).force('link', d3.forceLink(E).id(d => d.id).distance(l => 60 + 50 / Math.sqrt(l.w)).strength(.35))
+      .force('charge', d3.forceManyBody().strength(d => -230 - 14 * rad(d)))
+      .force('collide', d3.forceCollide().radius(d => rad(d) + (topIds.has(d.id) ? 18 : 6)).iterations(3))
+      .force('x', d3.forceX(W / 2).strength(.05)).force('y', d3.forceY(H / 2).strength(.07)).stop();
+    for (let k = 0; k < 400; k++) sim.tick();   // settle before showing: no jumping
+    tick(); fit(N, W, H, rad);
+    sim.on('tick', tick);
+    node.call(d3.drag().on('start', (ev, d) => { if (!ev.active) sim.alphaTarget(.2).restart(); d.fx = d.x; d.fy = d.y; })
       .on('drag', (ev, d) => { d.fx = ev.x; d.fy = ev.y; }).on('end', (ev, d) => { if (!ev.active) sim.alphaTarget(0); d.fx = null; d.fy = null; }));
-    sim = d3.forceSimulation(N).force('link', d3.forceLink(E).id(d => d.id).distance(l => 70 / Math.sqrt(l.w)).strength(.6))
-      .force('charge', d3.forceManyBody().strength(-90)).force('center', d3.forceCenter(W / 2, H / 2)).force('collide', d3.forceCollide().radius(d => rad(d) + 3))
-      .force('x', d3.forceX(W / 2).strength(.04)).force('y', d3.forceY(H / 2).strength(.04))
-      .on('tick', () => { link.attr('x1', d => d.source.x).attr('y1', d => d.source.y).attr('x2', d => d.target.x).attr('y2', d => d.target.y); node.attr('transform', d => `translate(${d.x},${d.y})`); });
-    const q = R.norm(R.$('#n-q').value);
-    if (q) node.select('circle').attr('stroke', d => d.r._q.includes(q) ? '#000' : '#fff').attr('stroke-width', d => d.r._q.includes(q) ? 4 : 1.5);
+    R.$('#n-stats').innerHTML = `<span><i class="bi bi-person-circle"></i> <b>${N.length}</b> باحث</span><span><i class="bi bi-share-fill"></i> <b>${E.length}</b> رابط تعاون</span><span><i class="bi bi-journal-text"></i> <b>${E.reduce((t, e) => t + e.w, 0)}</b> بحث مشترك</span><span><i class="bi bi-arrow-left-right"></i> <b>${E.filter(e => e.source.r.faculty !== e.target.r.faculty).length}</b> بين كليات</span>`;
+    if (q) { const f = N.filter(hit); if (f.length) { const d = f[0]; svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(W / 2, H / 2).scale(2).translate(-d.x, -d.y)); } }
   }
   ['#n-fac', '#n-min', '#n-cross'].forEach(s => R.$(s).addEventListener('change', draw));
   R.$('#n-q').addEventListener('input', R.debounce(draw, 300));
   R.$('#n-legend').addEventListener('click', e => { const s = e.target.closest('[data-f]'); if (!s) return; const f = s.dataset.f; hidden.has(f) ? hidden.delete(f) : hidden.add(f); s.classList.toggle('off', hidden.has(f)); draw(); });
+  R.$('#n-zin').onclick = () => svg.transition().call(zoom.scaleBy, 1.4);
+  R.$('#n-zout').onclick = () => svg.transition().call(zoom.scaleBy, 1 / 1.4);
+  R.$('#n-fit').onclick = draw;
+  R.$('#n-lab').onclick = e => { labelsAll = !labelsAll; e.currentTarget.classList.toggle('on', labelsAll); draw(); };
   draw();
   window.addEventListener('resize', R.debounce(draw, 400));
 })();

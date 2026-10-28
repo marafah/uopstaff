@@ -57,30 +57,38 @@
     R.$('#rp-body').innerHTML = `
     <section class="rs-section rs-card rs-doc-head"><h2 class="title">${esc(title)}</h2>
       <div class="text-muted small">أُعدّ تلقائياً من Scopus و Web of Science و OpenAlex وصفحات المدرسين · ${m === months[0] ? 'الشهر الحالي لم يكتمل بعد' : 'شهر مكتمل'}</div></section>
-    <section class="rs-section rs-kpis">
+    <nav class="rs-tabs no-print" id="rp-tabs"><button data-t="sum"><i class="bi bi-speedometer2"></i> الملخص</button><button data-t="pubs"><i class="bi bi-journal-plus"></i> المنشورات الجديدة <span class="rs-cnt">${R.n(neu.length)}</span></button><button data-t="cites"><i class="bi bi-fire"></i> الاقتباسات</button><button data-t="people"><i class="bi bi-people-fill"></i> الباحثون <span class="rs-cnt">${R.n(active.length)}</span></button><button data-t="all"><i class="bi bi-printer"></i> التقرير كاملاً</button></nav>
+    <section class="rs-section rs-kpis" data-tab="sum">
       <div class="rs-kpi"><div class="v">${R.n(neu.length)}</div><div class="l"><i class="bi bi-journal-plus"></i>منشور جديد</div><div class="d">${prevN ? `${neu.length >= prevN ? '<span class="up">▲' : '<span class="down">▼'} ${R.n(Math.abs(neu.length - prevN))}</span> عن ${fmt(pm)}` : `الشهر السابق: ${R.n(prevN)}`}</div></div>
       <div class="rs-kpi scopus"><div class="v">${R.n(inSc)}</div><div class="l"><i class="bi bi-bar-chart-line"></i>منها في Scopus</div><div class="d">${R.n(q12)} في Q1 و Q2 · ${R.n(intl)} بتعاون دولي</div></div>
       <div class="rs-kpi gold"><div class="v">${sNow && sPrev ? '+' + R.n(gainSc) : '–'}</div><div class="l"><i class="bi bi-graph-up-arrow"></i>اقتباس Scopus جديد خلال الشهر</div><div class="d">${sNow && sPrev ? `OpenAlex: +${R.n(gainOa)}` : 'يبدأ الحساب بعد لقطتين شهريتين (تُسجَّل أسبوعياً منذ ' + esc(snaps[0] ? fmt(snaps[0]) : 'هذا الشهر') + ')'}</div></div>
       <div class="rs-kpi navy"><div class="v">${R.n(active.filter(x => x.n).length)}</div><div class="l"><i class="bi bi-people"></i>باحث نشر هذا الشهر</div><div class="d">من ${R.n(people.length)} عضو هيئة تدريس</div></div>
     </section>
-    <section class="rs-section rs-grid wide">
-      <div class="rs-card"><h3><i class="bi bi-graph-up"></i>المنشورات الجديدة شهرياً (12 شهراً)</h3><div class="rs-chart short"><canvas id="rp-trend"></canvas></div></div>
-      <div class="rs-card"><h3><i class="bi bi-diagram-2"></i>حسب القسم</h3>${Object.keys(depts).length ? `<table class="rs-table"><tbody>${Object.entries(depts).sort((a, b) => b[1] - a[1]).map(([d, n]) => `<tr><td>${esc(d)}</td><td class="num"><b>${n}</b></td></tr>`).join('')}</tbody></table>` : '<div class="rs-note">لا منشورات جديدة.</div>'}</div>
+    <section class="rs-section rs-grid wide" data-tab="sum">
+      <div class="rs-card"><h3><i class="bi bi-graph-up"></i>المنشورات الجديدة شهرياً (12 شهراً) <small class="fw-normal text-muted">الشهر المختار بالأحمر</small></h3><div class="rs-chart" style="height:300px"><canvas id="rp-trend"></canvas></div></div>
+      <div class="rs-card"><h3><i class="bi bi-diagram-2"></i>حسب القسم</h3>${Object.keys(depts).length ? `<div class="rs-dbars">${(() => { const e = Object.entries(depts).sort((a, b) => b[1] - a[1]), mx = e[0][1]; return e.map(([d, n], i) => `<div><span>${esc(d)}</span><div class="bar"><i style="width:${(100 * n / mx).toFixed(0)}%;background:${R.colors[i % R.colors.length]}"></i></div><b>${n}</b></div>`).join(''); })()}</div>` : '<div class="rs-note">لا منشورات جديدة.</div>'}</div>
     </section>
-    <section class="rs-section rs-card"><h3><i class="bi bi-journal-text"></i>المنشورات الجديدة (${R.n(neu.length)})</h3>
+    <section class="rs-section rs-card" data-tab="pubs"><h3><i class="bi bi-journal-text"></i>المنشورات الجديدة (${R.n(neu.length)})</h3>
       <div class="rs-pubs">${neu.map(w => R.pubHTML(w, { byId, showUop: true })).join('') || '<div class="rs-empty"><i class="bi bi-journal-x"></i>لا منشورات جديدة مسجّلة لهذا الشهر</div>'}</div></section>
-    ${topGain.length ? `<section class="rs-section rs-card"><h3><i class="bi bi-fire"></i>الأبحاث الأكثر اكتساباً للاقتباسات هذا الشهر</h3>
+    ${topGain.length ? `<section class="rs-section rs-card" data-tab="cites"><h3><i class="bi bi-fire"></i>الأبحاث الأكثر اكتساباً للاقتباسات هذا الشهر</h3>
       <table class="rs-table"><thead><tr><th>البحث</th><th class="num">اقتباس جديد (Scopus)</th><th class="num">الإجمالي</th></tr></thead><tbody>
-      ${topGain.map(([w, g]) => `<tr><td><a href="${R.docUrl(w)}">${esc(w.t)}</a><br><small class="text-muted">${(w.r || []).map(id => byId[id] ? esc(byId[id].name) : '').filter(Boolean).join('، ')} · ${esc(w.v || '')} ${w.y || ''}</small></td><td class="num"><b>+${R.n(g[0])}</b></td><td class="num">${R.n(w.sc ?? w.c)}</td></tr>`).join('')}</tbody></table></section>` : ''}
-    <section class="rs-section rs-card"><h3><i class="bi bi-person-lines-fill"></i>الباحثون النشطون هذا الشهر</h3>
-      ${active.length ? `<div class="rs-scroll"><table class="rs-table"><thead><tr><th>الباحث</th><th>القسم</th><th class="num">منشورات جديدة</th><th class="num">اقتباس جديد</th><th class="num">وثائق Scopus</th><th class="num">h-index</th></tr></thead><tbody>
-      ${active.slice(0, 60).map(x => `<tr><td><a href="${R.profileUrl(x.r)}">${esc(x.r.name)}</a></td><td><small>${esc(x.r.dept || '')}</small></td><td class="num">${R.n(x.n)}</td><td class="num">${x.g ? '+' + R.n(x.g) : '–'}</td><td class="num">${R.n((x.r.sc || {}).docs || 0)}</td><td class="num">${R.n((x.r.sc || {}).h || 0)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="rs-note">لا نشاط مسجّل.</div>'}</section>
+      ${topGain.map(([w, g]) => `<tr><td><a href="${R.docUrl(w)}">${esc(w.t)}</a><br><small class="text-muted">${(w.r || []).map(id => byId[id] ? esc(byId[id].name) : '').filter(Boolean).join('، ')} · ${esc(w.v || '')} ${w.y || ''}</small></td><td class="num"><span class="pill qg"><i class="bi bi-arrow-up"></i> ${R.n(g[0])}</span></td><td class="num">${R.n(w.sc ?? w.c)}</td></tr>`).join('')}</tbody></table></section>` : `<section class="rs-section rs-card" data-tab="cites"><div class="rs-empty"><i class="bi bi-hourglass-split"></i>تُحسب الاقتباسات الجديدة بعد تسجيل لقطتين شهريتين متتاليتين من بيانات Scopus</div></section>`}
+    <section class="rs-section rs-card" data-tab="people"><h3><i class="bi bi-person-lines-fill"></i>الباحثون النشطون هذا الشهر</h3>
+      ${active.length ? `<div class="rs-scroll"><table class="rs-table"><thead><tr><th><i class="bi bi-person-fill"></i> الباحث</th><th><i class="bi bi-diagram-3-fill"></i> القسم</th><th class="num"><i class="bi bi-journal-plus"></i> منشورات جديدة</th><th class="num"><i class="bi bi-arrow-up-circle-fill"></i> اقتباس جديد</th><th class="num"><i class="bi bi-file-earmark-text-fill"></i> وثائق Scopus</th><th class="num"><i class="bi bi-graph-up-arrow"></i> h-index</th></tr></thead><tbody>
+      ${active.slice(0, 60).map(x => `<tr><td><a class="d-flex align-items-center gap-2 text-decoration-none" href="${R.profileUrl(x.r)}">${R.avatar(x.r, 'sm')}<b style="color:#901d23">${esc(x.r.name)}</b></a></td><td><small>${esc(x.r.dept || '')}</small></td><td class="num">${x.n ? `<span class="pill qg"><i class="bi bi-journal-plus"></i> ${R.n(x.n)}</span>` : '–'}</td><td class="num">${x.g ? `<span class="pill or">+${R.n(x.g)}</span>` : '–'}</td><td class="num">${R.n((x.r.sc || {}).docs || 0)}</td><td class="num"><span class="hb ${((x.r.sc || {}).h || 0) >= 10 ? 'h3' : ((x.r.sc || {}).h || 0) >= 5 ? 'h2' : ((x.r.sc || {}).h || 0) > 0 ? 'h1' : 'h0'}" style="min-width:32px;height:32px;font-size:.9rem">${R.n((x.r.sc || {}).h || 0)}</span></td></tr>`).join('')}</tbody></table></div>` : '<div class="rs-note">لا نشاط مسجّل.</div>'}</section>
     <p class="rs-note">تاريخ المنشور = تاريخ النشر عند توفره (OpenAlex)، وإلا تاريخ ظهوره أول مرة في التحديث الأسبوعي. الاقتباسات الجديدة = الفرق بين لقطة نهاية الشهر ولقطة الشهر السابق.</p>`;
+    showTab(st.tab || 'sum');
     R.chart('rp-trend', { type: 'bar', data: { labels: trend.map(t => fmt(t[0])), datasets: [{ label: 'منشورات', data: trend.map(t => t[1]), backgroundColor: trend.map(t => t[0] === m ? '#901d23' : '#c9a0a3'), borderRadius: 3 }] }, options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } } });
     R.$('#rp-csv').onclick = () => R.csv(neu.map(w => ({ month: m, faculty: w._fac.join(' | '), title: w.t, venue: w.v || '', year: w.y || '', quartile: w.q || '', in_scopus: (w.src || '').includes('s') ? 'yes' : 'no',
       scopus_citations: w.sc ?? '', petra_authors: (w.r || []).map(id => byId[id] ? byId[id].name : '').join(' | '), doi: w.doi ? 'https://doi.org/' + w.doi : '', details: location.origin + location.pathname.replace(/[^/]*$/, '') + R.docUrl(w) })), `report-${m}${st.fac ? '-' + st.fac : ''}.csv`);
     const u = new URL(location); u.searchParams.set('m', m); st.fac ? u.searchParams.set('fac', st.fac) : u.searchParams.delete('fac'); history.replaceState(null, '', u);
   }
+  function showTab(t) {
+    st.tab = t; R.$$('#rp-tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+    R.$$('[data-tab]', app).forEach(el => { el.hidden = t !== 'all' && el.dataset.tab !== t; });
+  }
+  app.addEventListener('click', e => { const b = e.target.closest('#rp-tabs [data-t]'); if (b) showTab(b.dataset.t); });
+  window.addEventListener('beforeprint', () => showTab('all'));
   render();
   R.$('#rp-m').onchange = e => { st.m = e.target.value; render(); };
   R.$('#rp-fac').onchange = e => { st.fac = e.target.value; render(); };

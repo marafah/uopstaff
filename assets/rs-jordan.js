@@ -72,7 +72,7 @@
       <div class="fld grow"><label for="j-area">المجال المعرفي</label><select id="j-area" class="form-select">${areaOpts()}</select></div>
       <div class="fld grow"><label for="j-cat">التخصص الدقيق (فئات SCImago)</label><select id="j-cat" class="form-select ltr">${catOpts()}</select></div>
     </div>
-    <label class="small fw-bold mb-1 d-block">الجامعات المختارة للمقارنة <small class="text-muted fw-normal">(اضغط لإضافة أو إزالة؛ حتى 8)</small></label>
+    <div class="rs-sec-label"><i class="bi bi-bank2"></i> الجامعات المختارة للمقارنة <small class="text-muted fw-normal">(اضغط لإضافة أو إزالة · حتى 8 · اللون نفسه في كل الرسوم)</small></div>
     <div class="rs-chips" id="j-unis"></div>
   </section>
 
@@ -130,7 +130,7 @@
   <p class="rs-note">المصدر: تصدير Scopus لكل الجامعات الأردنية (${R.n(D.total.docs)} وثيقة فريدة) بتاريخ ${esc(D.updated)}، والاقتباسات تُحدَّث أسبوعياً${C.cites_updated ? ` (آخر تحديث ${esc(C.cites_updated)})` : ''}. التصنيف والمجالات من SCImago SJR. الوثيقة المشتركة تُحسب لكل جامعة مشاركة. للتفاصيل الكاملة: <a href="journals.html">دليل المجلات</a> · <a href="experts.html">ابحث عن خبير</a> · <a href="universities.html">مؤشرات أسبوعية</a>.</p>`;
 
   function chips() {
-    R.$('#j-unis').innerHTML = U.slice().sort((a, b) => b.size - a.size).map(u => `<button type="button" class="btn btn-sm ${st.sel.includes(u.i) ? 'btn-rs' : 'btn-rs-o'}" data-u="${u.i}"${u.i === HOME.i ? ' style="font-weight:800"' : ''}>${esc(u.ar)}</button>`).join('');
+    R.$('#j-unis').innerHTML = U.slice().sort((a, b) => b.size - a.size).map(u => { const on = st.sel.includes(u.i), c = on ? color(u, st.sel.indexOf(u.i)) : ''; return `<button type="button" class="rs-uchip${on ? ' on' : ''}${u.i === HOME.i ? ' home' : ''}" data-u="${u.i}"${on ? ` style="--uc:${c}"` : ''} aria-pressed="${on}"><i class="bi ${on ? 'bi-check-circle-fill' : 'bi-plus-circle'}"></i> ${esc(u.ar)}</button>`; }).join('');
   }
   let S;
   function render() {
