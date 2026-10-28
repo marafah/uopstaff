@@ -59,6 +59,7 @@ OA_KEY = os.environ.get('OPENALEX_API_KEY', '')
 SCOPUS_KEY = os.environ.get('SCOPUS_API_KEY', '')
 SCOPUS_TOKEN = os.environ.get('SCOPUS_INSTTOKEN', '')
 SERPAPI_KEY = os.environ.get('SERPAPI_KEY', '')
+WOS_KEY = os.environ.get('WOS_API_KEY', '')
 SCHOLAR_ON = os.environ.get('SCHOLAR', '1') != '0'
 THIS_YEAR = dt.date.today().year
 
@@ -278,6 +279,7 @@ def uop_profile(member):
 # ------------------------------------------------------------------------------- 2. OpenAlex
 OA_STATE = {'down': False, 'calls': 0}
 SC_META = {}
+WOS_META = {}
 
 
 def oa_get(path, params=None):
@@ -431,32 +433,69 @@ def scopus_affiliation():
         return None
 
 
-def scopus_search_docs():
-    """All University of Petra documents in Scopus (needs SCOPUS_API_KEY). Returns rows like the CSV export."""
+def _scopus_page(query, start, full):
+    params = {'query': query, 'count': 25, 'start': start}
+    if full:   # subscriber access (campus IP or InstToken): author IDs included
+        params['view'] = 'COMPLETE'
+    r = http('GET', 'https://api.elsevier.com/content/search/scopus', headers=scopus_headers(), tries=2, params=params)
+    if r is None:
+        return None, 'error'
+    if r.status_code in (401, 403):
+        return None, 'denied'
+    if r.status_code != 200:
+        return None, 'error'
+    sr = r.json().get('search-results', {})
+    entries = [e for e in sr.get('entry', []) if 'error' not in e]
+    return (entries, int(sr.get('opensearch:totalResults') or 0)), 'ok'
+
+
+def _scopus_row(e):
+    return {'Title': e.get('dc:title', ''), 'Year': (e.get('prism:coverDate') or '')[:4],
+            'Source title': e.get('prism:publicationName', ''), 'DOI': e.get('prism:doi', ''),
+            'Cited by': e.get('citedby-count', '0'), 'Document Type': e.get('subtypeDescription', ''),
+            'EID': e.get('eid', ''), 'Open Access': 'Yes' if str(e.get('openaccessFlag')).lower() == 'true' else '',
+            'ISSN': '; '.join(x for x in [e.get('prism:issn', ''), e.get('prism:eIssn', '')] if x),
+            'Author(s) ID': ';'.join(a.get('authid', '') for a in (e.get('author') or [])),
+            'Authors': e.get('dc:creator', '')}
+
+
+def scopus_query_all(query, full, limit=5000):
+    rows, start = [], 0
+    while start < limit:
+        page, state = _scopus_page(query, start, full)
+        if state != 'ok':
+            return rows, state
+        entries, total = page
+        rows += [_scopus_row(e) for e in entries]
+        start += 25
+        if not entries or start >= min(total, limit):
+            break
+        time.sleep(0.15)
+    return rows, 'ok'
+
+
+def scopus_search_docs(researchers_ids=()):
+    """Weekly, with a free Elsevier API key (dev.elsevier.com): every University of Petra document in Scopus,
+    with its citations, DOI and ISSN. Off campus without an InstToken Scopus gives the standard view (no author
+    lists), so each known Scopus author is also queried once to attribute documents to researchers."""
     if not SCOPUS_KEY:
         return []
-    rows, cursor = [], '*'
-    while cursor and len(rows) < 20000:
-        r = http('GET', 'https://api.elsevier.com/content/search/scopus', headers=scopus_headers(), tries=2,
-                 params={'query': f'AF-ID({UOP_AFID})', 'count': 25, 'cursor': cursor,
-                         'field': 'dc:title,prism:publicationName,prism:coverDate,prism:doi,citedby-count,subtypeDescription,eid,openaccessFlag,author,dc:creator'})
-        if r is None or r.status_code != 200:
+    rows, state = scopus_query_all(f'AF-ID({UOP_AFID})', full=True)
+    full = state == 'ok' and any(r['Author(s) ID'] for r in rows)
+    if not full:
+        rows, state = scopus_query_all(f'AF-ID({UOP_AFID})', full=False)
+    log(f'scopus api: {len(rows)} documents ({"complete view" if full else "standard view"}, {state})')
+    if not rows or full:
+        return rows
+    by_eid = {r['EID']: r for r in rows if r['EID']}
+    for sid in researchers_ids:   # attribute documents to authors
+        got, st = scopus_query_all(f'AU-ID({sid}) AND AF-ID({UOP_AFID})', full=False, limit=1000)
+        if st == 'denied':
             break
-        sr = r.json().get('search-results', {})
-        entries = sr.get('entry', [])
-        if not entries or 'error' in entries[0]:
-            break
-        for e in entries:
-            rows.append({'Title': e.get('dc:title', ''), 'Year': (e.get('prism:coverDate') or '')[:4],
-                         'Source title': e.get('prism:publicationName', ''), 'DOI': e.get('prism:doi', ''),
-                         'Cited by': e.get('citedby-count', '0'), 'Document Type': e.get('subtypeDescription', ''),
-                         'EID': e.get('eid', ''), 'Open Access': 'Yes' if e.get('openaccessFlag') else '',
-                         'Author(s) ID': ';'.join(a.get('authid', '') for a in (e.get('author') or [])),
-                         'Authors': e.get('dc:creator', '')})
-        nxt = sr.get('cursor', {}).get('@next')
-        cursor = nxt if nxt and nxt != cursor else None
-        time.sleep(0.2)
-    log(f'scopus search: {len(rows)} documents')
+        for g in got:
+            r = by_eid.get(g['EID'])
+            if r is not None and sid not in r['Author(s) ID'].split(';'):
+                r['Author(s) ID'] = ';'.join(x for x in [r['Author(s) ID'], sid] if x)
     return rows
 
 
@@ -550,6 +589,78 @@ def sjr_quartiles():
                     q[k] = best
     log(f'SJR quartiles for {len(q)} ISSNs')
     return q
+
+
+def wos_rows():
+    """Records exported from Web of Science (tab-delimited, Full Record) into data/research/wos_export/."""
+    rows = []
+    for path in sorted(glob.glob(os.path.join(OUT, 'wos_export', '*.txt'))):
+        with open(path, encoding='utf-8-sig', newline='') as f:
+            rows += list(csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE))
+    seen, out = set(), []
+    for r in rows:
+        ut = (r.get('UT') or '').strip()
+        if ut and ut not in seen:
+            seen.add(ut)
+            out.append(r)
+    if out:
+        log(f'web of science: {len(out)} records')
+    return out
+
+
+def wos_api_rows(dois):
+    """Weekly, with a free Web of Science Starter API key (developer.clarivate.com, "Free Institutional Member"
+    plan for subscribing universities): which of the researchers' DOIs are in the Web of Science Core Collection,
+    and their times-cited counts. About one request per 40 DOIs."""
+    if not WOS_KEY or not dois:
+        return []
+    rows, dois = [], sorted(dois)
+    for i in range(0, len(dois), 40):
+        q = 'DO=(' + ' OR '.join(f'"{d}"' for d in dois[i:i + 40]) + ')'
+        page = 1
+        while True:
+            r = http('GET', 'https://api.clarivate.com/apis/wos-starter/v1/documents', tries=3,
+                     params={'db': 'WOS', 'q': q, 'limit': 50, 'page': page}, headers={'X-ApiKey': WOS_KEY})
+            if r is None or r.status_code != 200:
+                if r is not None and r.status_code in (401, 403, 429):
+                    log(f'  ! Web of Science API: {r.status_code}; using the export files only')
+                    return rows
+                break
+            j = r.json()
+            for h in j.get('hits', []):
+                src, ids = h.get('source') or {}, h.get('identifiers') or {}
+                tc = next((c.get('count', 0) for c in h.get('citations') or [] if c.get('db') == 'WOS'), 0)
+                rows.append({'UT': h.get('uid', ''), 'TI': h.get('title', ''), 'PY': str(src.get('publishYear') or ''),
+                             'SO': src.get('sourceTitle', ''), 'DI': ids.get('doi', ''), 'TC': str(tc),
+                             'DT': ', '.join(h.get('types') or []), 'C1': '', 'OI': '',
+                             'AU': '; '.join(a.get('wosStandard') or a.get('displayName', '') for a in ((h.get('names') or {}).get('authors') or []))})
+            total = (j.get('metadata') or {}).get('total', 0)
+            if page * 50 >= total:
+                break
+            page += 1
+        time.sleep(0.25)
+    log(f'web of science api: {len(rows)} of {len(dois)} DOIs indexed')
+    return rows
+
+
+def wos_petra_authors(row):
+    """Full names ("Given Surname") of the record's authors whose address is the University of Petra."""
+    names = set()
+    for m in re.finditer(r'\[([^\]]+)\]\s*([^\[]+)', row.get('C1') or ''):
+        if 'petra' in m.group(2).lower():
+            for nm in m.group(1).split(';'):
+                nm = nm.strip()
+                if ',' in nm:
+                    last, first = nm.split(',', 1)
+                    nm = f'{first.strip()} {last.strip()}'
+                if nm:
+                    names.add(nm)
+    return names
+
+
+def wos_orcids(row):
+    """ORCID iDs listed on the record (OI field: "Name/0000-0000-0000-0000; ...")."""
+    return {orcid_id(x) for x in re.findall(r'\d{4}-\d{4}-\d{4}-\d{3}[\dX]', row.get('OI') or '')}
 
 
 # ------------------------------------------------------------------------------- 4. Google Scholar
@@ -854,7 +965,10 @@ def main():
             f'works={r["works"]} cites={r["cites"]} h={r["h"]} uop={r["uop_pubs"]}/{matched_uop}' + (' [previous OpenAlex data]' if reused else ''))
 
     # -- 3. Scopus (the university's reference source): documents from the API or the CSV export
-    sc_rows = scopus_search_docs() + scopus_csv_rows()
+    saved_pool = load_json(os.path.join(OUT, 'scopus_authors.json'), {}) or {}
+    known_ids = sorted({r['scopus_id'] for r in researchers if r['scopus_id']} |
+                       {sid for r in prev.get('researchers', []) for sid in (r.get('scopus_ids') or [])})
+    sc_rows = scopus_search_docs(known_ids) + scopus_csv_rows()
     seen_eid, uniq = set(), []
     for row in sc_rows:   # several exports may overlap
         k = row.get('EID') or norm_title(row.get('Title')) + str(row.get('Year'))
@@ -863,6 +977,12 @@ def main():
             uniq.append(row)
     sc_rows = uniq
     sc_pool = scopus_author_pool(sc_rows)
+    for sid, v in saved_pool.items():   # names learned from earlier full exports stay usable for matching
+        p = sc_pool.setdefault(sid, {'names': set(), 'docs': 0})
+        p['names'] |= set(v.get('names', []))
+        p['docs'] = max(p['docs'], v.get('docs', 0))
+    if sc_pool:
+        save_json('scopus_authors.json', {sid: {'names': sorted(v['names']), 'docs': v['docs']} for sid, v in sc_pool.items()})
     quart = sjr_quartiles()
     for r in researchers:   # Scopus author IDs: the staff-page link first, then the name among the university's Scopus authors
         ids = [r['scopus_id']] if r['scopus_id'] else []
@@ -931,6 +1051,64 @@ def main():
                     'quartiles': dict(Counter(next((quart[i] for i in [issn_key(z) for z in re.split(r'[;,\s]+', x.get('ISSN') or '')] if i in quart), 'none') for x in sc_rows)),
                     'authors': len(sc_pool), 'has_quartiles': bool(quart)})
 
+    # -- 3b. Web of Science (the university's other reference source): CSV/TXT exports
+    wrows = wos_rows()
+    have = {clean_doi(x.get('DI')) for x in wrows}
+    api = wos_api_rows({w['doi'] for w in all_works.values() if w.get('doi') and w['doi'] not in have})
+    wrows += api
+    if wrows:
+        wpool = {}
+        for row in wrows:
+            for nm in wos_petra_authors(row):
+                wpool.setdefault(nm.lower(), {'names': {nm}, 'docs': 0})['docs'] += 1
+        pool_by_key = {k: v for k, v in wpool.items()}
+        orcid_to_rid = {r['orcid_id']: r['id'] for r in researchers if r['orcid_id']}
+        name_to_rid = {}
+        for r in researchers:   # match staff names among the university's WoS authors
+            ids, how = match_scopus(r['name_en'], pool_by_key)
+            r['wos_match'] = how
+            for k in ids:
+                name_to_rid.setdefault(k, r['id'])
+        w_flag = 0
+        for row in wrows:
+            doi = clean_doi(row.get('DI'))
+            nt = norm_title(row.get('TI'))
+            y = str(row.get('PY') or '')
+            rids = list(dict.fromkeys([orcid_to_rid[o] for o in wos_orcids(row) if o in orcid_to_rid] +
+                                      [name_to_rid[n.lower()] for n in wos_petra_authors(row) if n.lower() in name_to_rid]))
+            key = 'd:' + doi if doi and 'd:' + doi in all_works else title_index.get(nt + y)
+            try:
+                tc = int((row.get('TC') or '0').strip() or 0)
+            except ValueError:
+                tc = 0
+            if not key and rids:
+                key = 'd:' + doi if doi else 'wos:' + (row.get('UT') or nt)
+                add_work(key, {'id': row.get('UT') or ('w' + nt[:12]), 't': (row.get('TI') or '')[:400], 'y': int(y) if y.isdigit() else None,
+                               'v': (row.get('SO') or '').title(), 'type': (row.get('DT') or '').lower(), 'doi': doi, 'c': tc,
+                               'au': (row.get('AU') or '')[:300], 'src': 'w', 'nt': nt}, rids[0])
+            if not key:
+                continue
+            w = all_works[key]
+            w['src'] = ''.join(sorted(set(w.get('src', '') + 'w')))
+            w['wc'] = max(w.get('wc') or 0, tc)
+            if row.get('UT'):
+                w['ut'] = row['UT'].strip()
+            w_flag += 1
+            for rid in rids:
+                if rid not in w['r']:
+                    w['r'].append(rid)
+                if key not in by_rid[rid]['_keys']:
+                    by_rid[rid]['_keys'].append(key)
+        for r in researchers:
+            ks = [k for k in r['_keys'] if 'w' in all_works[k].get('src', '')]
+            cites = [all_works[k].get('wc') or 0 for k in ks]
+            r['wos'] = {'docs': len(ks), 'cites': sum(cites), 'h': h_index(cites),
+                        'w5': sum(1 for k in ks if (all_works[k].get('y') or 0) >= THIS_YEAR - 4)} if ks else None
+        WOS_META.update({'docs': len(wrows), 'cites': sum(int((x.get('TC') or '0').strip() or 0) for x in wrows),
+                         'by_year': dict(sorted(Counter(str(x.get('PY')).strip() for x in wrows if (x.get('PY') or '').strip()).items())),
+                         'authors': len(wpool), 'matched_works': w_flag})
+        log(f'web of science: {w_flag} records matched to works, {len(wpool)} university authors')
+
     # -- 4. Google Scholar (best effort; previous values are kept when blocked)
     if SCHOLAR_ON:
         todo = [r for r in researchers if r['scholar_id']]
@@ -981,6 +1159,7 @@ def main():
         'matched_scopus': sum(1 for r in covered if r.get('scopus_ids')),
         'matched_openalex': sum(1 for r in covered if r['oa_ids']),
         'openalex_calls': OA_STATE['calls'], 'openalex_limited': OA_STATE['down'],
+        'wos_export': WOS_META or (prev.get('meta') or {}).get('wos_export'),
         'scopus_export': SC_META or (prev.get('meta') or {}).get('scopus_export'),
         'scopus_mode': 'api' if SCOPUS_KEY else ('csv' if glob.glob(os.path.join(OUT, 'scopus_export', '*.csv')) else 'links'),
         'scholar_mode': 'serpapi' if SERPAPI_KEY else ('direct' if SCHOLAR_ON else 'off'),
