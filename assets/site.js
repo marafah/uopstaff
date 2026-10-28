@@ -56,3 +56,45 @@
   window.addEventListener('offline', offline);
   offline();
 })();
+
+// ---------------------------------------------------------------- menu: «البحث العلمي» on every page, and the loose links
+// (التقويم، الآن، مفكرتي) grouped under «المزيد» to make room in the top bar
+(function () {
+  const nav = document.querySelector('.site-nav');
+  if (!nav || nav.dataset.extra) return;
+  nav.dataset.extra = '1';
+  const here = location.pathname.split('/').pop() || 'index.html';
+  const li = (h, i, b, s) => `<li><a class="dropdown-item${h === here ? ' active' : ''}" href="${h}"><i class="bi ${i}"></i><span><b>${b}</b><small>${s}</small></span></a></li>`;
+  const menu = (href, icon, full, short, items, active) => {
+    const d = document.createElement('div');
+    d.className = 'dropdown site-more';
+    d.innerHTML = `<a href="${href}" class="dropdown-toggle${active ? ' active' : ''}" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi ${icon}"></i> `
+      + (short ? `<span class="nav-full">${full}</span><span class="nav-short">${short}</span>` : full) + `</a><ul class="dropdown-menu">${items}</ul>`;
+    return d;
+  };
+  const RS = [
+    ['research.html', 'bi-mortarboard', 'لوحة البحث العلمي', 'ملخص الإنتاج البحثي للجامعة'],
+    ['researchers.html', 'bi-person-lines-fill', 'الباحثون', 'بحث وتصفية وترتيب أعضاء الهيئة التدريسية'],
+    ['publications.html', 'bi-journal-text', 'المنشورات', 'كل الأبحاث مع روابط التحقق والتصدير'],
+    ['compare.html', 'bi-bar-chart-steps', 'المقارنة', 'باحثون أو كليات أو أقسام جنباً إلى جنب'],
+    ['universities.html', 'bi-bank', 'الجامعات الأردنية', 'موقع البترا بين الجامعات الأردنية'],
+    ['network.html', 'bi-diagram-3', 'شبكة التعاون', 'من يكتب مع من داخل الجامعة']
+  ];
+  const DESC = { 'calendar.html': 'الفصول والعطل والامتحانات، واشتراك التقويم', 'now.html': 'المحاضرات الجارية والقاعات الشاغرة الآن', 'notes.html': 'ملاحظاتك ومهامك، محفوظة في متصفحك' };
+  const loose = [...nav.children].filter(c => c.tagName === 'A');
+  let more = null;
+  if (loose.length > 1) {
+    const items = loose.map(a => {
+      const h = a.getAttribute('href'), ic = ((a.querySelector('i') || {}).className || 'bi bi-link').replace(/^bi\s+/, '');
+      const t = ((a.querySelector('.nav-full') || a).textContent || '').trim();
+      return li(h, ic, t, DESC[h] || '');
+    }).join('');
+    more = menu('#', 'bi-grid-3x3-gap', 'المزيد', '', items, loose.some(a => a.getAttribute('href') === here));
+    loose.forEach(a => a.remove());
+    nav.appendChild(more);
+  }
+  const rsHere = RS.some(r => r[0] === here) || here === 'researcher.html';
+  const old = nav.querySelector('a[href="research.html"]');
+  if (old) old.closest('.dropdown, a').remove();
+  nav.insertBefore(menu('research.html', 'bi-mortarboard-fill', 'البحث العلمي', 'البحث', RS.map(r => li(...r)).join(''), rsHere), more);
+})();
