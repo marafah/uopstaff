@@ -1019,6 +1019,171 @@ def merge_detail(store, key, d):
             cur[k] = v
 
 
+# ------------------------------------------------------------------------------- manual edits and the full export
+# One row per document. Columns marked (read only) always come from the databases and are ignored on import.
+DOC_COLS = [
+    ('id', 'id'), ('title', 't'), ('year', 'y'), ('type', 'type'), ('venue', 'v'), ('quartile', 'q'),
+    ('volume', 'vol'), ('issue', 'iss'), ('pages', 'pages'), ('publisher', 'pub'), ('issn', 'issn'), ('language', 'lang'),
+    ('doi', 'doi'), ('scopus_eid', 'eid'), ('wos_ut', 'ut'), ('url', 'url'), ('open_access', 'oa'),
+    ('uop_researchers', 'r'), ('uop_names (read only)', None), ('authors', 'authors'), ('affiliations', 'affs'),
+    ('author_keywords', 'kw_a'), ('keywords_plus', 'kw_plus'), ('abstract', 'abs'), ('funding', 'fund'),
+    ('scopus_citations (read only)', None), ('wos_citations (read only)', None), ('openalex_citations (read only)', None),
+    ('fwci (read only)', None), ('sources (read only)', None), ('wos_categories (read only)', None), ('topic (read only)', None),
+    ('openalex_id (read only)', None), ('details_page (read only)', None), ('hide', 'hide'), ('note', 'note'),
+]
+WORK_FIELDS = {'t', 'y', 'type', 'v', 'q', 'doi', 'eid', 'ut', 'url', 'oa'}
+LIST_FIELDS = {'issn', 'authors', 'affs', 'kw_a', 'kw_plus', 'fund'}
+DOC_AR = {'id': 'المعرّف', 'title': 'العنوان', 'year': 'السنة', 'type': 'النوع', 'venue': 'المجلة أو المؤتمر', 'quartile': 'تصنيف المجلة Q', 'volume': 'المجلد', 'issue': 'العدد', 'pages': 'الصفحات', 'publisher': 'الناشر', 'issn': 'ISSN', 'language': 'اللغة', 'doi': 'DOI', 'scopus_eid': 'رقم Scopus EID', 'wos_ut': 'رقم WoS UT', 'url': 'رابط', 'open_access': 'الوصول المفتوح', 'uop_researchers': 'باحثو البترا (البريد الجامعي)', 'uop_names (read only)': 'أسماء باحثي البترا', 'authors': 'المؤلفون', 'affiliations': 'الانتماءات', 'author_keywords': 'الكلمات المفتاحية', 'keywords_plus': 'كلمات الفهرسة', 'abstract': 'الملخص', 'funding': 'التمويل', 'scopus_citations (read only)': 'اقتباسات Scopus', 'wos_citations (read only)': 'اقتباسات WoS', 'openalex_citations (read only)': 'اقتباسات OpenAlex', 'fwci (read only)': 'FWCI', 'sources (read only)': 'المصادر', 'wos_categories (read only)': 'فئات WoS', 'topic (read only)': 'الموضوع', 'openalex_id (read only)': 'معرّف OpenAlex', 'details_page (read only)': 'صفحة التفاصيل', 'hide': 'إخفاء', 'note': 'ملاحظة'}
+
+
+def doc_header(col):
+    """Arabic header with the English key in brackets; read-only columns say so."""
+    ro = col.endswith(' (read only)')
+    return f'{DOC_AR.get(col, col)}{" – للقراءة فقط" if ro else ""} ({col.replace(" (read only)", "")})'
+
+
+def doc_key(header):
+    """Column key from a header: the English name in brackets, or the header itself."""
+    m = re.search(r'\(([^()]+)\)\s*$', header or '')
+    key = (m.group(1) if m else header or '').strip()
+    ro = {c.replace(' (read only)', ''): c for c, _ in DOC_COLS}
+    return ro.get(key, key)
+
+
+SITE_URL = os.environ.get('SITE_URL', 'https://marafah.github.io/uopstaff/')
+
+
+def manual_rows():
+    """data/research/manual/*.csv: rows edited or added by hand (same columns as export/documents.csv)."""
+    rows = []
+    for path in sorted(glob.glob(os.path.join(OUT, 'manual', '*.csv'))):
+        with open(path, encoding='utf-8-sig', newline='') as f:
+            for row in csv.DictReader(f):
+                row = {doc_key(k): (v or '').strip() for k, v in row.items() if k}
+                if any(row.get(c) for c, f_ in DOC_COLS if f_):
+                    rows.append(row)
+    if rows:
+        log(f'manual edits: {len(rows)} rows')
+    return rows
+
+
+def apply_manual(rows, all_works, DET, researchers, title_index):
+    """Manual rows fix or add documents: a filled cell replaces the database value, `uop_researchers` (staff e-mails)
+    attributes the document to staff, `hide` = yes removes it. Returns the keys to hide."""
+    if not rows:
+        return set()
+    rid_by_email = {(r.get('email') or '').lower(): r['id'] for r in researchers if r.get('email')}
+    by_rid = {r['id']: r for r in researchers}
+    index = {}
+    for k, w in all_works.items():
+        for f in ('id', 'eid', 'ut', 'oid'):
+            if w.get(f):
+                index[str(w[f]).lower()] = k
+        if w.get('doi'):
+            index['doi:' + w['doi'].lower()] = k
+    hidden, edited, added = set(), 0, 0
+    for row in rows:
+        doi = clean_doi(row.get('doi'))
+        key = next((index[x] for x in [row.get('id', '').lower(), 'doi:' + doi.lower() if doi else '',
+                                         row.get('scopus_eid', '').lower(), row.get('wos_ut', '').lower()] if x and x in index), None)
+        if key is None:
+            if not row.get('title'):
+                continue
+            nt = norm_title(row['title'])
+            key = title_index.get(nt + row.get('year', ''))
+        if key is None:   # a new document
+            mid = 'm' + hashlib.md5((row.get('title', '') + row.get('year', '')).encode()).hexdigest()[:10]
+            key = 'd:' + doi if doi else 'm:' + mid
+            all_works[key] = {'id': mid, 't': row['title'], 'src': 'm', 'r': [], 'c': 0, 'nt': norm_title(row['title'])}
+            title_index.setdefault(norm_title(row['title']) + row.get('year', ''), key)
+            added += 1
+        else:
+            edited += 1
+        w = all_works[key]
+        if row.get('hide', '').lower() in ('yes', 'y', '1', 'true', 'نعم', 'x'):
+            hidden.add(key)
+            continue
+        changed = []
+        for col, f in DOC_COLS:
+            val = row.get(col, '')
+            if not f or f in ('id', 'hide') or not val:
+                continue
+            if f == 'r':
+                rids = [rid_by_email.get(e.strip().lower()) for e in re.split(r'[;,\s]+', val) if e.strip()]
+                for rid in filter(None, rids):
+                    if rid not in w['r']:
+                        w['r'].append(rid)
+                        changed.append('r')
+                    if key not in by_rid[rid]['_keys']:
+                        by_rid[rid]['_keys'].append(key)
+                continue
+            if f == 'note':
+                DET.setdefault(key, {})['note'] = val
+                continue
+            if f in WORK_FIELDS:
+                v = clean_doi(val) if f == 'doi' else (int(val) if f == 'y' and val.isdigit() else val)
+                if f == 'q':
+                    v = v.upper()
+                if w.get(f) != v:
+                    w[f] = v
+                    changed.append(f)
+                continue
+            d = DET.setdefault(key, {})
+            if f in LIST_FIELDS:
+                items = [x.strip() for x in val.split(';') if x.strip()]
+                if f == 'authors':
+                    if [a.get('n') for a in d.get('authors') or []] != items:
+                        d['authors'] = [{'n': n, 'aff': []} for n in items]
+                        w['au'] = ', '.join(items[:8]) + (' …' if len(items) > 8 else '')
+                        changed.append(f)
+                elif d.get(f) != items:
+                    d[f] = items
+                    changed.append(f)
+            elif d.get(f) != val:
+                d[f] = val
+                if f == 'abs':
+                    d['abs_src'] = 'إدخال يدوي'
+                changed.append(f)
+        if changed:
+            w['man'] = 1   # shown on the pages as a manual correction
+    log(f'manual edits: {edited} documents matched, {added} added, {len(hidden)} hidden')
+    return hidden
+
+
+def export_documents(works_out, merged, researchers):
+    """data/research/export/documents.csv: every document with all its details, for Excel (UTF-8 with BOM)."""
+    email = {r['id']: r.get('email', '') for r in researchers}
+    name = {r['id']: r.get('name', '') for r in researchers}
+    path = os.path.join(OUT, 'export')
+    os.makedirs(path, exist_ok=True)
+    with open(os.path.join(path, 'documents.csv'), 'w', encoding='utf-8-sig', newline='') as f:
+        wr = csv.writer(f)
+        wr.writerow([doc_header(c) for c, _ in DOC_COLS])
+        for w in works_out:
+            d = merged.get(w['id'], {})
+            auth = d.get('authors') or d.get('sc_authors') or d.get('wos_authors') or []
+            affs = list(dict.fromkeys(a for x in auth for a in x.get('aff') or []))
+            val = {
+                'id': w['id'], 'title': w.get('t', ''), 'year': w.get('y', ''), 'type': w.get('type', ''), 'venue': w.get('v', ''),
+                'quartile': w.get('q', ''), 'volume': d.get('vol', ''), 'issue': d.get('iss', ''), 'pages': d.get('pages') or d.get('art', ''),
+                'publisher': d.get('pub', ''), 'issn': '; '.join(d.get('issn') or ([w['issn']] if w.get('issn') else [])),
+                'language': d.get('lang', ''), 'doi': w.get('doi', ''), 'scopus_eid': w.get('eid', ''), 'wos_ut': w.get('ut', ''),
+                'url': w.get('url', ''), 'open_access': w.get('oa', ''),
+                'uop_researchers': '; '.join(email.get(r, '') for r in w.get('r', []) if email.get(r)),
+                'uop_names (read only)': '; '.join(name.get(r, '') for r in w.get('r', []) if name.get(r)),
+                'authors': '; '.join(a.get('n', '') for a in auth) or w.get('au', ''), 'affiliations': '; '.join(affs),
+                'author_keywords': '; '.join(d.get('kw_a') or d.get('kw') or []), 'keywords_plus': '; '.join(d.get('kw_plus') or d.get('kw_i') or []),
+                'abstract': d.get('abs') or d.get('uop_abs', ''), 'funding': '; '.join(d.get('fund') or []),
+                'scopus_citations (read only)': w.get('sc', ''), 'wos_citations (read only)': w.get('wc', ''),
+                'openalex_citations (read only)': w.get('c', '') if 'o' in w.get('src', '') else '', 'fwci (read only)': w.get('fwci', ''),
+                'sources (read only)': w.get('src', ''), 'wos_categories (read only)': '; '.join(d.get('wos_cat') or []),
+                'topic (read only)': w.get('topic', ''), 'openalex_id (read only)': w.get('oid', ''),
+                'details_page (read only)': f'{SITE_URL}publication.html?id={w["id"]}', 'hide': '', 'note': d.get('note', ''),
+            }
+            wr.writerow([val.get(c, '') for c, _ in DOC_COLS])
+    log(f'export: {len(works_out)} documents in export/documents.csv')
+
+
 def save_details(works_out, details, prev_dir):
     """data/research/details/<n>.json: one small file per shard, read only by the document page."""
     ddir = os.path.join(OUT, 'details')
@@ -1034,10 +1199,14 @@ def save_details(works_out, details, prev_dir):
                 d[k] = v
         if d:
             shards[detail_shard(w['id'])][w['id']] = d
+    merged = {}
+    for n in range(DETAIL_SHARDS):
+        merged.update(shards.get(n, {}))
     for n in range(DETAIL_SHARDS):
         with open(os.path.join(ddir, f'{n}.json'), 'w', encoding='utf-8') as f:
             json.dump(shards.get(n, {}), f, ensure_ascii=False, separators=(',', ':'))
     log(f'details: {sum(len(x) for x in shards.values())} documents in {DETAIL_SHARDS} files')
+    return merged
 
 
 def main():
@@ -1288,6 +1457,11 @@ def main():
         r['scopus_ids'], r['scopus_match'] = ids, how
     sid_to_rid = {sid: r['id'] for r in researchers for sid in r['scopus_ids']}
     by_rid = {r['id']: r for r in researchers}
+    HIDDEN = apply_manual(manual_rows(), all_works, DET, researchers, title_index)
+
+    def drop_hidden():
+        for r_ in researchers:
+            r_['_keys'] = [k for k in r_['_keys'] if k not in HIDDEN]
     sc_flagged = 0
     for row in sc_rows:
         doi = clean_doi(row.get('DOI'))
@@ -1331,6 +1505,7 @@ def main():
             w['q'] = quart[issn_key(w['issn'])]
     if sc_rows:
         log(f'scopus: {len(sc_rows)} documents, {len(sc_pool)} university authors, {sc_flagged} matched to existing works')
+    drop_hidden()
     for r in researchers:   # Scopus metrics over the documents with the university's affiliation
         ks = [k for k in r['_keys'] if 's' in all_works[k].get('src', '')]
         cites = [all_works[k].get('sc') or 0 for k in ks]
@@ -1397,6 +1572,7 @@ def main():
                     w['r'].append(rid)
                 if key not in by_rid[rid]['_keys']:
                     by_rid[rid]['_keys'].append(key)
+        drop_hidden()
         for r in researchers:
             ks = [k for k in r['_keys'] if 'w' in all_works[k].get('src', '')]
             cites = [all_works[k].get('wc') or 0 for k in ks]
@@ -1428,6 +1604,9 @@ def main():
         log(f'scholar: {done} profiles refreshed')
 
     # -- 5. co-authorship inside the university
+    drop_hidden()
+    for k in HIDDEN:
+        all_works.pop(k, None)
     pair = Counter()
     for w in all_works.values():
         rs = sorted(set(w['r']))
@@ -1471,7 +1650,8 @@ def main():
         meta['institution'] = institution_extras()
     save_json('researchers.json', {'meta': meta, 'researchers': researchers})
     if not args.limit and not args.only:
-        save_details(works_out, DET, os.path.join(OUT, 'details'))
+        merged = save_details(works_out, DET, os.path.join(OUT, 'details'))
+        export_documents(works_out, merged, researchers)
     for w in works_out:
         w.pop('_key', None)
     save_json('works.json', {'updated': now, 'works': works_out})
