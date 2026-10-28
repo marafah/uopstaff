@@ -8,7 +8,7 @@
   const U = C.unis.map(([afid, en, ar], i) => ({ i, afid, en, ar }));
   const HOME = U.find(u => u.afid === R.HOME_AFID) || U[0];
   const prof = Object.fromEntries((D.universities || []).map(u => [u.afid, u]));
-  const Y = D.year || new Date().getFullYear();
+  const Y = Math.min(D.year || 9999, new Date().getFullYear());   // the next year holds only articles in press
   const AREAS = C.areas, CATS = C.cats;
   const COLS = Object.fromEntries(C.cols.map((c, i) => [c, i]));
   const esc = R.esc, pct = v => R.pct(v, 0);
@@ -80,7 +80,7 @@
     <div class="rs-scroll"><table class="rs-table" id="j-table"></table></div>
     <p class="rs-note mt-2 mb-0" id="j-hnote"></p></section>
 
-  <section class="rs-section rs-grid wide">
+  <section class="rs-section rs-grid two">
     <div class="rs-card"><h3><i class="bi bi-graph-up"></i>الوثائق سنوياً</h3><div class="rs-chart"><canvas id="j-years"></canvas></div></div>
     <div class="rs-card"><h3><i class="bi bi-bar-chart-steps"></i>توزيع التصنيف Q1–Q4 <small class="fw-normal text-muted">نسبة من الوثائق المصنّفة</small></h3><div class="rs-chart"><canvas id="j-q"></canvas></div></div>
     <div class="rs-card"><h3><i class="bi bi-award"></i>الأثر: اقتباس لكل وثيقة</h3><div class="rs-chart"><canvas id="j-cpd"></canvas></div></div>
