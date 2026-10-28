@@ -1,0 +1,67 @@
+name: Update research data
+
+# Weekly refresh of data/research/*.json (the research pages).
+# Optional repository secrets (Settings → Secrets and variables → Actions):
+#   SCOPUS_API_KEY    Elsevier API key from https://dev.elsevier.com (Scopus author metrics + university documents)
+#   SCOPUS_INSTTOKEN  institutional token, only if Elsevier gave you one
+#   SERPAPI_KEY       reliable Google Scholar metrics through serpapi.com (otherwise read directly, best effort)
+#   OPENALEX_API_KEY  only if OpenAlex asks for one (it works without a key)
+on:
+  schedule:
+    - cron: '17 1 * * 0'        # Sundays 04:17 Amman time
+  workflow_dispatch:
+    inputs:
+      only:
+        description: 'Only one researcher (staff e-mail), leave empty for everyone'
+        required: false
+        default: ''
+  push:
+    paths:
+      - 'data/research/scopus_export/**'   # a new Scopus CSV export triggers a rebuild
+      - 'data/research/overrides.json'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: research-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install requests
+
+      - name: Build research data
+        env:
+          OPENALEX_MAILTO: mohammad.arafah@uop.edu.jo
+          OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+          SCOPUS_API_KEY: ${{ secrets.SCOPUS_API_KEY }}
+          SCOPUS_INSTTOKEN: ${{ secrets.SCOPUS_INSTTOKEN }}
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+        run: |
+          if [ -n "${{ github.event.inputs.only }}" ]; then
+            echo "Single-researcher runs are for checking a match; the published data is not changed."
+            python scripts/update_research.py --only "${{ github.event.inputs.only }}"
+            git checkout -- data/research || true
+          else
+            python scripts/update_research.py
+          fi
+
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/research
+          if git diff --cached --quiet; then echo "no changes"; exit 0; fi
+          git commit -m "Research data $(date -u +%Y-%m-%d)"
+          git pull --rebase --autostash
+          git push
