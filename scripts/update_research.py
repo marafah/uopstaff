@@ -1411,6 +1411,17 @@ def export_documents(works_out, merged, researchers):
     log(f'export: {len(works_out)} documents in export/documents.csv')
 
 
+MONTHS_EN = {m: i + 1 for i, m in enumerate(['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'])}
+
+
+def wos_month(pdate, year):
+    """Web of Science 'PD' field ("NOV 2025", "NOV 15", "SPR") -> 'YYYY-MM' or ''."""
+    if not pdate or not year:
+        return ''
+    m = MONTHS_EN.get(str(pdate).strip().upper()[:3])
+    return f'{year}-{m:02d}' if m else ''
+
+
 def track_months(works_out, details):
     """Monthly faculty reports (reports.html): when each work first appeared ('fs'), its publication date ('pd'),
     and a citation snapshot per month (data/research/cites_monthly.json) so the report can show citations gained."""
@@ -1421,12 +1432,17 @@ def track_months(works_out, details):
     first = first or {}
     for w in works_out:
         d = details.get(w['id']) or {}
-        pd = (d.get('date') or '')[:10]
-        if pd:
+        pd = (d.get('date') or '')[:10] or wos_month(d.get('pdate'), w.get('y'))
+        if pd and len(pd) >= 7 and (not w.get('y') or pd[:4] == str(w['y'])):
             w['pd'] = pd
+        else:
+            pd = ''
+        if w.get('y') and first.get(w['id']) == f"{w['y']}-01-01":
+            first[w['id']] = pd   # undo the old bootstrap guess (year only -> January)
         if w['id'] not in first:
-            first[w['id']] = (pd or (f"{w['y']}-01-01" if w.get('y') else today)) if boot else today
-        w['fs'] = first[w['id']]
+            first[w['id']] = (pd or '') if boot else today   # first run: an unknown month stays unknown, not January
+        if first[w['id']]:
+            w['fs'] = first[w['id']]
     save_json('first_seen.json', first)
     cpath = os.path.join(OUT, 'cites_monthly.json')
     cm = load_json(cpath, {}) or {}
