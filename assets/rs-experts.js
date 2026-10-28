@@ -71,10 +71,10 @@
     else out.innerHTML = `<div class="rs-xgrid">${part.map(r => { const col = UCOL[r.u] || '#555'; const act = r.last >= Y - 1 ? 'نشط هذا العام' : r.last >= Y - 3 ? 'نشط' : 'آخر نشر ' + r.last;
       return `<article class="rs-xcard${r.u === R.HOME_AFID ? ' home' : ''}" style="--c:${col}">
         <div class="top"><span class="av">${esc(ini(r.n))}</span><div class="who"><b class="ltr">${esc(nice(r.n))}</b><span>${esc(UN[r.u] || '')}</span></div><span class="st ${r.last >= Y - 1 ? 'on' : ''}">${act}</span></div>
-        <div class="nums"><div><b>${R.n(r.docs)}</b><span>وثيقة</span></div><div><b>${R.n(r.d5)}</b><span>آخر 5 سنوات</span></div><div><b>${R.n(r.c)}</b><span>اقتباس</span></div><div><b>${(r.c / Math.max(1, r.docs)).toFixed(1)}</b><span>اقتباس/وثيقة</span></div></div>
+        <div class="mt"><div class="m b"><i class="bi bi-file-earmark-text-fill"></i><b>${R.n(r.docs)}</b><span>وثيقة</span></div><div class="m t"><i class="bi bi-lightning-charge-fill"></i><b>${R.n(r.d5)}</b><span>آخر 5 سنوات</span></div><div class="m y"><i class="bi bi-quote"></i><b>${R.n(r.c)}</b><span>اقتباس</span></div><div class="m p"><i class="bi bi-bullseye"></i><b>${(r.c / Math.max(1, r.docs)).toFixed(1)}</b><span>اقتباس/وثيقة</span></div></div>
         <div class="kws">${r.kw.split('; ').filter(Boolean).slice(0, 6).map(k => `<button class="rs-chip soft" data-kw="${esc(k)}"><span class="ltr">${hl(k)}</span></button>`).join('')}</div>
-        <div class="foot"><a class="btn btn-sm btn-rs-o" href="${sc(r)}" target="_blank" rel="noopener"><i class="bi bi-bar-chart-line"></i> ملف Scopus</a>
-          <a class="btn btn-sm btn-rs-o" href="https://scholar.google.com/scholar?q=${encodeURIComponent('author:"' + nice(r.n) + '"')}" target="_blank" rel="noopener"><i class="bi bi-google"></i> Scholar</a></div>
+        <div class="foot"><a class="rs-ib sc" href="${sc(r)}" target="_blank" rel="noopener" title="ملف Scopus"><i class="bi bi-graph-up-arrow"></i></a>
+          <a class="rs-ib sj" href="https://scholar.google.com/scholar?q=${encodeURIComponent('author:"' + nice(r.n) + '"')}" target="_blank" rel="noopener"><i class="bi bi-google"></i></a></div>
       </article>`; }).join('')}</div>`;
     // results by university and related topics
     const byU2 = Object.entries(byU).sort((a, b) => b[1] - a[1]).slice(0, 12);

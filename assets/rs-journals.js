@@ -117,28 +117,39 @@
     R.$('#jn-sum').innerHTML = title ? `<b>${esc(title)}</b> <button class="btn btn-sm btn-rs-o" id="jn-back">عودة للبحث</button>` : `<span><b class="fs-5">${R.n(data.length)}</b> نتيجة</span><span><b>${R.n(data.filter(r => r.q === 'Q1').length)}</b> في Q1</span><span><b>${R.n(data.filter(r => r.jo).length)}</b> نشر فيها أردنيون</span><span><b>${R.n(data.filter(r => r.tm).length)}</b> بمدد مراجعة معروفة</span>`;
     const part = data.slice(st.page * PER, st.page * PER + PER);
     R.$$('#jn-view button').forEach(x => x.classList.toggle('on', x.dataset.v === st.view));
-    const links = r => `<a href="${R.sjrUrl(r.id)}" target="_blank" rel="noopener" title="SCImago"><i class="bi bi-bar-chart"></i></a> <a href="${R.scopusSourceUrl(r.id)}" target="_blank" rel="noopener" title="Scopus"><i class="bi bi-bar-chart-line" style="color:#e9711c"></i></a> ${fmtIssn(r.issn)[0] ? `<a href="https://portal.issn.org/resource/ISSN/${fmtIssn(r.issn)[0]}" target="_blank" rel="noopener" title="الموقع الرسمي عبر بوابة ISSN"><i class="bi bi-house"></i></a>` : ''}`;
-    const tags = r => `${r.fl ? `<span class="rs-tag ${r.fl[2]}" title="${esc(r.fl[1])}"><i class="bi bi-exclamation-octagon"></i> ${esc(r.fl[0])}</span>` : ''}${r.oa ? `<span class="rs-tag oa">${r.oa === 2 ? 'ماسي' : 'وصول مفتوح'}</span>` : ''}${r.type !== 'j' ? `<span class="rs-tag">${TYPE[r.type] || ''}</span>` : ''}`;
+    const issn0 = r => fmtIssn(r.issn)[0];
+    const links = r => `<a class="rs-ib sj" href="${R.sjrUrl(r.id)}" target="_blank" rel="noopener" title="SCImago"><i class="bi bi-bar-chart-fill"></i></a><a class="rs-ib sc" href="${R.scopusSourceUrl(r.id)}" target="_blank" rel="noopener" title="Scopus"><i class="bi bi-graph-up-arrow"></i></a>${issn0(r) ? `<a class="rs-ib web" href="https://portal.issn.org/resource/ISSN/${issn0(r)}" target="_blank" rel="noopener" title="الموقع الرسمي عبر بوابة ISSN"><i class="bi bi-globe2"></i></a>` : ''}<a class="rs-ib info" href="#" data-j="${r.id}" title="التفاصيل"><i class="bi bi-info-lg"></i></a>`;
+    const tags = r => `${r.fl ? `<span class="rs-tag ${r.fl[2]}" title="${esc(r.fl[1])}"><i class="bi bi-exclamation-octagon-fill"></i> ${esc(r.fl[0])}</span>` : ''}${r.oa ? `<span class="rs-tag oa"><i class="bi bi-unlock-fill"></i> ${r.oa === 2 ? 'ماسي (بلا رسوم)' : 'وصول مفتوح'}</span>` : ''}${r.type !== 'j' ? `<span class="rs-tag">${TYPE[r.type] || ''}</span>` : ''}`;
     const petra = r => HOME >= 0 && r.jo && r.jo.unis.find(u => u[0] === HOME);
+    const qp = q => `<span class="rs-qpill q-${(q || 'n').toLowerCase()}">${q || '—'}</span>`;
+    const maxS = Math.max(1, ...part.map(r => r.sjr || 0));
+    const days = r => r.tm && r.tm.accept != null ? r.tm.accept : null;
     const out = R.$('#jn-out');
     if (!part.length) out.innerHTML = '<div class="rs-empty"><i class="bi bi-journal-x"></i>لا توجد نتائج</div>';
-    else if (st.view === 'table') out.innerHTML = `<div class="rs-scroll"><table class="rs-table rs-jtable"><thead><tr><th>#</th><th>المجلة</th><th>التصنيف</th><th class="num">SJR</th><th class="num">h</th><th>التخصصات</th><th>مدة القرار</th><th class="num">أبحاث أردنية</th><th>روابط</th></tr></thead><tbody>
-      ${part.map((r, i) => `<tr><td class="num text-muted">${st.page * PER + i + 1}</td>
-        <td class="ltr"><a href="#" data-j="${r.id}"><b>${esc(r.t)}</b></a><br><small class="text-muted">${esc(r.pub)} · ${esc(r.country)} · ${fmtIssn(r.issn).join(', ')}</small> ${tags(r)}</td>
-        <td>${R.qTag(r.q) || '<small class="text-muted">—</small>'}<br><small class="text-muted">#${R.n(r.rank)}</small></td>
-        <td class="num">${r.sjr ? r.sjr.toFixed(2) : '–'}</td><td class="num">${R.n(r.h)}</td>
-        <td class="ltr"><small>${r.cats.slice(0, 3).map(c => `${esc(c[0])}${c[1] ? ` <b>${c[1]}</b>` : ''}`).join('<br>')}${r.cats.length > 3 ? `<br><span class="text-muted">+${r.cats.length - 3}</span>` : ''}</small></td>
-        <td>${timeCell(r.tm)}</td>
-        <td class="num">${r.jo ? `<b>${R.n(r.jo.docs)}</b><br><small class="text-muted">${r.jo.cpd} اقتباس/بحث${petra(r) ? ` · البترا ${petra(r)[1]}` : ''}</small>` : '<small class="text-muted">–</small>'}</td>
-        <td class="text-nowrap">${links(r)}</td></tr>`).join('')}</tbody></table></div>`;
-    else if (st.view === 'compact') out.innerHTML = `<ol class="rs-compact-list" start="${st.page * PER + 1}">${part.map(r => `<li><a href="#" data-j="${r.id}" class="ltr">${esc(r.t)}</a> ${R.qTag(r.q)} <small class="text-muted">SJR ${r.sjr ? r.sjr.toFixed(2) : '–'} · ${esc(r.pub)}${r.jo ? ` · ${R.n(r.jo.docs)} بحثاً أردنياً` : ''}</small> ${tags(r)}</li>`).join('')}</ol>`;
+    else if (st.view === 'table') out.innerHTML = `<div class="rs-scroll rs-jtwrap"><table class="rs-jt2"><thead><tr>
+        <th class="c">#</th><th><i class="bi bi-journal-bookmark-fill ic-m"></i> المجلة</th><th class="c"><i class="bi bi-award-fill ic-g"></i> التصنيف</th><th><i class="bi bi-star-fill ic-y"></i> SJR</th><th class="c"><i class="bi bi-graph-up ic-t"></i> h-index</th>
+        <th><i class="bi bi-tags-fill ic-p"></i> التخصصات</th><th class="c"><i class="bi bi-hourglass-split ic-b"></i> مدة القرار</th><th class="c"><i class="bi bi-people-fill ic-o"></i> أبحاث أردنية</th><th class="c"><i class="bi bi-link-45deg"></i> روابط</th></tr></thead><tbody>
+      ${part.map((r, i) => `<tr class="${r.fl ? 'flagged' : ''}"><td class="c n">${st.page * PER + i + 1}</td>
+        <td class="jt"><a href="#" data-j="${r.id}" class="ltr">${esc(r.t)}</a><div class="ltr sub"><i class="bi bi-building"></i> ${esc(r.pub)} <span class="dot">·</span> <i class="bi bi-geo-alt"></i> ${esc(r.country)}${issn0(r) ? ` <span class="dot">·</span> <span class="mono">${fmtIssn(r.issn).join(', ')}</span>` : ''}</div>${tags(r) ? `<div class="tg">${tags(r)}</div>` : ''}</td>
+        <td class="c">${qp(r.q)}<div class="sub">#${R.n(r.rank)} عالمياً</div></td>
+        <td><div class="sjc"><b>${r.sjr ? r.sjr.toFixed(2) : '–'}</b><span class="bar"><i style="width:${(100 * (r.sjr || 0) / maxS).toFixed(0)}%"></i></span></div></td>
+        <td class="c"><b class="big">${R.n(r.h)}</b></td>
+        <td class="ltr"><div class="cts">${r.cats.slice(0, 3).map(c => `<span class="ct q-${(c[1] || 'n').toLowerCase()}">${esc(c[0])}${c[1] ? ` <b>${c[1]}</b>` : ''}</span>`).join('')}${r.cats.length > 3 ? `<span class="ct more">+${r.cats.length - 3}</span>` : ''}</div></td>
+        <td class="c">${days(r) != null ? `<span class="rs-days ${days(r) <= 60 ? 'fast' : days(r) <= 150 ? 'mid' : 'slow'}"><i class="bi bi-clock-fill"></i> ${days(r)} يوماً</span>` : '<span class="na">غير متوفر</span>'}</td>
+        <td class="c">${r.jo ? `<b class="big">${R.n(r.jo.docs)}</b><div class="sub">${r.jo.cpd} اقتباس/بحث</div>${petra(r) ? `<span class="rs-petra"><i class="bi bi-bank2"></i> البترا ${petra(r)[1]}</span>` : ''}` : '<span class="na">—</span>'}</td>
+        <td class="c"><div class="lk">${links(r)}</div></td></tr>`).join('')}</tbody></table></div>`;
+    else if (st.view === 'compact') out.innerHTML = `<ol class="rs-compact-list" start="${st.page * PER + 1}">${part.map(r => `<li>${qp(r.q)} <a href="#" data-j="${r.id}" class="ltr">${esc(r.t)}</a> <small class="text-muted">SJR ${r.sjr ? r.sjr.toFixed(2) : '–'} · ${esc(r.pub)}${r.jo ? ` · ${R.n(r.jo.docs)} بحثاً أردنياً` : ''}</small> ${tags(r)}</li>`).join('')}</ol>`;
     else out.innerHTML = `<div class="rs-jgrid">${part.map(r => `<article class="rs-jcard q-${(r.q || 'n').toLowerCase()}${r.fl ? ' flagged' : ''}">
-        <div class="top"><span class="qbig">${r.q || '—'}</span><div class="meta"><a href="#" data-j="${r.id}" class="t">${esc(r.t)}</a><div class="sub">${esc(r.pub)} · ${esc(r.country)}</div></div></div>
-        <div class="tags">${tags(r)}</div>
-        <div class="nums"><div><b>${r.sjr ? r.sjr.toFixed(2) : '–'}</b><span>SJR</span></div><div><b>${R.n(r.h)}</b><span>h-index</span></div><div><b>#${R.n(r.rank)}</b><span>عالمياً</span></div>
-          <div><b>${r.tm && r.tm.accept != null ? r.tm.accept : '–'}</b><span>يوماً للقبول</span></div></div>
-        <div class="cats">${r.cats.slice(0, 2).map(c => `<span class="ltr">${esc(c[0])} ${c[1] ? `<b>${c[1]}</b>` : ''}</span>`).join('')}</div>
-        <div class="foot"><span>${r.jo ? `<i class="bi bi-people"></i> ${R.n(r.jo.docs)} بحثاً أردنياً${petra(r) ? ` · <b>البترا ${petra(r)[1]}</b>` : ''}` : '<span class="text-muted">لا أبحاث أردنية</span>'}</span><span class="lk">${links(r)}</span></div>
+        <div class="top"><span class="qbig"><small>أفضل</small>${r.q || '—'}</span><div class="meta"><a href="#" data-j="${r.id}" class="t">${esc(r.t)}</a><div class="sub"><i class="bi bi-building"></i> ${esc(r.pub)} · <i class="bi bi-geo-alt-fill"></i> ${esc(r.country)}</div></div></div>
+        ${tags(r) ? `<div class="tags">${tags(r)}</div>` : ''}
+        <div class="mt">
+          <div class="m y"><i class="bi bi-star-fill"></i><b>${r.sjr ? r.sjr.toFixed(2) : '–'}</b><span>SJR</span></div>
+          <div class="m t"><i class="bi bi-graph-up-arrow"></i><b>${R.n(r.h)}</b><span>h-index</span></div>
+          <div class="m p"><i class="bi bi-trophy-fill"></i><b>#${R.n(r.rank)}</b><span>الترتيب عالمياً</span></div>
+          <div class="m b"><i class="bi bi-hourglass-split"></i><b>${days(r) != null ? days(r) : '–'}</b><span>يوماً للقبول</span></div>
+        </div>
+        <div class="cts">${r.cats.slice(0, 3).map(c => `<span class="ct q-${(c[1] || 'n').toLowerCase()}">${esc(c[0])}${c[1] ? ` <b>${c[1]}</b>` : ''}</span>`).join('')}</div>
+        <div class="foot"><span class="jo">${r.jo ? `<i class="bi bi-people-fill"></i> <b>${R.n(r.jo.docs)}</b> بحثاً أردنياً${petra(r) ? ` <span class="rs-petra"><i class="bi bi-bank2"></i> البترا ${petra(r)[1]}</span>` : ''}` : '<span class="na"><i class="bi bi-people"></i> لا أبحاث أردنية</span>'}</span><span class="lk">${links(r)}</span></div>
       </article>`).join('')}</div>`;
     const pg = []; for (let i = 0; i < pages; i++) if (i < 2 || i >= pages - 2 || Math.abs(i - st.page) <= 2) pg.push(i); else if (pg[pg.length - 1] !== '…') pg.push('…');
     R.$('#jn-pager').innerHTML = pages > 1 ? pg.map(i => i === '…' ? '<span class="px-1">…</span>' : `<button class="btn btn-sm ${i === st.page ? 'btn-rs' : 'btn-rs-o'}" data-p="${i}">${i + 1}</button>`).join('') : '';
