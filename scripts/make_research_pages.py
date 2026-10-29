@@ -4,7 +4,7 @@ Run after changing the template:  python scripts/make_research_pages.py"""
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-V = '202610302200'
+V = '202610310000'
 CHART = '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>'
 D3 = '<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>'
 
@@ -49,6 +49,15 @@ PAGES = [
     ('projects.html', 'المشاريع البحثية المدعومة', 'المشاريع البحثية المدعومة من الجامعة',
      'المشاريع التي دعمتها جامعة البترا عبر عمادة البحث العلمي: حسب سنة الدعوة والكلية والباحث الرئيسي، مع حالة كل مشروع',
      'bi-briefcase', 'rs-projects.js', [CHART]),
+    ('regulations.html', 'التعليمات والأنظمة', 'تعليمات البحث العلمي وأنظمته',
+     'القوانين والأنظمة والتعليمات الخاصة بالبحث العلمي والترقية والمكافآت في جامعة البترا، بنصها الحرفي من الملفات الرسمية، مع البحث والمصطلحات وأهم ما يحتاجه الباحث',
+     'bi-bank2', 'rs-regs.js', []),
+    ('promotion.html', 'أداة الترقية', 'هل أنا جاهز للترقية؟',
+     'قارن إنتاجك العلمي بشروط الترقية في تعليمات الهيئة التدريسية: النقاط، والفئات، والباحث الرئيسي، والمدة، مع تقرير بما لديك وما ينقصك',
+     'bi-ladder', 'rs-promo.js', []),
+    ('reward.html', 'حاسبة المكافأة', 'حاسبة مكافآت البحث العلمي',
+     'دعم النشر وحوافزه ومكافآت الكتب والمشاريع والمؤتمرات حسب تعليمات البحث العلمي رقم (4) لسنة 2022، مع الشروط ومصادرها',
+     'bi-calculator', 'rs-reward.js', []),
     ('network.html', 'شبكة التعاون البحثي', 'شبكة التعاون البحثي',
      'من يكتب مع من داخل الجامعة: الروابط بين الباحثين والكليات',
      'bi-diagram-3', 'rs-network.js', [D3]),
@@ -86,6 +95,9 @@ MENU = [  # research menu items: file, icon, title, description
     ('journals.html', 'bi-journal-bookmark-fill', 'دليل المجلات', 'التصنيف ومدة القرار ومجلات مقترحة لبحثك'),
     ('experts.html', 'bi-person-check', 'ابحث عن خبير', 'باحثو الأردن حسب الموضوع'),
     ('simulator.html', 'bi-sliders', 'محاكي المؤشرات', 'أثر رفع Q1 والتعاون الدولي على الترتيب'),
+    ('regulations.html', 'bi-bank2', 'التعليمات والأنظمة', 'نصوص البحث العلمي والترقية والمكافآت الرسمية'),
+    ('promotion.html', 'bi-ladder', 'أداة الترقية', 'ما لديك وما ينقصك للترقية'),
+    ('reward.html', 'bi-calculator', 'حاسبة المكافأة', 'دعم النشر والحوافز والمشاريع والمؤتمرات'),
     ('projects.html', 'bi-briefcase', 'المشاريع المدعومة', 'مشاريع بحثية دعمتها الجامعة، حسب الدعوة والكلية'),
     ('reports.html', 'bi-calendar2-check', 'التقرير الشهري', 'الأبحاث الجديدة واقتباساتها لكل كلية'),
     ('universities.html', 'bi-bank', 'مؤشرات الجامعات الأسبوعية', 'أعداد Scopus و OpenAlex المحدّثة أسبوعياً'),

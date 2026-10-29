@@ -1,0 +1,143 @@
+{
+ "source_pages": [
+  "https://www.uop.edu.jo/Ar/UOPResearch/Pages/RegulationsInstructions.aspx",
+  "https://www.uop.edu.jo/Ar/GraduateStudies/Pages/LegislationsBylawsRegulations.aspx"
+ ],
+ "checked": "2026-10-29",
+ "changes": [],
+ "new_titles": [],
+ "docs": [
+  {
+   "id": "01",
+   "title": "قانون التعليم العالي والبحث العلمي وتعديلاته",
+   "match": "قانون التعليم العالي",
+   "kind": "قانون",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/%D9%82%D8%A7%D9%86%D9%88%D9%86%20%D8%A7%D9%84%D8%AA%D8%B9%D9%84%D9%8A%D9%85%20%D8%A7%D9%84%D8%B9%D8%A7%D9%84%D9%8A%20%D9%88%D8%A7%D9%84%D8%A8%D8%AD%D8%AB%20%D8%A7%D9%84%D8%B9%D9%84%D9%85%D9%8A%20%D9%84%D8%B3%D9%86%D8%A9%202018.pdf",
+   "pages": 5,
+   "sha256": "0717d3af0a445f272350946739cd785a9199229707193381f351ba606e1b2290",
+   "accepted": "2026-10-29",
+   "checked": "2026-10-29",
+   "pending": null
+  },
+  {
+   "id": "02",
+   "title": "نظام الهيئة التدريسية في جامعة البترا لسنة 2019",
+   "match": "نظام الهيئة التدريسية",
+   "kind": "نظام",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/1%20%D9%86%D8%B8%D8%A7%D9%85%20%D8%A7%D9%84%D9%87%D9%8A%D8%A6%D8%A9%20%D8%A7%D9%84%D8%AA%D8%AF%D8%B1%D9%8A%D8%B3%D9%8A%D8%A9.pdf",
+   "pages": 12,
+   "sha256": "ad85d91f0b95f599a939b292d97592ab99584e0a81cc477e345a41f8cbc1eea3",
+   "accepted": "2026-10-29",
+   "checked": "2026-10-29",
+   "pending": null
+  },
+  {
+   "id": "03",
+   "title": "نظام البحث العلمي لسنة 2011",
+   "match": "نظام البحث العلمي",
+   "kind": "نظام",
+   "url": "https://www.uop.edu.jo/Ar/UOPResearch/Documents/9%20%D9%86%D8%B8%D8%A7%D9%85%20%D8%A7%D9%84%D8%A8%D8%AD%D8%AB%20%D8%A7%D9%84%D8%B9%D9%84%D9%85%D9%8A.pdf",
+   "pages": 2,
+   "sha256": "77884a6847a22cd17e820552a39b475c294cb5d578036f432c60859ebc4fde23",
+   "accepted": "2026-10-29",
+   "checked": "2026-10-29",
+   "pending": null
+  },
+  {
+   "id": "04",
+   "title": "نظام الدراسات العليا لسنة 2005",
+   "match": "نظام الدراسات العليا",
+   "kind": "نظام",
+   "url": "https://www.uop.edu.jo/Ar/UOPResearch/Documents/10%20%D9%86%D8%B8%D8%A7%D9%85%20%D8%A7%D9%84%D8%AF%D8%B1%D8%A7%D8%B3%D8%A7%D8%AA%20%D8%A7%D9%84%D8%B9%D9%84%D9%8A%D8%A7.pdf",
+   "pages": 2,
+   "sha256": "219b52e6b5dafccce228be616b623b11aca12100ea911b26ad6dbc0bb304be25",
+   "accepted": "2026-10-29",
+   "checked": "2026-10-29",
+   "pending": null
+  },
+  {
+   "id": "05",
+   "title": "تعليمات الهيئة التدريسية في جامعة البترا لسنة 2021",
+   "match": "تعليمات الهيئة التدريسية",
+   "kind": "تعليمات",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/1%20%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D8%A7%D8%AA%20%D8%A7%D9%84%D9%87%D9%8A%D8%A6%D8%A9%20%D8%A7%D9%84%D8%AA%D8%AF%D8%B1%D9%8A%D8%B3%D9%8A%D8%A9%2020230620.pdf",
+   "pages": 14,
+   "sha256": "261cac32710d6f8a664241858bb6dd3c8fa5170149e6a74650852176bcef29be",
+   "accepted": "2026-10-29",
+   "checked": "2026-10-29",
+   "pending": null
+  },
+  {
+   "id": "06",
+   "title": "تعليمات البحث العلمي وبراءة الاختراع، والمشاركة في المؤتمرات العلمية في جامعة البترا لسنة 2022",
+   "match": "تعليمات البحث العلمي",
+   "kind": "تعليمات",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/4%20%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D8%A7%D8%AA%20%D8%A7%D9%84%D8%A8%D8%AD%D8%AB%20%D8%A7%D9%84%D8%B9%D9%84%D9%85%D9%8A%2020230620.pdf",
+   "pages": 12,
+   "sha256": "26f4c3f6b63c82daee726341dc4b197bb4bab9337345d235646637701778a2f1",
+   "accepted": "2026-10-29",
+   "checked": "2026-10-29",
+   "pending": null
+  },
+  {
+   "id": "07",
+   "title": "تعليمات منحة بحث علمي صيفي في جامعة البترا لسنة 2016",
+   "match": "منحة بحث علمي صيفي",
+   "kind": "تعليمات",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/5%20%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D8%A7%D8%AA%20%D9%85%D9%86%D8%AD%D8%A9%20%D8%A8%D8%AD%D8%AB%20%D8%B9%D9%84%D9%85%D9%8A%20%D8%B5%D9%8A%D9%81%D9%8A%20%D9%81%D9%8A%20%D8%AC%D8%A7%D9%85%D8%B9%D8%A9%20%D8%A7%D9%84%D8%A8%D8%AA%D8%B1%D8%A7.pdf",
+   "pages": 2,
+   "sha256": "ff9421ee214c005b20b3921df348e73cfb33fbf329a87bfe9ff44a0a01c47f12",
+   "accepted": "2026-10-29",
+   "checked": "2026-10-29",
+   "pending": null
+  },
+  {
+   "id": "08",
+   "title": "تعليمات منح درجة الماجستير في جامعة البترا لسنة 2017",
+   "match": "منح درجة الماجستير",
+   "kind": "تعليمات",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/18%20%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D8%A7%D8%AA%20%D9%85%D9%86%D8%AD%20%D8%AF%D8%B1%D8%AC%D8%A9%20%D8%A7%D9%84%D9%85%D8%A7%D8%AC%D8%B3%D8%AA%D9%8A%D8%B1%2020230620.pdf",
+   "pages": 12,
+   "sha256": "6d97fd28290d34a3c0aee77400a2af2f7afbd627fdda949c10ac894631a96653",
+   "accepted": "2026-10-29",
+   "checked": "2026-10-29",
+   "pending": null
+  },
+  {
+   "id": "09",
+   "title": "تعليمات التفرغ العلمي لأعضاء الهيئة التدريسية في جامعة البترا لسنة 2023",
+   "match": "التفرغ العلمي",
+   "kind": "تعليمات",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/55%20%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AA%D9%81%D8%B1%D8%BA%20%D8%A7%D9%84%D8%B9%D9%84%D9%85%D9%8A%20%D9%84%D8%A3%D8%B9%D8%B6%D8%A7%D8%A1%20%D8%A7%D9%84%D9%87%D9%8A%D8%A6%D8%A9%20%D8%A7%D9%84%D8%AA%D8%AF%D8%B1%D9%8A%D8%B3%D9%8A%D8%A9%20%D9%81%D9%8A%20%D8%AC%D8%A7%D9%85%D8%B9%D8%A9%20%D8%A7%D9%84%D8%A8%D8%AA%D8%B1%D8%A7%2020230620.pdf",
+   "pages": 6,
+   "sha256": "62dece684cb949702c0d0ef2e489d83e943ce20bccf3f599469587f13b22e684",
+   "accepted": "2026-10-29",
+   "checked": "2026-10-29",
+   "pending": null
+  },
+  {
+   "id": "10",
+   "title": "تعليمات دعم البحث العلمي لطلبة الماجستير في جامعة البترا لسنة 2018",
+   "match": "دعم البحث العلمي لطلبة",
+   "kind": "تعليمات",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/56%20%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D8%A7%D8%AA%20%D8%AF%D8%B9%D9%85%20%D8%A7%D9%84%D8%A8%D8%AD%D8%AB%20%D8%A7%D9%84%D8%B9%D9%84%D9%85%D9%8A%20%D9%84%D8%B7%D9%84%D8%A8%D8%A9%20%D8%A7%D9%84%D9%85%D8%A7%D8%AC%D8%B3%D8%AA%D9%8A%D8%B1%20%D9%81%D9%8A%20%D8%AC%D8%A7%D9%85%D8%B9%D8%A9%20%D8%A7%D9%84%D8%A8%D8%AA%D8%B1%D8%A7.pdf",
+   "pages": 3,
+   "sha256": "598f29fb5ae43c4f0c8955d5ca22efb93edb3865862b4bc85c34776390156d30",
+   "accepted": "2026-10-29",
+   "checked": "2026-10-29",
+   "pending": null
+  },
+  {
+   "id": "11",
+   "title": "تعليمات جائزة جامعة البترا للباحث المتميز في كل قسم أكاديمي لسنة 2022",
+   "match": "للباحث المتميز",
+   "kind": "تعليمات",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D8%A7%D8%AA%20%D8%AC%D8%A7%D8%A6%D8%B2%D8%A9%20%D8%AC%D8%A7%D9%85%D8%B9%D8%A9%20%D8%A7%D9%84%D8%A8%D8%AA%D8%B1%D8%A7%20%D9%84%D9%84%D8%A8%D8%A7%D8%AD%D8%AB%20%D8%A7%D9%84%D9%85%D8%AA%D9%85%D9%8A%D9%91%D9%90%D8%B2%2020230226.pdf",
+   "pages": 3,
+   "sha256": "15485b7652c39984c3a6826f12cc16eebf8eb2aebd0b57704783377e51cf2575",
+   "accepted": "2026-10-29",
+   "checked": "2026-10-29",
+   "pending": null
+  }
+ ]
+}

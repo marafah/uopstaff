@@ -1,0 +1,55 @@
+name: Watch research regulations
+
+# Daily: compare the university's official research regulations (laws, systems, instructions) with the copies the
+# regulations page was transcribed from. A changed, new or removed document is recorded in
+# data/research/regulations/sources.json (the page then marks it) and an issue asks for the text to be reviewed.
+on:
+  schedule:
+    - cron: '40 4 * * *'          # every day, 07:40 Amman time
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: research-data
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests
+      - name: Check the official documents
+        id: watch
+        run: |
+          set +e
+          python scripts/regulations_watch.py > watch.log 2>&1
+          code=$?
+          cat watch.log
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          if [ "$code" != "0" ] && [ "$code" != "3" ]; then exit "$code"; fi
+      - name: Save the result
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add data/research/regulations/sources.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Research regulations checked $(date -u +%Y-%m-%d)"
+            git pull --rebase -q && git push -q
+          fi
+      - name: Ask for a review when something changed
+        if: steps.watch.outputs.code == '3'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="مراجعة تعليمات البحث العلمي: تغيّر في الوثائق الرسمية"
+          if [ -z "$(gh issue list --state open --search "$title in:title" --json number --jq '.[].number')" ]; then
+            gh issue create --title "$title" --body "$(printf 'تغيّرت وثيقة أو أكثر في صفحات الجامعة الرسمية، والنص المعروض في صفحة التعليمات يحتاج مراجعة:\n\n```\n%s\n```\n\nبعد نقل النص الجديد: `python scripts/regulations_watch.py --accept <رقم الوثيقة>`' "$(cat watch.log)")"
+          fi
