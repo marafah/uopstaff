@@ -57,6 +57,12 @@
   offline();
 })();
 
+// the wide research menu opens centred under the top bar, so none of its three columns runs off the screen
+document.addEventListener('show.bs.dropdown', e => {
+  const m = e.target.parentElement && e.target.parentElement.querySelector('.rs-mega');
+  if (m) m.style.setProperty('--rs-mega-top', Math.round(e.target.getBoundingClientRect().bottom + 8) + 'px');
+});
+
 // ---------------------------------------------------------------- menu: «البحث العلمي» on every page, and the loose links
 // (التقويم، الآن، مفكرتي) grouped under «المزيد» to make room in the top bar
 (function () {
@@ -65,11 +71,11 @@
   nav.dataset.extra = '1';
   const here = location.pathname.split('/').pop() || 'index.html';
   const li = (h, i, b, s) => `<li><a class="dropdown-item${h === here ? ' active' : ''}" href="${h}"><i class="bi ${i}"></i><span><b>${b}</b><small>${s}</small></span></a></li>`;
-  const menu = (href, icon, full, short, items, active) => {
+  const menu = (href, icon, full, short, items, active, mega) => {
     const d = document.createElement('div');
     d.className = 'dropdown site-more';
     d.innerHTML = `<a href="${href}" class="dropdown-toggle${active ? ' active' : ''}" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi ${icon}"></i> `
-      + (short ? `<span class="nav-full">${full}</span><span class="nav-short">${short}</span>` : full) + `</a><ul class="dropdown-menu">${items}</ul>`;
+      + (short ? `<span class="nav-full">${full}</span><span class="nav-short">${short}</span>` : full) + `</a><ul class="dropdown-menu${mega ? ' rs-mega' : ''}">${items}</ul>`;
     return d;
   };
   const RS = [
@@ -80,10 +86,21 @@
     ['jordan.html', 'bi-globe-central-south-asia', 'مقارنة الجامعات الأردنية', 'حسب المجال والتخصص والفترة والتصنيف والمجلات'],
     ['journals.html', 'bi-journal-bookmark-fill', 'دليل المجلات', 'التصنيف ومدة القرار ومجلات مقترحة لبحثك'],
     ['experts.html', 'bi-person-check', 'ابحث عن خبير', 'باحثو الأردن حسب الموضوع'],
-    ['simulator.html', 'bi-sliders', 'محاكي التصنيفات', 'ماذا لو رفعنا نسبة Q1 أو التعاون الدولي؟'],
-    ['reports.html', 'bi-calendar-check', 'التقرير الشهري', 'الأبحاث الجديدة واقتباساتها لكل كلية'],
+    ['simulator.html', 'bi-sliders', 'محاكي المؤشرات', 'أثر رفع Q1 والتعاون الدولي على الترتيب'],
+    ['regulations.html', 'bi-bank2', 'التعليمات والأنظمة', 'نصوص البحث العلمي والترقية والمكافآت الرسمية'],
+    ['promotion.html', 'bi-ladder', 'أداة الترقية', 'ما لديك وما ينقصك للترقية'],
+    ['reward.html', 'bi-calculator', 'حاسبة المكافأة', 'دعم النشر والحوافز والمشاريع والمؤتمرات'],
+    ['award.html', 'bi-trophy', 'جائزة الباحث المتميز', 'نقاطك وترتيبك المتوقع في القسم'],
+    ['sabbatical.html', 'bi-calendar-range', 'إجازة التفرغ العلمي', 'الاستحقاق ونقاط المفاضلة'],
+    ['projects.html', 'bi-briefcase', 'المشاريع المدعومة', 'مشاريع بحثية دعمتها الجامعة، حسب الدعوة والكلية'],
+    ['reports.html', 'bi-calendar2-check', 'التقرير الشهري', 'الأبحاث الجديدة واقتباساتها لكل كلية'],
     ['universities.html', 'bi-bank', 'مؤشرات الجامعات الأسبوعية', 'أعداد Scopus و OpenAlex المحدّثة أسبوعياً'],
     ['network.html', 'bi-diagram-3', 'شبكة التعاون', 'من يكتب مع من داخل الجامعة']
+  ];
+  const RSG = [   // the same three columns as scripts/make_research_pages.py
+    ['استكشاف الإنتاج البحثي', 'bi-compass', ['research.html', 'researchers.html', 'publications.html', 'projects.html', 'network.html', 'reports.html']],
+    ['المقارنة والتصنيف', 'bi-bar-chart-line', ['compare.html', 'jordan.html', 'universities.html', 'simulator.html', 'journals.html', 'experts.html']],
+    ['التعليمات والأدوات', 'bi-bank2', ['regulations.html', 'promotion.html', 'reward.html', 'award.html', 'sabbatical.html']]
   ];
   const DESC = { 'calendar.html': 'الفصول والعطل والامتحانات، واشتراك التقويم', 'now.html': 'المحاضرات الجارية والقاعات الشاغرة الآن', 'notes.html': 'ملاحظاتك ومهامك، محفوظة في متصفحك' };
   const loose = [...nav.children].filter(c => c.tagName === 'A');
@@ -101,6 +118,7 @@
   const rsHere = RS.some(r => r[0] === here) || here === 'researcher.html';
   const old = nav.querySelector('a[href="research.html"]');
   if (old) return;   // the page already has the research menu
-  nav.insertBefore(menu('research.html', 'bi-mortarboard-fill', 'البحث العلمي', 'البحث', RS.map(r => li(...r)).join(''), rsHere), more);
+  nav.insertBefore(menu('research.html', 'bi-mortarboard-fill', 'البحث العلمي', 'البحث', RSG.map(([t, i, fs]) => `<li class="rs-mega-col"><h6 class="rs-mega-h"><i class="bi ${i}"></i> ${t}</h6><ul>`
+    + fs.map(f => li(...RS.find(r => r[0] === f))).join('') + '</ul></li>').join(''), rsHere, true), more);
 })();
 

@@ -4,7 +4,7 @@ Run after changing the template:  python scripts/make_research_pages.py"""
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-V = '202610310100'
+V = '202610310200'
 CHART = '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>'
 D3 = '<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>'
 
@@ -110,6 +110,12 @@ MENU = [  # research menu items: file, icon, title, description
     ('reports.html', 'bi-calendar2-check', 'التقرير الشهري', 'الأبحاث الجديدة واقتباساتها لكل كلية'),
     ('universities.html', 'bi-bank', 'مؤشرات الجامعات الأسبوعية', 'أعداد Scopus و OpenAlex المحدّثة أسبوعياً'),
     ('network.html', 'bi-diagram-3', 'شبكة التعاون', 'من يكتب مع من داخل الجامعة'),
+]
+
+GROUPS = [  # the research menu, in three columns: heading, icon, files from MENU
+    ('استكشاف الإنتاج البحثي', 'bi-compass', ['research.html', 'researchers.html', 'publications.html', 'projects.html', 'network.html', 'reports.html']),
+    ('المقارنة والتصنيف', 'bi-bar-chart-line', ['compare.html', 'jordan.html', 'universities.html', 'simulator.html', 'journals.html', 'experts.html']),
+    ('التعليمات والأدوات', 'bi-bank2', ['regulations.html', 'promotion.html', 'reward.html', 'award.html', 'sabbatical.html']),
 ]
 
 TEMPLATE = '''<!doctype html>
@@ -259,8 +265,11 @@ TEMPLATE = '''<!doctype html>
 
 
 def main():
-    menu = '\n'.join(f'          <li><a class="dropdown-item" href="{f}"><i class="bi {i}"></i><span><b>{t}</b><small>{d}</small></span></a></li>'
-                     for f, i, t, d in MENU)
+    by = {m[0]: m for m in MENU}
+    def col(t, i, files):
+        lis = ''.join(f'<li><a class="dropdown-item" href="{f}"><i class="bi {by[f][1]}"></i><span><b>{by[f][2]}</b><small>{by[f][3]}</small></span></a></li>' for f in files)
+        return f'          <li class="rs-mega-col"><h6 class="rs-mega-h"><i class="bi {i}"></i> {t}</h6><ul>{lis}</ul></li>'
+    menu = '\n'.join(col(*g) for g in GROUPS)
     def item(h, i, t, d):
         return f'          <li><a class="dropdown-item" href="{h}"><i class="bi {i}"></i><span><b>{t}</b><small>{d}</small></span></a></li>'
     blocks = []
@@ -268,8 +277,9 @@ def main():
         label = f'<span class="nav-full">{full}</span><span class="nav-short">{short}</span>' if short else full
         active = ' active" aria-current="page' if href == 'research.html' else ''
         lis = menu if items == 'RESEARCH' else '\n'.join('          <li><hr class="dropdown-divider"></li>' if x is None else item(*x) for x in items)
+        mega = ' rs-mega' if items == 'RESEARCH' else ''
         blocks.append(f'      <div class="dropdown site-more">\n        <a href="{href}" class="dropdown-toggle{active}" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi {icon}"></i> {label}</a>\n'
-                      f'        <ul class="dropdown-menu">\n{lis}\n        </ul>\n      </div>')
+                      f'        <ul class="dropdown-menu{mega}">\n{lis}\n        </ul>\n      </div>')
     sitenav = '\n'.join(blocks)
     foot = '\n'.join(f'          <li><a href="{f}"><i class="bi {i}"></i> {t}</a></li>' for f, i, t, _ in MENU)
     for f, title, h1, sub, icon, script, libs in PAGES:
