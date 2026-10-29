@@ -63,8 +63,9 @@
     const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js'; s.onload = ok; s.onerror = () => no(new Error('d3')); document.head.appendChild(s); }));
   function graphShell(list) {
     return `<div class="og-wrap" id="og-wrap"><div class="og-tools no-print">
-        <div class="og-legend"><span><i style="background:#901d23"></i> أكاديمي</span><span><i style="background:#0b4a66"></i> إداري</span><span><i style="background:#b8892b"></i> مجلس الأمناء</span>
-          <span><i class="ring"></i> منصب قيادي</span><span><i class="sq"></i> كلية / وحدة</span><span><i class="sq d"></i> قسم</span></div>
+        <div class="og-crumb" id="og-crumb"></div>
+        <div class="og-legend"><span><i style="background:#901d23"></i> أكاديمي / كلية</span><span><i style="background:#0b4a66"></i> إداري / وحدة</span><span><i style="background:#b8892b"></i> مجلس الأمناء</span>
+          <span><i class="ring"></i> منصب قيادي</span><span><i style="background:#1f6f78"></i> قسم</span></div>
         <div class="btn-group btn-group-sm"><button type="button" class="btn btn-light" data-og="in" title="تكبير"><i class="bi bi-zoom-in"></i></button>
           <button type="button" class="btn btn-light" data-og="out" title="تصغير"><i class="bi bi-zoom-out"></i></button>
           <button type="button" class="btn btn-light" data-og="fit" title="ملاءمة الشاشة"><i class="bi bi-fullscreen"></i></button>
@@ -81,99 +82,173 @@
     if (!wrap) return;
     const W = wrap.clientWidth, H = wrap.clientHeight;
     const U = hierarchy(list, ctx.FAC);
-    const nodes = [{ id: 'root', kind: 'root', name: 'جامعة البترا', r: 34 }], links = [];
-    U.forEach(u => {
-      const uid = 'u:' + u.id;
-      nodes.push({ id: uid, kind: 'unit', name: u.name, r: 13 + Math.min(18, Math.sqrt(u.all.length) * 2.2), n: u.all.length });
-      links.push({ source: 'root', target: uid, kind: 'u' });
-      const P = (m, parent) => { nodes.push({ id: 'p:' + m.id, kind: 'person', m, name: m.name, r: m.role ? 12 : 7 }); links.push({ source: parent, target: 'p:' + m.id, kind: 'p' }); };
-      u.lead.forEach(m => P(m, uid));
-      u.staff.forEach(m => P(m, uid));
-      u.depts.forEach(d => {
-        const did = uid + '|' + d.name;
-        nodes.push({ id: did, kind: 'dept', name: d.name, r: 9 + Math.min(8, Math.sqrt(d.head.length + d.people.length) * 1.5) });
-        links.push({ source: uid, target: did, kind: 'd' });
-        d.head.forEach(m => P(m, did)); d.people.forEach(m => P(m, did));
-      });
-    });
+    const tip = root.querySelector('#og-tip'), card = root.querySelector('#og-card'), crumb = root.querySelector('#og-crumb');
     const svg = d3.select(svgEl).attr('viewBox', [-W / 2, -H / 2, W, H]);
-    svg.selectAll('*').remove();
-    const defs = svg.append('defs');
-    const g = svg.append('g');
-    const color = n => n.kind === 'person' ? (TYPE[n.m.type] || TYPE.admin)[1] : n.kind === 'unit' ? '#091b22' : n.kind === 'dept' ? '#1f6f78' : '#901d23';
-    // photos as circle fills
-    nodes.filter(n => n.kind === 'person' && n.m.photo).forEach((n, i) => {
-      n.pat = 'ogp' + i;
-      defs.append('pattern').attr('id', n.pat).attr('patternContentUnits', 'objectBoundingBox').attr('width', 1).attr('height', 1)
-        .append('image').attr('href', n.m.photo).attr('width', 1).attr('height', 1).attr('preserveAspectRatio', 'xMidYMid slice');
-    });
-    const sim = d3.forceSimulation(nodes)
-      .force('link', d3.forceLink(links).id(d => d.id).distance(l => l.kind === 'u' ? 170 : l.kind === 'd' ? 70 : 26).strength(l => l.kind === 'p' ? 1 : .7))
-      .force('charge', d3.forceManyBody().strength(d => d.kind === 'person' ? -18 : d.kind === 'dept' ? -160 : d.kind === 'unit' ? -520 : -900))
-      .force('collide', d3.forceCollide(d => d.r + 2))
-      .force('x', d3.forceX().strength(.03)).force('y', d3.forceY().strength(.03));
-    const link = g.append('g').attr('class', 'og-links').selectAll('line').data(links).join('line').attr('class', l => 'og-l ' + l.kind);
-    const node = g.append('g').selectAll('g').data(nodes).join('g').attr('class', d => 'og-n ' + d.kind + (d.m && d.m.role ? ' lead' : ''));
-    node.filter(d => d.kind === 'unit' || d.kind === 'dept').append('rect')
-      .attr('x', d => -d.r).attr('y', d => -d.r).attr('width', d => 2 * d.r).attr('height', d => 2 * d.r).attr('rx', d => d.kind === 'unit' ? 10 : 6).attr('fill', color);
-    node.filter(d => d.kind === 'root').append('circle').attr('r', d => d.r).attr('fill', '#901d23');
-    node.filter(d => d.kind === 'root').append('image').attr('href', 'assets/logo.png').attr('x', -22).attr('y', -22).attr('width', 44).attr('height', 44).style('filter', 'brightness(0) invert(1)');
-    node.filter(d => d.kind === 'person').append('circle').attr('r', d => d.r).attr('fill', d => d.pat ? `url(#${d.pat})` : color(d))
-      .attr('stroke', d => d.m.role ? '#f5b301' : color(d)).attr('stroke-width', d => d.m.role ? 3 : 1.6);
-    node.filter(d => d.kind === 'unit' || d.kind === 'dept').append('text').attr('class', 'og-ic').attr('dy', '.35em').attr('text-anchor', 'middle')
-      .text(d => d.kind === 'unit' ? d.n : '');
-    const label = node.filter(d => d.kind !== 'person').append('text').attr('class', d => 'og-t ' + d.kind).attr('dy', d => d.r + 14).attr('text-anchor', 'middle')
-      .text(d => d.kind === 'root' ? '' : d.kind === 'dept' ? d.name : d.name.replace(/^كلية\s/, ''));
-    const plabel = node.filter(d => d.kind === 'person').append('text').attr('class', 'og-t person').attr('dy', d => d.r + 11).attr('text-anchor', 'middle')
-      .text(d => d.name.replace(/^(أ\.?\s?د|ا\.?\s?د|د|م|أ)\.+\s*/, '').split(/\s+/).slice(0, 2).join(' '));
-    let names = false, k = 1;
-    const showNames = () => plabel.style('display', names || k > 1.8 ? null : 'none');
-    showNames();
-    const zoom = d3.zoom().scaleExtent([.2, 6]).on('zoom', e => { g.attr('transform', e.transform); k = e.transform.k; showNames(); });
-    svg.call(zoom).on('dblclick.zoom', null);
-    // hover: the person's path to the root, the rest faded
-    const tip = root.querySelector('#og-tip'), card = root.querySelector('#og-card');
-    const parentOf = {}; links.forEach(l => { parentOf[(l.target.id || l.target)] = l.source.id || l.source; });
-    const chain = id => { const s = new Set([id]); let p = parentOf[id]; while (p) { s.add(p); p = parentOf[p]; } return s; };
-    node.on('mouseenter', (e, d) => {
-      const c = chain(d.id);
-      if (d.kind !== 'person') nodes.forEach(n => { let p = n.id; while (p) { if (p === d.id) { c.add(n.id); break; } p = parentOf[p]; } });
-      node.classed('dim', n => !c.has(n.id)); link.classed('dim', l => !(c.has(l.source.id) && c.has(l.target.id)));
-      const m = d.m;
-      tip.innerHTML = m ? `<b>${esc(m.name)}</b><span>${esc(m.role || ctx.jobText(m) || m.rank || '')}</span><span>${esc((ctx.FAC[m.faculty] || {}).name || '')}${firstDept(m) ? ' · ' + esc(firstDept(m)) : ''}</span>${m.ext ? `<span><i class="bi bi-telephone-fill"></i> ${esc(m.ext)}</span>` : ''}`
-        : `<b>${esc(d.name)}</b>${d.n ? `<span>${d.n} موظفاً</span>` : ''}`;
-      tip.hidden = false;
-    }).on('mousemove', e => { const r = wrap.getBoundingClientRect(); tip.style.left = (e.clientX - r.left + 14) + 'px'; tip.style.top = (e.clientY - r.top + 14) + 'px'; })
-      .on('mouseleave', () => { node.classed('dim', false); link.classed('dim', false); tip.hidden = true; })
-      .on('click', (e, d) => {
-        if (!d.m) { zoomTo(d); return; }
-        card.innerHTML = `<button type="button" class="btn-close og-x" aria-label="إغلاق"></button>${ctx.card(d.m).replace(/^<div class="col">/, '<div>')}`;
-        card.hidden = false; card.querySelector('.og-x').onclick = () => { card.hidden = true; };
-      });
-    node.call(d3.drag().on('start', (e, d) => { if (!e.active) sim.alphaTarget(.2).restart(); d.fx = d.x; d.fy = d.y; })
-      .on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; }).on('end', (e, d) => { if (!e.active) sim.alphaTarget(0); d.fx = null; d.fy = null; }));
-    sim.on('tick', () => {
-      link.attr('x1', d => d.source.x).attr('y1', d => d.source.y).attr('x2', d => d.target.x).attr('y2', d => d.target.y);
-      node.attr('transform', d => `translate(${d.x},${d.y})`);
-    });
-    const fit = (ms) => {
-      const xs = nodes.map(n => n.x), ys = nodes.map(n => n.y);
-      const x0 = Math.min(...xs) - 40, x1 = Math.max(...xs) + 40, y0 = Math.min(...ys) - 40, y1 = Math.max(...ys) + 60;
-      const s = Math.min(4, .95 * Math.min(W / (x1 - x0), H / (y1 - y0)));
-      svg.transition().duration(ms).call(zoom.transform, d3.zoomIdentity.translate(-s * (x0 + x1) / 2, -s * (y0 + y1) / 2).scale(s));
+    const g0 = { k: 1 };
+    let g, zoom, names = false;
+    const unitKind = u => /^\d+$/.test(u.id) ? 'fac' : u.id === 'boardoftrustees' ? 'board' : 'unit';
+    const KC = { fac: ['#901d23', '#5c1116', 'كلية'], unit: ['#0b4a66', '#062c3d', 'وحدة إدارية'], board: ['#b8892b', '#7a5a15', 'مجلس'] };
+    const nm = n => String(n || '').replace(/^(أ\.?\s?د|ا\.?\s?د|د|م|أ)\.+\s*/, '');
+    const tipShow = (e, html) => { tip.innerHTML = html; tip.hidden = false; tipMove(e); };
+    const tipMove = e => { const r = wrap.getBoundingClientRect(); tip.style.left = (e.clientX - r.left + 14) + 'px'; tip.style.top = (e.clientY - r.top + 14) + 'px'; };
+    const tipHide = () => { tip.hidden = true; };
+    const pill = (sel, x, y, text, fill, fg, anchor) => {   // a rounded badge with text, sized to it
+      const gg = sel.append('g').attr('class', 'og-pill').attr('transform', `translate(${x},${y})`);
+      const t = gg.append('text').attr('dy', '.35em').attr('text-anchor', anchor || 'middle').attr('fill', fg).text(text);
+      const b = t.node().getBBox();
+      gg.insert('rect', 'text').attr('x', b.x - 6).attr('y', b.y - 2).attr('width', b.width + 12).attr('height', b.height + 4).attr('rx', (b.height + 4) / 2).attr('fill', fill);
+      return gg;
     };
-    const zoomTo = d => { const s = Math.min(5, Math.max(1.6, k * 1.8)); svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(-s * d.x, -s * d.y).scale(s)); };
-    sim.on('end', () => fit(600));
-    for (let i = 0; i < 160; i++) sim.tick();   // settle before the first paint
-    sim.alpha(.25).restart();
-    fit(0);
+    function reset() {
+      svg.selectAll('*').remove();
+      const defs = svg.append('defs');
+      defs.append('clipPath').attr('id', 'og-clip').attr('clipPathUnits', 'objectBoundingBox').append('circle').attr('cx', .5).attr('cy', .5).attr('r', .5);
+      Object.entries(KC).forEach(([k, [a, b]]) => { const gr = defs.append('radialGradient').attr('id', 'og-g-' + k).attr('cx', '35%').attr('cy', '30%');
+        gr.append('stop').attr('offset', '0%').attr('stop-color', a); gr.append('stop').attr('offset', '100%').attr('stop-color', b); });
+      g = svg.append('g');
+      zoom = d3.zoom().scaleExtent([.1, 8]).on('zoom', e => { g.attr('transform', e.transform); g0.k = e.transform.k; labels(); });
+      svg.call(zoom).on('dblclick.zoom', null);
+    }
+    let labels = () => {};
+    const fitTo = (rad, ms) => svg.transition().duration(ms).call(zoom.transform, d3.zoomIdentity.scale(Math.min(2.5, .92 * Math.min(W, H) / (2 * rad))));
+
+    // ---------------------------------------------------------------- overview: every unit as a bubble around the university
+    function overview() {
+      reset();
+      crumb.innerHTML = `<b><i class="bi bi-diagram-2"></i> كل الكليات والوحدات</b><span>انقر أي كلية أو وحدة لعرض أقسامها وموظفيها</span>`;
+      const n = U.length, rr = u => 26 + Math.min(34, Math.sqrt(u.all.length) * 4.2);
+      const R = Math.max(230, U.reduce((a, u) => a + 2 * rr(u) + 70, 0) / (2 * Math.PI));
+      const order = U.slice().sort((a, b) => (unitKind(a) === 'fac') - (unitKind(b) === 'fac') || b.all.length - a.all.length);
+      let acc = 0; const tot = order.reduce((a, u) => a + 2 * rr(u) + 70, 0);
+      order.forEach(u => { const w = 2 * rr(u) + 70; u._a = 2 * Math.PI * (acc + w / 2) / tot; acc += w; u._x = R * Math.sin(u._a); u._y = -R * Math.cos(u._a); });
+      g.append('circle').attr('class', 'og-ring').attr('r', R);
+      g.append('g').selectAll('line').data(order).join('line').attr('class', 'og-l u').attr('x1', 0).attr('y1', 0).attr('x2', u => u._x).attr('y2', u => u._y);
+      const c = g.append('g').attr('class', 'og-n root');
+      c.append('circle').attr('r', 54).attr('fill', 'url(#og-g-fac)').attr('stroke', '#fff').attr('stroke-width', 4);
+      c.append('image').attr('href', 'assets/logo.png').attr('x', -30).attr('y', -38).attr('width', 60).attr('height', 60).style('filter', 'brightness(0) invert(1)');
+      c.append('text').attr('class', 'og-ctr').attr('y', 34).attr('text-anchor', 'middle').text(`${list.length} موظفاً`);
+      const node = g.append('g').selectAll('g').data(order).join('g').attr('class', 'og-n bub').attr('transform', u => `translate(${u._x},${u._y})`);
+      node.append('circle').attr('r', rr).attr('fill', u => `url(#og-g-${unitKind(u)})`).attr('stroke', '#fff').attr('stroke-width', 3);
+      // the head of the unit, in the middle of the bubble when there is a photo
+      node.each(function (u) {
+        const s = d3.select(this), r = rr(u), head = u.lead[0], ph = head && head.photo;
+        if (ph) { const q = r * .62; s.append('circle').attr('cy', -r * .18).attr('r', q + 2).attr('fill', '#fff');
+          s.append('image').attr('href', ph).attr('x', -q).attr('y', -r * .18 - q).attr('width', 2 * q).attr('height', 2 * q).attr('clip-path', 'url(#og-clip)').attr('preserveAspectRatio', 'xMidYMid slice').on('error', function () { this.remove(); }); }
+        s.append('text').attr('class', 'og-big').attr('y', ph ? r * .62 : 0).attr('dy', '.35em').attr('text-anchor', 'middle').text(u.all.length);
+        // badges: academic / administrative / departments
+        const a = u.all.filter(m => m.type === 'academic').length, d = u.all.length - a, out = r + 12, dir = Math.cos(u._a) >= 0 ? 1 : -1;
+        const nameY = dir > 0 ? -(r + 16) : r + 16;
+        pill(s, 0, nameY, u.name.replace(/^كلية\s/, ''), '#ffffff', '#091b22').classed('name', true);
+        const row = [a ? [`${a} أكاديمي`, '#fbecec', '#901d23'] : null, d ? [`${d} ${unitKind(u) === 'board' ? 'عضو' : 'إداري'}`, '#e4f0f6', '#0b4a66'] : null, u.depts.size ? [`${u.depts.size} أقسام`, '#e0f4f1', '#0f766e'] : null].filter(Boolean);
+        row.forEach((b, i) => pill(s, (i - (row.length - 1) / 2) * 74, dir > 0 ? -(r + 38) : r + 38, b[0], b[1], b[2]).classed('small', true));
+      });
+      node.on('mouseenter', (e, u) => { node.classed('dim', x => x !== u); tipShow(e, `<b>${esc(u.name)}</b><span>${KC[unitKind(u)][2]} · ${u.all.length} موظفاً</span>
+          ${u.lead.slice(0, 4).map(m => `<span><i class="bi bi-star-fill" style="color:#f5b301"></i> ${esc(nm(m.name))} – ${esc(m.role || ctx.jobText(m))}</span>`).join('')}
+          ${u.depts.size ? `<span><i class="bi bi-diagram-3"></i> ${[...u.depts.keys()].slice(0, 6).map(esc).join('، ')}</span>` : ''}<span class="og-hint">انقر للتفاصيل</span>`); })
+        .on('mousemove', tipMove).on('mouseleave', () => { node.classed('dim', false); tipHide(); })
+        .on('click', (e, u) => { tipHide(); current = focus(u); });
+      labels = () => {};
+      const fit = ms => fitTo(R + 120, ms);
+      fit(0);
+      return fit;
+    }
+
+    // ---------------------------------------------------------------- one unit: an org chart of department panels with readable person cards
+    const offc = m => { const o = String(m.office || '').trim(); return o && o !== m.ext && !/^0*$/.test(o) ? o : ''; };
+    const fitBox = (x0, y0, x1, y1, ms) => {
+      const w = x1 - x0, h = y1 - y0, k = Math.min(1.05, .96 * W / w, h * Math.min(1.05, .96 * W / w) > H ? 9 : .94 * H / h);
+      const ty = h * k > H ? -H / 2 + 16 - y0 * k : -k * (y0 + y1) / 2;
+      svg.transition().duration(ms || 0).call(zoom.transform, d3.zoomIdentity.translate(-k * (x0 + x1) / 2, ty).scale(k));
+    };
+    const clip = (t, max) => { const n = t.node(); let s = n.textContent; while (s.length > 3 && n.getComputedTextLength() > max) { s = s.slice(0, -1); n.textContent = s + '…'; } return t; };
+    function focus(u) {
+      reset(); labels = () => {};
+      crumb.innerHTML = `${U.length > 1 ? '<button type="button" class="btn btn-sm btn-light" id="og-back"><i class="bi bi-arrow-right"></i> كل الوحدات</button>' : ''}
+        <b><i class="bi ${unitKind(u) === 'fac' ? 'bi-mortarboard-fill' : 'bi-building'}"></i> ${esc(u.name)}</b><span>${u.all.length} موظفاً${u.depts.size ? ` · ${u.depts.size} أقسام` : ''} · انقر أي شخص لبطاقته</span>`;
+      const back = crumb.querySelector('#og-back'); if (back) back.onclick = () => { card.hidden = true; current = overview(); };
+      const CW = 264, CH = 64, GAP = 10, PW = CW + 24, KC0 = KC[unitKind(u)];
+      const open = m => { tipHide(); card.innerHTML = `<button type="button" class="btn-close og-x" aria-label="إغلاق"></button>${ctx.card(m).replace(/^<div class="col">/, '<div>')}`; card.hidden = false; card.querySelector('.og-x').onclick = () => { card.hidden = true; }; };
+      const info = m => `<b>${esc(m.name)}</b><span>${esc(m.role || ctx.jobText(m) || m.rank || '')}</span>${m.ext ? `<span><i class="bi bi-telephone-fill"></i> فرعي ${esc(m.ext)}</span>` : ''}${offc(m) ? `<span><i class="bi bi-door-open-fill"></i> المكتب ${esc(offc(m))}</span>` : ''}${m.email ? `<span dir="ltr">${esc(m.email)}</span>` : ''}`;
+      const person = (sel, m, x, y) => {
+        const col = (TYPE[m.type] || TYPE.admin)[1], R0 = CW / 2;
+        const gg = sel.append('g').attr('class', 'og-n oc-p' + (m.role ? ' lead' : '')).attr('transform', `translate(${x},${y})`);
+        gg.append('rect').attr('class', 'oc-box').attr('x', -R0).attr('y', -CH / 2).attr('width', CW).attr('height', CH).attr('rx', 12).attr('stroke', m.role ? '#e8b923' : '#e3e7ec');
+        gg.append('rect').attr('x', R0 - 5).attr('y', -CH / 2 + 8).attr('width', 5).attr('height', CH - 16).attr('rx', 2.5).attr('fill', col);
+        const f = gg.append('g').attr('transform', `translate(${R0 - 34},0)`);
+        f.append('circle').attr('r', 21).attr('fill', col).attr('stroke', m.role ? '#f5b301' : '#fff').attr('stroke-width', m.role ? 3 : 2);
+        f.append('text').attr('class', 'og-ini').attr('dy', '.35em').attr('text-anchor', 'middle').style('font-size', '14px').text(nm(m.name).split(/\s+/).slice(0, 2).map(w => w[0] || '').join(' '));
+        if (m.photo) f.append('image').attr('href', m.photo).attr('clip-path', 'url(#og-clip)').attr('x', -19).attr('y', -19).attr('width', 38).attr('height', 38).attr('preserveAspectRatio', 'xMidYMid slice').on('error', function () { this.remove(); });
+        const tx = R0 - 64, maxw = CW - 76;
+        clip(gg.append('text').attr('class', 'oc-name').attr('x', tx).attr('y', -11).attr('direction', 'rtl').attr('text-anchor', 'start').text(nm(m.name)), maxw - (m.role ? 0 : 0));
+        clip(gg.append('text').attr('class', 'oc-sub').attr('x', tx).attr('y', 6).attr('direction', 'rtl').attr('text-anchor', 'start').text(m.role || m.rank || ctx.jobText(m) || TYPE[m.type]?.[0] || ''), maxw);
+        // contact line: extension and office as small labelled chips
+        let cx = tx;
+        const chip = (icon, txt, fill, fg) => { if (!txt) return; const c = gg.append('g').attr('transform', `translate(${cx},${21})`);
+          const t = c.append('text').attr('class', 'oc-chip').attr('direction', 'rtl').attr('text-anchor', 'start').attr('x', -6).attr('dy', '.35em').attr('fill', fg).text(icon + ' ' + txt);
+          clip(t, Math.max(30, cx - (-R0 + 10) - 14)); const w = t.node().getComputedTextLength() + 12;
+          c.insert('rect', 'text').attr('x', -w).attr('y', -8).attr('width', w).attr('height', 16).attr('rx', 8).attr('fill', fill); cx -= w + 5; };
+        chip('☎', m.ext, '#eef2f7', '#0b2f40'); const of = offc(m); chip('مكتب', of && (/\d/.test(of) || of !== u.name) ? of : '', '#fbf3e4', '#7a4b00');
+        gg.on('mouseenter', e => tipShow(e, info(m))).on('mousemove', tipMove).on('mouseleave', tipHide).on('click', () => open(m));
+        return gg;
+      };
+      // ---- unit header
+      const a = u.all.filter(m => m.type === 'academic').length, d = u.all.length - a;
+      const hd = g.append('g').attr('class', 'oc-unit');
+      hd.append('rect').attr('x', -230).attr('y', -46).attr('width', 460).attr('height', 92).attr('rx', 18).attr('fill', `url(#og-g-${unitKind(u)})`);
+      hd.append('text').attr('class', 'oc-uname').attr('y', -12).attr('text-anchor', 'middle').text(u.name);
+      const row = [[`${u.all.length} موظفاً`, '#ffffff', KC0[1]], a ? [`${a} أكاديمي`, '#fbecec', '#901d23'] : null, d ? [`${d} ${unitKind(u) === 'board' ? 'عضو' : 'إداري'}`, '#e4f0f6', '#0b4a66'] : null, u.depts.size ? [`${u.depts.size} أقسام`, '#e0f4f1', '#0f766e'] : null].filter(Boolean);
+      row.forEach((b, i) => pill(hd, (i - (row.length - 1) / 2) * 92, 22, b[0], b[1], b[2]).classed('mid', true));
+      let y = 46;
+      // ---- leadership row
+      const L = u.lead; let lw = 0;
+      if (L.length) {
+        const per = Math.min(L.length, 5), rowsL = Math.ceil(L.length / per);
+        y += 30; g.append('line').attr('class', 'oc-l').attr('x1', 0).attr('x2', 0).attr('y1', 46).attr('y2', y + 14);
+        pill(g, 0, y, 'القيادة', '#fff7e0', '#7a5600').classed('mid', true); y += 22;
+        L.forEach((m, i) => { const r = Math.floor(i / per), c = i % per, n = Math.min(per, L.length - r * per);
+          person(g, m, ((n - 1) / 2 - c) * (CW + GAP), y + CH / 2 + r * (CH + GAP)); });
+        y += rowsL * (CH + GAP); lw = per * (CW + GAP) / 2;
+      }
+      // ---- departments (and the remaining staff) as panels in a grid, right to left
+      const panels = [...u.depts.values()].sort((p, q) => p.name.localeCompare(q.name, 'ar'))
+        .map(p => ({ name: 'قسم ' + p.name, head: p.head[0], people: p.head.slice(1).concat(p.people), n: p.head.length + p.people.length, c: '#1f6f78' }))
+        .concat(u.staff.length ? [{ name: u.depts.size ? 'الكادر الإداري والفني' : (L.length ? 'الموظفون' : 'الكادر'), people: u.staff, n: u.staff.length, c: '#475569' }] : []);
+      const cols = panels.length <= 6 ? panels.length : Math.ceil(Math.sqrt(panels.length * 2.2));
+      let minx = -Math.max(240, lw), maxx = Math.max(240, lw);
+      for (let r0 = 0; r0 < panels.length; r0 += cols) {
+        const rowP = panels.slice(r0, r0 + cols), n = rowP.length, top = y + 50;
+        const xs = rowP.map((p, i) => ((n - 1) / 2 - i) * (PW + 18));
+        g.append('line').attr('class', 'oc-l').attr('x1', 0).attr('x2', 0).attr('y1', y).attr('y2', top - 16);
+        if (n > 1) g.append('line').attr('class', 'oc-l').attr('x1', xs[0]).attr('x2', xs[n - 1]).attr('y1', top - 16).attr('y2', top - 16);
+        let hmax = 0;
+        rowP.forEach((p, i) => {
+          const x = xs[i], items = (p.head ? [p.head] : []).concat(p.people), h = 58 + items.length * (CH + 8) + 6;
+          minx = Math.min(minx, x - PW / 2); maxx = Math.max(maxx, x + PW / 2);
+          g.append('line').attr('class', 'oc-l').attr('x1', x).attr('x2', x).attr('y1', top - 16).attr('y2', top);
+          const pg = g.append('g').attr('class', 'oc-panel');
+          pg.append('rect').attr('x', x - PW / 2).attr('y', top).attr('width', PW).attr('height', h).attr('rx', 16).attr('class', 'oc-pbox');
+          pg.append('rect').attr('x', x - PW / 2).attr('y', top).attr('width', PW).attr('height', 46).attr('rx', 16).attr('fill', p.c);
+          pg.append('rect').attr('x', x - PW / 2).attr('y', top + 30).attr('width', PW).attr('height', 16).attr('fill', p.c);
+          clip(pg.append('text').attr('class', 'oc-pname').attr('x', x + PW / 2 - 14).attr('y', top + 28).attr('direction', 'rtl').attr('text-anchor', 'start').text(p.name), PW - 70);
+          pill(pg, x - PW / 2 + 26, top + 23, String(p.n), '#ffffff', p.c).classed('mid', true);
+          items.forEach((m, j) => person(g, m, x, top + 58 + j * (CH + 8) + CH / 2));
+          hmax = Math.max(hmax, h);
+        });
+        y = top + hmax + 14;
+      }
+      const fit = ms => fitBox(minx - 20, -120, maxx + 20, Math.max(y, 200) + 20, ms);
+      fit(U.length > 1 ? 500 : 0);
+      return fit;
+    }
+
+    let current = U.length === 1 ? focus(U[0]) : overview();
     root.querySelector('#og-load').remove();
     root.querySelectorAll('[data-og]').forEach(b => b.onclick = () => {
       const a = b.dataset.og;
       if (a === 'in') svg.transition().duration(300).call(zoom.scaleBy, 1.5);
       else if (a === 'out') svg.transition().duration(300).call(zoom.scaleBy, 1 / 1.5);
-      else if (a === 'fit') fit(500);
-      else { names = !names; b.classList.toggle('active', names); showNames(); }
+      else if (a === 'fit') current(500);
+      else { names = !names; b.classList.toggle('active', names); labels(); }
     });
   }
 
@@ -221,12 +296,34 @@
     .og-legend i { display: inline-block; width: .7rem; height: .7rem; border-radius: 50%; vertical-align: -1px; margin-inline-end: .2rem; }
     .og-legend i.ring { background: #fff; border: 2.5px solid #f5b301; } .og-legend i.sq { border-radius: 3px; background: #091b22; } .og-legend i.sq.d { background: #1f6f78; }
     .og-tools .btn.active { background: #901d23; color: #fff; }
-    .og-l { stroke: #c9d2d9; stroke-width: 1; } .og-l.u { stroke: #b88a8e; stroke-width: 2.2; } .og-l.d { stroke: #9cb8bd; stroke-width: 1.6; }
+    .og-ring { fill: none; stroke: #e3e7ec; stroke-dasharray: 3 5; }
+    .og-l { fill: none; stroke: #d3dae0; stroke-width: 1.1; } .og-l.u { stroke: #d9b9bc; stroke-width: 2.5; } .og-l.d { stroke: #9cc3c7; stroke-width: 2.2; }
     .og-n { cursor: pointer; transition: opacity .2s; } .og-n.dim, .og-l.dim { opacity: .12; }
-    .og-n.unit rect { stroke: #fff; stroke-width: 2; filter: drop-shadow(0 3px 6px rgba(0,0,0,.18)); } .og-n.dept rect { stroke: #fff; stroke-width: 1.5; }
-    .og-ic { fill: #fff; font-weight: 800; font-size: 13px; pointer-events: none; }
-    .og-t { font-family: Tajawal, sans-serif; pointer-events: none; paint-order: stroke; stroke: #fff; stroke-width: 3.5px; stroke-linejoin: round; }
-    .og-t.unit { font-size: 14px; font-weight: 800; fill: #091b22; } .og-t.dept { font-size: 10.5px; font-weight: 700; fill: #1f4e55; } .og-t.person { font-size: 8px; fill: #33424a; }
+    .og-n.bub > circle:first-child { filter: drop-shadow(0 6px 12px rgba(9,27,34,.25)); }
+    .og-n.bub:hover > circle:first-child { stroke: #f5b301; }
+    .og-big { fill: #fff; font: 800 20px Tajawal, sans-serif; pointer-events: none; }
+    .og-ctr { fill: #fff; font: 700 12px Tajawal, sans-serif; pointer-events: none; opacity: .9; }
+    .og-ic { fill: #fff; font: 800 12px Tajawal, sans-serif; pointer-events: none; }
+    .og-ini { fill: #fff; font-weight: 700; pointer-events: none; }
+    .og-pill text { font: 700 11px Tajawal, sans-serif; pointer-events: none; } .og-pill rect { stroke: rgba(9,27,34,.08); }
+    .og-pill.name text { font-size: 13px; font-weight: 800; } .og-pill.name rect { filter: drop-shadow(0 2px 4px rgba(9,27,34,.15)); }
+    .og-pill.name.dept text { font-size: 12px; }
+    .og-pill.small text { font-size: 10px; }
+    .og-t { font-family: Tajawal, sans-serif; pointer-events: none; paint-order: stroke; stroke: #fbfcfd; stroke-width: 3px; stroke-linejoin: round; }
+    .og-t.person { font-size: 11px; font-weight: 700; fill: #13222a; } .og-t.sub { font-size: 9px; fill: #5b6970; }
+    .og-crumb { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; background: rgba(255,255,255,.95); border: 1px solid #e6e9ef; border-radius: 10px; padding: .3rem .7rem; font-size: .85rem; }
+    .og-crumb b { color: #091b22; } .og-crumb b i { color: #901d23; } .og-crumb span { color: #5b6970; font-size: .78rem; }
+    .oc-box { fill: #fff; stroke-width: 1.2; filter: drop-shadow(0 2px 5px rgba(9,27,34,.08)); }
+    .oc-p:hover .oc-box { stroke: #901d23; stroke-width: 2; }
+    .oc-name { font: 800 13.5px Tajawal, sans-serif; fill: #0f1d24; pointer-events: none; }
+    .oc-sub { font: 600 11.5px Tajawal, sans-serif; fill: #5b6970; pointer-events: none; }
+    .oc-chip { font: 700 11px Tajawal, sans-serif; pointer-events: none; font-variant-numeric: tabular-nums; }
+    .oc-uname { fill: #fff; font: 800 22px Tajawal, sans-serif; }
+    .oc-pname { fill: #fff; font: 800 14.5px Tajawal, sans-serif; }
+    .oc-pbox { fill: #f7f9fb; stroke: #e1e6ec; }
+    .oc-l { stroke: #b9c4cc; stroke-width: 2; }
+    .og-pill.mid text { font-size: 12px; }
+    .og-hint { color: #fbbf24 !important; margin-top: .2rem; }
     .og-tip { position: absolute; z-index: 3; background: #091b22; color: #fff; border-radius: 10px; padding: .45rem .7rem; font-size: .8rem; max-width: 280px; pointer-events: none; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
     .og-tip b, .og-tip span { display: block; } .og-tip span { color: #c9d4da; font-size: .74rem; }
     .og-card { position: absolute; z-index: 4; inset-inline-end: .7rem; bottom: .7rem; width: min(360px, calc(100% - 1.4rem)); }

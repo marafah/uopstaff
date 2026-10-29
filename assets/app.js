@@ -88,7 +88,7 @@
     return j;
   }
   // some sources put the extension in the office field too: show the office only when it is a real, different value
-  const officeText = m => m.office && m.office !== m.ext ? m.office : '';
+  const officeText = m => m.office && m.office !== m.ext && !/^0*$/.test(String(m.office).trim()) ? String(m.office).trim() : '';
   function card(m) {
     const fac = FAC[m.faculty];
     const job = jobText(m), office = officeText(m);
@@ -102,12 +102,12 @@
         ${m.department ? `<div class="staff-line"><i class="bi bi-diagram-3"></i> قسم ${esc(m.department)}</div>` : ''}
         ${m.specialization ? `<div class="staff-line text-muted"><i class="bi bi-lightbulb"></i> ${esc(m.specialization)}</div>`
           : m.qualification ? `<div class="staff-line text-muted"><i class="bi bi-mortarboard"></i> ${esc(m.qualification)}</div>` : ''}
+        ${office ? `<div class="staff-line staff-office"><i class="bi bi-door-open"></i> <span><small>المكتب</small> ${esc(office)}</span></div>` : ''}
         ${m.email ? `<div class="staff-line staff-email"><i class="bi bi-envelope"></i> <span dir="ltr">${esc(m.email)}</span></div>` : ''}
       </div>
       <!-- one row of fixed-size actions: always fits, whatever the card width -->
       <div class="staff-contact one-row">
-        <a ${m.ext ? `href="tel:${esc(tel(m))}"` : ''} class="sc-item ${m.ext ? '' : 'disabled'}" title="${esc(DATA.main_line_display)}${m.ext ? ' – فرعي ' + esc(m.ext) : ''}"><i class="bi bi-telephone-fill"></i> ${esc(m.ext || '—')}</a>
-        ${office ? `<span class="sc-item sc-office" title="المكتب: ${esc(office)}"><i class="bi bi-door-open-fill"></i><span>${esc(office)}</span></span>` : ''}
+        <a ${m.ext ? `href="tel:${esc(tel(m))}"` : ''} class="sc-item ${m.ext ? '' : 'disabled'}" title="${esc(DATA.main_line_display)}${m.ext ? ' – فرعي ' + esc(m.ext) : ''}"><i class="bi bi-telephone-fill"></i> <small class="sc-lbl">فرعي</small> ${esc(m.ext || '—')}</a>
         <span class="sc-fill"></span>
         ${m.email ? `<a href="mailto:${esc(m.email)}" class="sc-icon" title="مراسلة: ${esc(m.email)}" aria-label="مراسلة ${esc(m.email)}"><i class="bi bi-envelope-fill"></i></a>` : ''}
         ${INS_PAGE[m.email] ? `<a href="instructor.html?id=${INS_PAGE[m.email]}" class="sc-icon" title="الجدول الأسبوعي وأوقات الفراغ" aria-label="صفحة المدرس"><i class="bi bi-calendar-week"></i></a>` : ''}

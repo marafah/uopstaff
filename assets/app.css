@@ -1761,3 +1761,8 @@ html[data-theme="dark"] .modal-backdrop.show { opacity: .25; }
   .rs-mega-col + .rs-mega-col .rs-mega-h { margin-top: .2rem; }
 }
 [data-theme="dark"] .rs-mega-h, [data-theme="dark"] .rs-mega-col + .rs-mega-col { border-color: rgba(255,255,255,.1); }
+
+/* office on its own readable line; extension labelled */
+.staff-line.staff-office span small { display: inline-block; font-size: .7rem; font-weight: 700; color: #fff; background: var(--uop-maroon); border-radius: 999px; padding: 0 .5rem; margin-inline-end: .3rem; vertical-align: 1px; }
+.staff-card.admin .staff-line.staff-office span small { background: var(--uop-navy); }
+.staff-contact.one-row .sc-item .sc-lbl { font-size: .68rem; color: #6b7280; font-weight: 600; }
