@@ -241,7 +241,9 @@
               <option value="ext" ${st.sort === 'ext' ? 'selected' : ''}>ترتيب: الرقم الفرعي</option></select>
             <div class="btn-group btn-group-sm">
               <button type="button" class="btn ${st.view === 'cards' ? 'btn-primary' : 'btn-outline-primary'}" data-view="cards"><i class="bi bi-grid-3x2-gap-fill"></i> بطاقات</button>
-              <button type="button" class="btn ${st.view === 'table' ? 'btn-primary' : 'btn-outline-primary'}" data-view="table"><i class="bi bi-table"></i> جدول</button></div>
+              <button type="button" class="btn ${st.view === 'table' ? 'btn-primary' : 'btn-outline-primary'}" data-view="table"><i class="bi bi-table"></i> جدول</button>
+              ${window.UOP_DIR_VIEWS ? `<button type="button" class="btn ${st.view === 'tree' ? 'btn-primary' : 'btn-outline-primary'}" data-view="tree" title="الوحدة ← القيادة ← الأقسام ← الأعضاء"><i class="bi bi-diagram-3-fill"></i> هرمي</button>
+              <button type="button" class="btn ${st.view === 'graph' ? 'btn-primary' : 'btn-outline-primary'}" data-view="graph" title="شبكة تفاعلية للجامعة وكلياتها وأقسامها وموظفيها"><i class="bi bi-share-fill"></i> شبكة</button>` : ''}</div>
             <div class="dropdown"><button class="btn btn-sm btn-success dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-download"></i> تصدير</button>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="#" data-export="xlsx"><i class="bi bi-file-earmark-excel text-success"></i> Excel</a></li>
@@ -253,12 +255,18 @@
                 <li><a class="dropdown-item" href="#" data-export="print"><i class="bi bi-printer"></i> طباعة / PDF</a></li></ul></div>
           </div></div></div>`;
     $('#results').innerHTML = `${!list.length ? `<div class="card"><div class="card-body text-center text-muted py-5"><i class="bi bi-person-x fs-1"></i><p class="mb-0 mt-2">لا يوجد موظفون مطابقون للتصفية.</p></div></div>`
+          : st.view === 'tree' && window.UOP_DIR_VIEWS ? window.UOP_DIR_VIEWS.tree(list, VIEW_CTX)
+          : st.view === 'graph' && window.UOP_DIR_VIEWS ? window.UOP_DIR_VIEWS.graphShell(list)
           : st.view === 'table' ? `<div class="card"><div class="table-responsive" style="max-height:78vh"><table class="table table-uop table-sm table-hover align-middle mb-0">
               <thead class="sticky-top"><tr><th></th><th>الاسم</th><th>الوظيفة والرتبة</th><th>الكلية / القسم</th><th>الفرعي</th><th>المكتب</th><th>البريد الإلكتروني</th><th>الملف</th></tr></thead>
               <tbody>${list.map(row).join('')}</tbody></table></div></div>`
           : `<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 row-cols-xxl-4 g-3">${list.map(card).join('')}</div>`}`;
     bind(list, st);
+    if (st.view === 'tree' && window.UOP_DIR_VIEWS) window.UOP_DIR_VIEWS.bindTree($('#results'));
+    if (st.view === 'graph' && window.UOP_DIR_VIEWS && list.length) window.UOP_DIR_VIEWS.graph($('#results'), list, VIEW_CTX);
   }
+  // what the tree and graph views (directory-views.js) borrow from this page
+  const VIEW_CTX = { get FAC() { return FAC; }, avatar: (m, s) => avatar(m, s), jobText: m => jobText(m), tel: m => tel(m), card: m => card(m) };
 
   // ---------------------------------------------------------------- events
   function set(changes) {

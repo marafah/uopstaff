@@ -23,11 +23,15 @@
     if (now.day === 'ج') return { ok: false, why: 'يوم الجمعة' };
     return { ok: true };
   }
+  // ?b=others: every building that is not a faculty's (library, cafeteria, theatre…) on one screen
+  const isOther = b => !!b && !/كلية|طب الأسنان/.test(b) && !/^-+$/.test(b);   // the dentistry building is a faculty's
+  const inB = (s, b) => b === 'others' ? isOther(s.building) : s.building === b;
+  const bShort = b => String(b || '').replace(/^مبنى\s*/, '');
   // the building's classes, a class listed twice by the portal (two degrees) only once
   function classes(b) {
     const seen = new Set(), out = [];
     S.forEach(s => {
-      if (s.building !== b || !s.room || s.room === '0') return;
+      if (!inB(s, b) || !s.room || s.room === '0') return;
       const k = [clean(s.room), s.code, s.section, s.activity, s.instructor, JSON.stringify(s.meetings)].join('|');
       if (seen.has(k)) return;
       seen.add(k);
@@ -46,10 +50,17 @@
         <div class="small"><b class="d-block mb-1">للعرض على شاشة في مدخل المبنى</b>
           افتح رابط المبنى على متصفح الشاشة (أو جهاز صغير موصول بها) ثم اضغط <kbd>F11</kbd> لملء الشاشة. تتحدّث الشاشة تلقائياً كل دقيقة،
           وتقرأ أي تغيير في الجدول كل 15 دقيقة، ولا تحتاج أي تدخّل بعد ذلك. القوائم الطويلة تتقلّب صفحاتها كل 12 ثانية.</div></div></div>
-      <div class="scr-b mb-3" style="border-top-color:#b7791f"><b><i class="bi bi-pencil-square"></i> شاشة عمادة القبول والتسجيل</b>
-        <small>مواعيد التسجيل وعدّها التنازلي، الشعب التي تمتلئ وأين ما زالت المقاعد متاحة، تغييرات الجدول اليوم، ورموز QR لتسجيل جدول بلا تعارض</small>
-        <div class="d-flex gap-2 mt-2"><a class="btn btn-sm btn-maroon" href="screen.html?b=registration"><i class="bi bi-display"></i> افتح الشاشة</a>
-          <button type="button" class="btn btn-sm btn-outline-secondary" data-copy="${esc(SITE + 'screen.html?b=registration')}"><i class="bi bi-link-45deg"></i> نسخ الرابط</button></div></div>
+      <h6 class="fw-bold mb-2"><i class="bi bi-person-raised-hand"></i> شاشات الخدمات</h6>
+      <div class="scr-pick mb-4">${[['registration', 'bi-pencil-square', 'عمادة القبول والتسجيل', 'مواعيد التسجيل وعدّها التنازلي، الشعب التي تمتلئ وأين ما زالت المقاعد متاحة، تغييرات الجدول اليوم، ورموز QR لجدول بلا تعارض'],
+        ['finance', 'bi-cash-coin', 'دائرة الشؤون المالية', 'المواعيد المالية (الغرامات والتسجيل والانسحاب) بعدّ تنازلي، وإلى من تتوجه لكل خدمة مع الرقم الفرعي'],
+        ['library', 'bi-book', 'مكتبة جامعة البترا', 'قاعات مبنى المكتبة الآن، أحدث أبحاث باحثي الجامعة والأعلى اقتباساً، وخدمات المكتبة والامتحانات القادمة'],
+        ['research', 'bi-mortarboard', 'عمادة البحث العلمي والدراسات العليا', 'الجامعة في Scopus وترتيبها بين الجامعات الأردنية، أحدث الأبحاث والأعلى اقتباساً، الكليات الأكثر نشراً، المشاريع المدعومة، ومواعيد الدراسات العليا'],
+        ['others', 'bi-buildings', 'المباني العامة', 'كل المباني غير مباني الكليات في شاشة واحدة: ' + [...new Set(S.filter(s => isOther(s.building)).map(s => bShort(s.building)))].join('، ') + ' — الجاري والقادم والشاغر']].map(([k, ic, t, d]) => {
+        const url = `screen.html?b=${k}`;
+        return `<div class="scr-b" style="border-top-color:#b7791f"><b><i class="bi ${ic}"></i> ${t}</b><small>${d}</small>
+          <div class="d-flex gap-2 mt-2"><a class="btn btn-sm btn-maroon" href="${url}"><i class="bi bi-display"></i> افتح الشاشة</a>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-copy="${esc(SITE + url)}"><i class="bi bi-link-45deg"></i> نسخ الرابط</button></div></div>`; }).join('')}</div>
+      <h6 class="fw-bold mb-2"><i class="bi bi-building"></i> شاشات المباني</h6>
       <div class="scr-pick">${blds.map(b => {
         const cs = classes(b), rooms = new Set(cs.map(s => clean(s.room))).size;
         const today = cs.reduce((a, s) => a + s.meetings.filter(m => inRoom(m) && m.day === now.day).length, 0);
@@ -64,13 +75,14 @@
   // ---------------------------------------------------------------- the screen
   function screen() {
     document.body.classList.add('scr-on');
-    document.title = `${B} – شاشة المبنى`;
+    const TITLE = B === 'others' ? 'المباني العامة' : B;
+    document.title = `${TITLE} – شاشة المبنى`;
     const q = qrcode(0, 'M');
-    q.addData(SITE + 'room.html?bld=' + encodeURIComponent(B));
+    q.addData(SITE + (B === 'others' ? 'room.html' : 'room.html?bld=' + encodeURIComponent(B)));
     q.make();
     const qr = q.createSvgTag({ cellSize: 4, margin: 1, scalable: true });
     document.body.insertAdjacentHTML('beforeend', `<div class="scr" id="scr">
-      <header class="scr-top"><img src="assets/logo.png" alt=""><div class="scr-t"><small>جامعة البترا</small><h1>${esc(B)}</h1></div>
+      <header class="scr-top"><img src="assets/logo.png" alt=""><div class="scr-t"><small>جامعة البترا${B === 'others' ? ' · ' + esc([...new Set(S.filter(s => isOther(s.building)).map(s => bShort(s.building)))].join('، ')) : ''}</small><h1>${esc(TITLE)}</h1></div>
         <div class="scr-clock"><b id="scr-time">--:--</b><span id="scr-date"></span></div></header>
       <main class="scr-main" id="scr-main"></main>
       <footer class="scr-foot"><div class="scr-tick" id="scr-tick"></div><div class="scr-qr">${qr}<span>امسح الرمز<br>لجدول كل قاعة</span></div></footer></div>`);
@@ -106,12 +118,12 @@
       $('#scr-main').innerHTML = `
         <section class="scr-col now"><h2><i class="bi bi-broadcast"></i> جارية الآن <span>${running.length}</span>${dots(R.p, R.n)}</h2>
           ${R.items.map(x => `<div class="scr-card"><div class="scr-room" dir="ltr">${esc(x.room)}</div><div class="scr-body"><b>${esc(x.s.name)}</b>
-            <span><bdi dir="ltr">${esc(x.s.code)}</bdi> · ش${esc(x.s.section)} · ${esc(U.shortName(x.s.instructor))}</span>
+            <span>${B === 'others' ? esc(bShort(x.s.building)) + ' · ' : ''}<bdi dir="ltr">${esc(x.s.code)}</bdi> · ش${esc(x.s.section)} · ${esc(U.shortName(x.s.instructor))}</span>
             <i class="scr-bar"><em style="width:${Math.round(100 * (now.min - x.a) / (x.b - x.a))}%"></em></i></div>
             <div class="scr-end"><b dir="ltr">${x.m.end}</b><small>بعد ${U.mins(left(x))}</small></div></div>`).join('') || '<p class="scr-none">لا محاضرات جارية الآن</p>'}</section>
         <section class="scr-col soon"><h2><i class="bi bi-clock-history"></i> تبدأ قريباً <span>${soon.length}</span>${dots(N.p, N.n)}</h2>
           ${N.items.map(x => `<div class="scr-row"><b dir="ltr">${x.m.start}</b><div class="scr-room sm" dir="ltr">${esc(x.room)}</div>
-            <div class="scr-body"><b>${esc(x.s.name)}</b><span>${esc(U.shortName(x.s.instructor))} · ش${esc(x.s.section)}</span></div></div>`).join('') || `<p class="scr-none">لا محاضرات خلال ${SOON} دقيقة</p>`}</section>
+            <div class="scr-body"><b>${esc(x.s.name)}</b><span>${B === 'others' ? esc(bShort(x.s.building)) + ' · ' : ''}${esc(U.shortName(x.s.instructor))} · ش${esc(x.s.section)}</span></div></div>`).join('') || `<p class="scr-none">لا محاضرات خلال ${SOON} دقيقة</p>`}</section>
         <section class="scr-col free"><h2><i class="bi bi-door-open"></i> قاعات شاغرة الآن <span>${free.length}</span>${dots(F.p, F.n)}</h2>
           <div class="scr-free">${F.items.map(x => `<div><b dir="ltr">${esc(x.r)}</b><small>${x.until ? 'حتى ' + toTime(x.until) : 'بقية اليوم'}</small></div>`).join('') || '<p class="scr-none">كل القاعات مشغولة</p>'}</div></section>`;
     }
@@ -150,6 +162,7 @@
     $('#foot-count').textContent = `${tt.term}`;
     U.updatedLine(tt.updated, 'للشاشات في مداخل المباني');
     if (B === 'registration' && window.UOP_REG) { window.UOP_REG({ tt, cal }); return; }   // Admissions and Registration hall (screen-reg.js)
-    if (B && S.some(s => s.building === B)) screen(); else chooser();
+    if (window.UOP_UNITS && window.UOP_UNITS[B]) { window.UOP_UNIT(B, { tt, cal }); return; }  // finance, library (screen-units.js)
+    if (B === 'others' || (B && S.some(s => s.building === B))) screen(); else chooser();
   }).catch(e => { $('#scr-app').innerHTML = `<div class="alert alert-danger mt-3">تعذّر التحميل (${esc(e.message)}).</div>`; });
 })();

@@ -6,24 +6,10 @@
    clock every minute; the middle panel turns every 15 seconds. ?at=2026-11-03T10:30 shows another moment. */
 (function () {
   'use strict';
-  window.UOP_REG = function (ctx) {
-    const U = window.UOP, { $, esc } = U;
-    const P = new URLSearchParams(location.search);
-    const SITE = location.origin + location.pathname.replace(/[^/]*$/, '');
-    let TT = ctx.tt, CAL = ctx.cal, HIST = null, CHG = null, slide = 0, shown = [];
-    const DAY = 864e5;
-    const say = U.count;
-    const days = n => n <= 0 ? 'اليوم' : n === 1 ? 'غداً' : say(n, 'يوم', 'يومين', 'أيام', 'يوماً');
-    const dm = iso => { const [, m, d] = iso.split('-'); return `${+d}/${+m}`; };
-    const MONTH = ['كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران', 'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول'];
-    const longDate = iso => { const [y, m, d] = iso.split('-'); return `${+d} ${MONTH[+m - 1]} ${y}`; };
-    const diff = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / DAY);   // whole days from a to b
-    const tidy = t => String(t || '').replace(/\s*(للفصل الدراسي|للعام الجامعي)?\s*\d{4}\/\d{4}\s*$/, '').replace(/لطلبة البكالوريوس والماجستير/, '').trim();
-    const CAT = { registration: ['bi-pencil-square', 'التسجيل'], exams: ['bi-journal-check', 'الامتحانات'], results: ['bi-award', 'النتائج'],
-      holiday: ['bi-sun', 'عطلة'], teaching: ['bi-easel', 'التدريس'], graduate: ['bi-mortarboard', 'الدراسات العليا'] };
-
-    // ---------------------------------------------------------------- styles (only this screen uses them)
-    document.head.insertAdjacentHTML('beforeend', `<style>
+  // the look shared by the service screens (registration, finance, library): added once to the page
+  window.UOP_RG_STYLE = function () {
+    if (document.getElementById('rg-style')) return;
+    document.head.insertAdjacentHTML('beforeend', `<style id="rg-style">
       .rg .scr-main { grid-template-columns: 1.25fr 1.35fr .85fr; }
       .rg-k { font-size: .82em; letter-spacing: .04em; color: #fbbf24; font-weight: 800; }
       .rg-now { background: linear-gradient(135deg, #8f1c23 0%, #5c1116 100%); border: 0; }
@@ -84,6 +70,25 @@
       .rg-foot b { color: #fbbf24; }
       @media (max-aspect-ratio: 1/1) { .rg .scr-main { grid-template-columns: 1fr; } }
     </style>`);
+  };
+  window.UOP_REG = function (ctx) {
+    const U = window.UOP, { $, esc } = U;
+    const P = new URLSearchParams(location.search);
+    const SITE = location.origin + location.pathname.replace(/[^/]*$/, '');
+    let TT = ctx.tt, CAL = ctx.cal, HIST = null, CHG = null, slide = 0, shown = [];
+    const DAY = 864e5;
+    const say = U.count;
+    const days = n => n <= 0 ? 'اليوم' : n === 1 ? 'غداً' : say(n, 'يوم', 'يومين', 'أيام', 'يوماً');
+    const dm = iso => { const [, m, d] = iso.split('-'); return `${+d}/${+m}`; };
+    const MONTH = ['كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران', 'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول'];
+    const longDate = iso => { const [y, m, d] = iso.split('-'); return `${+d} ${MONTH[+m - 1]} ${y}`; };
+    const diff = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / DAY);   // whole days from a to b
+    const tidy = t => String(t || '').replace(/\s*(للفصل الدراسي|للعام الجامعي)?\s*\d{4}\/\d{4}\s*$/, '').replace(/لطلبة البكالوريوس والماجستير/, '').trim();
+    const CAT = { registration: ['bi-pencil-square', 'التسجيل'], exams: ['bi-journal-check', 'الامتحانات'], results: ['bi-award', 'النتائج'],
+      holiday: ['bi-sun', 'عطلة'], teaching: ['bi-easel', 'التدريس'], graduate: ['bi-mortarboard', 'الدراسات العليا'] };
+
+    // ---------------------------------------------------------------- styles (only this screen uses them)
+    window.UOP_RG_STYLE();
 
     // ---------------------------------------------------------------- data views
     const uniq = () => { const seen = new Set(); return TT.sections.filter(s => { const k = U.sectionKey(s); if (seen.has(k)) return false; seen.add(k); return true; }); };
