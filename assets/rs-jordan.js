@@ -405,7 +405,7 @@
       ${rows.map(x => `<tr class="${x.u.i === HOME.i ? 'me' : ''}"><td class="rs-ucell">${udot(x.u.i)}<div><b>${esc(x.u.ar)}</b></div></td><td class="num"><b>${R.n(x.n)}</b></td>
         <td class="num"><span class="rs-mini ${x.s >= .05 ? 'zero' : x.s >= .02 ? 'warn' : 'ok'}">${R.pct(x.s, 1)}</span></td>
         <td class="ltr"><div class="rs-dj">${(top[x.u.i] || []).sort((a, b) => b[1] - a[1]).slice(0, 3).map(t => `<span><i class="bi bi-journal-x"></i>${esc(t[0])}<b>${t[1]}</b>${t[2] ? `<small>حُذفت ${esc(t[2])}</small>` : ''}</span>`).join('')}</div></td></tr>`).join('')}</tbody></table></div>
-      <p class="rs-note mt-2 mb-0">من قائمة Scopus الرسمية للمجلات المحذوفة (Discontinued). الأبحاث المنشورة قبل تاريخ الحذف تبقى في Scopus، لكن ارتفاع النسبة مؤشر جودة يستحق المراجعة. <a href="journals.html">تحقّق من أي مجلة قبل الإرسال</a>.</p>`;
+      <p class="rs-note mt-2 mb-0">من قائمة Scopus الرسمية للمجلات المحذوفة (Discontinued). الأبحاث المنشورة قبل تاريخ الحذف تبقى في Scopus، لكن ارتفاع النسبة مؤشر جودة يستحق المراجعة. <a href="journals.html">تحقّق من أي مجلة قبل الإرسال</a> · <a href="integrity.html?tab=journals"><i class="bi bi-shield-exclamation"></i> كل المجلات المحذوفة والأبحاث المسحوبة لكل جامعة</a>.</p>`;
   }
   R.scopusFlags().then(F => { FLAGS = F; disc(); journals(); }).catch(() => { R.$('#j-disc').innerHTML = '<div class="rs-note">تعذّر تحميل قائمة Scopus.</div>'; });
 

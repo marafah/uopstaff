@@ -45,6 +45,12 @@
       <p class="mb-0">اكتب عنوان بحثك أو كلماته المفتاحية، فتظهر المجلات الأنسب له مع ما يساويه النشر فيها وفق تعليمات الجامعة: <b>الدعم والحافز المالي</b> ${ref('5', '06')}، و<b>فئة البحث ونقاطه في الترقية</b> ${ref('23', '05')}، و<b>نقاط جائزة الباحث المتميز</b> ${ref('8', '11')}، ومدة القرار، والوصول المفتوح. المجلات التي حذفها Scopus مستبعدة.</p></div>
     <a class="btn btn-rs-o" href="journals.html"><i class="bi bi-journal-bookmark"></i> دليل المجلات</a>
   </section>
+  <section class="rs-section rs-card pb-chk no-print">
+    <h3><i class="bi bi-shield-check"></i>افحص المجلة قبل الإرسال <small class="fw-normal text-muted">هل ما زال Scopus يفهرسها؟ وهل لها أو لناشرها سجل في سحب الأبحاث؟</small></h3>
+    <div class="pb-chk-row"><input id="pb-chk-q" class="form-control ltr" placeholder="Journal name, ISSN (e.g. 1932-6203) or a paper DOI" autocomplete="off" value="${esc(R.param('check'))}">
+      <button class="btn btn-rs" id="pb-chk-go"><i class="bi bi-search"></i> افحص</button></div>
+    <div id="pb-chk-out"></div>
+  </section>
   <section class="rs-section rs-card rs-jf no-print"><div class="rs-pb-form">
     <div class="rs-jf-f grow"><label class="rs-jf-l" for="pb-q"><i class="bi bi-file-earmark-text"></i> عنوان البحث أو كلماته المفتاحية (بالإنجليزية)</label>
       <textarea id="pb-q" class="form-control ltr" rows="2" placeholder="e.g. deep learning intrusion detection for IoT networks">${esc(st.q)}</textarea>
@@ -94,7 +100,7 @@
       <div class="rs-pb-rank">${i + 1}</div>
       <div class="rs-pb-main">
         <div class="rs-pb-t"><a class="ltr" href="${R.sjrUrl(r.id)}" target="_blank" rel="noopener">${esc(r.t)}</a> ${qp(r.q)}</div>
-        <div class="rs-pb-m"><span class="ltr">${esc(r.pub)}</span>${r.country ? ` · ${esc(r.country)}` : ''} · SJR <b>${(r.sjr || 0).toFixed(2)}</b>${r.h ? ` · h ${r.h}` : ''} ${oaTag(r)}</div>
+        <div class="rs-pb-m"><span class="ltr">${esc(r.pub)}</span>${r.country ? ` · ${esc(r.country)}` : ''} · SJR <b>${(r.sjr || 0).toFixed(2)}</b>${r.h ? ` · h ${r.h}` : ''} ${oaTag(r)} ${riskTag(r)} <a class="pb-chk-l no-print" href="#" data-chk="${esc(r.t)}" title="افحص المجلة"><i class="bi bi-shield-check"></i></a></div>
         ${x.hit.length ? `<div class="rs-pb-why"><i class="bi bi-check2-circle"></i> يطابق: ${x.hit.slice(0, 8).map(w => `<span class="ltr">${esc(w)}</span>`).join('، ')}${x.cover ? ` <small>(${R.pct(x.cover)} من كلماتك)</small>` : ''}</div>` : ''}
         <div class="rs-pb-facts">
           <span title="من الاستلام إلى القبول (وسيط)"><i class="bi bi-hourglass-split"></i> ${r.tm && r.tm.accept != null ? `قرار خلال ~${R.n(r.tm.accept)} يوماً` : 'مدة القرار غير معروفة'}</span>
@@ -108,6 +114,84 @@
         <label class="rs-pb-pick no-print"><input type="checkbox" data-pick="${r.id}"${on ? ' checked' : ''}> للمقارنة</label>
       </div></article>`;
   }
+  // ---------------------------------------------------------------- journal check before submitting (integrity)
+  // Scopus coverage (official source list), retractions worldwide in the journal and its publisher (Retraction Watch),
+  // and retracted Jordanian papers in it (integrity.html). Loaded on first use.
+  let RISK = null;
+  const loadRisk = () => RISK || (RISK = Promise.allSettled([R.load('rw_journals'), R.load('integrity'), R.scopusFlags()]).then(([a, b, c]) => {
+    const rw = a.status === 'fulfilled' ? a.value : { journals: {}, publishers: {} }, ig = b.status === 'fulfilled' ? b.value : { papers: [], rw_only: [] };
+    const jo = {}; for (const p of ig.papers.concat(ig.rw_only || [])) { const k = R.jkey(p.j); (jo[k] = jo[k] || []).push(p); }
+    const doi = {}; for (const p of ig.papers.concat(ig.rw_only || [])) if (p.doi) doi[p.doi] = p;
+    return { rw, jo, doi, FL: c.status === 'fulfilled' ? c.value : null };
+  }));
+  const ALL = J.rows.filter(r => r[K.type] === 'j').map(r => ({ id: r[K.id], t: r[K.t], k: R.jkey(r[K.t]), issn: String(r[K.issn] || '').toUpperCase().split(/\s+/).filter(Boolean),
+    q: r[K.q] || '', sjr: r[K.sjr] || 0, pub: J.publishers[r[K.pub]] || '', jo: r[K.jo] ? r[K.jo][0] : 0 }));
+  const RG = { peer: 'تلاعب بالتحكيم', mill: 'مصانع الأبحاث', gen: 'محتوى مولّد آلياً', plag: 'انتحال', dup: 'نشر مكرر', fab: 'تلفيق أو تزوير', data: 'مشكلات البيانات', cite: 'تلاعب بالاقتباسات', auth: 'مشكلات التأليف', ethic: 'مخالفات أخلاقية', third: 'تدخل طرف ثالث', err: 'أخطاء', scope: 'خارج نطاق المجلة', info: 'بلا تفاصيل' };
+  // risk of a journal from the worldwide record: [level, Arabic label]
+  function rwLevel(x) {
+    if (!x) return null;
+    const [, n, n5, , , sys, peak] = x;
+    // mass retractions for organised manipulation (peer review rings, paper mills, generated content, citation
+    // cartels) mark a compromised journal; a large count of ordinary reasons mostly reflects a large journal
+    if (sys >= 0.5 && (n5 >= 20 || peak >= 100)) return ['bad', 'سحب جماعي حديث لتلاعب منظّم'];
+    if (n5 >= 20 || (sys >= 0.5 && n5 >= 5)) return ['warn', 'سحب متكرر حديثاً'];
+    return ['info', 'سجل سحب محدود'];
+  }
+  function findJournals(q) {
+    const s = q.trim(), issn = s.replace(/[\s-]/g, '').toUpperCase();
+    if (/^\d{7}[\dX]$/.test(issn)) return ALL.filter(r => r.issn.includes(issn));
+    const k = R.jkey(s); if (!k) return [];
+    const ex = ALL.filter(r => r.k === k); if (ex.length) return ex;
+    return ALL.filter(r => r.k.startsWith(k)).concat(ALL.filter(r => !r.k.startsWith(k) && r.k.includes(k))).slice(0, 8);
+  }
+  async function check(q) {
+    const out = R.$('#pb-chk-out'); q = (q || '').trim();
+    if (!q) { out.innerHTML = ''; return; }
+    out.innerHTML = '<div class="rs-loading"><div class="spinner-border spinner-border-sm text-danger"></div> جارٍ الفحص…</div>';
+    const K2 = await loadRisk();
+    const doiM = q.match(/10\.\d{4,9}\/\S+/);
+    if (doiM) {
+      const d = doiM[0].toLowerCase().replace(/[.,;]+$/, ''), p = K2.doi[d];
+      out.innerHTML = p ? `<div class="pb-v bad"><i class="bi bi-x-octagon-fill"></i><div><b>هذا البحث مسحوب</b><p class="mb-1 ltr" dir="auto">${esc(p.t)} — ${esc(p.j)} (${p.y || ''})</p>
+          ${p.rw && p.rw.r && p.rw.r.length ? `<small>السبب: ${esc(p.rw.r.slice(0, 4).join('؛ '))}</small><br>` : ''}<a href="integrity.html?tab=papers&q=${encodeURIComponent(d)}"><i class="bi bi-shield-exclamation"></i> تفاصيله في النزاهة البحثية</a>
+          ${p.rw && p.rw.ndoi ? ` · <a href="https://doi.org/${esc(p.rw.ndoi)}" target="_blank" rel="noopener">إشعار السحب</a>` : ''}</div></div>`
+        : `<div class="pb-v ok"><i class="bi bi-check-circle-fill"></i><div><b>لا يظهر في سجلات السحب الأردنية</b><p class="mb-0 small">فحصنا الأبحاث المسحوبة ذات الانتماء الأردني (Scopus و Retraction Watch). للتحقق من بحث غير أردني افتح <a href="https://doi.org/${esc(d)}" target="_blank" rel="noopener">صفحته</a> وابحث عن إشعار «Retraction».</p></div></div>`;
+      return;
+    }
+    const M = findJournals(q);
+    if (!M.length) {   // not in the Scopus list we have: maybe discontinued long ago, or never indexed
+      const k = R.jkey(q), x = K2.rw.journals[k], lv = rwLevel(x);
+      out.innerHTML = `<div class="pb-v warn"><i class="bi bi-question-circle-fill"></i><div><b>لم أجد هذه المجلة في قائمة Scopus الحالية</b><p class="mb-0 small">قد تكون غير مفهرسة أو حُذفت. النشر في مجلة غير مفهرسة لا يُحسب في Scopus، وفي التعليمات يُعامل كـ «غير مصنّفة». تأكّد من الاسم أو استخدم ISSN.</p>
+        ${x ? `<p class="mb-0 mt-1"><span class="rs-tag ${lv[0] === 'bad' ? 'bad' : 'warn'}">${lv[1]}</span> ${R.n(x[1])} بحثاً مسحوباً منها في Retraction Watch، ${R.n(x[2])} في آخر 5 سنوات.</p>` : ''}</div></div>`;
+      return;
+    }
+    if (M.length > 1 && M[0].k !== R.jkey(q)) {
+      out.innerHTML = `<div class="small text-muted mb-1">عدة مجلات تطابق، اختر واحدة:</div><div class="pb-chk-pick">${M.map(r => `<button class="btn btn-sm btn-rs-o ltr" data-chk="${esc(r.issn[0] || r.t)}">${esc(r.t)} ${r.q ? `<b>${r.q}</b>` : ''}</button>`).join('')}</div>`;
+      return;
+    }
+    out.innerHTML = M.slice(0, 3).map(r => {
+      const f = K2.FL ? K2.FL.find(r.issn, r.t) : null, fv = f ? R.flagVerdict(f) : null;
+      const x = K2.rw.journals[r.k], lv = rwLevel(x);
+      const pk = R.jkey(r.pub), px = K2.rw.publishers[pk] || Object.entries(K2.rw.publishers).find(([k2]) => pk && (k2.startsWith(pk) || pk.startsWith(k2)))?.[1];
+      const jor = K2.jo[r.k] || [];
+      const level = fv && fv[2] === 'bad' ? 'bad' : lv && lv[0] === 'bad' ? 'bad' : (fv || (lv && lv[0] === 'warn') || jor.length >= 3) ? 'warn' : 'ok';
+      const head = { ok: ['bi-check-circle-fill', 'لا مؤشرات خطر ظاهرة'], warn: ['bi-exclamation-triangle-fill', 'انتبه قبل الإرسال'], bad: ['bi-x-octagon-fill', 'يُنصح بتجنّبها'] }[level];
+      const facts = [
+        fv ? `<li class="${fv[2]}"><i class="bi bi-journal-x"></i><b>${esc(fv[0])}</b>: ${esc(fv[1])}</li>` : `<li class="ok"><i class="bi bi-journal-check"></i><b>مفهرسة في Scopus</b>${r.q ? ` · ${R.qTag(r.q)} · SJR ${r.sjr.toFixed(2)}` : ''}</li>`,
+        x ? `<li class="${lv[0]}"><i class="bi bi-database-exclamation"></i><b>${R.n(x[1])} بحثاً مسحوباً</b> منها عالمياً (${R.n(x[2])} في آخر 5 سنوات، آخرها ${x[3] || '؟'})${x[4].length ? ` · أبرز الأسباب: ${x[4].map(g => RG[g] || g).join('، ')}` : ''}${x[5] >= 0.5 ? ' · <b>معظمها تلاعب منظّم بالتحكيم أو مصانع أبحاث</b>' : x[1] >= 100 ? ' · <small>معظمها لأسباب فردية؛ المجلات الكبيرة تسحب أكثر لأنها تنشر أكثر</small>' : ''}</li>`
+          : '<li class="ok"><i class="bi bi-database-check"></i>لا سجل سحب يُذكر لها في Retraction Watch</li>',
+        jor.length ? `<li class="${jor.length >= 3 ? 'warn' : 'info'}"><i class="bi bi-flag"></i><b>${jor.length} بحثاً أردنياً مسحوباً</b> منها · <a href="integrity.html?tab=papers&q=${encodeURIComponent(r.t)}">عرضها</a></li>` : '',
+        px && px[2] >= 100 ? `<li class="${px[5] >= 0.5 ? 'warn' : 'info'}"><i class="bi bi-building"></i>الناشر <span class="ltr">${esc(r.pub)}</span>: ${R.n(px[1])} بحثاً مسحوباً عالمياً (${R.n(px[2])} في آخر 5 سنوات)</li>` : '',
+        r.jo ? `<li class="info"><i class="bi bi-people"></i>${R.n(r.jo)} بحثاً أردنياً منشوراً فيها</li>` : ''
+      ].filter(Boolean).join('');
+      return `<div class="pb-v ${level}"><i class="bi ${head[0]}"></i><div class="w-100"><div class="d-flex flex-wrap gap-2 align-items-baseline"><b>${head[1]}</b><span class="ltr fw-bold">${esc(r.t)}</span><small class="text-muted">ISSN ${esc(r.issn.join(' · '))}</small>
+        <a class="rs-src ms-auto" href="journals.html?id=${encodeURIComponent(r.id)}">دليل المجلات</a><a class="rs-src" href="https://www.scopus.com/sourceid/${r.id}" target="_blank" rel="noopener">Scopus</a></div><ul class="pb-facts">${facts}</ul></div></div>`;
+    }).join('');
+  }
+  const riskTag = r => { if (!RISK_SYNC) return ''; const x = RISK_SYNC.rw.journals[R.jkey(r.t)], lv = rwLevel(x);
+    return lv && lv[0] !== 'info' ? `<span class="rs-tag ${lv[0] === 'bad' ? 'bad' : 'warn'}" title="${R.n(x[1])} بحثاً مسحوباً (${R.n(x[2])} في آخر 5 سنوات) حسب Retraction Watch"><i class="bi bi-database-exclamation"></i> ${lv[1]}</span>` : ''; };
+  let RISK_SYNC = null;
+  loadRisk().then(k => { RISK_SYNC = k; render(); });
   // the value of each quartile for this author position: the same for any journal of that quartile
   function summary(n) {
     R.$('#pb-sum').innerHTML = `<div class="rs-pb-qs">${['Q1', 'Q2', 'Q3', 'Q4', 'NA'].map(q => { const v = value(q);
@@ -164,6 +248,11 @@
   render();
   const go = R.debounce(() => { shown = 30; render(); }, 300);
   R.$('#pb-q').addEventListener('input', e => { st.q = e.target.value; go(); });
+  const runCheck = () => { const v = R.$('#pb-chk-q').value; check(v); const u = new URL(location); v.trim() ? u.searchParams.set('check', v.trim()) : u.searchParams.delete('check'); history.replaceState(null, '', u); };
+  R.$('#pb-chk-go').onclick = runCheck;
+  R.$('#pb-chk-q').addEventListener('keydown', e => { if (e.key === 'Enter') runCheck(); });
+  app.addEventListener('click', e => { const b = e.target.closest('[data-chk]'); if (!b) return; e.preventDefault(); R.$('#pb-chk-q').value = b.dataset.chk; runCheck(); R.$('#pb-chk-q').scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+  if (R.param('check')) runCheck();
   R.$('#pb-who').addEventListener('change', e => { const r = list.find(x => x.name === e.target.value.trim()); if (r) { fromProfile(r); render(); } });
   R.$('#pb-area').onchange = e => { st.area = e.target.value; render(); };
   R.$('#pb-oa').onchange = e => { st.oa = e.target.value; render(); };

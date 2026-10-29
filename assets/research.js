@@ -53,6 +53,8 @@
   R.sum = a => a.reduce((s, x) => s + (+x || 0), 0);
   R.percentile = (arr, v) => { if (!arr.length) return 0; const below = arr.filter(x => x < v).length, eq = arr.filter(x => x === v).length; return Math.round(100 * (below + eq / 2) / arr.length); };
   R.norm = s => String(s || '').toLowerCase().normalize('NFKD').replace(/[ً-ْـ]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  // journal or publisher title -> matching key (same rule as jkey() in scripts/research_integrity.py)
+  R.jkey = s => String(s || '').toLowerCase().normalize('NFKD').replace(/&/g, ' and ').replace(/[^0-9a-z\u0600-\u06ff]+/g, ' ').trim().replace(/^the /, '');
   R.debounce = (fn, ms = 200) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
 
   // ------------------------------------------------------------------ data

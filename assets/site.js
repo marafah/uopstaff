@@ -84,6 +84,7 @@ document.addEventListener('show.bs.dropdown', e => {
     ['publications.html', 'bi-journal-text', 'المنشورات', 'كل الأبحاث مع روابط التحقق والتصدير'],
     ['compare.html', 'bi-bar-chart-steps', 'المقارنة', 'باحثون أو كليات أو أقسام جنباً إلى جنب'],
     ['jordan.html', 'bi-globe-central-south-asia', 'مقارنة الجامعات الأردنية', 'حسب المجال والتخصص والفترة والتصنيف والمجلات'],
+    ['integrity.html', 'bi-shield-exclamation', 'النزاهة البحثية', 'الأبحاث المسحوبة والمجلات المحذوفة من Scopus'],
     ['journals.html', 'bi-journal-bookmark-fill', 'دليل المجلات', 'التصنيف ومدة القرار ومجلات مقترحة لبحثك'],
     ['experts.html', 'bi-person-check', 'ابحث عن خبير', 'باحثو الأردن حسب الموضوع'],
     ['simulator.html', 'bi-sliders', 'محاكي المؤشرات', 'أثر رفع Q1 والتعاون الدولي على الترتيب'],
@@ -106,7 +107,7 @@ document.addEventListener('show.bs.dropdown', e => {
   ];
   const RSG = [   // the same columns as scripts/make_research_pages.py
     ['استكشاف الإنتاج البحثي', 'bi-compass', ['research.html', 'researchers.html', 'publications.html', 'impact.html', 'projects.html', 'reports.html']],
-    ['المقارنة والتعاون', 'bi-bar-chart-line', ['compare.html', 'jordan.html', 'universities.html', 'intl.html', 'network.html', 'simulator.html', 'experts.html']],
+    ['المقارنة والتعاون', 'bi-bar-chart-line', ['compare.html', 'jordan.html', 'integrity.html', 'universities.html', 'intl.html', 'network.html', 'simulator.html', 'experts.html']],
     ['أدوات الباحث', 'bi-person-workspace', ['annual.html', 'publish.html', 'journals.html', 'promotion.html', 'reward.html', 'award.html', 'sabbatical.html']],
     ['الإدارة والتعليمات', 'bi-bank2', ['regulations.html', 'dept.html', 'dept.html?tab=act', 'goals.html']]
   ];

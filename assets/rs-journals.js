@@ -60,7 +60,7 @@
   <section data-tab="check" class="rs-section rs-card"><h3><i class="bi bi-shield-exclamation"></i>تحقّق من مجلة قبل الإرسال</h3>
     <div class="rs-toolbar"><div class="fld grow"><label for="jn-check">اسم المجلة أو ISSN</label><input id="jn-check" class="form-control ltr" type="search" placeholder="e.g. Journal of Theoretical and Applied Information Technology  أو  1992-8645"></div></div>
     <div id="jn-verdict" class="mt-2"></div>
-    <p class="rs-note mt-2 mb-0">المصدر: قائمة مصادر Scopus الرسمية (${J.flags_src || 'سبتمبر 2026'}) — المجلات التي حذفها Scopus (Discontinued) والمجلات التي لم تعد مفهرسة، مع تصنيف SCImago. الأبحاث المنشورة بعد تاريخ الحذف لا تظهر في Scopus ولا تُحسب للباحث أو للجامعة.</p></section>
+    <p class="rs-note mt-2 mb-0">المصدر: قائمة مصادر Scopus الرسمية (${J.flags_src || 'سبتمبر 2026'}) — المجلات التي حذفها Scopus (Discontinued) والمجلات التي لم تعد مفهرسة، مع تصنيف SCImago. الأبحاث المنشورة بعد تاريخ الحذف لا تظهر في Scopus ولا تُحسب للباحث أو للجامعة. <a href="integrity.html?tab=journals"><i class="bi bi-shield-exclamation"></i> المجلات المحذوفة التي نشر فيها باحثون أردنيون، والأبحاث المسحوبة</a></p></section>
   <section data-tab="suggest" class="rs-section rs-card no-print"><h3><i class="bi bi-magic"></i>اقترح مجلة لبحثي</h3>
       <div class="fld"><label for="jn-find">عنوان البحث أو كلماته المفتاحية (بالإنجليزية)</label><textarea id="jn-find" class="form-control ltr" rows="3" placeholder="e.g. deep learning intrusion detection for IoT networks"></textarea></div>
       <div class="d-flex gap-2 flex-wrap mt-2 align-items-center"><button class="btn btn-rs" id="jn-go"><i class="bi bi-stars"></i> اقترح</button>
