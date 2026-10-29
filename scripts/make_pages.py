@@ -121,7 +121,7 @@ PAGES = {
         hero="جدولنا معاً", sub="ضع جداول أعضاء المجموعة معاً: أوقات فراغ الجميع لاجتماعات المشروع والدراسة ولقاء المشرف",
         search="ابحث عن مدرس…", about="من خطط «مخطط جدولي» والجدول الدراسي المنشور؛ المجموعة محفوظة في الرابط فقط."),
     "plans.html": dict(
-        title="الخطط الدراسية", short="الخطط الدراسية", what="الخطط الدراسية", app="sp-app", js="plans.js",
+        title="الخطط الدراسية", short="الخطط الدراسية", what="الخطط الدراسية", app="sp-app", js="plans.js", v="202610312000",
         desc="الخطط الدراسية لكل تخصصات جامعة البترا: متطلبات الجامعة والكلية والتخصص، الساعات المعتمدة، المقررات، وما يُطرح منها هذا الفصل.",
         hero="الخطط الدراسية", sub="خطة كل تخصص في كل الكليات: المجموعات والساعات والمقررات، وما يُطرح منها هذا الفصل — مع البحث والمقارنة والتصدير",
         search="ابحث: رمز أو اسم مقرر…", about="من الخطط الدراسية المنشورة على بوابة الجامعة، مربوطة بالجدول الدراسي، وتُراجَع مع كل تحديث للموقع."),
@@ -216,7 +216,7 @@ def main():
         h = h.replace('<b>الجدول الدراسي – جامعة البترا</b>', f'<b>{p["title"]} – جامعة البترا</b>')
         h = re.sub(r'<script src="https://cdn.jsdelivr.net/npm/xlsx@[^"]+" defer></script>\n', '', h)
         h = re.sub(r'<script src="assets/timetable\.js\?v=(\d+)"></script>',
-                   lambda m: "\n".join(f'<script src="assets/{js}?v={m.group(1)}"></script>' for js in ["common.js"] + p.get("extra", []) + [p["js"]]), h)
+                   lambda m: "\n".join(f'<script src="assets/{js}?v={p.get("v", m.group(1)) if js == p["js"] else m.group(1)}"></script>' for js in ["common.js"] + p.get("extra", []) + [p["js"]]), h)
         h = app_shell(set_nav(h, href_of))
         if page == "index.html":
             h = h.replace("<head>\n", "<head>\n" + HOME_REDIRECT, 1)
