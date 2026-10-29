@@ -23,7 +23,7 @@ DTSTART;TZID=Asia/Amman:20261019T110000
 DTEND;TZID=Asia/Amman:20261019T123000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:104101 فيزياء عامة (1) – ش1
-LOCATION:7110 – مبنى كلية تكنولوجيا المعلومات
+LOCATION:06229 – مبنى كلية الآداب والعلوم
 DESCRIPTION:نظري · وجاهي · العلوم الأساسية / ال
  رياضيات – الآداب والعلوم
 END:VEVENT

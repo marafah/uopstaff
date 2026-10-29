@@ -45,7 +45,7 @@ DTSTART;TZID=Asia/Amman:20261019T123000
 DTEND;TZID=Asia/Amman:20261019T133000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:303102 مبادئ المحاسبة (2) – ش1
-LOCATION:9419 – مبنى كلية العلوم الإدارية
+LOCATION:9421 – مبنى كلية العلوم الإدارية
 DESCRIPTION:نظري · وجاهي · المحاسبة – العلوم ا
  لادارية والمالية
 END:VEVENT

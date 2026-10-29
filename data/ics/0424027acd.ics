@@ -63,17 +63,6 @@ DESCRIPTION:عملي · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT
 BEGIN:VEVENT
-UID:3ee7d2fdaf2c06ec@uopstaff
-DTSTAMP:20261018T000000Z
-DTSTART;TZID=Asia/Amman:20261021T130000
-DTEND;TZID=Asia/Amman:20261021T160000
-RRULE:FREQ=WEEKLY;BYDAY=WE;UNTIL=20270119T205959Z
-SUMMARY:503213 علم وظائف الأعضاء – ش1
-LOCATION:7104 – مبنى كلية تكنولوجيا المعلومات
-DESCRIPTION:عملي · وجاهي · التغذية – الصيدلة و
- العلوم الطبية
-END:VEVENT
-BEGIN:VEVENT
 UID:129c10c292d0efba@uopstaff
 DTSTAMP:20261018T000000Z
 DTSTART;TZID=Asia/Amman:20261018T120000
@@ -83,6 +72,17 @@ EXDATE;TZID=Asia/Amman:20270105T120000
 SUMMARY:503213 علم وظائف الأعضاء – ش1
 LOCATION:1103 – مبنى الكفاتيريا
 DESCRIPTION:نظري · وجاهي · التغذية – الصيدلة و
+ العلوم الطبية
+END:VEVENT
+BEGIN:VEVENT
+UID:3ee7d2fdaf2c06ec@uopstaff
+DTSTAMP:20261018T000000Z
+DTSTART;TZID=Asia/Amman:20261021T130000
+DTEND;TZID=Asia/Amman:20261021T160000
+RRULE:FREQ=WEEKLY;BYDAY=WE;UNTIL=20270119T205959Z
+SUMMARY:503213 علم وظائف الأعضاء – ش1
+LOCATION:7104 – مبنى كلية تكنولوجيا المعلومات
+DESCRIPTION:عملي · وجاهي · التغذية – الصيدلة و
  العلوم الطبية
 END:VEVENT
 BEGIN:VEVENT

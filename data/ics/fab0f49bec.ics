@@ -25,7 +25,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T100000
 SUMMARY:504231 الكيمياء الحيوية للتحاليل الطبي
  ة – ش2
-LOCATION:8B-8145 – مبنى كلية الصيدلة
+LOCATION:1101 – مبنى الكفاتيريا
 DESCRIPTION:نظري · وجاهي · التحاليل الطبية – ا
  لصيدلة والعلوم الطبية
 END:VEVENT

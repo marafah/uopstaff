@@ -70,7 +70,7 @@ DTSTART;TZID=Asia/Amman:20261019T123000
 DTEND;TZID=Asia/Amman:20261019T133000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:312111 مبادئ الإحصاء - ُE - – ش1
-LOCATION:0-9421 – --
+LOCATION:9419 – مبنى كلية العلوم الإدارية
 DESCRIPTION:نظري · وجاهي · العلوم المالية والم
  صرفية – العلوم الادارية والمالية
 END:VEVENT

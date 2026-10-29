@@ -36,7 +36,7 @@ DTEND;TZID=Asia/Amman:20261018T110000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T100000
 SUMMARY:601105 أساسيات تكنولوجيا المعلومات – ش6
-LOCATION:2105 – مبنى المكتبة
+LOCATION:7420 – مبنى كلية تكنولوجيا المعلومات
 DESCRIPTION:نظري · وجاهي · علم الحاسوب – تكنول
  وجيا المعلومات
 END:VEVENT

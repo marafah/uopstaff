@@ -38,7 +38,7 @@ RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T090000
 SUMMARY:304203 استراتيجيات الأعمال الالكترونية
   – ش1
-LOCATION:9122 – مبنى كلية العلوم الإدارية
+LOCATION:9121 – مبنى كلية العلوم الإدارية
 DESCRIPTION:نظري · وجاهي · الأعمال والتجارة ال
  الكترونية – العلوم الادارية والمالية
 END:VEVENT

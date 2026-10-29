@@ -68,7 +68,7 @@ DTEND;TZID=Asia/Amman:20261018T110000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T100000
 SUMMARY:601281 قواعد البيانات (1) – ش6
-LOCATION:7420 – مبنى كلية تكنولوجيا المعلومات
+LOCATION:2105 – مبنى المكتبة
 DESCRIPTION:عملي · وجاهي · علم الحاسوب – تكنول
  وجيا المعلومات
 END:VEVENT
@@ -80,7 +80,7 @@ DTEND;TZID=Asia/Amman:20261018T110000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T100000
 SUMMARY:601281 قواعد البيانات (1) – ش6
-LOCATION:7420 – مبنى كلية تكنولوجيا المعلومات
+LOCATION:2105 – مبنى المكتبة
 DESCRIPTION:عملي · وجاهي · علم الحاسوب – تكنول
  وجيا المعلومات
 END:VEVENT

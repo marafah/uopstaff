@@ -1,5 +1,5 @@
 {
-"updated": "2026-10-28T13:02:22Z",
+"updated": "2026-10-29T10:06:11Z",
 "main_line": "+96265799555",
 "main_line_display": "06 5799555",
 "faculties": [
@@ -385,7 +385,7 @@
 "name": "الكادر الإداري – كلية الآداب والعلوم",
 "kind": "admin",
 "url": "https://artsci.uop.edu.jo/Ar/Pages/AllAdministrativeStaff.aspx",
-"count": 14,
+"count": 15,
 "faculty": 5
 },
 {
@@ -9743,6 +9743,28 @@
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AllAdministrativeStaff.aspx",
 "source": "admin_artsci",
 "photo_src": ""
+},
+{
+"id": "S:artsci:26",
+"type": "admin",
+"faculty": 5,
+"name": "ربى كامل عبد الحميد عطا الله",
+"name_en": "Ruba Kamel Abed Alhameed Atalla",
+"job": "مدربة ألعاب رياضية",
+"rank": "",
+"rank_order": 99,
+"role": "",
+"sort": 30,
+"department": "",
+"specialization": "",
+"qualification": "بكالوريوس الإدارة والتدريب الرياضي – الجامعة الهاشمية",
+"ext": "6206",
+"office": "كلية الآداب والعلوم",
+"email": "ruba.atallah@uop.edu.jo",
+"photo": "",
+"profile": "https://artsci.uop.edu.jo/Ar/Pages/AllAdministrativeStaff.aspx",
+"source": "admin_artsci",
+"photo_src": "https://artsci.uop.edu.jo/PublishingImages/Staff/Ruba%20Atallah.jpg"
 },
 {
 "id": "S:artsci:17",
