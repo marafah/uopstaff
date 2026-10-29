@@ -46,6 +46,10 @@
         <div class="small"><b class="d-block mb-1">للعرض على شاشة في مدخل المبنى</b>
           افتح رابط المبنى على متصفح الشاشة (أو جهاز صغير موصول بها) ثم اضغط <kbd>F11</kbd> لملء الشاشة. تتحدّث الشاشة تلقائياً كل دقيقة،
           وتقرأ أي تغيير في الجدول كل 15 دقيقة، ولا تحتاج أي تدخّل بعد ذلك. القوائم الطويلة تتقلّب صفحاتها كل 12 ثانية.</div></div></div>
+      <div class="scr-b mb-3" style="border-top-color:#b7791f"><b><i class="bi bi-pencil-square"></i> شاشة عمادة القبول والتسجيل</b>
+        <small>مواعيد التسجيل وعدّها التنازلي، الشعب التي تمتلئ وأين ما زالت المقاعد متاحة، تغييرات الجدول اليوم، ورموز QR لتسجيل جدول بلا تعارض</small>
+        <div class="d-flex gap-2 mt-2"><a class="btn btn-sm btn-maroon" href="screen.html?b=registration"><i class="bi bi-display"></i> افتح الشاشة</a>
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-copy="${esc(SITE + 'screen.html?b=registration')}"><i class="bi bi-link-45deg"></i> نسخ الرابط</button></div></div>
       <div class="scr-pick">${blds.map(b => {
         const cs = classes(b), rooms = new Set(cs.map(s => clean(s.room))).size;
         const today = cs.reduce((a, s) => a + s.meetings.filter(m => inRoom(m) && m.day === now.day).length, 0);
@@ -145,6 +149,7 @@
     U.setDays(tt.days);
     $('#foot-count').textContent = `${tt.term}`;
     U.updatedLine(tt.updated, 'للشاشات في مداخل المباني');
+    if (B === 'registration' && window.UOP_REG) { window.UOP_REG({ tt, cal }); return; }   // Admissions and Registration hall (screen-reg.js)
     if (B && S.some(s => s.building === B)) screen(); else chooser();
   }).catch(e => { $('#scr-app').innerHTML = `<div class="alert alert-danger mt-3">تعذّر التحميل (${esc(e.message)}).</div>`; });
 })();
