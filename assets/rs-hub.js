@@ -76,6 +76,7 @@
   <section class="rs-section rs-tiles">
     <a class="rs-tile" href="researchers.html"><i class="bi bi-person-lines-fill"></i><span><b>الباحثون</b><small>بحث وتصفية حسب الكلية والقسم والرتبة، وترتيب حسب h-index والاقتباسات</small></span></a>
     <a class="rs-tile" href="publications.html"><i class="bi bi-journal-text"></i><span><b>المنشورات</b><small>كل الأبحاث مع رابط DOI و OpenAlex و Scopus للتحقق، وتصدير CSV</small></span></a>
+    <a class="rs-tile" href="projects.html"><i class="bi bi-briefcase"></i><span><b>المشاريع المدعومة</b><small>مشاريع بحثية دعمتها الجامعة عبر عمادة البحث العلمي، حسب الدعوة والكلية</small></span></a>
     <a class="rs-tile" href="compare.html"><i class="bi bi-bar-chart-steps"></i><span><b>المقارنة</b><small>قارن حتى 4 باحثين أو كليات أو أقسام بالرسوم</small></span></a>
     <a class="rs-tile" href="universities.html"><i class="bi bi-bank"></i><span><b>الجامعات الأردنية</b><small>موقع جامعة البترا بين الجامعات الأردنية في الإنتاج والاقتباس</small></span></a>
     <a class="rs-tile" href="network.html"><i class="bi bi-diagram-3"></i><span><b>شبكة التعاون</b><small>من يكتب مع من داخل الجامعة، وعبر الكليات</small></span></a>

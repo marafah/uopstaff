@@ -4,7 +4,7 @@ Run after changing the template:  python scripts/make_research_pages.py"""
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-V = '202610301900'
+V = '202610302000'
 CHART = '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>'
 D3 = '<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>'
 
@@ -46,6 +46,9 @@ PAGES = [
     ('universities.html', 'الجامعات الأردنية', 'جامعة البترا بين الجامعات الأردنية',
      'الإنتاج والأثر والنمو والمجالات لكل الجامعات الأردنية حسب Scopus، مع OpenAlex مصدراً مكمّلاً',
      'bi-bank', 'rs-unis.js', [CHART]),
+    ('projects.html', 'المشاريع البحثية المدعومة', 'المشاريع البحثية المدعومة من الجامعة',
+     'المشاريع التي دعمتها جامعة البترا عبر عمادة البحث العلمي: حسب سنة الدعوة والكلية والباحث الرئيسي، مع حالة كل مشروع',
+     'bi-briefcase', 'rs-projects.js', [CHART]),
     ('network.html', 'شبكة التعاون البحثي', 'شبكة التعاون البحثي',
      'من يكتب مع من داخل الجامعة: الروابط بين الباحثين والكليات',
      'bi-diagram-3', 'rs-network.js', [D3]),
@@ -83,6 +86,7 @@ MENU = [  # research menu items: file, icon, title, description
     ('journals.html', 'bi-journal-bookmark-fill', 'دليل المجلات', 'التصنيف ومدة القرار ومجلات مقترحة لبحثك'),
     ('experts.html', 'bi-person-check', 'ابحث عن خبير', 'باحثو الأردن حسب الموضوع'),
     ('simulator.html', 'bi-sliders', 'محاكي المؤشرات', 'أثر رفع Q1 والتعاون الدولي على الترتيب'),
+    ('projects.html', 'bi-briefcase', 'المشاريع المدعومة', 'مشاريع بحثية دعمتها الجامعة، حسب الدعوة والكلية'),
     ('reports.html', 'bi-calendar2-check', 'التقرير الشهري', 'الأبحاث الجديدة واقتباساتها لكل كلية'),
     ('universities.html', 'bi-bank', 'مؤشرات الجامعات الأسبوعية', 'أعداد Scopus و OpenAlex المحدّثة أسبوعياً'),
     ('network.html', 'bi-diagram-3', 'شبكة التعاون', 'من يكتب مع من داخل الجامعة'),

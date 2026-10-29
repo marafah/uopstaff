@@ -751,6 +751,45 @@ def simulator_base(rows, Y):
     return {'years': [Y - 4, Y], 'keys': keys, 'unis': out}
 
 
+SRGS_API = 'https://srgs.uop.edu.jo/ar/api/get_supported_research_projects/'
+SRGS_PAGE = 'https://srgs.uop.edu.jo/ar/supported_research_projects/'
+
+
+def supported_projects():
+    """Research projects funded by the University of Petra, from the Deanship of Scientific Research's public list
+    (srgs.uop.edu.jo). The list holds every grant application, so only funded ones are kept: approved by the
+    university, or (2021-2022 calls, before university approval was a step) approved by the deanship with a decision.
+    Only what the public page shows is kept: title, principal investigator, faculty, department, call, decision
+    date, status. Budgets, reviewers and evaluations are never stored."""
+    r = http('GET', SRGS_API, tries=3, headers={'X-Requested-With': 'XMLHttpRequest', 'User-Agent': 'Mozilla/5.0'},
+             params={'draw': 1, 'start': 0, 'length': -1, 'order[0][column]': 0, 'order[0][dir]': 'desc'})
+    if r is None or r.status_code != 200:
+        log('  ! supported projects: deanship list not reachable, kept the previous file')
+        return None
+    try:
+        rows = r.json().get('data') or []
+    except ValueError:
+        return None
+    test = re.compile(r'^(test|dresearch|dasdsa|admin|gfgnbjb|lxbfyeaa|zainab_test)$', re.I)
+    out = []
+    for x in rows:
+        if not isinstance(x, list) or len(x) < 28:
+            continue
+        call_en, status = x[2] or '', x[14] or ''
+        year = int(re.search(r'(\d{4})', call_en).group(1)) if re.search(r'(\d{4})', call_en) else None
+        funded = status == 'Approved by university' or (status == 'Approved by Scientific research Deanship' and year and year <= 2022 and x[15])
+        clean = lambda v: re.sub(r'\s+', ' ', html.unescape(str(v or ''))).strip().strip('"\'«»“”-– ').strip()  # noqa: E731
+        t_ar, t_en = clean(x[25]), clean(x[26])
+        if not funded or not (t_ar or t_en) or test.match(t_ar or t_en) or test.match((x[3] or '').strip()):
+            continue
+        out.append({'id': x[0], 'year': year, 't': t_ar, 'te': t_en, 'pi': clean(x[3]), 'pie': clean(x[4]),
+                    'fac': clean(x[5]), 'face': clean(x[6]), 'dept': clean(x[7]), 'depte': clean(x[8]),
+                    'date': (x[16] or '')[:10], 'done': str(x[27]) == '1'})
+    out.sort(key=lambda p: (-(p['year'] or 0), p['t'] or p['te']))
+    log(f'  supported projects: {len(out)} funded of {len(rows)} applications')
+    return {'updated': dt.date.today().isoformat(), 'source': SRGS_PAGE, 'projects': out}
+
+
 def sjr_by_issn():
     """ISSN -> {'q', 'areas', 'cats'} from data/research/sjr.csv (SCImago journal list, ';'-separated)."""
     out, path = {}, os.path.join(OUT, 'sjr.csv')
@@ -2047,6 +2086,13 @@ def main():
                 rebuild_jordan_cube()
             except Exception as e:  # noqa: BLE001
                 log(f'  ! jordan comparison: {e}')
+    if not args.limit and not args.only:   # funded projects (deanship list): small, refreshed on every run
+        try:
+            sp = supported_projects()
+            if sp:
+                save_json('projects.json', sp)
+        except Exception as e:  # noqa: BLE001
+            log(f'  ! supported projects: {e}')
     if not args.skip_unis and not args.limit and not args.only and not QUICK:
         cpath = os.path.join(OUT, 'jordan_citations.json')
         CITES.update(jordan_citations(cpath))

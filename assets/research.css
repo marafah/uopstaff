@@ -902,3 +902,41 @@ html.rs-printing .no-print[data-tab][hidden] { display: none !important; }
 @media print { .rs-udot { box-shadow: none; } .rs-cchip { background: #fff; } }
 .rs-cchip > i { color: #1f6f78; font-size: .85rem; }
 #j-rising td.rs-name { min-width: 190px; }
+
+/* projects.html: funded research projects */
+.rs-prj-charts { grid-template-columns: 1fr 1fr minmax(260px, .9fr); }
+@media (max-width: 1199.98px) { .rs-prj-charts { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 767.98px) { .rs-prj-charts { grid-template-columns: 1fr; } }
+.rs-prj-charts .rs-venues .t a { color: var(--rs-navy); }
+.rs-pj-filters { display: grid; grid-template-columns: minmax(240px, 2fr) minmax(180px, 1.2fr) minmax(220px, 1fr) minmax(160px, .9fr); gap: 1rem 1.2rem; align-items: start; }
+@media (max-width: 991.98px) { .rs-pj-filters { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 575.98px) { .rs-pj-filters { grid-template-columns: 1fr; } }
+.rs-jf .form-control { height: 40px; border-radius: 10px; border-color: #ded6c4; }
+#pj-years-f .rs-chip { cursor: pointer; font-weight: 700; padding: .3rem .8rem; background: #fff; border: 1px solid #e3d9c5; color: var(--rs-navy); }
+#pj-years-f .rs-chip small { color: var(--rs-muted); font-weight: 600; margin-inline-start: .2rem; }
+#pj-years-f .rs-chip.on { background: var(--rs-maroon); border-color: var(--rs-maroon); color: #fff; }
+#pj-years-f .rs-chip.on small { color: rgba(255,255,255,.8); }
+.rs-pj-bar { display: flex; align-items: center; gap: .6rem; margin-bottom: .6rem; color: var(--rs-navy); font-size: 1.02rem; }
+.rs-pj-bar i { color: var(--rs-maroon); }
+.rs-pj-year { display: flex; align-items: baseline; gap: .6rem; margin: 1.2rem 0 .7rem; font-size: 1.1rem; font-weight: 800; color: var(--rs-navy); border-bottom: 2px solid var(--rs-line); padding-bottom: .4rem; }
+.rs-pj-year span { background: var(--rs-navy); color: #fff; border-radius: 8px; padding: .15rem .7rem; }
+.rs-pj-year small { font-size: .82rem; color: var(--rs-muted); font-weight: 600; }
+.rs-prj-grid { display: grid; gap: .9rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); }
+.rs-prj { background: var(--rs-card); border: 1px solid var(--rs-line); border-radius: 14px; border-top: 4px solid var(--fc); padding: .9rem 1rem; display: flex; flex-direction: column; gap: .55rem; box-shadow: var(--rs-shadow); transition: transform .15s, box-shadow .15s; }
+.rs-prj:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(9,27,34,.12); }
+.rs-prj .top { display: flex; flex-wrap: wrap; gap: .35rem; }
+.rs-prj h4 { margin: 0; font-size: 1.02rem; font-weight: 800; line-height: 1.6; color: var(--rs-navy); unicode-bidi: plaintext; text-align: start; }
+.rs-prj p.en { margin: -.2rem 0 0; font-size: .82rem; color: var(--rs-muted); line-height: 1.5; text-align: left; }
+.rs-prj .pi { display: flex; align-items: center; gap: .55rem; margin-top: auto; padding-top: .55rem; border-top: 1px dashed var(--rs-line); }
+.rs-prj .pi a { display: flex; align-items: center; gap: .55rem; text-decoration: none; color: inherit; min-width: 0; }
+.rs-prj .pi a:hover b { color: var(--rs-maroon); }
+.rs-prj .pi b { display: block; font-size: .92rem; color: var(--rs-navy); }
+.rs-prj .pi small { display: block; font-size: .76rem; color: var(--rs-muted); }
+.rs-prj .pi em { margin-inline-start: auto; font-style: normal; font-size: .7rem; color: var(--rs-muted); background: #f3efe5; border-radius: 999px; padding: .05rem .5rem; white-space: nowrap; }
+.rs-prj .pi .rs-avatar i { font-size: .95rem; }
+.rs-prj .ft { display: flex; flex-wrap: wrap; gap: .3rem; }
+.rs-prj .ft .rs-chip { font-size: .78rem; display: inline-flex; align-items: center; gap: .35rem; }
+.rs-prj .ft .rs-udot { width: 8px; height: 8px; box-shadow: none; }
+.rs-tag.ok { background: #e3f3e8; color: #17663a; }
+.rs-tag.run { background: #fff3d6; color: #7a5600; }
+@media print { .rs-prj { box-shadow: none; break-inside: avoid; } .rs-prj-grid { grid-template-columns: 1fr 1fr; gap: 6px; } .rs-prj h4 { font-size: 9.5pt; } .rs-pj-year { break-after: avoid; } }
