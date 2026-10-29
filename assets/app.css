@@ -1856,3 +1856,33 @@ html[data-theme="dark"] .modal-backdrop.show { opacity: .25; }
 .raw .sp-levels { grid-template-columns: repeat(3, 1fr); gap: 8px; } .raw .sp-lv { break-inside: avoid; }
 .raw .row { display: flex; flex-wrap: wrap; } .raw .col-lg-4 { width: 33.3%; padding: 4px; } .raw .col-12 { width: 100%; padding: 4px; }
 .raw .sp-vis { break-inside: avoid; border: 1px solid #e3dccb; border-radius: 10px; } .raw .sp-donut { width: 150px; height: 150px; }
+
+/* ===== «الخطط الاسترشادية» (advisory.html) ===== */
+.ad-head { border-top: 4px solid var(--uop-maroon); } .ad-title { font-size: 1.5rem; font-weight: 800; color: var(--uop-navy); margin: .2rem 0; }
+.ad-years { display: flex; flex-direction: column; gap: 1rem; }
+.ad-year { background: #fff; border: 1px solid #ece8de; border-radius: 16px; overflow: hidden; }
+.ad-year > header { display: flex; align-items: center; gap: .6rem; padding: .6rem 1rem; background: linear-gradient(90deg, #091b22, #0b4a66); color: #fff; }
+.ad-yn { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #fff; color: #901d23; font-weight: 800; }
+.ad-year > header b { font-size: 1.05rem; } .ad-year > header small { margin-inline-start: auto; opacity: .9; }
+.ad-terms { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: .8rem; padding: .8rem; }
+.ad-term h4 { font-size: .95rem; font-weight: 800; display: flex; justify-content: space-between; color: #0b4a66; margin-bottom: .5rem; border-bottom: 2px solid #e6edf1; padding-bottom: .3rem; }
+.ad-sum { font-size: .8rem; color: #495057; font-weight: 700; }
+.ad-c { background: #fbfcfd; border: 1px solid #e3e7ec; border-inline-start: 4px solid #0b4a66; border-radius: 10px; padding: .45rem .6rem; margin-bottom: .45rem; font-size: .84rem; }
+.ad-c b { display: block; margin: .15rem 0; line-height: 1.35; color: #0f1d24; }
+.ad-c-top, .ad-c-ft { display: flex; justify-content: space-between; align-items: center; gap: .4rem; }
+.ad-c code { color: #0b4a66; font-weight: 700; } .ad-h { display: inline-grid; place-items: center; min-width: 24px; height: 22px; border-radius: 7px; background: #eef2f6; font-weight: 800; font-size: .78rem; }
+.ad-pre { font-size: .74rem; color: #5b6970; margin: .1rem 0 .2rem; } .ad-chip { background: #fff4d6; color: #7a4b00; border-radius: 6px; padding: 0 .3rem; font-weight: 700; font-family: monospace; }
+.ad-mark { font-weight: 800; color: #901d23; } .ad-off { font-size: .74rem; color: #8a949b; text-decoration: none; } .ad-off.on { color: #15803d; font-weight: 700; }
+.ad-c.done { border-inline-start-color: #15803d; background: #effaf2; opacity: .8; } .ad-c.done b { text-decoration: line-through; }
+.ad-c.next { border-inline-start-color: #e8b923; box-shadow: 0 0 0 2px #fff1c2; }
+#ad-body .ad-c[data-code] { cursor: default; }
+.ad-orig { display: grid; gap: .8rem; } .ad-orig img { width: 100%; border: 1px solid #e3e7ec; border-radius: 10px; background: #fff; }
+.ad-vt td, .ad-vt th { font-size: .84rem; }
+.ad-diff { border-top: 4px solid #64748b; height: 100%; } .ad-diff h4 { font-size: .92rem; font-weight: 800; padding: .6rem .9rem; margin: 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+.ad-diff h4 span { background: #f1f3f5; border-radius: 99px; padding: 0 .5rem; font-size: .8rem; }
+.ad-diff ul { list-style: none; margin: 0; padding: .5rem .9rem; max-height: 320px; overflow: auto; font-size: .83rem; } .ad-diff li { padding: .2rem 0; border-bottom: 1px dashed #eee; }
+.ad-diff li small { color: #6c757d; } .ad-diff.add { border-top-color: #15803d; } .ad-diff.rem { border-top-color: #901d23; } .ad-diff.mov { border-top-color: #b8892b; } .ad-diff.hrs { border-top-color: #0b4a66; } .ad-diff.pre { border-top-color: #6d28d9; }
+.ad-ring { --p: 0; width: 92px; height: 92px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(#15803d calc(var(--p) * 1%), #e9ecef 0); position: relative; flex: none; }
+.ad-ring::before { content: ""; position: absolute; inset: 10px; border-radius: 50%; background: #fff; } .ad-ring b { position: relative; font-size: 1.25rem; font-weight: 800; color: #15803d; }
+.ad-links li { padding: .2rem 0; font-size: .88rem; }
+@media print { .ad-year { break-inside: avoid-page; } }

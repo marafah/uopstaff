@@ -94,7 +94,8 @@
             <span class="badge rounded-pill text-bg-light"><i class="bi bi-diagram-3"></i> ${esc(p.dept)}</span></div>
             <h2 class="sp-title">${esc(p.major)}</h2>
             <small class="text-muted">الخطة كما تنشرها بوابة الجامعة · ${esc(D.term || '')}</small></div>
-          <a class="btn btn-sm btn-outline-secondary no-print" href="https://edugate.uop.edu.jo/studyPlans" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i> المصدر الرسمي</a>
+          <div class="d-flex flex-column gap-1 no-print"><a class="btn btn-sm btn-maroon" href="advisory.html?sp=${encodeURIComponent(p.id)}"><i class="bi bi-signpost-split"></i> الخطة الاسترشادية</a>
+            <a class="btn btn-sm btn-outline-secondary" href="https://edugate.uop.edu.jo/studyPlans" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i> المصدر الرسمي</a></div>
         </div>
         <div class="row g-2 mt-2">
           ${[[p.total || f.sum, 'ساعة معتمدة للتخرج', 'bi-hourglass-split', '#901d23'], [f.req, 'ساعة إجبارية', 'bi-lock-fill', '#0b4a66'], [f.el, 'ساعة اختيارية', 'bi-ui-checks', '#0f766e'],
