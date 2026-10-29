@@ -102,6 +102,13 @@
     docs: ['الوثائق', v => fmtN(v)], cites: ['الاقتباسات', v => R.n(v)], cpd: ['اقتباس لكل وثيقة', v => v.toFixed(1)], h: ['h-index', v => v == null ? '–' : R.n(v)],
     q1s: ['نسبة Q1', pct], q12: ['نسبة Q1 و Q2', pct], intls: ['تعاون دولي', pct], oas: ['وصول مفتوح', pct], confs: ['أوراق مؤتمرات', pct]
   };
+  // table pieces: a university's colour dot, its column heading, a rank badge, a thin bar, an icon per measure
+  const ucol = i => i === HOME.i ? '#901d23' : st.sel.includes(i) ? color(U[i], st.sel.indexOf(i)) : '#7d8f95';
+  const udot = i => `<i class="rs-udot" style="--uc:${ucol(i)}"></i>`;
+  const uth = i => `<th class="num rs-uth">${udot(i)}<span>${esc(U[i].ar)}</span></th>`;
+  const rkb = r => `<span class="rs-rk${r <= 3 ? ' r' + r : ''}">#${r}</span>`;
+  const gbar = (w, c) => `<span class="rs-gbar"><i style="width:${Math.max(2, Math.min(100, w)).toFixed(0)}%${c ? ';background:' + c : ''}"></i></span>`;
+  const MI = { docs: 'bi-file-earmark-text', cites: 'bi-quote', cpd: 'bi-graph-up-arrow', h: 'bi-award', q1s: 'bi-trophy', q12: 'bi-star-half', intls: 'bi-globe2', oas: 'bi-unlock', confs: 'bi-easel' };
   const fmtN = v => v == null ? '–' : Number.isInteger(+v) || v >= 100 ? R.n(v) : (+v).toFixed(1);
   const color = (u, k) => u.i === HOME.i ? '#901d23' : R.colors[(k % (R.colors.length - 1)) + 1];
   const yearOpts = sel => { let h = ''; for (let y = Y; y >= 1990; y--) h += `<option value="${y}"${y === sel ? ' selected' : ''}>${y}</option>`; return h; };
@@ -254,12 +261,13 @@
     const T2 = list.slice().sort((a, b) => (b[st.sort] ?? -1) - (a[st.sort] ?? -1));
     const mx = Object.fromEntries(cols.map(c => [c, Math.max(1e-9, ...all.map(o => o[c] || 0))]));
     R.$('#j-ctab-sc').textContent = `${st.scope === 'sel' ? 'الجامعات المختارة' : 'كل الجامعات'} · ${fieldTxt()} · ${periodTxt()} · ${st.frac ? 'بدون تكرار' : 'مع التكرار'} · اضغط عنوان العمود للترتيب`;
-    const sc = o => { const x = SCOPUS[o.u.afid]; return x && st.from <= 1990 && st.to >= Y && st.area < 0 && st.cat < 0 && !st.frac && x.docs ? `<small class="rs-official" title="العدد الرسمي في صفحة الجامعة على Scopus">Scopus: ${R.n(x.docs)}</small>` : ''; };
-    R.$('#j-ctable').innerHTML = `<thead><tr><th class="num">#</th><th>الجامعة</th>${cols.map(c => `<th class="num${st.sort === c ? ' sorted' : ''}${c === k ? ' crit' : ''}" data-sort="${c}">${M[c][0]}</th>`).join('')}<th>تحقق</th></tr></thead><tbody>
-      <tr class="jo"><td class="num">–</td><td><b>${esc(JO.ar)}</b><br><small class="text-muted">كل بحث مرة واحدة</small></td>${cols.map(c => `<td class="num">${M[c][1](S.jo[c])}</td>`).join('')}<td></td></tr>
-      ${T2.map((o, n) => `<tr class="${o.u.i === HOME.i ? 'me' : st.scope === 'all' && st.sel.includes(o.u.i) ? 'sel' : ''}"><td class="num">${n + 1}</td><td><b>${esc(o.u.ar)}</b><br><small class="text-muted ltr">${esc(o.u.en)}</small></td>
-        ${cols.map(c => `<td class="num rs-barcell${c === k ? ' crit' : ''}" style="--w:${o[c] == null ? 0 : (100 * o[c] / mx[c]).toFixed(0)}%">${M[c][1](o[c])}${o[c] != null ? `<small class="rk">#${RK[c](o)}</small>` : ''}${c === 'docs' ? sc(o) : ''}</td>`).join('')}
-        <td>${R.srcBadge('Scopus', R.scopusOrgUrl(o.u.afid), 'bi-bar-chart-line')}</td></tr>`).join('')}</tbody>`;
+    const sc = o => { const x = SCOPUS[o.u.afid]; return x && st.from <= 1990 && st.to >= Y && st.area < 0 && st.cat < 0 && !st.frac && x.docs && Math.abs(x.docs - o.docs) > .01 * x.docs ? `<small class="rs-official" title="العدد الرسمي في صفحة الجامعة على Scopus">Scopus: ${R.n(x.docs)}</small>` : ''; };
+    R.$('#j-ctable').innerHTML = `<thead><tr><th class="num">#</th><th>الجامعة</th>${cols.map(c => `<th class="num rs-mth${st.sort === c ? ' sorted' : ''}${c === k ? ' crit' : ''}" data-sort="${c}"><i class="bi ${MI[c]}"></i><span>${M[c][0]}</span></th>`).join('')}<th class="num">تحقق</th></tr></thead><tbody>
+      <tr class="jo"><td class="num"><i class="bi bi-flag-fill"></i></td><td><b>${esc(JO.ar)}</b><small class="d-block text-muted">كل بحث مرة واحدة</small></td>${cols.map(c => `<td class="num"><b>${M[c][1](S.jo[c])}</b></td>`).join('')}<td></td></tr>
+      ${T2.map((o, n) => `<tr class="${o.u.i === HOME.i ? 'me' : st.scope === 'all' && st.sel.includes(o.u.i) ? 'sel' : ''}"><td class="num">${rkb(n + 1)}</td>
+        <td class="rs-ucell">${udot(o.u.i)}<div><b>${esc(o.u.ar)}</b><small class="ltr">${esc(o.u.en)}</small></div></td>
+        ${cols.map(c => `<td class="num rs-vcell${c === k ? ' crit' : ''}"><b>${M[c][1](o[c])}</b>${o[c] == null ? '' : gbar(100 * o[c] / mx[c], c === k ? '' : '#b9c6ca') + `<small class="rk">#${RK[c](o)}</small>`}${c === 'docs' ? sc(o) : ''}</td>`).join('')}
+        <td class="num">${R.srcBadge('Scopus', R.scopusOrgUrl(o.u.afid), 'bi-bar-chart-line')}</td></tr>`).join('')}</tbody>`;
     // what counting with duplicates adds for this scope
     const dup = dupInfo(new Set(list.map(o => o.u.i)));
     const sumDocs = list.reduce((t, o) => t + o.docs, 0);
@@ -267,7 +275,7 @@
     R.$('#j-dupnote').innerHTML = (st.frac
       ? `بدون تكرار: البحث المشترك بين جامعتين يُحسب نصفاً لكل منهما${st.area >= 0 || st.cat >= 0 ? '، والبحث في أكثر من مجال يُقسَّم بين مجالاته' : ''}، فمجموع كل الجامعات يساوي عدد الأبحاث الأردنية الفريدة (${R.n(S.jo.docs)}). حصص الجامعات المعروضة: ${fmtN(sumDocs)}.`
       : `مع التكرار (كما في Scopus): ${R.n(dup.full - dup.uniq)} من أبحاث هذه الجامعات مشتركة بين أكثر من جامعة، فتُحسب لكل منها؛ لذلك مجموع العمود (${R.n(sumDocs)}) أكبر من عدد الأبحاث الفريدة (${R.n(dup.uniq)}). اختر «بدون تكرار» ليُحسب كل بحث مرة واحدة.`)
-      + ` h-index لا يتأثر بطريقة العدّ.${st.from <= 1990 && st.to >= Y && st.area < 0 && st.cat < 0 && !st.frac ? ' «Scopus» تحت عدد الوثائق: العدد الرسمي في صفحة الجامعة على Scopus هذا الأسبوع.' : ''}`;
+      + ` h-index لا يتأثر بطريقة العدّ.${st.from <= 1990 && st.to >= Y && st.area < 0 && st.cat < 0 && !st.frac ? ' أعداد الوثائق من تصدير Scopus الرسمي لكل جامعة؛ إن اختلف عدد صفحة الجامعة على Scopus هذا الأسبوع بأكثر من 1% يظهر تحته.' : ''}`;
   }
   // fields or specialities inside the chosen field, for the selected universities
   function fields() {
@@ -279,25 +287,35 @@
     const selSum = k => st.sel.reduce((s2, i) => s2 + ((t[k] || {})[i] || [0])[0], 0);
     const keys = Object.keys(t).map(Number).filter(k => selSum(k) > 0).sort((a, b) => selSum(b) - selSum(a)).slice(0, 30);
     const totAll = inCat ? null : Object.fromEntries(st.sel.map(i => [i, S.out[i].docs || 1]));
-    R.$('#j-fields').innerHTML = `<thead><tr><th>${inCat ? 'التخصص' : 'المجال'}</th>${st.sel.map(i => `<th class="num">${esc(U[i].ar)}<br><small class="fw-normal">وثائق · ${inCat ? 'اقتباس/وثيقة' : 'الحصة · اقتباس/وثيقة'}</small></th>`).join('')}</tr></thead><tbody>
-      ${keys.map(k => `<tr><td class="${inCat ? 'ltr' : ''}"><a href="#" data-pick="${k}">${esc(inCat ? names[k] : R.areaAr(names[k]))}</a></td>${st.sel.map(i => { const v = (t[k] || {})[i]; return v ? `<td class="num"><b>${R.n(v[0])}</b><br><small class="text-muted">${inCat ? '' : pct(v[0] / totAll[i]) + ' · '}${(v[1] / v[0]).toFixed(1)}</small></td>` : '<td class="num text-muted">–</td>'; }).join('')}</tr>`).join('')}</tbody>`;
+    const fmx = Math.max(1e-9, ...keys.flatMap(k => st.sel.map(i => ((t[k] || {})[i] || [0])[0])));
+    R.$('#j-fields').innerHTML = `<thead><tr><th>${inCat ? 'التخصص' : 'المجال'}</th>${st.sel.map(uth).join('')}</tr></thead><tbody>
+      ${keys.map(k => `<tr><td class="rs-name ${inCat ? 'ltr' : ''}"><a href="#" data-pick="${k}">${esc(inCat ? names[k] : R.areaAr(names[k]))}</a></td>${st.sel.map(i => { const v = (t[k] || {})[i]; return v ? `<td class="num rs-vcell"><b>${fmtN(v[0])}</b>${gbar(100 * v[0] / fmx, ucol(i))}
+        <span class="rs-minis">${inCat ? '' : `<span class="rs-mini" title="حصة المجال من أبحاث الجامعة">${pct(v[0] / totAll[i])}</span>`}<span class="rs-mini c" title="اقتباس لكل وثيقة"><i class="bi bi-quote"></i>${(v[1] / v[0]).toFixed(1)}</span></span></td>` : '<td class="num text-muted">–</td>'; }).join('')}</tr>`).join('')}</tbody>
+      <tfoot><tr><td colspan="${st.sel.length + 1}"><span class="rs-mini">الحصة</span> نسبة المجال من أبحاث الجامعة · <span class="rs-mini c"><i class="bi bi-quote"></i>اقتباس/وثيقة</span> متوسط الاقتباس لكل بحث</td></tr></tfoot>`;
   }
   function journals() {
     const pick = R.$('#j-ju'), cur = +pick.value || st.sel[0];
     pick.innerHTML = st.sel.map(i => `<option value="${i}"${i === cur ? ' selected' : ''}>${esc(U[i].ar)}</option>`).join('');
     const u = +pick.value;
     const list = (D.journals || []).filter(r => r[0] === u).sort((a, b) => b[2] - a[2]).slice(0, 40);
-    R.$('#j-journals').innerHTML = `<thead><tr><th>المجلة / المصدر</th><th>التصنيف</th><th class="num">الوثائق</th><th class="num">اقتباس/وثيقة</th></tr></thead><tbody>
-      ${list.map(r => { const m = D.jmeta[r[1]] || [D.jnames[r[1]] || r[1].replace(/^n:/, ''), '', 0, 0]; const isS = !String(r[1]).startsWith('n:');
+    const jmx = Math.max(1, ...list.map(r => r[2]));
+    R.$('#j-journals').innerHTML = `<thead><tr><th class="num">#</th><th>المجلة / المصدر</th><th class="num">التصنيف</th><th class="num">الوثائق</th><th class="num">اقتباس/وثيقة</th></tr></thead><tbody>
+      ${list.map((r, n) => { const m = D.jmeta[r[1]] || [D.jnames[r[1]] || r[1].replace(/^n:/, ''), '', 0, 0]; const isS = !String(r[1]).startsWith('n:');
         const fl = FLAGS && isS ? FLAGS.verdict(FLAGS.F[r[1]] || null) : null;
-        return `<tr><td class="ltr">${isS ? `<a href="journals.html?id=${r[1]}">${esc(m[0])}</a>` : esc(m[0])}${m[3] ? ' <span class="rs-tag oa">OA</span>' : ''}${fl ? ` <span class="rs-tag ${fl[2]}" title="${esc(fl[1])}">${esc(fl[0])}</span>` : ''}</td><td>${R.qTag(m[1]) || '<small class="text-muted">—</small>'}</td><td class="num">${R.n(r[2])}</td><td class="num">${(r[3] / r[2]).toFixed(1)}</td></tr>`; }).join('')}</tbody>`;
+        const cpd = r[3] / r[2];
+        return `<tr><td class="num">${rkb(n + 1)}</td><td class="ltr rs-jname"><i class="bi ${isS ? 'bi-journal-bookmark' : 'bi-easel'}"></i>${isS ? `<a href="journals.html?id=${r[1]}">${esc(m[0])}</a>` : `<span>${esc(m[0])}</span>`}${m[3] ? ' <span class="rs-tag oa"><i class="bi bi-unlock"></i> OA</span>' : ''}${fl ? ` <span class="rs-tag ${fl[2]}" title="${esc(fl[1])}">${esc(fl[0])}</span>` : ''}</td>
+          <td class="num">${R.qTag(m[1]) || '<span class="rs-tag">غير مصنّف</span>'}</td><td class="num rs-vcell"><b>${R.n(r[2])}</b>${gbar(100 * r[2] / jmx, '#1f6f78')}</td>
+          <td class="num"><span class="rs-mini c${cpd >= 10 ? ' hi' : cpd < 3 ? ' lo' : ''}"><i class="bi bi-quote"></i>${cpd.toFixed(1)}</span></td></tr>`; }).join('')}</tbody>`;
   }
   function matrix() {
     const ids = D.matrix.ids, m = D.matrix.m, pos = Object.fromEntries(ids.map((a, i) => [a, i]));
     const sel = st.sel.map(i => U[i]);
     const mx = Math.max(1, ...sel.flatMap(a => sel.map(b => a === b ? 0 : m[pos[a.afid]][pos[b.afid]])));
-    R.$('#j-matrix').innerHTML = `<thead><tr><th></th>${sel.map(u => `<th class="num"><small>${esc(u.ar)}</small></th>`).join('')}</tr></thead><tbody>${sel.map(a => `<tr><th><small>${esc(a.ar)}</small></th>${sel.map(b => { if (a === b) return '<td class="num text-muted">—</td>'; const v = m[pos[a.afid]][pos[b.afid]]; return `<td class="num" style="background:${R.alpha('#901d23', .08 + .7 * v / mx)};color:${v / mx > .55 ? '#fff' : 'inherit'}">${R.n(v)}</td>`; }).join('')}</tr>`).join('')}</tbody>`;
-    R.$('#j-countries').innerHTML = sel.map(u => { const p = prof[u.afid]; if (!p) return ''; return `<div class="mb-2"><b class="small">${esc(u.ar)}</b><div class="rs-chips mt-1">${(p.countries || []).slice(0, 8).map(([c, n]) => `<span class="rs-chip"><span class="ltr">${esc(c)}</span> <small class="text-muted">${R.n(n)}</small></span>`).join('')}</div></div>`; }).join('');
+    R.$('#j-matrix').innerHTML = `<thead><tr><th></th>${sel.map(u => uth(u.i)).join('')}</tr></thead><tbody>${sel.map(a => `<tr><td class="rs-ucell">${udot(a.i)}<div><b>${esc(a.ar)}</b></div></td>${sel.map(b => { if (a === b) return '<td class="num rs-hcell self"><span><i class="bi bi-dash-lg"></i></span></td>'; const v = m[pos[a.afid]][pos[b.afid]]; const x = v / mx;
+      return `<td class="num rs-hcell"><span style="background:${R.alpha('#901d23', .1 + .75 * x)};color:${x > .5 ? '#fff' : '#3a1013'}" title="${R.n(v)} بحثاً مشتركاً">${R.n(v)}</span></td>`; }).join('')}</tr>`).join('')}</tbody>`;
+    const ctryAr = R.ctryAr || (R.ctryAr = (() => { try { const dn = new Intl.DisplayNames(['ar'], { type: 'region' }), dnEn = new Intl.DisplayNames(['en'], { type: 'region' }), codes = { 'Russian Federation': 'RU', 'South Korea': 'KR', 'Viet Nam': 'VN', 'Turkey': 'TR', 'Iran': 'IR', 'Syrian Arab Republic': 'SY', 'Palestine': 'PS', 'Czech Republic': 'CZ', 'Taiwan': 'TW', 'Hong Kong': 'HK' }; for (let a = 65; a < 91; a++) for (let b = 65; b < 91; b++) { const cc = String.fromCharCode(a, b); try { const en = dnEn.of(cc); if (en && en !== cc && !codes[en]) codes[en] = cc; } catch (e) { /* not a region */ } } return c => { const cc = codes[c]; return cc ? [dn.of(cc), cc] : [c, '']; }; } catch (e) { return c => [c, '']; } })());
+    R.$('#j-countries').innerHTML = sel.map(u => { const p = prof[u.afid]; if (!p) return ''; const L = (p.countries || []).slice(0, 8), cmx = Math.max(1, ...L.map(x => x[1]));
+      return `<div class="rs-ctry"><div class="hd">${udot(u.i)}<b>${esc(u.ar)}</b></div><div class="rs-cchips">${L.map(([c, n]) => { const [ar, cc] = ctryAr(c); return `<span class="rs-cchip" style="--w:${(100 * n / cmx).toFixed(0)}%" title="${esc(c)}"><i class="bi bi-globe2"></i>${esc(ar)}<b>${R.n(n)}</b></span>`; }).join('')}</div></div>`; }).join('');
   }
   function gaps() {
     const tot = {}, home = {};
@@ -309,9 +327,12 @@
     const rows = AREAS.map((a, i) => [R.areaAr(a), (home[i] || 0) / (nHome || 1), (tot[i] || 0) / (nTot || 1)]).map(r => [r[0], r[1] - r[2], r[1], r[2]]).sort((a, b) => a[1] - b[1]);
     R.chart('j-gap-areas', { type: 'bar', data: { labels: rows.map(r => r[0]), datasets: [{ label: 'الفرق بالنقاط المئوية', data: rows.map(r => +(100 * r[1]).toFixed(1)), backgroundColor: rows.map(r => r[1] < 0 ? '#c0392b' : '#1d7a3e'), borderRadius: 3 }] },
       options: { indexAxis: 'y', plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => { const r = rows[c.dataIndex]; return `البترا ${pct(r[2])} · الأردن ${pct(r[3])}`; } } } }, scales: { y: { ticks: { autoSkip: false, font: { size: 12 } } } } } });
-    R.$('#j-rising').innerHTML = `<thead><tr><th>الموضوع</th><th class="num">وثائق أردنية</th><th class="num">النمو</th><th class="num">البترا</th><th>الأنشط</th></tr></thead><tbody>
-      ${(D.rising || []).slice(0, 60).map(([k, n, g, by]) => { const top = Object.entries(by).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([i]) => U[i] ? U[i].ar : '').join('، ');
-        return `<tr><td class="ltr"><a href="experts.html?q=${encodeURIComponent(k)}" title="خبراء في هذا الموضوع">${esc(k)}</a></td><td class="num">${R.n(n)}</td><td class="num">×${g}</td><td class="num ${by[HOME.i] ? '' : 'text-danger fw-bold'}">${R.n(by[HOME.i] || 0)}</td><td><small>${esc(top)}</small></td></tr>`; }).join('')}</tbody>`;
+    R.$('#j-rising').innerHTML = `<thead><tr><th>الموضوع</th><th class="num">وثائق أردنية</th><th class="num">النمو</th><th class="num">${esc(HOME.ar)}</th><th>الأنشط</th></tr></thead><tbody>
+      ${(D.rising || []).slice(0, 60).map(([k, n, g, by]) => { const top = Object.entries(by).sort((a, b) => b[1] - a[1]).slice(0, 2).filter(([i]) => U[i]);
+        return `<tr><td class="ltr rs-name"><a href="experts.html?q=${encodeURIComponent(k)}" title="خبراء في هذا الموضوع">${esc(k)}</a></td><td class="num"><b>${R.n(n)}</b></td>
+          <td class="num"><span class="rs-mini up"><i class="bi bi-graph-up-arrow"></i>×${g}</span></td>
+          <td class="num">${by[HOME.i] ? `<span class="rs-mini home">${R.n(by[HOME.i])}</span>` : '<span class="rs-mini zero" title="لا أبحاث للبترا في هذا الموضوع بعد"><i class="bi bi-exclamation-circle"></i>0</span>'}</td>
+          <td>${top.map(([i, v]) => `<span class="rs-uchip-s">${udot(+i)}${esc(U[i].ar)} <b>${v}</b></span>`).join('')}</td></tr>`; }).join('')}</tbody>`;
   }
 
   // ---------------------------------------------------------------- tabs
@@ -362,9 +383,9 @@
     st.sel.forEach(i => { tot[i] = S.out[i].docs || 1; });
     const areas = AREAS.map((a, k) => [k, st.sel.reduce((s2, i) => s2 + ((t[i] || {})[k] || 0) / tot[i], 0)]).sort((a, b) => b[1] - a[1]).map(x => x[0]);
     const mx = Math.max(1e-9, ...st.sel.flatMap(i => areas.map(k => ((t[i] || {})[k] || 0) / tot[i])));
-    R.$('#j-heat').innerHTML = `<thead><tr><th>المجال</th>${st.sel.map(i => `<th class="num"><small>${esc(U[i].ar)}</small></th>`).join('')}</tr></thead><tbody>
-      ${areas.map(k => `<tr><td><a href="#" data-pick="${k}">${esc(R.areaAr(AREAS[k]))}</a></td>${st.sel.map(i => { const v = ((t[i] || {})[k] || 0) / tot[i]; const a = v / mx;
-        return `<td class="num" style="background:${R.alpha(i === HOME.i ? '#901d23' : '#1f6f78', .06 + .8 * a)};color:${a > .55 ? '#fff' : 'inherit'}" title="${R.n((t[i] || {})[k] || 0)} وثيقة">${v ? R.pct(v, 0) : '–'}</td>`; }).join('')}</tr>`).join('')}</tbody>`;
+    R.$('#j-heat').innerHTML = `<thead><tr><th>المجال</th>${st.sel.map(uth).join('')}</tr></thead><tbody>
+      ${areas.map(k => `<tr><td class="rs-name"><a href="#" data-pick="${k}">${esc(R.areaAr(AREAS[k]))}</a></td>${st.sel.map(i => { const v = ((t[i] || {})[k] || 0) / tot[i]; const a = v / mx;
+        return `<td class="num rs-hcell"><span style="background:${R.alpha(i === HOME.i ? '#901d23' : '#1f6f78', .07 + .8 * a)};color:${a > .55 ? '#fff' : '#17323a'}" title="${fmtN((t[i] || {})[k] || 0)} وثيقة">${v ? R.pct(v, 0) : '–'}</span></td>`; }).join('')}</tr>`).join('')}</tbody>`;
   }
   R.$('#j-heat').addEventListener('click', e => { const a = e.target.closest('[data-pick]'); if (!a) return; e.preventDefault(); st.area = +a.dataset.pick; st.cat = -1; R.$('#j-area').value = st.area; R.$('#j-cat').innerHTML = catOpts(); showTab('fields'); render(); });
   R.$('#j-csv').onclick = () => R.csv((st.scope === 'sel' ? st.sel.map(i => S.out[i]) : S.out).filter(o => o.docs).map(o => ({ counting: st.frac ? 'fractional (no duplicates)' : 'full (as Scopus)', university: o.u.ar, university_en: o.u.en, from: st.from, to: st.to, field: st.cat >= 0 ? CATS[st.cat] : st.area >= 0 ? AREAS[st.area] : 'all',
@@ -380,8 +401,10 @@
       if (f && f.d) { bad[r[0]] = (bad[r[0]] || 0) + r[2]; (top[r[0]] = top[r[0]] || []).push([f.t, r[2], f.dy || f.end || '']); }
     }
     const rows = U.map(u => ({ u, n: bad[u.i] || 0, s: (bad[u.i] || 0) / (U[u.i].size || 1) })).sort((a, b) => b.s - a.s);
-    R.$('#j-disc').innerHTML = `<div class="rs-scroll" style="max-height:460px"><table class="rs-table"><thead><tr><th>الجامعة</th><th class="num">أبحاث في مجلات محذوفة</th><th class="num">من كل أبحاثها</th><th>أكثر هذه المجلات</th></tr></thead><tbody>
-      ${rows.map(x => `<tr class="${x.u.i === HOME.i ? 'me' : ''}"><td><b>${esc(x.u.ar)}</b></td><td class="num">${R.n(x.n)}</td><td class="num">${R.pct(x.s, 1)}</td><td class="ltr"><small>${(top[x.u.i] || []).sort((a, b) => b[1] - a[1]).slice(0, 3).map(t => `${esc(t[0])} (${t[1]}${t[2] ? ', ' + t[2] : ''})`).join('<br>')}</small></td></tr>`).join('')}</tbody></table></div>
+    R.$('#j-disc').innerHTML = `<div class="rs-scroll" style="max-height:460px"><table class="rs-table rs-tbl2"><thead><tr><th>الجامعة</th><th class="num">أبحاث في مجلات محذوفة</th><th class="num">من كل أبحاثها</th><th>أكثر هذه المجلات</th></tr></thead><tbody>
+      ${rows.map(x => `<tr class="${x.u.i === HOME.i ? 'me' : ''}"><td class="rs-ucell">${udot(x.u.i)}<div><b>${esc(x.u.ar)}</b></div></td><td class="num"><b>${R.n(x.n)}</b></td>
+        <td class="num"><span class="rs-mini ${x.s >= .05 ? 'zero' : x.s >= .02 ? 'warn' : 'ok'}">${R.pct(x.s, 1)}</span></td>
+        <td class="ltr"><div class="rs-dj">${(top[x.u.i] || []).sort((a, b) => b[1] - a[1]).slice(0, 3).map(t => `<span><i class="bi bi-journal-x"></i>${esc(t[0])}<b>${t[1]}</b>${t[2] ? `<small>حُذفت ${esc(t[2])}</small>` : ''}</span>`).join('')}</div></td></tr>`).join('')}</tbody></table></div>
       <p class="rs-note mt-2 mb-0">من قائمة Scopus الرسمية للمجلات المحذوفة (Discontinued). الأبحاث المنشورة قبل تاريخ الحذف تبقى في Scopus، لكن ارتفاع النسبة مؤشر جودة يستحق المراجعة. <a href="journals.html">تحقّق من أي مجلة قبل الإرسال</a>.</p>`;
   }
   R.scopusFlags().then(F => { FLAGS = F; disc(); journals(); }).catch(() => { R.$('#j-disc').innerHTML = '<div class="rs-note">تعذّر تحميل قائمة Scopus.</div>'; });
