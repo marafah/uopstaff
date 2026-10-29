@@ -2093,6 +2093,11 @@ def main():
                 save_json('projects.json', sp)
         except Exception as e:  # noqa: BLE001
             log(f'  ! supported projects: {e}')
+        try:   # research integrity (integrity.json): retracted papers (Scopus API + Retraction Watch) and discontinued journals
+            import research_integrity
+            research_integrity.main()
+        except Exception as e:  # noqa: BLE001
+            log(f'  ! research integrity: {e}')
         try:   # external collaboration (collab.json): local files only
             import research_collab
             research_collab.main()
