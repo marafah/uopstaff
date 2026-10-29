@@ -751,6 +751,73 @@ def simulator_base(rows, Y):
     return {'years': [Y - 4, Y], 'keys': keys, 'unis': out}
 
 
+def sjr_by_issn():
+    """ISSN -> {'q', 'areas', 'cats'} from data/research/sjr.csv (SCImago journal list, ';'-separated)."""
+    out, path = {}, os.path.join(OUT, 'sjr.csv')
+    if not os.path.exists(path):
+        return out
+    with open(path, encoding='utf-8', errors='replace') as f:
+        rd = csv.reader(f, delimiter=';')
+        head = next(rd)
+        ix = {h: i for i, h in reversed(list(enumerate(head)))}
+        for r in rd:
+            g = lambda k: r[ix[k]].strip() if k in ix and ix[k] < len(r) else ''  # noqa: E731
+            q = g('SJR Best Quartile')
+            j = {'q': q if q in ('Q1', 'Q2', 'Q3', 'Q4') else '', 'areas': [a.strip() for a in g('Areas').split(';') if a.strip()],
+                 'cats': [re.sub(r'\s*\(Q\d\)\s*$', '', c).strip() for c in g('Categories').split(';') if c.strip()]}
+            for i in g('Issn').split(','):
+                if i.strip() and i.strip() != '-':
+                    out[i.strip().upper()] = j
+    return out
+
+
+def official_exports(cube):
+    """{university index in cube.json: {EID: export row}} from each university's own Scopus export:
+    the University of Petra's in data/research/scopus_export, the others' in data/research/universities_export.
+    A file is matched to its university by the Scopus AF-ID in its name (e.g. 60064180.csv), else by the
+    university's English name in its name, else by the university named on (nearly) every row."""
+    unis = cube.get('unis') or []
+    uidx = {u[0]: i for i, u in enumerate(unis)}
+    norm = lambda t: re.sub(r'[^a-z]', '', (t or '').lower().replace('the ', ''))  # noqa: E731
+    names = sorted(((norm(u[1]), i) for i, u in enumerate(unis)), key=lambda x: -len(x[0]))
+
+    def named(text):   # the universities named in a text, a longer name winning over one it contains
+        t, hit = norm(text), []
+        for n, i in names:
+            if n in t and not any(n in names[k][0] for k in range(len(names)) if names[k][1] in hit):
+                hit.append(i)
+        return hit
+
+    out = {}
+    files = [(p, uidx.get(UOP_AFID)) for p in sorted(glob.glob(os.path.join(OUT, 'scopus_export', '*.csv')))]
+    files += [(p, None) for p in sorted(glob.glob(os.path.join(OUT, 'universities_export', '*.csv')))]
+    for p, u in files:
+        with open(p, encoding='utf-8-sig', newline='') as f:
+            rows_ = [r for r in csv.DictReader(f) if r.get('EID')]
+        if not rows_:
+            continue
+        base = os.path.basename(p)
+        if u is None:
+            m = re.search(r'60\d{6}', base)
+            u = uidx.get(m.group(0)) if m else None
+        if u is None:
+            hit = named(base.rsplit('.', 1)[0].replace('_', ' '))
+            u = hit[0] if len(hit) == 1 else None
+        if u is None:
+            votes = Counter(i for r in rows_ for i in set(named(r.get('Affiliations'))))
+            if votes:
+                i, n = votes.most_common(1)[0]
+                u = i if n >= 0.8 * len(rows_) else None
+        if u is None:
+            log(f'  ! {base}: could not tell which university this export belongs to (put its Scopus AF-ID in the name)')
+            continue
+        got = out.setdefault(u, {})
+        for r in rows_:
+            got[r['EID'].replace('2-s2.0-', '')] = r
+        log(f'  jordan: {base} -> {unis[u][1]}, {len(rows_)} documents')
+    return out
+
+
 def rebuild_jordan_cube():
     """Recompute the university comparison (jordan/cube.json and h-index rows) from jordan/docs.tsv with this
     week's citations (jordan_citations.json)."""
@@ -760,25 +827,47 @@ def rebuild_jordan_cube():
         return
     cube = load_json(cpath, {})
     now = (CITES or {}).get('eid') or {}
-    # a university with its own Scopus export (Petra: data/research/scopus_export) is credited with exactly the
-    # documents Scopus lists under its affiliation ID, not with papers that only mention its name
-    official, pet = {}, set()
-    for p in sorted(glob.glob(os.path.join(OUT, 'scopus_export', '*.csv'))):
-        with open(p, encoding='utf-8-sig', newline='') as f:
-            pet |= {(r.get('EID') or '').replace('2-s2.0-', '') for r in csv.DictReader(f)} - {''}
-    uidx = {u[0]: i for i, u in enumerate(cube.get('unis') or [])}
-    if pet and UOP_AFID in uidx:
-        official[uidx[UOP_AFID]] = pet
+    # a university with its own Scopus export is credited with exactly the documents Scopus lists under its affiliation
+    # ID (as its Scopus page counts them), not with papers that only mention its name; papers in an export that the
+    # file does not hold yet are added from the export
+    official = official_exports(cube)
+    newer = {}
+    for rows_ in official.values():
+        newer.update(rows_)
     rows, lines = [], []
+
+    def keep(e, y, ul, ar, ca, q, intl, oa, conf, c):
+        lines.append('\t'.join([e, str(y or ''), ','.join(map(str, ul)), ','.join(map(str, ar)), ','.join(map(str, ca)), q,
+                                '1' if intl else '', '1' if oa else '', '1' if conf else '', str(c)]))
+        rows.append((int(y) if y else 0, ul, ar, ca, q, bool(intl), bool(oa), bool(conf), c))
+
     with open(path, encoding='utf-8') as f:
         head = next(f)
         for line in f:
             e, y, us, ar, ca, q, intl, oa, conf, c = line.rstrip('\n').split('\t')
             ul = [u for u in (int(x) for x in us.split(',') if x) if u not in official or e in official[u]]
-            c = int(now.get(e, c) or 0)
-            lines.append('\t'.join([e, y, ','.join(map(str, ul)), ar, ca, q, intl, oa, conf, str(c)]))
-            rows.append((int(y) if y else 0, ul, [int(x) for x in ar.split(',') if x],
-                         [int(x) for x in ca.split(',') if x], q, intl == '1', oa == '1', conf == '1', c))
+            ul += [u for u, rows_ in official.items() if e in rows_ and u not in ul]
+            newer.pop(e, None)
+            keep(e, y, ul, [int(x) for x in ar.split(',') if x], [int(x) for x in ca.split(',') if x], q,
+                 intl == '1', oa == '1', conf == '1', int(now.get(e, c) or 0))
+    if newer:
+        sj = sjr_by_issn()
+        aidx = {a: i for i, a in enumerate(cube.get('areas') or [])}
+        cidx = {c: i for i, c in enumerate(cube.get('cats') or [])}
+        for e, r in newer.items():
+            issns = [x.strip().upper() for x in re.split(r'[;,\s]+', r.get('ISSN') or '') if x.strip()]
+            j = next((sj[i] for i in issns if i in sj), None) or {}
+            ctry = {a.rsplit(',', 1)[-1].strip() for a in (r.get('Affiliations') or '').split(';') if a.strip()}
+            try:
+                c = int(now.get(e, r.get('Cited by') or 0) or 0)
+            except ValueError:
+                c = 0
+            keep(e, int(r['Year']) if (r.get('Year') or '').isdigit() else 0,
+                 sorted(u for u, rows_ in official.items() if e in rows_),
+                 [aidx[a] for a in j.get('areas', []) if a in aidx], [cidx[c_] for c_ in j.get('cats', []) if c_ in cidx],
+                 j.get('q', ''), any(x and x != 'Jordan' for x in ctry), bool((r.get('Open Access') or '').strip()),
+                 (r.get('Document Type') or '') in ('Conference paper', 'Conference review'), c)
+        log(f'  jordan: {len(newer)} documents added from the universities\' own Scopus exports')
     # the pages compute their comparisons from this file, so it carries the corrected universities and this week's citations
     with open(path, 'w', encoding='utf-8') as f:
         f.write(head + '\n'.join(lines) + '\n')
