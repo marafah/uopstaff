@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - run: pip install requests pillow pdfplumber
+      - run: pip install requests pillow pdfplumber pypdfium2
       - name: Staff directory from uop.edu.jo
         run: python scripts/update_data.py
       - name: Academic calendar from uop.edu.jo
@@ -29,6 +29,10 @@ jobs:
         # any mismatch fails this step only: the previous plans stay, the other updates are still saved
         continue-on-error: true
         run: python scripts/update_study_plans.py
+      - name: Advisory study plans from the faculty sites
+        # any failure keeps the previous plans; a faculty that cannot be reached keeps what was read before
+        continue-on-error: true
+        run: python scripts/update_advisory.py
       - name: Office hours backup (from the Google Sheet service)
         continue-on-error: true
         run: python scripts/update_office_hours.py
