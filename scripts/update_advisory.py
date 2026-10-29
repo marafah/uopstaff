@@ -78,8 +78,17 @@ def get(url, **kw):
 
 
 def api(host, path):
-    r = get(f"https://{host}{path}", headers=JSONH)
-    return r.json().get("value", []) if r.status_code == 200 else None
+    """A SharePoint REST call; the plain JSON form first, the older «verbose» form if the server does not offer it."""
+    url = f"https://{host}{path}"
+    r = get(url, headers=JSONH)
+    if r.status_code == 200 and r.headers.get("content-type", "").startswith("application/json"):
+        return r.json().get("value", [])
+    r2 = get(url, headers={"Accept": "application/json;odata=verbose"})
+    if r2.status_code == 200 and r2.headers.get("content-type", "").startswith("application/json"):
+        d = r2.json().get("d", {})
+        return d.get("results", d if isinstance(d, list) else [])
+    print(f"  {r.status_code}/{r2.status_code} {r2.headers.get('content-type', '')[:40]} {url[:120]}", file=sys.stderr)
+    return None
 
 
 def lst(host, web, title, query=""):
@@ -189,6 +198,8 @@ def main():
     for sub in HOSTS:
         try:
             progs = inventory(sub)
+            if not progs:
+                raise RuntimeError("no programmes listed (site not reachable from here?)")
         except Exception as e:
             failed.append(f"{sub}: {e}")
             print(f"{sub}: {e}", file=sys.stderr)
@@ -246,6 +257,9 @@ def main():
     used = {v["sha"] for d in docs.values() for v in d["versions"] if v.get("sha")}
     out = {"updated": datetime.now(timezone.utc).isoformat(timespec="seconds"), "parser": advisory_parse.VERSION, "failed": failed, "faculties": HOSTS,
            "programs": programs, "docs": docs, "reads": {k: v for k, v in cache.items() if k in used}}
+    if not programs:
+        print("advisory plans: nothing read; the previous file stays", file=sys.stderr)
+        sys.exit(1)
     same = {k: v for k, v in old.items() if k != "updated"} == {k: v for k, v in json.loads(json.dumps(out)).items() if k != "updated"}
     if same:
         print("advisory plans unchanged")
