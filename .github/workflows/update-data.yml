@@ -25,6 +25,10 @@ jobs:
         # any mismatch fails this step only: the previous timetable stays, the other updates are still saved
         continue-on-error: true
         run: python scripts/update_timetable.py
+      - name: Study plans from edugate.uop.edu.jo
+        # any mismatch fails this step only: the previous plans stay, the other updates are still saved
+        continue-on-error: true
+        run: python scripts/update_study_plans.py
       - name: Office hours backup (from the Google Sheet service)
         continue-on-error: true
         run: python scripts/update_office_hours.py
