@@ -40,7 +40,7 @@ HOSTS = {"fit": "تكنولوجيا المعلومات", "arch": "العمارة
          "pharma": "الصيدلة والعلوم الطبية", "law": "الحقوق", "fafs": "العلوم الإدارية والمالية", "dentist": "طب الأسنان",
          "mass": "الإعلام"}
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"
-JSONH = {"Accept": "application/json;odata=nometadata"}
+JSONH = {"Accept": "application/json; odata=nometadata"}
 TIMEOUT = 60
 
 KINDS = [("advisory", r"استرشاد|ارشاد|إرشاد|advis|indicative|guidance plan"), ("tree", r"شجر|tree|sequence"),
@@ -62,10 +62,13 @@ S = requests.Session()
 S.headers["User-Agent"] = UA
 
 
-def get(url, **kw):
+def get(url, headers=None, **kw):
+    # the sites answer their own pages: without a Referer from the same site the firewall refuses (403)
+    host = urlparse(url).netloc
+    h = {"Referer": f"https://{host}/Ar/Pages/default.aspx", **(headers or {})}
     for attempt in range(4):
         try:
-            r = S.get(url, timeout=TIMEOUT, **kw)
+            r = S.get(url, timeout=TIMEOUT, headers=h, **kw)
             if r.status_code in (401, 403, 404):
                 return r
             r.raise_for_status()
