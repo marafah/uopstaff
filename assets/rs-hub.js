@@ -103,8 +103,11 @@
     <div class="rs-card"><h3><i class="bi bi-trophy"></i>الأعلى أثراً</h3>
       <div class="rs-seg mb-2" id="top-seg"><button class="on" data-k="sc.h">h في Scopus</button><button data-k="sc.cites">اقتباسات Scopus</button><button data-k="sc.docs">وثائق Scopus</button><button data-k="sc.w5">Scopus آخر 5 سنوات</button><button data-k="q12">Q1 + Q2</button></div>
       <div id="top-list"></div></div>
-    <div class="rs-card"><h3><i class="bi bi-journal-bookmark"></i>أكثر المجلات نشراً ${SX ? R.srcBadge('Scopus', scUrl, 'bi-bar-chart-line') : ''}</h3>
-      <div class="rs-scroll" style="max-height:430px"><table class="rs-table"><tbody>${venues.map(([v, c], i) => `<tr><td class="num">${i + 1}</td><td class="ltr"><a href="publications.html?q=${encodeURIComponent(v)}">${R.esc(v)}</a> ${R.qTag(vq[v])}</td><td class="num"><b>${c}</b></td></tr>`).join('')}</tbody></table></div></div>
+    <div class="rs-card"><h3><i class="bi bi-journal-bookmark"></i>أكثر المجلات والمؤتمرات نشراً ${SX ? R.srcBadge('Scopus', scUrl, 'bi-bar-chart-line') : ''}</h3>
+      <ol class="rs-venues">${venues.map(([v, c], i) => `<li><span class="rk">${i + 1}</span>
+        <div class="nm"><div class="t"><a class="ltr" href="publications.html?q=${encodeURIComponent(v)}" title="${R.esc(v)}">${R.esc(v)}</a>${R.qTag(vq[v])}</div>
+          <div class="rs-barwrap"><div class="rs-bar" style="width:${(100 * c / venues[0][1]).toFixed(1)}%"></div></div></div>
+        <b class="ct">${R.n(c)}<small>بحثاً</small></b></li>`).join('')}</ol></div>
   </section>
 
   <section class="rs-section rs-grid">

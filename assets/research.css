@@ -681,3 +681,18 @@ html.rs-locked #rs-app, html.rs-locked .rs-hero, html.rs-locked main { visibilit
 .rs-gate .back { font-size: .85rem; color: #4f5e64; }
 .rs-logout { position: fixed; bottom: 16px; inset-inline-start: 16px; z-index: 900; border: 1px solid #e3d9c5; background: #fff; color: #901d23; border-radius: 30px; padding: .35rem .85rem; font-weight: 700; font-size: .85rem; box-shadow: 0 4px 14px rgba(9,27,34,.15); }
 .rs-logout:hover { background: #901d23; color: #fff; }
+
+/* the hub's most-used journals and conferences: a ranked list with a bar for each, no inner scroll */
+.rs-venues { list-style: none; margin: 0; padding: 0; }
+.rs-venues li { display: flex; align-items: center; gap: .7rem; padding: .5rem .1rem; border-bottom: 1px solid var(--rs-line); }
+.rs-venues li:last-child { border-bottom: 0; }
+.rs-venues .rk { flex: 0 0 auto; width: 26px; height: 26px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; background: #f1ece1; color: var(--rs-navy); font-size: .78rem; font-weight: 800; }
+.rs-venues li:nth-child(-n+3) .rk { background: var(--rs-maroon); color: #fff; }
+.rs-venues .nm { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .3rem; }
+.rs-venues .t { display: flex; align-items: center; gap: .4rem; min-width: 0; }
+.rs-venues .t a { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--rs-navy); font-weight: 700; font-size: .86rem; text-decoration: none; text-align: right; }
+.rs-venues .t a:hover { color: var(--rs-maroon); text-decoration: underline; }
+.rs-venues .t .rs-tag { flex: 0 0 auto; }
+.rs-venues .rs-barwrap, .rs-venues .rs-bar { height: 5px; }
+.rs-venues .ct { flex: 0 0 auto; min-width: 48px; text-align: center; font-size: 1rem; color: var(--rs-navy); line-height: 1.1; }
+.rs-venues .ct small { display: block; font-size: .66rem; font-weight: 500; color: var(--rs-muted); }

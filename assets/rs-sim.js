@@ -3,7 +3,7 @@
    Model (transparent, explained on the page):
    - citations per document depend on journal quartile x international collaboration; the expected value of each cell
      is the Jordan-wide average for the last five years, and the university keeps its own "efficiency"
-     (actual citations / expected citations for its current mix);
+     (actual citations / expected citations for its current mix, worked out the same way as for the scenario);
    - h-index follows Hirsch's relation h = sqrt(C / a), with a calibrated on the university's own numbers;
    - every other university stays as it is. */
 (async function () {
@@ -24,13 +24,16 @@
   for (let k = 0; k < K; k++) { nat.n.push([0, 0]); nat.c.push([0, 0]); }
   Object.values(S.unis).forEach(u => u.n.forEach((r, k) => { nat.n[k][0] += r[0]; nat.n[k][1] += r[1]; nat.c[k][0] += u.c[k][0]; nat.c[k][1] += u.c[k][1]; }));
   const cell = (k, x) => nat.n[k][x] ? nat.c[k][x] / nat.n[k][x] : 0;
+  // expected citations per document for a quartile mix and a collaboration share (collaboration independent of quartile);
+  // the current figures and the scenario both use it, so a scenario of zeros gives back the current numbers exactly
+  const expMix = (q, intl) => q.reduce((t, s, k) => t + s * ((1 - intl) * cell(k, 0) + intl * cell(k, 1)), 0);
 
   function base(u) {
     const s = S.unis[u.i]; if (!s) return null;
     const docs = s.docs, n = s.n;
     const qShare = n.map(r => (r[0] + r[1]) / docs);
     const intl = n.reduce((t, r) => t + r[1], 0) / docs;
-    const exp = n.reduce((t, r, k) => t + r[0] * cell(k, 0) + r[1] * cell(k, 1), 0) / docs;
+    const exp = expMix(qShare, intl);
     const cpd = s.cites / docs;
     const ranked = docs - n[4][0] - n[4][1];
     return { u, docs, cites: s.cites, cpd, h: s.h, qShare, intl, oa: s.oa / docs, eff: exp ? cpd / exp : 1, a: s.h ? s.cites / (s.h * s.h) : 4,
@@ -38,19 +41,19 @@
   }
   const all = U.map(base).filter(Boolean);
 
-  // the scenario: move documents from lower quartiles into Q1, more international papers, more papers, more open access
+  // the scenario: move papers in ranked journals from lower quartiles into Q1, more international papers, more papers,
+  // more open access
   function scenario(b, p) {
     const q = b.qShare.slice();
-    const add = Math.min(p.q1 / 100, 1 - q[0]);
-    const pool = q[2] + q[3] + q[4] + q[1];
-    // take the extra Q1 share first from unranked and Q4, then Q3, then Q2
+    // the Q1 share is of the papers in ranked journals (as shown in the table), so the points are added in those terms and
+    // taken from Q4, then Q3, then Q2; papers outside ranked journals stay as they are
+    const ranked0 = 1 - q[4];
+    const add = Math.min(p.q1 / 100 * ranked0, ranked0 - q[0]);
     let need = add;
-    for (const k of [4, 3, 2, 1]) { const t = Math.min(need, q[k]); q[k] -= t; need -= t; }
+    for (const k of [3, 2, 1]) { const t = Math.min(need, q[k]); q[k] -= t; need -= t; }
     q[0] += add - need;
     const intl = Math.min(1, b.intl + p.intl / 100);
-    // expected citations per document for the new mix (collaboration independent of quartile)
-    const exp = q.reduce((t, s, k) => t + s * ((1 - intl) * cell(k, 0) + intl * cell(k, 1)), 0);
-    const cpd = exp * b.eff;
+    const cpd = expMix(q, intl) * b.eff;
     const docs = Math.round(b.docs * (1 + p.out / 100));
     const cites = Math.round(docs * cpd);
     const ranked = 1 - q[4];
@@ -97,7 +100,7 @@
       <li>الفترة: آخر خمس سنوات (${S.years[0]}–${S.years[1]}) من بيانات Scopus لكل الجامعات الأردنية، والاقتباسات محدّثة أسبوعياً.</li>
       <li>متوسط الاقتباس لكل وثيقة في الأردن حسب تصنيف المجلة والتعاون الدولي: <span id="sm-cells"></span></li>
       <li>تحافظ الجامعة على «كفاءتها» الحالية (اقتباساتها الفعلية ÷ المتوقعة لمزيجها الحالي)، ثم يُعاد حساب المتوقع للمزيج الجديد.</li>
-      <li>رفع نسبة Q1 يُؤخذ أولاً من الأبحاث غير المصنّفة ثم Q4 ثم Q3 ثم Q2. h-index يُقدَّر بعلاقة هيرش h = √(C/a) معايَرةً على أرقام الجامعة.</li>
+      <li>نسبة Q1 محسوبة من الأبحاث في المجلات المصنّفة، ورفعها ينقل أبحاثاً من Q4 ثم Q3 ثم Q2 إلى Q1؛ الأبحاث خارج المجلات المصنّفة تبقى كما هي. h-index يُقدَّر بعلاقة هيرش h = √(C/a) معايَرةً على أرقام الجامعة.</li>
       <li>الجامعات الأخرى تبقى كما هي؛ النتائج تقديرية للتخطيط، لا وعود.</li>
     </ul></section>`;
 
@@ -120,7 +123,7 @@
     const B = before.find(x => x.u.i === st.u), A = after.find(x => x.u.i === st.u);
     R.$('#sm-win').textContent = `${b.u.ar} · ${S.years[0]}–${S.years[1]}`;
     R.$('#sm-table').innerHTML = `<thead><tr><th>المؤشر</th><th class="num">الآن</th><th class="num">بعد السيناريو</th><th class="num">التغيّر</th><th class="num">الترتيب (من ${all.length})</th></tr></thead><tbody>
-      ${IND.map(([k, l, f]) => { const r0 = rk(before, k, st.u), r1 = rk(after, k, st.u); const d = A[k] - B[k];
+      ${IND.map(([k, l, f]) => { const r0 = rk(before, k, st.u), r1 = rk(after, k, st.u); const d = Math.abs(A[k] - B[k]) < 1e-9 ? 0 : A[k] - B[k];
         return `<tr${k === 'score' ? ' class="me"' : ''}><td><b>${l}</b></td><td class="num">${f(B[k])}</td><td class="num"><b>${f(A[k])}</b></td>
           <td class="num ${d > 0 ? 'text-success' : d < 0 ? 'text-danger' : 'text-muted'}">${d > 0 ? '+' : ''}${/q1|q12|intl|oa/.test(k) ? (100 * d).toFixed(1) + ' ن.م' : k === 'cpd' || k === 'score' ? d.toFixed(2) : R.n(d)}</td>
           <td class="num">${r1 !== r0 ? `من #${r0} إلى <b class="${r1 < r0 ? 'text-success' : 'text-danger'}">#${r1}</b>` : '#' + r0}</td></tr>`; }).join('')}</tbody>`;
