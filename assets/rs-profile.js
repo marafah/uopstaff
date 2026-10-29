@@ -3,7 +3,8 @@
   'use strict';
   const app = R.$('#rs-app');
   let data, wdata;
-  try { [data, wdata] = await R.loadAll(['researchers', 'works']); } catch (e) { R.fail(app, e); return; }
+  let PJ;
+  try { [data, wdata, PJ] = await Promise.all([R.load('researchers'), R.load('works'), R.load('projects').catch(() => null)]); } catch (e) { R.fail(app, e); return; }
   const { list, byId } = R.indexResearchers(data);
   const meta = data.meta || {}, Y = meta.year || new Date().getFullYear();
   R.updated(meta);
@@ -33,6 +34,8 @@
   const unmatched = works.filter(w => w.src === 'u');
   const cell = (v, href, extra) => v == null || v === '' ? '<td class="num text-muted">–</td>' : `<td class="num"><b>${R.n(v)}</b>${extra || ''}</td>`;
 
+  // funded projects with this researcher as principal investigator (matched by name, as on projects.html)
+  const myProjects = PJ && PJ.projects ? R.linkProjects(PJ.projects.map(p => Object.assign({}, p)), list).filter(p => p.r === r).sort((a, b) => (b.year || 0) - (a.year || 0)) : [];
   app.innerHTML = `
   <section class="rs-section rs-card">
     <div class="rs-prof">
@@ -111,6 +114,12 @@
       ${(r.sdgs || []).length ? `<h6 class="fw-bold">أهداف التنمية المستدامة</h6><div class="rs-chips">${r.sdgs.map(([s, n]) => `<span class="rs-chip"><i class="bi bi-flower1 text-success"></i>${R.esc(s)} <b>${n}</b></span>`).join('')}</div>` : ''}
     </div>
   </section>
+
+  ${myProjects.length ? `<section class="rs-section rs-card rs-pj-mine"><h3><i class="bi bi-briefcase"></i>مشاريع بحثية مدعومة من الجامعة <span class="rs-tag y">${myProjects.length}</span>
+      <small class="fw-normal text-muted">باحثاً رئيسياً · ${myProjects.filter(p => p.done).length} مكتمل · ${myProjects.filter(p => !p.done).length} مستمر</small>
+      <a class="ms-auto small no-print" href="projects.html?q=${encodeURIComponent(R.piKey(r.name))}">كل المشاريع المدعومة <i class="bi bi-arrow-left"></i></a></h3>
+    <div class="rs-prj-grid">${myProjects.map(p => R.projectCard(p, { compact: true })).join('')}</div>
+    <p class="rs-note mt-2 mb-0">من <a href="${R.esc(PJ.source)}" target="_blank" rel="noopener">قائمة المشاريع البحثية المدعومة</a> في عمادة البحث العلمي؛ الحالة كما تنشرها العمادة.</p></section>` : ''}
 
   <section class="rs-section">
     <h2><i class="bi bi-journal-text"></i>المنشورات <small id="p-count"></small></h2>

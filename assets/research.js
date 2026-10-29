@@ -74,6 +74,23 @@
     return cache[k];
   };
 
+  // funded projects (projects.json) <-> researchers: the principal investigator's name matched on first and last name,
+  // titles left out; used by projects.html and by each researcher's profile
+  R.piKey = n => { const t = R.norm(String(n || '').replace(/(الأستاذ|الاستاذ|الدكتورة|الدكتوره|الدكتور|البروفيسور|المدرسة|المدرس|المهندس|دولة|أ\.\s*د\.?|د\.|م\.|dr\.?|prof\.?)\s*/gi, ' ')).split(' ').filter(Boolean); return t.length ? t[0] + ' ' + t[t.length - 1] : ''; };
+  R.linkProjects = function (projects, researchers) {
+    const byName = {};
+    researchers.forEach(r => { [r.name, r.name_en].forEach(n => { const k = R.piKey(n); if (k && !byName[k]) byName[k] = r; }); });
+    projects.forEach(p => { p.r = byName[R.piKey(p.pi)] || byName[R.piKey(p.pie)] || null; });
+    return projects;
+  };
+  R.projectCard = (p, opts) => `<article class="rs-prj${opts && opts.compact ? ' compact' : ''}" style="--fc:${R.facColor(p.fac)}">
+      <div class="top"><span class="rs-tag y">دعوة ${p.year || '–'}</span><span class="rs-tag ${p.done ? 'ok' : 'run'}"><i class="bi ${p.done ? 'bi-check2-circle' : 'bi-hourglass-split'}"></i> ${p.done ? 'مكتمل' : 'مستمر'}</span>${p.date ? `<span class="rs-tag"><i class="bi bi-calendar-check"></i> قرار ${R.esc(p.date)}</span>` : ''}</div>
+      <h4 dir="auto">${R.esc(p.t || p.te)}</h4>${p.t && p.te ? `<p class="en" dir="ltr">${R.esc(p.te)}</p>` : ''}
+      ${opts && opts.compact ? '' : `<div class="pi">${p.r ? `<a href="${R.profileUrl(p.r)}" title="الملف البحثي">${R.avatar(p.r, 'sm')}<span><b>${R.esc(p.r.name)}</b><small>${R.esc([p.r.rank, p.r.dept].filter(Boolean).join(' · '))}</small></span></a>`
+        : `<span class="rs-avatar sm"><i class="bi bi-person"></i></span><span><b>${R.esc(p.pi)}</b><small>${R.esc(p.dept)}</small></span>`}<em>الباحث الرئيسي</em></div>`}
+      <div class="ft"><span class="rs-chip"><i class="rs-udot" style="--uc:${R.facColor(p.fac)}"></i>${R.esc(p.fac)}</span>${p.dept ? `<span class="rs-chip">${R.esc(p.dept)}</span>` : ''}</div>
+    </article>`;
+
   R.indexResearchers = function (data) {
     const list = data.researchers || [];
     const byId = {};

@@ -940,3 +940,6 @@ html.rs-printing .no-print[data-tab][hidden] { display: none !important; }
 .rs-tag.ok { background: #e3f3e8; color: #17663a; }
 .rs-tag.run { background: #fff3d6; color: #7a5600; }
 @media print { .rs-prj { box-shadow: none; break-inside: avoid; } .rs-prj-grid { grid-template-columns: 1fr 1fr; gap: 6px; } .rs-prj h4 { font-size: 9.5pt; } .rs-pj-year { break-after: avoid; } }
+.rs-prj.compact .ft { margin-top: auto; padding-top: .4rem; border-top: 1px dashed var(--rs-line); }
+.rs-pj-mine h3 { align-items: center; }
+.rs-pj-mine h3 .rs-tag { font-size: .8rem; }

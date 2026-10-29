@@ -11,12 +11,9 @@
   const all = (P.projects || []).map(p => Object.assign({}, p, { title: p.t || p.te, sub: p.t && p.te ? p.te : '' }));
   if (!all.length) { app.innerHTML = '<div class="rs-empty"><i class="bi bi-hourglass"></i>تُجهَّز قائمة المشاريع في التحديث القادم.</div>'; return; }
 
-  // the principal investigator's profile here: same first and last name, titles left out
-  const bare = n => R.norm(String(n || '').replace(/(الأستاذ|الاستاذ|الدكتورة|الدكتوره|الدكتور|البروفيسور|المدرسة|المدرس|المهندس|دولة|أ\.\s*د\.?|د\.|م\.|dr\.?|prof\.?)\s*/gi, ' ')).split(' ').filter(Boolean);
-  const key = n => { const t = bare(n); return t.length ? t[0] + ' ' + t[t.length - 1] : ''; };
-  const byName = {};
-  list.forEach(r => { [r.name, r.name_en].forEach(n => { const k = key(n); if (k && !byName[k]) byName[k] = r; }); });
-  all.forEach(p => { p.r = byName[key(p.pi)] || byName[key(p.pie)] || null; });
+  // the principal investigator's profile here (research.js)
+  R.linkProjects(all, list);
+  const key = R.piKey, bare = n => R.piKey(n).split(' ');
 
   const years = [...new Set(all.map(p => p.year).filter(Boolean))].sort((a, b) => b - a);
   const facs = [...new Set(all.map(p => p.fac).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ar'));
@@ -86,13 +83,7 @@
     const by = { new: (a, b) => (b.year - a.year) || (+b.id - +a.id), fac: (a, b) => a.fac.localeCompare(b.fac, 'ar') || (b.year - a.year), pi: (a, b) => bare(a.pi).join(' ').localeCompare(bare(b.pi).join(' '), 'ar'), title: (a, b) => a.title.localeCompare(b.title, 'ar') };
     return L.sort(by[st.sort] || by.new);
   }
-  const card = p => `<article class="rs-prj" style="--fc:${R.facColor(p.fac)}">
-      <div class="top"><span class="rs-tag y">دعوة ${p.year || '–'}</span><span class="rs-tag ${p.done ? 'ok' : 'run'}"><i class="bi ${p.done ? 'bi-check2-circle' : 'bi-hourglass-split'}"></i> ${p.done ? 'مكتمل' : 'مستمر'}</span>${p.date ? `<span class="rs-tag"><i class="bi bi-calendar-check"></i> قرار ${esc(p.date)}</span>` : ''}</div>
-      <h4 dir="auto">${esc(p.title)}</h4>${p.sub ? `<p class="en" dir="ltr">${esc(p.sub)}</p>` : ''}
-      <div class="pi">${p.r ? `<a href="${R.profileUrl(p.r)}" title="الملف البحثي">${R.avatar(p.r, 'sm')}<span><b>${esc(p.r.name)}</b><small>${esc([p.r.rank, p.r.dept].filter(Boolean).join(' · '))}</small></span></a>`
-        : `<span class="rs-avatar sm"><i class="bi bi-person"></i></span><span><b>${esc(p.pi)}</b><small>${esc(p.dept)}</small></span>`}<em>الباحث الرئيسي</em></div>
-      <div class="ft"><span class="rs-chip"><i class="rs-udot" style="--uc:${R.facColor(p.fac)}"></i>${esc(p.fac)}</span>${p.dept ? `<span class="rs-chip">${esc(p.dept)}</span>` : ''}</div>
-    </article>`;
+  const card = p => R.projectCard(p);
   function render() {
     R.$$('#pj-done button').forEach(b => b.classList.toggle('on', b.dataset.d === (st.done || '')));
     R.$('#pj-years-f').innerHTML = [0, ...years].map(y => `<button type="button" class="rs-chip${st.year === y ? ' on' : ''}" data-y="${y}">${y ? 'دعوة ' + y : 'كل الدعوات'} <small>${y ? all.filter(p => p.year === y).length : all.length}</small></button>`).join('');
