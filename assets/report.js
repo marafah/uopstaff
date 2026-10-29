@@ -23,6 +23,8 @@ window.printReport = (function () {
   header.rh .t h1 { margin: 2px 0 0; font-size: 17pt; color: #091b22; font-weight: 800; }
   header.rh .t h2 { margin: 2px 0 0; font-size: 10.5pt; color: #901d23; font-weight: 700; }
   header.rh .meta { text-align: left; font-size: 8.5pt; color: #555; line-height: 1.6; }
+  header.rh .qr { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px; border: 1px solid #e3dccb; border-radius: 8px; }
+  header.rh .qr svg { width: 66px; height: 66px; display: block; } header.rh .qr span { font-size: 6.5pt; color: #901d23; font-weight: 700; white-space: nowrap; }
   .filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
   .filters span { background: #f6f3ec; border: 1px solid #e3dccb; border-radius: 999px; padding: 2px 10px; font-size: 8.5pt; }
   .filters b { color: #901d23; font-weight: 700; }
@@ -77,6 +79,16 @@ window.printReport = (function () {
       : `<tr><td class="empty" colspan="${sec.columns.length}">لا توجد بيانات</td></tr>`;
     return `${sec.title ? `<h3 class="sec">${esc(sec.title)}</h3>` : ''}<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
   }
+  // every report carries a QR code of the page it came from (with its filters), so the paper copy opens the live,
+  // always up-to-date version; o.url overrides the address, o.qr === false leaves it out
+  function qr(o) {
+    if (o.qr === false || typeof window.qrcode !== 'function') return '';
+    try {
+      const url = o.url || location.href, q = window.qrcode(0, 'M');
+      q.addData(url); q.make();
+      return `<div class="qr">${q.createSvgTag({ cellSize: 2, margin: 0, scalable: true })}<span>${esc(o.qrLabel || 'امسح للنسخة الحية')}</span></div>`;
+    } catch (e) { return ''; }
+  }
   return function printReport(o) {
     // a hidden frame, not a pop-up window: nothing for a pop-up blocker to stop, and only the report is printed
     let frame = document.getElementById('report-frame');
@@ -97,7 +109,7 @@ window.printReport = (function () {
       <div class="page">
         <header class="rh"><img src="${logo}" alt="">
           <div class="t"><small>جامعة البترا</small><h1>${esc(o.title)}</h1>${o.subtitle ? `<h2>${esc(o.subtitle)}</h2>` : ''}</div>
-          <div class="meta">تاريخ التقرير: ${now()}<br>${o.source ? esc(o.source) : ''}</div></header>
+          <div class="meta">تاريخ التقرير: ${now()}<br>${o.source ? esc(o.source) : ''}</div>${qr(o)}</header>
         ${o.filters && o.filters.length ? `<div class="filters">${o.filters.map(([k, v]) => `<span>${esc(k)}: <b>${esc(v)}</b></span>`).join('')}</div>` : ''}
         ${o.stats && o.stats.length ? `<div class="stats">${o.stats.map(([k, v]) => `<div><b>${esc(v)}</b><span>${esc(k)}</span></div>`).join('')}</div>` : ''}
         ${(o.sections || []).map(table).join('')}
