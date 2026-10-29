@@ -4,7 +4,7 @@ Run after changing the template:  python scripts/make_research_pages.py"""
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-V = '202610310200'
+V = '202610310300'
 CHART = '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>'
 D3 = '<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>'
 
@@ -64,6 +64,24 @@ PAGES = [
     ('sabbatical.html', 'إجازة التفرغ العلمي', 'إجازة التفرغ العلمي',
      'تحقّق من استحقاقك لإجازة التفرغ العلمي، واحسب نقاط المفاضلة، واعرف ما يُصرف لك وما يلزمك حسب تعليمات التفرغ العلمي لسنة 2023',
      'bi-calendar-range', 'rs-sabb.js', []),
+    ('publish.html', 'أين أنشر؟', 'أين أنشر بحثي؟',
+     'المجلات الأنسب لبحثك مع ما يساويه النشر فيها: الدعم والحافز المالي، ونقاط الترقية والجائزة، ومدة القرار',
+     'bi-signpost-split', 'rs-publish.js', []),
+    ('annual.html', 'ملفي البحثي', 'ملفي البحثي السنوي',
+     'إنتاجك وجودته واقتباساتك وتعاونك ومشاريعك في سنة واحدة، مع موقعك من تعليمات الجامعة، في تقرير قابل للطباعة',
+     'bi-person-vcard', 'rs-annual.js', [CHART]),
+    ('dept.html', 'لوحة الكلية والقسم', 'لوحة الكلية والقسم',
+     'إنتاج الكلية أو القسم في خمس سنوات وجودته وكل أعضائه، مع تنبيه النشاط البحثي حسب المادة (12) من نظام الهيئة التدريسية',
+     'bi-building-gear', 'rs-dept.js', [CHART]),
+    ('goals.html', 'مؤشرات الأهداف', 'مؤشرات أهداف البحث العلمي',
+     'مؤشرات الجامعة وكلياتها مقابل أهداف تضعها العمادة: حجم النشر وجودته والتعاون الدولي والأثر ونشاط الباحثين',
+     'bi-bullseye', 'rs-goals.js', [CHART]),
+    ('intl.html', 'التعاون الخارجي', 'التعاون الخارجي',
+     'الدول والمؤسسات التي تنشر معها جامعة البترا، وتطورها عبر السنوات، وشركاء أردنيون مقترحون حسب التخصص',
+     'bi-globe2', 'rs-intl.js', [CHART]),
+    ('impact.html', 'الأبحاث الأعلى أثراً', 'الأبحاث الأعلى أثراً',
+     'الأكثر اقتباساً والصاعدة وأبحاث Q1 هذه السنة والأعلى أثراً نسبياً، كإنجازات قابلة للمشاركة',
+     'bi-stars', 'rs-impact.js', []),
     ('network.html', 'شبكة التعاون البحثي', 'شبكة التعاون البحثي',
      'من يكتب مع من داخل الجامعة: الروابط بين الباحثين والكليات',
      'bi-diagram-3', 'rs-network.js', [D3]),
@@ -110,12 +128,20 @@ MENU = [  # research menu items: file, icon, title, description
     ('reports.html', 'bi-calendar2-check', 'التقرير الشهري', 'الأبحاث الجديدة واقتباساتها لكل كلية'),
     ('universities.html', 'bi-bank', 'مؤشرات الجامعات الأسبوعية', 'أعداد Scopus و OpenAlex المحدّثة أسبوعياً'),
     ('network.html', 'bi-diagram-3', 'شبكة التعاون', 'من يكتب مع من داخل الجامعة'),
+    ('publish.html', 'bi-signpost-split', 'أين أنشر؟', 'المجلة الأنسب وما يساويه النشر فيها'),
+    ('annual.html', 'bi-person-vcard', 'ملفي البحثي', 'تقريرك السنوي الشخصي'),
+    ('impact.html', 'bi-stars', 'الأبحاث الأعلى أثراً', 'الأكثر اقتباساً والصاعدة وإنجازات Q1'),
+    ('intl.html', 'bi-globe2', 'التعاون الخارجي', 'الدول والمؤسسات الشريكة وشركاء مقترحون'),
+    ('dept.html', 'bi-building-gear', 'لوحة الكلية والقسم', 'الإنتاج والجودة وكل الأعضاء'),
+    ('dept.html?tab=act', 'bi-bell', 'تنبيه النشاط البحثي', 'من لم يُسجَّل له إنتاج منذ سنوات (م12)'),
+    ('goals.html', 'bi-bullseye', 'مؤشرات الأهداف', 'الجامعة والكليات مقابل الأهداف'),
 ]
 
-GROUPS = [  # the research menu, in three columns: heading, icon, files from MENU
-    ('استكشاف الإنتاج البحثي', 'bi-compass', ['research.html', 'researchers.html', 'publications.html', 'projects.html', 'network.html', 'reports.html']),
-    ('المقارنة والتصنيف', 'bi-bar-chart-line', ['compare.html', 'jordan.html', 'universities.html', 'simulator.html', 'journals.html', 'experts.html']),
-    ('التعليمات والأدوات', 'bi-bank2', ['regulations.html', 'promotion.html', 'reward.html', 'award.html', 'sabbatical.html']),
+GROUPS = [  # the research menu, in four columns: heading, icon, files from MENU
+    ('استكشاف الإنتاج البحثي', 'bi-compass', ['research.html', 'researchers.html', 'publications.html', 'impact.html', 'projects.html', 'reports.html']),
+    ('المقارنة والتعاون', 'bi-bar-chart-line', ['compare.html', 'jordan.html', 'universities.html', 'intl.html', 'network.html', 'simulator.html', 'experts.html']),
+    ('أدوات الباحث', 'bi-person-workspace', ['annual.html', 'publish.html', 'journals.html', 'promotion.html', 'reward.html', 'award.html', 'sabbatical.html']),
+    ('الإدارة والتعليمات', 'bi-bank2', ['regulations.html', 'dept.html', 'dept.html?tab=act', 'goals.html']),
 ]
 
 TEMPLATE = '''<!doctype html>

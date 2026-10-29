@@ -1754,7 +1754,7 @@ html[data-theme="dark"] .modal-backdrop.show { opacity: .25; }
   font-size: .78rem; font-weight: 800; color: var(--uop-maroon); letter-spacing: 0; }
 .rs-mega-col + .rs-mega-col .rs-mega-h { margin-top: .7rem; }
 @media (min-width: 992px) {
-  .site-more .rs-mega.show { display: grid; grid-template-columns: repeat(3, minmax(250px, 1fr)); gap: 0 .4rem; width: min(900px, calc(100vw - 32px));
+  .site-more .rs-mega.show { display: grid; grid-template-columns: repeat(4, minmax(215px, 1fr)); gap: 0 .4rem; width: min(1120px, calc(100vw - 32px));
     position: fixed !important; inset: var(--rs-mega-top, 64px) 0 auto 0 !important; margin: 0 auto !important; transform: none !important;
     max-height: calc(100vh - var(--rs-mega-top, 64px) - 16px); }
   .rs-mega-col + .rs-mega-col { border-inline-start: 1px solid #eef0f4; padding-inline-start: .4rem; }

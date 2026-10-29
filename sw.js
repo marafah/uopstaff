@@ -2,11 +2,11 @@
    fetched fresh when online and the last copy is used when offline or when the network is too slow; libraries,
    fonts and photos are kept once used. VERSION changes with every release of the site (the same ?v= the pages use),
    which replaces the kept pages and scripts. */
-const VERSION = '202610310200';
+const VERSION = '202610310300';
 const CORE = 'uop-core-' + VERSION, DATA = 'uop-data', LIBS = 'uop-libs';
 const PAGES = ['./', 'index.html', 'directory.html', 'timetable.html', 'calendar.html', 'now.html', 'notes.html', 'changes.html', 'makeup.html', 'load.html',
   'phones.html', 'together.html', 'instructor.html', 'planner.html', 'room.html', 'office-hours.html', 'usage.html', 'screen.html', 'trends.html', 'org.html',
-  'research.html', 'researchers.html', 'researcher.html', 'publications.html', 'compare.html', 'universities.html', 'network.html', 'publication.html', 'jordan.html', 'journals.html', 'experts.html', 'simulator.html', 'reports.html', 'projects.html', 'regulations.html', 'promotion.html', 'reward.html', 'award.html', 'sabbatical.html'];
+  'research.html', 'researchers.html', 'researcher.html', 'publications.html', 'compare.html', 'universities.html', 'network.html', 'publication.html', 'jordan.html', 'journals.html', 'experts.html', 'simulator.html', 'reports.html', 'projects.html', 'regulations.html', 'promotion.html', 'reward.html', 'award.html', 'sabbatical.html', 'publish.html', 'annual.html', 'dept.html', 'goals.html', 'intl.html', 'impact.html'];
 const SCRIPTS = ['app', 'calendar', 'changes', 'common', 'find', 'instructor', 'load', 'makeup', 'notes', 'now', 'officehours', 'oh-list', 'org', 'phones',
   'planner', 'report', 'room', 'screen', 'share', 'site', 'timetable', 'together', 'trends', 'usage'].map(n => `assets/${n}.js?v=${VERSION}`);
 const CORE_FILES = PAGES.concat(SCRIPTS, [`assets/app.css?v=${VERSION}`, 'assets/logo.png', 'manifest.webmanifest', 'assets/icons/icon-192.png']);

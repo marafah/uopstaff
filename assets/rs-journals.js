@@ -65,7 +65,7 @@
       <div class="fld"><label for="jn-find">عنوان البحث أو كلماته المفتاحية (بالإنجليزية)</label><textarea id="jn-find" class="form-control ltr" rows="3" placeholder="e.g. deep learning intrusion detection for IoT networks"></textarea></div>
       <div class="d-flex gap-2 flex-wrap mt-2 align-items-center"><button class="btn btn-rs" id="jn-go"><i class="bi bi-stars"></i> اقترح</button>
         <label class="form-check m-0"><input class="form-check-input" type="checkbox" id="jn-good" checked> <span class="form-check-label">Q1 و Q2 فقط</span></label>
-        <small class="text-muted">يطابق كلماتك مع موضوعات الأبحاث الأردنية في كل مجلة ومع تخصصاتها في SCImago.</small></div>
+        <small class="text-muted">يطابق كلماتك مع موضوعات الأبحاث الأردنية في كل مجلة ومع تخصصاتها في SCImago.</small> <a class="btn btn-sm btn-rs-o" href="publish.html"><i class="bi bi-signpost-split"></i> «أين أنشر؟» مع قيمة النشر في الترقية والمكافأة</a></div>
 </section>
   <section data-tab="insights" class="rs-section">
     <nav class="rs-subtabs no-print" id="jn-itabs">

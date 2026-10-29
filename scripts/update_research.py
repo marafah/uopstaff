@@ -2093,6 +2093,11 @@ def main():
                 save_json('projects.json', sp)
         except Exception as e:  # noqa: BLE001
             log(f'  ! supported projects: {e}')
+        try:   # external collaboration (collab.json): local files only
+            import research_collab
+            research_collab.main()
+        except Exception as e:  # noqa: BLE001
+            log(f'  ! external collaboration: {e}')
     if not args.skip_unis and not args.limit and not args.only and not QUICK:
         cpath = os.path.join(OUT, 'jordan_citations.json')
         CITES.update(jordan_citations(cpath))

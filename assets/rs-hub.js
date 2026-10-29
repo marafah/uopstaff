@@ -81,6 +81,12 @@
     <a class="rs-tile" href="reward.html"><i class="bi bi-calculator"></i><span><b>حاسبة المكافأة</b><small>دعم النشر والحوافز ومكافآت الكتب والمشاريع والمؤتمرات</small></span></a>
     <a class="rs-tile" href="award.html"><i class="bi bi-trophy"></i><span><b>جائزة الباحث المتميز</b><small>نقاطك حسب أوزان التعليمات وترتيبك المتوقع في القسم</small></span></a>
     <a class="rs-tile" href="sabbatical.html"><i class="bi bi-calendar-range"></i><span><b>إجازة التفرغ العلمي</b><small>الاستحقاق ونقاط المفاضلة وما يُصرف لك</small></span></a>
+    <a class="rs-tile" href="publish.html"><i class="bi bi-signpost-split"></i><span><b>أين أنشر؟</b><small>المجلات الأنسب لبحثك وما يساويه النشر فيها ماليًا وفي الترقية</small></span></a>
+    <a class="rs-tile" href="annual.html"><i class="bi bi-person-vcard"></i><span><b>ملفي البحثي</b><small>تقريرك السنوي: الإنتاج والاقتباسات والتعاون والمشاريع</small></span></a>
+    <a class="rs-tile" href="impact.html"><i class="bi bi-stars"></i><span><b>الأبحاث الأعلى أثراً</b><small>الأكثر اقتباساً والصاعدة وإنجازات Q1 القابلة للمشاركة</small></span></a>
+    <a class="rs-tile" href="intl.html"><i class="bi bi-globe2"></i><span><b>التعاون الخارجي</b><small>الدول والمؤسسات الشريكة وشركاء أردنيون مقترحون</small></span></a>
+    <a class="rs-tile" href="dept.html"><i class="bi bi-building-gear"></i><span><b>لوحة الكلية والقسم</b><small>الإنتاج والجودة وتنبيه النشاط البحثي</small></span></a>
+    <a class="rs-tile" href="goals.html"><i class="bi bi-bullseye"></i><span><b>مؤشرات الأهداف</b><small>مؤشرات الجامعة والكليات مقابل الأهداف</small></span></a>
     <a class="rs-tile" href="projects.html"><i class="bi bi-briefcase"></i><span><b>المشاريع المدعومة</b><small>مشاريع بحثية دعمتها الجامعة عبر عمادة البحث العلمي، حسب الدعوة والكلية</small></span></a>
     <a class="rs-tile" href="compare.html"><i class="bi bi-bar-chart-steps"></i><span><b>المقارنة</b><small>قارن حتى 4 باحثين أو كليات أو أقسام بالرسوم</small></span></a>
     <a class="rs-tile" href="universities.html"><i class="bi bi-bank"></i><span><b>الجامعات الأردنية</b><small>موقع جامعة البترا بين الجامعات الأردنية في الإنتاج والاقتباس</small></span></a>
