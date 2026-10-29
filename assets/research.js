@@ -65,6 +65,14 @@
     return cache[name];
   };
   R.loadAll = names => Promise.all(names.map(R.load));
+  R.loadText = function (path) {   // a non-JSON data file (e.g. jordan/docs.tsv), after sign-in, cached like R.load
+    const k = 'txt:' + path;
+    if (!cache[k]) {
+      cache[k] = R.gate.then(() => fetch(`data/research/${path}?v=${V}`, { cache: 'no-cache' })
+        .then(r => { if (!r.ok) throw new Error(path + ': ' + r.status); return r.text(); }));
+    }
+    return cache[k];
+  };
 
   R.indexResearchers = function (data) {
     const list = data.researchers || [];

@@ -760,13 +760,28 @@ def rebuild_jordan_cube():
         return
     cube = load_json(cpath, {})
     now = (CITES or {}).get('eid') or {}
-    rows = []
+    # a university with its own Scopus export (Petra: data/research/scopus_export) is credited with exactly the
+    # documents Scopus lists under its affiliation ID, not with papers that only mention its name
+    official, pet = {}, set()
+    for p in sorted(glob.glob(os.path.join(OUT, 'scopus_export', '*.csv'))):
+        with open(p, encoding='utf-8-sig', newline='') as f:
+            pet |= {(r.get('EID') or '').replace('2-s2.0-', '') for r in csv.DictReader(f)} - {''}
+    uidx = {u[0]: i for i, u in enumerate(cube.get('unis') or [])}
+    if pet and UOP_AFID in uidx:
+        official[uidx[UOP_AFID]] = pet
+    rows, lines = [], []
     with open(path, encoding='utf-8') as f:
-        next(f)
+        head = next(f)
         for line in f:
             e, y, us, ar, ca, q, intl, oa, conf, c = line.rstrip('\n').split('\t')
-            rows.append((int(y) if y else 0, [int(x) for x in us.split(',') if x], [int(x) for x in ar.split(',') if x],
-                         [int(x) for x in ca.split(',') if x], q, intl == '1', oa == '1', conf == '1', int(now.get(e, c) or 0)))
+            ul = [u for u in (int(x) for x in us.split(',') if x) if u not in official or e in official[u]]
+            c = int(now.get(e, c) or 0)
+            lines.append('\t'.join([e, y, ','.join(map(str, ul)), ar, ca, q, intl, oa, conf, str(c)]))
+            rows.append((int(y) if y else 0, ul, [int(x) for x in ar.split(',') if x],
+                         [int(x) for x in ca.split(',') if x], q, intl == '1', oa == '1', conf == '1', c))
+    # the pages compute their comparisons from this file, so it carries the corrected universities and this week's citations
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(head + '\n'.join(lines) + '\n')
     QI = {'Q1': 0, 'Q2': 1, 'Q3': 2, 'Q4': 3}
 
     def build(which):

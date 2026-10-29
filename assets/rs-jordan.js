@@ -2,8 +2,8 @@
 (async function () {
   'use strict';
   const app = window.RS_JO_MOUNT || R.$('#rs-app');   // compare.html mounts this view inside its own page
-  let C, D;
-  try { [C, D] = await R.loadAll(['jordan/cube', 'jordan/unis']); } catch (e) { R.fail(app, e); return; }
+  let C, D, T, SU;
+  try { [C, D, T, SU] = await Promise.all([R.load('jordan/cube'), R.load('jordan/unis'), R.loadText('jordan/docs.tsv'), R.load('universities').catch(() => ({}))]); } catch (e) { R.fail(app, e); return; }
   R.updated({ updated: C.cites_updated || C.updated });
   const U = C.unis.map(([afid, en, ar], i) => ({ i, afid, en, ar }));
   const HOME = U.find(u => u.afid === R.HOME_AFID) || U[0];
@@ -12,6 +12,14 @@
   const AREAS = C.areas, CATS = C.cats;
   const COLS = Object.fromEntries(C.cols.map((c, i) => [c, i]));
   const esc = R.esc, pct = v => R.pct(v, 0);
+  const SCOPUS = Object.fromEntries(((SU || {}).scopus_universities || []).map(u => [u.afid, u]));   // this week's official counts
+  // one record per Scopus document: year, Jordanian universities, fields, specialities, quartile, international, open
+  // access, conference, citations (this week's)
+  const QI = { Q1: 0, Q2: 1, Q3: 2, Q4: 3 };
+  const ints = x => x ? x.split(',').map(Number) : [];
+  const DOCS = T.split('\n').slice(1).filter(Boolean).map(l => { const f = l.split('\t');
+    return { y: +f[1] || 0, u: ints(f[2]), a: ints(f[3]), k: ints(f[4]), q: f[5] in QI ? QI[f[5]] : -1, intl: f[6] === '1', oa: f[7] === '1', conf: f[8] === '1', c: +f[9] || 0 }; });
+  const JO = { i: -1, afid: '', en: 'Jordan (all universities)', ar: 'الأردن: كل الجامعات' };
 
   // default selection: Petra and the four universities closest in size
   const sizeOf = u => C.all.filter(r => r[0] === u.i).reduce((s, r) => s + r[3], 0);
@@ -19,41 +27,82 @@
   const near = U.filter(u => u !== HOME).sort((a, b) => Math.abs(a.size - HOME.size) - Math.abs(b.size - HOME.size)).slice(0, 4).map(u => u.i);
   const st = {
     sel: (R.store.get('rs-jo-sel', null) || [HOME.i, ...near]).filter(i => U[i]),
-    from: +R.param('from') || Y - 9, to: +R.param('to') || Y, area: R.param('area') === '' ? -1 : (+R.param('area') || -1),
-    cat: -1, metric: 'docs', sort: 'docs'
+    from: +R.param('from') || 1990, to: +R.param('to') || Y, area: R.param('area') === '' ? -1 : (+R.param('area') || -1),
+    cat: -1, sort: 'docs',
+    frac: (R.param('count') || R.store.get('rs-jo-count', 'full')) === 'frac',   // without duplicates: each paper counted once
+    scope: R.param('scope') || R.store.get('rs-jo-scope', 'all'),                 // the comparison: all universities or the chosen
+    crit: R.param('m') || 'docs'
   };
 
+  st.sort = st.crit;
   // ---------------------------------------------------------------- aggregation for the current filters
-  function rowsFor() {
-    if (st.cat >= 0) return C.cat.filter(r => r[2] === st.cat);
-    if (st.area >= 0) return C.area.filter(r => r[2] === st.area);
-    return C.all;
+  // "with duplicates" (Scopus' own way): a paper shared by two universities counts fully for each, and a paper in two
+  // fields counts in each. "Without duplicates": each paper counts once in all, split equally between its Jordanian
+  // universities (and between its fields when a field is chosen), so the universities add up to the Jordanian total.
+  // «all years» has no lower bound (as Scopus counts); up to this year includes articles in press
+  const inPeriod = y => (st.from <= 1990 || y >= st.from) && (y <= st.to || (st.to >= Y && y > Y));
+  const fieldW = d => {
+    if (st.cat >= 0) return d.k.includes(st.cat) ? (st.frac ? 1 / d.k.length : 1) : 0;
+    if (st.area >= 0) return d.a.includes(st.area) ? (st.frac ? 1 / d.a.length : 1) : 0;
+    return 1;
+  };
+  const blank = () => ({ docs: 0, cites: 0, q1: 0, q2: 0, q3: 0, q4: 0, intl: 0, oa: 0, conf: 0 });
+  function add(o, d, w) {
+    o.docs += w; o.cites += w * d.c; if (d.q >= 0) o['q' + (d.q + 1)] += w; if (d.intl) o.intl += w; if (d.oa) o.oa += w; if (d.conf) o.conf += w;
   }
+  function fin(o) {
+    const qk = o.q1 + o.q2 + o.q3 + o.q4;
+    return Object.assign(o, { qk, cpd: o.docs ? o.cites / o.docs : 0, q1s: qk ? o.q1 / qk : 0, q12: qk ? (o.q1 + o.q2) / qk : 0,
+      intls: o.docs ? o.intl / o.docs : 0, oas: o.docs ? o.oa / o.docs : 0, confs: o.docs ? o.conf / o.docs : 0 });
+  }
+  const hIndex = cl => { cl.sort((a, b) => b - a); let h = 0; while (h < cl.length && cl[h] >= h + 1) h++; return h; };
   function stats() {
-    const out = U.map(u => ({ u, docs: 0, cites: 0, q1: 0, q2: 0, q3: 0, q4: 0, intl: 0, oa: 0, conf: 0, years: {} }));
-    for (const r of rowsFor()) {
-      const y = r[1];
-      if (y < st.from || y > st.to) continue;
-      const o = out[r[0]];
-      o.docs += r[3]; o.cites += r[4]; o.q1 += r[5]; o.q2 += r[6]; o.q3 += r[7]; o.q4 += r[8]; o.intl += r[9]; o.oa += r[10]; o.conf += r[11];
-      o.years[y] = (o.years[y] || [0, 0]); o.years[y][0] += r[3]; o.years[y][1] += r[4];
+    const mk = u => Object.assign({ u, years: {}, cl: [] }, blank());
+    const out = U.map(mk), jo = mk(JO);
+    for (const d of DOCS) {
+      if (!d.u.length || !inPeriod(d.y)) continue;
+      const fw = fieldW(d); if (!fw) continue;
+      const uw = st.frac ? 1 / d.u.length : 1;
+      add(jo, d, fw); jo.cl.push(d.c); add(jo.years[d.y] || (jo.years[d.y] = blank()), d, fw);
+      for (const i of d.u) { const o = out[i]; add(o, d, fw * uw); o.cl.push(d.c); add(o.years[d.y] || (o.years[d.y] = blank()), d, fw * uw); }
     }
-    const span = st.from <= 1990 ? 'all' : (Y - st.from + 1 <= 5 && st.to >= Y - 1 ? '5' : (Y - st.from + 1 <= 10 && st.to >= Y - 1 ? '10' : ''));
-    const hk = st.cat >= 0 ? null : st.area;
-    for (const o of out) {
-      const qk = o.q1 + o.q2 + o.q3 + o.q4;
-      Object.assign(o, { cpd: o.docs ? o.cites / o.docs : 0, q1s: qk ? o.q1 / qk : 0, q12: qk ? (o.q1 + o.q2) / qk : 0, intls: o.docs ? o.intl / o.docs : 0,
-        oas: o.docs ? o.oa / o.docs : 0, confs: o.docs ? o.conf / o.docs : 0, qk });
-      const h = span && hk !== null ? (D.h || []).find(r => r[0] === o.u.i && r[1] === span && r[2] === hk) : null;
-      o.h = h ? h[3] : null;
-    }
-    return { out, span };
+    for (const o of out.concat(jo)) { fin(o); o.h = o.cl.length ? hIndex(o.cl) : null; o.cl = null; Object.values(o.years).forEach(fin); }
+    return { out, jo };
   }
+  // papers of a set of universities: how many are shared, i.e. what counting "with duplicates" adds
+  function dupInfo(set) {
+    let uniq = 0, full = 0;
+    for (const d of DOCS) {
+      if (!d.u.length || !inPeriod(d.y)) continue;
+      if (!fieldW(d)) continue;
+      const n = d.u.reduce((t, i) => t + (set.has(i) ? 1 : 0), 0);
+      if (n) { uniq += 1; full += n; }
+    }
+    return { uniq, full };
+  }
+  // fields (or specialities of the chosen field) x universities: [documents, citations], with the Jordanian total under 'jo'
+  function breakdown(level) {
+    const t = {};
+    for (const d of DOCS) {
+      if (!d.u.length || !inPeriod(d.y)) continue;
+      const keys = level === 'area' ? d.a : d.k.filter(k => (C.cat_area[k] || []).includes(st.area));
+      if (!keys.length) continue;
+      const kw = st.frac ? 1 / (level === 'area' ? d.a.length : d.k.length) : 1, uw = st.frac ? 1 / d.u.length : 1;
+      for (const k of keys) {
+        const x = t[k] || (t[k] = { jo: [0, 0] }); x.jo[0] += kw; x.jo[1] += kw * d.c;
+        for (const i of d.u) { const v = x[i] || (x[i] = [0, 0]); v[0] += kw * uw; v[1] += kw * uw * d.c; }
+      }
+    }
+    return t;
+  }
+  const periodTxt = () => st.from <= 1990 ? 'كل السنوات' : `${st.from}–${st.to}`;
+  const fieldTxt = () => st.cat >= 0 ? CATS[st.cat] : st.area >= 0 ? R.areaAr(AREAS[st.area]) : 'كل المجالات';
 
   const M = {
-    docs: ['الوثائق', v => R.n(v)], cites: ['الاقتباسات', v => R.n(v)], cpd: ['اقتباس لكل وثيقة', v => v.toFixed(1)], h: ['h-index', v => v == null ? '–' : R.n(v)],
+    docs: ['الوثائق', v => fmtN(v)], cites: ['الاقتباسات', v => R.n(v)], cpd: ['اقتباس لكل وثيقة', v => v.toFixed(1)], h: ['h-index', v => v == null ? '–' : R.n(v)],
     q1s: ['نسبة Q1', pct], q12: ['نسبة Q1 و Q2', pct], intls: ['تعاون دولي', pct], oas: ['وصول مفتوح', pct], confs: ['أوراق مؤتمرات', pct]
   };
+  const fmtN = v => v == null ? '–' : Number.isInteger(+v) || v >= 100 ? R.n(v) : (+v).toFixed(1);
   const color = (u, k) => u.i === HOME.i ? '#901d23' : R.colors[(k % (R.colors.length - 1)) + 1];
   const yearOpts = sel => { let h = ''; for (let y = Y; y >= 1990; y--) h += `<option value="${y}"${y === sel ? ' selected' : ''}>${y}</option>`; return h; };
   const areaOpts = () => `<option value="-1">كل المجالات</option>` + AREAS.map((a, i) => [i, a]).sort((x, y) => R.areaAr(x[1]).localeCompare(R.areaAr(y[1]), 'ar'))
@@ -71,6 +120,9 @@
         <div class="rs-seg rs-jf-span" id="j-span" aria-label="فترة سريعة"><button data-s="5">آخر 5 سنوات</button><button data-s="10">آخر 10 سنوات</button><button data-s="all">كل السنوات</button></div></div>
       <div class="rs-jf-f"><label class="rs-jf-l" for="j-area"><i class="bi bi-diagram-3"></i> المجال المعرفي</label><select id="j-area" class="form-select">${areaOpts()}</select></div>
       <div class="rs-jf-f"><label class="rs-jf-l" for="j-cat"><i class="bi bi-tags"></i> التخصص الدقيق <small>فئات SCImago</small></label><select id="j-cat" class="form-select ltr">${catOpts()}</select></div>
+      <div class="rs-jf-f"><span class="rs-jf-l"><i class="bi bi-intersect"></i> طريقة العدّ</span>
+        <div class="rs-seg rs-jf-span" id="j-count"><button data-c="full">مع التكرار</button><button data-c="frac">بدون تكرار</button></div>
+        <small class="rs-jf-hint" id="j-count-hint"></small></div>
     </div>
     <div class="rs-jf-unis"><div class="rs-jf-l"><i class="bi bi-bank2"></i> الجامعات المختارة للمقارنة <small>اضغط لإضافة جامعة أو إزالتها · حتى 8 · لكل جامعة اللون نفسه في كل الرسوم</small></div>
     <div class="rs-chips" id="j-unis"></div></div>
@@ -78,11 +130,29 @@
   <div class="rs-print-only rs-jf-sum" id="j-sum"></div>
 
   <nav class="rs-tabs no-print" id="j-tabs">
-    <button data-t="overview"><i class="bi bi-speedometer2"></i> نظرة عامة</button><button data-t="charts"><i class="bi bi-bar-chart-line"></i> الرسوم البيانية</button>
-    <button data-t="tables"><i class="bi bi-table"></i> الجداول</button><button data-t="fields"><i class="bi bi-diagram-3"></i> المجالات والتخصصات</button>
+    <button data-t="compare"><i class="bi bi-sliders2"></i> المقارنة الشاملة</button><button data-t="overview"><i class="bi bi-speedometer2"></i> نظرة عامة</button>
+    <button data-t="charts"><i class="bi bi-bar-chart-line"></i> الرسوم البيانية</button><button data-t="fields"><i class="bi bi-diagram-3"></i> المجالات والتخصصات</button>
     <button data-t="journals"><i class="bi bi-journal-bookmark"></i> المجلات</button><button data-t="collab"><i class="bi bi-people"></i> التعاون</button>
     <button data-t="quality"><i class="bi bi-shield-check"></i> جودة النشر</button><button data-t="gaps"><i class="bi bi-lightbulb"></i> فرص البترا</button>
     <button data-t="all"><i class="bi bi-layout-text-window-reverse"></i> عرض الكل</button></nav>
+
+  <section data-tab="compare" class="rs-section rs-card rs-cmp">
+    <div class="rs-cmp-bar">
+      <div class="rs-jf-f"><label class="rs-jf-l" for="j-crit"><i class="bi bi-rulers"></i> قارن حسب</label>
+        <select id="j-crit" class="form-select">${Object.entries(M).map(([k, v]) => `<option value="${k}"${k === st.crit ? ' selected' : ''}>${v[0]}</option>`).join('')}</select></div>
+      <div class="rs-jf-f"><span class="rs-jf-l"><i class="bi bi-bank2"></i> الجامعات</span>
+        <div class="rs-seg rs-jf-span" id="j-scope-seg"><button data-sc="all">كل الجامعات (${U.length})</button><button data-sc="sel">المختارة فقط (<span id="j-nsel"></span>)</button></div></div>
+      <div class="rs-cmp-sum" id="j-cmp-sum"></div>
+    </div>
+    <div class="rs-grid two mt-3">
+      <div><h4 class="rs-sub" id="j-crank-t"></h4><div class="rs-chart" id="j-crank-wrap"><canvas id="j-crank"></canvas></div></div>
+      <div><h4 class="rs-sub" id="j-ctrend-t"></h4><div class="rs-chart tall"><canvas id="j-ctrend"></canvas></div><p class="rs-note mt-2 mb-0" id="j-ctrend-n"></p></div>
+    </div>
+  </section>
+  <section data-tab="compare" class="rs-section rs-card"><h3><i class="bi bi-table"></i>كل المعايير <small class="fw-normal text-muted" id="j-ctab-sc"></small>
+    <button class="btn btn-sm btn-rs-o ms-auto" id="j-csv"><i class="bi bi-download"></i> CSV</button></h3>
+    <div class="rs-scroll" style="max-height:680px"><table class="rs-table rs-ctable" id="j-ctable"></table></div>
+    <p class="rs-note mt-2 mb-0" id="j-dupnote"></p></section>
 
   <section data-tab="overview" class="rs-section"><div class="rs-scorecards" id="j-cards"></div></section>
   <section data-tab="overview" class="rs-section rs-grid two">
@@ -95,15 +165,6 @@
     <div class="rs-card"><h3><i class="bi bi-award"></i>الأثر: اقتباس لكل وثيقة</h3><div class="rs-chart"><canvas id="j-cpd"></canvas></div></div>
     <div class="rs-card"><h3><i class="bi bi-globe2"></i>الانفتاح: تعاون دولي ووصول مفتوح</h3><div class="rs-chart"><canvas id="j-open"></canvas></div></div>
   </section>
-  <section data-tab="charts" class="rs-section rs-card"><h3><i class="bi bi-sort-down"></i>ترتيب كل الجامعات الأردنية حسب
-    <select id="j-metric" class="form-select form-select-sm d-inline-block w-auto">${Object.entries(M).map(([k, v]) => `<option value="${k}">${v[0]}</option>`).join('')}</select></h3>
-    <div class="rs-chart" id="j-rank-wrap" style="height:${U.length * 22 + 60}px"><canvas id="j-rank"></canvas></div></section>
-  <section data-tab="tables" class="rs-section rs-card"><h3><i class="bi bi-table"></i>المقارنة <small class="fw-normal text-muted" id="j-scope"></small></h3>
-    <div class="rs-scroll"><table class="rs-table" id="j-table"></table></div>
-    <p class="rs-note mt-2 mb-0" id="j-hnote"></p></section>
-  <section data-tab="tables" class="rs-section rs-card"><h3><i class="bi bi-list-ol"></i>كل الجامعات الأردنية <small class="fw-normal text-muted">للفترة والمجال المختارين · اضغط عنوان العمود للترتيب</small>
-    <button class="btn btn-sm btn-rs-o ms-auto" id="j-csv"><i class="bi bi-download"></i> CSV</button></h3>
-    <div class="rs-scroll" style="max-height:620px"><table class="rs-table" id="j-alltable"></table></div></section>
   <section data-tab="fields" class="rs-section rs-card"><h3><i class="bi bi-grid-3x3"></i>خريطة المجالات <small class="fw-normal text-muted">نسبة وثائق كل جامعة في كل مجال · الأغمق = تركيز أعلى · اضغط مجالاً لتصفية الصفحة</small></h3>
     <div class="rs-scroll"><table class="rs-table rs-heatmap" id="j-heat"></table></div></section>
   <section data-tab="fields" class="rs-section rs-card" id="j-fields-card"><h3><i class="bi bi-diagram-3"></i><span id="j-fields-title"></span></h3>
@@ -139,56 +200,84 @@
     R.store.set('rs-jo-sel', st.sel);
     S = stats();
     const sel = st.sel.map(i => S.out[i]);
-    const scope = [st.cat >= 0 ? CATS[st.cat] : st.area >= 0 ? R.areaAr(AREAS[st.area]) : 'كل المجالات', `${st.from}–${st.to}`].join(' · ');
-    R.$('#j-scope').textContent = scope;
-    R.$('#j-hnote').textContent = S.span && st.cat < 0 ? 'h-index محسوب لكل جامعة على الوثائق المطابقة للفترة والمجال.' : 'h-index يظهر للفترات: كل السنوات، آخر 5 سنوات، آخر 10 سنوات، وعلى مستوى المجال (لا التخصص الدقيق).';
-    // ranks among all universities under the same filters
-    const rank = k => { const s = S.out.filter(o => o.docs).sort((a, b) => (b[k] ?? -1) - (a[k] ?? -1)); return o => s.indexOf(o) + 1; };
-    const rk = Object.fromEntries(Object.keys(M).map(k => [k, rank(k)]));
-    const cols = ['docs', 'cites', 'cpd', 'h', 'q1s', 'q12', 'intls', 'oas', 'confs'];
-    const rows = sel.slice().sort((a, b) => (b[st.sort] ?? -1) - (a[st.sort] ?? -1));
-    R.$('#j-table').innerHTML = `<thead><tr><th>الجامعة</th>${cols.map(k => `<th class="num${st.sort === k ? ' sorted' : ''}" data-sort="${k}">${M[k][0]}</th>`).join('')}<th>تحقق</th></tr></thead><tbody>
-      ${rows.map(o => `<tr class="${o.u.i === HOME.i ? 'me' : ''}"><td><b>${esc(o.u.ar)}</b><br><small class="text-muted ltr">${esc(o.u.en)}</small></td>
-        ${cols.map(k => `<td class="num">${M[k][1](o[k])}${o.docs && o[k] != null ? `<br><small class="text-muted">#${rk[k](o)}</small>` : ''}</td>`).join('')}
-        <td>${R.srcBadge('Scopus', R.scopusOrgUrl(o.u.afid), 'bi-bar-chart-line')}</td></tr>`).join('')}</tbody>`;
+    R.$$('#j-count button').forEach(b => b.classList.toggle('on', (b.dataset.c === 'frac') === st.frac));
+    R.$('#j-count-hint').textContent = st.frac ? 'كل بحث يُحسب مرة واحدة ويُقسَّم بالتساوي بين جامعاته ومجالاته' : 'كما في Scopus: البحث المشترك يُحسب كاملاً لكل جامعة ولكل مجال';
     // yearly
     const ys = []; for (let y = st.from; y <= Math.min(st.to, Y); y++) ys.push(y);
-    R.chart('j-years', { type: 'line', data: { labels: ys, datasets: sel.map((o, k) => ({ label: o.u.ar, data: ys.map(y => (o.years[y] || [0])[0]), borderColor: color(o.u, k), backgroundColor: color(o.u, k), borderWidth: o.u.i === HOME.i ? 3.5 : 2, tension: .3 })) }, options: { interaction: { mode: 'index', intersect: false } } });
+    R.chart('j-years', { type: 'line', data: { labels: ys, datasets: sel.map((o, k) => ({ label: o.u.ar, data: ys.map(y => +((o.years[y] || {}).docs || 0).toFixed(1)), borderColor: color(o.u, k), backgroundColor: color(o.u, k), borderWidth: o.u.i === HOME.i ? 3.5 : 2, tension: .3 })) }, options: { interaction: { mode: 'index', intersect: false } } });
     // quartiles
     const qc = ['#1d7a3e', '#1f6f78', '#b8892b', '#c75b12'];
     R.chart('j-q', { type: 'bar', data: { labels: sel.map(o => o.u.ar), datasets: ['q1', 'q2', 'q3', 'q4'].map((q, k) => ({ label: q.toUpperCase(), data: sel.map(o => o.qk ? +(100 * o[q] / o.qk).toFixed(1) : 0), backgroundColor: qc[k] })) },
       options: { indexAxis: 'y', scales: { x: { stacked: true, max: 100, ticks: { callback: v => v + '%' } }, y: { stacked: true } } } });
     R.chart('j-cpd', { type: 'bar', data: { labels: sel.map(o => o.u.ar), datasets: [{ label: 'اقتباس لكل وثيقة', data: sel.map(o => +o.cpd.toFixed(2)), backgroundColor: sel.map((o, k) => color(o.u, k)), borderRadius: 4 }] }, options: { plugins: { legend: { display: false } } } });
     R.chart('j-open', { type: 'bar', data: { labels: sel.map(o => o.u.ar), datasets: [{ label: 'تعاون دولي %', data: sel.map(o => +(100 * o.intls).toFixed(1)), backgroundColor: '#1f6f78', borderRadius: 3 }, { label: 'وصول مفتوح %', data: sel.map(o => +(100 * o.oas).toFixed(1)), backgroundColor: '#b8892b', borderRadius: 3 }] }, options: { scales: { y: { ticks: { callback: v => v + '%' } } } } });
-    rankChart();
+    compare();
     overview(sel);
-    allTable();
     heat();
     fields();
     journals();
     matrix();
     gaps();
-    const u = new URL(location); u.searchParams.set('from', st.from); u.searchParams.set('to', st.to); st.area >= 0 ? u.searchParams.set('area', st.area) : u.searchParams.delete('area'); history.replaceState(null, '', u);
+    const u = new URL(location); u.searchParams.set('from', st.from); u.searchParams.set('to', st.to); st.area >= 0 ? u.searchParams.set('area', st.area) : u.searchParams.delete('area');
+    st.frac ? u.searchParams.set('count', 'frac') : u.searchParams.delete('count'); u.searchParams.set('m', st.crit); history.replaceState(null, '', u);
   }
-  function rankChart() {
-    const k = st.metric, s = S.out.filter(o => o.docs && o[k] != null).sort((a, b) => b[k] - a[k]);
-    R.$('#j-rank-wrap').style.height = (s.length * 22 + 60) + 'px';
-    R.chart('j-rank', { type: 'bar', data: { labels: s.map(o => o.u.ar), datasets: [{ label: M[k][0], data: s.map(o => /s$|12$/.test(k) ? +(100 * o[k]).toFixed(1) : +(+o[k]).toFixed(2)), backgroundColor: s.map(o => o.u.i === HOME.i ? '#901d23' : st.sel.includes(o.u.i) ? '#b8892b' : '#c9c2b2'), borderRadius: 3 }] },
-      options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { y: { ticks: { autoSkip: false, font: { size: 12 } } } }, onClick: (e, el) => { if (el[0]) window.open(R.scopusOrgUrl(s[el[0].index].u.afid), '_blank', 'noopener'); } } });
+  const isShare = k => ['q1s', 'q12', 'intls', 'oas', 'confs'].includes(k);
+  const val = (o, k) => o[k] == null ? null : isShare(k) ? +(100 * o[k]).toFixed(1) : k === 'cpd' ? +o[k].toFixed(2) : +(+o[k]).toFixed(1);
+  function compare() {
+    const k = st.crit, name = M[k][0], all = S.out.filter(o => o.docs);
+    const list = (st.scope === 'sel' ? st.sel.map(i => S.out[i]) : all).filter(o => o.docs);
+    R.$$('#j-scope-seg button').forEach(b => b.classList.toggle('on', b.dataset.sc === st.scope));
+    R.$('#j-nsel').textContent = st.sel.length;
+    const rankOf = kk => { const s2 = all.slice().sort((a, b) => (b[kk] ?? -1) - (a[kk] ?? -1)); return o => s2.indexOf(o) + 1; };
+    const RK = Object.fromEntries(Object.keys(M).map(kk => [kk, rankOf(kk)]));
+    // one measure, ranked; for shares and averages the Jordanian value is drawn as a reference bar
+    const ranked = list.slice().sort((a, b) => (b[k] ?? -1) - (a[k] ?? -1)).filter(o => o[k] != null);
+    const rows = ranked.concat(isShare(k) || k === 'cpd' ? [S.jo] : []).sort((a, b) => (b[k] ?? -1) - (a[k] ?? -1));
+    R.$('#j-crank-t').textContent = `${name}: ترتيب ${st.scope === 'sel' ? 'الجامعات المختارة' : 'كل الجامعات الأردنية'}`;
+    R.$('#j-crank-wrap').style.height = (rows.length * 24 + 60) + 'px';
+    R.chart('j-crank', { type: 'bar', data: { labels: rows.map(o => o === S.jo ? 'متوسط الأردن' : o.u.ar), datasets: [{ label: name, data: rows.map(o => val(o, k)),
+      backgroundColor: rows.map(o => o === S.jo ? '#091b22' : o.u.i === HOME.i ? '#901d23' : st.sel.includes(o.u.i) ? '#b8892b' : '#9fb3b9'), borderRadius: 3 }] },
+      options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: v => isShare(k) ? v + '%' : v } }, y: { ticks: { autoSkip: false, font: { size: 12 } } } },
+        onClick: (e, el) => { const o = el[0] && rows[el[0].index]; if (o && o !== S.jo && !st.sel.includes(o.u.i)) { st.sel = st.sel.concat(o.u.i).slice(-8); chips(); render(); } } } });
+    // the same measure year by year for the chosen universities (and Jordan for shares and averages)
+    const ys = []; for (let y = Math.max(st.from, Y - 14); y <= st.to; y++) ys.push(y);
+    const tl = st.sel.map(i => S.out[i]).filter(o => o.docs);
+    R.$('#j-ctrend-t').textContent = `${name} سنة بسنة: الجامعات المختارة`;
+    R.$('#j-ctrend-n').textContent = k === 'h' ? 'h-index لا يُحسب سنة بسنة؛ الرسم يعرض عدد الوثائق بدلاً منه.' : st.from <= Y - 15 ? 'تعرض آخر 15 سنة من الفترة.' : '';
+    const kk = k === 'h' ? 'docs' : k;
+    const sets = tl.map(o => ({ label: o.u.ar, data: ys.map(y => o.years[y] && o.years[y].docs ? val(o.years[y], kk) : null), borderColor: color(o.u, st.sel.indexOf(o.u.i)),
+      backgroundColor: color(o.u, st.sel.indexOf(o.u.i)), borderWidth: o.u.i === HOME.i ? 3.5 : 2, tension: .3, pointRadius: 2, spanGaps: true }));
+    if (isShare(kk) || kk === 'cpd') sets.push({ label: 'متوسط الأردن', data: ys.map(y => S.jo.years[y] ? val(S.jo.years[y], kk) : null), borderColor: '#091b22', borderDash: [6, 4], borderWidth: 2, pointRadius: 0, tension: .3 });
+    R.chart('j-ctrend', { type: 'line', data: { labels: ys, datasets: sets }, options: { plugins: { rsLabels: false }, scales: { y: { beginAtZero: true, ticks: { callback: v => isShare(kk) ? v + '%' : v } } } } });
+    // every measure: the scope, sorted by the chosen column, with each value's rank among all universities
+    const cols = Object.keys(M);
+    const T2 = list.slice().sort((a, b) => (b[st.sort] ?? -1) - (a[st.sort] ?? -1));
+    const mx = Object.fromEntries(cols.map(c => [c, Math.max(1e-9, ...all.map(o => o[c] || 0))]));
+    R.$('#j-ctab-sc').textContent = `${st.scope === 'sel' ? 'الجامعات المختارة' : 'كل الجامعات'} · ${fieldTxt()} · ${periodTxt()} · ${st.frac ? 'بدون تكرار' : 'مع التكرار'} · اضغط عنوان العمود للترتيب`;
+    const sc = o => { const x = SCOPUS[o.u.afid]; return x && st.from <= 1990 && st.to >= Y && st.area < 0 && st.cat < 0 && !st.frac && x.docs ? `<small class="rs-official" title="العدد الرسمي في صفحة الجامعة على Scopus">Scopus: ${R.n(x.docs)}</small>` : ''; };
+    R.$('#j-ctable').innerHTML = `<thead><tr><th class="num">#</th><th>الجامعة</th>${cols.map(c => `<th class="num${st.sort === c ? ' sorted' : ''}${c === k ? ' crit' : ''}" data-sort="${c}">${M[c][0]}</th>`).join('')}<th>تحقق</th></tr></thead><tbody>
+      <tr class="jo"><td class="num">–</td><td><b>${esc(JO.ar)}</b><br><small class="text-muted">كل بحث مرة واحدة</small></td>${cols.map(c => `<td class="num">${M[c][1](S.jo[c])}</td>`).join('')}<td></td></tr>
+      ${T2.map((o, n) => `<tr class="${o.u.i === HOME.i ? 'me' : st.scope === 'all' && st.sel.includes(o.u.i) ? 'sel' : ''}"><td class="num">${n + 1}</td><td><b>${esc(o.u.ar)}</b><br><small class="text-muted ltr">${esc(o.u.en)}</small></td>
+        ${cols.map(c => `<td class="num rs-barcell${c === k ? ' crit' : ''}" style="--w:${o[c] == null ? 0 : (100 * o[c] / mx[c]).toFixed(0)}%">${M[c][1](o[c])}${o[c] != null ? `<small class="rk">#${RK[c](o)}</small>` : ''}${c === 'docs' ? sc(o) : ''}</td>`).join('')}
+        <td>${R.srcBadge('Scopus', R.scopusOrgUrl(o.u.afid), 'bi-bar-chart-line')}</td></tr>`).join('')}</tbody>`;
+    // what counting with duplicates adds for this scope
+    const dup = dupInfo(new Set(list.map(o => o.u.i)));
+    const sumDocs = list.reduce((t, o) => t + o.docs, 0);
+    R.$('#j-cmp-sum').innerHTML = `<div><b>${R.n(dup.uniq)}</b><small>بحثاً فريداً</small></div><div><b>${R.n(dup.full)}</b><small>مع التكرار</small></div><div><b>${R.n(dup.full - dup.uniq)}</b><small>تكرار بين الجامعات</small></div>`;
+    R.$('#j-dupnote').innerHTML = (st.frac
+      ? `بدون تكرار: البحث المشترك بين جامعتين يُحسب نصفاً لكل منهما${st.area >= 0 || st.cat >= 0 ? '، والبحث في أكثر من مجال يُقسَّم بين مجالاته' : ''}، فمجموع كل الجامعات يساوي عدد الأبحاث الأردنية الفريدة (${R.n(S.jo.docs)}). حصص الجامعات المعروضة: ${fmtN(sumDocs)}.`
+      : `مع التكرار (كما في Scopus): ${R.n(dup.full - dup.uniq)} من أبحاث هذه الجامعات مشتركة بين أكثر من جامعة، فتُحسب لكل منها؛ لذلك مجموع العمود (${R.n(sumDocs)}) أكبر من عدد الأبحاث الفريدة (${R.n(dup.uniq)}). اختر «بدون تكرار» ليُحسب كل بحث مرة واحدة.`)
+      + ` h-index لا يتأثر بطريقة العدّ.${st.from <= 1990 && st.to >= Y && st.area < 0 && st.cat < 0 && !st.frac ? ' «Scopus» تحت عدد الوثائق: العدد الرسمي في صفحة الجامعة على Scopus هذا الأسبوع.' : ''}`;
   }
   // fields or specialities inside the chosen field, for the selected universities
   function fields() {
     const inCat = st.area >= 0;
     R.$('#j-fields-title').textContent = inCat ? `التخصصات الدقيقة في مجال ${R.areaAr(AREAS[st.area])}` : 'المجالات المعرفية: عدد الوثائق والحصة والأثر';
-    const src = inCat ? C.cat : C.area, names = inCat ? CATS : AREAS;
-    const keep = inCat ? new Set(CATS.map((c, i) => i).filter(i => (C.cat_area[i] || []).includes(st.area))) : null;
-    const t = {};
+    const names = inCat ? CATS : AREAS;
+    const t = breakdown(inCat ? 'cat' : 'area');
     const tot = Object.fromEntries(st.sel.map(i => [i, S.out[i].docs || 1]));
-    for (const r of src) {
-      if (r[1] < st.from || r[1] > st.to || !st.sel.includes(r[0]) || (keep && !keep.has(r[2]))) continue;
-      const x = (t[r[2]] = t[r[2]] || {}); const v = (x[r[0]] = x[r[0]] || [0, 0]); v[0] += r[3]; v[1] += r[4];
-    }
-    const keys = Object.keys(t).map(Number).sort((a, b) => Object.values(t[b]).reduce((s, v) => s + v[0], 0) - Object.values(t[a]).reduce((s, v) => s + v[0], 0)).slice(0, 30);
+    const selSum = k => st.sel.reduce((s2, i) => s2 + ((t[k] || {})[i] || [0])[0], 0);
+    const keys = Object.keys(t).map(Number).filter(k => selSum(k) > 0).sort((a, b) => selSum(b) - selSum(a)).slice(0, 30);
     const totAll = inCat ? null : Object.fromEntries(st.sel.map(i => [i, S.out[i].docs || 1]));
     R.$('#j-fields').innerHTML = `<thead><tr><th>${inCat ? 'التخصص' : 'المجال'}</th>${st.sel.map(i => `<th class="num">${esc(U[i].ar)}<br><small class="fw-normal">وثائق · ${inCat ? 'اقتباس/وثيقة' : 'الحصة · اقتباس/وثيقة'}</small></th>`).join('')}</tr></thead><tbody>
       ${keys.map(k => `<tr><td class="${inCat ? 'ltr' : ''}"><a href="#" data-pick="${k}">${esc(inCat ? names[k] : R.areaAr(names[k]))}</a></td>${st.sel.map(i => { const v = (t[k] || {})[i]; return v ? `<td class="num"><b>${R.n(v[0])}</b><br><small class="text-muted">${inCat ? '' : pct(v[0] / totAll[i]) + ' · '}${(v[1] / v[0]).toFixed(1)}</small></td>` : '<td class="num text-muted">–</td>'; }).join('')}</tr>`).join('')}</tbody>`;
@@ -213,13 +302,10 @@
   function gaps() {
     const tot = {}, home = {};
     let nTot = 0, nHome = 0;
-    for (const r of C.area) {
-      if (r[1] < st.from || r[1] > st.to) continue;
-      tot[r[2]] = (tot[r[2]] || 0) + r[3];
-      if (r[0] === HOME.i) home[r[2]] = (home[r[2]] || 0) + r[3];
-    }
-    for (const r of C.all) { if (r[1] < st.from || r[1] > st.to) continue; nTot += r[3]; if (r[0] === HOME.i) nHome += r[3]; }
-    // national total counts each document once per university: share is close enough for profile comparison
+    const bd = breakdown('area');
+    for (const [k, x] of Object.entries(bd)) { tot[k] = x.jo[0]; home[k] = (x[HOME.i] || [0])[0]; }
+    for (const d of DOCS) { if (!d.u.length || !inPeriod(d.y)) continue; nTot += 1; if (d.u.includes(HOME.i)) nHome += st.frac ? 1 / d.u.length : 1; }
+    // shares: every field's share of the university's papers against its share of all Jordanian papers
     const rows = AREAS.map((a, i) => [R.areaAr(a), (home[i] || 0) / (nHome || 1), (tot[i] || 0) / (nTot || 1)]).map(r => [r[0], r[1] - r[2], r[1], r[2]]).sort((a, b) => a[1] - b[1]);
     R.chart('j-gap-areas', { type: 'bar', data: { labels: rows.map(r => r[0]), datasets: [{ label: 'الفرق بالنقاط المئوية', data: rows.map(r => +(100 * r[1]).toFixed(1)), backgroundColor: rows.map(r => r[1] < 0 ? '#c0392b' : '#1d7a3e'), borderRadius: 3 }] },
       options: { indexAxis: 'y', plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => { const r = rows[c.dataIndex]; return `البترا ${pct(r[2])} · الأردن ${pct(r[3])}`; } } } }, scales: { y: { ticks: { autoSkip: false, font: { size: 12 } } } } } });
@@ -229,7 +315,8 @@
   }
 
   // ---------------------------------------------------------------- tabs
-  st.tab = R.param('tab') || R.store.get('rs-jo-tab', 'overview');
+  st.tab = R.param('tab') || R.store.get('rs-jo-tab', 'compare');
+  if (!R.$(`#j-tabs [data-t="${st.tab}"]`)) st.tab = 'compare';
   function showTab(t) {
     st.tab = t; R.store.set('rs-jo-tab', t);
     R.$$('#j-tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
@@ -246,7 +333,8 @@
     const R6 = Object.fromEntries(['docs', 'cpd', 'h', 'q12', 'intls'].map(k => [k, rk(k)]));
     const card = (o, k) => `<div class="rs-scorecard${o.u.i === HOME.i ? ' home' : ''}" style="--c:${color(o.u, k)}">
         <div class="hd"><b>${esc(o.u.ar)}</b><a href="${R.scopusOrgUrl(o.u.afid)}" target="_blank" rel="noopener" title="Scopus"><i class="bi bi-box-arrow-up-left"></i></a></div>
-        <div class="big">${R.n(o.docs)}<small>وثيقة · #${R6.docs(o)}</small></div>
+        <div class="big">${fmtN(o.docs)}<small>وثيقة · #${R6.docs(o)}</small></div>
+        <div class="per">${periodTxt()} · ${esc(fieldTxt())}${st.frac ? ' · بدون تكرار' : ''}</div>
         <div class="rows">
           <div><span>اقتباس/وثيقة</span><b>${o.cpd.toFixed(1)}</b><i>#${R6.cpd(o)}</i></div>
           <div><span>h-index</span><b>${o.h == null ? '–' : R.n(o.h)}</b><i>${o.h == null ? '' : '#' + R6.h(o)}</i></div>
@@ -265,20 +353,12 @@
         scales: { x: { type: 'logarithmic', title: { display: true, text: 'عدد الوثائق (لوغاريتمي)' } }, y: { title: { display: true, text: 'اقتباس لكل وثيقة' } } },
         onClick: (e, el) => { if (!el[0]) return; const i = all[el[0].index].u.i; if (!st.sel.includes(i)) { st.sel = st.sel.concat(i).slice(-8); chips(); render(); } } } });
   }
-  // ---------------------------------------------------------------- all universities table
-  let allSort = 'docs';
-  function allTable() {
-    const cols = ['docs', 'cites', 'cpd', 'h', 'q1s', 'q12', 'intls', 'oas', 'confs'];
-    const L = S.out.filter(o => o.docs).sort((a, b) => (b[allSort] ?? -1) - (a[allSort] ?? -1));
-    const mx = Object.fromEntries(cols.map(k => [k, Math.max(1e-9, ...L.map(o => o[k] || 0))]));
-    R.$('#j-alltable').innerHTML = `<thead><tr><th class="num">#</th><th>الجامعة</th>${cols.map(k => `<th class="num${allSort === k ? ' sorted' : ''}" data-asort="${k}">${M[k][0]}</th>`).join('')}</tr></thead><tbody>
-      ${L.map((o, i) => `<tr class="${o.u.i === HOME.i ? 'me' : st.sel.includes(o.u.i) ? 'sel' : ''}"><td class="num">${i + 1}</td><td><b>${esc(o.u.ar)}</b></td>${cols.map(k => `<td class="num rs-barcell" style="--w:${o[k] == null ? 0 : (100 * o[k] / mx[k]).toFixed(0)}%">${M[k][1](o[k])}</td>`).join('')}</tr>`).join('')}</tbody>`;
-  }
   // ---------------------------------------------------------------- field heat map (selected universities x fields)
   function heat() {
     if (R.$('#j-heat').closest('[hidden]')) return;
     const t = {}, tot = {};
-    for (const r of C.area) { if (r[1] < st.from || r[1] > st.to || !st.sel.includes(r[0])) continue; t[r[0]] = t[r[0]] || {}; t[r[0]][r[2]] = (t[r[0]][r[2]] || 0) + r[3]; }
+    const bd = breakdown('area');
+    for (const [k, x] of Object.entries(bd)) for (const i of st.sel) if (x[i]) { t[i] = t[i] || {}; t[i][k] = x[i][0]; }
     st.sel.forEach(i => { tot[i] = S.out[i].docs || 1; });
     const areas = AREAS.map((a, k) => [k, st.sel.reduce((s2, i) => s2 + ((t[i] || {})[k] || 0) / tot[i], 0)]).sort((a, b) => b[1] - a[1]).map(x => x[0]);
     const mx = Math.max(1e-9, ...st.sel.flatMap(i => areas.map(k => ((t[i] || {})[k] || 0) / tot[i])));
@@ -286,9 +366,8 @@
       ${areas.map(k => `<tr><td><a href="#" data-pick="${k}">${esc(R.areaAr(AREAS[k]))}</a></td>${st.sel.map(i => { const v = ((t[i] || {})[k] || 0) / tot[i]; const a = v / mx;
         return `<td class="num" style="background:${R.alpha(i === HOME.i ? '#901d23' : '#1f6f78', .06 + .8 * a)};color:${a > .55 ? '#fff' : 'inherit'}" title="${R.n((t[i] || {})[k] || 0)} وثيقة">${v ? R.pct(v, 0) : '–'}</td>`; }).join('')}</tr>`).join('')}</tbody>`;
   }
-  R.$('#j-alltable').addEventListener('click', e => { const th = e.target.closest('th[data-asort]'); if (th) { allSort = th.dataset.asort; allTable(); } });
   R.$('#j-heat').addEventListener('click', e => { const a = e.target.closest('[data-pick]'); if (!a) return; e.preventDefault(); st.area = +a.dataset.pick; st.cat = -1; R.$('#j-area').value = st.area; R.$('#j-cat').innerHTML = catOpts(); showTab('fields'); render(); });
-  R.$('#j-csv').onclick = () => R.csv(S.out.filter(o => o.docs).map(o => ({ university: o.u.ar, university_en: o.u.en, from: st.from, to: st.to, field: st.cat >= 0 ? CATS[st.cat] : st.area >= 0 ? AREAS[st.area] : 'all',
+  R.$('#j-csv').onclick = () => R.csv((st.scope === 'sel' ? st.sel.map(i => S.out[i]) : S.out).filter(o => o.docs).map(o => ({ counting: st.frac ? 'fractional (no duplicates)' : 'full (as Scopus)', university: o.u.ar, university_en: o.u.en, from: st.from, to: st.to, field: st.cat >= 0 ? CATS[st.cat] : st.area >= 0 ? AREAS[st.area] : 'all',
     documents: o.docs, citations: o.cites, citations_per_doc: o.cpd.toFixed(2), h_index: o.h ?? '', q1_share: o.q1s.toFixed(3), q1q2_share: o.q12.toFixed(3), international: o.intls.toFixed(3), open_access: o.oas.toFixed(3), conference_share: o.confs.toFixed(3), scopus: R.scopusOrgUrl(o.u.afid) })), `jordan-universities-${st.from}-${st.to}.csv`);
 
   let FLAGS = null;
@@ -317,14 +396,16 @@
   R.onPrint(() => {
     const txt = id => { const e = R.$('#' + id); return e && e.selectedIndex >= 0 ? e.options[e.selectedIndex].text : ''; };
     const unis = R.$$('#j-unis .on').map(b => b.textContent.trim());
-    R.$('#j-sum').innerHTML = `<span><b>الفترة:</b> ${R.esc(txt('j-from'))}–${R.esc(txt('j-to'))}</span><span><b>المجال:</b> ${R.esc(txt('j-area'))}</span><span><b>التخصص:</b> <span class="ltr">${R.esc(txt('j-cat'))}</span></span>${unis.length ? `<span><b>الجامعات:</b> ${unis.map(R.esc).join('، ')}</span>` : ''}`;
+    R.$('#j-sum').innerHTML = `<span><b>الفترة:</b> ${R.esc(txt('j-from'))}–${R.esc(txt('j-to'))}</span><span><b>المجال:</b> ${R.esc(txt('j-area'))}</span><span><b>التخصص:</b> <span class="ltr">${R.esc(txt('j-cat'))}</span></span><span><b>طريقة العدّ:</b> ${st.frac ? 'بدون تكرار (كل بحث مرة واحدة)' : 'مع التكرار (كما في Scopus)'}</span>${unis.length ? `<span><b>الجامعات:</b> ${unis.map(R.esc).join('، ')}</span>` : ''}`;
   });
   R.$('#j-span').onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return; const s = b.dataset.s; st.to = Y; st.from = s === 'all' ? 1990 : Y - +s + 1; R.$('#j-from').value = st.from; R.$('#j-to').value = st.to; render(); };
   R.$('#j-area').onchange = e => { st.area = +e.target.value; st.cat = -1; R.$('#j-cat').innerHTML = catOpts(); render(); };
   R.$('#j-cat').onchange = e => { st.cat = +e.target.value; render(); };
-  R.$('#j-metric').onchange = e => { st.metric = e.target.value; rankChart(); };
+  R.$('#j-crit').onchange = e => { st.crit = st.sort = e.target.value; compare(); };
+  R.$('#j-scope-seg').onclick = e => { const b = e.target.closest('[data-sc]'); if (!b) return; st.scope = b.dataset.sc; R.store.set('rs-jo-scope', st.scope); compare(); };
+  R.$('#j-count').onclick = e => { const b = e.target.closest('[data-c]'); if (!b) return; st.frac = b.dataset.c === 'frac'; R.store.set('rs-jo-count', st.frac ? 'frac' : 'full'); render(); };
+  R.$('#j-ctable').addEventListener('click', e => { const t = e.target.closest('th[data-sort]'); if (!t) return; st.sort = st.crit = t.dataset.sort; R.$('#j-crit').value = st.crit; compare(); });
   R.$('#j-ju').onchange = journals;
-  R.$('#j-table').addEventListener('click', e => { const t = e.target.closest('th[data-sort]'); if (t) { st.sort = t.dataset.sort; render(); } });
   R.$('#j-fields').addEventListener('click', e => { const a = e.target.closest('[data-pick]'); if (!a) return; e.preventDefault(); const k = +a.dataset.pick;
-    if (st.area < 0) { st.area = k; R.$('#j-area').value = k; R.$('#j-cat').innerHTML = catOpts(); } else { st.cat = k; R.$('#j-cat').value = k; } render(); R.$('#j-scope').scrollIntoView({ behavior: 'smooth' }); });
+    if (st.area < 0) { st.area = k; R.$('#j-area').value = k; R.$('#j-cat').innerHTML = catOpts(); } else { st.cat = k; R.$('#j-cat').value = k; } render(); R.$('#j-fields-card').scrollIntoView({ behavior: 'smooth' }); });
 })();

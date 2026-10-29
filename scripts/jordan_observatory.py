@@ -151,8 +151,9 @@ def main():
             d = docs.get(eid)
             if d is None:
                 d = docs[eid] = {'row': r, 'unis': set()}
+            # a document belongs to the universities whose own Scopus export lists it (as Scopus counts them);
+            # a name in the affiliation text alone is not enough (it credited papers Scopus files elsewhere)
             d['unis'].add(home)
-            d['unis'] |= unis_in(r.get('Affiliations'))
     print('files:')
     for k, v in file_uni.items():
         print(' ', k[-40:], NAME.get(v[0], ('?',))[0], v[1], 'rows, coverage', v[2])
