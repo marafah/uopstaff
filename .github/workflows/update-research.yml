@@ -23,6 +23,7 @@ on:
       - 'data/research/overrides.json'
       - 'data/research/manual/**'          # manual corrections and additions (CSV)
       - 'data/research/universities_export/**'   # Scopus exports of other Jordanian universities
+      - 'data/research/retractions/**'           # Scopus export of retracted Jordanian documents (integrity.html)
 
 permissions:
   contents: write
