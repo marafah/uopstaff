@@ -230,6 +230,7 @@
     if (t === 'check') loadFL();
     const u = new URL(location); u.searchParams.set('tab', t); history.replaceState(null, '', u);
   }
+  R.onPrint(() => { if (!insDone) insights(); });   // every tab prints, so the insights charts are drawn first
   R.$('#jn-tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (b) showTab(b.dataset.t); });
   R.$('#jn-view').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; st.view = b.dataset.v; R.store.set('rs-jn-view', st.view); st.page = 0; render(...(window.__last || [])); });
   app.addEventListener('click', e => { const b = e.target.closest('[data-quick]'); if (!b) return;

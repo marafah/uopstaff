@@ -82,6 +82,7 @@
         <button class="btn btn-sm btn-rs-o" data-preset="reset">إعادة الضبط</button></div>
     </div>
     <div class="rs-card"><h3><i class="bi bi-speedometer2"></i>النتيجة المتوقعة <small class="fw-normal text-muted" id="sm-win"></small></h3>
+      <div class="rs-print-only rs-jf-sum" id="sm-sum"></div>
       <div class="rs-scroll"><table class="rs-table" id="sm-table"></table></div>
     </div>
   </section>
@@ -134,6 +135,12 @@
       { label: 'الآن', data: list.map(x => x.u.i === st.u ? +B.score.toFixed(1) : null), backgroundColor: '#b8892b', borderRadius: 3 }] },
       options: { indexAxis: 'y', scales: { y: { stacked: false, ticks: { autoSkip: false, font: { size: 12 } } } } } });
   }
+  // the sliders do not print, so the scenario is written above the results
+  R.onPrint(() => {
+    const sg = v => (v > 0 ? '+' : '') + v;
+    R.$('#sm-sum').innerHTML = `<span><b>السيناريو:</b> Q1 ${sg(st.q1)} نقطة</span><span>التعاون الدولي ${sg(st.intl)} نقطة</span><span>عدد الأبحاث ${sg(st.out)}%</span><span>الوصول المفتوح ${sg(st.oa)} نقطة</span>`
+      + `<span><b>الأوزان:</b> الأثر ${st.w.cpd}% · الجودة ${st.w.q1}% · الانفتاح ${st.w.intl}% · الحجم ${st.w.docs}% · الوصول المفتوح ${st.w.oa}%</span>`;
+  });
   render();
   ['q1', 'intl', 'out', 'oa'].forEach(k => R.$(`#sm-${k}`).addEventListener('input', e => { st[k] = +e.target.value; render(); }));
   Object.keys(st.w).forEach(k => R.$(`#sm-w-${k}`).addEventListener('input', e => { st.w[k] = +e.target.value; render(); }));

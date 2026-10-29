@@ -74,6 +74,7 @@
     const fl = facs.filter(f => F[f].in + F[f].out).sort((a, b) => (F[b].in + F[b].out) - (F[a].in + F[a].out));
     R.chart('n-ch-fac', { type: 'bar', data: { labels: fl, datasets: [{ label: 'داخل الكلية', data: fl.map(f => F[f].in), backgroundColor: '#901d23' }, { label: 'مع كليات أخرى', data: fl.map(f => F[f].out), backgroundColor: '#1f6f78', borderRadius: 4 }] }, options: { indexAxis: 'y', scales: { x: { stacked: true }, y: { stacked: true, ticks: { autoSkip: false, font: { size: 12 } } } }, plugins: { legend: { position: 'top' } } } });
   }
+  R.onPrint(charts);
   R.$('#n-tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; const t = b.dataset.t;
     R.$$('#n-tabs button').forEach(x => x.classList.toggle('on', x === b));
     R.$$('[data-tab]', app).forEach(el => { el.hidden = !el.dataset.tab.split(' ').includes(t); });

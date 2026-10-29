@@ -64,17 +64,18 @@
   };
 
   app.innerHTML = `
-  <section class="rs-section rs-card no-print">
-    <div class="rs-toolbar mb-2">
-      <div class="fld"><label for="j-from">من سنة</label><select id="j-from" class="form-select">${yearOpts(st.from)}</select></div>
-      <div class="fld"><label for="j-to">إلى سنة</label><select id="j-to" class="form-select">${yearOpts(st.to)}</select></div>
-      <div class="fld"><label>فترة سريعة</label><div class="rs-seg" id="j-span"><button data-s="5">5 سنوات</button><button data-s="10">10 سنوات</button><button data-s="all">الكل</button></div></div>
-      <div class="fld grow"><label for="j-area">المجال المعرفي</label><select id="j-area" class="form-select">${areaOpts()}</select></div>
-      <div class="fld grow"><label for="j-cat">التخصص الدقيق (فئات SCImago)</label><select id="j-cat" class="form-select ltr">${catOpts()}</select></div>
+  <section class="rs-section rs-card rs-jf no-print">
+    <div class="rs-jf-grid">
+      <div class="rs-jf-f"><span class="rs-jf-l"><i class="bi bi-calendar3"></i> الفترة</span>
+        <div class="rs-jf-yrs"><select id="j-from" class="form-select" aria-label="من سنة">${yearOpts(st.from)}</select><span>إلى</span><select id="j-to" class="form-select" aria-label="إلى سنة">${yearOpts(st.to)}</select></div>
+        <div class="rs-seg rs-jf-span" id="j-span" aria-label="فترة سريعة"><button data-s="5">آخر 5 سنوات</button><button data-s="10">آخر 10 سنوات</button><button data-s="all">كل السنوات</button></div></div>
+      <div class="rs-jf-f"><label class="rs-jf-l" for="j-area"><i class="bi bi-diagram-3"></i> المجال المعرفي</label><select id="j-area" class="form-select">${areaOpts()}</select></div>
+      <div class="rs-jf-f"><label class="rs-jf-l" for="j-cat"><i class="bi bi-tags"></i> التخصص الدقيق <small>فئات SCImago</small></label><select id="j-cat" class="form-select ltr">${catOpts()}</select></div>
     </div>
-    <div class="rs-sec-label"><i class="bi bi-bank2"></i> الجامعات المختارة للمقارنة <small class="text-muted fw-normal">(اضغط لإضافة أو إزالة · حتى 8 · اللون نفسه في كل الرسوم)</small></div>
-    <div class="rs-chips" id="j-unis"></div>
+    <div class="rs-jf-unis"><div class="rs-jf-l"><i class="bi bi-bank2"></i> الجامعات المختارة للمقارنة <small>اضغط لإضافة جامعة أو إزالتها · حتى 8 · لكل جامعة اللون نفسه في كل الرسوم</small></div>
+    <div class="rs-chips" id="j-unis"></div></div>
   </section>
+  <div class="rs-print-only rs-jf-sum" id="j-sum"></div>
 
   <nav class="rs-tabs no-print" id="j-tabs">
     <button data-t="overview"><i class="bi bi-speedometer2"></i> نظرة عامة</button><button data-t="charts"><i class="bi bi-bar-chart-line"></i> الرسوم البيانية</button>
@@ -134,6 +135,7 @@
   }
   let S;
   function render() {
+    R.$$('#j-span button').forEach(b => { const n = b.dataset.s; b.classList.toggle('on', st.to === Y && (n === 'all' ? st.from <= 1990 : st.from === Y - +n + 1)); });
     R.store.set('rs-jo-sel', st.sel);
     S = stats();
     const sel = st.sel.map(i => S.out[i]);
@@ -311,6 +313,12 @@
   R.$('#j-unis').addEventListener('click', e => { const b = e.target.closest('[data-u]'); if (!b) return; const i = +b.dataset.u; st.sel = st.sel.includes(i) ? st.sel.filter(x => x !== i) : st.sel.concat(i).slice(-8); if (!st.sel.length) st.sel = [HOME.i]; chips(); render(); });
   R.$('#j-from').onchange = e => { st.from = +e.target.value; if (st.from > st.to) st.to = st.from; render(); };
   R.$('#j-to').onchange = e => { st.to = +e.target.value; if (st.to < st.from) st.from = st.to; render(); };
+  // on paper, the choices made above in one line
+  R.onPrint(() => {
+    const txt = id => { const e = R.$('#' + id); return e && e.selectedIndex >= 0 ? e.options[e.selectedIndex].text : ''; };
+    const unis = R.$$('#j-unis .on').map(b => b.textContent.trim());
+    R.$('#j-sum').innerHTML = `<span><b>الفترة:</b> ${R.esc(txt('j-from'))}–${R.esc(txt('j-to'))}</span><span><b>المجال:</b> ${R.esc(txt('j-area'))}</span><span><b>التخصص:</b> <span class="ltr">${R.esc(txt('j-cat'))}</span></span>${unis.length ? `<span><b>الجامعات:</b> ${unis.map(R.esc).join('، ')}</span>` : ''}`;
+  });
   R.$('#j-span').onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return; const s = b.dataset.s; st.to = Y; st.from = s === 'all' ? 1990 : Y - +s + 1; R.$('#j-from').value = st.from; R.$('#j-to').value = st.to; render(); };
   R.$('#j-area').onchange = e => { st.area = +e.target.value; st.cat = -1; R.$('#j-cat').innerHTML = catOpts(); render(); };
   R.$('#j-cat').onchange = e => { st.cat = +e.target.value; render(); };

@@ -311,6 +311,43 @@
   };
 
   // ------------------------------------------------------------------ "updated" line in the hero
+  // ---- printing: a header with the university, the page's title and a QR code to this same view (filters included),
+  // and a closing line; refreshed just before printing so it carries the current title, filters and date
+  function printFrame() {
+    const main = document.querySelector('main'); if (!main) return;
+    let h = document.querySelector('.rs-print-head'), f = document.querySelector('.rs-print-foot');
+    if (!h) { h = document.createElement('header'); h.className = 'rs-print-head'; main.parentNode.insertBefore(h, main); }
+    if (!f) { f = document.createElement('div'); f.className = 'rs-print-foot'; main.parentNode.insertBefore(f, main.nextSibling); }
+    const txt = id => ((document.getElementById(id) || {}).textContent || '').trim();
+    const url = location.href.split('#')[0];
+    let qr = '';
+    if (window.qrcode) { try { const q = qrcode(0, 'M'); q.addData(url); q.make(); qr = q.createSvgTag({ cellSize: 2, margin: 0, scalable: true }); } catch (e) { /* too long for a QR code */ } }
+    const today = new Date().toLocaleDateString('en-GB');
+    h.innerHTML = `<img class="lg" src="assets/icons/icon-192.png" alt="">
+      <div><div class="k">جامعة البترا · البحث العلمي</div><h1>${R.esc(txt('pg-title') || document.title)}</h1><p>${R.esc(txt('pg-sub'))}</p></div>
+      ${qr ? `<div class="qr"><span><b>النسخة الحية</b>امسح الرمز</span>${qr}</div>` : ''}`;
+    f.innerHTML = `<span>طُبع في ${today}${txt('pg-updated') ? ' · ' + R.esc(txt('pg-updated')) : ''}</span><span dir="ltr">${R.esc(url.replace(/^https?:\/\//, ''))}</span>`;
+  }
+  // charts keep the size they were drawn at, so before printing the page is laid out at the A4 width (hidden tabs shown)
+  // and every chart is redrawn to fit; after printing the screen layout comes back
+  const redraw = () => Object.values(R.charts).forEach(c => { try { c.resize(); } catch (e) { /* chart removed */ } });
+  const printHooks = [];
+  R.onPrint = fn => printHooks.push(fn); // a page draws here what it otherwise draws only when a tab is opened
+  function beforePrint() {
+    printFrame();
+    document.documentElement.classList.add('rs-printing');
+    printHooks.forEach(fn => { try { fn(); } catch (e) { /* the rest still prints */ } });
+    redraw();
+  }
+  function afterPrint() {
+    if (!document.documentElement.classList.contains('rs-printing')) return;
+    document.documentElement.classList.remove('rs-printing');
+    redraw();
+  }
+  R.beforePrint = beforePrint;
+  window.addEventListener('beforeprint', beforePrint);
+  window.addEventListener('afterprint', afterPrint);
+
   R.updated = function (meta) {
     const el = document.getElementById('pg-updated');
     if (!el || !meta || !meta.updated) return;

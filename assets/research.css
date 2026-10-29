@@ -696,3 +696,131 @@ html.rs-locked #rs-app, html.rs-locked .rs-hero, html.rs-locked main { visibilit
 .rs-venues .rs-barwrap, .rs-venues .rs-bar { height: 5px; }
 .rs-venues .ct { flex: 0 0 auto; min-width: 48px; text-align: center; font-size: 1rem; color: var(--rs-navy); line-height: 1.1; }
 .rs-venues .ct small { display: block; font-size: .66rem; font-weight: 500; color: var(--rs-muted); }
+
+/* printing a research page: the cards flow on from page to page (a tall card no longer jumps to a new page and leaves a
+   half-empty one), headings stay with what follows them, the numbers sit in one row without their «تحقق» links, and
+   the page title prints dark */
+@media print {
+  .rs-card { break-inside: auto; }
+  .rs-card > h3 { break-after: avoid; }
+  .rs-kpi, .rs-table tr, .rs-venues li, .rs-kv tr { break-inside: avoid; }
+  .rs-section { margin-bottom: .6rem; }
+  .uop-hero { padding: .2rem 0 .4rem; background: #fff !important; }
+  .uop-hero h1, .uop-hero h1 i, .uop-hero p { color: #091b22 !important; }
+  .rs-kpis { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: .4rem; }
+  .rs-kpi { padding: .5rem .55rem; }
+  .rs-kpi .v { font-size: 1.3rem; }
+  .rs-kpi .l { font-size: .74rem; flex-wrap: wrap; }
+  .rs-kpi .l > i, .rs-kpi .rs-src { display: none !important; }
+  .rs-kpi .d { font-size: .68rem; }
+}
+
+/* publication.html: one strip of figures, then the paper's content on the right and its record on the left */
+.rs-doc-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0; padding: .3rem; }
+.rs-doc-metrics .m { display: flex; gap: .65rem; align-items: flex-start; padding: .7rem .8rem; min-width: 0; }
+.rs-doc-metrics .m + .m { border-inline-start: 1px solid var(--rs-line); }
+.rs-doc-metrics .ic { flex: 0 0 auto; width: 34px; height: 34px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: var(--c); background: color-mix(in srgb, var(--c) 12%, #fff); font-size: 1rem; }
+.rs-doc-metrics .v { font-size: 1.55rem; font-weight: 800; line-height: 1.05; color: var(--c); font-variant-numeric: tabular-nums; }
+.rs-doc-metrics .l { font-size: .84rem; font-weight: 800; color: var(--rs-navy); margin-top: .15rem; }
+.rs-doc-metrics .l .vf { color: var(--rs-muted); font-size: .72rem; margin-inline-start: .2rem; text-decoration: none; }
+.rs-doc-metrics .l .vf:hover { color: var(--rs-maroon); }
+.rs-doc-metrics .d { font-size: .74rem; color: var(--rs-muted); margin-top: .1rem; line-height: 1.4; }
+@media (max-width: 767.98px) { .rs-doc-metrics .m + .m { border-inline-start: 0; border-top: 1px solid var(--rs-line); } }
+.rs-doc-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 410px); gap: 1rem; align-items: start; }
+.rs-doc-main, .rs-doc-side { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.rs-doc-side .o-auth { order: 1; } .rs-doc-side .o-pub { order: 2; } .rs-doc-side .o-src { order: 3; } .rs-doc-side .o-cite { order: 4; }
+.rs-doc-side .rs-kv th { width: 36%; }
+@media (max-width: 991.98px) { .rs-doc-body { grid-template-columns: 1fr; } }
+
+/* every research page prints with its own header: the university, the page and a QR code to the same view */
+.rs-print-head, .rs-print-foot { display: none; }
+@media print {
+  @page { size: A4; margin: 11mm 10mm 12mm; }
+  html, body { background: #fff !important; }
+  .uop-hero { display: none !important; }
+  main.rs-main { padding: 0 !important; }
+  .rs-print-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 0 0 8px; margin: 0 0 10px; border-bottom: 3px solid #901d23; }
+  .rs-print-head .lg { width: 52px; height: 52px; border-radius: 10px; }
+  .rs-print-head .k { font-size: 8.5pt; font-weight: 800; color: #901d23; }
+  .rs-print-head h1 { font-size: 15pt; font-weight: 800; color: #091b22; margin: 1px 0 2px; line-height: 1.3; }
+  .rs-print-head p { font-size: 8pt; color: #555; margin: 0; line-height: 1.45; }
+  .rs-print-head .qr { display: flex; align-items: center; gap: 8px; font-size: 7pt; color: #555; text-align: center; }
+  .rs-print-head .qr svg { width: 74px; height: 74px; display: block; }
+  .rs-print-head .qr b { display: block; color: #091b22; font-size: 7.5pt; }
+  .rs-print-foot { display: flex; justify-content: space-between; gap: 12px; overflow-wrap: anywhere; margin-top: 10px; padding-top: 6px; border-top: 1px solid #e3dccb; font-size: 7pt; color: #666; }
+  .rs-section { margin: 0 0 8px !important; }
+  .rs-card { padding: .6rem .75rem; border-radius: 8px; border-color: #e3dccb; }
+  .rs-card > h3 { font-size: 10.5pt; margin-bottom: .4rem; }
+  .rs-card > h3 > i:first-child { width: 22px !important; height: 22px !important; font-size: .8rem !important; }
+  .rs-grid, .rs-grid.wide { gap: 8px; }
+  canvas { max-width: 100% !important; }
+  .rs-table { font-size: 8.5pt; }
+  .rs-scroll { max-height: none !important; overflow: visible !important; }
+  a { color: inherit; text-decoration: none; }
+  .rs-logout, .copy-toast { display: none !important; }
+  /* the publication page: one column in reading order */
+  .rs-doc-metrics { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); padding: 0; }
+  .rs-doc-metrics .m { padding: .45rem .5rem; gap: .4rem; }
+  .rs-doc-metrics .ic { display: none; }
+  .rs-doc-metrics .v { font-size: 1.25rem; }
+  .rs-doc-metrics .l { font-size: .74rem; }
+  .rs-doc-metrics .d { font-size: .66rem; }
+  .rs-doc-body { display: flex; flex-direction: column; gap: 8px; }
+  .rs-doc-main, .rs-doc-side { display: contents; }
+  .rs-doc-body .rs-card { width: 100%; align-self: stretch; }
+  .rs-doc-body .o-abs { order: 1; } .rs-doc-body .o-auth { order: 2; } .rs-doc-body .o-pub { order: 3; } .rs-doc-body .o-topic { order: 4; }
+  .rs-doc-body .o-fund { order: 5; } .rs-doc-body .o-cby { order: 6; } .rs-doc-body .o-src { order: 7; } .rs-doc-body .o-uop { order: 8; } .rs-doc-body .o-cite { order: 9; }
+  .rs-abstract { font-size: 9pt; line-height: 1.6; }
+  .rs-doc-head .title { font-size: 13pt; }
+}
+
+/* laid out at the printed width just before printing (research.js), so charts are redrawn at the size they print at */
+html.rs-printing main.rs-main { width: 190mm; max-width: 190mm; margin-inline: auto; padding: 0 !important; }
+html.rs-printing [data-tab][hidden] { display: block !important; }
+html.rs-printing section.rs-grid[data-tab][hidden] { display: grid !important; }
+@media print {
+  section.rs-grid[data-tab][hidden] { display: grid !important; }
+  .rs-chart { overflow: hidden; break-inside: avoid; }
+  .rs-chart canvas { max-width: 100% !important; }
+  /* controls do nothing on paper: buttons, pagers, inputs, the "click a researcher" panel; a segmented control keeps
+     only its chosen option, as a label of what is shown */
+  .btn, .rs-pager, .rs-ib, .rs-npanel:has(.empty), input[type=search], .form-range, .rs-cmp-btn { display: none !important; }
+  .rs-seg button:not(.on) { display: none !important; }
+  .rs-seg button.on { background: none !important; color: #901d23 !important; border: 1px solid #901d23 !important; padding: 0 .5rem !important; }
+  select.form-select { border: 0; background: none; padding: 0; appearance: none; font-weight: 700; width: auto; }
+  .rs-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .rs-kpis:has(> :nth-child(5):last-child) { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+  .rs-kpis:has(> :nth-child(3):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .rs-tiles { display: none !important; }
+  .rs-slot:not(.filled), .rs-slot .x, .rs-suggest { display: none !important; }
+  .rs-pcard, .rs-person, .rs-jcard, .rs-scorecard, .rs-topic { break-inside: avoid; box-shadow: none !important; }
+  .rs-card > h3 > i:first-child { box-shadow: none !important; }
+}
+
+/* jordan.html / compare.html?mode=uni: the comparison settings as one tidy panel */
+.rs-jf { padding: 1rem 1.1rem; }
+.rs-jf-grid { display: grid; grid-template-columns: minmax(300px, 1.15fr) minmax(0, 1fr) minmax(0, 1fr); gap: 1rem 1.2rem; align-items: start; }
+.rs-jf-f { display: flex; flex-direction: column; gap: .4rem; min-width: 0; }
+.rs-jf-l { display: flex; align-items: center; gap: .4rem; font-size: .85rem; font-weight: 800; color: var(--rs-navy); margin: 0; }
+.rs-jf-l i { color: var(--rs-maroon); }
+.rs-jf-l small { font-weight: 500; color: var(--rs-muted); font-size: .75rem; }
+.rs-jf .form-select { height: 40px; border-radius: 10px; font-size: .92rem; border-color: #ded6c4; }
+.rs-jf .form-select:focus { border-color: var(--rs-maroon); box-shadow: 0 0 0 .2rem rgba(144,29,35,.15); }
+.rs-jf-yrs { display: grid; grid-template-columns: 1fr auto 1fr; gap: .5rem; align-items: center; }
+.rs-jf-yrs span { font-size: .82rem; color: var(--rs-muted); }
+.rs-jf-span { display: flex; flex-wrap: nowrap; gap: .3rem; }
+.rs-jf-span button { flex: 1; white-space: nowrap; font-size: .78rem; padding: .25rem .4rem; }
+.rs-jf-unis { margin-top: 1rem; padding-top: .9rem; border-top: 1px dashed var(--rs-line); }
+.rs-jf-unis .rs-jf-l { margin-bottom: .55rem; flex-wrap: wrap; }
+@media (max-width: 991.98px) { .rs-jf-grid { grid-template-columns: 1fr 1fr; } .rs-jf-grid > :first-child { grid-column: 1 / -1; } }
+@media (max-width: 575.98px) { .rs-jf-grid { grid-template-columns: 1fr; } }
+.rs-print-only { display: none; }
+@media print {
+  .rs-print-only { display: block; }
+  .rs-jf-sum { display: flex; flex-wrap: wrap; gap: .25rem 1.1rem; font-size: 8.5pt; padding: .35rem .6rem; margin: 0 0 8px; border: 1px solid #e3dccb; border-radius: 6px; background: #faf7f0; }
+  .rs-jf-sum b { color: #901d23; }
+}
+
+/* a section marked no-print stays off the page even though every tab is shown for printing */
+@media print { .no-print[data-tab], .no-print[data-tab][hidden] { display: none !important; } }
+html.rs-printing .no-print[data-tab][hidden] { display: none !important; }
