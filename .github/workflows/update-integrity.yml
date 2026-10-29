@@ -1,0 +1,41 @@
+name: Update research integrity
+
+# Daily refresh of data/research/integrity.json (integrity.html): new retracted Jordanian documents from the Scopus
+# Search API (SCOPUS_API_KEY secret) and the Retraction Watch database (Crossref, open). Light: a few API calls.
+on:
+  schedule:
+    - cron: '41 2 * * *'        # every day 05:41 Amman time
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: research-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests
+      - name: Build integrity data
+        env:
+          OPENALEX_MAILTO: mohammad.arafah@uop.edu.jo
+          SCOPUS_API_KEY: ${{ secrets.SCOPUS_API_KEY }}
+          SCOPUS_INSTTOKEN: ${{ secrets.SCOPUS_INSTTOKEN }}
+        run: python scripts/research_integrity.py
+      - name: Commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/research/integrity.json data/research/retractions
+          if git diff --cached --quiet; then echo "no changes"; exit 0; fi
+          git commit -m "Research integrity $(date -u +%Y-%m-%d)"
+          git pull --rebase --autostash
+          git push
