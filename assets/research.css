@@ -1106,3 +1106,6 @@ a.rs-pj-pi:hover { color: var(--rs-maroon); }
 @media print { .rs-rw-grid, .rs-pr-result { grid-template-columns: 1fr; } .rs-pr-table select { appearance: none; border: 0; padding: 0; min-width: 0; } }
 .rs-rg-table td, .rs-rg-table th, .rs-rg-art .body p { unicode-bidi: plaintext; }
 .rs-rg-table td, .rs-rg-table th { text-align: start; }
+
+.rs-venues li.me { background: #f8e3e5; border-radius: 10px; }
+.rs-venues li.me .t a { color: var(--rs-maroon); }

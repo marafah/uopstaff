@@ -79,6 +79,8 @@
     <a class="rs-tile" href="regulations.html"><i class="bi bi-bank2"></i><span><b>التعليمات والأنظمة</b><small>النص الرسمي للبحث العلمي والترقية والمكافآت، مع البحث وأهم ما يحتاجه الباحث</small></span></a>
     <a class="rs-tile" href="promotion.html"><i class="bi bi-ladder"></i><span><b>أداة الترقية</b><small>ما لديك وما ينقصك للترقية حسب التعليمات، وتقرير برمز QR</small></span></a>
     <a class="rs-tile" href="reward.html"><i class="bi bi-calculator"></i><span><b>حاسبة المكافأة</b><small>دعم النشر والحوافز ومكافآت الكتب والمشاريع والمؤتمرات</small></span></a>
+    <a class="rs-tile" href="award.html"><i class="bi bi-trophy"></i><span><b>جائزة الباحث المتميز</b><small>نقاطك حسب أوزان التعليمات وترتيبك المتوقع في القسم</small></span></a>
+    <a class="rs-tile" href="sabbatical.html"><i class="bi bi-calendar-range"></i><span><b>إجازة التفرغ العلمي</b><small>الاستحقاق ونقاط المفاضلة وما يُصرف لك</small></span></a>
     <a class="rs-tile" href="projects.html"><i class="bi bi-briefcase"></i><span><b>المشاريع المدعومة</b><small>مشاريع بحثية دعمتها الجامعة عبر عمادة البحث العلمي، حسب الدعوة والكلية</small></span></a>
     <a class="rs-tile" href="compare.html"><i class="bi bi-bar-chart-steps"></i><span><b>المقارنة</b><small>قارن حتى 4 باحثين أو كليات أو أقسام بالرسوم</small></span></a>
     <a class="rs-tile" href="universities.html"><i class="bi bi-bank"></i><span><b>الجامعات الأردنية</b><small>موقع جامعة البترا بين الجامعات الأردنية في الإنتاج والاقتباس</small></span></a>

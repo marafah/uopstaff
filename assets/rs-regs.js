@@ -55,7 +55,7 @@
 
   <nav class="rs-tabs no-print" id="rg-tabs"><button data-t="facts"><i class="bi bi-lightbulb"></i> أهم ما يحتاجه الباحث</button><button data-t="library"><i class="bi bi-collection"></i> المكتبة</button>
     <button data-t="read"><i class="bi bi-book"></i> القارئ</button><button data-t="glossary"><i class="bi bi-alphabet"></i> المصطلحات</button>
-    <a class="ms-auto rs-rg-tool" href="promotion.html"><i class="bi bi-ladder"></i> أداة الترقية</a><a class="rs-rg-tool" href="reward.html"><i class="bi bi-calculator"></i> حاسبة المكافأة</a></nav>
+    <a class="ms-auto rs-rg-tool" href="promotion.html"><i class="bi bi-ladder"></i> أداة الترقية</a><a class="rs-rg-tool" href="reward.html"><i class="bi bi-calculator"></i> حاسبة المكافأة</a><a class="rs-rg-tool" href="award.html"><i class="bi bi-trophy"></i> جائزة الباحث المتميز</a><a class="rs-rg-tool" href="sabbatical.html"><i class="bi bi-calendar-range"></i> التفرغ العلمي</a></nav>
   <div id="rg-results"></div>
   <section data-tab="facts" class="rs-section"><div class="rs-rg-facts">${FACTS.map(f => `<a class="rs-rg-fact" href="?doc=${f[3]}&a=${f[4]}"><i class="bi ${f[0]}"></i><div><b>${f[1]}</b><p>${f[2]}</p>
     <small><i class="bi bi-link-45deg"></i> ${esc(docName(byId[f[3]]))} · المادة (${f[4]})</small></div></a>`).join('')}</div>

@@ -4,7 +4,7 @@ Run after changing the template:  python scripts/make_research_pages.py"""
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-V = '202610310000'
+V = '202610310100'
 CHART = '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>'
 D3 = '<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>'
 
@@ -58,6 +58,12 @@ PAGES = [
     ('reward.html', 'حاسبة المكافأة', 'حاسبة مكافآت البحث العلمي',
      'دعم النشر وحوافزه ومكافآت الكتب والمشاريع والمؤتمرات حسب تعليمات البحث العلمي رقم (4) لسنة 2022، مع الشروط ومصادرها',
      'bi-calculator', 'rs-reward.js', []),
+    ('award.html', 'جائزة الباحث المتميز', 'نقاط جائزة الباحث المتميز',
+     'احسب نقاطك لجائزة جامعة البترا للباحث المتميز في كل قسم أكاديمي حسب أوزان التعليمات، وقارن نفسك بزملائك في القسم',
+     'bi-trophy', 'rs-award.js', []),
+    ('sabbatical.html', 'إجازة التفرغ العلمي', 'إجازة التفرغ العلمي',
+     'تحقّق من استحقاقك لإجازة التفرغ العلمي، واحسب نقاط المفاضلة، واعرف ما يُصرف لك وما يلزمك حسب تعليمات التفرغ العلمي لسنة 2023',
+     'bi-calendar-range', 'rs-sabb.js', []),
     ('network.html', 'شبكة التعاون البحثي', 'شبكة التعاون البحثي',
      'من يكتب مع من داخل الجامعة: الروابط بين الباحثين والكليات',
      'bi-diagram-3', 'rs-network.js', [D3]),
@@ -98,6 +104,8 @@ MENU = [  # research menu items: file, icon, title, description
     ('regulations.html', 'bi-bank2', 'التعليمات والأنظمة', 'نصوص البحث العلمي والترقية والمكافآت الرسمية'),
     ('promotion.html', 'bi-ladder', 'أداة الترقية', 'ما لديك وما ينقصك للترقية'),
     ('reward.html', 'bi-calculator', 'حاسبة المكافأة', 'دعم النشر والحوافز والمشاريع والمؤتمرات'),
+    ('award.html', 'bi-trophy', 'جائزة الباحث المتميز', 'نقاطك وترتيبك المتوقع في القسم'),
+    ('sabbatical.html', 'bi-calendar-range', 'إجازة التفرغ العلمي', 'الاستحقاق ونقاط المفاضلة'),
     ('projects.html', 'bi-briefcase', 'المشاريع المدعومة', 'مشاريع بحثية دعمتها الجامعة، حسب الدعوة والكلية'),
     ('reports.html', 'bi-calendar2-check', 'التقرير الشهري', 'الأبحاث الجديدة واقتباساتها لكل كلية'),
     ('universities.html', 'bi-bank', 'مؤشرات الجامعات الأسبوعية', 'أعداد Scopus و OpenAlex المحدّثة أسبوعياً'),
