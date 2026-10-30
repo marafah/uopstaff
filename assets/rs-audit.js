@@ -124,6 +124,23 @@
   const level = s => s >= 6 ? ['high', 'يستحق مراجعة عاجلة', 'bi-shield-fill-exclamation'] : s >= 3 ? ['mid', 'يستحق المراجعة', 'bi-shield-fill-minus'] : s > 0 ? ['low', 'ملاحظات بسيطة', 'bi-shield-fill-check'] : ['ok', 'لا مؤشرات تنبيه', 'bi-shield-fill-check'];
   const LV = { 2: ['c', 'مرتفع'], 1: ['r', 'للمراجعة'], 0: ['o', 'ضمن المعتاد'], '-1': ['p', 'إيجابي'] };
 
+
+  // ---------------------------------------------------------------- print report: identification block and sign-off
+  const today = () => new Date().toLocaleDateString('ar-JO-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' });
+  const perTxt = () => AU.from || AU.to ? `${AU.from || 'البداية'} – ${AU.to || 'الآن'}` : 'كل السنوات المتاحة';
+  function printMeta(rows, lvl) {
+    return `<section class="rs-print-only na-pmeta"><table><tbody>${rows.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join('')}</tbody></table>
+      ${lvl ? `<div class="na-pres na-${lvl[0]}"><small>النتيجة</small><b>${lvl[1]}</b></div>` : ''}</section>`;
+  }
+  function printSign() {
+    return `<section class="rs-print-only na-psign">
+      <h4>منهجية التدقيق</h4>
+      <p>يقارن كل معيار قيمة الباحث أو المجموعة بتوزيع باحثي جامعة البترا أنفسهم في الفترة نفسها: «للمراجعة» تعني أن القيمة أعلى من 90% من الباحثين، و«مرتفع» تعني تجاوز حدّ واضح (مثل بحث مسحوب أو نشر في مجلة محذوفة من Scopus وقت النشر). المصادر: Scopus وOpenAlex وWeb of Science، وقاعدة Retraction Watch، وقائمة مصادر Scopus الرسمية، وتصنيف SJR. المؤشرات أدوات فرز لا أحكام، ولا تُغني عن الاطلاع على الأبحاث وسياق التخصص.</p>
+      <h4>ملاحظات اللجنة</h4><div class="na-lines"><i></i><i></i><i></i></div>
+      <div class="na-sigs3"><div><span>أعدّه</span><i></i><small>الاسم والتوقيع</small></div><div><span>راجعه</span><i></i><small>الاسم والتوقيع</small></div><div><span>اعتمده</span><i></i><small>رئيس اللجنة · التاريخ</small></div></div>
+    </section>`;
+  }
+
   // ---------------------------------------------------------------- page
   const yOpt = (v, first) => `<option value="">${first}</option>` + Array.from({ length: Y1 - Y0 + 1 }, (_, i) => Y1 - i).map(y => `<option${y === v ? ' selected' : ''}>${y}</option>`).join('');
   app.innerHTML = `
@@ -197,7 +214,9 @@
     } else people = ids.map(id => { const all = (BY[id] || []).filter(inY), mm = measure(all, [id]); return { r: byId[id], t: all.length, s: ws.filter(w => (w.r || []).includes(id)).length, hi: mm.hiS, da: mm.da, ret: mm.ret.length, sc: scoreOf(scorecard(mm, [id])) }; });
     const per = AU.from || AU.to ? `${AU.from || 'البداية'}–${AU.to || 'الآن'}` : 'كل السنوات';
     R.$('#na-body').innerHTML = `
-    <div class="rs-print-only na-ph"><b>تدقيق النزاهة البحثية</b> · ${ids.map(id => esc(byId[id].name)).join('، ')} · ${per}</div>
+    ${printMeta([['موضوع التدقيق', ids.map(id => `<b>${esc(byId[id].name)}</b> <small>${esc(byId[id].faculty || '')}${byId[id].dept ? ' · ' + esc(byId[id].dept) : ''}</small>`).join('<br>')],
+      ['نوع التدقيق', single ? 'تدقيق فردي لكل إنتاج الباحث' : `تدقيق مجموعة من ${ids.length} · ${AU.mode === 'all' ? 'الأبحاث المشتركة بين الجميع' : 'الأبحاث التي تجمع اثنين منهم أو أكثر'}`],
+      ['الفترة', perTxt()], ['الأبحاث المدقّقة', n ? `${R.n(n)}${sp ? ` (${sp[0]}–${sp[1]})` : ''}` : 'لا أبحاث'], ['تاريخ الإعداد', today()]], lvl)}
     <section class="na-head na-${lvl[0]}">
       <div class="na-risk"><i class="bi ${lvl[2]}"></i><div><small>النتيجة</small><b>${lvl[1]}</b></div></div>
       <div class="na-sum"><b>${single ? 'تدقيق فردي' : `تدقيق مجموعة من ${ids.length}`} · ${per}</b>
@@ -228,8 +247,8 @@
     </section>
 
     <section class="rs-card na-sec"><h3><i class="bi bi-people"></i>${single ? 'أكثر الشركاء من الجامعة' : 'أعضاء المجموعة'} <small class="fw-normal text-muted">${single ? 'اضغط «دقّق» لتدقيق الثنائي' : 'كل عضو مقاس على إنتاجه كله في الفترة'}</small></h3>
-      ${people.length ? `<div class="rs-scroll" style="max-height:460px"><table class="rs-table na-t"><thead><tr><th>الباحث</th>${single ? '<th class="num">مشترك</th><th>من إنتاجه</th>' : '<th class="num">كل منشوراته</th><th class="num">في هذه المجموعة</th>'}<th class="num">Q1–Q2</th><th class="num">مجلات محذوفة</th><th class="num">مسحوبة</th><th>تنبيه</th><th></th></tr></thead><tbody>
-      ${people.map(p => { const l = level(p.sc); return `<tr><td><div class="d-flex align-items-center gap-2">${R.avatar(p.r, 'sm')}<div>${who(p.r)}</div></div></td>${single ? `<td class="num"><b>${p.s}</b></td><td><div class="na-pc"><span><i style="width:${Math.round(100 * p.sh)}%"></i></span><b>${R.pct(p.sh)}</b></div></td>` : `<td class="num">${R.n(p.t)}</td><td class="num"><b>${R.n(p.s)}</b> <small class="text-muted">(${p.t ? R.pct(p.s / p.t) : '–'})</small></td>`}<td class="num">${p.hi == null ? '–' : R.pct(p.hi)}</td><td class="num">${p.da ? `<span class="na-bad">${p.da}</span>` : '–'}</td><td class="num">${p.ret ? `<span class="na-bad">${p.ret}</span>` : '–'}</td><td><span class="na-rb ${l[0]}"><i class="bi ${l[2]}"></i>${l[1]}</span></td><td><button type="button" class="na-ib na-do" data-ids="${single ? ids[0] + ',' + p.r.id : p.r.id}" title="${single ? 'تدقيق الثنائي' : 'تدقيق فردي'}"><i class="bi bi-search"></i><span>دقّق</span></button></td></tr>`; }).join('')}</tbody></table></div>` : '<div class="text-muted small">لا شركاء من الجامعة في الفترة.</div>'}</section>
+      ${people.length ? `<div class="rs-scroll" style="max-height:460px"><table class="rs-table na-t"><thead><tr><th>الباحث</th>${single ? '<th class="num">مشترك</th><th>من إنتاجه</th>' : '<th class="num">كل منشوراته</th><th class="num">في هذه المجموعة</th>'}<th class="num">Q1–Q2</th><th class="num">مجلات محذوفة</th><th class="num">مسحوبة</th><th>تنبيه</th><th class="na-act"></th></tr></thead><tbody>
+      ${people.map(p => { const l = level(p.sc); return `<tr><td><div class="d-flex align-items-center gap-2">${R.avatar(p.r, 'sm')}<div>${who(p.r)}</div></div></td>${single ? `<td class="num"><b>${p.s}</b></td><td><div class="na-pc"><span><i style="width:${Math.round(100 * p.sh)}%"></i></span><b>${R.pct(p.sh)}</b></div></td>` : `<td class="num">${R.n(p.t)}</td><td class="num"><b>${R.n(p.s)}</b> <small class="text-muted">(${p.t ? R.pct(p.s / p.t) : '–'})</small></td>`}<td class="num">${p.hi == null ? '–' : R.pct(p.hi)}</td><td class="num">${p.da ? `<span class="na-bad">${p.da}</span>` : '–'}</td><td class="num">${p.ret ? `<span class="na-bad">${p.ret}</span>` : '–'}</td><td><span class="na-rb ${l[0]}"><i class="bi ${l[2]}"></i>${l[1]}</span></td><td class="na-act"><button type="button" class="na-ib na-do" data-ids="${single ? ids[0] + ',' + p.r.id : p.r.id}" title="${single ? 'تدقيق الثنائي' : 'تدقيق فردي'}"><i class="bi bi-search"></i><span>دقّق</span></button></td></tr>`; }).join('')}</tbody></table></div>` : '<div class="text-muted small">لا شركاء من الجامعة في الفترة.</div>'}</section>
 
     ${m.ret.length ? `<section class="rs-card na-sec na-retsec"><h3><i class="bi bi-x-octagon"></i>الأبحاث المسحوبة وأسبابها <small class="fw-normal text-muted">${m.ret.length}</small></h3>${m.ret.map(p => { const rw = p.rw || {}; const rs = (rw.r || []).filter(r => !/^(Investigation|Notice|Date of|Upgrade|Retract and Replace)/i.test(r)); return `<div class="na-ret"><div class="t"><a class="ltr" dir="auto" href="${p.doi ? 'https://doi.org/' + esc(p.doi) : '#'}" target="_blank" rel="noopener">${esc(String(p.t || '').replace(/^RETRACTED:\s*/i, ''))}</a><div class="m"><span>${p.y || ''}</span>${p.j ? `<span class="ltr" dir="ltr">${esc(p.j)}</span>` : ''}${p.pub ? `<span>${esc(p.pub)}</span>` : ''}${rw.date ? `<span>أُعلن السحب ${esc(rw.date)}</span>` : ''}${rw.nat && rw.nat !== 'Retraction' ? `<span>${esc(rw.nat)}</span>` : ''}</div></div>
         <div class="g">${(p.g || []).map(g => RET.G[g] ? `<span class="na-g"><i class="bi ${RET.G[g].i}"></i>${esc(RET.G[g].a)}</span>` : '').join('')}${rs.length ? rs.map(r => `<span class="na-g sm">${esc(RET.RAR[r] || r)}</span>`).join('') : ((p.g || []).length ? '' : '<span class="na-g">السبب غير منشور في Retraction Watch</span>')}</div>
@@ -240,7 +259,8 @@
       ${venues.map(v => `<tr data-pfv="${esc(v.v)}" class="na-click"><td class="ltr na-vn" dir="ltr">${esc(v.v)}</td><td><span class="np-tp" style="--c:${PT[v.k][3]}"><i class="bi ${PT[v.k][2]}"></i>${PT[v.k][1]}</span></td><td class="num"><b>${v.n}</b>${v.r ? ` <span class="na-bad" title="مسحوبة">${v.r} مسحوب</span>` : ''}</td><td class="num">${R.pct(v.n / n)}</td><td>${v.q ? R.qTag(v.q) : (v.k === 'article' || v.k === 'review' ? '<span class="text-muted small">غير مصنّفة</span>' : '–')}</td><td>${v.d === 'after' ? `<span class="na-bad">محذوفة قبل النشر${v.de ? ' · ' + v.de : ''}</span>` : v.d === 'later' ? `<span class="na-warn">حُذفت لاحقاً${v.de ? ' · ' + v.de : ''}</span>` : '<span class="text-muted small">—</span>'}</td><td dir="ltr" class="small">${v.y1 ? (v.y0 === v.y1 ? v.y0 : v.y0 + '–' + v.y1) : ''}</td></tr>`).join('')}</tbody></table></div></section>
 
     <section class="rs-card na-sec" id="na-papers-sec"><h3><i class="bi bi-files"></i>${single ? 'المنشورات' : 'الأبحاث المشتركة'} <small class="fw-normal text-muted" id="na-pcount"></small></h3>
-      <div class="rs-seg na-seg na-pf no-print" id="na-pf"></div><ol class="np-papers na-papers" id="na-papers"></ol></section>` : ''}`;
+      <div class="rs-seg na-seg na-pf no-print" id="na-pf"></div><ol class="np-papers na-papers" id="na-papers"></ol></section>` : ''}
+    ${printSign()}`;
     if (n) papers(ws);
   }
   function papers(ws) {
@@ -268,13 +288,14 @@
     const total = rows.length; if (AU.only) rows = rows.filter(o => o.s >= 3);
     rows.sort((a, b) => b.s - a.s || b.n - a.n);
     const cnt = { high: 0, mid: 0, low: 0, ok: 0 }; rows.forEach(o => cnt[level(o.s)[0]]++);
-    body.innerHTML = `<section class="rs-card na-sec"><h3><i class="bi bi-radar"></i>مسح شامل · ${AU.scanOf === 'people' ? 'الباحثون' : 'ثنائيات التعاون'} <small class="fw-normal text-muted">${R.n(total)} ${AU.scanOf === 'people' ? 'باحثاً لهم 5 منشورات أو أكثر' : 'ثنائياً لهم 3 أبحاث مشتركة أو أكثر'} · ${AU.from || AU.to ? `${AU.from || 'البداية'}–${AU.to || 'الآن'}` : 'كل السنوات'}</small>
+    body.innerHTML = printMeta([['نوع التقرير', `مسح شامل · ${AU.scanOf === 'people' ? 'الباحثون (5 منشورات أو أكثر)' : 'ثنائيات التعاون (3 أبحاث مشتركة أو أكثر)'}`], ['الفترة', perTxt()],
+      ['النتائج', `${R.n(cnt.high)} مراجعة عاجلة · ${R.n(cnt.mid)} للمراجعة${AU.only ? '' : ` · ${R.n(cnt.low)} ملاحظات بسيطة · ${R.n(cnt.ok)} بلا تنبيه`} (من ${R.n(total)})`], ['تاريخ الإعداد', today()]]) + `<section class="rs-card na-sec"><h3><i class="bi bi-radar"></i>مسح شامل · ${AU.scanOf === 'people' ? 'الباحثون' : 'ثنائيات التعاون'} <small class="fw-normal text-muted">${R.n(total)} ${AU.scanOf === 'people' ? 'باحثاً لهم 5 منشورات أو أكثر' : 'ثنائياً لهم 3 أبحاث مشتركة أو أكثر'} · ${AU.from || AU.to ? `${AU.from || 'البداية'}–${AU.to || 'الآن'}` : 'كل السنوات'}</small>
       <label class="na-tog ms-auto"><input type="checkbox" id="na-only"${AU.only ? ' checked' : ''}> ما يستحق المراجعة فقط</label></h3>
       <div class="na-scnt"><span class="high"><i class="bi bi-shield-fill-exclamation"></i> مراجعة عاجلة <b>${cnt.high}</b></span><span class="mid"><i class="bi bi-shield-fill-minus"></i> للمراجعة <b>${cnt.mid}</b></span>${AU.only ? '' : `<span class="low"><i class="bi bi-shield-fill-check"></i> ملاحظات بسيطة <b>${cnt.low}</b></span><span class="ok"><i class="bi bi-check2"></i> بلا تنبيه <b>${cnt.ok}</b></span>`}</div>
-      <div class="rs-scroll" style="max-height:74vh"><table class="rs-table na-t na-scan"><thead><tr><th>النتيجة</th>${AU.scanOf === 'people' ? '<th>الباحث</th>' : '<th>الباحث</th><th>الشريك</th>'}<th class="num">${AU.scanOf === 'people' ? 'منشورات' : 'مشتركة'}</th><th class="num">Q1–Q2</th><th>المعايير التي تستحق المراجعة</th><th></th></tr></thead><tbody>
-      ${rows.slice(0, 250).map(o => { const l = level(o.s); return `<tr><td><span class="na-rb ${l[0]}"><i class="bi ${l[2]}"></i>${l[1]}</span></td>${o.ids.map(id => `<td>${who(byId[id])}</td>`).join('')}<td class="num"><span class="pill qg">${o.n}</span></td><td class="num">${o.m.hiS == null ? '–' : R.pct(o.m.hiS)}</td><td><div class="na-sigs">${o.sc.filter(r => r[5] > 0).map(r => `<span class="s${r[5]}" title="${esc(r[6])}"><i class="bi ${r[1]}"></i>${esc(r[2])}: ${esc(r[3])}</span>`).join('') || '<span class="text-muted small">—</span>'}</div></td><td><button type="button" class="na-ib na-do" data-ids="${o.ids.join(',')}"><i class="bi bi-search"></i><span>دقّق</span></button></td></tr>`; }).join('') || `<tr><td colspan="7" class="rs-empty">لا نتائج بهذه الشروط.</td></tr>`}</tbody></table></div>
+      <div class="rs-scroll" style="max-height:74vh"><table class="rs-table na-t na-scan"><thead><tr><th>النتيجة</th>${AU.scanOf === 'people' ? '<th>الباحث</th>' : '<th>الباحث</th><th>الشريك</th>'}<th class="num">${AU.scanOf === 'people' ? 'منشورات' : 'مشتركة'}</th><th class="num">Q1–Q2</th><th>المعايير التي تستحق المراجعة</th><th class="na-act"></th></tr></thead><tbody>
+      ${rows.slice(0, 250).map(o => { const l = level(o.s); return `<tr><td><span class="na-rb ${l[0]}"><i class="bi ${l[2]}"></i>${l[1]}</span></td>${o.ids.map(id => `<td>${who(byId[id])}</td>`).join('')}<td class="num"><span class="pill qg">${o.n}</span></td><td class="num">${o.m.hiS == null ? '–' : R.pct(o.m.hiS)}</td><td><div class="na-sigs">${o.sc.filter(r => r[5] > 0).map(r => `<span class="s${r[5]}" title="${esc(r[6])}"><i class="bi ${r[1]}"></i>${esc(r[2])}: ${esc(r[3])}</span>`).join('') || '<span class="text-muted small">—</span>'}</div></td><td class="na-act"><button type="button" class="na-ib na-do" data-ids="${o.ids.join(',')}"><i class="bi bi-search"></i><span>دقّق</span></button></td></tr>`; }).join('') || `<tr><td colspan="7" class="rs-empty">لا نتائج بهذه الشروط.</td></tr>`}</tbody></table></div>
       ${rows.length > 250 ? `<p class="small text-muted mt-2 mb-0">أول 250 من ${R.n(rows.length)}؛ صدّر CSV للقائمة كاملة.</p>` : ''}
-      <p class="rs-note mt-2 mb-0"><i class="bi bi-info-circle"></i> الترتيب حسب نقاط التنبيه: البحث المسحوب 6، والنشر في مجلة محذوفة وقت النشر 4، وأي معيار «مرتفع» آخر 2.5، و«للمراجعة» 1. القائمة نقطة بداية للمراجعة لا حكم على أحد.</p></section>`;
+      <p class="rs-note mt-2 mb-0"><i class="bi bi-info-circle"></i> الترتيب حسب نقاط التنبيه: البحث المسحوب 6، والنشر في مجلة محذوفة وقت النشر 4، وأي معيار «مرتفع» آخر 2.5، و«للمراجعة» 1. القائمة نقطة بداية للمراجعة لا حكم على أحد.</p></section>${printSign()}`;
     body._rows = rows;
   }
 

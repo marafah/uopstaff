@@ -350,8 +350,8 @@
     let qr = '';
     if (window.qrcode) { try { const q = qrcode(0, 'M'); q.addData(url); q.make(); qr = q.createSvgTag({ cellSize: 2, margin: 0, scalable: true }); } catch (e) { /* too long for a QR code */ } }
     const today = new Date().toLocaleDateString('en-GB');
-    h.innerHTML = `<img class="lg" src="assets/icons/icon-192.png" alt="">
-      <div><div class="k">جامعة البترا · البحث العلمي</div><h1>${R.esc(txt('pg-title') || document.title)}</h1><p>${R.esc(txt('pg-sub'))}</p></div>
+    h.innerHTML = `<img class="lg" src="assets/logo-print.png" alt="جامعة البترا">
+      <div class="tx"><div class="k">عمادة البحث العلمي · جامعة البترا <span dir="ltr">University of Petra</span></div><h1>${R.esc(txt('pg-title') || document.title)}</h1><p>${R.esc(txt('pg-sub'))}</p></div>
       ${qr ? `<div class="qr"><span><b>النسخة الحية</b>امسح الرمز</span>${qr}</div>` : ''}`;
     f.innerHTML = `<span>طُبع في ${today}${txt('pg-updated') ? ' · ' + R.esc(txt('pg-updated')) : ''}</span><span dir="ltr">${R.esc(url.replace(/^https?:\/\//, ''))}</span>`;
   }
