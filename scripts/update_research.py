@@ -1868,12 +1868,19 @@ def main():
     known_ids = sorted({r['scopus_id'] for r in researchers if r['scopus_id']} |
                        {sid for r in prev.get('researchers', []) for sid in (r.get('scopus_ids') or [])})
     sc_rows = scopus_search_docs(known_ids) + scopus_csv_rows()
-    seen_eid, uniq = set(), []
-    for row in sc_rows:   # several exports may overlap
+    seen_eid, uniq = {}, []
+    for row in sc_rows:   # several exports may overlap: keep one row, but join what each one knows
         k = row.get('EID') or norm_title(row.get('Title')) + str(row.get('Year'))
         if k not in seen_eid:
-            seen_eid.add(k)
+            seen_eid[k] = row
             uniq.append(row)
+            continue
+        first = seen_eid[k]   # the API's standard view has no author lists; the CSV export does
+        ids = [x.strip() for x in re.split(r'[;,]', (first.get('Author(s) ID') or '') + ';' + (row.get('Author(s) ID') or '')) if x.strip()]
+        first['Author(s) ID'] = ';'.join(dict.fromkeys(ids))
+        for f in ('Authors', 'Author full names', 'Authors with affiliations', 'ISSN', 'DOI', 'Document Type'):
+            if not (first.get(f) or '').strip() and (row.get(f) or '').strip():
+                first[f] = row[f]
     sc_rows = uniq
     sc_pool = scopus_author_pool(sc_rows)
     for sid, v in saved_pool.items():   # names learned from earlier full exports stay usable for matching
