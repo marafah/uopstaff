@@ -280,6 +280,16 @@
       </div></div>`;
   }
   const pinBtn = light => `<button type="button" class="am-ic ${light ? '' : 'dark'} ${PIN ? 'on' : ''}" data-pin title="${PIN ? 'إلغاء التثبيت: تطفو اللوحة فوق الخريطة وتُغلق مع إلغاء الاختيار' : 'تثبيت اللوحة بجانب الخريطة'}"><i class="bi ${PIN ? 'bi-pin-angle-fill' : 'bi-pin-angle'}"></i></button>`;
+  // full screen: the map fills the whole screen (styles kept here so they arrive with the script)
+  if (!document.getElementById('am-fs-css')) { const c = document.createElement('style'); c.id = 'am-fs-css'; c.textContent = `
+    .am-wrap:fullscreen { display: flex; flex-direction: column; height: 100vh; width: 100vw; padding: .5rem; background: #f6f4ee; overflow: hidden; }
+    .am-wrap:fullscreen > .am-tools { flex: none; margin-bottom: .4rem !important; }
+    .am-wrap:fullscreen > .alert { display: none; }
+    .am-wrap:fullscreen > .am-row { flex: 1 1 auto; min-height: 0; height: 100%; }
+    .am-wrap:fullscreen > .am-row.docked { display: grid; }
+    .am-wrap:fullscreen .am-stage { height: 100%; }
+    .am-wrap:fullscreen .am-scroll { height: 100%; max-height: none !important; min-height: 0; }
+    .am-wrap:fullscreen .am-row.docked > .am-side { max-height: 100%; height: 100%; position: static; }`; document.head.appendChild(c); }
   const DAY = { ح: 'الأحد', ن: 'الاثنين', ث: 'الثلاثاء', ر: 'الأربعاء', خ: 'الخميس', س: 'السبت', ج: 'الجمعة' };
   const DAYS = ['س', 'ح', 'ن', 'ث', 'ر', 'خ', 'ج'];
   const isOpen = x => x.status !== 'مغلقة' && x.registered < x.capacity;
@@ -462,6 +472,7 @@
     const hb = $('#am-help-b'); if (hb) hb.onclick = () => { if (st.sel) pick(''); HELP = !row.classList.contains('open'); row.classList.toggle('open', HELP); };
     const ma = $('#am-ma'); if (ma) ma.onclick = () => { st.ma = !st.ma; ma.classList.toggle('on', st.ma); light(st.sel); };
     const fs = $('#am-fs'); if (fs) fs.onclick = () => { const w = $('#am-wrap'); document.fullscreenElement ? document.exitFullscreen() : w.requestFullscreen && w.requestFullscreen(); };
+    if (!window.__amFS) { window.__amFS = true; document.addEventListener('fullscreenchange', () => setTimeout(() => window.dispatchEvent(new Event('resize')), 60)); }
     setMode(ZMODE); if (ZMODE === 'fit') autoFit(); else fitSizer();
     focus(st.sel && box[st.sel] ? st.sel : '');
     if (st.sel && box[st.sel]) requestAnimationFrame(() => reveal(st.sel));
