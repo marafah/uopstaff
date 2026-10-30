@@ -47,30 +47,28 @@
     const depts = [...new Set(PLANS.filter(p => (!st.deg || p.degree === st.deg) && (!st.fac || p.faculty === st.fac)).map(p => p.dept))].sort((a, b) => a.localeCompare(b, 'ar'));
     const list = scoped();
     const views = [['plan', 'الخطة', 'bi-journal-text'], ['all', 'كل الخطط', 'bi-grid-3x3-gap'], ['courses', 'المقررات', 'bi-search'], ['compare', 'مقارنة خطتين', 'bi-layout-split']];
-    return `<div class="card mb-3 no-print sp-bar"><div class="card-body">
-      <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-2">
-        <div class="btn-group btn-group-sm sp-views" role="group" aria-label="طريقة العرض">${views.map(([k, l, i]) =>
-          `<button type="button" class="btn ${st.view === k ? 'btn-maroon' : 'btn-outline-secondary'}" data-view="${k}"><i class="bi ${i}"></i> ${l}</button>`).join('')}</div>
-        <div class="d-flex gap-2"><button type="button" class="btn btn-sm btn-outline-success" id="sp-xls"><i class="bi bi-file-earmark-excel"></i> Excel</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" id="sp-csv"><i class="bi bi-filetype-csv"></i> CSV</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" id="sp-print"><i class="bi bi-printer"></i> طباعة</button></div>
+    const seg = (key, attr, opts, lab) => `<div class="sp2-seg" role="group" aria-label="${lab}"><span>${lab}</span>${opts.map(([k, l]) => `<button type="button" class="${st[key] === k ? 'on' : ''}" data-${attr}="${k}">${l}</button>`).join('')}</div>`;
+    const sel = (id, lab, opts, cur, all, cls) => `<label class="sp2-sel ${cls || ''}" title="${lab}"><small>${lab}</small><select class="form-select form-select-sm" id="${id}" aria-label="${lab}">${all != null ? `<option value="">${all}</option>` : ''}${opts}</select></label>`;
+    const nFilt = [st.q, st.kind, st.act, st.offered].filter(Boolean).length;
+    return `<div class="sp2-bar no-print">
+      <div class="sp2-r1">
+        <div class="sp2-views" role="tablist" aria-label="طريقة العرض">${views.map(([k, l, i]) =>
+          `<button type="button" role="tab" aria-selected="${st.view === k}" class="${st.view === k ? 'on' : ''}" data-view="${k}"><i class="bi ${i}"></i><span>${l}</span></button>`).join('')}</div>
+        <span class="sp2-vr"></span>
+        ${sel('sp-deg', 'الدرجة', degs.map(d => `<option ${d === st.deg ? 'selected' : ''}>${esc(d)}</option>`).join(''), st.deg, 'كل الدرجات')}
+        ${sel('sp-fac', 'الكلية', facs.map(d => `<option ${d === st.fac ? 'selected' : ''}>${esc(d)}</option>`).join(''), st.fac, 'كل الكليات')}
+        ${sel('sp-dept', 'القسم', depts.map(d => `<option ${d === st.dept ? 'selected' : ''}>${esc(d)}</option>`).join(''), st.dept, 'كل الأقسام')}
+        ${sel('sp-plan', `التخصص (${list.length})`, list.map(p => `<option value="${esc(p.id)}" ${p.id === st.plan ? 'selected' : ''}>${esc(label(p))}</option>`).join(''), st.plan, null, 'grow')}
+        <div class="sp2-ex" role="group" aria-label="تصدير"><button type="button" id="sp-xls" title="تصدير Excel"><i class="bi bi-file-earmark-excel"></i></button><button type="button" id="sp-csv" title="تصدير CSV"><i class="bi bi-filetype-csv"></i></button><button type="button" id="sp-print" title="طباعة"><i class="bi bi-printer"></i></button></div>
       </div>
-      <div class="row g-2 align-items-end">
-        <div class="col-6 col-lg-2"><label class="small fw-bold" for="sp-deg">الدرجة</label><select class="form-select form-select-sm" id="sp-deg"><option value="">كل الدرجات</option>${degs.map(d => `<option ${d === st.deg ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select></div>
-        <div class="col-6 col-lg-3"><label class="small fw-bold" for="sp-fac">الكلية</label><select class="form-select form-select-sm" id="sp-fac"><option value="">كل الكليات</option>${facs.map(d => `<option ${d === st.fac ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select></div>
-        <div class="col-6 col-lg-3"><label class="small fw-bold" for="sp-dept">القسم</label><select class="form-select form-select-sm" id="sp-dept"><option value="">كل الأقسام</option>${depts.map(d => `<option ${d === st.dept ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select></div>
-        <div class="col-6 col-lg-4"><label class="small fw-bold" for="sp-plan">التخصص (${list.length})</label><select class="form-select form-select-sm" id="sp-plan">${list.map(p =>
-          `<option value="${esc(p.id)}" ${p.id === st.plan ? 'selected' : ''}>${esc(label(p))} · ${esc(p.faculty)}</option>`).join('')}</select></div>
-      </div>
-      ${st.view === 'plan' || st.view === 'courses' ? `<div class="d-flex flex-wrap gap-2 align-items-center mt-2 sp-chips">
-        <div class="input-group input-group-sm sp-q"><span class="input-group-text"><i class="bi bi-search"></i></span><input class="form-control" id="sp-q" value="${esc(st.q)}" placeholder="رمز المقرر أو اسمه…"></div>
-        ${[['', 'كل الأنواع'], ['required', 'إجباري'], ['elective', 'اختياري'], ['free', 'حر'], ['remedial', 'استدراكي']].map(([k, l]) => `<button type="button" class="btn btn-sm ${st.kind === k ? 'btn-dark' : 'btn-light'}" data-kind="${k}">${l}</button>`).join('')}
-        <span class="vr mx-1"></span>
-        ${[['', 'كل الأنشطة'], ['نظري', 'نظري'], ['عملي', 'عملي']].map(([k, l]) => `<button type="button" class="btn btn-sm ${st.act === k ? 'btn-dark' : 'btn-light'}" data-act="${k}">${l}</button>`).join('')}
-        <span class="vr mx-1"></span>
-        ${[['', 'الكل'], ['1', 'مطروح هذا الفصل'], ['0', 'غير مطروح']].map(([k, l]) => `<button type="button" class="btn btn-sm ${st.offered === k ? 'btn-dark' : 'btn-light'}" data-off="${k}">${l}</button>`).join('')}
+      ${st.view === 'plan' || st.view === 'courses' ? `<div class="sp2-r2">
+        <label class="sp2-q"><i class="bi bi-search"></i><input id="sp-q" type="search" value="${esc(st.q)}" placeholder="ابحث برمز المقرر أو اسمه…" aria-label="بحث في المقررات"></label>
+        ${seg('kind', 'kind', [['', 'الكل'], ['required', 'إجباري'], ['elective', 'اختياري'], ['free', 'حر'], ['remedial', 'استدراكي']], 'النوع')}
+        ${seg('act', 'act', [['', 'الكل'], ['نظري', 'نظري'], ['عملي', 'عملي']], 'النشاط')}
+        ${seg('offered', 'off', [['', 'الكل'], ['1', 'مطروح'], ['0', 'غير مطروح']], 'هذا الفصل')}
+        ${nFilt ? '<button type="button" class="sp2-clr" id="sp-clr"><i class="bi bi-x-circle"></i> مسح التصفية</button>' : ''}
       </div>` : ''}
-    </div></div>`;
+    </div>`;
   }
   const keep = c => qMatch(c) && (!st.act || (st.act === 'نظري' ? c.activity === 'نظري' : c.activity !== 'نظري')) && (!st.offered || (st.offered === '1') === !!secs(c).length);
 
@@ -87,26 +85,24 @@
     const groups = p.groups.filter(g => !st.kind || kindOf(g) === st.kind);
     const segs = p.groups.filter(g => g.required_hours);
     const pct = f.courses ? Math.round(100 * f.offered / f.courses) : 0;
-    return `<section class="sp-head card mb-3"><div class="card-body">
-        <div class="d-flex flex-wrap gap-3 align-items-start justify-content-between">
-          <div><div class="sp-crumb"><span class="badge rounded-pill text-bg-light"><i class="bi bi-mortarboard"></i> ${esc(p.degree)}</span>
-            <span class="badge rounded-pill text-bg-light"><i class="bi bi-bank2"></i> ${esc(p.faculty)}</span>
-            <span class="badge rounded-pill text-bg-light"><i class="bi bi-diagram-3"></i> ${esc(p.dept)}</span></div>
-            <h2 class="sp-title">${esc(p.major)}</h2>
-            <small class="text-muted">الخطة كما تنشرها بوابة الجامعة · ${esc(D.term || '')}</small></div>
-          <div class="d-flex flex-column gap-1 no-print"><a class="btn btn-sm btn-maroon" href="advisory.html?sp=${encodeURIComponent(p.id)}"><i class="bi bi-signpost-split"></i> الخطة الاسترشادية</a>
-            <a class="btn btn-sm btn-outline-secondary" href="https://edugate.uop.edu.jo/studyPlans" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i> المصدر الرسمي</a></div>
+    const showLeg = (() => { try { return localStorage.getItem('uop-sp-leg') === '1'; } catch (e) { return false; } })();
+    const kpis = [[p.total || f.sum, 'ساعة للتخرج', 'bi-hourglass-split', '#901d23'], [f.req, 'إجبارية', 'bi-lock-fill', '#0b4a66'], [f.el, 'اختيارية', 'bi-ui-checks', '#0f766e'],
+      [f.free, 'حرة', 'bi-stars', '#b8892b'], [f.courses, 'مقرراً', 'bi-journal-bookmark', '#475569'], [`${f.offered}<small>/${f.courses}</small>`, `مطروح الآن · ${pct}%`, 'bi-calendar-check', '#15803d']];
+    return `<section class="sp2-head">
+        <div class="sp2-h1">
+          <div class="sp2-tt"><h2>${esc(p.major)}</h2>
+            <div class="sp2-crumb"><span><i class="bi bi-mortarboard"></i> ${esc(p.degree)}</span><span><i class="bi bi-bank2"></i> ${esc(p.faculty)}</span>${p.dept && p.dept !== p.major ? `<span><i class="bi bi-diagram-3"></i> ${esc(p.dept)}</span>` : ''}<span class="t">${esc(D.term || '')}</span></div></div>
+          <div class="sp2-kpis">${kpis.map(([v, l, i, c]) => `<div class="sp2-k" style="--c:${c}" title="${l.replace(/<[^>]+>/g, '')}"><i class="bi ${i}"></i><b>${v}</b><span>${l}</span></div>`).join('')}</div>
+          <div class="sp2-act no-print"><a class="sp2-b pri" href="advisory.html?sp=${encodeURIComponent(p.id)}"><i class="bi bi-signpost-split"></i> الخطة الاسترشادية</a>
+            <a class="sp2-b" href="https://edugate.uop.edu.jo/studyPlans" target="_blank" rel="noopener" title="المصدر الرسمي على بوابة الجامعة"><i class="bi bi-box-arrow-up-left"></i><span> المصدر</span></a></div>
         </div>
-        <div class="row g-2 mt-2">
-          ${[[p.total || f.sum, 'ساعة معتمدة للتخرج', 'bi-hourglass-split', '#901d23'], [f.req, 'ساعة إجبارية', 'bi-lock-fill', '#0b4a66'], [f.el, 'ساعة اختيارية', 'bi-ui-checks', '#0f766e'],
-             [f.free, 'ساعة حرة', 'bi-stars', '#b8892b'], [f.courses, 'مقرراً في الخطة', 'bi-journal-bookmark', '#475569'], [`${f.offered}<small>/${f.courses}</small>`, `مطروح هذا الفصل (${pct}%)`, 'bi-calendar-check', '#15803d']]
-            .map(([v, l, i, c]) => `<div class="col-6 col-md-4 col-xl-2"><div class="sp-kpi" style="--c:${c}"><i class="bi ${i}"></i><b>${v}</b><span>${l}</span></div></div>`).join('')}
-        </div>
-        ${p.total && p.total > f.req + f.el + f.free ? `<div class="alert alert-light border small py-2 mt-2 mb-0"><i class="bi bi-info-circle"></i> مجموع ساعات التخرج في البوابة ${p.total} ساعة، منها ${p.total - f.req - f.el - f.free} ساعة غير مدرجة كمقررات في الخطة المنشورة${/رسالة/.test(p.major) ? ' (ساعات الرسالة)' : ''}.</div>` : ''}
-        ${segs.length ? `<div class="sp-dist mt-3" role="img" aria-label="توزيع الساعات">${segs.map(g => `<i style="flex:${g.required_hours};background:${gcol(g.name)}" title="${esc(g.name)}: ${g.required_hours} ساعة"></i>`).join('')}</div>
-          <div class="sp-legend">${segs.map(g => `<span><i style="background:${gcol(g.name)}"></i>${esc(groupKey(g.name))} <b>${g.required_hours}</b></span>`).join('')}</div>` : ''}
-      </div></section>
-      ${pvBar()}<div id="sp-pvb">${st.pv !== 'table' && PV[st.pv] ? PV[st.pv](p, groups) : `<div class="sp-groups">${groups.map((g, gi) => {
+        ${segs.length ? `<div class="sp2-dist"><div class="sp-dist" role="img" aria-label="توزيع الساعات">${segs.map(g => `<i style="flex:${g.required_hours};background:${gcol(g.name)}" title="${esc(groupKey(g.name))}: ${g.required_hours} ساعة"></i>`).join('')}</div>
+          <button type="button" class="sp2-legt no-print" id="sp-leg" aria-expanded="${showLeg}"><i class="bi ${showLeg ? 'bi-chevron-up' : 'bi-chevron-down'}"></i> ${showLeg ? 'إخفاء' : 'توزيع الساعات'} (${segs.length})</button></div>
+          <div class="sp-legend sp2-leg" ${showLeg ? '' : 'hidden'}>${segs.map(g => `<span><i style="background:${gcol(g.name)}"></i>${esc(groupKey(g.name))} <b>${g.required_hours}</b></span>`).join('')}</div>` : ''}
+        ${p.total && p.total > f.req + f.el + f.free ? `<div class="sp2-note"><i class="bi bi-info-circle"></i> مجموع ساعات التخرج في البوابة ${p.total} ساعة، منها ${p.total - f.req - f.el - f.free} ساعة غير مدرجة كمقررات في الخطة المنشورة.</div>` : ''}
+        ${pvBar()}
+      </section>
+      <div id="sp-pvb">${st.pv !== 'table' && PV[st.pv] ? PV[st.pv](p, groups) : `<div class="sp-groups">${groups.map((g, gi) => {
         const rows = g.courses.filter(keep), k = KIND[kindOf(g)], listed = g.courses.reduce((a, c) => a + (c.hours || 0), 0);
         if (!rows.length && (st.q || st.act || st.offered)) return '';
         return `<section class="sp-group card mb-3" style="--g:${gcol(g.name)}" id="g${gi}">
@@ -415,9 +411,54 @@
       const y = scrollY; render(); scrollTo(0, y); });
     const tr = $('#sp-tr-reset'); if (tr) tr.onclick = () => { if (confirm('مسح كل المقررات المعلَّمة في هذه الخطة؟')) { setDone(BYID[st.plan], new Set()); render(); } };
     const tp = $('#sp-tr-print'); if (tp) tp.onclick = printTrack;
+    const lg = $('#sp-leg'); if (lg) lg.onclick = () => { const on = lg.getAttribute('aria-expanded') !== 'true'; try { localStorage.setItem('uop-sp-leg', on ? '1' : '0'); } catch (e) { /* storage unavailable */ } render(); };
+    const cl = $('#sp-clr'); if (cl) cl.onclick = () => { st.q = st.kind = st.act = st.offered = ''; render(); };
     $('#sp-csv').onclick = exportCSV; $('#sp-xls').onclick = exportXLSX; $('#sp-print').onclick = doPrint;
   }
 
+
+  if (!document.getElementById('sp2-css')) document.head.insertAdjacentHTML('beforeend', `<style id="sp2-css">
+    .sp2-bar { background: #fff; border: 1px solid #ece6d8; border-radius: 14px; padding: .55rem .65rem; margin-bottom: .75rem; box-shadow: 0 2px 10px rgba(9,27,34,.04); display: grid; gap: .5rem; }
+    .sp2-r1, .sp2-r2 { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; } .sp2-r2 { padding-top: .5rem; border-top: 1px dashed #ece6d8; }
+    .sp2-views { display: inline-flex; background: #f3f1ea; border-radius: 10px; padding: 3px; gap: 2px; flex: none; }
+    .sp2-views button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; padding: .32rem .7rem; border-radius: 8px; font-size: .84rem; font-weight: 700; color: #0b4a66; white-space: nowrap; }
+    .sp2-views button:hover { color: #091b22; } .sp2-views button.on { background: #901d23; color: #fff; box-shadow: 0 2px 6px rgba(144,29,35,.3); }
+    .sp2-vr { width: 1px; height: 26px; background: #e5e7eb; flex: none; }
+    .sp2-sel { position: relative; margin: 0; flex: 0 1 auto; min-width: 120px; } .sp2-sel.grow { flex: 1 1 240px; }
+    .sp2-sel small { position: absolute; top: -.48rem; inset-inline-start: .55rem; background: #fff; padding: 0 .25rem; font-size: .64rem; font-weight: 700; color: #8a6d2e; line-height: 1; z-index: 1; }
+    .sp2-sel select { height: 34px; border-radius: 9px; font-size: .84rem; width: 100%; max-width: 100%; }
+    .sp2-sel:not(.grow) select { field-sizing: content; min-width: 120px; max-width: 230px; }
+    .sp2-ex { display: inline-flex; border: 1px solid #dee2e6; border-radius: 9px; overflow: hidden; flex: none; margin-inline-start: auto; }
+    .sp2-ex button { all: unset; cursor: pointer; width: 34px; height: 32px; display: grid; place-items: center; color: #4b5563; } .sp2-ex button + button { border-inline-start: 1px solid #dee2e6; }
+    .sp2-ex button:hover { background: #f6f3ec; color: #901d23; } .sp2-ex #sp-xls { color: #15803d; }
+    .sp2-q { flex: 1 1 200px; max-width: 300px; display: flex; align-items: center; gap: .4rem; height: 32px; margin: 0; padding: 0 .6rem; background: #f7f8fa; border: 1px solid #dee2e6; border-radius: 9px; }
+    .sp2-q:focus-within { background: #fff; border-color: #901d23; box-shadow: 0 0 0 3px rgba(144,29,35,.12); } .sp2-q i { color: #94a3b8; } .sp2-q input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: .84rem; }
+    .sp2-seg { display: inline-flex; align-items: center; background: #f3f1ea; border-radius: 9px; padding: 2px; gap: 1px; }
+    .sp2-seg > span { font-size: .68rem; font-weight: 700; color: #8a6d2e; padding: 0 .45rem 0 .35rem; }
+    .sp2-seg button { all: unset; cursor: pointer; padding: .22rem .6rem; border-radius: 7px; font-size: .8rem; font-weight: 600; color: #0b4a66; white-space: nowrap; }
+    .sp2-seg button:hover { color: #091b22; } .sp2-seg button.on { background: #0b4a66; color: #fff; font-weight: 800; box-shadow: 0 1px 3px rgba(9,27,34,.15); }
+    .sp2-clr { all: unset; cursor: pointer; font-size: .78rem; font-weight: 700; color: #901d23; } .sp2-clr:hover { text-decoration: underline; }
+    .sp2-head { background: #fff; border: 1px solid #ece6d8; border-top: 3px solid #901d23; border-radius: 14px; margin-bottom: .75rem; box-shadow: 0 2px 10px rgba(9,27,34,.04); overflow: hidden; }
+    .sp2-h1 { display: flex; align-items: center; gap: .9rem; flex-wrap: wrap; padding: .65rem .9rem .5rem; }
+    .sp2-tt { flex: 1 1 260px; min-width: 0; } .sp2-tt h2 { font-size: 1.3rem; font-weight: 800; color: #091b22; margin: 0; line-height: 1.3; }
+    .sp2-crumb { display: flex; flex-wrap: wrap; gap: .15rem .7rem; font-size: .76rem; color: #6b7280; margin-top: .1rem; } .sp2-crumb i { color: #b8892b; } .sp2-crumb .t { color: #94a3b8; }
+    .sp2-kpis { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid #eee8d9; border-radius: 11px; overflow: hidden; }
+    .sp2-k { display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; column-gap: .35rem; align-items: center; padding: .3rem .75rem; border-inline-start: 1px solid #eee8d9; background: #fcfbf8; }
+    .sp2-k:first-child { border-inline-start: 0; } .sp2-k i { grid-row: 1 / 3; color: var(--c); font-size: 1rem; opacity: .8; }
+    .sp2-k b { font-size: 1.12rem; font-weight: 800; color: var(--c); line-height: 1.1; } .sp2-k b small { font-size: .72rem; color: #94a3b8; } .sp2-k span { font-size: .68rem; color: #6b7280; white-space: nowrap; }
+    .sp2-act { display: flex; gap: .35rem; flex: none; }
+    .sp2-b { display: inline-flex; align-items: center; gap: .3rem; height: 32px; padding: 0 .75rem; border-radius: 9px; border: 1px solid #dee2e6; color: #374151; font-size: .82rem; font-weight: 700; text-decoration: none; white-space: nowrap; transition: background .15s; }
+    .sp2-b:hover { background: #f6f3ec; color: #091b22; } .sp2-b.pri { background: #901d23; border-color: #901d23; color: #fff; } .sp2-b.pri:hover { background: #6e151a; color: #fff; }
+    .sp2-dist { display: flex; align-items: center; gap: .6rem; padding: 0 .9rem .45rem; } .sp2-dist .sp-dist { flex: 1; height: 8px; margin: 0; }
+    .sp2-legt { all: unset; cursor: pointer; font-size: .74rem; font-weight: 700; color: #6b7280; white-space: nowrap; } .sp2-legt:hover { color: #901d23; }
+    .sp2-leg { padding: 0 .9rem .5rem; margin: 0; } .sp2-leg[hidden] { display: none !important; }
+    .sp2-note { margin: 0 .9rem .5rem; font-size: .76rem; color: #6b7280; background: #f8fafc; border-radius: 8px; padding: .3rem .6rem; }
+    .sp2-head .sp-pvbar { margin: 0; border: 0; border-top: 1px solid #ece6d8; border-radius: 0; box-shadow: none; background: #faf8f3; padding: 0 .5rem; display: flex; gap: .1rem; overflow-x: auto; }
+    .sp2-head .sp-pvbar button { border-radius: 0; border: 0; border-bottom: 3px solid transparent; background: none; padding: .55rem .8rem; font-size: .84rem; box-shadow: none; }
+    .sp2-head .sp-pvbar button.on { background: none; color: #901d23; border-bottom-color: #901d23; box-shadow: none; }
+    @media (max-width: 991px) { .sp2-sel, .sp2-sel.grow { flex: 1 1 45%; } .sp2-sel:not(.grow) select { max-width: none; field-sizing: fixed; } .sp2-vr { display: none; } .sp2-kpis { width: 100%; } .sp2-k { flex: 1 1 30%; } }
+    @media print { .sp2-bar { display: none !important; } }
+  </style>`);
   Promise.all([U.getJSON('data/study_plans.json'), U.getJSON('data/timetable.json').catch(() => ({ sections: [] }))]).then(([d, tt]) => {
     D = d; PLANS = d.plans; BYID = Object.fromEntries(PLANS.map(p => [p.id, p]));
     (tt.sections || []).forEach(s => (TT[s.code] ||= []).push(s));

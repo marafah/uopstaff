@@ -36,7 +36,7 @@
   const hay = e => norm([e.title, e.sub, e.section, e.instructor, e.faculty, e.department, ...(e.fields || []).flat(), ...(e.detail || []).flat()].join(' '));
   function filtered(skip) {   // skip: one filter left out, to count the choices of that filter
     const q = norm(st.q.trim());
-    return D.events.filter(e => inPeriod(e) && (skip === 'k' || !st.k || e.kind === st.k) && (skip === 'op' || !st.op || e.op === st.op) && (!st.f || fields(e).includes(st.f))
+    return D.events.filter(e => inPeriod(e) && (skip === 'k' || !st.k || e.kind === st.k) && (skip === 'op' || !st.op || e.op === st.op) && (skip === 'f' || !st.f || fields(e).includes(st.f))
       && (!st.fac || e.faculty === st.fac) && (!q || hay(e).includes(q)));
   }
   const what = e => e.kind === 'section' ? `شعبة ${esc(e.section)} · ${esc(e.activity)}${(e.degrees || []).length ? ' · ' + e.degrees.map(esc).join(' و') : ''}` : esc(e.sub || '');
@@ -167,14 +167,17 @@
     const list = filtered();
     const facs = [...new Set(D.events.map(e => e.faculty).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ar'));
     const flds = [...new Set(D.events.flatMap(fields))];
-    const byK = filtered('k'), byOp = filtered('op');
+    const byK = filtered('k'), byOp = filtered('op'), byF = filtered('f');
+    const fcount = new Map(); byF.forEach(e => fields(e).forEach(x => fcount.set(x, (fcount.get(x) || 0) + 1)));
+    const ftabs = fcount.size ? `<div class="cg2-ftabs" role="group" aria-label="ما الذي تغيّر"><span class="lab"><i class="bi bi-funnel-fill"></i> ما الذي تغيّر</span>${[['', 'أي شيء', byF.length]].concat([...fcount].sort((a, b) => b[1] - a[1]).map(([x, n]) => [x, x, n]))
+      .map(([k, l, n]) => `<button type="button" class="${st.f === k ? 'on' : ''}" data-ff="${esc(k)}">${esc(l)} <b>${n}</b></button>`).join('')}</div>` : '';
     const ktabs = `<nav class="cg2-ktabs no-print" role="tablist" aria-label="المصدر">${[['', 'كل التغييرات', 'bi-collection', '#091b22']].concat(Object.entries(KIND).map(([k, [n, i, c]]) => [k, n, i, c]))
       .map(([k, n, i, c]) => { const v = k ? byK.filter(e => e.kind === k).length : byK.length;
         return `<button type="button" role="tab" aria-selected="${st.k === k}" class="${st.k === k ? 'on' : ''} ${v ? '' : 'zero'}" data-k="${k}" style="--c:${c}"><i class="bi ${i}"></i><span>${n}</span><b>${v}</b></button>`; }).join('')}</nav>`;
     const optabs = `<div class="cg2-optabs" role="group" aria-label="نوع التغيير">${[['', 'الكل', 'bi-asterisk', 'all']].concat(Object.entries(OP).map(([k, [n, i, c]]) => [k, n, i, c]))
       .map(([k, n, i, c]) => { const v = k ? byOp.filter(e => e.op === k).length : byOp.length;
         return `<button type="button" class="${c} ${st.op === k ? 'on' : ''} ${v ? '' : 'zero'}" data-op="${k}"><i class="bi ${i}"></i> ${n} <b>${v}</b></button>`; }).join('')}</div>`;
-    const active = [st.f && [st.f, 'f'], st.fac && [st.fac, 'fac'], st.q && ['«' + st.q + '»', 'q']].filter(Boolean);
+    const active = [st.fac && [st.fac, 'fac'], st.q && ['«' + st.q + '»', 'q']].filter(Boolean);
     const sel = (id, lab, opts, cur, all) => `<label class="cg2-sel"><span>${lab}</span><select class="form-select form-select-sm" id="${id}"><option value="">${all}</option>${opts.map(([v, l]) => `<option value="${esc(v)}" ${cur === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></label>`;
     const body = !list.length ? `<div class="cg-empty"><i class="bi bi-check2-circle"></i><b>لا تغييرات ${st.d === 'all' && !active.length ? 'منذ بدء التسجيل' : 'ضمن هذه التصفية'}.</b>
         <span>يُفحص الجدول الدراسي ودليل الموظفين والتقويم الجامعي كل ساعة؛ أي تغيير يظهر هنا تلقائياً.</span>
@@ -190,9 +193,9 @@
             <button type="button" class="btn btn-sm btn-outline-secondary" id="cg-csv" title="تصدير إلى Excel"><i class="bi bi-file-earmark-spreadsheet"></i><span class="d-none d-lg-inline"> Excel</span></button>
             <a class="btn btn-sm btn-outline-secondary" href="data/changes.xml" title="اشترك بالتغييرات في قارئ الأخبار (Atom)"><i class="bi bi-rss"></i><span class="d-none d-lg-inline"> اشتراك</span></a></span></div>
         <div class="cg2-row">
-          ${sel('cg-f', 'ما الذي تغيّر', flds.map(f => [f, f]), st.f, 'أي شيء')}
           ${sel('cg-fac', 'الكلية / الوحدة', facs.map(f => [f, f]), st.fac, 'كل الكليات')}
           <label class="cg2-search grow"><i class="bi bi-search"></i><input id="cg-q" type="search" value="${esc(st.q)}" placeholder="رمز مقرر، اسم مدرس أو موظف، قاعة…" aria-label="بحث في التغييرات"></label></div>
+        ${ftabs}
         ${active.length ? `<div class="cg2-act"><span>التصفية:</span>${active.map(([l, k]) => `<button type="button" data-clr="${k}">${esc(l)} <i class="bi bi-x"></i></button>`).join('')}<button type="button" class="all" data-clr="*">مسح الكل</button></div>` : ''}
       </div>
       ${body}`;
@@ -229,6 +232,7 @@
     on('[data-clr]', b => { const k = b.dataset.clr; if (k === '*') Object.assign(st, { k: '', op: '', f: '', fac: '', q: '' }); else st[k] = ''; const h = $('#pg-q'); if (h && (k === 'q' || k === '*')) h.value = ''; go(); });
     const more = $('#cg-more'); if (more) more.onclick = () => { st.more++; go(true); };
     on('.cg2-ktabs [data-k]', b => { st.k = b.dataset.k; if (st.f && !filtered().length) st.f = ''; go(); });
+    on('.cg2-ftabs [data-ff]', b => { st.f = b.dataset.ff; go(); });
     on('.cg2-optabs [data-op]', b => { st.op = b.dataset.op; go(); });
     [['cg-f', 'f'], ['cg-fac', 'fac']].forEach(([id, k]) => { const s = $('#' + id); if (s) s.addEventListener('change', e => { st[k] = e.target.value; go(); }); });
     const qi = $('#cg-q');
@@ -311,28 +315,33 @@
     .cg2-bar0 .cg2-search { margin-inline-start: auto; }
     .cg2-filt { background: #fff; border: 1px solid #ece6d8; border-radius: 14px; padding: .7rem .8rem; margin-bottom: 1rem; display: grid; gap: .6rem; box-shadow: 0 2px 10px rgba(9,27,34,.04); }
     .cg2-row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
-    .cg2-seg { display: inline-flex; background: #f3f1ea; border-radius: 10px; padding: 3px; gap: 2px; }
-    .cg2-seg button { all: unset; cursor: pointer; padding: .3rem .75rem; border-radius: 8px; font-size: .82rem; font-weight: 600; color: #4b5563; white-space: nowrap; }
+    .cg2-seg { display: inline-flex; background: #f6f1e4; border-radius: 10px; padding: 3px; gap: 2px; }
+    .cg2-seg button { all: unset; cursor: pointer; padding: .3rem .75rem; border-radius: 8px; font-size: .82rem; font-weight: 600; color: #0b4a66; white-space: nowrap; }
     .cg2-seg button:hover { color: #091b22; } .cg2-seg button.on { background: #fff; color: #901d23; box-shadow: 0 1px 4px rgba(9,27,34,.12); font-weight: 800; }
     .cg2-seg.views button.on { background: #0b4a66; color: #fff; } .cg2-vr { width: 1px; align-self: stretch; background: #e5e7eb; }
-    .cg2-cnt { font-size: .8rem; font-weight: 700; color: #6b7280; }
-    .cg2-sel { display: flex; align-items: center; gap: .35rem; margin: 0; font-size: .78rem; font-weight: 700; color: #6b7280; } .cg2-sel select { height: 34px; border-radius: 10px; min-width: 130px; width: auto; }
-    .cg2-act { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; font-size: .8rem; color: #6b7280; }
+    .cg2-cnt { font-size: .8rem; font-weight: 800; color: #901d23; }
+    .cg2-sel { display: flex; align-items: center; gap: .35rem; margin: 0; font-size: .78rem; font-weight: 700; color: #8a6d2e; } .cg2-sel select { height: 34px; border-radius: 10px; min-width: 130px; width: auto; }
+    .cg2-act { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; font-size: .8rem; color: #8a6d2e; }
     .cg2-act button { all: unset; cursor: pointer; background: #fdf1dc; color: #7a4a00; border-radius: 99px; padding: .1rem .6rem; font-weight: 700; } .cg2-act button.all { background: none; color: #901d23; text-decoration: underline; }
-    .cg2-ktabs { display: flex; gap: 0; border-bottom: 2px solid #e8e2d2; margin-bottom: .8rem; overflow-x: auto; scrollbar-width: thin; }
-    .cg2-ktabs button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .5rem; padding: .65rem 1.1rem; margin-bottom: -2px; border-bottom: 3px solid transparent; font-weight: 700; font-size: .95rem; color: #6b7280; white-space: nowrap; transition: color .15s, border-color .15s, background .15s; border-radius: 10px 10px 0 0; }
-    .cg2-ktabs button i { color: var(--c); font-size: 1.05rem; } .cg2-ktabs button:hover { color: #091b22; background: #f6f3ec; }
-    .cg2-ktabs button b { font-size: .74rem; min-width: 1.6rem; text-align: center; border-radius: 99px; padding: .05rem .5rem; background: #eef0f3; color: #4b5563; }
+    .cg2-ktabs { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 2px solid #e8e2d2; margin-bottom: .8rem; }
+    .cg2-ktabs button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .5rem; padding: .65rem 1.1rem; margin-bottom: -2px; border-bottom: 3px solid transparent; font-weight: 700; font-size: .95rem; color: color-mix(in srgb, var(--c) 70%, #fff); white-space: nowrap; transition: color .15s, border-color .15s, background .15s; border-radius: 10px 10px 0 0; }
+    .cg2-ktabs button i { color: var(--c); font-size: 1.05rem; } .cg2-ktabs button:hover { color: var(--c); background: color-mix(in srgb, var(--c) 6%, #fff); }
+    .cg2-ktabs button b { font-size: .74rem; min-width: 1.6rem; text-align: center; border-radius: 99px; padding: .05rem .5rem; background: color-mix(in srgb, var(--c) 12%, #fff); color: var(--c); }
     .cg2-ktabs button.on { color: var(--c); border-bottom-color: var(--c); background: #fff; } .cg2-ktabs button.on b { background: var(--c); color: #fff; }
-    .cg2-ktabs button.zero { opacity: .55; } .cg2-ktabs button:focus-visible { outline: 2px solid var(--c); outline-offset: -2px; }
+    .cg2-ktabs button.zero b { background: transparent; border: 1px dashed color-mix(in srgb, var(--c) 35%, #fff); } .cg2-ktabs button:focus-visible { outline: 2px solid var(--c); outline-offset: -2px; }
     .cg2-optabs { display: inline-flex; gap: .3rem; flex-wrap: wrap; }
-    .cg2-optabs button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem .75rem; border-radius: 99px; border: 1px solid #e3ddcc; background: #fff; font-size: .82rem; font-weight: 700; color: #4b5563; }
-    .cg2-optabs button b { font-size: .7rem; background: #f3f4f6; border-radius: 99px; padding: 0 .4rem; color: #374151; }
-    .cg2-optabs .ok i { color: #15803d; } .cg2-optabs .no i { color: #b42318; } .cg2-optabs .ch i { color: #9a5b00; } .cg2-optabs .all i { color: #6b7280; }
+    .cg2-optabs button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem .75rem; border-radius: 99px; border: 1px solid #e3ddcc; background: #fff; font-size: .82rem; font-weight: 700; color: #0b4a66; }
+    .cg2-optabs button b { font-size: .7rem; background: #fdf6e7; border-radius: 99px; padding: 0 .4rem; color: #7a5a17; }
+    .cg2-optabs .ok i { color: #15803d; } .cg2-optabs .no i { color: #b42318; } .cg2-optabs .ch i { color: #9a5b00; } .cg2-optabs .all i { color: #0b4a66; }
     .cg2-optabs button:hover { border-color: #c9bfa5; background: #fbfaf6; }
     .cg2-optabs button.on.all { background: #091b22; border-color: #091b22; color: #fff; } .cg2-optabs button.on.ok { background: #15803d; border-color: #15803d; color: #fff; }
     .cg2-optabs button.on.no { background: #b42318; border-color: #b42318; color: #fff; } .cg2-optabs button.on.ch { background: #b26a00; border-color: #b26a00; color: #fff; }
-    .cg2-optabs button.on i { color: #fff; } .cg2-optabs button.on b { background: rgba(255,255,255,.25); color: #fff; } .cg2-optabs button.zero { opacity: .5; }
+    .cg2-optabs button.on i { color: #fff; } .cg2-optabs button.on b { background: rgba(255,255,255,.25); color: #fff; } .cg2-optabs button.zero b { background: transparent; }
+    .cg2-ftabs { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+    .cg2-ftabs .lab { font-size: .76rem; font-weight: 800; color: #8a6d2e; margin-inline-end: .2rem; }
+    .cg2-ftabs button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; padding: .22rem .65rem; border-radius: 8px; background: #fdf6e7; border: 1px solid #f1e2bc; font-size: .8rem; font-weight: 700; color: #7a4a00; }
+    .cg2-ftabs button b { font-size: .68rem; background: #fff; border-radius: 99px; padding: 0 .38rem; color: #b26a00; }
+    .cg2-ftabs button:hover { border-color: #e0bf6e; background: #fbedcc; } .cg2-ftabs button.on { background: #b26a00; border-color: #b26a00; color: #fff; } .cg2-ftabs button.on b { background: rgba(255,255,255,.25); color: #fff; }
     .cg2-kd { display: inline-flex; align-items: center; gap: .3rem; font-size: .74rem; font-weight: 700; color: var(--c); background: color-mix(in srgb, var(--c) 9%, #fff); border-radius: 8px; padding: .12rem .5rem; white-space: nowrap; }
     .cg2-tw { background: #fff; border: 1px solid #ece6d8; border-radius: 14px; overflow: auto; box-shadow: 0 2px 10px rgba(9,27,34,.04); }
     .cg2-t { width: 100%; border-collapse: separate; border-spacing: 0; font-size: .84rem; }
