@@ -160,6 +160,7 @@
   R.scBadge = function (r) {
     const m = r.scopus_match;
     if (!(r.scopus_ids || []).length) return '<span class="rs-verify none" title="لا يوجد ملف Scopus مرتبط بهذا الباحث في وثائق الجامعة"><i class="bi bi-dash-circle"></i>Scopus: غير مطابق</span>';
+    if (m === 'manual') return '<span class="rs-verify ok" title="رقم مؤلف Scopus أُدخل يدوياً بعد التحقق"><i class="bi bi-patch-check-fill"></i>Scopus: مطابقة معتمدة</span>';
     if (m === 'link') return '<span class="rs-verify ok" title="رقم مؤلف Scopus من صفحة المدرس على موقع الجامعة"><i class="bi bi-patch-check-fill"></i>Scopus: من صفحة المدرس</span>';
     if (m === 'name') return '<span class="rs-verify ok" title="طوبق بالاسم بين مؤلفي الجامعة في Scopus"><i class="bi bi-check-circle"></i>Scopus: مطابق بالاسم</span>';
     return '<span class="rs-verify warn" title="مطابقة بالاسم الأول واسم العائلة: تحقّق من رابط Scopus"><i class="bi bi-exclamation-triangle"></i>Scopus: يحتاج تحقق</span>';
