@@ -7,7 +7,7 @@
 (function () {
   'use strict';
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR || window.__uopVoice) return;
+  if (window.__uopVoice || !(SR || (navigator.mediaDevices && navigator.mediaDevices.getUserMedia))) return;
   window.__uopVoice = true;
 
   const LANGS = { ar: ['ar-JO', 'عربي'], en: ['en-US', 'English'] };
@@ -128,11 +128,13 @@
       <div class="vz-st" aria-live="polite"></div>
       <div class="vz-txt" dir="auto"></div>
       <div class="vz-lang" role="group" aria-label="لغة الكلام">${Object.entries(LANGS).map(([k, [, l]]) => `<button type="button" data-vl="${k}">${l}</button>`).join('')}</div>
+      <div class="vz-help" hidden></div><button type="button" class="vz-retry" hidden>حاول مرة أخرى</button>
       <p class="vz-tip">قل مثلاً: <b>603102</b> · <b>قاعة 7405</b> · <b>تفاضل وتكامل</b> · <b>محمد عرفة</b> · <b>مبنى الصيدلة</b></p>
     </div>`;
     document.body.appendChild(panel);
     panel.addEventListener('click', e => { if (e.target === panel) stop(true); });
     panel.querySelector('.vz-x').onclick = () => stop(true);
+    panel.querySelector('.vz-retry').onclick = () => { micOk = false; start(target); };
     panel.querySelector('.vz-big').onclick = () => rec ? rec.stop() : start(target);
     panel.querySelectorAll('[data-vl]').forEach(b => b.onclick = () => { setLang(b.dataset.vl); paintLang(); if (rec) { rec.onend = null; try { rec.abort(); } catch (e) { /* already stopped */ } rec = null; } start(target); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) stop(true); });
@@ -141,7 +143,48 @@
   const paintLang = () => panel && panel.querySelectorAll('[data-vl]').forEach(b => b.classList.toggle('on', b.dataset.vl === lang));
   const say = (st, txt, mode) => { const p = ui(); p.querySelector('.vz-st').textContent = st; if (txt != null) p.querySelector('.vz-txt').textContent = txt; p.dataset.mode = mode || ''; };
 
-  function start(input) {
+  // ------------------------------------------------------------------ microphone permission: asked on the first tap, explained when refused
+  const UA = navigator.userAgent, IOS = /iPhone|iPad|iPod/.test(UA) || (/Macintosh/.test(UA) && navigator.maxTouchPoints > 1), ANDROID = /Android/.test(UA);
+  const INAPP = /FBAN|FBAV|Instagram|Line\/|WhatsApp|Snapchat|TikTok|; wv\)/.test(UA);
+  let micOk = (() => { try { return localStorage.getItem('uop-voice-mic') === '1'; } catch (e) { return false; } })();
+  const howTo = () => IOS ? 'على iPhone: اضغط «aA» بجانب العنوان ← «إعدادات موقع الويب» ← «الميكروفون» ← «سماح»، ثم أعد تحميل الصفحة. وتأكد من تفعيل «Siri والإملاء» في إعدادات الهاتف.'
+    : ANDROID ? 'على Android: اضغط رمز القفل 🔒 بجانب العنوان ← «الأذونات» ← «الميكروفون» ← «سماح»، ثم أعد تحميل الصفحة.'
+    : 'اضغط رمز القفل 🔒 بجانب عنوان الموقع ← «الميكروفون» ← «سماح»، ثم أعد تحميل الصفحة.';
+  function helpMsg(kind) {
+    const p = ui(), h = p.querySelector('.vz-help');
+    const t = kind === 'denied' ? `<b>الميكروفون محجوب لهذا الموقع.</b><span>${howTo()}</span>`
+      : kind === 'nosr' ? `<b>البحث بالصوت غير مدعوم في هذا المتصفح.</b><span>${INAPP ? 'أنت داخل متصفح تطبيق (واتساب، فيسبوك…). افتح الرابط في ' + (IOS ? 'Safari' : 'Chrome') + ' من قائمة «⋮» أو «فتح في المتصفح».' : 'استخدم Chrome أو Edge أو Safari.'}</span>`
+      : kind === 'ask' ? `<b>${IOS ? 'اضغط «سماح» في النافذة التي ظهرت.' : 'اضغط «سماح» (Allow) في نافذة المتصفح بالأعلى.'}</b><span>يُطلب الإذن مرة واحدة فقط.</span>` : '';
+    h.innerHTML = t; h.hidden = !t;
+    p.querySelector('.vz-retry').hidden = kind !== 'denied';
+  }
+  async function permission() {
+    if (micOk) return true;
+    try { if (navigator.permissions) { const st = await navigator.permissions.query({ name: 'microphone' }); if (st.state === 'granted') { micOk = true; return true; } if (st.state === 'denied') return false; } } catch (e) { /* not supported (Safari) */ }
+    if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) return true;   // let the recogniser ask by itself
+    helpMsg('ask'); say('بانتظار إذن الميكروفون…', '', 'busy');
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({ audio: true });   // opens the browser's own permission prompt (phones too)
+      s.getTracks().forEach(t => t.stop());   // free the microphone for the recogniser
+      micOk = true; try { localStorage.setItem('uop-voice-mic', '1'); } catch (e) { /* storage unavailable */ }
+      helpMsg(''); return true;
+    } catch (e) {
+      if (e && (e.name === 'NotAllowedError' || e.name === 'SecurityError')) return false;
+      if (e && e.name === 'NotFoundError') { helpMsg(''); say('لا يوجد ميكروفون متصل بهذا الجهاز.', '', 'err'); return null; }
+      helpMsg(''); return true;
+    }
+  }
+  async function start(input) {
+    target = input; alts = []; heard = '';
+    const p0 = ui(); paintLang(); p0.hidden = false; document.documentElement.classList.add('vz-open'); helpMsg('');
+    if (!SR) { say('', '', 'err'); helpMsg('nosr'); return; }
+    const ok = await permission();
+    if (ok === null) return;
+    if (!ok) { say('', '', 'err'); helpMsg('denied'); return; }
+    if (p0.hidden) return;   // closed while the prompt was open
+    begin();
+  }
+  function begin() {
     target = input; alts = []; heard = '';
     const p = ui(); paintLang(); p.hidden = false; document.documentElement.classList.add('vz-open');
     say(lang === 'ar' ? 'تحدّث الآن…' : 'Speak now…', '', 'listen');
@@ -159,7 +202,8 @@
       if (fin) { alts = fin; heard = fin[0]; say('لحظة…', heard, 'busy'); } else { heard = interim; say(lang === 'ar' ? 'أسمعك…' : 'Listening…', interim, 'listen'); }
     };
     rec.onerror = e => {
-      const m = { 'not-allowed': 'اسمح للموقع باستخدام الميكروفون من إعدادات المتصفح ثم أعد المحاولة.', 'service-not-allowed': 'التعرّف على الكلام غير متاح في هذا المتصفح. جرّب Chrome أو Safari.',
+      if (e.error === 'not-allowed') { micOk = false; try { localStorage.removeItem('uop-voice-mic'); } catch (x) { /* storage unavailable */ } say('', '', 'err'); helpMsg('denied'); rec = null; return; }
+      const m = { 'service-not-allowed': 'التعرّف على الكلام غير متاح في هذا المتصفح. جرّب Chrome أو Safari.',
         'no-speech': 'لم أسمع شيئاً. اضغط الميكروفون وتحدّث.', 'audio-capture': 'لا يوجد ميكروفون متاح.', network: 'تحتاج خدمة التعرّف على الكلام إلى اتصال بالإنترنت.' }[e.error];
       if (m) { say(m, null, 'err'); rec = null; }
     };
@@ -249,6 +293,9 @@
     .vz-txt { min-height: 2.2em; margin: .4rem 0 .8rem; font-size: 1.25rem; font-weight: 700; color: #0b4a66; line-height: 1.4; word-break: break-word; }
     .vz-lang { display: inline-flex; gap: 2px; background: #f3f1ea; border-radius: 99px; padding: 3px; }
     .vz-lang button { border: 0; background: none; padding: .35rem 1rem; border-radius: 99px; font-weight: 700; font-size: .85rem; color: #0b4a66; cursor: pointer; } .vz-lang button.on { background: #0b4a66; color: #fff; }
+    .vz-help { margin: .2rem 0 .8rem; padding: .7rem .8rem; background: #fff7e6; border: 1px solid #f5d48a; border-radius: 12px; text-align: start; font-size: .84rem; line-height: 1.8; color: #5b4300; }
+    .vz-help b { display: block; color: #7a3d00; margin-bottom: .15rem; } .vz-help[hidden] { display: none; }
+    .vz-retry { display: block; margin: 0 auto .7rem; border: 0; background: #901d23; color: #fff; font-weight: 700; border-radius: 10px; padding: .45rem 1.2rem; cursor: pointer; } .vz-retry[hidden] { display: none; }
     .vz-tip { margin: .8rem 0 0; font-size: .74rem; color: #6b7280; line-height: 1.8; } .vz-tip b { color: #901d23; font-weight: 700; white-space: nowrap; }
     @media (max-width: 576px) { .vz-ov { align-items: flex-end; padding: 0; } .vz-card { border-radius: 22px 22px 0 0; padding-bottom: calc(1.2rem + env(safe-area-inset-bottom)); } .vz-mic { min-width: 30px; min-height: 30px; } }
     @media print { .vz-mic, .vz-ov { display: none !important; } }
