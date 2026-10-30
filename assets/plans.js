@@ -96,13 +96,12 @@
           <div class="sp2-act no-print"><a class="sp2-b pri" href="advisory.html?sp=${encodeURIComponent(p.id)}"><i class="bi bi-signpost-split"></i> الخطة الاسترشادية</a>
             <a class="sp2-b" href="https://edugate.uop.edu.jo/studyPlans" target="_blank" rel="noopener" title="المصدر الرسمي على بوابة الجامعة"><i class="bi bi-box-arrow-up-left"></i><span> المصدر</span></a></div>
         </div>
-        ${segs.length ? `<div class="sp2-dist"><div class="sp-dist" role="img" aria-label="توزيع الساعات">${segs.map(g => `<i style="flex:${g.required_hours};background:${gcol(g.name)}" title="${esc(groupKey(g.name))}: ${g.required_hours} ساعة"></i>`).join('')}</div>
-          <button type="button" class="sp2-legt no-print" id="sp-leg" aria-expanded="${showLeg}"><i class="bi ${showLeg ? 'bi-chevron-up' : 'bi-chevron-down'}"></i> ${showLeg ? 'إخفاء' : 'توزيع الساعات'} (${segs.length})</button></div>
-          <div class="sp-legend sp2-leg" ${showLeg ? '' : 'hidden'}>${segs.map(g => `<span><i style="background:${gcol(g.name)}"></i>${esc(groupKey(g.name))} <b>${g.required_hours}</b></span>`).join('')}</div>` : ''}
+        ${segs.length ? `<div class="sp2-hdist">${dist({ p })}</div>` : ''}
         ${p.total && p.total > f.req + f.el + f.free ? `<div class="sp2-note"><i class="bi bi-info-circle"></i> مجموع ساعات التخرج في البوابة ${p.total} ساعة، منها ${p.total - f.req - f.el - f.free} ساعة غير مدرجة كمقررات في الخطة المنشورة.</div>` : ''}
         ${pvBar()}
       </section>
       <div id="sp-pvb">${st.pv !== 'table' && PV[st.pv] ? PV[st.pv](p, groups) : `<div class="sp-groups">${groups.map((g, gi) => {
+        const hasEn = g.courses.some(c => EN[c.code]);
         const rows = g.courses.filter(keep), k = KIND[kindOf(g)], listed = g.courses.reduce((a, c) => a + (c.hours || 0), 0);
         if (!rows.length && (st.q || st.act || st.offered)) return '';
         return `<section class="sp-group card mb-3" style="--g:${gcol(g.name)}" id="g${gi}">
@@ -114,11 +113,11 @@
             <div class="sp-need">${g.required_hours != null ? `<b>${g.required_hours}</b><small>${kindOf(g) === 'remedial' ? 'ساعة لا تُحتسب للتخرج' : 'ساعة مطلوبة'}</small>` : ''}${kindOf(g) !== 'required' && listed ? `<em>من ${listed} متاحة</em>` : ''}</div>
           </header>
           <div class="collapse show" id="gb${gi}">${rows.length ? `<div class="table-responsive"><table class="table table-sm align-middle mb-0 sp-tbl">
-            <thead><tr><th>رمز المقرر</th><th>اسم المقرر</th><th class="text-center">الساعات</th><th class="text-center">النشاط</th><th>هذا الفصل</th><th class="no-print"></th></tr></thead>
-            <tbody>${rows.map(c => `<tr><td><code>${esc(c.code)}</code></td><td class="fw-semibold">${esc(c.name)}</td><td class="text-center"><span class="sp-h">${c.hours ?? '—'}</span></td>
+            <thead><tr><th>رمز المقرر</th><th>اسم المقرر</th>${hasEn ? '<th class="sp2-en">Course name</th>' : ''}<th class="text-center">الساعات</th><th class="text-center">النشاط</th><th>هذا الفصل</th><th class="no-print"></th></tr></thead>
+            <tbody>${rows.map(c => `<tr><td class="sp2-cd">${esc(c.code)}</td><td class="fw-semibold">${esc(c.name)}</td>${hasEn ? `<td class="sp2-en" dir="ltr">${EN[c.code] ? esc(EN[c.code]) : '<em>—</em>'}</td>` : ''}<td class="text-center"><span class="sp-h">${c.hours ?? '—'}</span></td>
               <td class="text-center">${actBadge(c.activity)}</td><td>${offeredCell(c)}</td>
               <td class="no-print text-end"><a href="#" class="sp-more" data-code="${esc(c.code)}" title="في أي الخطط يرد هذا المقرر؟"><i class="bi bi-diagram-2"></i> <small>${(IDX[c.code] || []).length} خطة</small></a></td></tr>`).join('')}</tbody>
-            <tfoot><tr><td colspan="2">المجموع</td><td class="text-center">${rows.reduce((a, c) => a + (c.hours || 0), 0)}</td><td colspan="3"></td></tr></tfoot></table></div>`
+            <tfoot><tr><td colspan="${hasEn ? 3 : 2}">المجموع</td><td class="text-center">${rows.reduce((a, c) => a + (c.hours || 0), 0)}</td><td colspan="3"></td></tr></tfoot></table></div>`
             : `<p class="text-muted small p-3 mb-0">${kindOf(g) === 'free' ? 'يختار الطالب هذه المواد من أي مقررات الجامعة.' : 'لا مقررات مدرجة في هذه المجموعة.'}</p>`}</div>
         </section>`;
       }).join('') || '<div class="alert alert-light">لا مقررات تطابق البحث.</div>'}</div>`}</div>`;
@@ -489,6 +488,9 @@
     .sp2-act { display: flex; gap: .35rem; flex: none; }
     .sp2-b { display: inline-flex; align-items: center; gap: .3rem; height: 32px; padding: 0 .75rem; border-radius: 9px; border: 1px solid #dee2e6; color: #374151; font-size: .82rem; font-weight: 700; text-decoration: none; white-space: nowrap; transition: background .15s; }
     .sp2-b:hover { background: #f6f3ec; color: #091b22; } .sp2-b.pri { background: #901d23; border-color: #901d23; color: #fff; } .sp2-b.pri:hover { background: #6e151a; color: #fff; }
+    .sp2-en { text-align: left !important; font-size: .8rem; color: #475569; } .sp2-en em { color: #cbd5e1; font-style: normal; }
+    .sp2-hdist { padding: 0 .9rem .55rem; } .sp2-hdist .sp2-dbar { height: 22px; } .sp2-hdist .sp2-dleg { font-size: .76rem; gap: .15rem .9rem; }
+    td.sp2-cd { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .82rem; font-weight: 700; color: #0b4a66; white-space: nowrap; }
     .sp2-dist { display: flex; align-items: center; gap: .6rem; padding: 0 .9rem .45rem; } .sp2-dist .sp-dist { flex: 1; height: 8px; margin: 0; }
     .sp2-legt { all: unset; cursor: pointer; font-size: .74rem; font-weight: 700; color: #6b7280; white-space: nowrap; } .sp2-legt:hover { color: #901d23; }
     .sp2-leg { padding: 0 .9rem .5rem; margin: 0; } .sp2-leg[hidden] { display: none !important; }
