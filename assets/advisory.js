@@ -508,19 +508,18 @@
     const { vs, x } = p ? choose(p) : { vs: [], x: null };
     if (x) st.v = x.v.sha;
     const pm = portalMatch(x);
-    const views = [['plan', 'الخطة', 'bi-grid-3x3'], ['map', 'خريطة المتطلبات', 'bi-diagram-3'], ['now', 'المطروح هذا الفصل', 'bi-calendar-check'], ['original', 'الأصل كما نُشر', 'bi-file-earmark-image'], ['versions', `الإصدارات (${vs.length})`, 'bi-clock-history'], ['advisor', 'المرشد الأكاديمي', 'bi-person-check'], ['files', 'كل الوثائق', 'bi-folder2-open']];
+    const views = [['plan', 'الخطة', 'bi-grid-3x3', 'الخطة سنةً بسنة'], ['map', 'الخريطة', 'bi-diagram-3', 'خريطة المتطلبات'], ['now', 'المطروح', 'bi-calendar-check', 'المطروح هذا الفصل'], ['original', 'الأصل', 'bi-file-earmark-image', 'الأصل كما نُشر'],
+      ['versions', `الإصدارات (${vs.length})`, 'bi-clock-history', 'الإصدارات والمقارنة بينها'], ['advisor', 'المرشد', 'bi-person-check', 'المرشد الأكاديمي'], ['files', 'الوثائق', 'bi-folder2-open', 'كل الوثائق']];
     const okN = PROGS.filter(q => planVersions(q).some(v => v.current && v.r.ok)).length;
-    $('#ad-app').innerHTML = `<div class="card mb-2 no-print ad-ctl"><div class="card-body py-2">
-        <div class="row g-2 align-items-end">
-          <div class="col-md-3"><label class="small fw-bold" for="ad-fac">الكلية</label><select class="form-select form-select-sm" id="ad-fac"><option value="">كل الكليات</option>${facs.map(f => `<option ${f === st.fac ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select></div>
-          <div class="col-md-5"><label class="small fw-bold" for="ad-p">البرنامج (${list.length})</label><select class="form-select form-select-sm" id="ad-p">${['bachelor', 'master', 'phd'].map(t => { const g = list.filter(q => (q.type || 'bachelor') === t); return g.length ? `<optgroup label="${t === 'master' ? 'الماجستير' : t === 'phd' ? 'الدكتوراه' : 'البكالوريوس'}">${g.map(q => `<option value="${esc(q.id)}" ${q === p ? 'selected' : ''}>${esc(q.ar || q.en)}${planVersions(q).some(v => v.current && v.r.ok) ? ' ✓' : ''}</option>`).join('')}</optgroup>` : ''; }).join('')}</select></div>
-          <div class="col-md-4"><label class="small fw-bold" for="ad-v">الإصدار</label><select class="form-select form-select-sm" id="ad-v">${vs.map(o => `<option value="${o.v.sha}" ${o === x ? 'selected' : ''}>${esc(vTitle(o))}${o.r.ok ? ' ✓' : ''}</option>`).join('') || '<option>لا خطة منشورة</option>'}</select></div>
-        </div>
-        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mt-2">
-          <div class="btn-group btn-group-sm ad-views" role="group">${views.map(([k, l, i]) => `<button type="button" class="btn ${st.view === k ? 'btn-maroon' : 'btn-outline-secondary'}" data-view="${k}"><i class="bi ${i}"></i> ${l}</button>`).join('')}</div>
-          <div class="d-flex gap-2"><input class="form-control form-control-sm" id="ad-q" placeholder="ابحث في الخطة…" value="${esc(st.q)}" style="max-width:200px">
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="ad-csv"><i class="bi bi-filetype-csv"></i> CSV</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="ad-print"><i class="bi bi-printer"></i> طباعة</button></div>
+    $('#ad-app').innerHTML = `<div class="card mb-2 no-print ad-ctl"><div class="card-body py-1 px-2">
+        <div class="ad-bar">
+          <select class="form-select form-select-sm ad-s-fac" id="ad-fac" title="الكلية" aria-label="الكلية"><option value="">كل الكليات</option>${facs.map(f => `<option ${f === st.fac ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select>
+          <select class="form-select form-select-sm ad-s-p" id="ad-p" title="البرنامج (${list.length})" aria-label="البرنامج">${['bachelor', 'master', 'phd'].map(t => { const g = list.filter(q => (q.type || 'bachelor') === t); return g.length ? `<optgroup label="${t === 'master' ? 'الماجستير' : t === 'phd' ? 'الدكتوراه' : 'البكالوريوس'}">${g.map(q => `<option value="${esc(q.id)}" ${q === p ? 'selected' : ''}>${esc(q.ar || q.en)}${planVersions(q).some(v => v.current && v.r.ok) ? ' ✓' : ''}</option>`).join('')}</optgroup>` : ''; }).join('')}</select>
+          <select class="form-select form-select-sm ad-s-v" id="ad-v" title="الإصدار" aria-label="الإصدار">${vs.map(o => `<option value="${o.v.sha}" ${o === x ? 'selected' : ''}>${esc(vTitle(o))}${o.r.ok ? ' ✓' : ''}</option>`).join('') || '<option>لا خطة منشورة</option>'}</select>
+          <div class="btn-group btn-group-sm ad-views" role="group" aria-label="طريقة العرض">${views.map(([k, l, i, t]) => `<button type="button" class="btn ${st.view === k ? 'btn-maroon' : 'btn-outline-secondary'}" data-view="${k}" title="${t}"><i class="bi ${i}"></i><span> ${l}</span></button>`).join('')}</div>
+          <input class="form-control form-control-sm ad-s-q" id="ad-q" placeholder="ابحث في الخطة…" value="${esc(st.q)}" aria-label="ابحث في الخطة">
+          <button type="button" class="btn btn-sm btn-outline-secondary ad-ib" id="ad-csv" title="تصدير CSV"><i class="bi bi-filetype-csv"></i></button>
+          <button type="button" class="btn btn-sm btn-outline-secondary ad-ib" id="ad-print" title="طباعة"><i class="bi bi-printer"></i></button>
         </div></div></div>
       ${p ? `<section class="card mb-2 ad-head"><div class="card-body py-2 px-3">
           <div class="d-flex flex-wrap align-items-center gap-2">
