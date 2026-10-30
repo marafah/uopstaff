@@ -113,7 +113,7 @@
   function miniChip(n, G, major, extra = '') {
     const k = kindOf(n.code, major), av = avail(n.code), d = G.desc.get(n.key).size;
     return `<span class="ad-c pv-c s-${av.k}" data-code="${esc(n.code)}" style="--k:${KINDS[k][1]}" title="${esc((n.name || CODE_NAME[n.code] || '') + ' · ' + KINDS[k][0] + ' · ' + av.t + (n.prereq ? ' · المتطلب: ' + n.prereq : ''))}">
-      <i class="bi ${KINDS[k][2]}"></i><code>${esc(n.code)}</code><b>${esc(n.name || CODE_NAME[n.code] || '')}</b><em>${n.hours ?? '—'} س</em><u></u>${d ? `<small><i class="bi bi-unlock-fill"></i>${d}</small>` : ''}${extra}</span>`;
+      <i class="bi ${KINDS[k][2]}"></i><code>${esc(n.code)}</code><b>${esc(n.name || CODE_NAME[n.code] || '')}</b><em>${n.hours ?? '—'} س</em><u></u>${d ? `<small title="تفتح ${d} مادة بعدها"><i class="bi bi-unlock-fill"></i>تفتح ${d}</small>` : ''}${extra}</span>`;
   }
   // pyramid: foundations at the base, each level up needs the levels below it
   function planPyramid(x) {
@@ -168,8 +168,8 @@
       return `<div class="ad-c pb-c k-${k} ${hit(n) ? '' : 'dim'}" data-code="${esc(n.code)}" style="--c:${c}" title="${esc((n.name || CODE_NAME[n.code] || '') + ' · ' + KINDS[k][0] + ' · ' + av.t + (n.prereq ? ' · المتطلب: ' + n.prereq : ''))}">
         <div class="pb-t"><i class="bi ${KINDS[k][2]}"></i><code>${esc(n.code)}</code><span class="pb-h">${n.hours ?? '—'}</span></div>
         <div class="pb-n">${esc(n.name || CODE_NAME[n.code] || '')}</div>
-        <div class="pb-f"><span class="pb-s s-${av.k}">${av.k === 'open' ? `<i class="bi bi-door-open"></i>${av.open.length}/${av.s.length}` : av.k === 'closed' ? '<i class="bi bi-door-closed"></i>مغلقة' : av.k === 'slot' ? '<i class="bi bi-ui-checks"></i>اختياري' : '<i class="bi bi-dash-circle"></i>غير مطروحة'}</span>
-          ${pre ? `<span title="لها ${pre} متطلب سابق في الخطة"><i class="bi bi-arrow-return-left"></i>${pre}</span>` : ''}${d ? `<span title="تفتح ${d} مادة"><i class="bi bi-unlock"></i>${d}</span>` : ''}${crit ? '<span class="pb-cr" title="على أطول سلسلة متطلبات"><i class="bi bi-lightning-charge-fill"></i></span>' : ''}${n.mark ? `<span class="pb-mk" title="علامة في الخطة">${esc(n.mark)}</span>` : ''}</div></div>`; };
+        <div class="pb-f"><span class="pb-s s-${av.k}">${av.k === 'open' ? `<i class="bi bi-door-open-fill"></i>${av.open.length}/${av.s.length} مفتوحة` : av.k === 'closed' ? '<i class="bi bi-door-closed-fill"></i>مغلقة' : av.k === 'slot' ? '<i class="bi bi-ui-checks"></i>اختياري' : '<i class="bi bi-dash-circle"></i>غير مطروحة'}</span>
+          ${pre ? `<span class="pb-bd req" title="لها ${pre} متطلب سابق في الخطة"><i class="bi bi-box-arrow-in-right"></i>يتطلب ${pre}</span>` : ''}${d ? `<span class="pb-bd unl" title="تفتح ${d} مادة بعدها في الخطة"><i class="bi bi-unlock-fill"></i>تفتح ${d}</span>` : ''}${crit ? '<span class="pb-bd crt" title="على أطول سلسلة متطلبات: تأخيرها يؤخر ما بعدها"><i class="bi bi-lightning-charge-fill"></i>حرجة</span>' : ''}${n.mark ? `<span class="pb-bd mk" title="علامة بجانب المادة في الخطة الأصلية">علامة ${esc(n.mark)}</span>` : ''}</div></div>`; };
     const legend = st.pc === 'type' ? Object.entries(KINDS).map(([k, [l, c, i]]) => `<span><i class="bi ${i}" style="color:${c}"></i>${l} <b>${tot[k] || 0}</b> س</span>`).join('')
       : st.pc === 'status' ? Object.entries(AV).map(([k, [l, c]]) => `<span><i class="pb-dot" style="background:${c}"></i>${l}</span>`).join('')
       : '<span><i class="pb-dot" style="background:hsl(350,35%,85%)"></i>تفتح مواد قليلة</span><span><i class="pb-dot" style="background:hsl(350,90%,38%)"></i>تفتح مواد كثيرة (مفتاحية)</span>';
@@ -462,7 +462,7 @@
     .tp-h code { color: #fff; font-weight: 800; font-size: .9rem; } .tp-h span { background: rgba(255,255,255,.2); border-radius: 99px; padding: 0 .5rem; font-size: .7rem; font-weight: 700; }
     .tp-b { padding: .55rem .7rem .5rem; } .tp-n { display: block; font-size: .95rem; color: #0f1d24; line-height: 1.35; } .tp-sub { color: #6c757d; font-size: .72rem; margin: .1rem 0 .45rem; }
     .tp-g { display: grid; grid-template-columns: repeat(4, 1fr); gap: .25rem; margin-bottom: .45rem; } .tp-g div { background: #f6f8fa; border-radius: 8px; text-align: center; padding: .2rem 0; } .tp-g b { display: block; font-size: .92rem; color: #0f1d24; } .tp-g span { font-size: .58rem; color: #6c757d; }
-    .tp-r { display: flex; gap: .4rem; align-items: flex-start; margin-bottom: .3rem; } .tp-r > em { flex: none; font-style: normal; font-size: .64rem; font-weight: 800; background: #fff4d6; color: #7a4b00; border-radius: 5px; padding: .05rem .35rem; margin-top: .1rem; } .tp-r > em.un { background: #fde8ea; color: #901d23; } .tp-r > div { display: flex; flex-direction: column; gap: .1rem; min-width: 0; } .tp-r span { font-size: .72rem; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .tp-r code { color: #0b4a66; font-weight: 800; }
+    .tp-r { display: flex; gap: .4rem; align-items: flex-start; margin-bottom: .3rem; } .tp-r > em { flex: none; font-style: normal; font-size: .64rem; font-weight: 800; background: #fff4d6; color: #7a4b00; border-radius: 5px; padding: .05rem .35rem; margin-top: .1rem; } .tp-r > em.un { background: #dcfce7; color: #15803d; } .tp-r > div { display: flex; flex-direction: column; gap: .1rem; min-width: 0; } .tp-r span { font-size: .72rem; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .tp-r code { color: #0b4a66; font-weight: 800; }
     .tp-s { display: flex; gap: .45rem; align-items: flex-start; border-radius: 10px; padding: .35rem .5rem; margin-top: .2rem; } .tp-s b { display: block; font-size: .74rem; } .tp-s small { display: block; color: inherit; opacity: .85; font-size: .68rem; direction: rtl; }
     .tp-s.s-open { background: #ecfdf3; color: #166534; } .tp-s.s-closed { background: #fff4ed; color: #9a3412; } .tp-s.s-none { background: #f1f5f9; color: #475569; } .tp-s.s-slot { background: #f5f3ff; color: #5b21b6; }
     .tp-ft { margin-top: .4rem; font-size: .66rem; color: #94a3b8; text-align: center; }
@@ -507,6 +507,16 @@
     .pv-tree summary::before { content: "+"; flex: none; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 5px; background: #0b4a66; color: #fff; font-weight: 800; font-size: .8rem; line-height: 1; } .pv-tree details[open] > summary::before { content: "−"; background: #901d23; }
     .pv-tree li.leaf { display: flex; align-items: center; gap: .4rem; padding-inline-start: 22px; }
     .pv-where { color: #94a3b8; font-size: .66rem; white-space: nowrap; } .pv-cnt { background: #fde8ea; color: #901d23; border-radius: 99px; padding: 0 .4rem; font-size: .66rem; font-weight: 800; }
+
+    /* badges: icon + words, clear colours */
+    .pb-f { flex-wrap: wrap; white-space: normal !important; gap: .25rem !important; overflow: visible !important; }
+    .pb-s, .pb-bd { display: inline-flex; align-items: center; gap: .22rem; border-radius: 99px; padding: .06rem .42rem !important; font-size: .64rem !important; font-weight: 800; line-height: 1.25; white-space: nowrap; }
+    .pb-s i, .pb-bd i { font-size: .7rem; }
+    .pb-bd.req { background: #fff4d6; color: #8a5a00; } .pb-bd.unl { background: #dcfce7; color: #15803d; } .pb-bd.crt { background: #fef3c7; color: #b45309; } .pb-bd.mk { background: #f1f5f9; color: #901d23; }
+    .pb-s.s-open { background: #16a34a !important; color: #fff !important; } .pb-s.s-closed { background: #ea580c !important; color: #fff !important; }
+    .pv-c small { color: #15803d !important; background: #dcfce7 !important; } .pv-c small.pv-also { color: #6c757d !important; background: #f1f5f9 !important; }
+    .am-meta span.un { background: #dcfce7 !important; color: #15803d !important; }
+    .am-meta i, .pv-c small i { font-size: .72rem !important; }
     .pb-bar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .45rem; } .pb-lbl { align-self: center; font-size: .74rem; color: #6c757d; margin-inline-end: .35rem; }
     .pb-bar .btn { padding: .15rem .55rem; font-size: .78rem; }
     .pb-sum { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; margin-bottom: .45rem; }
