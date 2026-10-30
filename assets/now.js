@@ -6,7 +6,7 @@
   let TT, S, CAL, IDX;
   const P = new URLSearchParams(location.search);
   const KIOSK = P.get('kiosk') === '1';
-  const st = { fac: P.get('fac') || '', bld: P.get('bld') || '', q: '', tab: { run: '', soon: '' } };
+  const st = { fac: P.get('fac') || '', dept: P.get('dept') || '', bld: P.get('bld') || '', q: '', bf: '', pg: {} };
 
   // the moment shown: Amman clock (or ?at=) as date, day letter and minutes
   function moment() {
@@ -34,7 +34,7 @@
     if (day === 'ج') return { ok: false, why: 'يوم الجمعة' };
     return { ok: true };
   }
-  const inScope = s => (!st.fac || s.faculty === st.fac) && (!st.bld || s.building === st.bld)
+  const inScope = s => (!st.fac || s.faculty === st.fac) && (!st.dept || s.department === st.dept) && (!st.bld || s.building === st.bld)
     && (!st.q || norm([s.code, s.name, s.instructor, s.room, s.building].join(' ')).includes(st.q));
   const meetingsOn = day => S.flatMap(s => s.meetings.filter(m => live(m) && m.day === day).map(m => ({ s, m, a: toMin(m.start), b: toMin(m.end) })));
   // the next day with teaching after the given date (within three weeks)
@@ -76,7 +76,7 @@
     const laterL = T.ok ? scoped.filter(x => x.a > now.min + 60) : [];
     const doneN = T.ok ? scoped.filter(x => x.b <= now.min).length : 0;
     // rooms: free now and until when (all sections of the university count for occupancy)
-    const rooms = [...new Set(S.filter(s => s.room !== '0' && (!st.bld || s.building === st.bld) && (!st.fac || s.faculty === st.fac)).map(s => s.room))];
+    const rooms = [...new Set(S.filter(s => s.room !== '0' && (!st.bld || s.building === st.bld) && (!st.fac || s.faculty === st.fac) && (!st.dept || s.department === st.dept)).map(s => s.room))];
     const bld = Object.fromEntries(S.map(s => [s.room, s.building]));
     const freeRooms = T.ok ? rooms.map(r => {
       const its = today.filter(x => x.s.room === r);
@@ -91,6 +91,7 @@
     const endIso = end.toISOString().slice(0, 10);
     const events = CAL.semesters.flatMap(s => s.events).filter(e => e.end >= now.iso && e.start <= endIso).sort((a, b) => a.start.localeCompare(b.start)).slice(0, 6);
     const facs = [...new Set(S.map(s => s.faculty))].sort((a, b) => a.localeCompare(b, 'ar'));
+    const depts = [...new Set(S.filter(s => !st.fac || s.faculty === st.fac).map(s => s.department).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ar'));
     const blds = [...new Set(S.map(s => s.building).filter(b => !/^-+$/.test(b)))].sort((a, b) => a.localeCompare(b, 'ar'));
     // what changes next: the nearest end or start
     const nextChange = T.ok ? Math.min(...scoped.flatMap(x => [x.a, x.b]).filter(t => t > now.min), 1e9) : 1e9;
@@ -118,50 +119,68 @@
     const bchips = list => { const c = {}; list.forEach(x => { const b = x.s.room === '0' ? 'إلكتروني' : x.s.building; c[b] = (c[b] || 0) + 1; });
       return Object.entries(c).sort((a, b) => b[1] - a[1]).map(([b, n]) => `<span class="nw-bc"><i class="bi ${b === 'إلكتروني' ? 'bi-camera-video' : BICON(b)}"></i>${esc(bShort(b))} <b>${n}</b></span>`).join(''); };
 
+    // the board: one building or all, three columns that page through their rows by themselves
+    const bOf2 = x => x.s.room === '0' || x.m.mode === 'الكتروني كامل' ? 'إلكتروني' : x.s.building;
+    const pool = [...running, ...soon];
+    const bnames = [...new Set(pool.map(bOf2))].sort((a, b) => pool.filter(x => bOf2(x) === b).length - pool.filter(x => bOf2(x) === a).length);
+    const cnt = n => pool.filter(x => bOf2(x) === n).length;
+    if (st.bf && !bnames.includes(st.bf)) st.bf = '';
+    const inB = x => !st.bf || bOf2(x) === st.bf;
+    const bRun = running.filter(inB).sort((x, y) => (bOf2(x) === 'إلكتروني') - (bOf2(y) === 'إلكتروني') || bOf2(x).localeCompare(bOf2(y), 'ar') || x.s.room.localeCompare(y.s.room));
+    let bSoon = soon.filter(inB), soonTitle = 'تبدأ خلال ساعة';
+    if (T.ok && !bSoon.length) { bSoon = laterL.filter(inB).sort((x, y) => x.a - y.a).slice(0, 60); soonTitle = 'المحاضرات القادمة اليوم'; }
+    if (!T.ok && nx) { bSoon = nxList.filter(inB).sort((x, y) => x.a - y.a).slice(0, 80); soonTitle = `أولى محاضرات ${U.DAYS[nx.day] || ''}`; }
+    const bFree = freeRooms.filter(x => !st.bf || x.b === st.bf), fGroups = {}; bFree.forEach(x => (fGroups[x.b] ||= []).push(x));
+    const roomBox = x => `<span class="nw-room ${x.s.room === '0' || x.m.mode === 'الكتروني كامل' ? 'on' : ''}">${x.s.room === '0' || x.m.mode === 'الكتروني كامل' ? '<i class="bi bi-camera-video-fill"></i><small>إلكتروني</small>' : `<b dir="ltr">${esc(x.s.room)}</b><small>${esc(bShort(x.s.building))}</small>`}</span>`;
+    const what = x => `<span class="nw-what"><b>${esc(x.s.name)}</b><small><bdi dir="ltr">${esc(x.s.code)}</bdi> · ش${esc(x.s.section)} · ${esc(U.shortName(x.s.instructor))}</small></span>`;
+    const href = x => x.s.room === '0' ? 'timetable.html?q=' + encodeURIComponent(x.s.code) : 'room.html?r=' + encodeURIComponent(x.s.room);
+    const rowRun = x => `<a class="nw-r" href="${href(x)}">${roomBox(x)}${what(x)}<span class="nw-when"><b dir="ltr">${x.m.start}–${x.m.end}</b><span class="nw-prog"><i style="width:${Math.round(100 * (now.min - x.a) / (x.b - x.a))}%"></i></span><small>تنتهي بعد ${U.mins(x.b - now.min)}</small></span></a>`;
+    const rowSoon = x => `<a class="nw-r" href="${href(x)}"><span class="nw-start"><b dir="ltr">${x.m.start}</b><small>${T.ok ? 'بعد ' + U.mins(x.a - now.min) : esc(U.DAYS[nx.day] || '')}</small></span>${roomBox(x)}${what(x)}</a>`;
     $('#pg-title').innerHTML = `الآن في الجامعة <span class="now-clock" dir="ltr">${now.clock}</span>`;
     $('#pg-sub').textContent = `${U.DAYS[now.day] || ''} ${U.numDate(now.iso)} · ${TT.term}${P.get('at') ? ' · (وقت محدد للعرض)' : ''}`;
     const kpi = (v, l, i, c) => `<div class="nw-k" style="--c:${c}"><i class="bi ${i}"></i><b>${v}</b><span>${l}</span></div>`;
     $('#now-app').innerHTML = `
       ${KIOSK ? '' : `<div class="nw-bar no-print">
         <label class="nw-sel"><i class="bi bi-bank2"></i><select id="now-fac" aria-label="الكلية"><option value="">كل الكليات</option>${facs.map(f => `<option ${f === st.fac ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select></label>
+        <label class="nw-sel"><i class="bi bi-diagram-3"></i><select id="now-dept" aria-label="القسم"><option value="">كل الأقسام</option>${depts.map(d => `<option ${d === st.dept ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select></label>
         <label class="nw-sel"><i class="bi bi-building"></i><select id="now-bld" aria-label="المبنى"><option value="">كل المباني</option>${blds.map(b => `<option ${b === st.bld ? 'selected' : ''}>${esc(b)}</option>`).join('')}</select></label>
         ${st.q ? `<span class="nw-q"><i class="bi bi-search"></i> «${esc(P.get('q') || st.q)}»</span>` : ''}
         <span class="nw-live"><span class="dot"></span> مباشر · تتحدّث كل دقيقة</span>
-        <a class="nw-kiosk" href="?kiosk=1${st.fac ? '&fac=' + encodeURIComponent(st.fac) : ''}${st.bld ? '&bld=' + encodeURIComponent(st.bld) : ''}"><i class="bi bi-display"></i> وضع الشاشة</a></div>`}
+        <a class="nw-kiosk" href="?kiosk=1${st.fac ? '&fac=' + encodeURIComponent(st.fac) : ''}${st.dept ? '&dept=' + encodeURIComponent(st.dept) : ''}${st.bld ? '&bld=' + encodeURIComponent(st.bld) : ''}"><i class="bi bi-display"></i> وضع الشاشة</a></div>`}
       <section class="nw-hero ${T.ok ? 'on' : 'off'}">
         <div class="nw-clock"><b dir="ltr">${now.clock}</b><span>${U.DAYS[now.day] || ''} ${U.numDate(now.iso)}</span></div>
         <div class="nw-state">${T.ok
           ? `<span class="nw-tag on"><span class="dot"></span> التدريس جارٍ الآن</span><h2>${running.length ? `${running.length} محاضرة جارية في ${new Set(running.map(x => x.s.building)).size} مبنى` : soon.length ? `أقرب محاضرة تبدأ بعد ${U.mins(soon[0].a - now.min)}` : laterL.length ? 'استراحة بين المحاضرات' : 'انتهت محاضرات اليوم'}</h2>
              <p>${nextChange < 1e9 ? `التغيير القادم الساعة <b dir="ltr">${toTime(nextChange)}</b> (بعد ${U.mins(nextChange - now.min)}) · ` : ''}انتهت اليوم ${doneN} · بقيت ${soon.length + laterL.length}</p>`
           : `<span class="nw-tag off"><i class="bi bi-moon-stars-fill"></i> لا تدريس الآن</span><h2>${esc(T.why)}</h2>
-             <p>${nx ? `يعود التدريس <b>${U.DAYS[nx.day] || ''} ${U.numDate(nx.iso)}</b> · ${nxList.length} محاضرة، أولها الساعة <b dir="ltr">${nxList.length ? toTime(Math.min(...nxList.map(x => x.a))) : '—'}</b>` : 'لا أيام تدريس قريبة في التقويم.'}</p>`}</div>
+             <p>${nx ? `يعود التدريس <b>${U.DAYS[nx.day] || ''} ${U.numDate(nx.iso)}</b> · ${nxList.length ? `${U.count(nxList.length, 'محاضرة واحدة', 'محاضرتان', 'محاضرات', 'محاضرة')}، أولها الساعة <b dir="ltr">${toTime(Math.min(...nxList.map(x => x.a)))}</b>` : 'لا محاضرات ضمن هذه التصفية في ذلك اليوم'}` : 'لا أيام تدريس قريبة في التقويم.'}</p>`}</div>
         <div class="nw-kpis">${kpi(running.length, 'جارية الآن', 'bi-broadcast', '#901d23')}${kpi(soon.length, 'خلال ساعة', 'bi-hourglass-split', '#b45309')}${kpi(laterL.length, 'لاحقاً اليوم', 'bi-calendar-event', '#0b4a66')}${kpi(freeRooms.length, 'قاعة شاغرة', 'bi-door-open-fill', '#15803d')}</div>
       </section>
-      <section class="nw-card nw-day"><h3><i class="bi bi-bar-chart-steps"></i> ${T.ok ? 'حركة اليوم' : nx ? `حركة ${U.DAYS[nx.day] || ''} ${U.numDate(nx.iso)}` : 'حركة اليوم'} <small>عدد المحاضرات في كل نصف ساعة${st.fac || st.bld || st.q ? ' ضمن التصفية' : ''}</small></h3>
+      <section class="nw-card nw-day"><h3><i class="bi bi-bar-chart-steps"></i> ${T.ok ? 'حركة اليوم' : nx ? `حركة ${U.DAYS[nx.day] || ''} ${U.numDate(nx.iso)}` : 'حركة اليوم'} <small>عدد المحاضرات في كل نصف ساعة${st.fac || st.dept || st.bld || st.q ? ' ضمن التصفية' : ''}</small></h3>
         ${timeline(T.ok ? scoped : nxList, T.ok ? now.min : null) || '<p class="nw-empty">لا محاضرات.</p>'}</section>
-      <div class="nw-grid">
-        <div class="nw-main">
-          <section class="nw-card"><h3><span class="nw-dot live"></span> جارية الآن <b class="nw-n">${running.length}</b></h3>
-            ${grouped(running, 'run', `<p class="nw-empty"><i class="bi bi-cup-hot"></i> ${T.ok ? 'لا محاضرات جارية الآن ضمن التصفية.' : 'لا محاضرات اليوم.'}</p>`)}</section>
-          <section class="nw-card"><h3><i class="bi bi-hourglass-split" style="color:#b45309"></i> تبدأ خلال ساعة <b class="nw-n">${soon.length}</b></h3>
-            ${grouped(soon, 'soon', '') || `<p class="nw-empty">${T.ok ? 'لا محاضرات تبدأ خلال الساعة القادمة.' : nx ? `أول محاضرات ${U.DAYS[nx.day] || ''}: ` + nxList.filter(x => x.a === Math.min(...nxList.map(y => y.a))).length + ' محاضرة الساعة ' + toTime(Math.min(...nxList.map(y => y.a))) : '—'}</p>`}</section>
+      <section class="nw-board">
+        <div class="nw-bf" role="tablist" aria-label="المبنى">${[['', 'كل المباني', running.length + soon.length, 'bi-grid-3x3-gap']].concat(bnames.map(n => [n, bShort(n), cnt(n), n === 'إلكتروني' ? 'bi-camera-video' : BICON(n)]))
+          .map(([k, l, n, i]) => `<button type="button" role="tab" aria-selected="${st.bf === k}" class="${st.bf === k ? 'on' : ''}" data-bf="${esc(k)}"><i class="bi ${i}"></i> ${esc(l)} <b>${n}</b></button>`).join('')}</div>
+        <div class="nw-cols">
+          <section class="nw-col run" data-col="run"><header><span class="nw-dot live"></span><h3>جارية الآن</h3><b class="nw-n">${bRun.length}</b><span class="nw-pg"></span></header>
+            <div class="nw-body">${bRun.map(x => `<div class="nw-it">${rowRun(x)}</div>`).join('') || `<p class="nw-empty"><i class="bi bi-cup-hot"></i> ${T.ok ? 'لا محاضرات جارية الآن.' : 'لا محاضرات اليوم: ' + esc(T.why) + '.'}</p>`}</div></section>
+          <section class="nw-col soon" data-col="soon"><header><i class="bi bi-hourglass-split"></i><h3>${soonTitle}</h3><b class="nw-n">${bSoon.length}</b><span class="nw-pg"></span></header>
+            <div class="nw-body">${bSoon.map(x => `<div class="nw-it">${rowSoon(x)}</div>`).join('') || `<p class="nw-empty">${T.ok ? 'لا محاضرات أخرى اليوم.' : nx ? `يعود التدريس ${U.DAYS[nx.day] || ''} ${U.numDate(nx.iso)}.` : '—'}</p>`}</div></section>
+          <section class="nw-col free" data-col="free"><header><i class="bi bi-door-open-fill"></i><h3>قاعات شاغرة الآن</h3><b class="nw-n">${bFree.length}</b><span class="nw-pg"></span></header>
+            <div class="nw-legend"><span><i class="g"></i> بقية اليوم</span><span><i class="y"></i> ساعة أو أكثر</span><span><i class="r"></i> أقل من ساعة</span></div>
+            <div class="nw-body">${Object.entries(fGroups).sort((a, b) => b[1].length - a[1].length).map(([b, rs]) => `<div class="nw-it nw-fb"><b><i class="bi ${BICON(b)}"></i> ${esc(bShort(b))} <em>${rs.length}</em></b><div>${rs.map(x =>
+              `<a class="nw-free ${!x.until ? 'g' : x.until - now.min >= 60 ? 'y' : 'r'}" href="room.html?r=${encodeURIComponent(x.r)}" title="${x.until ? 'شاغرة حتى ' + toTime(x.until) : 'شاغرة لبقية اليوم'}"><b dir="ltr">${esc(x.r)}</b><small>${x.until ? 'حتى ' + toTime(x.until) : 'كل اليوم'}</small></a>`).join('')}</div></div>`).join('')
+              || `<p class="nw-empty">${T.ok ? 'لا قاعات شاغرة ضمن التصفية.' : 'لا تدريس اليوم؛ كل القاعات متاحة.'}</p>`}</div></section>
         </div>
-        <aside class="nw-side">
-          <section class="nw-card"><h3><i class="bi bi-door-open-fill" style="color:#15803d"></i> قاعات شاغرة الآن <b class="nw-n">${freeRooms.length}</b></h3>
-            <div class="nw-legend"><span><i class="g"></i> بقية اليوم</span><span><i class="y"></i> أكثر من ساعة</span><span><i class="r"></i> أقل من ساعة</span></div>
-            ${Object.entries(byBld).sort((a, b) => b[1].length - a[1].length).map(([b, rs]) => `<div class="nw-fb"><b><i class="bi ${BICON(b)}"></i> ${esc(bShort(b))} <em>${rs.length}</em></b><div>${rs.slice(0, 12).map(x =>
-              `<a class="nw-free ${!x.until ? 'g' : x.until - now.min >= 60 ? 'y' : 'r'}" href="room.html?r=${encodeURIComponent(x.r)}" title="${x.until ? 'شاغرة حتى ' + toTime(x.until) : 'شاغرة لبقية اليوم'} · صفحة القاعة"><b dir="ltr">${esc(x.r)}</b><small>${x.until ? 'حتى ' + toTime(x.until) : 'كل اليوم'}</small></a>`).join('')}${rs.length > 12 ? `<a class="nw-free more" href="usage.html" title="كل القاعات في صفحة إشغال القاعات"><b>+${rs.length - 12}</b><small>أخرى</small></a>` : ''}</div></div>`).join('')
-              || `<p class="nw-empty">${T.ok ? 'لا قاعات شاغرة ضمن التصفية.' : 'كل القاعات متاحة؛ لا تدريس اليوم.'}</p>`}</section>
-          <section class="nw-card"><h3><i class="bi bi-calendar3" style="color:#901d23"></i> مواعيد خلال أسبوعين</h3>
-            ${events.map(e => { const on = e.start <= now.iso, dd = Math.round((Date.parse(e.start) - Date.parse(now.iso)) / 864e5);
-              return `<a class="nw-ev ${on ? 'on' : ''}" href="calendar.html?q=${encodeURIComponent(e.title.slice(0, 20))}"><span class="d"><b dir="ltr">${dm(e.start)}${e.end !== e.start ? ' – ' + dm(e.end) : ''}</b><small>${on ? 'جارٍ الآن' : dd === 1 ? 'غداً' : 'بعد ' + U.count(dd, 'يوم', 'يومين', 'أيام', 'يوماً')}</small></span><span class="t">${esc(e.title)}</span></a>`; }).join('')
-              || '<p class="nw-empty">لا مواعيد في الأسبوعين القادمين.</p>'}</section>
-        </aside>
-      </div>`;
+      </section>
+      ${events.length ? `<section class="nw-evs">${events.map(e => { const on = e.start <= now.iso, dd = Math.round((Date.parse(e.start) - Date.parse(now.iso)) / 864e5);
+        return `<a class="nw-ev ${on ? 'on' : ''}" href="calendar.html?q=${encodeURIComponent(e.title.slice(0, 20))}"><span class="d"><b dir="ltr">${dm(e.start)}${e.end !== e.start ? ' – ' + dm(e.end) : ''}</b><small>${on ? 'جارٍ الآن' : dd === 1 ? 'غداً' : 'بعد ' + U.count(dd, 'يوم', 'يومين', 'أيام', 'يوماً')}</small></span><span class="t">${esc(e.title)}</span></a>`; }).join('')}</section>` : ''}`;
     const f = $('#now-fac'), b = $('#now-bld');
-    if (f) f.addEventListener('change', e => { st.fac = e.target.value; sync(); render(); });
+    if (f) f.addEventListener('change', e => { st.fac = e.target.value; st.dept = ''; st.pg = {}; sync(); render(); });
+    const dp = $('#now-dept'); if (dp) dp.addEventListener('change', e => { st.dept = e.target.value; st.pg = {}; sync(); render(); });
     if (b) b.addEventListener('change', e => { st.bld = e.target.value; sync(); render(); });
-    document.querySelectorAll('[data-tb]').forEach(x => x.addEventListener('click', () => { st.tab[x.dataset.tb] = x.dataset.b; const y = scrollY; render(); scrollTo(0, y); }));
+    document.querySelectorAll('[data-bf]').forEach(x => x.addEventListener('click', () => { st.bf = x.dataset.bf; st.pg = {}; render(); }));
+    paginate();
   }
   if (!document.getElementById('nw-css')) document.head.insertAdjacentHTML('beforeend', `<style id="nw-css">
     .nw-bar { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; background: #fff; border: 1px solid #ece6d8; border-radius: 14px; padding: .45rem .6rem; margin-bottom: .8rem; box-shadow: 0 2px 10px rgba(9,27,34,.04); }
@@ -190,6 +209,29 @@
     .nw-dot.live { width: 10px; height: 10px; border-radius: 50%; background: #dc2626; box-shadow: 0 0 0 0 rgba(220,38,38,.6); animation: nw-r 1.6s infinite; }
     @keyframes nw-r { 70% { box-shadow: 0 0 0 7px rgba(220,38,38,0); } 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); } }
     .nw-bcs { display: flex; flex-wrap: wrap; gap: .3rem; margin-inline-start: auto; } .nw-bc { font-size: .7rem; font-weight: 600; color: #0b4a66; background: #eef4f7; border-radius: 99px; padding: .08rem .5rem; } .nw-bc i { margin-inline-end: .2rem; } .nw-bc b { color: #901d23; }
+    .nw-board { margin-bottom: .8rem; }
+    .nw-bf { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .6rem; }
+    .nw-bf button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem .75rem; border-radius: 99px; border: 1px solid #d6e4ec; background: #fff; font-size: .8rem; font-weight: 700; color: #0b4a66; }
+    .nw-bf button b { font-size: .68rem; background: #eef4f7; border-radius: 99px; padding: 0 .4rem; color: #901d23; } .nw-bf button:hover { background: #eef4f7; }
+    .nw-bf button.on { background: #0b4a66; border-color: #0b4a66; color: #fff; } .nw-bf button.on b { background: rgba(255,255,255,.22); color: #fff; }
+    .nw-cols { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.1fr) minmax(0, .9fr); gap: .8rem; }
+    .nw-col { display: flex; flex-direction: column; background: #fff; border: 1px solid #ece6d8; border-top: 4px solid var(--c); border-radius: 14px; padding: .65rem .75rem; box-shadow: 0 2px 10px rgba(9,27,34,.05); height: clamp(460px, calc(100vh - 150px), 760px); }
+    .nw-col.run { --c: #901d23; } .nw-col.soon { --c: #b45309; } .nw-col.free { --c: #15803d; }
+    .nw-col > header { display: flex; align-items: center; gap: .45rem; margin-bottom: .5rem; } .nw-col > header > i { color: var(--c); font-size: 1.05rem; }
+    .nw-col h3 { margin: 0; font-size: 1rem; font-weight: 800; color: #091b22; } .nw-col .nw-n { background: var(--c); }
+    .nw-pg { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 4px; }
+    .nw-pg i { width: 7px; height: 7px; border-radius: 50%; background: #e2e8f0; cursor: pointer; } .nw-pg i.on { background: var(--c); width: 16px; border-radius: 99px; }
+    .nw-pg button { all: unset; cursor: pointer; font-size: 1.1rem; line-height: 1; color: var(--c); padding: 0 .2rem; } .nw-pg small { font-size: .66rem; color: #64748b; margin-inline-start: .2rem; }
+    .nw-body { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 6px; }
+    .nw-it { animation: nw-in .35s ease; } .nw-it[hidden] { display: none; } @keyframes nw-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    .nw-r { display: grid; grid-template-columns: 74px minmax(0, 1fr) 118px; gap: .6rem; align-items: center; padding: .45rem .5rem; border-radius: 10px; background: #fcfbf8; border: 1px solid #f1ede3; text-decoration: none; color: #13222a; }
+    .nw-col.soon .nw-r { grid-template-columns: 62px 70px minmax(0, 1fr); } .nw-r:hover { background: #fbf3ea; border-color: #ead8c0; }
+    .nw-start { text-align: center; } .nw-start b { display: block; font-size: 1.05rem; font-weight: 800; color: #b45309; font-variant-numeric: tabular-nums; } .nw-start small { font-size: .64rem; color: #64748b; }
+    .nw-col.free .nw-fb { border: 1px solid #f1ede3; border-radius: 10px; padding: .35rem .5rem; background: #fcfbf8; }
+    .nw-evs { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: .5rem; margin-bottom: .8rem; }
+    .nw-evs .nw-ev { background: #fff; border: 1px solid #ece6d8; border-radius: 12px; padding: .4rem .55rem; border-top: 1px solid #ece6d8; }
+    @media (max-width: 1100px) { .nw-cols { grid-template-columns: 1fr 1fr; } .nw-col.free { grid-column: 1 / -1; height: auto; max-height: 520px; } }
+    @media (max-width: 700px) { .nw-cols { grid-template-columns: 1fr; } .nw-col { height: 470px; } .nw-r { grid-template-columns: 64px minmax(0, 1fr); } .nw-r .nw-when { grid-column: 2; } .nw-col.soon .nw-r { grid-template-columns: 56px 60px minmax(0, 1fr); } }
     .nw-tabs { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .5rem; }
     .nw-tabs button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; padding: .25rem .65rem; border-radius: 99px; border: 1px solid #d6e4ec; background: #fff; font-size: .78rem; font-weight: 700; color: #0b4a66; }
     .nw-tabs button b { font-size: .68rem; background: #eef4f7; border-radius: 99px; padding: 0 .4rem; color: #901d23; } .nw-tabs button:hover { background: #eef4f7; }
@@ -228,9 +270,36 @@
     @media (max-width: 600px) { .nw-hero { grid-template-columns: 1fr; text-align: center; } .nw-clock { border: 0; padding: 0; } .nw-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .nw-row { grid-template-columns: 70px minmax(0, 1fr); } .nw-when { grid-column: 2; } .nw-live { margin-inline-start: 0; } }
     body.kiosk .nw-hero { font-size: 1.1em; }
   </style>`);
+  // each column shows as many rows as fit, page after page; it turns by itself every 12 s (paused while the pointer is on it)
+  let turnT = null;
+  function paginate() {
+    document.querySelectorAll('.nw-col').forEach(col => {
+      const body = col.querySelector('.nw-body'), its = [...body.querySelectorAll(':scope > .nw-it')], dots = col.querySelector('.nw-pg'), key = col.dataset.col;
+      its.forEach(i => { i.hidden = false; });
+      const room = body.clientHeight; if (!its.length || !room) { dots.innerHTML = ''; return; }
+      const pages = [[]]; let h = 0;
+      its.forEach(i => { const ih = i.offsetHeight + 6; if (h + ih > room && pages[pages.length - 1].length) { pages.push([]); h = 0; } pages[pages.length - 1].push(i); h += ih; });
+      col._pages = pages;
+      const p = Math.min(st.pg[key] || 0, pages.length - 1); st.pg[key] = p;
+      show(col, p);
+    });
+    clearInterval(turnT);
+    turnT = setInterval(() => document.querySelectorAll('.nw-col').forEach(col => { if (col.matches(':hover') || !col._pages || col._pages.length < 2) return; show(col, ((st.pg[col.dataset.col] || 0) + 1) % col._pages.length); }), 12000);
+  }
+  function show(col, p) {
+    const pages = col._pages, key = col.dataset.col; st.pg[key] = p;
+    pages.forEach((pg, i) => pg.forEach(it => { it.hidden = i !== p; }));
+    const dots = col.querySelector('.nw-pg');
+    dots.innerHTML = pages.length > 1 ? `<button type="button" class="nw-pv" aria-label="السابق">‹</button>${pages.map((_, i) => `<i class="${i === p ? 'on' : ''}" data-p="${i}"></i>`).join('')}<button type="button" class="nw-nx" aria-label="التالي">›</button><small>${p + 1}/${pages.length}</small>` : '';
+    dots.querySelectorAll('[data-p]').forEach(d => d.onclick = () => show(col, +d.dataset.p));
+    const pv = dots.querySelector('.nw-pv'), nx = dots.querySelector('.nw-nx');
+    if (pv) pv.onclick = () => show(col, (p - 1 + pages.length) % pages.length);
+    if (nx) nx.onclick = () => show(col, (p + 1) % pages.length);
+  }
+  addEventListener('resize', () => { clearTimeout(window.__nwR); window.__nwR = setTimeout(paginate, 200); });
   function sync() {
     const p = new URLSearchParams(location.search);
-    ['fac', 'bld'].forEach(k => st[k] ? p.set(k, st[k]) : p.delete(k));
+    ['fac', 'dept', 'bld'].forEach(k => st[k] ? p.set(k, st[k]) : p.delete(k));
     history.replaceState(null, '', location.pathname + (p.toString() ? '?' + p : ''));
   }
 
