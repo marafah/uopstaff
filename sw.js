@@ -63,7 +63,8 @@ self.addEventListener('fetch', e => {
   if (url.origin === location.origin) {
     const path = url.pathname.slice(new URL(self.registration.scope).pathname.length);  // path inside the site
     if (req.mode === 'navigate') {
-      e.respondWith(fresh(req, CORE, url.origin + url.pathname).catch(() => caches.match('./', { ignoreSearch: true })));
+      // pages: always ask the server (not the browser's 10-minute HTTP cache), so a new release shows on the next visit
+      e.respondWith(fresh(new Request(req.url, { cache: 'no-cache', credentials: 'same-origin' }), CORE, url.origin + url.pathname).catch(() => caches.match('./', { ignoreSearch: true })));
     } else if (path.startsWith('data/')) {
       e.respondWith(fresh(req, DATA, url.origin + url.pathname));
     } else if (path.startsWith('assets/photos/') || path.startsWith('assets/icons/') || /\.(png|jpe?g|svg|webp)$/.test(path)) {
