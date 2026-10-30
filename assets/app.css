@@ -1898,9 +1898,9 @@ html[data-theme="dark"] .modal-backdrop.show { opacity: .25; }
 .am-scroll { overflow: auto; max-height: 78vh; background: radial-gradient(#e3e8ee 1px, transparent 1px) 0 0 / 18px 18px, #f8fafc; border: 1px solid #e3e7ec; border-radius: 16px; }
 .am-canvas { position: relative; display: inline-block; min-width: 100%; padding: .8rem; }
 .am-canvas > svg { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
-.am-canvas > svg > path { fill: none; stroke: #8fa5b5; stroke-width: 1.5; stroke-linecap: round; opacity: .6; transition: opacity .15s, stroke .15s, stroke-width .15s; }
-.am-canvas > svg > path.anc { stroke: #d97706; stroke-width: 2.4; opacity: 1; filter: drop-shadow(0 0 2px rgba(255,255,255,.9)); }
-.am-canvas > svg > path.desc { stroke: #901d23; stroke-width: 2.4; opacity: 1; filter: drop-shadow(0 0 2px rgba(255,255,255,.9)); }
+.am-canvas > svg > path { fill: none; stroke: #6f8796; stroke-width: 1.6; stroke-linecap: round; opacity: .75; transition: opacity .15s, stroke .15s, stroke-width .15s; }
+.am-canvas > svg > path.anc { stroke: #d97706; stroke-width: 2.4; opacity: 1; }
+.am-canvas > svg > path.desc { stroke: #901d23; stroke-width: 2.4; opacity: 1; }
 .am-canvas > svg > path.dim, .am-canvas > svg > path.off { display: none; }
 .am-cols { position: relative; display: flex; gap: 52px; align-items: flex-start; }
 .am-col { width: 178px; flex: none; display: flex; flex-direction: column; gap: 9px; }

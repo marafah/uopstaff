@@ -14,7 +14,7 @@
   'use strict';
   const U = window.UOP, { $, esc, norm } = U;
   const P = new URLSearchParams(location.search);
-  const st = { fac: P.get('fac') || '', p: P.get('p') || '', d: P.get('d') || '', v: P.get('v') || '', view: P.get('view') || 'plan', b: P.get('b') || '', q: '', sel: P.get('c') || '', ml: P.get('ml') || 'plan', mf: 'all', no: false, pt: 'info', po: false, ma: false };
+  const st = { fac: P.get('fac') || '', p: P.get('p') || '', d: P.get('d') || '', v: P.get('v') || '', view: P.get('view') || 'plan', b: P.get('b') || '', q: '', sel: P.get('c') || '', ml: P.get('ml') || 'plan', mf: 'all', no: false, pt: 'info', po: false, ma: true };
   let A, PROGS, DOCS, READS, TTERM = '', TT = {}, SP = null, CODE_NAME = {};
   const TERM = { first: 'الفصل الأول', second: 'الفصل الثاني', summer: 'الفصل الصيفي', null: 'فصل غير محدد' };
   const YEAR = ['', 'السنة الأولى', 'السنة الثانية', 'السنة الثالثة', 'السنة الرابعة', 'السنة الخامسة', 'السنة السادسة'];
@@ -248,7 +248,7 @@
         <div class="btn-group btn-group-sm" role="group" aria-label="الترتيب"><button type="button" class="btn ${st.ml !== 'chain' ? 'btn-dark' : 'btn-outline-dark'}" data-ml="plan"><i class="bi bi-calendar3"></i> حسب فصول الخطة</button><button type="button" class="btn ${st.ml === 'chain' ? 'btn-dark' : 'btn-outline-dark'}" data-ml="chain"><i class="bi bi-diagram-2"></i> حسب سلسلة المتطلبات</button></div>
         <div class="d-flex flex-wrap gap-1">${flt.map(([k, l]) => `<button type="button" class="btn btn-sm am-f ${st.mf === k ? 'on' : ''}" data-mf="${k}">${l}</button>`).join('')}</div>
         <div class="am-legend ms-auto">${Object.entries(AV).map(([k, [l, c]]) => `<span><i style="background:${c}"></i>${l} <b>${counts[k]}</b></span>`).join('')}<span><i class="bi bi-lightning-charge-fill text-warning"></i> أطول سلسلة (${G.longest} مواد)</span></div>
-        <button type="button" class="btn btn-sm am-f ${st.ma ? 'on' : ''}" id="am-ma" title="بشكل افتراضي تظهر أسهم المادة التي تمرّ عليها أو تختارها فقط"><i class="bi bi-bezier2"></i> كل الروابط</button>
+        <button type="button" class="btn btn-sm am-f ${st.ma ? 'on' : ''}" id="am-ma" title="إظهار كل الأسهم أو أسهم المادة التي تمرّ عليها أو تختارها فقط"><i class="bi bi-bezier2"></i> كل الروابط</button>
         <div class="btn-group btn-group-sm"><button type="button" class="btn btn-outline-secondary" id="am-side-t" title="${SIDE ? 'طيّ اللوحة الجانبية لتوسيع الخريطة' : 'إظهار اللوحة الجانبية'}"><i class="bi ${SIDE ? 'bi-layout-sidebar-inset' : 'bi-layout-sidebar'}"></i> ${SIDE ? 'طيّ اللوحة' : 'إظهار اللوحة'}</button>
           <button type="button" class="btn btn-outline-secondary" id="am-fs" title="ملء الشاشة"><i class="bi bi-arrows-fullscreen"></i></button></div></div></div>
       ${G.nodes.some(n => (G.pre.get(n.key) || []).length) ? '' : '<div class="alert alert-light border small py-2"><i class="bi bi-info-circle"></i> ملف هذه الخطة لا يذكر المتطلبات السابقة للمواد، فتظهر المواد بلا روابط بينها؛ وتبقى حالة كل مادة وشعبها في الجدول الحالي ظاهرة.</div>'}
@@ -352,12 +352,12 @@
     const paths = edges.map(e => { const a = box[e.a], b = box[e.b];
       const ay = port(outs.get(e.a), e, e.a, 'b'), by = port(ins.get(e.b), e, e.b, 'a');
       let d;
-      if (b.r < a.l - 4) { const c = Math.max(26, (a.l - b.r) * 0.5); d = `M${a.l},${ay} C${a.l - c},${ay} ${b.r + c},${by} ${b.r + 1},${by}`; }   // RTL: the later course sits to the left
-      else if (a.r < b.l - 4) { const c = Math.max(26, (b.l - a.r) * 0.5); d = `M${a.r},${ay} C${a.r + c},${ay} ${b.l - c},${by} ${b.l - 1},${by}`; }
-      else { const o = Math.min(a.l, b.l) - 26; d = `M${a.l},${ay} C${o},${ay} ${o},${by} ${b.l - 1},${by}`; }                                        // same column: a loop on the left
+      if (b.r < a.l - 4) { const c = Math.max(26, (a.l - b.r) * 0.5); d = `M${a.l},${ay} C${a.l - c},${ay} ${b.r + c},${by} ${b.r + 2},${by}`; }   // RTL: the later course sits to the left
+      else if (a.r < b.l - 4) { const c = Math.max(26, (b.l - a.r) * 0.5); d = `M${a.r},${ay} C${a.r + c},${ay} ${b.l - c},${by} ${b.l - 2},${by}`; }
+      else { const o = Math.min(a.l, b.l) - 26; d = `M${a.l},${ay} C${o},${ay} ${o},${by} ${b.l - 2},${by}`; }                                        // same column: a loop on the left
       return `<path d="${d}" data-a="${esc(e.a)}" data-b="${esc(e.b)}" marker-end="url(#am-ar)"/>`; }).join('');
-    const mk = (id, c) => `<marker id="${id}" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="${id === 'am-ar' ? 9 : 11}" markerHeight="${id === 'am-ar' ? 9 : 11}" markerUnits="userSpaceOnUse" orient="auto"><path d="M1,1.5 L11,6 L1,10.5 L3.6,6 z" fill="${c}"/></marker>`;
-    svg.innerHTML = `<defs>${mk('am-ar', '#8fa5b5')}${mk('am-ar-anc', '#d97706')}${mk('am-ar-desc', '#901d23')}</defs>${paths}`;
+    const mk = (id, c, w) => `<marker id="${id}" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="${w}" markerHeight="${w}" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0.6 L10,5 L0,9.4 L2.6,5 z" fill="${c}" stroke="#fff" stroke-width=".6" stroke-linejoin="round"/></marker>`;
+    svg.innerHTML = `<defs>${mk('am-ar', '#6f8796', 13)}${mk('am-ar-anc', '#d97706', 16)}${mk('am-ar-desc', '#901d23', 16)}</defs>${paths}`;
     const MK = { anc: 'url(#am-ar-anc)', desc: 'url(#am-ar-desc)', dim: '', off: '', '': 'url(#am-ar)' };
     const light = k => {   // highlight a course's chain (hover preview or selection)
       cv.classList.toggle('focus', !!k);
@@ -503,6 +503,12 @@
       document.querySelectorAll('[data-ml]').forEach(b => b.onclick = () => { st.ml = b.dataset.ml; render(); });
       document.querySelectorAll('[data-mf]').forEach(b => b.onclick = () => { st.mf = b.dataset.mf; render(); });
       requestAnimationFrame(() => drawMap(p, x));
+      // the cards change size once the web fonts arrive: draw the arrows again then, and whenever the canvas changes size
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => st.view === 'map' && drawMap(p, x));
+      if (window.ResizeObserver) { window.__amRO && window.__amRO.disconnect(); let w = 0, h = 0, tm;
+        window.__amRO = new ResizeObserver(([e]) => { const r = e.contentRect; if (Math.abs(r.width - w) < 1 && Math.abs(r.height - h) < 1) return; w = r.width; h = r.height;
+          clearTimeout(tm); tm = setTimeout(() => st.view === 'map' && $('#am-canvas') && drawMap(p, x), 120); });
+        const cvs = $('#am-canvas .am-cols'); if (cvs) window.__amRO.observe(cvs); }
       clearTimeout(window.__amR); window.onresize = () => { clearTimeout(window.__amR); window.__amR = setTimeout(() => st.view === 'map' && drawMap(p, x), 200); };
     }
     if (st.view === 'plan' && x && x.r.ok) document.querySelectorAll('#ad-body .ad-c[data-code]').forEach(c => { if (!realCode(c.dataset.code)) return;
