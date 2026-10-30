@@ -193,7 +193,12 @@
     const seats = open.reduce((a, x) => a + Math.max(0, x.capacity - x.registered), 0);
     return open.length ? { k: 'open', t: `${open.length} من ${s.length} شعبة مفتوحة · ${seats} مقعداً`, s, open, seats } : { k: 'closed', t: `${s.length} شعبة، كلها مغلقة أو ممتلئة`, s, open, seats: 0 };
   }
-  let SIDE = (() => { try { return localStorage.getItem('uop-am-side') !== '0'; } catch (e) { return true; } })();
+  // the course panel either floats over the map (opens when a course is chosen, closes with it) or is pinned beside it
+  const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } };
+  let PIN = store('uop-am-pin') === '1';
+  let ZOOM = Math.min(2, Math.max(0.3, +store('uop-am-zoom') || 1));
+  let ZMODE = store('uop-am-zmode') || 'fit';   // 'fit': the map always fills the width (no horizontal scrolling); 'manual': the zoom the user chose
+  let HELP = false, HIST = [];
   const AV = { open: ['مفتوحة فيها مقاعد', '#15803d'], closed: ['مطروحة ومغلقة', '#c2410c'], none: ['غير مطروحة هذا الفصل', '#94a3b8'], slot: ['خانة اختيار', '#6d28d9'] };
   function when(s) {
     const g = new Map();
@@ -249,19 +254,32 @@
         <div class="d-flex flex-wrap gap-1">${flt.map(([k, l]) => `<button type="button" class="btn btn-sm am-f ${st.mf === k ? 'on' : ''}" data-mf="${k}">${l}</button>`).join('')}</div>
         <div class="am-legend ms-auto">${Object.entries(AV).map(([k, [l, c]]) => `<span><i style="background:${c}"></i>${l} <b>${counts[k]}</b></span>`).join('')}<span><i class="bi bi-lightning-charge-fill text-warning"></i> أطول سلسلة (${G.longest} مواد)</span></div>
         <button type="button" class="btn btn-sm am-f ${st.ma ? 'on' : ''}" id="am-ma" title="إظهار كل الأسهم أو أسهم المادة التي تمرّ عليها أو تختارها فقط"><i class="bi bi-bezier2"></i> كل الروابط</button>
-        <div class="btn-group btn-group-sm"><button type="button" class="btn btn-outline-secondary" id="am-side-t" title="${SIDE ? 'طيّ اللوحة الجانبية لتوسيع الخريطة' : 'إظهار اللوحة الجانبية'}"><i class="bi ${SIDE ? 'bi-layout-sidebar-inset' : 'bi-layout-sidebar'}"></i> ${SIDE ? 'طيّ اللوحة' : 'إظهار اللوحة'}</button>
-          <button type="button" class="btn btn-outline-secondary" id="am-fs" title="ملء الشاشة"><i class="bi bi-arrows-fullscreen"></i></button></div></div></div>
+</div></div>
       ${G.nodes.some(n => (G.pre.get(n.key) || []).length) ? '' : '<div class="alert alert-light border small py-2"><i class="bi bi-info-circle"></i> ملف هذه الخطة لا يذكر المتطلبات السابقة للمواد، فتظهر المواد بلا روابط بينها؛ وتبقى حالة كل مادة وشعبها في الجدول الحالي ظاهرة.</div>'}
-      <div class="am-row ${SIDE ? '' : 'collapsed'}">
-        <div class="am-stage"><div class="am-mini no-print" id="am-mini" hidden></div><div class="am-scroll"><div class="am-canvas" id="am-canvas"><svg id="am-svg" aria-hidden="true"></svg>
+      <div class="am-row ${PIN ? 'docked' : 'floating'}">
+        <div class="am-stage">
+          <div class="am-zoombar no-print" role="toolbar" aria-label="أدوات الخريطة">
+            <button type="button" data-z="out" title="تصغير (−)"><i class="bi bi-dash-lg"></i></button>
+            <button type="button" data-z="1" id="am-zl" title="الحجم الفعلي (0)">100%</button>
+            <button type="button" data-z="in" title="تكبير (+)"><i class="bi bi-plus-lg"></i></button>
+            <span class="am-zsep"></span>
+            <button type="button" data-z="w" title="ملاءمة العرض تلقائياً: الخريطة كلها بعرض الشاشة بلا شريط تمرير أفقي"><i class="bi bi-arrows-expand-vertical"></i><span>ملاءمة العرض</span></button>
+            <button type="button" data-z="all" title="إظهار الخريطة كاملة"><i class="bi bi-aspect-ratio"></i><span>الخريطة كاملة</span></button>
+            <span class="am-zsep"></span>
+            <button type="button" id="am-help-b" title="دليل الخريطة والمواد المفتاحية"><i class="bi bi-question-circle"></i></button>
+            <button type="button" id="am-fs" title="ملء الشاشة"><i class="bi bi-arrows-fullscreen"></i></button>
+          </div>
+          <div class="am-scroll" id="am-scroll" title=""><div class="am-sizer" id="am-sizer"><div class="am-canvas" id="am-canvas"><svg id="am-svg" aria-hidden="true"></svg>
           <div class="am-cols">${keys.map(k => `<div class="am-col"><header>${head(k)}<span>${cols.get(k).reduce((a, n) => a + (n.hours || 0), 0)} س</span></header>${cols.get(k).map(node).join('')}</div>`).join('')}</div></div></div></div>
+          <div class="am-hint no-print"><i class="bi bi-mouse"></i> اسحب لتحريك الخريطة · Ctrl + عجلة الفأرة للتكبير · Esc لإلغاء الاختيار</div></div>
         <aside class="am-side" id="am-side">
-          <div class="am-help"><h3><i class="bi bi-cursor"></i> اختر مادة من الخريطة</h3><p>تظهر <span class="am-k anc">متطلباتها</span> وكل ما قبلها، و<span class="am-k desc">ما تفتحه</span> وكل ما بعده، مع شعبها في الجدول الدراسي الحالي وحالة كل شعبة ومقاعدها.</p>
+          <div class="am-help"><div class="am-help-top"><h3><i class="bi bi-cursor"></i> اختر مادة من الخريطة</h3>${pinBtn()}<button type="button" class="am-ic dark" data-close title="إغلاق"><i class="bi bi-x-lg"></i></button></div><p>تظهر <span class="am-k anc">متطلباتها</span> وكل ما قبلها، و<span class="am-k desc">ما تفتحه</span> وكل ما بعده، مع شعبها في الجدول الدراسي الحالي وحالة كل شعبة ومقاعدها.</p>
             <h4>المواد المفتاحية في هذه الخطة</h4><ol>${keyCourses.map(n => `<li><a href="#" data-go="${n.code}"><code>${n.code}</code> ${esc(n.name || CODE_NAME[n.code] || '')}</a> <small>تفتح ${G.desc.get(n.key).size}</small></li>`).join('')}</ol>
             <p class="small text-muted mb-0">${done.size ? `معلّم ${done.size} مادة مجتازة من «المرشد الأكاديمي»: المجتازة باهتة، والجاهزة للتسجيل بإطار ذهبي.` : 'علّم ما اجتازه الطالب (من هنا أو من «المرشد الأكاديمي») لتظهر المواد الجاهزة للتسجيل.'}</p></div>
         </aside>
       </div></div>`;
   }
+  const pinBtn = light => `<button type="button" class="am-ic ${light ? '' : 'dark'} ${PIN ? 'on' : ''}" data-pin title="${PIN ? 'إلغاء التثبيت: تطفو اللوحة فوق الخريطة وتُغلق مع إلغاء الاختيار' : 'تثبيت اللوحة بجانب الخريطة'}"><i class="bi ${PIN ? 'bi-pin-angle-fill' : 'bi-pin-angle'}"></i></button>`;
   const DAY = { ح: 'الأحد', ن: 'الاثنين', ث: 'الثلاثاء', ر: 'الأربعاء', خ: 'الخميس', س: 'السبت', ج: 'الجمعة' };
   const DAYS = ['س', 'ح', 'ن', 'ث', 'ر', 'خ', 'ج'];
   const isOpen = x => x.status !== 'مغلقة' && x.registered < x.capacity;
@@ -326,7 +344,7 @@
     return `<div class="am-p">
       <div class="am-hero av-${av.k}">
         <div class="am-hero-top"><code>${esc(n.code)}</code><span>${n.hours ?? '—'} س.م</span>${n.mark ? `<span title="علامة في الخطة">${esc(n.mark)}</span>` : ''}
-          <button type="button" class="am-ic" id="am-x" title="إغلاق (Esc)"><i class="bi bi-x-lg"></i></button></div>
+          <span class="am-hero-btns">${HIST.length ? `<button type="button" class="am-ic" id="am-back" title="رجوع إلى ${esc(HIST[HIST.length - 1])}"><i class="bi bi-arrow-right"></i></button>` : ''}${pinBtn(true)}<button type="button" class="am-ic" id="am-x" title="إغلاق (Esc)"><i class="bi bi-x-lg"></i></button></span></div>
         <h3>${esc(n.name || CODE_NAME[n.code] || '')}</h3>
         <div class="am-hero-sub"><span><i class="bi bi-calendar3"></i> ${YEAR[n.year] || ''} · ${TERM[n.term]}</span><span><span class="am-dot2" style="background:#fff"></span> ${esc(av.t)}</span></div>
       </div>
@@ -340,8 +358,9 @@
   }
   function drawMap(p, x) {
     const cv = $('#am-canvas'), svg = $('#am-svg'); if (!cv || !svg) return;
-    const G = graph(x), R = cv.getBoundingClientRect(), box = {};
-    cv.querySelectorAll('.am-n').forEach(e => { const r = e.getBoundingClientRect(); box[e.dataset.k] = { l: r.left - R.left, r: r.right - R.left, t: r.top - R.top, h: r.height, y: r.top - R.top + r.height / 2 }; });
+    cv.style.transform = `scale(${ZOOM})`;
+    const G = graph(x), R = cv.getBoundingClientRect(), box = {}, z = ZOOM;   // the canvas is scaled: measure in its own units
+    cv.querySelectorAll('.am-n').forEach(e => { const r = e.getBoundingClientRect(); box[e.dataset.k] = { l: (r.left - R.left) / z, r: (r.right - R.left) / z, t: (r.top - R.top) / z, h: r.height / z, y: (r.top - R.top + r.height / 2) / z }; });
     svg.setAttribute('width', cv.scrollWidth); svg.setAttribute('height', cv.scrollHeight);
     // every edge gets its own port on each card, ordered by where the other end sits, so arrows never pile up on one point
     const edges = [], ins = new Map(), outs = new Map();
@@ -369,51 +388,83 @@
         e.setAttribute('class', c); MK[c] ? e.setAttribute('marker-end', MK[c]) : e.removeAttribute('marker-end'); if (c === 'anc' || c === 'desc') top.push(e); });
       top.forEach(e => svg.appendChild(e));   // highlighted arrows drawn above the rest
     };
-    const mini = k => { const m = $('#am-mini'); if (!m) return;
-      const n = k && G.nodes.find(n => n.key === k);
-      if (!n || SIDE) { m.hidden = true; return; }
-      const av = avail(n.code);
-      m.hidden = false;
-      m.innerHTML = `<span class="am-dot2" style="background:${AV[av.k][1]}"></span><code>${esc(n.code)}</code><b>${esc(n.name || CODE_NAME[n.code] || '')}</b><small>${esc(av.t)}</small>
-        <button type="button" class="btn btn-sm btn-maroon" id="am-mini-open"><i class="bi bi-layout-sidebar-inset"></i> التفاصيل والشعب</button>`;
-      $('#am-mini-open').onclick = () => toggleSide(true); };
+    const row = $('.am-row'), sc = $('#am-scroll');
     const focus = k => {
-      light(k); mini(k);
+      light(k);
       const side = $('#am-side');
-      if (k) { side.dataset.help ||= side.innerHTML; side.innerHTML = mapPanel(p, x, G, k); } else if (side.dataset.help) side.innerHTML = side.dataset.help;
+      if (k) { HELP = false; side.dataset.help ||= side.innerHTML; side.innerHTML = mapPanel(p, x, G, k); } else if (side.dataset.help) side.innerHTML = side.dataset.help;
+      row.classList.toggle('open', !!k || HELP);
       bindSide();
       const url = new URL(location.href); k ? url.searchParams.set('c', k) : url.searchParams.delete('c'); history.replaceState(null, '', url);
     };
-    const go = c => { const e = cv.querySelector(`.am-n[data-k="${CSS.escape(c)}"]`); if (!e) return; st.sel = c; focus(c); e.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' }); };
+    // keep the chosen card in sight, clear of the floating panel
+    const reveal = c => { const e = cv.querySelector(`.am-n[data-k="${CSS.escape(c)}"]`); if (!e) return;
+      const S = sc.getBoundingClientRect(), r = e.getBoundingClientRect(), side = $('#am-side').getBoundingClientRect();
+      const left = row.classList.contains('floating') && row.classList.contains('open') ? Math.max(S.left, side.right) + 16 : S.left + 16;
+      let dx = 0, dy = 0;
+      if (r.left < left) dx = r.left - left; else if (r.right > S.right - 16) dx = r.right - S.right + 16;
+      if (r.top < S.top + 50) dy = r.top - S.top - 50; else if (r.bottom > S.bottom - 16) dy = r.bottom - S.bottom + 16;
+      if (dx || dy) sc.scrollBy({ left: dx, top: dy, behavior: 'smooth' }); };
+    const pick = (c, back) => { if (!back && st.sel && st.sel !== c) { HIST.push(st.sel); if (HIST.length > 20) HIST.shift(); } if (!c) HIST = []; st.sel = c; focus(c); if (c) requestAnimationFrame(() => reveal(c)); };
+    const go = c => pick(c);
     function bindSide() {
       const side = $('#am-side');
       side.querySelectorAll('[data-go]').forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.go); });
-      const xb = $('#am-x'); if (xb) xb.onclick = () => { st.sel = ''; focus(''); };
+      const xb = $('#am-x'); if (xb) xb.onclick = () => pick('');
+      const bk = $('#am-back'); if (bk) bk.onclick = () => pick(HIST.pop(), true);
+      side.querySelectorAll('[data-close]').forEach(b => b.onclick = () => { HELP = false; row.classList.remove('open'); });
+      side.querySelectorAll('[data-pin]').forEach(b => b.onclick = () => { PIN = !PIN; store('uop-am-pin', PIN ? '1' : '0'); row.classList.toggle('docked', PIN); row.classList.toggle('floating', !PIN);
+        side.querySelectorAll('[data-pin]').forEach(q => { q.classList.toggle('on', PIN); q.innerHTML = `<i class="bi ${PIN ? 'bi-pin-angle-fill' : 'bi-pin-angle'}"></i>`; });
+        if (side.dataset.help) side.dataset.help = side.dataset.help.replace(/(data-pin[^>]*><i class="bi )bi-pin-angle(-fill)?/, `$1${PIN ? 'bi-pin-angle-fill' : 'bi-pin-angle'}`);
+        requestAnimationFrame(() => { fitSizer(); if (st.sel) reveal(st.sel); }); });
       side.querySelectorAll('[data-pt]').forEach(b => b.onclick = () => { st.pt = b.dataset.pt; side.innerHTML = mapPanel(p, x, G, st.sel); bindSide(); side.scrollTop = 0; });
       const po = $('#am-po'); if (po) po.onchange = e => { st.po = e.target.checked; side.innerHTML = mapPanel(p, x, G, st.sel); bindSide(); };
       const cp = $('#am-copy'); if (cp) cp.onclick = () => { navigator.clipboard && navigator.clipboard.writeText(location.href).then(() => { cp.querySelector('span').textContent = 'نُسخ ✓'; }); };
       const db = $('#am-done'); if (db) db.onclick = () => { const d = getDone(p), c = db.dataset.c; d.has(c) ? d.delete(c) : d.add(c); setDone(p, d); const y = scrollY; render(); scrollTo(0, y); };
     }
     cv.querySelectorAll('.am-n').forEach(e => {
-      e.onclick = () => { const k = e.dataset.k === st.sel ? '' : e.dataset.k; st.sel = k; focus(k); };
+      e.onclick = () => { if (dragged) return; pick(e.dataset.k === st.sel ? '' : e.dataset.k); };
       e.onmouseenter = () => { if (!st.sel) light(e.dataset.k); };
       e.onmouseleave = () => { if (!st.sel) light(''); };
     });
-    cv.onclick = e => { if (e.target === cv || e.target.classList.contains('am-cols') || e.target.tagName === 'svg') { st.sel = ''; focus(''); } };
+    cv.onclick = e => { if (!dragged && (e.target === cv || e.target.classList.contains('am-cols') || e.target.tagName === 'svg')) pick(''); };
     window.__amKey && document.removeEventListener('keydown', window.__amKey);
-    window.__amKey = e => { if (e.key === 'Escape' && st.view === 'map' && st.sel && !document.fullscreenElement) { st.sel = ''; focus(''); } };
+    window.__amKey = e => { if (st.view !== 'map' || !$('#am-canvas')) return;
+      if (/^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || ''))) return;
+      if (e.key === 'Escape' && !document.fullscreenElement) { if (st.sel) pick(''); else { HELP = false; row.classList.remove('open'); } }
+      else if (e.key === '+' || e.key === '=') zoomTo(ZOOM * 1.2); else if (e.key === '-') zoomTo(ZOOM / 1.2); else if (e.key === '0') zoomTo(1); };
     document.addEventListener('keydown', window.__amKey);
-    function toggleSide(v) {
-      SIDE = v == null ? !SIDE : v;
-      try { localStorage.setItem('uop-am-side', SIDE ? '1' : '0'); } catch (e) { /* storage unavailable */ }
-      $('.am-row').classList.toggle('collapsed', !SIDE);
-      const t = $('#am-side-t'); if (t) { t.innerHTML = `<i class="bi ${SIDE ? 'bi-layout-sidebar-inset' : 'bi-layout-sidebar'}"></i> ${SIDE ? 'طيّ اللوحة' : 'إظهار اللوحة'}`; t.title = SIDE ? 'طيّ اللوحة الجانبية لتوسيع الخريطة' : 'إظهار اللوحة الجانبية'; }
-      requestAnimationFrame(() => drawMap(p, x));
+    // ---- zoom: the canvas is scaled, the sizer around it takes the scaled size so the scrollbars stay right
+    function fitSizer() { const sz = $('#am-sizer'); if (!sz) return; cv.style.transform = `scale(${ZOOM})`;
+      sz.style.width = cv.offsetWidth * ZOOM + 'px'; sz.style.height = cv.offsetHeight * ZOOM + 'px'; const l = $('#am-zl'); if (l) l.textContent = Math.round(ZOOM * 100) + '%'; }
+    function setMode(m) { ZMODE = m; store('uop-am-zmode', m); sc.classList.toggle('fitw', m === 'fit'); const w = document.querySelector('[data-z="w"]'); if (w) w.classList.toggle('on', m === 'fit'); }
+    function autoFit() { if (ZMODE !== 'fit' || !cv.offsetWidth) return; ZOOM = Math.min(1.15, Math.max(0.4, (sc.clientWidth - 14) / cv.offsetWidth)); fitSizer(); sc.scrollLeft = 0; }
+    function zoomTo(z2, keep) {
+      if (!keep) setMode('manual');
+      z2 = Math.min(2, Math.max(0.3, z2)); const z1 = ZOOM; if (Math.abs(z2 - z1) < 0.001) return;
+      const cw = sc.clientWidth, ch = sc.clientHeight, fromRight = -sc.scrollLeft + cw / 2, cy = sc.scrollTop + ch / 2;   // keep the middle of the view in place (RTL scrolls with negative scrollLeft)
+      ZOOM = z2; store('uop-am-zoom', String(Math.round(z2 * 100) / 100)); fitSizer();
+      sc.scrollLeft = -(fromRight * z2 / z1 - cw / 2); sc.scrollTop = cy * z2 / z1 - ch / 2;
     }
-    const t = $('#am-side-t'); if (t) t.onclick = () => toggleSide();
+    const usableW = () => sc.clientWidth - 12 - (row.classList.contains('floating') && row.classList.contains('open') ? $('#am-side').offsetWidth + 12 : 0);
+    document.querySelectorAll('[data-z]').forEach(b => b.onclick = () => { const v = b.dataset.z;
+      if (v === 'in') zoomTo(ZOOM * 1.2); else if (v === 'out') zoomTo(ZOOM / 1.2); else if (v === '1') zoomTo(1);
+      else if (v === 'w') { setMode('fit'); autoFit(); }
+      else { zoomTo(Math.min(1.3, usableW() / cv.offsetWidth, (sc.clientHeight - 12) / cv.offsetHeight)); sc.scrollLeft = 0; sc.scrollTop = 0; } });
+    sc.onwheel = e => { if (!e.ctrlKey && !e.metaKey) return; e.preventDefault(); zoomTo(ZOOM * (e.deltaY < 0 ? 1.1 : 1 / 1.1)); };
+    // ---- drag the map to move around it
+    let dragged = false;
+    sc.onpointerdown = e => { if (e.button !== 0 || e.target.closest('.am-n, button, a')) return;
+      const x0 = e.clientX, y0 = e.clientY, l0 = sc.scrollLeft, t0 = sc.scrollTop; dragged = false;
+      const mv = ev => { const dx = ev.clientX - x0, dy = ev.clientY - y0; if (!dragged && Math.hypot(dx, dy) < 5) return; dragged = true; sc.classList.add('grabbing'); sc.scrollLeft = l0 - dx; sc.scrollTop = t0 - dy; };
+      const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); sc.classList.remove('grabbing'); setTimeout(() => { dragged = false; }, 0); };
+      addEventListener('pointermove', mv); addEventListener('pointerup', up); };
+    const hb = $('#am-help-b'); if (hb) hb.onclick = () => { if (st.sel) pick(''); HELP = !row.classList.contains('open'); row.classList.toggle('open', HELP); };
     const ma = $('#am-ma'); if (ma) ma.onclick = () => { st.ma = !st.ma; ma.classList.toggle('on', st.ma); light(st.sel); };
     const fs = $('#am-fs'); if (fs) fs.onclick = () => { const w = $('#am-wrap'); document.fullscreenElement ? document.exitFullscreen() : w.requestFullscreen && w.requestFullscreen(); };
+    setMode(ZMODE); if (ZMODE === 'fit') autoFit(); else fitSizer();
     focus(st.sel && box[st.sel] ? st.sel : '');
+    if (st.sel && box[st.sel]) requestAnimationFrame(() => reveal(st.sel));
   }
 
   // ---------------------------------------------------------------- the plan's courses that are in the timetable this term
