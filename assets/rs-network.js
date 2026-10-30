@@ -18,6 +18,8 @@
   edgesBase.push(...edgesAll);
   const cross = edgesAll.filter(e => byId[e.source].faculty !== byId[e.target].faculty);
 
+  const PTYPE = [['article', 'مقالة مجلة', 'bi-journal-text', '#0b4a66'], ['conf', 'ورقة مؤتمر', 'bi-easel2', '#901d23'], ['chapter', 'فصل كتاب', 'bi-book-half', '#0f766e'],
+    ['review', 'مراجعة', 'bi-search', '#6a2fb0'], ['book', 'كتاب', 'bi-book', '#b45309'], ['other', 'أخرى', 'bi-three-dots', '#64748b']];
   app.innerHTML = `
   <section class="rs-section rs-kpis">
     <div class="rs-kpi"><div class="v">${R.n(new Set(edgesAll.flatMap(e => [e.source, e.target])).size)}</div><div class="l"><i class="bi bi-person-check"></i>باحث لديه شريك داخل الجامعة</div></div>
@@ -48,9 +50,12 @@
   </section>
   <section class="rs-section rs-card" data-tab="people" hidden><h3><i class="bi bi-person-lines-fill"></i>كل الباحثين وشركاؤهم <button class="btn btn-sm btn-rs-o ms-auto" id="n-csv"><i class="bi bi-download"></i> CSV</button></h3>
     <div class="rs-scroll" style="max-height:75vh"><table class="rs-table" id="n-people"></table></div></section>
-  <section class="rs-section rs-grid two" data-tab="pairs matrix" hidden>
-    <div class="rs-card" data-tab="pairs"><h3><i class="bi bi-people"></i>أقوى ثنائيات التعاون</h3><div class="rs-scroll" style="max-height:620px"><table class="rs-table"><thead><tr><th>الباحث</th><th></th><th>الشريك</th><th class="num">أبحاث مشتركة</th><th></th></tr></thead><tbody>
-      ${[...edgesAll].sort((a, b) => b.w - a.w).slice(0, 60).map(e => `<tr><td><a href="${R.profileUrl(byId[e.source])}"><b>${R.esc(byId[e.source].name)}</b></a><br><span class="rs-fdot" style="--fc:${R.facColor(byId[e.source].faculty)}">${R.esc(byId[e.source].faculty)}</span></td><td><i class="bi bi-arrow-left-right" style="color:#b8892b"></i></td><td><a href="${R.profileUrl(byId[e.target])}"><b>${R.esc(byId[e.target].name)}</b></a><br><span class="rs-fdot" style="--fc:${R.facColor(byId[e.target].faculty)}">${R.esc(byId[e.target].faculty)}</span></td><td class="num"><span class="pill qg">${e.w}</span></td><td><a class="rs-src" href="compare.html?ids=${e.source},${e.target}">قارن</a></td></tr>`).join('')}</tbody></table></div></div>
+  <section class="rs-section np-wrap" data-tab="pairs" hidden>
+    <div class="rs-card np-list"><h3><i class="bi bi-people"></i>أقوى ثنائيات التعاون <small class="fw-normal text-muted" id="np-sub"></small></h3>
+      <div class="np-key">${PTYPE.map(t => `<span><i style="background:${t[3]}"></i>${t[1]}</span>`).join('')}</div><div class="rs-scroll np-scroll"><table class="rs-table np-t" id="np-t"></table></div></div>
+    <aside class="rs-card np-det" id="np-det"><div class="rs-empty"><i class="bi bi-hourglass-split"></i> جارٍ تحميل المنشورات…</div></aside>
+  </section>
+  <section class="rs-section" data-tab="matrix" hidden>
     <div class="rs-card" data-tab="matrix"><h3><i class="bi bi-grid-3x3"></i>مصفوفة التعاون بين الكليات <small class="fw-normal text-muted">عدد الأبحاث المشتركة · الأغمق = أكثر</small></h3><div class="rs-scroll" id="n-matrix"></div></div>
   </section>`;
 
@@ -65,6 +70,79 @@
   const PL = Object.entries(P).map(([id, p]) => Object.assign({ r: byId[id] }, p)).sort((a, b) => b.n - a.n || b.w - a.w);
   R.$('#n-people').innerHTML = `<thead><tr><th>#</th><th>الباحث</th><th>الكلية</th><th class="num">الشركاء</th><th class="num">أبحاث مشتركة</th><th class="num">شركاء من كليات أخرى</th><th class="num">منشوراته</th></tr></thead><tbody>${PL.map((p, i) => `<tr><td class="num">${i + 1}</td><td><a class="d-flex align-items-center gap-2 text-decoration-none" href="${R.profileUrl(p.r)}">${R.avatar(p.r, 'sm')}<b style="color:#901d23">${R.esc(p.r.name)}</b></a></td><td><span class="rs-fdot" style="--fc:${R.facColor(p.r.faculty)}">${R.esc(p.r.faculty)}</span></td><td class="num"><span class="pill bl">${p.n}</span></td><td class="num"><span class="pill qg">${p.w}</span></td><td class="num">${p.x ? `<span class="pill or">${p.x}</span>` : '–'}</td><td class="num">${R.n(p.r.works)}</td></tr>`).join('')}</tbody>`;
   R.$('#n-csv').onclick = () => R.csv(PL.map(p => ({ name: p.r.name, faculty: p.r.faculty, dept: p.r.dept, partners: p.n, joint_papers: p.w, cross_faculty_partners: p.x, publications: p.r.works })), 'uop-collaboration.csv');
+
+  // ---------------------------------------------------------------- strongest pairs: period, venues and publication types
+  const PT = Object.fromEntries(PTYPE.map(x => [x[0], x]));
+  const ptype = w => { const t = String(w.type || '').toLowerCase(), st = String(w.st || '').toLowerCase();
+    if (/conference|proceeding/.test(t) || /conference/.test(st) || w.vt === 'conference') return 'conf';
+    if (/chapter/.test(t)) return 'chapter'; if (t === 'book') return 'book'; if (t === 'review' || st === 'review') return 'review';
+    if (t === 'article' || /article/.test(st)) return 'article'; return 'other'; };
+  let PW = null, pairSel = null;
+  const pkey = (a, b) => a < b ? a + '|' + b : b + '|' + a;
+  async function pairWorks() {
+    if (PW) return PW;
+    let W = []; try { W = (await R.load('works')).works || []; } catch (e) { /* no publications file: the table still works */ }
+    PW = {};
+    W.forEach(w => { const rs = [...new Set(w.r || [])].filter(id => byId[id]); for (let i = 0; i < rs.length; i++) for (let j = i + 1; j < rs.length; j++) (PW[pkey(rs[i], rs[j])] = PW[pkey(rs[i], rs[j])] || []).push(w); });
+    return PW;
+  }
+  const yrRange = () => [+R.$('#n-from').value || 0, +R.$('#n-to').value || 9999];
+  const worksOf = e => { const [a, b] = yrRange(); return ((PW || {})[pkey(e.source, e.target)] || []).filter(w => !w.y || (w.y >= a && w.y <= b)).sort((x, y) => (y.y || 0) - (x.y || 0)); };
+  const span = ws => { const ys = ws.map(w => w.y).filter(Boolean); return ys.length ? [Math.min(...ys), Math.max(...ys)] : null; };
+  function pairRows() {
+    const fac = R.$('#n-fac').value, min = +R.$('#n-min').value, crossOnly = R.$('#n-cross').checked, q = R.norm(R.$('#n-q').value);
+    return edgesAll.filter(e => e.w >= min && (!fac || byId[e.source].faculty === fac || byId[e.target].faculty === fac)
+      && (!crossOnly || byId[e.source].faculty !== byId[e.target].faculty) && (!q || R.norm(byId[e.source].name + ' ' + byId[e.target].name).includes(q)))
+      .sort((a, b) => b.w - a.w).slice(0, 80);
+  }
+  const who = r => `<a href="${R.profileUrl(r)}" class="np-n">${R.esc(r.name)}</a><span class="rs-fdot" style="--fc:${R.facColor(r.faculty)}">${R.esc(r.faculty)}</span>`;
+  async function pairs() {
+    const rows = pairRows(), [a, b] = yrRange();
+    R.$('#np-sub').textContent = `${R.n(rows.length)} ثنائياً${a || b !== 9999 ? ` · ${a || '…'}–${b === 9999 ? Y : b}` : ''} · اضغط صفاً لعرض تفاصيله`;
+    const head = `<thead><tr><th>الباحث</th><th></th><th>الشريك</th><th class="num">أبحاث</th><th>الفترة</th><th>الأنواع</th></tr></thead>`;
+    const body = () => rows.map((e, i) => { const ws = PW ? worksOf(e) : null, sp = ws && span(ws), tc = {};
+      (ws || []).forEach(w => { const k = ptype(w); tc[k] = (tc[k] || 0) + 1; });
+      return `<tr data-i="${i}" class="${pairSel === pkey(e.source, e.target) ? 'on' : ''}"><td>${who(byId[e.source])}</td><td class="np-ar"><i class="bi bi-arrow-left-right"></i></td><td>${who(byId[e.target])}</td>
+        <td class="num"><span class="pill qg">${e.w}</span></td>
+        <td class="np-per">${ws == null ? '<span class="text-muted">…</span>' : sp ? `<b dir="ltr">${sp[0] === sp[1] ? sp[0] : sp[0] + '–' + sp[1]}</b><small>${sp[1] - sp[0] + 1} ${sp[1] - sp[0] + 1 > 10 ? 'سنة' : (sp[1] - sp[0] + 1 > 2 ? 'سنوات' : (sp[1] === sp[0] ? 'سنة' : 'سنتان'))}</small>` : '<span class="text-muted">–</span>'}</td>
+        <td><span class="np-mini">${PTYPE.filter(t => tc[t[0]]).map(t => `<i style="flex:${tc[t[0]]};background:${t[3]}" title="${t[1]}: ${tc[t[0]]}"></i>`).join('')}</span></td></tr>`; }).join('');
+    R.$('#np-t').innerHTML = head + `<tbody>${body()}</tbody>`;
+    R.$('#np-t').onclick = ev => { if (ev.target.closest('a')) return; const tr = ev.target.closest('tr[data-i]'); if (!tr) return; pairSel = pkey(rows[+tr.dataset.i].source, rows[+tr.dataset.i].target); R.$$('#np-t tr.on').forEach(x => x.classList.remove('on')); tr.classList.add('on'); detail(rows[+tr.dataset.i]); if (innerWidth < 1100) R.$('#np-det').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+    if (!rows.length) { R.$('#np-t').innerHTML = '<tbody><tr><td class="rs-empty">لا ثنائيات بهذه الشروط.</td></tr></tbody>'; R.$('#np-det').innerHTML = ''; return; }
+    if (!PW) { await pairWorks(); return pairs(); }
+    const cur = rows.find(e => pkey(e.source, e.target) === pairSel) || rows[0];
+    pairSel = pkey(cur.source, cur.target); R.$$('#np-t tr').forEach(tr => tr.classList.toggle('on', tr.dataset.i != null && rows[+tr.dataset.i] === cur));
+    detail(cur);
+  }
+  function detail(e) {
+    const tb = document.querySelector('.uop-topbar'); R.$('#np-det').style.top = ((tb && getComputedStyle(tb).position === 'sticky' ? tb.offsetHeight : 0) + 12) + 'px';
+    const A = byId[e.source], B = byId[e.target], ws = worksOf(e), sp = span(ws);
+    const tc = {}; ws.forEach(w => { const k = ptype(w); tc[k] = (tc[k] || 0) + 1; });
+    const vc = {}; ws.forEach(w => { if (!w.v) return; const o = vc[w.v] = vc[w.v] || { v: w.v, n: 0, k: ptype(w), q: w.q }; o.n++; if (w.q && (!o.q || w.q < o.q)) o.q = w.q; });
+    const venues = Object.values(vc).sort((x, y) => y.n - x.n), vmax = Math.max(1, ...venues.map(v => v.n));
+    const yc = {}; ws.forEach(w => { if (w.y) yc[w.y] = (yc[w.y] || 0) + 1; });
+    const ys = sp ? Array.from({ length: sp[1] - sp[0] + 1 }, (_, i) => sp[0] + i) : [], ymax = Math.max(1, ...Object.values(yc));
+    const n = ws.length;
+    R.$('#np-det').innerHTML = `
+      <div class="np-hd"><div class="np-who">${R.avatar(A, 'sm')}<div>${who(A)}</div></div><span class="np-x"><i class="bi bi-arrow-left-right"></i></span><div class="np-who">${R.avatar(B, 'sm')}<div>${who(B)}</div></div></div>
+      <div class="np-kp">
+        <div><b>${R.n(e.w)}</b><span>بحثاً مشتركاً</span></div>
+        <div><b dir="ltr">${sp ? (sp[0] === sp[1] ? sp[0] : `${sp[0]}–${sp[1]}`) : '–'}</b><span>الفترة${sp ? ` · ${sp[1] - sp[0] + 1} سنة` : ''}</span></div>
+        <div><b>${R.n(venues.length)}</b><span>مجلة / مؤتمر</span></div>
+        <div><b>${R.n(R.sum(ws.map(w => w.sc ?? w.c ?? 0)))}</b><span>استشهاداً</span></div>
+      </div>
+      ${n ? `<div class="np-sec"><h4><i class="bi bi-pie-chart"></i> نوع النشر</h4>
+        <div class="np-bar">${PTYPE.filter(t => tc[t[0]]).map(t => `<i style="flex:${tc[t[0]]};background:${t[3]}" title="${t[1]}: ${tc[t[0]]}">${tc[t[0]] / n > .12 ? tc[t[0]] : ''}</i>`).join('')}</div>
+        <div class="np-leg">${PTYPE.filter(t => tc[t[0]]).map(t => `<span><i class="bi ${t[2]}" style="color:${t[3]}"></i>${t[1]} <b>${tc[t[0]]}</b></span>`).join('')}</div></div>
+      ${ys.length > 1 ? `<div class="np-sec"><h4><i class="bi bi-calendar3"></i> عبر السنوات</h4><div class="np-yrs">${ys.map(y => `<div title="${y}: ${yc[y] || 0}"><i style="height:${Math.round(100 * (yc[y] || 0) / ymax)}%"></i><small>${(y === ys[0] || y === ys[ys.length - 1]) ? y : (ys.length <= 12 ? String(y).slice(2) : '')}</small></div>`).join('')}</div></div>` : ''}
+      <div class="np-sec"><h4><i class="bi bi-journal-bookmark"></i> المجلات والمؤتمرات</h4><ul class="np-ven">${venues.slice(0, 8).map(v => `<li><i class="bi ${PT[v.k][2]}" style="color:${PT[v.k][3]}" title="${PT[v.k][1]}"></i><span class="ltr" dir="ltr" title="${R.esc(v.v)}">${R.esc(v.v)}</span>${v.q ? R.qTag(v.q) : ''}<span class="np-vb"><i style="width:${Math.round(100 * v.n / vmax)}%"></i></span><b>${v.n}</b></li>`).join('') || '<li class="text-muted">لا أسماء مجلات في البيانات</li>'}</ul>${venues.length > 8 ? `<small class="text-muted">و${R.n(venues.length - 8)} أخرى</small>` : ''}</div>
+      <div class="np-sec"><h4><i class="bi bi-files"></i> الأبحاث المشتركة <small class="text-muted fw-normal">${R.n(n)}</small></h4><ol class="np-papers">${ws.slice(0, 40).map(w => { const t = PT[ptype(w)]; return `<li><span class="y">${w.y || '–'}</span><div><a class="ltr" dir="auto" href="${R.docUrl(w)}">${R.esc(w.t)}</a><div class="m"><span class="np-tp" style="--c:${t[3]}"><i class="bi ${t[2]}"></i>${t[1]}</span>${R.qTag(w.q)}${w.v ? `<span class="ltr" dir="ltr">${R.esc(w.v)}</span>` : ''}</div></div></li>`; }).join('')}</ol>${n > 40 ? `<small class="text-muted">أول 40 من ${R.n(n)}</small>` : ''}</div>`
+      : '<div class="rs-empty mt-3"><i class="bi bi-info-circle"></i> لم نجد تفاصيل هذه الأبحاث في قاعدة المنشورات ضمن الفترة المختارة.</div>'}
+      ${n && n !== e.w ? `<p class="rs-note mb-0 mt-2"><i class="bi bi-info-circle"></i> العدد ${R.n(e.w)} من بيانات المؤلفين المشاركين، والتفاصيل أعلاه لـ ${R.n(n)} منشوراً وُجدت في قاعدة المنشورات.</p>` : ''}
+      <div class="np-acts"><a class="btn btn-sm btn-rs-o" href="compare.html?ids=${e.source},${e.target}"><i class="bi bi-intersect"></i> قارن الباحثَين</a></div>`;
+  }
+  ['#n-fac', '#n-min', '#n-cross'].forEach(s => R.$(s).addEventListener('change', () => { if (!R.$('[data-tab="pairs"]').hidden) pairs(); }));
+  R.$('#n-q').addEventListener('input', R.debounce(() => { if (!R.$('[data-tab="pairs"]').hidden) pairs(); }, 300));
   let chartsDone = false;
   function charts() {
     if (chartsDone) return; chartsDone = true;
@@ -78,7 +156,7 @@
   R.$('#n-tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; const t = b.dataset.t;
     R.$$('#n-tabs button').forEach(x => x.classList.toggle('on', x === b));
     R.$$('[data-tab]', app).forEach(el => { el.hidden = !el.dataset.tab.split(' ').includes(t); });
-    if (t === 'charts') charts(); if (t === 'graph') draw(); });
+    if (t === 'charts') charts(); if (t === 'graph') draw(); if (t === 'pairs') pairs(); });
   if (!window.d3) { R.$('#n-box').innerHTML = '<div class="rs-empty">تعذّر تحميل مكتبة الرسم</div>'; return; }
   const svg = d3.select('#n-svg'), tip = R.$('#n-tip');
   const g = svg.append('g');
@@ -275,12 +353,12 @@
   async function period() {
     const a = +R.$('#n-from').value || 0, b = +R.$('#n-to').value || 9999;
     edgesAll.length = 0;
-    if (!a && b === 9999) { edgesAll.push(...edgesBase); draw(); return; }
+    if (!a && b === 9999) { edgesAll.push(...edgesBase); draw(); if (!R.$('[data-tab="pairs"]').hidden) pairs(); return; }
     if (!WALL) { R.$('#n-stats').innerHTML = '<span><i class="bi bi-hourglass-split"></i> جارٍ تحميل المنشورات…</span>'; try { WALL = (await R.load('works')).works; } catch (e) { WALL = []; } }
     const M = {};
     WALL.forEach(w => { if (!w.y || w.y < a || w.y > b) return; const rs = [...new Set(w.r || [])].filter(id => byId[id]).sort(); for (let i = 0; i < rs.length; i++) for (let j = i + 1; j < rs.length; j++) { const k = rs[i] + '|' + rs[j], m = M[k] = M[k] || { source: rs[i], target: rs[j], w: 0, y0: w.y, y1: w.y }; m.w++; m.y0 = Math.min(m.y0, w.y); m.y1 = Math.max(m.y1, w.y); } });
     edgesAll.push(...Object.values(M));
-    draw();
+    draw(); if (!R.$('[data-tab="pairs"]').hidden) pairs();
     R.$('#n-stats').insertAdjacentHTML('afterbegin', `<span style="background:#eaf1fc"><i class="bi bi-calendar-range"></i> <b>${a || 'البداية'}–${b === 9999 ? Y : b}</b></span>`);
   }
   ['#n-from', '#n-to'].forEach(id => R.$(id).addEventListener('change', period));
