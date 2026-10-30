@@ -51,29 +51,27 @@
   const yOpts = v => { let s = ''; for (let y = Y1; y >= Y0; y--) s += `<option${y === v ? ' selected' : ''}>${y}</option>`; return s; };
 
   app.innerHTML = `
-  <section class="rs-section rs-card rs-jf no-print ig-filters">
-    <div class="ig-fgrid">
-      <div class="rs-jf-f"><span class="rs-jf-l"><i class="bi bi-bank2"></i> القطاع</span><div class="rs-seg" id="ig-sec">${Object.entries(secLbl).map(([k, v]) => `<button data-s="${k}">${v}</button>`).join('')}</div></div>
-      <div class="rs-jf-f"><label class="rs-jf-l" for="ig-u"><i class="bi bi-building"></i> الجامعة</label><select id="ig-u" class="form-select"><option value="-1">الكل</option>${uniOpts()}</select></div>
-      <div class="rs-jf-f"><span class="rs-jf-l"><i class="bi bi-calendar-range"></i> الفترة</span><div class="d-flex gap-1 align-items-center"><select id="ig-y1" class="form-select form-select-sm">${yOpts(st.y1)}</select><span>–</span><select id="ig-y2" class="form-select form-select-sm">${yOpts(st.y2)}</select></div>
-        <div class="rs-seg ig-mini mt-1" id="ig-ym"><button data-m="pub" title="حسب سنة نشر البحث">سنة النشر</button><button data-m="ret" title="حسب سنة إعلان السحب (Retraction Watch)">سنة السحب</button></div></div>
-      <div class="rs-jf-f"><label class="rs-jf-l" for="ig-g"><i class="bi bi-exclamation-diamond"></i> سبب السحب</label><select id="ig-g" class="form-select"><option value="">كل الأسباب</option>${D.reason_groups.map(([k, a]) => `<option value="${k}"${k === st.g ? ' selected' : ''}>${esc(a)}</option>`).join('')}<option value="none"${st.g === 'none' ? ' selected' : ''}>السبب غير منشور</option></select></div>
-      <div class="rs-jf-f"><label class="rs-jf-l" for="ig-fac"><i class="bi bi-diagram-3"></i> الكلية</label><select id="ig-fac" class="form-select"><option value="">كل الكليات</option>${FACS.map(f => `<option${f === st.fac ? ' selected' : ''}>${esc(f)}</option>`).join('')}</select></div>
-      <div class="rs-jf-f ig-q"><label class="rs-jf-l" for="ig-q"><i class="bi bi-search"></i> بحث</label><input id="ig-q" class="form-control" type="search" placeholder="عنوان، باحث، مجلة، ناشر، DOI، قسم…" value="${esc(st.q)}"></div>
+  <section class="rs-section no-print ig2" aria-label="تصفية">
+    <div class="ig2-r1">
+      <div class="ig2-f"><span class="ig2-l">القطاع</span><div class="rs-seg ig2-seg" id="ig-sec" role="group" aria-label="القطاع">${Object.entries(secLbl).map(([k, v]) => `<button type="button" data-s="${k}">${v}</button>`).join('')}</div></div>
+      <label class="ig2-f grow"><span class="ig2-l">الجامعة</span><select id="ig-u" class="form-select"><option value="-1">الكل</option>${uniOpts()}</select></label>
+      <div class="ig2-f"><span class="ig2-l">الفترة</span><div class="ig2-per"><select id="ig-y1" class="form-select" aria-label="من سنة">${yOpts(st.y1)}</select><span class="ig2-dash">–</span><select id="ig-y2" class="form-select" aria-label="إلى سنة">${yOpts(st.y2)}</select>
+        <div class="rs-seg ig2-seg sm" id="ig-ym" role="group" aria-label="السنة حسب"><button type="button" data-m="pub" title="حسب سنة نشر البحث">النشر</button><button type="button" data-m="ret" title="حسب سنة إعلان السحب (Retraction Watch)">السحب</button></div></div></div>
+      <label class="ig2-f grow"><span class="ig2-l">سبب السحب</span><select id="ig-g" class="form-select"><option value="">كل الأسباب</option>${D.reason_groups.map(([k, a]) => `<option value="${k}"${k === st.g ? ' selected' : ''}>${esc(a)}</option>`).join('')}<option value="none"${st.g === 'none' ? ' selected' : ''}>السبب غير منشور</option></select></label>
+      <label class="ig2-f grow"><span class="ig2-l">الكلية</span><select id="ig-fac" class="form-select"><option value="">كل الكليات</option>${FACS.map(f => `<option${f === st.fac ? ' selected' : ''}>${esc(f)}</option>`).join('')}</select></label>
     </div>
-    <div class="ig-factions">
-      <div class="rs-seg ig-mini" id="ig-src"><button data-v="all">كل المصادر</button><button data-v="s">مسحوبة في Scopus</button><button data-v="rw">Retraction Watch فقط</button></div>
-      <span class="ig-count" id="ig-count"></span>
-      <button class="btn btn-sm btn-rs-o" id="ig-reset"><i class="bi bi-arrow-counterclockwise"></i> إعادة الضبط</button>
-      <button class="btn btn-sm btn-rs-o" id="ig-csv"><i class="bi bi-filetype-csv"></i> تصدير</button>
-      <button class="btn btn-sm btn-rs-o" onclick="print()"><i class="bi bi-printer"></i> طباعة</button>
+    <div class="ig2-r2">
+      <label class="ig2-q"><i class="bi bi-search"></i><input id="ig-q" class="form-control" type="search" placeholder="ابحث بعنوان، باحث، مجلة، ناشر، DOI، قسم…" value="${esc(st.q)}" aria-label="بحث"></label>
+      <div class="rs-seg ig2-seg" id="ig-src" role="group" aria-label="المصدر"><button type="button" data-v="all">كل المصادر</button><button type="button" data-v="s">مسحوبة في Scopus</button><button type="button" data-v="rw">Retraction Watch فقط</button></div>
+      <span class="ig2-count" id="ig-count"></span>
+      <div class="ig2-acts"><button type="button" class="ig2-ib" id="ig-reset" title="إعادة الضبط"><i class="bi bi-arrow-counterclockwise"></i><span>إعادة الضبط</span></button><button type="button" class="ig2-ib" id="ig-csv" title="تصدير CSV"><i class="bi bi-filetype-csv"></i><span>تصدير</span></button><button type="button" class="ig2-ib" onclick="print()" title="طباعة"><i class="bi bi-printer"></i><span>طباعة</span></button></div>
     </div>
   </section>
   <div class="rs-print-only" id="ig-sum"></div>
   <nav class="rs-tabs no-print" id="ig-tabs">${TABS.map(([k, i, t]) => `<button data-t="${k}"><i class="bi ${i}"></i> ${t}</button>`).join('')}</nav>
 
   <div data-tab="overview">
-    <section class="rs-section rs-kpis" id="ig-kpis"></section>
+    <section class="rs-section ig2-kpis" id="ig-kpis"></section>
     <section class="rs-section ig-insights" id="ig-ins"></section>
     <section class="rs-section rs-grid wide">
       <div class="rs-card"><h3><i class="bi bi-bar-chart"></i>الأبحاث المسحوبة حسب السنة <small class="fw-normal text-muted" id="ig-ylbl"></small></h3><div class="rs-chart"><canvas id="c-year"></canvas></div></div>
@@ -188,15 +186,15 @@
     const sel = U.map((u, i) => i).filter(i => st.u >= 0 ? i === st.u : inSec(i));
     const T = scopeTot(), docs = T.docs, disc = T.disc;
     const k = [
-      ['bi-file-earmark-x', N(L.length), 'بحثاً مسحوباً', `${N(L.filter(p => p.src === 's').length)} في Scopus · ${N(L.filter(p => p.src === 'rw').length)} في Retraction Watch فقط`, ''],
-      ['bi-people', N(jo.size), 'باحثاً أردنياً', 'مؤلفون بانتماء أردني', 'teal'],
-      ['bi-bank', N(us.size), 'جامعة', st.u >= 0 ? scopeTxt() : `من ${sel.length} ${secLbl[st.sec] === 'كل الجامعات' ? 'جامعة' : 'جامعة ' + secLbl[st.sec].replace('ال', '')}`, 'navy'],
-      ['bi-exclamation-diamond', R.pct(L.length ? known / L.length : 0), 'سببها معروف', `${N(known)} بحثاً مع سبب من Retraction Watch`, 'gold'],
-      ['bi-hourglass-split', lags.length ? R.median(lags).toFixed(1) : '–', 'سنة (وسيط المدة حتى السحب)', lags.length ? `من ${N(lags.length)} بحثاً بتاريخ سحب` : '', ''],
-      ['bi-quote', N(R.sum(L.map(p => p.c || 0))), 'اقتباساً لأبحاث مسحوبة', 'ما زالت تُقتبس في Scopus', 'teal'],
-      ['bi-journal-x', R.pct(docs ? disc / docs : 0, 1), 'من الأبحاث في مجلات محذوفة', `${N(disc)} من ${N(docs)} وثيقة · ${scopeTxt()}`, 'navy'],
+      ['bi-file-earmark-x', N(L.length), 'بحثاً مسحوباً', `${N(L.filter(p => p.src === 's').length)} في Scopus · ${N(L.filter(p => p.src === 'rw').length)} في Retraction Watch فقط`, 'm'],
+      ['bi-people', N(jo.size), 'باحثاً أردنياً', 'مؤلفون بانتماء لجامعة أردنية', 'n'],
+      ['bi-bank', N(us.size), 'جامعة', st.u >= 0 ? scopeTxt() : `من ${sel.length} ${secLbl[st.sec] === 'كل الجامعات' ? 'جامعة' : 'جامعة ' + secLbl[st.sec].replace('ال', '')}`, 'n'],
+      ['bi-exclamation-diamond', R.pct(L.length ? known / L.length : 0), 'سببها معروف', `${N(known)} بحثاً لها سبب في Retraction Watch`, 't'],
+      ['bi-hourglass-split', lags.length ? R.median(lags).toFixed(1) : '–', 'سنة حتى السحب', lags.length ? `الوسيط · من ${N(lags.length)} بحثاً بتاريخ سحب` : '', 't'],
+      ['bi-quote', N(R.sum(L.map(p => p.c || 0))), 'اقتباساً لها', 'ما زالت تُقتبس في Scopus', 'n'],
+      ['bi-journal-x', R.pct(docs ? disc / docs : 0, 1), 'في مجلات محذوفة', `${N(disc)} من ${N(docs)} وثيقة · ${scopeTxt()}`, 'm'],
     ];
-    R.$('#ig-kpis').innerHTML = k.map(x => `<div class="rs-kpi ${x[4]}"><div class="v">${x[1]}</div><div class="l"><i class="bi ${x[0]}"></i>${x[2]}</div>${x[3] ? `<div class="d">${x[3]}</div>` : ''}</div>`).join('');
+    R.$('#ig-kpis').innerHTML = k.map(x => `<div class="ig2-k ${x[4]}"><span class="ic"><i class="bi ${x[0]}"></i></span><div class="tx"><div class="v">${x[1]}</div><div class="l">${x[2]}</div>${x[3] ? `<div class="d" title="${esc(x[3].replace(/<[^>]+>/g, ''))}">${x[3]}</div>` : ''}</div></div>`).join('');
     // findings in words
     const gc = {}; L.forEach(p => p.g.forEach(g => { gc[g] = (gc[g] || 0) + 1; }));
     const topG = Object.entries(gc).sort((a, b) => b[1] - a[1])[0];
