@@ -229,7 +229,7 @@
   // a plan's hours by requirement group: a labelled bar (hours inside the wider parts) and a short key under it
   const shortGroup = n => { let k = groupKey(n).replace(/^متطلبات\s+/, '').replace(/\s*\((?!اختيارية)[^)]*\)/g, '');
     k = /اختيار/.test(k.replace(/\(اختيارية\)/, '')) ? k.replace(/\s*\(اختيارية\)/, '') : k.replace(/\s*\(اختيارية\)/, ' اختياري');
-    return k.replace(/\s+/g, ' ').trim(); };
+    return k.replace(/^مواد\s+/, '').replace(/اختيارية/g, 'اختياري').replace(/استدراكية/g, 'استدراكي').replace(/\s+/g, ' ').trim(); };
   function dist(r) {
     const gs = r.p.groups.filter(g => g.required_hours), sum = gs.reduce((a, g) => a + g.required_hours, 0) || 1;
     const agg = new Map(); gs.forEach(g => { const k = shortGroup(g.name), o = agg.get(k) || { h: 0, c: gcol(g.name), full: [] }; o.h += g.required_hours; o.full.push(`${groupKey(g.name)}: ${g.required_hours}`); agg.set(k, o); });
@@ -489,7 +489,7 @@
     .sp2-b { display: inline-flex; align-items: center; gap: .3rem; height: 32px; padding: 0 .75rem; border-radius: 9px; border: 1px solid #dee2e6; color: #374151; font-size: .82rem; font-weight: 700; text-decoration: none; white-space: nowrap; transition: background .15s; }
     .sp2-b:hover { background: #f6f3ec; color: #091b22; } .sp2-b.pri { background: #901d23; border-color: #901d23; color: #fff; } .sp2-b.pri:hover { background: #6e151a; color: #fff; }
     .sp2-en { text-align: left !important; font-size: .8rem; color: #475569; } .sp2-en em { color: #cbd5e1; font-style: normal; }
-    .sp2-hdist { padding: 0 .9rem .55rem; } .sp2-hdist .sp2-dbar { height: 22px; } .sp2-hdist .sp2-dleg { font-size: .76rem; gap: .15rem .9rem; }
+    .sp2-hdist { padding: 0 .9rem .55rem; } .sp2-hdist .sp2-dbar { height: 22px; } .sp2-hdist .sp2-dleg { font-size: .76rem; gap: .9rem; flex-wrap: wrap; mask-image: none; -webkit-mask-image: none; }
     td.sp2-cd { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .82rem; font-weight: 700; color: #0b4a66; white-space: nowrap; }
     .sp2-dist { display: flex; align-items: center; gap: .6rem; padding: 0 .9rem .45rem; } .sp2-dist .sp-dist { flex: 1; height: 8px; margin: 0; }
     .sp2-legt { all: unset; cursor: pointer; font-size: .74rem; font-weight: 700; color: #6b7280; white-space: nowrap; } .sp2-legt:hover { color: #901d23; }
@@ -553,7 +553,8 @@
     .sp2-t .w-dist { min-width: 340px; width: 36%; }
     .sp2-dbar { display: flex; height: 20px; gap: 2px; border-radius: 6px; overflow: hidden; background: #eef0f2; }
     .sp2-dbar i { display: flex; align-items: center; justify-content: center; min-width: 3px; font-style: normal; font-size: .68rem; font-weight: 800; color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,.25); }
-    .sp2-dleg { display: flex; flex-wrap: wrap; gap: .1rem .65rem; margin-top: .3rem; font-size: .7rem; color: #374151; line-height: 1.5; }
+    .sp2-dleg { display: flex; flex-wrap: nowrap; gap: .5rem; margin-top: .3rem; font-size: .68rem; color: #374151; line-height: 1.5; overflow: hidden; mask-image: linear-gradient(to left, #000 92%, transparent); -webkit-mask-image: linear-gradient(to left, #000 92%, transparent); }
+    .sp2-dleg span { flex: none; gap: .2rem !important; }
     .sp2-dleg span { display: inline-flex; align-items: center; gap: .25rem; white-space: nowrap; } .sp2-dleg i { width: 8px; height: 8px; border-radius: 2px; flex: none; } .sp2-dleg b { color: #091b22; }
     @media (max-width: 991px) { .sp2-sel, .sp2-sel.grow { flex: 1 1 45%; } .sp2-sel:not(.grow) select { max-width: none; field-sizing: fixed; } .sp2-vr { display: none; } .sp2-kpis { width: 100%; } .sp2-k { flex: 1 1 30%; } }
     @media print { .sp2-bar { display: none !important; } }
