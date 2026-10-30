@@ -4,7 +4,7 @@ Run after changing the template:  python scripts/make_research_pages.py"""
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-V = '202611031500'
+V = '202611041000'
 CHART = '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>'
 D3 = '<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>'
 
@@ -85,6 +85,9 @@ PAGES = [
     ('integrity.html', 'النزاهة البحثية', 'النزاهة البحثية في الجامعات الأردنية',
      'الأبحاث المسحوبة وأسباب سحبها، والأبحاث المنشورة في مجلات حذفها Scopus، لكل الجامعات الأردنية الحكومية والخاصة: حسب الجامعة والكلية والقسم والباحث والسنة، مع رابط تحقق لكل سجل',
      'bi-shield-exclamation', 'rs-integrity.js', [CHART]),
+    ('audit.html', 'تدقيق النزاهة البحثية', 'تدقيق النزاهة البحثية',
+     'مراجعة منظّمة وعادلة لإنتاج باحث أو مجموعة بحثية على عدة معايير مقارنة بتوزيع الجامعة: الأبحاث المسحوبة وأسبابها، المجلات المحذوفة من Scopus، جودة الأوعية، التركّز في وعاء أو شريك، والقفزات الإنتاجية، مع عوامل إيجابية ومسح شامل لما يستحق المراجعة',
+     'bi-shield-check', 'rs-audit.js', []),
     ('network.html', 'شبكة التعاون البحثي', 'شبكة التعاون البحثي',
      'من يكتب مع من داخل الجامعة: الروابط بين الباحثين والكليات',
      'bi-diagram-3', 'rs-network.js', [D3]),
@@ -122,6 +125,7 @@ MENU = [  # research menu items: file, icon, title, description
     ('compare.html', 'bi-bar-chart-steps', 'المقارنة', 'باحثون أو كليات أو أقسام جنباً إلى جنب'),
     ('jordan.html', 'bi-globe-central-south-asia', 'مقارنة الجامعات الأردنية', 'حسب المجال والتخصص والفترة والتصنيف والمجلات'),
     ('integrity.html', 'bi-shield-exclamation', 'النزاهة البحثية', 'الأبحاث المسحوبة والمجلات المحذوفة من Scopus'),
+    ('audit.html', 'bi-shield-check', 'تدقيق النزاهة البحثية', 'مراجعة باحث أو مجموعة بحثية على عدة معايير'),
     ('journals.html', 'bi-journal-bookmark-fill', 'دليل المجلات', 'التصنيف ومدة القرار ومجلات مقترحة لبحثك'),
     ('experts.html', 'bi-person-check', 'ابحث عن خبير', 'باحثو الأردن حسب الموضوع'),
     ('simulator.html', 'bi-sliders', 'محاكي المؤشرات', 'أثر رفع Q1 والتعاون الدولي على الترتيب'),
@@ -145,7 +149,7 @@ MENU = [  # research menu items: file, icon, title, description
 
 GROUPS = [  # the research menu, in four columns: heading, icon, files from MENU
     ('استكشاف الإنتاج البحثي', 'bi-compass', ['research.html', 'researchers.html', 'publications.html', 'impact.html', 'projects.html', 'reports.html']),
-    ('المقارنة والتعاون', 'bi-bar-chart-line', ['compare.html', 'jordan.html', 'integrity.html', 'universities.html', 'intl.html', 'network.html', 'simulator.html', 'experts.html']),
+    ('المقارنة والتعاون', 'bi-bar-chart-line', ['compare.html', 'jordan.html', 'integrity.html', 'audit.html', 'universities.html', 'intl.html', 'network.html', 'simulator.html', 'experts.html']),
     ('أدوات الباحث', 'bi-person-workspace', ['annual.html', 'publish.html', 'journals.html', 'promotion.html', 'reward.html', 'award.html', 'sabbatical.html']),
     ('الإدارة والتعليمات', 'bi-bank2', ['regulations.html', 'dept.html', 'dept.html?tab=act', 'goals.html']),
 ]
