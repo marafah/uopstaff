@@ -14,7 +14,7 @@
   'use strict';
   const U = window.UOP, { $, esc, norm } = U;
   const P = new URLSearchParams(location.search);
-  const st = { fac: P.get('fac') || '', p: P.get('p') || '', d: P.get('d') || '', v: P.get('v') || '', view: P.get('view') || 'plan', b: P.get('b') || '', q: '', sel: P.get('c') || '', ml: P.get('ml') || 'plan', mf: 'all', no: false, pt: 'info', po: false, ma: true };
+  const st = { fac: P.get('fac') || '', p: P.get('p') || '', d: P.get('d') || '', v: P.get('v') || '', view: P.get('view') || 'plan', b: P.get('b') || '', q: '', sel: P.get('c') || '', ml: P.get('ml') || 'plan', mf: 'all', no: false, pt: 'info', po: false, ma: true, pl: (() => { try { return localStorage.getItem('uop-ad-pl') || 'board'; } catch (e) { return 'board'; } })(), pc: 'type' };
   let A, PROGS, DOCS, READS, TTERM = '', TT = {}, SP = null, CODE_NAME = {};
   const TERM = { first: 'الفصل الأول', second: 'الفصل الثاني', summer: 'الفصل الصيفي', null: 'فصل غير محدد' };
   const YEAR = ['', 'السنة الأولى', 'السنة الثانية', 'السنة الثالثة', 'السنة الرابعة', 'السنة الخامسة', 'السنة السادسة'];
@@ -83,6 +83,55 @@
               <em title="${ck ? `يطابق المجموع المطبوع في الخطة (${ck.printed})` : 'مجموع الساعات'}">${t.hours} س${ck ? ' <i class="bi bi-patch-check-fill"></i>' : ''}</em></h4>
             <div class="ap-list">${cs.map(c => courseCard(c, { done: done.has(c.code), next: next.has(c.code) })).join('') || '<p class="small text-muted m-2">—</p>'}</div></div>`; }).join('')}</div></section>`; }).join('')}</div>
       ${(r.notes || []).length ? `<p class="small text-muted mt-2"><i class="bi bi-info-circle"></i> ملاحظة على الخطة الأصلية: ${r.notes.map(n => esc(n.replace(/year (\d+): header says (\d+) hours, its semesters total (\d+)/, 'السنة $1: العنوان يذكر $2 ساعة ومجموع فصولها المطبوع $3'))).join('، ')}.</p>` : ''}`;
+  }
+  // ---------------------------------------------------------------- the plan at a glance: every semester side by side on one screen
+  function kindOf(code, major) {
+    if (!/^\d/.test(code || '')) return 'el';
+    if (/^9/.test(code)) return 'uni';
+    return code.slice(0, 3) === major ? 'maj' : 'fac';
+  }
+  const KINDS = { uni: ['متطلب جامعة', '#6d28d9', 'bi-bank'], fac: ['مساند / كلية', '#0b4a66', 'bi-building'], maj: ['تخصص', '#901d23', 'bi-mortarboard'], el: ['خانة اختيار', '#b8892b', 'bi-ui-checks-grid'] };
+  function planView(x) {
+    if (!x.r.ok || !(x.r.years || []).length) return original(x, true);
+    const sw = `<div class="pb-bar no-print"><div class="btn-group btn-group-sm" role="group" aria-label="طريقة عرض الخطة">
+        <button type="button" class="btn ${st.pl === 'board' ? 'btn-dark' : 'btn-outline-dark'}" data-pl="board"><i class="bi bi-kanban"></i> لوحة الخطة</button>
+        <button type="button" class="btn ${st.pl === 'list' ? 'btn-dark' : 'btn-outline-dark'}" data-pl="list"><i class="bi bi-list-columns-reverse"></i> جدول مفصّل</button></div>
+      ${st.pl === 'board' ? `<div class="btn-group btn-group-sm" role="group" aria-label="التلوين"><span class="pb-lbl">التلوين:</span>
+        ${[['type', 'نوع المادة', 'bi-tags'], ['status', 'حالتها هذا الفصل', 'bi-calendar-check'], ['chain', 'أهميتها في السلسلة', 'bi-diagram-3']].map(([k, l, i]) => `<button type="button" class="btn ${st.pc === k ? 'btn-maroon' : 'btn-outline-secondary'}" data-pc="${k}"><i class="bi ${i}"></i> ${l}</button>`).join('')}</div>` : ''}</div>`;
+    return sw + (st.pl === 'list' ? planGrid(x) : planBoard(x));
+  }
+  function planBoard(x) {
+    const G = graph(x), r = x.r;
+    const real = G.nodes.filter(n => realCode(n.code));
+    const freq = {}; real.filter(n => !/^9/.test(n.code)).forEach(n => { const p = n.code.slice(0, 3); freq[p] = (freq[p] || 0) + (n.hours || 0); });
+    const major = Object.entries(freq).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+    const q = norm(st.q.trim());
+    const hit = n => !q || norm(n.code + ' ' + (n.name || '') + ' ' + (CODE_NAME[n.code] || '')).includes(q);
+    const maxD = Math.max(1, ...G.nodes.map(n => G.desc.get(n.key).size));
+    const tot = {}; G.nodes.forEach(n => { const k = kindOf(n.code, major); tot[k] = (tot[k] || 0) + (n.hours || 0); });
+    const all = Object.values(tot).reduce((a, b) => a + b, 0) || 1;
+    const terms = []; r.years.forEach(y => y.terms.forEach(t => terms.push({ y, t, nodes: G.nodes.filter(n => n.year === y.year && n.term === t.term) })));
+    const colorOf = n => { const k = kindOf(n.code, major);
+      if (st.pc === 'status') return AV[avail(n.code).k][1];
+      if (st.pc === 'chain') { const d = G.desc.get(n.key).size; return !realCode(n.code) ? '#cbd5e1' : `hsl(${350 - 0}, ${30 + 60 * d / maxD}%, ${88 - 50 * d / maxD}%)`; }
+      return KINDS[k][1]; };
+    const chip = n => { const k = kindOf(n.code, major), av = avail(n.code), d = G.desc.get(n.key).size, pre = (G.pre.get(n.key) || []).length, c = colorOf(n);
+      const crit = realCode(n.code) && G.level(n.key) + G.chain(n.key) - 1 === G.longest;
+      return `<div class="ad-c pb-c k-${k} ${hit(n) ? '' : 'dim'}" data-code="${esc(n.code)}" style="--c:${c}" title="${esc((n.name || CODE_NAME[n.code] || '') + ' · ' + KINDS[k][0] + ' · ' + av.t + (n.prereq ? ' · المتطلب: ' + n.prereq : ''))}">
+        <div class="pb-t"><i class="bi ${KINDS[k][2]}"></i><code>${esc(n.code)}</code><span class="pb-h">${n.hours ?? '—'}</span></div>
+        <div class="pb-n">${esc(n.name || CODE_NAME[n.code] || '')}</div>
+        <div class="pb-f"><span class="pb-s s-${av.k}">${av.k === 'open' ? `<i class="bi bi-door-open"></i>${av.open.length}/${av.s.length}` : av.k === 'closed' ? '<i class="bi bi-door-closed"></i>مغلقة' : av.k === 'slot' ? '<i class="bi bi-ui-checks"></i>اختياري' : '<i class="bi bi-dash-circle"></i>غير مطروحة'}</span>
+          ${pre ? `<span title="لها ${pre} متطلب سابق في الخطة"><i class="bi bi-arrow-return-left"></i>${pre}</span>` : ''}${d ? `<span title="تفتح ${d} مادة"><i class="bi bi-unlock"></i>${d}</span>` : ''}${crit ? '<span class="pb-cr" title="على أطول سلسلة متطلبات"><i class="bi bi-lightning-charge-fill"></i></span>' : ''}${n.mark ? `<span class="pb-mk" title="علامة في الخطة">${esc(n.mark)}</span>` : ''}</div></div>`; };
+    const legend = st.pc === 'type' ? Object.entries(KINDS).map(([k, [l, c, i]]) => `<span><i class="bi ${i}" style="color:${c}"></i>${l} <b>${tot[k] || 0}</b> س</span>`).join('')
+      : st.pc === 'status' ? Object.entries(AV).map(([k, [l, c]]) => `<span><i class="pb-dot" style="background:${c}"></i>${l}</span>`).join('')
+      : '<span><i class="pb-dot" style="background:hsl(350,35%,85%)"></i>تفتح مواد قليلة</span><span><i class="pb-dot" style="background:hsl(350,90%,38%)"></i>تفتح مواد كثيرة (مفتاحية)</span>';
+    return `<div class="pb-sum">
+        <div class="pb-stack" title="توزيع ساعات الخطة">${Object.entries(KINDS).filter(([k]) => tot[k]).map(([k, [l, c]]) => `<i style="width:${100 * tot[k] / all}%;background:${c}" title="${l}: ${tot[k]} ساعة"></i>`).join('')}</div>
+        <div class="pb-leg">${legend}<small class="text-muted">${st.pc === 'type' ? 'التصنيف حسب بادئة رقم المادة' : ''}</small></div></div>
+      <div class="pb-board" style="--n:${terms.length}">${terms.map(({ y, t, nodes }) => { const h = nodes.reduce((a, n) => a + (n.hours || 0), 0), off = nodes.filter(n => realCode(n.code) && secs(n.code).length).length;
+        return `<section class="pb-col ${t.term === 'summer' ? 'sum' : ''} y${y.year % 2}">
+          <header><b>${YEAR[y.year] || ''}</b><span>${TERM[t.term]}</span><div class="pb-hd"><em>${h} س</em><small>${nodes.filter(n => realCode(n.code)).length} مادة · ${off} مطروحة</small></div></header>
+          <div class="pb-list">${nodes.map(chip).join('')}</div></section>`; }).join('')}</div>`;
   }
   function original(x, why) {
     const imgs = x.v.images || [];
@@ -346,6 +395,30 @@
     #ad-body .ap-term .ad-c.ap-r.next { background: #fffbeb; box-shadow: inset -3px 0 0 #e8b923; }
     @media (max-width: 600px) { .ap-terms { grid-template-columns: 1fr; } .ap-term { border-inline-start: 0; border-top: 1px solid #eef0f2; } }
     @media print { .ap-year { break-inside: avoid-page; } .ap-legend { display: none; } }
+    .pb-bar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .45rem; } .pb-lbl { align-self: center; font-size: .74rem; color: #6c757d; margin-inline-end: .35rem; }
+    .pb-bar .btn { padding: .15rem .55rem; font-size: .78rem; }
+    .pb-sum { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; margin-bottom: .45rem; }
+    .pb-stack { display: flex; width: 220px; height: 10px; border-radius: 99px; overflow: hidden; background: #e9ecef; } .pb-stack i { display: block; height: 100%; }
+    .pb-leg { display: flex; flex-wrap: wrap; gap: .3rem .9rem; font-size: .74rem; color: #495057; } .pb-leg i { margin-inline-end: .25rem; } .pb-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; vertical-align: middle; }
+    .pb-board { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 6px; align-items: start; }
+    .pb-col { background: #fff; border: 1px solid #e6e2d6; border-radius: 12px; overflow: hidden; min-width: 0; } .pb-col.y1 { background: #fbfcfe; } .pb-col.sum { background: #fffaf0; }
+    .pb-col > header { padding: .35rem .45rem .3rem; background: linear-gradient(160deg, #0b4a66, #091b22); color: #fff; line-height: 1.15; }
+    .pb-col.y1 > header { background: linear-gradient(160deg, #134e63, #0b2a36); } .pb-col.sum > header { background: linear-gradient(160deg, #b8892b, #7a5a17); }
+    .pb-col > header b { display: block; font-size: .8rem; } .pb-col > header > span { font-size: .7rem; opacity: .85; }
+    .pb-hd { display: flex; align-items: center; justify-content: space-between; gap: .3rem; margin-top: .2rem; } .pb-hd em { font-style: normal; background: rgba(255,255,255,.18); border-radius: 99px; padding: 0 .4rem; font-size: .7rem; font-weight: 800; } .pb-hd small { font-size: .62rem; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pb-list { display: flex; flex-direction: column; gap: 4px; padding: 5px; }
+    #ad-body .ad-c.pb-c { margin: 0; padding: .28rem .38rem .26rem; border: 1px solid #e8ecef; border-inline-start: 4px solid var(--c); border-radius: 8px; background: #fff; font-size: .72rem; cursor: pointer; transition: transform .12s, box-shadow .12s; }
+    #ad-body .ad-c.pb-c:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(9,27,34,.12); }
+    #ad-body .ad-c.pb-c.dim { opacity: .25; }
+    .pb-t { display: flex; align-items: center; gap: .25rem; } .pb-t i { color: var(--c); font-size: .72rem; } .pb-t code { color: #475569; font-size: .66rem; font-weight: 700; }
+    .pb-h { margin-inline-start: auto; background: color-mix(in srgb, var(--c) 14%, #fff); color: #0f1d24; border-radius: 5px; padding: 0 .3rem; font-weight: 800; font-size: .68rem; }
+    .pb-n { font-weight: 700; color: #0f1d24; line-height: 1.25; margin: .1rem 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.5em; }
+    .pb-f { display: flex; align-items: center; gap: .35rem; font-size: .62rem; color: #6c757d; white-space: nowrap; overflow: hidden; } .pb-f i { margin-inline-end: .1rem; }
+    .pb-s { font-weight: 800; border-radius: 99px; padding: 0 .3rem; } .pb-s.s-open { background: #dcfce7; color: #166534; } .pb-s.s-closed { background: #ffedd5; color: #9a3412; } .pb-s.s-none { background: #f1f5f9; color: #64748b; } .pb-s.s-slot { background: #fef3c7; color: #92400e; }
+    .pb-cr { color: #d97706; } .pb-mk { color: #901d23; font-weight: 800; }
+    @media (max-width: 1100px) { .pb-board { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); } }
+    @media print { .pb-board { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); } }
+
     .am-tt { margin-top: .8rem; border: 1px solid #e3e9ee; border-radius: 14px; padding: .6rem .7rem; background: linear-gradient(180deg, #f8fbfd, #fff); }
     .am-tt-h { display: flex; align-items: baseline; justify-content: space-between; gap: .4rem; } .am-tt-h h4 { margin: 0 !important; } .am-tt-h small { color: #6c757d; font-size: .7rem; }
     .am-wk { margin: .55rem 0 .5rem; font-size: .66rem; }
@@ -684,7 +757,7 @@
               <a class="btn btn-sm btn-light border ad-sb" href="${esc(p.url_ar)}" target="_blank" rel="noopener" title="صفحة القسم"><i class="bi bi-box-arrow-up-left"></i><span> القسم</span></a>
               ${pm ? `<a class="btn btn-sm btn-light border ad-sb" href="plans.html?plan=${encodeURIComponent(pm.pl.id)}" title="الخطة الدراسية على البوابة (${pm.inter} مادة مشتركة)"><i class="bi bi-journal-text"></i><span> البوابة</span></a>` : ''}</span>
           </div></div></section>` : ''}
-      <div id="ad-body">${!p || !x ? (p ? filesView(p) : '') : st.view === 'map' ? mapView(p, x) : st.view === 'now' ? nowView(p, x) : st.view === 'original' ? original(x) : st.view === 'versions' ? versionsView(p, vs, x) : st.view === 'advisor' ? advisorView(p, x) : st.view === 'files' ? filesView(p) : planGrid(x)}</div>
+      <div id="ad-body">${!p || !x ? (p ? filesView(p) : '') : st.view === 'map' ? mapView(p, x) : st.view === 'now' ? nowView(p, x) : st.view === 'original' ? original(x) : st.view === 'versions' ? versionsView(p, vs, x) : st.view === 'advisor' ? advisorView(p, x) : st.view === 'files' ? filesView(p) : planView(x)}</div>
       <details class="ad-src mt-2"><summary><i class="bi bi-info-circle"></i> المصدر وطريقة القراءة</summary>المصدر: صفحات الأقسام على مواقع الكليات ومكتباتها (مع الإصدارات السابقة التي يحتفظ بها الموقع)، تُراجع مع كل تحديث للموقع.
         ${okN} برنامجاً خطته الحالية مقروءة بمطابقة كاملة؛ الباقي تُعرض صفحاته الأصلية. «مطروح الآن» من الجدول الدراسي المنشور. المرجع المعتمد هو موقع الجامعة.</details>`;
     const url = new URL(location.href);
@@ -709,6 +782,8 @@
         const cvs = $('#am-canvas .am-cols'); if (cvs) window.__amRO.observe(cvs); }
       clearTimeout(window.__amR); window.onresize = () => { clearTimeout(window.__amR); window.__amR = setTimeout(() => st.view === 'map' && drawMap(p, x), 200); };
     }
+    document.querySelectorAll('[data-pl]').forEach(b => b.onclick = () => { st.pl = b.dataset.pl; try { localStorage.setItem('uop-ad-pl', st.pl); } catch (e) { /* storage unavailable */ } render(); });
+    document.querySelectorAll('[data-pc]').forEach(b => b.onclick = () => { st.pc = b.dataset.pc; render(); });
     if (st.view === 'plan' && x && x.r.ok) document.querySelectorAll('#ad-body .ad-c[data-code]').forEach(c => { if (!realCode(c.dataset.code)) return;
       c.title = 'اعرضها في خريطة المتطلبات'; c.style.cursor = 'pointer'; c.onclick = e => { if (e.target.closest('a')) return; st.view = 'map'; st.sel = c.dataset.code; render(); scrollTo(0, 0); }; });
     if (st.view === 'now') { const n = $('#am-no'); if (n) n.onchange = e => { st.no = e.target.checked; render(); }; }
