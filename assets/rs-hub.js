@@ -73,26 +73,6 @@
   app.innerHTML = `
   <section class="rs-section rs-kpis">${kp.map(k => `<div class="rs-kpi ${k[4]}"><div class="v">${k[1]}</div><div class="l"><i class="bi ${k[0]}"></i>${k[2]}</div>${k[3] ? `<div class="d">${k[3]}</div>` : ''}</div>`).join('')}</section>
 
-  <section class="rs-section rs-tiles">
-    <a class="rs-tile" href="researchers.html"><i class="bi bi-person-lines-fill"></i><span><b>الباحثون</b><small>بحث وتصفية حسب الكلية والقسم والرتبة، وترتيب حسب h-index والاقتباسات</small></span></a>
-    <a class="rs-tile" href="publications.html"><i class="bi bi-journal-text"></i><span><b>المنشورات</b><small>كل الأبحاث مع رابط DOI و OpenAlex و Scopus للتحقق، وتصدير CSV</small></span></a>
-    <a class="rs-tile" href="regulations.html"><i class="bi bi-bank2"></i><span><b>التعليمات والأنظمة</b><small>النص الرسمي للبحث العلمي والترقية والمكافآت، مع البحث وأهم ما يحتاجه الباحث</small></span></a>
-    <a class="rs-tile" href="promotion.html"><i class="bi bi-ladder"></i><span><b>أداة الترقية</b><small>ما لديك وما ينقصك للترقية حسب التعليمات، وتقرير برمز QR</small></span></a>
-    <a class="rs-tile" href="reward.html"><i class="bi bi-calculator"></i><span><b>حاسبة المكافأة</b><small>دعم النشر والحوافز ومكافآت الكتب والمشاريع والمؤتمرات</small></span></a>
-    <a class="rs-tile" href="award.html"><i class="bi bi-trophy"></i><span><b>جائزة الباحث المتميز</b><small>نقاطك حسب أوزان التعليمات وترتيبك المتوقع في القسم</small></span></a>
-    <a class="rs-tile" href="sabbatical.html"><i class="bi bi-calendar-range"></i><span><b>إجازة التفرغ العلمي</b><small>الاستحقاق ونقاط المفاضلة وما يُصرف لك</small></span></a>
-    <a class="rs-tile" href="publish.html"><i class="bi bi-signpost-split"></i><span><b>أين أنشر؟</b><small>المجلات الأنسب لبحثك وما يساويه النشر فيها ماليًا وفي الترقية</small></span></a>
-    <a class="rs-tile" href="annual.html"><i class="bi bi-person-vcard"></i><span><b>ملفي البحثي</b><small>تقريرك السنوي: الإنتاج والاقتباسات والتعاون والمشاريع</small></span></a>
-    <a class="rs-tile" href="impact.html"><i class="bi bi-stars"></i><span><b>الأبحاث الأعلى أثراً</b><small>الأكثر اقتباساً والصاعدة وإنجازات Q1 القابلة للمشاركة</small></span></a>
-    <a class="rs-tile" href="intl.html"><i class="bi bi-globe2"></i><span><b>التعاون الخارجي</b><small>الدول والمؤسسات الشريكة وشركاء أردنيون مقترحون</small></span></a>
-    <a class="rs-tile" href="dept.html"><i class="bi bi-building-gear"></i><span><b>لوحة الكلية والقسم</b><small>الإنتاج والجودة وتنبيه النشاط البحثي</small></span></a>
-    <a class="rs-tile" href="goals.html"><i class="bi bi-bullseye"></i><span><b>مؤشرات الأهداف</b><small>مؤشرات الجامعة والكليات مقابل الأهداف</small></span></a>
-    <a class="rs-tile" href="projects.html"><i class="bi bi-briefcase"></i><span><b>المشاريع المدعومة</b><small>مشاريع بحثية دعمتها الجامعة عبر عمادة البحث العلمي، حسب الدعوة والكلية</small></span></a>
-    <a class="rs-tile" href="compare.html"><i class="bi bi-bar-chart-steps"></i><span><b>المقارنة</b><small>قارن حتى 4 باحثين أو كليات أو أقسام بالرسوم</small></span></a>
-    <a class="rs-tile" href="universities.html"><i class="bi bi-bank"></i><span><b>الجامعات الأردنية</b><small>موقع جامعة البترا بين الجامعات الأردنية في الإنتاج والاقتباس</small></span></a>
-    <a class="rs-tile" href="network.html"><i class="bi bi-diagram-3"></i><span><b>شبكة التعاون</b><small>من يكتب مع من داخل الجامعة، وعبر الكليات</small></span></a>
-  </section>
-
   <section class="rs-section rs-grid wide">
     <div class="rs-card rs-span-2"><h3><i class="bi bi-bar-chart"></i>وثائق الجامعة في Scopus سنوياً ${R.srcBadge('Scopus', scUrl, 'bi-bar-chart-line')}</h3><div class="rs-chart"><canvas id="c-years"></canvas></div>
       <p class="rs-note mt-2 mb-0">الأعمدة: كل وثائق جامعة البترا في Scopus (المصدر المعتمد). الخط المتقطع: منشورات أعضاء الهيئة التدريسية الحاليين من كل المصادر، للمقارنة. السنة الحالية غير مكتملة.</p></div>
