@@ -1,6 +1,6 @@
 /* annual.html «ملفي البحثي»: one researcher's year on one page, for the annual review and promotion files: output and
    its quality, citations, collaboration, projects funded by the university, and where the year leaves them under the
-   university's instructions (reward estimate م5 تعليمات البحث العلمي، award points م8 تعليمات الجائزة، and the five-year
+   university's instructions (reward estimate م7 تعليمات البحث العلمي المعدلة بقرار 6841، award points م8 تعليمات الجائزة، and the five-year
    rule of م12 نظام الهيئة التدريسية). Prints as a report with the QR header. */
 (async function () {
   'use strict';
@@ -13,7 +13,7 @@
   R.updated(data.meta || {});
   const esc = R.esc, works = wdata.works || [], thisYear = new Date().getFullYear();
   const ref = (a, d) => `<a class="rs-ref" href="regulations.html?doc=${d}&a=${a}" target="_blank" rel="noopener">م(${a})</a>`;
-  const SC = { Q1: [200, 800], Q2: [200, 600], Q3: [200, 400], Q4: [200, 200], NA: [200, 200] };
+  const SC = { Q1: [400, 1200], Q2: [400, 800], Q3: [200, 500], Q4: [200, 200], NA: [200, 200] };   // تعليمات البحث العلمي م(7/4) بعد قرار 6841
   const shares = n => n <= 1 ? [1] : n === 2 ? [0.6, 0.4] : n === 3 ? [0.5, 0.25, 0.25] : [0.35, ...Array(n - 1).fill(0.65 / (n - 1))];
   const AWARD = { Q1: [60, 30], Q2: [50, 25], Q3: [40, 20], Q4: [30, 15], NA: [20, 10] };
   const SKIP = ['dataset', 'preprint', 'other', 'peer-review', 'erratum', 'editorial', 'letter'];
@@ -75,7 +75,8 @@
     </section>
     <section class="rs-section rs-card"><h3><i class="bi bi-clipboard-check"></i>السنة وفق تعليمات الجامعة</h3>
       <div class="rs-pr-checklist">
-        <div class="ok"><i class="bi bi-cash-coin" style="color:#1d7a3e"></i><div><b>دعم النشر وحوافزه (تقدير)</b><span>${R.n(rew)} دينار لـ ${jpapers.length} ${jpapers.length === 1 ? 'بحث' : 'أبحاث'} في مجلات Scopus، حصتك حسب ترتيبك</span><em><a href="reward.html">احسب كل بحث بالتفصيل</a></em></div><small>${ref('5', '06')}/د</small></div>
+        <div class="ok"><i class="bi bi-cash-coin" style="color:#1d7a3e"></i><div><b>دعم النشر وحوافزه (تقدير)</b><span>${R.n(rew)} دينار لـ ${jpapers.length} ${jpapers.length === 1 ? 'بحث' : 'أبحاث'} في مجلات Scopus، حصتك حسب ترتيبك</span><em><a href="reward.html">احسب كل بحث بالتفصيل</a></em></div><small>${ref('7', '06')}/4</small></div>
+        ${(() => { const lead = q12.filter(w => posOf(w, r).me === 1).length; return `<div class="${lead >= 6 ? 'ok' : ''}"><i class="bi bi-hourglass-bottom" style="color:${lead >= 6 ? '#1d7a3e' : '#8a5300'}"></i><div><b>تخفيض العبء التدريسي 3 ساعات</b><span>${R.n(lead)} من 6 أبحاث Q1–Q2 في Scopus باحثاً أول في هذا العام الميلادي${lead >= 6 ? ' — مؤهل للتقدم للفصلين التاليين' : ''} (أو ما يعادلها من مشروع مدعوم خارجياً: بحث لكل 10,000 دينار وبحد أقصى أربعة)</span></div><small>${ref('14', '06')}</small></div>`; })()}
         <div class="ok"><i class="bi bi-trophy" style="color:#b8892b"></i><div><b>نقاط جائزة الباحث المتميز من أبحاث السنة</b><span>${R.n(award)} نقطة من الأبحاث وحدها (تُحتسب ثلاث سنوات مع الاستشهادات)</span><em><a href="award.html?id=${encodeURIComponent(r.id)}">نقاطك الكاملة وترتيبك في القسم</a></em></div><small>${ref('8', '11')}/د</small></div>
         <div class="ok"><i class="bi bi-ladder" style="color:#2b5ea7"></i><div><b>الترقية</b><span>${R.n(q12.length)} في الفئة الأولى (Q1–Q2) و${R.n(yr.filter(w => w.q === 'Q3' || w.q === 'Q4').length)} في الفئة الثانية (Q3–Q4) هذه السنة</span><em><a href="promotion.html?id=${encodeURIComponent(r.id)}">ما لديك وما ينقصك للترقية</a></em></div><small>${ref('23', '05')}</small></div>
         ${ruleRank ? `<div class="${quiet != null && quiet < 5 ? 'ok' : 'no'}"><i class="bi ${quiet != null && quiet < 5 ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'}"></i><div><b>استمرار الإنتاج العلمي (خمس سنوات)</b><span>${lastY ? `آخر إنتاج منشور مسجّل: ${lastY}` : 'لا إنتاج منشور مسجّل في مصادر الموقع'}</span>${quiet != null && quiet >= 3 && quiet < 5 ? `<em>لم يُسجَّل إنتاج منذ ${quiet} سنوات؛ تتوقف الزيادة السنوية إذا توقف الإنتاج خمس سنوات</em>` : quiet == null || quiet >= 5 ? '<em>تحقّق من إنتاجك: قد لا تُظهر المصادر كل ما نشرته</em>' : ''}</div><small>${ref('12', '02')}</small></div>` : ''}

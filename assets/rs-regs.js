@@ -21,7 +21,8 @@
     <tbody>${t.rows.slice(1).map(r => `<tr>${r.map(c => `<td>${esc(c).replace(/\n/g, '<br>')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
   const pdfPage = (d, a) => `${d.url}#page=${a.page}`;
   const docName = d => d.heading[1] ? d.heading[1].replace(/\^\S+/g, '') : d.title;
-  const status = d => { const s = src[d.id] || {}; return s.pending
+  const decTag = d => d.decision ? `<a class="rs-tag dec" href="?doc=${d.id}#rg-dec" title="${esc(d.decision.text)}"><i class="bi bi-pen"></i> معدّلة بقرار رقم ${esc(d.decision.no)} بتاريخ ${esc(d.decision.date)}</a>` : '';
+  const status = d => { const s = src[d.id] || {}; if (d.decision) return decTag(d); return s.pending
     ? `<span class="rs-tag warn" title="تغيّر الملف الرسمي منذ ${esc(s.pending.since)}"><i class="bi bi-exclamation-triangle"></i> تغيّر المصدر — قيد المراجعة</span>`
     : `<span class="rs-tag ok" title="آخر مقارنة مع الملف الرسمي: ${esc(s.checked || S.checked)}"><i class="bi bi-patch-check"></i> مطابق للنسخة الرسمية</span>`; };
 
@@ -33,12 +34,20 @@
     ['bi-lightning', 'اختصار المدة', 'يجوز اختصار المدة إلى أربع سنوات عند تحقيق ضعف النقاط المطلوبة للترقية.', '02', '13'],
     ['bi-grid-3x3', 'فئات الإنتاج ونقاطه', 'Q1–Q2 أو Web of Science: نقطتان (أولى) · Q3–Q4: نقطتان (ثانية) · Scopus غير مصنفة: نقطة (ثالثة).', '05', '23'],
     ['bi-shield-check', 'نسبة التشابه', 'لا تزيد نسبة التشابه لأي بحث مقدم للترقية على 20%.', '05', '28'],
-    ['bi-cash-coin', 'مكافأة النشر في Scopus', 'Q1: 200 دعم نشر + 800 حافز · Q2: 600 · Q3: 400 · Q4 وغير المصنفة: 200 حافز.', '06', '5'],
-    ['bi-globe2', 'التعاون الدولي', 'يضاف 200 دينار للبحث المنشور مع باحثين دوليين من جامعات أو مراكز بحثية عالمية.', '06', '5'],
-    ['bi-people', 'توزيع المكافأة على الباحثين', 'منفرد 100% · اثنان 60/40 · ثلاثة: 50% للأول · أربعة فأكثر: 35% للأول والباقي بالتساوي.', '06', '5'],
-    ['bi-briefcase', 'مكافأة مشروع بحث مدعوم', '10% لباحث منفرد، 15% لباحثين، 20% لثلاثة فأكثر من قيمة الدعم، وبحد أعلى 2000 دينار.', '06', '5'],
-    ['bi-airplane', 'المؤتمرات العلمية', 'مؤتمر واحد في العام الدراسي، وبحد أعلى 2000 دينار للتذكرة والرسوم والمياومات.', '06', '6'],
-    ['bi-sun', 'منحة البحث الصيفي', 'تفريغ عضو الهيئة التدريسية في الفصل الصيفي لإجراء بحوثه، وبحد أقصى 3 أشهر.', '06', '6'],
+    ['bi-cash-coin', 'مكافأة النشر في Scopus', 'دعم نشر + حافز: Q1: 400 + 1200 · Q2: 400 + 800 · Q3: 200 + 500 · Q4 وغير المصنفة: 200 + 200 دينار.', '06', '7'],
+    ['bi-shield-exclamation', 'شروط صرف دعم النشر وحافزه (جديدة)', 'المجلة مدرجة في Scopus منذ 5 سنوات على الأقل وبشكل مستمر، منتظمة الصدور، ولا تزيد أبحاثها المنشورة على 20% سنوياً.', '06', '8'],
+    ['bi-globe2', 'التعاون الدولي', 'يضاف 200 دينار للبحث المنشور مع باحثين دوليين من جامعات أو مراكز بحثية عالمية (دون شرط تصنيف الجامعات بعد قرار 6841).', '06', '7'],
+    ['bi-people', 'توزيع المكافأة على الباحثين', 'منفرد 100% · اثنان 60/40 · ثلاثة: 50% للأول · أربعة فأكثر: 35% للأول والباقي بالتساوي.', '06', '7'],
+    ['bi-building-check', 'الارتباط المؤسسي (Affiliation)', 'جامعة البترا ارتباط أول: الحافز كاملاً · ارتباط ثانٍ: 50% · لا يجوز أكثر من ارتباطين، ولا يُنظر في الطلب بعد 3 سنوات من النشر.', '06', '15'],
+    ['bi-quote', 'حوافز الاستشهاد', 'لمرة واحدة للبحث المنشور منذ 2022: 20–39 استشهاداً في Scopus خلال آخر خمس سنوات 300 دينار، و40 فأكثر 500 دينار.', '06', '10'],
+    ['bi-stars', 'Nature وScience', 'ضعف المكافأة لبحث أصيل أو مراجعة كاملة في مجلتي Nature أو Science الأصليتين.', '06', '11'],
+    ['bi-book', 'الكتب والفصول', 'كتاب عن دار عالمية 2000 (محرر 1000)، عربية 1000 (محرر 500)، فصل 500 دينار، وبحد أقصى واحد في السنة.', '06', '7'],
+    ['bi-briefcase', 'مكافأة مشروع بحث مدعوم', '10% لباحث منفرد، 15% لباحثين، 20% لثلاثة فأكثر من قيمة الدعم، وبحد أعلى 2000 دينار.', '06', '9'],
+    ['bi-lightbulb', 'المشاريع الابتكارية', 'دعم من 7,000 إلى 10,000 دينار، ومكافأة 20% لباحث واحد، 30% لباحثين، 40% لثلاثة فأكثر.', '06', '16'],
+    ['bi-patch-check', 'مكافأة براءة الاختراع', 'PCT/WIPO: 1000 عند النشر و2000 عند المنح · محلية: 500 عند النشر و500 عند المنح.', '06', '13'],
+    ['bi-hourglass-bottom', 'تخفيض العبء التدريسي', '3 ساعات للفصلين التاليين لمن نشر 6 أبحاث Q1–Q2 باحثاً أول في عام ميلادي واحد (أو بما يعادلها من مشاريع مدعومة خارجياً).', '06', '14'],
+    ['bi-airplane', 'المؤتمرات العلمية', 'مؤتمر واحد في العام الدراسي، وبحد أعلى 2000 دينار للتذكرة والرسوم والمياومات.', '06', '12'],
+    ['bi-sun', 'منحة البحث الصيفي', 'تفريغ عضو الهيئة التدريسية في الفصل الصيفي لإجراء بحوثه، وبحد أقصى 3 أشهر.', '06', '12'],
     ['bi-calendar-range', 'إجازة التفرغ العلمي', 'سنة كاملة أو فصلان عن كل ست سنوات خدمة، لرتبتي أستاذ وأستاذ مشارك.', '02', '19'],
     ['bi-clock', 'العبء التدريسي', 'الحد الأعلى: أستاذ 9 ساعات، أستاذ مشارك ومساعد 12، مدرس مساعد 15.', '02', '17'],
   ];
@@ -87,11 +96,15 @@
       const body = fmt(a.text).replace(/<p class="">\[جدول\]<\/p>|\[جدول\]/g, () => { const t = ts[k++]; return t ? table(t) : ''; });
       return `<article class="rs-rg-art${st.a === a.n ? ' hit' : ''}" id="a-${a.n}">
         ${a.section ? `<h3 class="rs-rg-sec">${esc(a.section)}</h3>` : ''}
-        <header><b>${esc(a.label.replace(/\^\S+/g, ''))}</b><span class="no-print">
+        <header><b>${esc(a.label.replace(/\^\S+/g, ''))}</b>${a.was ? `<span class="rs-rg-was" title="رقمها قبل قرار ${esc((d.decision || {}).no || '')}">كانت المادة (${esc(a.was)})</span>` : ''}${a.amended ? `<span class="rs-rg-amd"><i class="bi bi-pen"></i> ${a.was ? 'معدّلة' : /جديدة/.test(a.amended) ? 'مادة جديدة' : 'معدّلة'} بقرار ${esc((d.decision || {}).no || '')}</span>` : ''}<span class="no-print">
           <button type="button" class="rs-ib" data-copy="${a.n}" title="نسخ نص المادة"><i class="bi bi-clipboard"></i></button>
           <button type="button" class="rs-ib" data-link="${a.n}" title="نسخ رابط المادة"><i class="bi bi-link-45deg"></i></button>
           <a class="rs-ib" href="${esc(pdfPage(d, a))}" target="_blank" rel="noopener" title="الصفحة ${a.page} في الوثيقة الرسمية"><i class="bi bi-file-earmark-pdf"></i></a></span></header>
+        ${a.amended ? `<div class="rs-rg-amdnote"><i class="bi bi-info-circle"></i> ${esc(a.amended)}</div>` : ''}
         <div class="body">${body}${ts.slice(k).map(table).join('')}</div></article>`; };
+    const dec = d.decision ? `<section class="rs-rg-dec" id="rg-dec"><div class="hd"><i class="bi bi-file-earmark-text"></i><div><b>آخر تعديل: كتاب رئيس الجامعة رقم ${esc(d.decision.no)} بتاريخ ${esc(d.decision.date)}</b>
+        <p>${esc(d.decision.text)}</p></div><a class="rs-tag no-print" href="${esc(d.url)}#page=${d.decision.page || 1}" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> نص القرار</a></div>
+        <ol>${d.decision.items.map(([n, t]) => `<li><a href="#a-${n}" data-a="${n}">المادة (${n})</a> ${esc(t)}</li>`).join('')}</ol></section>` : '';
     tIdx = tIdx; // tables are placed at their markers above
     const toc = d.articles.map(a => `${a.section ? `<li class="sec">${esc(a.section)}</li>` : ''}<li><a href="#a-${a.n}" data-a="${a.n}">${esc(a.label.replace(/\^\S+/g, ''))}<small>${esc(a.text.replace(/\^\S+/g, '').split('\n')[0].slice(0, 46))}…</small></a></li>`).join('');
     R.$('#rg-read').innerHTML = `<div class="rs-rg-reader">
@@ -99,9 +112,9 @@
         <input class="form-control form-control-sm mb-2" id="rg-filter" type="search" placeholder="تصفية المواد…"><ol id="rg-toc">${toc}</ol></aside>
       <div class="rs-rg-text">
         <header class="rs-rg-head" style="--kc:${KC[d.kind]}"><span class="kind">${esc(d.kind)}</span>${d.heading.map((h, i) => `<div class="h${i}">${fmt(h).replace(/<\/?p[^>]*>/g, '')}</div>`).join('')}
-          <div class="meta">${status(d)}<a class="rs-tag" href="${esc(d.url)}" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> الملف الرسمي</a>
+          <div class="meta">${status(d)}<a class="rs-tag" href="${esc(d.url)}" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> ${d.decision ? 'النص المعدّل (PDF)' : 'الملف الرسمي'}</a>${d.official_url ? `<a class="rs-tag no-print" href="${esc(d.official_url)}" target="_blank" rel="noopener" title="النسخة المنشورة حالياً على موقع الجامعة"><i class="bi bi-box-arrow-up-left"></i> موقع الجامعة</a>` : ''}
           <button type="button" class="rs-tag no-print" onclick="print()"><i class="bi bi-printer"></i> طباعة</button></div></header>
-        ${d.articles.map(art).join('')}
+        ${dec}${d.articles.map(art).join('')}
         ${d.footnotes.length ? `<footer class="rs-rg-notes"><h4>الحواشي</h4>${d.footnotes.map(f => `<p><sup>${esc(f.n)}</sup> ${esc(f.text)}</p>`).join('')}</footer>` : ''}
       </div></div>`;
     R.$('#rg-doc').onchange = e => { st.doc = e.target.value; st.a = ''; setUrl(); reader(); window.scrollTo({ top: R.$('#rg-read').offsetTop - 90 }); };

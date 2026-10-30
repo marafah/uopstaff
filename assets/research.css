@@ -1713,3 +1713,21 @@ button.na-val { cursor: pointer; } button.na-val i { color: var(--g); font-size:
 .hk-c.q1 small, .hk-c.q2 small, .hk-c.q3 small, .hk-c.q4 small { color: var(--k); font-weight: 800; }
 .hk-c.lnk a { color: var(--k); font-weight: 800; font-size: .8rem; text-decoration: none; } .hk-c.lnk a:hover { text-decoration: underline; }
 .hk-c.note { border-style: dashed; } .hk-c.note small { color: #4b5563; }
+
+/* regulations: the amending decision (كتاب 6841) and amended / renumbered articles */
+.rs-tag.dec { background: #fff4e0; color: #8a5300; border-color: #f0c987; font-weight: 700; text-decoration: none; }
+.rs-rg-dec { background: linear-gradient(135deg, #fff8ec, #fff); border: 1px solid #f0c987; border-inline-start: 5px solid #e09a1f; border-radius: 14px; padding: .9rem 1.1rem; margin-bottom: 1rem; }
+.rs-rg-dec .hd { display: flex; gap: .7rem; align-items: flex-start; flex-wrap: wrap; }
+.rs-rg-dec .hd > i { font-size: 1.5rem; color: #e09a1f; }
+.rs-rg-dec .hd > div { flex: 1 1 260px; min-width: 0; }
+.rs-rg-dec .hd b { color: #8a5300; }
+.rs-rg-dec .hd p { margin: .25rem 0 0; font-size: .9rem; line-height: 1.8; color: var(--rs-ink, #222); }
+.rs-rg-dec ol { margin: .6rem 0 0; padding-inline-start: 1.3rem; display: grid; gap: .35rem; font-size: .9rem; line-height: 1.8; }
+.rs-rg-dec ol a { font-weight: 800; color: #8a5300; text-decoration: none; background: #ffe9c2; border-radius: 6px; padding: 0 .4rem; }
+.rs-rg-was { font-size: .74rem; font-weight: 700; color: #5b6b75; background: #eef2f5; border-radius: 20px; padding: .05rem .55rem; margin-inline-start: .5rem; }
+.rs-rg-amd { font-size: .74rem; font-weight: 800; color: #fff; background: #e09a1f; border-radius: 20px; padding: .08rem .6rem; margin-inline-start: .5rem; }
+.rs-rg-amdnote { background: #fff8ec; border: 1px dashed #f0c987; color: #8a5300; border-radius: 10px; padding: .4rem .7rem; font-size: .85rem; margin: .2rem 0 .5rem; }
+@media print { .rs-rg-dec, .rs-rg-amdnote { break-inside: avoid; } }
+.rs-rg-art header { flex-wrap: wrap; }
+.rs-rg-art header span.rs-rg-was, .rs-rg-art header span.rs-rg-amd { margin-inline-start: 0; display: inline-flex; align-items: center; gap: .25rem; }
+.rs-pb-val .money.a8 b { font-size: 1rem; color: #a3262c; } .rs-pb-val .money.a8 small { color: #a3262c; }

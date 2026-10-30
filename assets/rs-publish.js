@@ -1,6 +1,6 @@
 /* publish.html «أين أنشر؟»: journals that fit a paper (its title or keywords matched to the subjects of every Scopus
    journal and to the topics Jordanian researchers publish there), each with what it is worth under the university's
-   instructions: publication support and incentive (تعليمات البحث العلمي 2022، م5/د), promotion category and points
+   instructions: publication support and incentive (تعليمات البحث العلمي 2022 المعدلة بقرار 6841، م7 وشروط م8), promotion category and points
    (تعليمات الهيئة التدريسية 2021، م23), and points for the distinguished researcher award (تعليمات الجائزة 2022، م8/د);
    with how fast it decides, open access, and whether Scopus still covers it. A shortlist prints as a report. */
 (async function () {
@@ -19,8 +19,11 @@
   const ref = (a, d) => `<a class="rs-ref" href="regulations.html?doc=${d}&a=${a}" target="_blank" rel="noopener">م(${a})</a>`;
 
   // ---------------------------------------------------------------- the rules (same tables as reward.html, promotion.html, award.html)
-  const SC = { Q1: [200, 800], Q2: [200, 600], Q3: [200, 400], Q4: [200, 200], NA: [200, 200] };          // 06: م(5/د/4) [support, incentive]
-  const shares = n => n <= 1 ? [1] : n === 2 ? [0.6, 0.4] : n === 3 ? [0.5, 0.25, 0.25] : [0.35, ...Array(n - 1).fill(0.65 / (n - 1))]; // م(5/د/7)
+  const SC = { Q1: [400, 1200], Q2: [400, 800], Q3: [200, 500], Q4: [200, 200], NA: [200, 200] };         // 06: م(7/4) [support, incentive]
+  // 06: م(8/1) (decision 6841): a Scopus journal must have been listed for at least 5 years, continuously
+  const NOWY = new Date().getFullYear();
+  const art8 = c => { if (!c) return true; const l = String(c).split(',').pop().trim().split('-').map(Number); return NOWY - l[0] >= 5; };
+  const shares = n => n <= 1 ? [1] : n === 2 ? [0.6, 0.4] : n === 3 ? [0.5, 0.25, 0.25] : [0.35, ...Array(n - 1).fill(0.65 / (n - 1))]; // م(7/8)
   const PROMO = { Q1: [1, 2], Q2: [1, 2], Q3: [2, 2], Q4: [2, 2], NA: [3, 1] };                          // 05: م(23/أ) [category, points]
   const AWARD = { Q1: [60, 30], Q2: [50, 25], Q3: [40, 20], Q4: [30, 15], NA: [20, 10] };                 // 11: م(8/د) [lead, co-author]
 
@@ -29,7 +32,7 @@
     const cats = Array.isArray(cr) ? cr.map(c => [J.catn[c[0]], c[1] ? 'Q' + c[1] : '']) : (cr || '').split('; ').filter(Boolean).map(x => x.split('|'));
     const fl = K.fl !== undefined ? (r[K.fl] ? R.flagVerdict({ d: r[K.fl][0], p: r[K.fl][1], end: r[K.fl][2], s: r[K.fl][3] ? 'i' : 'a' }) : null) : FL ? FL.verdict(FL.F[r[K.id]] || null) : null;
     return { id: r[K.id], t: r[K.t], issn: r[K.issn], pub: J.publishers[r[K.pub]] || '', oa: r[K.oa], q: r[K.q] || 'NA', sjr: r[K.sjr] || 0, h: r[K.h],
-      country: J.countries[r[K.country]] || '', cats, areas: (r[K.areas] || []).map(i => J.areas[i]), fl,
+      country: J.countries[r[K.country]] || '', cats, areas: (r[K.areas] || []).map(i => J.areas[i]), fl, cov: r[K.cov] || '', a8: art8(r[K.cov]),
       jo: jo && { docs: jo[0], cpd: jo[1], unis: jo[3], kw: jo[4] }, tm: T[r[K.id]] || null,
       _kw: R.norm(jo ? jo[4].join(' ') : ''), _cat: R.norm(cats.map(c => c[0]).join(' ')), _t: R.norm(r[K.t]) };
   }).filter(r => !r.fl);
@@ -42,7 +45,7 @@
   app.innerHTML = `
   <section class="rs-section rs-card rs-pr-intro">
     <div><h3><i class="bi bi-signpost-split"></i>أين أنشر بحثي؟</h3>
-      <p class="mb-0">اكتب عنوان بحثك أو كلماته المفتاحية، فتظهر المجلات الأنسب له مع ما يساويه النشر فيها وفق تعليمات الجامعة: <b>الدعم والحافز المالي</b> ${ref('5', '06')}، و<b>فئة البحث ونقاطه في الترقية</b> ${ref('23', '05')}، و<b>نقاط جائزة الباحث المتميز</b> ${ref('8', '11')}، ومدة القرار، والوصول المفتوح. المجلات التي حذفها Scopus مستبعدة.</p></div>
+      <p class="mb-0">اكتب عنوان بحثك أو كلماته المفتاحية، فتظهر المجلات الأنسب له مع ما يساويه النشر فيها وفق تعليمات الجامعة: <b>الدعم والحافز المالي</b> ${ref('7', '06')} و${ref('8', '06')}، و<b>فئة البحث ونقاطه في الترقية</b> ${ref('23', '05')}، و<b>نقاط جائزة الباحث المتميز</b> ${ref('8', '11')}، ومدة القرار، والوصول المفتوح. المجلات التي حذفها Scopus مستبعدة.</p></div>
     <a class="btn btn-rs-o" href="journals.html"><i class="bi bi-journal-bookmark"></i> دليل المجلات</a>
   </section>
   <section class="rs-section rs-card pb-chk no-print">
@@ -68,12 +71,12 @@
       <label class="form-check m-0 ms-2"><input class="form-check-input" type="checkbox" id="pb-fast"> <span class="form-check-label">بمدة قرار معروفة فقط</span></label>
       <div class="rs-seg ms-auto" id="pb-sort"><button data-v="fit"><i class="bi bi-bullseye"></i> الأنسب</button><button data-v="value"><i class="bi bi-cash-coin"></i> الأعلى قيمة</button><button data-v="fast"><i class="bi bi-lightning-charge"></i> الأسرع قراراً</button><button data-v="sjr"><i class="bi bi-graph-up"></i> SJR</button></div></div>
     <div id="pb-out" class="rs-pb-list"></div></section>
-  <p class="rs-note">القيم تقديرية وغير رسمية: الدعم والحافز هما الحد الأعلى في جداول التعليمات ويُصرفان بتنسيب مجلس البحث العلمي، وتُقسم الحصص حسب ترتيب الباحثين ${ref('5', '06')}/د/7؛ ونقاط الترقية للبحث في مجلة حسب فئته، والقرار للجنة بعد التقييم. التصنيف من SCImago ${J.sjr_year}، ومدد القرار وسيط من Crossref لأحدث الأبحاث الأردنية في كل مجلة. تحقّق دائماً من موقع المجلة ورسومها قبل الإرسال.</p>`;
+  <p class="rs-note">القيم تقديرية وغير رسمية: الدعم والحافز هما الحد الأعلى في جداول التعليمات ويُصرفان بتنسيب مجلس البحث العلمي، وتُقسم الحصص حسب ترتيب الباحثين ${ref('7', '06')}/8؛ ونقاط الترقية للبحث في مجلة حسب فئته، والقرار للجنة بعد التقييم. التصنيف من SCImago ${J.sjr_year}، ومدد القرار وسيط من Crossref لأحدث الأبحاث الأردنية في كل مجلة. تحقّق دائماً من موقع المجلة ورسومها قبل الإرسال.</p>`;
 
   const words = () => R.norm(st.q).split(' ').filter(w => w.length > 2 && !STOP.test(w));
-  function value(q) {
-    const sc = SC[q], total = sc[0] + sc[1] + (st.intl ? 200 : 0), n = Math.max(1, st.n | 0), me = Math.min(n, Math.max(1, st.me | 0));
-    return { total, mine: total * shares(n)[me - 1], promo: PROMO[q], award: AWARD[q][me === 1 ? 0 : 1], lead: me === 1 };
+  function value(q, r) {
+    const a8 = !r || r.a8, sc = SC[q], total = a8 ? sc[0] + sc[1] + (st.intl ? 200 : 0) : 0, n = Math.max(1, st.n | 0), me = Math.min(n, Math.max(1, st.me | 0));
+    return { total, mine: total * shares(n)[me - 1], promo: PROMO[q], award: AWARD[q][me === 1 ? 0 : 1], lead: me === 1, a8 };
   }
   const QORD = { Q1: 1, Q2: 2, Q3: 3, Q4: 4, NA: 5 };
   function results() {
@@ -85,7 +88,7 @@
       for (const w of W) { if (r._kw.includes(w)) { s += 3; hit.add(w); } if (r._cat.includes(w)) { s += 2; hit.add(w); } if (r._t.includes(w)) { s += 1.5; hit.add(w); } }
       if (W.length && (!s || (W.length >= 3 && hit.size < Math.ceil(W.length * 0.4)))) continue;   // most of the paper's words, not one of them
       const cover = W.length ? hit.size / W.length : 0;
-      out.push({ r, fit: s * (0.5 + cover) + Math.log10(1 + (r.jo ? r.jo.docs : 0)) + r.sjr / 4, cover, hit: [...hit], v: value(r.q) });
+      out.push({ r, fit: s * (0.5 + cover) + Math.log10(1 + (r.jo ? r.jo.docs : 0)) + r.sjr / 4, cover, hit: [...hit], v: value(r.q, r) });
     }
     const key = { fit: x => x.fit, value: x => x.v.mine * 10 + x.cover * 5 + x.r.sjr / 10, fast: x => x.r.tm && x.r.tm.accept != null ? -x.r.tm.accept : -1e9, sjr: x => x.r.sjr }[st.sort];
     return out.sort((a, b) => key(b) - key(a));
@@ -108,7 +111,7 @@
           ${petra ? `<span class="me"><i class="bi bi-bank2"></i> ${R.n(petra)} من البترا</span>` : ''}</div>
       </div>
       <div class="rs-pb-val">
-        <div class="money"><b>${JD(v.mine)}</b><small>حصتك من ${JD(v.total)}</small></div>
+        ${v.a8 ? `<div class="money"><b>${JD(v.mine)}</b><small>حصتك من ${JD(v.total)}</small></div>` : `<div class="money a8"><b>لا دعم ولا حافز</b><small>في Scopus منذ أقل من 5 سنوات متصلة (${esc(r.cov)}) ${ref('8', '06')}</small></div>`}
         <div><span>الترقية</span><b>فئة ${v.promo[0]} · ${v.promo[1]} ${v.promo[1] === 1 ? 'نقطة' : 'نقطتان'}</b></div>
         <div><span>الجائزة</span><b>${v.award} نقطة</b></div>
         <label class="rs-pb-pick no-print"><input type="checkbox" data-pick="${r.id}"${on ? ' checked' : ''}> للمقارنة</label>
@@ -202,7 +205,7 @@
     const box = R.$('#pb-cmp'), P = st.pick.map(id => byJ[id]).filter(Boolean);
     box.hidden = !P.length;
     if (!P.length) return;
-    const v = P.map(r => value(r.q)), petra = r => HOME >= 0 && r.jo ? (r.jo.unis.find(u => u[0] === HOME) || [0, 0])[1] : 0;
+    const v = P.map(r => value(r.q, r)), petra = r => HOME >= 0 && r.jo ? (r.jo.unis.find(u => u[0] === HOME) || [0, 0])[1] : 0;
     const best = (arr, hi = true) => { const ok = arr.filter(x => x != null); const m = hi ? Math.max(...ok) : Math.min(...ok); return arr.map(x => x != null && x === m && ok.length > 1); };
     const line = (label, vals, fmt, hi = true) => { const b = best(vals, hi); return `<tr><th>${label}</th>${vals.map((x, i) => `<td class="${b[i] ? 'best' : ''}">${fmt(x, i)}</td>`).join('')}</tr>`; };
     box.innerHTML = `<h3><i class="bi bi-layout-three-columns"></i>مقارنة المجلات المختارة <small class="fw-normal text-muted">الخلية الخضراء = الأفضل</small>
