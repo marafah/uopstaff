@@ -18,6 +18,10 @@
     students: ['للطلبة', '#15803d', 'bi-backpack'], site: ['الموقع', '#b8892b', 'bi-stars'] };
   const PERIOD = [['1', 'اليوم'], ['2', 'أمس واليوم'], ['7', 'آخر 7 أيام'], ['30', 'آخر 30 يوماً'], ['all', 'كل السجل']];
   const PAGE = 60;
+  // pages behind the research section's sign-in (assets/research.js): their features show a lock
+  const LOCKED = new Set(['annual', 'award', 'compare', 'dept', 'experts', 'goals', 'impact', 'integrity', 'intl', 'jordan', 'journals', 'network', 'projects', 'promotion',
+    'publication', 'publications', 'publish', 'regulations', 'reports', 'research', 'researcher', 'researchers', 'reward', 'sabbatical', 'simulator', 'universities']);
+  const locked = f => f.locked != null ? !!f.locked : LOCKED.has(String(f.link || '').split(/[?#]/)[0].replace(/\.html$/, ''));
   let D, F = [];
   const day = iso => U.amman(iso).iso;  // the Amman date of a moment
   const dayName = iso => U.DAYS[U.amman(iso + 'T12:00').day] || '';
@@ -109,15 +113,15 @@
 
   // ---------------------------------------------------------------- features
   function featCard(f, compact) {
-    const [an, ac, ai] = AREA[f.area] || AREA.site, isNew = f.date >= daysAgo(6), how = (f.how || []).map(s => `<li>${esc(s)}</li>`).join('');
+    const [an, ac, ai] = AREA[f.area] || AREA.site, lk = locked(f), isNew = f.date >= daysAgo(6), how = (f.how || []).map(s => `<li>${esc(s)}</li>`).join('');
     return `<article class="cg2-f" style="--c:${ac}">
       <div class="cg2-fh"><span class="cg2-fi"><i class="bi ${esc(f.icon || ai)}"></i></span>
-        <div><div class="cg2-fm"><span class="cg2-area"><i class="bi ${ai}"></i> ${an}</span>${isNew ? '<span class="cg2-new">جديد</span>' : ''}<small>${U.numDate(f.date)}</small></div>
-          <h3>${esc(f.title)}</h3></div></div>
+        <div><div class="cg2-fm"><span class="cg2-area"><i class="bi ${ai}"></i> ${an}</span>${isNew ? '<span class="cg2-new">جديد</span>' : ''}${lk ? '<span class="cg2-lock" title="تتطلب اسم مستخدم وكلمة مرور (للمخوّلين فقط)"><i class="bi bi-lock-fill"></i> بتسجيل الدخول</span>' : ''}<small>${U.numDate(f.date)}</small></div>
+          <h3>${esc(f.title)}${lk ? ' <i class="bi bi-lock-fill cg2-lk" aria-label="تتطلب تسجيل الدخول"></i>' : ''}</h3></div></div>
       <p>${esc(f.desc)}</p>
       ${compact ? `<details class="cg2-how"><summary><i class="bi bi-lightbulb"></i> كيف أستخدمها؟</summary><ol>${how}</ol></details>`
         : `<div class="cg2-how"><b><i class="bi bi-lightbulb"></i> طريقة الاستخدام</b><ol>${how}</ol></div>`}
-      <footer>${(f.tags || []).map(t => `<span class="cg2-tag">#${esc(t)}</span>`).join('')}<a class="btn btn-sm cg2-try" href="${esc(f.link)}">جرّبها <i class="bi bi-arrow-left"></i></a></footer></article>`;
+      <footer>${(f.tags || []).map(t => `<span class="cg2-tag">#${esc(t)}</span>`).join('')}<a class="cg2-try ${lk ? 'lk' : ''}" href="${esc(f.link)}" title="${lk ? 'تفتح بعد تسجيل الدخول باسم المستخدم وكلمة المرور' : 'افتح الصفحة'}">${lk ? '<i class="bi bi-lock-fill"></i> ادخل وجرّبها' : 'جرّبها'} <i class="bi bi-arrow-left"></i></a></footer></article>`;
   }
   function featuresTab() {
     const q = norm(st.q.trim());
@@ -282,7 +286,12 @@
     .cg2-how li::before { content: counter(s); position: absolute; inset-inline-start: 0; top: .1rem; width: 1.3rem; height: 1.3rem; border-radius: 50%; background: var(--c); color: #fff; font-size: .7rem; font-weight: 800; display: grid; place-items: center; }
     .cg2-f footer { margin-top: auto; display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; }
     .cg2-tag { font-size: .7rem; color: #6b7280; background: #f3f4f6; border-radius: 99px; padding: .05rem .5rem; }
-    .cg2-try { margin-inline-start: auto; background: var(--c); color: #fff; border-radius: 9px; font-weight: 700; padding: .25rem .8rem; } .cg2-try:hover { color: #fff; filter: brightness(1.1); }
+    .cg2-f .cg2-try { margin-inline-start: auto; display: inline-flex; align-items: center; gap: .35rem; background: var(--c); color: #fff; border: 1px solid var(--c); border-radius: 9px; font-weight: 700; font-size: .85rem; padding: .3rem .85rem; text-decoration: none; transition: background .15s, box-shadow .15s, transform .15s; }
+    .cg2-f .cg2-try:hover, .cg2-f .cg2-try:focus-visible { background: color-mix(in srgb, var(--c) 82%, #000); color: #fff; box-shadow: 0 6px 14px color-mix(in srgb, var(--c) 40%, transparent); transform: translateY(-1px); }
+    .cg2-f .cg2-try:hover i.bi-arrow-left { transform: translateX(-3px); } .cg2-f .cg2-try i { transition: transform .15s; }
+    .cg2-f .cg2-try:focus-visible { outline: 2px solid #f5c66b; outline-offset: 2px; } .cg2-f .cg2-try:active { transform: none; box-shadow: none; }
+    .cg2-lock { font-size: .68rem; font-weight: 800; color: #92400e; background: #fef3c7; border: 1px solid #fcd34d; border-radius: 99px; padding: .02rem .45rem; }
+    .cg2-lk { color: #b45309; font-size: .8em; }
     .cg2-fday { margin-bottom: 1.4rem; } .cg2-fday > h2 { display: flex; align-items: center; gap: .55rem; font-size: 1rem; font-weight: 800; margin-bottom: .7rem; }
     .cg2-fday > h2 .dot { width: 12px; height: 12px; border-radius: 50%; background: #901d23; box-shadow: 0 0 0 4px rgba(144,29,35,.15); } .cg2-fday > h2 small { color: #6b7280; font-weight: 500; font-size: .78rem; }
     .cg2-bar0 { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: 1rem; }
