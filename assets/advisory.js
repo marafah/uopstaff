@@ -583,18 +583,18 @@
       let d;
       const ia = colAt(a), ib = colAt(b);
       if (ia >= 0 && ib > ia + 1) {   // skips columns: through the nearest gap of each column on the way, never across a card
-        let x = a.l, y = ay; d = `M${a.l},${ay}`;
+        let x = a.l - 6, y = ay; d = `M${a.l},${ay} L${x},${ay}`;
         for (let c = ia + 1; c < ib; c++) { const C = COLS[c], steps = ib - c;
           const want = y + (by - y) / steps;   // drift towards the target
           let g = C.gaps.reduce((best, gy) => Math.abs(gy - want) + 0.35 * Math.abs(gy - y) < Math.abs(best - want) + 0.35 * Math.abs(best - y) ? gy : best, C.gaps[0]);
           const n = C.use.get(g) || 0; C.use.set(g, n + 1); const gy = g + (n % 2 ? -1 : 1) * Math.ceil(n / 2) * 3;   // several links in one gap sit side by side
           const k = Math.max(14, (x - C.r) / 2);
           d += ` C${x - k},${y} ${C.r + k},${gy} ${C.r},${gy} L${C.l},${gy}`; x = C.l; y = gy; }
-        const k = Math.max(14, (x - b.r) / 2); d += ` C${x - k},${y} ${b.r + k},${by} ${b.r + 2},${by}`;
+        const e = b.r + 16, k = Math.max(10, (x - e) / 2); d += ` C${x - k},${y} ${e + k},${by} ${e},${by} L${b.r + 2},${by}`;   // a short straight stub, so the arrowhead points straight at the card
       }
-      else if (b.r < a.l - 4) { const c = Math.max(26, (a.l - b.r) * 0.5); d = `M${a.l},${ay} C${a.l - c},${ay} ${b.r + c},${by} ${b.r + 2},${by}`; }   // RTL: the later course sits to the left
-      else if (a.r < b.l - 4) { const c = Math.max(26, (b.l - a.r) * 0.5); d = `M${a.r},${ay} C${a.r + c},${ay} ${b.l - c},${by} ${b.l - 2},${by}`; }
-      else { const o = Math.min(a.l, b.l) - 26; d = `M${a.l},${ay} C${o},${ay} ${o},${by} ${b.l - 2},${by}`; }                                        // same column: a loop on the left
+      else if (b.r < a.l - 4) { const s0 = a.l - 6, e = b.r + 16, c = Math.max(10, (s0 - e) * 0.5); d = `M${a.l},${ay} L${s0},${ay} C${s0 - c},${ay} ${e + c},${by} ${e},${by} L${b.r + 2},${by}`; }   // RTL: the later course sits to the left
+      else if (a.r < b.l - 4) { const e = b.l - 16, c = Math.max(10, (e - a.r) * 0.5); d = `M${a.r},${ay} C${a.r + c},${ay} ${e - c},${by} ${e},${by} L${b.l - 2},${by}`; }
+      else { const o = Math.min(a.l, b.l) - 26, e = b.l - 14; d = `M${a.l},${ay} C${o},${ay} ${o},${by} ${e},${by} L${b.l - 2},${by}`; }                                        // same column: a loop on the left
       return `<path d="${d}" data-a="${esc(e.a)}" data-b="${esc(e.b)}" marker-end="url(#am-ar)"/>`; }).join('');
     const mk = (id, c, w) => `<marker id="${id}" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="${w}" markerHeight="${w}" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0.6 L10,5 L0,9.4 L2.6,5 z" fill="${c}" stroke="#fff" stroke-width=".6" stroke-linejoin="round"/></marker>`;
     svg.innerHTML = `<defs>${mk('am-ar', '#6f8796', 13)}${mk('am-ar-anc', '#d97706', 16)}${mk('am-ar-desc', '#901d23', 16)}</defs>${paths}`;
