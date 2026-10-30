@@ -305,6 +305,7 @@
   let ZOOM = Math.min(2, Math.max(0.3, +store('uop-am-zoom') || 1));
   let ZMODE = store('uop-am-zmode') || 'fit';   // 'fit': the map always fills the width (no horizontal scrolling); 'manual': the zoom the user chose
   let HELP = false, HIST = [];
+  let TIPS = store('uop-am-tip') !== '0';   // the details card on hover: on unless the viewer turned it off
   const AV = { open: ['مفتوحة فيها مقاعد', '#15803d'], closed: ['مطروحة ومغلقة', '#c2410c'], none: ['غير مطروحة هذا الفصل', '#94a3b8'], slot: ['خانة اختيار', '#6d28d9'] };
   function when(s) {
     const g = new Map();
@@ -373,6 +374,7 @@
         <div class="btn-group btn-group-sm" role="group" aria-label="الترتيب"><button type="button" class="btn ${st.ml !== 'chain' ? 'btn-dark' : 'btn-outline-dark'}" data-ml="plan"><i class="bi bi-calendar3"></i> حسب فصول الخطة</button><button type="button" class="btn ${st.ml === 'chain' ? 'btn-dark' : 'btn-outline-dark'}" data-ml="chain"><i class="bi bi-diagram-2"></i> حسب سلسلة المتطلبات</button></div>
         <div class="d-flex flex-wrap gap-1">${flt.map(([k, l]) => `<button type="button" class="btn btn-sm am-f ${st.mf === k ? 'on' : ''}" data-mf="${k}">${l}</button>`).join('')}</div>
         <div class="am-legend ms-auto">${Object.entries(AV).map(([k, [l, c]]) => `<span><i style="background:${c}"></i>${l} <b>${counts[k]}</b></span>`).join('')}<span><i class="bi bi-lightning-charge-fill text-warning"></i> أطول سلسلة (${G.longest} مواد)</span></div>
+        <button type="button" class="btn btn-sm am-f ${TIPS ? 'on' : ''}" id="am-tipb" title="إظهار بطاقة التفاصيل عند المرور على المادة أو إخفاؤها"><i class="bi ${TIPS ? 'bi-chat-square-text-fill' : 'bi-chat-square'}"></i> بطاقة التفاصيل: ${TIPS ? 'تظهر' : 'مخفية'}</button>
         <button type="button" class="btn btn-sm am-f ${st.ma ? 'on' : ''}" id="am-ma" title="إظهار كل الأسهم أو أسهم المادة التي تمرّ عليها أو تختارها فقط"><i class="bi bi-bezier2"></i> كل الروابط</button>
 </div></div>
       ${G.nodes.some(n => (G.pre.get(n.key) || []).length) ? '' : '<div class="alert alert-light border small py-2"><i class="bi bi-info-circle"></i> ملف هذه الخطة لا يذكر المتطلبات السابقة للمواد، فتظهر المواد بلا روابط بينها؛ وتبقى حالة كل مادة وشعبها في الجدول الحالي ظاهرة.</div>'}
@@ -821,7 +823,7 @@
     let tipT;
     const tip = (() => { let t = document.getElementById('am-tip'); if (!t) { t = document.createElement('div'); t.id = 'am-tip'; t.setAttribute('role', 'tooltip'); document.body.appendChild(t); } return t; })();
     function hideTip() { clearTimeout(tipT); tip.classList.remove('on'); }
-    function showTip(el) { clearTimeout(tipT); tipT = setTimeout(() => {
+    function showTip(el) { clearTimeout(tipT); if (!TIPS) return; tipT = setTimeout(() => {
       const k = el.dataset.k, n = G.nodes.find(q => q.key === k); if (!n || dragged) return;
       const av = avail(n.code), S = av.s || [], open = S.filter(isOpen), pre = G.pre.get(k) || [], dir = G.post.get(k) || [], des = G.desc.get(k).size;
       const nm = c => esc((G.by.get(c) || {}).name || CODE_NAME[c] || '');
@@ -874,6 +876,8 @@
       const up = () => { removeEventListener('pointermove', mv); removeEventListener('pointerup', up); sc.classList.remove('grabbing'); setTimeout(() => { dragged = false; }, 0); };
       addEventListener('pointermove', mv); addEventListener('pointerup', up); };
     const hb = $('#am-help-b'); if (hb) hb.onclick = () => { if (st.sel) pick(''); HELP = !row.classList.contains('open'); row.classList.toggle('open', HELP); };
+    const tb = $('#am-tipb'); if (tb) tb.onclick = () => { TIPS = !TIPS; store('uop-am-tip', TIPS ? '1' : '0'); hideTip();
+      tb.classList.toggle('on', TIPS); tb.innerHTML = `<i class="bi ${TIPS ? 'bi-chat-square-text-fill' : 'bi-chat-square'}"></i> بطاقة التفاصيل: ${TIPS ? 'تظهر' : 'مخفية'}`; };
     const ma = $('#am-ma'); if (ma) ma.onclick = () => { st.ma = !st.ma; ma.classList.toggle('on', st.ma); light(st.sel); };
     const fs = $('#am-fs'); if (fs) fs.onclick = () => { const w = $('#am-wrap'); document.fullscreenElement ? document.exitFullscreen() : w.requestFullscreen && w.requestFullscreen(); };
     if (!window.__amFS) { window.__amFS = true; document.addEventListener('fullscreenchange', () => setTimeout(() => window.dispatchEvent(new Event('resize')), 60)); }
