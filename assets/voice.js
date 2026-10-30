@@ -147,7 +147,7 @@
   const UA = navigator.userAgent, IOS = /iPhone|iPad|iPod/.test(UA) || (/Macintosh/.test(UA) && navigator.maxTouchPoints > 1), ANDROID = /Android/.test(UA);
   const INAPP = /FBAN|FBAV|Instagram|Line\/|WhatsApp|Snapchat|TikTok|; wv\)/.test(UA);
   let micOk = (() => { try { return localStorage.getItem('uop-voice-mic') === '1'; } catch (e) { return false; } })();
-  const howTo = () => IOS ? 'على iPhone: اضغط «aA» بجانب العنوان ← «إعدادات موقع الويب» ← «الميكروفون» ← «سماح»، ثم أعد تحميل الصفحة. وتأكد من تفعيل «Siri والإملاء» في إعدادات الهاتف.'
+  const howTo = () => IOS ? 'على iPhone: اضغط «aA» بجانب العنوان ← «إعدادات موقع الويب» ← «الميكروفون» ← «سماح» (أو من «الإعدادات» ← «Safari» ← «الميكروفون» ← «سماح» لكل المواقع حتى لا يتكرر السؤال). وتأكد أن «الإملاء» مفعّل: «الإعدادات» ← «عام» ← «لوحة المفاتيح» ← «تمكين الإملاء».'
     : ANDROID ? 'على Android: اضغط رمز القفل 🔒 بجانب العنوان ← «الأذونات» ← «الميكروفون» ← «سماح»، ثم أعد تحميل الصفحة.'
     : 'اضغط رمز القفل 🔒 بجانب عنوان الموقع ← «الميكروفون» ← «سماح»، ثم أعد تحميل الصفحة.';
   function helpMsg(kind) {
@@ -178,6 +178,9 @@
     target = input; alts = []; heard = '';
     const p0 = ui(); paintLang(); p0.hidden = false; document.documentElement.classList.add('vz-open'); helpMsg('');
     if (!SR) { say('', '', 'err'); helpMsg('nosr'); return; }
+    // iPhone / iPad: Safari asks for the microphone itself and only when recognition starts inside the tap, so start at once —
+    // asking first through getUserMedia would mean two prompts, and the delay would lose the tap
+    if (IOS) { begin(); return; }
     const ok = await permission();
     if (ok === null) return;
     if (!ok) { say('', '', 'err'); helpMsg('denied'); return; }
@@ -185,7 +188,7 @@
     begin();
   }
   function begin() {
-    target = input; alts = []; heard = '';
+    alts = []; heard = '';
     const p = ui(); paintLang(); p.hidden = false; document.documentElement.classList.add('vz-open');
     say(lang === 'ar' ? 'تحدّث الآن…' : 'Speak now…', '', 'listen');
     loadLex();
@@ -203,7 +206,7 @@
     };
     rec.onerror = e => {
       if (e.error === 'not-allowed') { micOk = false; try { localStorage.removeItem('uop-voice-mic'); } catch (x) { /* storage unavailable */ } say('', '', 'err'); helpMsg('denied'); rec = null; return; }
-      const m = { 'service-not-allowed': 'التعرّف على الكلام غير متاح في هذا المتصفح. جرّب Chrome أو Safari.',
+      const m = { 'service-not-allowed': IOS ? 'فعّل الإملاء في iPhone: «الإعدادات» ← «عام» ← «لوحة المفاتيح» ← «تمكين الإملاء»، ثم أعد المحاولة.' : 'التعرّف على الكلام غير متاح في هذا المتصفح. جرّب Chrome أو Safari.',
         'no-speech': 'لم أسمع شيئاً. اضغط الميكروفون وتحدّث.', 'audio-capture': 'لا يوجد ميكروفون متاح.', network: 'تحتاج خدمة التعرّف على الكلام إلى اتصال بالإنترنت.' }[e.error];
       if (m) { say(m, null, 'err'); rec = null; }
     };
