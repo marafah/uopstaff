@@ -125,20 +125,21 @@
     const slots = G.nodes.filter(n => !realCode(n.code));
     const hit = n => !q || norm(n.code + ' ' + (n.name || '')).includes(q);
     const all = G.nodes.filter(n => realCode(n.code)), offAll = all.filter(n => secs(n.code).length).length;
+    const dz = n => G.desc.get(n.key).size, KEY = new Set(all.filter(n => dz(n) >= 5).sort((a, b) => dz(b) - dz(a)).slice(0, 5).map(n => n.key));
     const pill = n => { const k = kindOf(n.code, major), av = avail(n.code), d = G.desc.get(n.key).size;
-      return `<span class="ad-c py-p s-${av.k} ${hit(n) ? '' : 'dim'}" data-code="${esc(n.code)}" data-k="${esc(n.key)}" style="--k:${KINDS[k][1]}"
-        title="${esc((n.name || CODE_NAME[n.code] || '') + ' — ' + n.code + ' · ' + (n.hours ?? '—') + ' س · ' + KINDS[k][0] + ' · ' + av.t + ' · السنة ' + (YR[n.year] || n.year) + ' ' + TERM[n.term] + (n.prereq ? ' · المتطلب: ' + n.prereq : '') + (d ? ' · تفتح ' + d + ' مادة' : ''))}">
-        <u></u><b>${esc(n.name || CODE_NAME[n.code] || '')}</b><code>${esc(n.code)}</code>${d ? `<em>${d}</em>` : ''}</span>`; };
+      return `<span class="ad-c py-p s-${av.k} ${hit(n) ? '' : 'dim'} ${KEY.has(n.key) ? 'key' : ''}" data-code="${esc(n.code)}" data-k="${esc(n.key)}" style="--k:${KINDS[k][1]}"
+        title="${esc((n.name || CODE_NAME[n.code] || '') + ' — ' + n.code + ' · ' + (n.hours ?? '—') + ' س · ' + KINDS[k][0] + ' · ' + av.t + ' · السنة ' + (YR[n.year] || n.year) + ' ' + TERM[n.term] + (n.prereq ? ' · المتطلب: ' + n.prereq : '') + (d ? ' · تفتح ' + d + ' مادة' : '') + (KEY.has(n.key) ? ' · مادة مفتاحية: من أكثر المواد فتحاً لما بعدها' : ''))}">
+        <u></u>${KEY.has(n.key) ? '<i class="py-star">★</i>' : ''}<b>${esc(n.name || CODE_NAME[n.code] || '')}</b><code>${esc(n.code)}</code>${d ? `<em>${d}</em>` : ''}</span>`; };
     return `<div class="py-sum">
         <div><b>${top}</b><span>طبقات</span></div><div><b>${(lv.get(1) || []).length}</b><span>تأسيسية</span></div>
         <div><b>${all.length}</b><span>مادة</span></div><div><b>${offAll}</b><span>مطروحة</span></div>
-        <div class="py-key"><span><u class="s-open"></u>مفتوحة</span><span><u class="s-closed"></u>مغلقة</span><span><u class="s-none"></u>غير مطروحة</span><span><em>5</em> تفتح</span>
+        <div class="py-key"><button type="button" data-pf="open" title="أبرز المفتوحة فقط"><u class="s-open"></u>مفتوحة</button><button type="button" data-pf="closed" title="أبرز المغلقة فقط"><u class="s-closed"></u>مغلقة</button><button type="button" data-pf="none" title="أبرز غير المطروحة فقط"><u class="s-none"></u>غير مطروحة</button><button type="button" data-pf="key" title="أبرز المواد المفتاحية فقط"><i class="py-star">★</i>مفتاحية</button><span><em>5</em> تفتح</span>
           <small>مرّر على مادة: <b class="o">متطلباتها</b> و<b class="g">ما تفتحه</b> · انقرها للخريطة</small></div></div>
-      <div class="py2" id="py2">${keys.map((l, i) => { const ns = lv.get(l).sort((a, b) => ORDER(a) - ORDER(b)), h = ns.reduce((a, n) => a + (n.hours || 0), 0), t = (l - 1) / Math.max(1, top - 1);
+      <div class="py2" id="py2">${keys.map((l, i) => { const ns = lv.get(l).sort((a, b) => dz(b) - dz(a) || ORDER(a) - ORDER(b)), h = ns.reduce((a, n) => a + (n.hours || 0), 0), t = (l - 1) / Math.max(1, top - 1);
         const yrs = [...new Set(ns.map(n => n.year))].sort((a, b) => a - b), off = ns.filter(n => secs(n.code).length).length;
         const name = l === 1 ? 'القاعدة' : l === top ? 'القمة' : 'الطبقة ' + l;
         return `<div class="py2-r" style="--t:${t}">
-          <div class="py2-lab"><span class="py2-n">${l}</span><div><b>${name}</b><small>${ns.length} مادة · ${h} س · ${off} مطروحة</small><small>السنة ${yrs.map(y => YR[y] || y).join(' – ')}</small></div></div>
+          <div class="py2-lab"><span class="py2-n">${l}</span><div><b>${name}</b><small>${ns.length} مادة · ${h} س · ${off} مطروحة</small><small>${yrs.length > 1 ? 'السنوات' : 'السنة'} ${yrs.join('، ')}</small><i class="py2-bar" title="${off} من ${ns.length} مطروحة هذا الفصل"><s style="width:${Math.round(off / ns.length * 100)}%"></s></i></div></div>
           <div class="py2-s"><div class="py2-in">${ns.map(pill).join('')}</div></div></div>`; }).join('')}</div>
       ${slots.length ? `<div class="py-slots" title="خانات يختار لها الطالب مادة من مجموعة الخطة"><b><i class="bi bi-ui-checks-grid"></i> خانات اختيار (${slots.length})</b>${slots.map(n => `<span class="py-sl" style="--k:${KINDS[kindOf(n.code, major)][1]}">${esc(n.name || '')}<em>${n.hours ?? '—'} س</em></span>`).join('')}</div>` : ''}`;
   }
@@ -152,18 +153,27 @@
         const inset = y => (1 - apex) / 2 * (1 - (y - T) / H) * 100;   // % of the width cut from each side at height y
         rows.forEach(r => { const R = r.getBoundingClientRect(), a = inset(R.top), b = inset(R.bottom);
           r.style.clipPath = `polygon(${a}% 0, ${100 - a}% 0, ${100 - b}% 100%, ${b}% 100%)`;
-          r.querySelector('.py2-in').style.paddingInline = `calc(${a}% + 12px)`; });
+          r.querySelector('.py2-in').style.paddingInline = `calc(${a}% + 12px + var(--bx, 0px))`; });
       } };
     // fit the whole pyramid on one screen: from the view switcher down to the slot strip, no page scroll needed
     box.classList.remove('d1', 'd2'); box.style.zoom = '';
+    const balance = pyrBalance;
     if (innerWidth <= 900) { shape(); return; }
     const bar = document.querySelector('.pb-bar'), sl = document.querySelector('.py-slots');
     const head = box.getBoundingClientRect().top - (bar ? bar.getBoundingClientRect().top : box.getBoundingClientRect().top);
     const budget = innerHeight - head - (sl ? sl.offsetHeight + 8 : 0) - 14;
-    shape(); if (box.offsetHeight <= budget) return;
-    box.classList.add('d1'); shape(); if (box.offsetHeight <= budget) return;
-    box.classList.add('d2'); shape(); if (box.offsetHeight <= budget) return;
-    box.style.zoom = Math.max(0.72, budget / box.offsetHeight).toFixed(3); shape();
+    shape(); if (box.offsetHeight <= budget) { balance(); return; }
+    box.classList.add('d1'); shape(); if (box.offsetHeight <= budget) { balance(); return; }
+    box.classList.add('d2'); shape(); if (box.offsetHeight <= budget) { balance(); return; }
+    box.style.zoom = Math.max(0.72, budget / box.offsetHeight).toFixed(3); shape(); balance();
+  }
+  // even out wrapped rows (3 + 3 rather than 5 + 1): squeeze each row while it keeps the same number of lines
+  function pyrBalance() {
+    document.querySelectorAll('#py2 .py2-in').forEach(el => { el.style.setProperty('--bx', '0px');
+      const lines = () => new Set([...el.children].map(c => c.offsetTop)).size, n = lines(); if (n < 2) return;
+      let lo = 0, hi = el.clientWidth / 2;
+      for (let i = 0; i < 9; i++) { const m = (lo + hi) / 2; el.style.setProperty('--bx', m + 'px'); if (lines() === n) lo = m; else hi = m; }
+      el.style.setProperty('--bx', Math.max(0, lo - 6) + 'px'); });
   }
   // tree: from each foundation course down to everything it opens
   function planTree(x) {
@@ -596,6 +606,14 @@
     .py-slots > b { color: #7a5a17; margin-inline-end: .3rem; font-size: .72rem; } .py-sl { background: #fff; border: 1px solid #eadfc4; border-inline-start: 3px solid var(--k); border-radius: 6px; padding: .05rem .4rem; color: #495057; white-space: nowrap; }
     .py-sl em { font-style: normal; color: #94a3b8; margin-inline-start: .3rem; font-size: .62rem; }
     .py2.d1 .py2-in { padding-block: .25rem; gap: 3px 4px; min-height: 34px; } .py2.d1 .py2-s { min-height: 34px; } .py2.d1 .ad-c.py-p { font-size: .68rem; padding: .08rem .42rem .08rem .34rem; } .py2.d1 .py2-lab small + small { display: none; }
+    .py-key button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .25rem; padding: .05rem .45rem; border-radius: 99px; border: 1px solid transparent; transition: background .12s; }
+    .py-key button:hover { background: #f1f5f9; } .py-key button.on { background: #0b4a66; color: #fff; } .py-key button:focus-visible { outline: 2px solid #0b4a66; outline-offset: 1px; }
+    .py-star { font-style: normal; color: #d4a017; font-size: .8em; line-height: 1; }
+    .ad-c.py-p.key { border-color: #e8c35a; background: linear-gradient(#fffdf5, #fff8e6); box-shadow: 0 0 0 1px #f3dc94, 0 2px 6px rgba(212,160,23,.18); }
+    .py2.f-open .py-p:not(.s-open), .py2.f-closed .py-p:not(.s-closed), .py2.f-none .py-p:not(.s-none), .py2.f-key .py-p:not(.key) { opacity: .22; filter: grayscale(.6); }
+    .py2-lab small { white-space: nowrap; }
+    .py2-bar { display: block; width: 92px; height: 4px; margin-top: 3px; border-radius: 99px; background: #e5e9ee; overflow: hidden; } .py2-bar s { display: block; height: 100%; background: linear-gradient(90deg, #16a34a, #4ade80); border-radius: 99px; }
+    .py2-lab::after { border-top-color: #9fb0bf; width: 18px; inset-inline-end: -18px; }
     .py2.d2 .py-p code { display: none; } .py2.d2 .ad-c.py-p { font-size: .66rem; }
     .py2-r { --pc: color-mix(in srgb, #901d23 calc(var(--t) * 100%), #0b4a66); position: relative; }
     .py2-lab { position: absolute; inset-inline-start: -170px; top: 50%; transform: translateY(-50%); width: 158px; display: flex; gap: .45rem; align-items: center; }
@@ -1076,6 +1094,10 @@
     document.querySelectorAll('.py-p').forEach(c => { c.onmouseenter = () => { const G = window.__pyrG; if (!G) return; const k = c.dataset.k, anc = G.anc(k), des = G.desc.get(k) || new Set();
         const box = c.closest('.py2'); box.classList.add('focus'); box.querySelectorAll('.py-p').forEach(e => { const j = e.dataset.k; e.classList.toggle('sel', j === k); e.classList.toggle('anc', anc.has(j)); e.classList.toggle('desc', des.has(j)); }); };
       c.onmouseleave = () => { const box = c.closest('.py2'); box.classList.remove('focus'); box.querySelectorAll('.py-p').forEach(e => e.classList.remove('sel', 'anc', 'desc')); }; });
+    document.querySelectorAll('[data-pf]').forEach(b => { b.classList.toggle('on', window.__pyrF === b.dataset.pf); b.onclick = () => { window.__pyrF = window.__pyrF === b.dataset.pf ? '' : b.dataset.pf;
+      const box = document.getElementById('py2'); ['open', 'closed', 'none', 'key'].forEach(f => box && box.classList.toggle('f-' + f, window.__pyrF === f));
+      document.querySelectorAll('[data-pf]').forEach(x => x.classList.toggle('on', window.__pyrF === x.dataset.pf)); }; });
+    if (window.__pyrF && document.getElementById('py2')) document.getElementById('py2').classList.add('f-' + window.__pyrF);
     if (document.getElementById('py2')) { requestAnimationFrame(pyrLayout); if (document.fonts && document.fonts.ready) document.fonts.ready.then(pyrLayout);
       if (!window.__pyrR) { window.__pyrR = true; addEventListener('resize', () => { clearTimeout(window.__pyrT); window.__pyrT = setTimeout(pyrLayout, 150); }); } }
     document.querySelectorAll('[data-tree]').forEach(b => b.onclick = () => document.querySelectorAll('.pv-tree details').forEach(d => { d.open = b.dataset.tree === 'open'; }));
