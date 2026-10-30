@@ -313,7 +313,7 @@
     .cg2-search.grow { flex: 1 1 260px; } .cg2-search:focus-within { border-color: #901d23; box-shadow: 0 0 0 3px rgba(144,29,35,.12); }
     .cg2-search i { color: #94a3b8; } .cg2-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: .85rem; }
     .cg2-bar0 .cg2-search { margin-inline-start: auto; }
-    .cg2-filt { background: #fff; border: 1px solid #ece6d8; border-radius: 14px; padding: .7rem .8rem; margin-bottom: 1rem; display: grid; gap: .6rem; box-shadow: 0 2px 10px rgba(9,27,34,.04); }
+    .cg2-filt { background: #fff; border: 1px solid #ece6d8; border-radius: 14px; padding: .7rem .8rem; margin-bottom: 1rem; display: grid; grid-template-columns: minmax(0, 1fr); gap: .6rem; box-shadow: 0 2px 10px rgba(9,27,34,.04); }
     .cg2-row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
     .cg2-seg { display: inline-flex; background: #f3f6f8; border-radius: 10px; padding: 3px; gap: 2px; }
     .cg2-seg button { all: unset; cursor: pointer; padding: .3rem .75rem; border-radius: 8px; font-size: .82rem; font-weight: 600; color: #0b4a66; white-space: nowrap; }
@@ -382,6 +382,7 @@
     .cg2-tip p { font-size: .82rem; color: #4b5563; line-height: 1.7; }
     @media (max-width: 1200px) { .cg2-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } .cg2-ov { grid-template-columns: 1fr; } }
     @media (max-width: 768px) { .cg2-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cg2-fgrid.two, .cg2-sum, .cg2-fgrid { grid-template-columns: 1fr; } .cg2-upd { display: none; } }
+    @media (max-width: 575px) { .cg2-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .cg2-tabs > button { flex: 1 1 0; min-width: 0; justify-content: center; text-align: center; flex-wrap: wrap; gap: .25rem; padding: .4rem .35rem; font-size: .82rem; line-height: 1.25; } .cg2-tabs > button b { min-width: 0; padding: .05rem .35rem; } .cg2-tabs > button > i { display: none; } .cg2-seg { max-width: 100%; overflow-x: auto; scrollbar-width: none; } .cg2-seg button { padding: .3rem .55rem; } .cg2-vr { display: none; } }
     @media print { .cg2-tabs, .cg2-filt { display: none !important; } }
   </style>`);
 

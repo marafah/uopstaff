@@ -457,7 +457,7 @@
 
 
   if (!document.getElementById('sp2-css')) document.head.insertAdjacentHTML('beforeend', `<style id="sp2-css">
-    .sp2-bar { background: #fff; border: 1px solid #ece6d8; border-radius: 14px; padding: .55rem .65rem; margin-bottom: .75rem; box-shadow: 0 2px 10px rgba(9,27,34,.04); display: grid; gap: .5rem; }
+    .sp2-bar { background: #fff; border: 1px solid #ece6d8; border-radius: 14px; padding: .55rem .65rem; margin-bottom: .75rem; box-shadow: 0 2px 10px rgba(9,27,34,.04); display: grid; grid-template-columns: minmax(0, 1fr); gap: .5rem; }
     .sp2-r1, .sp2-r2 { display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; } .sp2-r2 { padding-top: .5rem; border-top: 1px dashed #ece6d8; }
     .sp2-views { display: inline-flex; background: #f3f1ea; border-radius: 10px; padding: 3px; gap: 2px; flex: none; }
     .sp2-views button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; padding: .32rem .7rem; border-radius: 8px; font-size: .84rem; font-weight: 700; color: #0b4a66; white-space: nowrap; }
@@ -557,6 +557,7 @@
     .sp2-dleg span { flex: none; gap: .2rem !important; }
     .sp2-dleg span { display: inline-flex; align-items: center; gap: .25rem; white-space: nowrap; } .sp2-dleg i { width: 8px; height: 8px; border-radius: 2px; flex: none; } .sp2-dleg b { color: #091b22; }
     @media (max-width: 991px) { .sp2-sel, .sp2-sel.grow { flex: 1 1 45%; } .sp2-sel:not(.grow) select { max-width: none; field-sizing: fixed; } .sp2-vr { display: none; } .sp2-kpis { width: 100%; } .sp2-k { flex: 1 1 30%; } }
+    @media (max-width: 575px) { .sp2-views { flex: 1 1 100%; min-width: 0; max-width: 100%; display: flex; overflow-x: auto; scrollbar-width: none; } .sp2-views::-webkit-scrollbar { display: none; } .sp2-views button { flex: 1 0 auto; justify-content: center; padding: .32rem .5rem; font-size: .8rem; } .sp2-ov { grid-template-columns: auto minmax(0, 1fr); gap: .8rem; padding: .6rem .7rem; } .sp2-vs { width: 100%; table-layout: fixed; } .sp2-vs th, .sp2-vs td { padding: .12rem .3rem; } .sp2-vs thead th { white-space: normal; max-width: none; line-height: 1.25; } .sp2-vs tbody th { white-space: normal; width: 34%; } }
     @media print { .sp2-bar { display: none !important; } }
   </style>`);
   Promise.all([U.getJSON('data/study_plans.json'), U.getJSON('data/timetable.json').catch(() => ({ sections: [] })), U.getJSON('data/course_names_en.json').catch(() => ({ names: {} }))]).then(([d, tt, en]) => {
