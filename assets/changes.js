@@ -12,10 +12,10 @@
     fac: P.get('fac') || '', q: P.get('q') || '', a: P.get('a') || '', sort: 'at', dir: -1, more: 0 };
   if (!P.get('tab') && (st.k || st.op || st.f || st.fac || st.q || P.get('d'))) st.tab = 'data';   // old links to a filtered list
   const DEF = { tab: 'overview', v: 'table', d: '7' };
-  const KIND = { section: ['الجدول الدراسي', 'bi-table', '#0b4a66'], staff: ['دليل الموظفين', 'bi-person-lines-fill', '#901d23'], calendar: ['التقويم الجامعي', 'bi-calendar3', '#9a5b00'] };
+  const KIND = { section: ['الجدول الدراسي', 'bi-table', '#0b4a66'], staff: ['دليل الموظفين', 'bi-person-lines-fill', '#901d23'], calendar: ['التقويم الجامعي', 'bi-calendar3', '#0f766e'] };
   const OP = { add: ['جديد', 'bi-plus-circle-fill', 'ok'], remove: ['حُذف', 'bi-dash-circle-fill', 'no'], change: ['تغيّر', 'bi-arrow-left-right', 'ch'] };
   const AREA = { timetable: ['الجدول والخطط', '#0b4a66', 'bi-table'], directory: ['دليل الموظفين', '#901d23', 'bi-person-lines-fill'], research: ['البحث العلمي', '#6d28d9', 'bi-mortarboard'],
-    students: ['للطلبة', '#15803d', 'bi-backpack'], site: ['الموقع', '#b8892b', 'bi-stars'] };
+    students: ['للطلبة', '#15803d', 'bi-backpack'], site: ['الموقع', '#0f766e', 'bi-stars'] };
   const PERIOD = [['1', 'اليوم'], ['2', 'أمس واليوم'], ['7', 'آخر 7 أيام'], ['30', 'آخر 30 يوماً'], ['all', 'كل السجل']];
   const PAGE = 60;
   // pages behind the research section's sign-in (assets/research.js): their features show a lock
@@ -104,7 +104,7 @@
         <tfoot><tr><th>المجموع</th>${Object.keys(OP).map(o => `<td><b>${list.filter(e => e.op === o).length}</b></td>`).join('')}<td><b>${list.length}</b></td></tr></tfoot></table></section>
       <section class="cg2-p"><h3><i class="bi bi-bar-chart"></i> التغييرات يوماً بيوم</h3>
         <div class="cg2-cols">${perDay.map(([d, n]) => `<div title="${dayName(d)} ${U.numDate(d)}: ${n}"><b>${n || ''}</b><i style="height:${(n / dmax * 100).toFixed(1)}%"></i><small>${U.numDate(d).slice(0, 5)}</small></div>`).join('')}</div></section>
-      <section class="cg2-p"><h3><i class="bi bi-ui-checks"></i> ما الذي تغيّر <small>انقر للتصفية</small></h3>${fl.length ? bars(fl, 'f', '#b8892b') : '<p class="small text-muted m-0">لا تعديلات على حقول في هذه الفترة (إضافة أو حذف فقط).</p>'}</section>
+      <section class="cg2-p"><h3><i class="bi bi-ui-checks"></i> ما الذي تغيّر <small>انقر للتصفية</small></h3>${fl.length ? bars(fl, 'f', '#901d23') : '<p class="small text-muted m-0">لا تعديلات على حقول في هذه الفترة (إضافة أو حذف فقط).</p>'}</section>
       <section class="cg2-p"><h3><i class="bi bi-building"></i> حسب الكلية / الوحدة <small>انقر للتصفية</small></h3>${bars(cnt(e => e.faculty).slice(0, 10), 'fac', '#0b4a66')}</section>
       ${items.length ? `<section class="cg2-p wide"><h3><i class="bi bi-arrow-repeat"></i> الأكثر تغيّراً</h3><div class="cg2-top">${items.map(([t, n]) => { const e = list.find(x => x.title === t);
         return `<a href="${esc(e.link)}" style="--c:${KIND[e.kind][2]}"><i class="bi ${KIND[e.kind][1]}"></i><span>${esc(t)}</span><b>${n}×</b></a>`; }).join('')}</div></section>` : ''}
@@ -145,7 +145,7 @@
     return `<div class="cg2-kpis">
         ${kpi(F.filter(f => f.date >= daysAgo(29)).length, 'ميزة جديدة خلال 30 يوماً', 'bi-stars', '#6d28d9', 'data-tab="features"')}
         ${kpi(ev.filter(e => day(e.at) === t).length, 'تغيير في البيانات اليوم', 'bi-lightning-charge-fill', '#901d23', 'data-go="1"')}
-        ${kpi(ev.filter(e => day(e.at) >= daysAgo(6)).length, 'تغييراً خلال 7 أيام', 'bi-calendar-week', '#b8892b', 'data-go="7"')}
+        ${kpi(ev.filter(e => day(e.at) >= daysAgo(6)).length, 'تغييراً خلال 7 أيام', 'bi-calendar-week', '#0f766e', 'data-go="7"')}
         ${kpi(ev.filter(e => e.kind === 'section').length, 'في الجدول الدراسي (كل السجل)', 'bi-table', '#0b4a66', 'data-gok="section"')}
         ${kpi(ev.filter(e => e.kind === 'staff').length, 'في دليل الموظفين (كل السجل)', 'bi-person-lines-fill', '#15803d', 'data-gok="staff"')}</div>
       <div class="cg2-ov">
@@ -315,14 +315,14 @@
     .cg2-bar0 .cg2-search { margin-inline-start: auto; }
     .cg2-filt { background: #fff; border: 1px solid #ece6d8; border-radius: 14px; padding: .7rem .8rem; margin-bottom: 1rem; display: grid; gap: .6rem; box-shadow: 0 2px 10px rgba(9,27,34,.04); }
     .cg2-row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
-    .cg2-seg { display: inline-flex; background: #f6f1e4; border-radius: 10px; padding: 3px; gap: 2px; }
+    .cg2-seg { display: inline-flex; background: #f3f6f8; border-radius: 10px; padding: 3px; gap: 2px; }
     .cg2-seg button { all: unset; cursor: pointer; padding: .3rem .75rem; border-radius: 8px; font-size: .82rem; font-weight: 600; color: #0b4a66; white-space: nowrap; }
     .cg2-seg button:hover { color: #091b22; } .cg2-seg button.on { background: #fff; color: #901d23; box-shadow: 0 1px 4px rgba(9,27,34,.12); font-weight: 800; }
     .cg2-seg.views button.on { background: #0b4a66; color: #fff; } .cg2-vr { width: 1px; align-self: stretch; background: #e5e7eb; }
     .cg2-cnt { font-size: .8rem; font-weight: 800; color: #901d23; }
-    .cg2-sel { display: flex; align-items: center; gap: .35rem; margin: 0; font-size: .78rem; font-weight: 700; color: #8a6d2e; } .cg2-sel select { height: 34px; border-radius: 10px; min-width: 130px; width: auto; }
-    .cg2-act { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; font-size: .8rem; color: #8a6d2e; }
-    .cg2-act button { all: unset; cursor: pointer; background: #fdf1dc; color: #7a4a00; border-radius: 99px; padding: .1rem .6rem; font-weight: 700; } .cg2-act button.all { background: none; color: #901d23; text-decoration: underline; }
+    .cg2-sel { display: flex; align-items: center; gap: .35rem; margin: 0; font-size: .78rem; font-weight: 700; color: #901d23; } .cg2-sel select { height: 34px; border-radius: 10px; min-width: 130px; width: auto; }
+    .cg2-act { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; font-size: .8rem; color: #901d23; }
+    .cg2-act button { all: unset; cursor: pointer; background: #fbeff0; color: #901d23; border-radius: 99px; padding: .1rem .6rem; font-weight: 700; } .cg2-act button.all { background: none; color: #901d23; text-decoration: underline; }
     .cg2-ktabs { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 2px solid #e8e2d2; margin-bottom: .8rem; }
     .cg2-ktabs button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .5rem; padding: .65rem 1.1rem; margin-bottom: -2px; border-bottom: 3px solid transparent; font-weight: 700; font-size: .95rem; color: color-mix(in srgb, var(--c) 70%, #fff); white-space: nowrap; transition: color .15s, border-color .15s, background .15s; border-radius: 10px 10px 0 0; }
     .cg2-ktabs button i { color: var(--c); font-size: 1.05rem; } .cg2-ktabs button:hover { color: var(--c); background: color-mix(in srgb, var(--c) 6%, #fff); }
@@ -331,17 +331,18 @@
     .cg2-ktabs button.zero b { background: transparent; border: 1px dashed color-mix(in srgb, var(--c) 35%, #fff); } .cg2-ktabs button:focus-visible { outline: 2px solid var(--c); outline-offset: -2px; }
     .cg2-optabs { display: inline-flex; gap: .3rem; flex-wrap: wrap; }
     .cg2-optabs button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem .75rem; border-radius: 99px; border: 1px solid #e3ddcc; background: #fff; font-size: .82rem; font-weight: 700; color: #0b4a66; }
-    .cg2-optabs button b { font-size: .7rem; background: #fdf6e7; border-radius: 99px; padding: 0 .4rem; color: #7a5a17; }
-    .cg2-optabs .ok i { color: #15803d; } .cg2-optabs .no i { color: #b42318; } .cg2-optabs .ch i { color: #9a5b00; } .cg2-optabs .all i { color: #0b4a66; }
+    .cg2-optabs button b { font-size: .7rem; background: #eef4f7; border-radius: 99px; padding: 0 .4rem; color: #0b4a66; }
+    .cg2-optabs .ok i { color: #15803d; } .cg2-optabs .no i { color: #b42318; } .cg2-optabs .ch i { color: #0b4a66; } .cg2-optabs .all i { color: #0b4a66; }
     .cg2-optabs button:hover { border-color: #c9bfa5; background: #fbfaf6; }
     .cg2-optabs button.on.all { background: #091b22; border-color: #091b22; color: #fff; } .cg2-optabs button.on.ok { background: #15803d; border-color: #15803d; color: #fff; }
-    .cg2-optabs button.on.no { background: #b42318; border-color: #b42318; color: #fff; } .cg2-optabs button.on.ch { background: #b26a00; border-color: #b26a00; color: #fff; }
+    .cg2-optabs button.on.no { background: #b42318; border-color: #b42318; color: #fff; } .cg2-optabs button.on.ch { background: #0b4a66; border-color: #0b4a66; color: #fff; }
     .cg2-optabs button.on i { color: #fff; } .cg2-optabs button.on b { background: rgba(255,255,255,.25); color: #fff; } .cg2-optabs button.zero b { background: transparent; }
     .cg2-ftabs { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
-    .cg2-ftabs .lab { font-size: .76rem; font-weight: 800; color: #8a6d2e; margin-inline-end: .2rem; }
-    .cg2-ftabs button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; padding: .22rem .65rem; border-radius: 8px; background: #fdf6e7; border: 1px solid #f1e2bc; font-size: .8rem; font-weight: 700; color: #7a4a00; }
-    .cg2-ftabs button b { font-size: .68rem; background: #fff; border-radius: 99px; padding: 0 .38rem; color: #b26a00; }
-    .cg2-ftabs button:hover { border-color: #e0bf6e; background: #fbedcc; } .cg2-ftabs button.on { background: #b26a00; border-color: #b26a00; color: #fff; } .cg2-ftabs button.on b { background: rgba(255,255,255,.25); color: #fff; }
+    .cg2-ftabs .lab { font-size: .76rem; font-weight: 800; color: #901d23; margin-inline-end: .2rem; }
+    .cg2-ftabs button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; padding: .22rem .65rem; border-radius: 8px; background: #fff; border: 1px solid #e6cfd1; font-size: .8rem; font-weight: 700; color: #901d23; }
+    .cg2-ftabs button b { font-size: .68rem; background: #fbeff0; border-radius: 99px; padding: 0 .38rem; color: #901d23; }
+    .cg2-ftabs button:hover { border-color: #c98c91; background: #fbeff0; } .cg2-ftabs button.on { background: #901d23; border-color: #901d23; color: #fff; box-shadow: 0 2px 6px rgba(144,29,35,.25); } .cg2-ftabs button.on b { background: rgba(255,255,255,.25); color: #fff; }
+    .cg-op.ch { background: #e7f0f5; color: #0b4a66; }
     .cg2-kd { display: inline-flex; align-items: center; gap: .3rem; font-size: .74rem; font-weight: 700; color: var(--c); background: color-mix(in srgb, var(--c) 9%, #fff); border-radius: 8px; padding: .12rem .5rem; white-space: nowrap; }
     .cg2-tw { background: #fff; border: 1px solid #ece6d8; border-radius: 14px; overflow: auto; box-shadow: 0 2px 10px rgba(9,27,34,.04); }
     .cg2-t { width: 100%; border-collapse: separate; border-spacing: 0; font-size: .84rem; }
@@ -369,7 +370,7 @@
     .cg2-cols i { display: block; width: 100%; max-width: 34px; min-height: 2px; max-height: calc(100% - 2.2rem); border-radius: 6px 6px 2px 2px; background: linear-gradient(180deg, #901d23, #c2535a); }
     .cg2-cols b { font-size: .7rem; color: #374151; min-height: 1em; } .cg2-cols small { font-size: .62rem; color: #94a3b8; margin-top: 3px; white-space: nowrap; }
     .cg2-bars { display: grid; gap: .35rem; } .cg2-bar { all: unset; cursor: pointer; display: grid; grid-template-columns: minmax(90px, 34%) 1fr 2.2rem; align-items: center; gap: .5rem; padding: .15rem .3rem; border-radius: 8px; font-size: .82rem; }
-    .cg2-bar:hover { background: #f6f3ec; } .cg2-bar.on { background: #fdf1dc; } .cg2-bar .l { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #374151; }
+    .cg2-bar:hover { background: #f6f3ec; } .cg2-bar.on { background: #fbeff0; } .cg2-bar .l { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #374151; }
     .cg2-bar .t { height: 10px; background: #f1f5f9; border-radius: 99px; overflow: hidden; } .cg2-bar .t i { display: block; height: 100%; border-radius: 99px; } .cg2-bar b { text-align: end; color: #091b22; }
     .cg2-top { display: flex; flex-wrap: wrap; gap: .4rem; } .cg2-top a { display: inline-flex; align-items: center; gap: .4rem; text-decoration: none; color: #091b22; background: #fff; border: 1px solid #ece6d8; border-inline-start: 3px solid var(--c); border-radius: 10px; padding: .3rem .6rem; font-size: .82rem; }
     .cg2-top a i { color: var(--c); } .cg2-top a b { color: #901d23; } .cg2-top a:hover { background: #fbfaf6; }
