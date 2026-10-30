@@ -11,7 +11,7 @@
   const P = new URLSearchParams(location.search);
   const st = { view: P.get('view') || 'plan', deg: P.get('deg') || '', fac: P.get('fac') || '', dept: P.get('dept') || '', plan: P.get('plan') || '', b: P.get('b') || '',
     q: P.get('q') || '', pv: P.get('pv') || 'table', kind: '', act: '', offered: '', sort: 'major' };
-  let D, PLANS, BYID, TT = {};
+  let D, PLANS, BYID, TT = {}, EN = {};  // EN: English course names (data/course_names_en.json)
   const KIND = { required: ['إجباري', 'sp-k-req', 'bi-lock-fill'], elective: ['اختياري', 'sp-k-el', 'bi-ui-checks'], free: ['حر', 'sp-k-free', 'bi-stars'], remedial: ['استدراكي', 'sp-k-rem', 'bi-arrow-counterclockwise'] };
   // a stable colour for each kind of group, in the order the portal lists them
   const GCOL = ['#901d23', '#0b4a66', '#0f766e', '#b8892b', '#6d28d9', '#c2410c', '#475569', '#be185d', '#15803d', '#1d4ed8', '#a16207', '#64748b'];
@@ -38,7 +38,7 @@
     return f;
   }
   const scoped = () => PLANS.filter(p => (!st.deg || p.degree === st.deg) && (!st.fac || p.faculty === st.fac) && (!st.dept || p.dept === st.dept));
-  const qMatch = c => { const q = norm(st.q.trim()); return !q || norm(c.code + ' ' + c.name).includes(q); };
+  const qMatch = c => { const q = norm(st.q.trim()); return !q || norm(c.code + ' ' + c.name + ' ' + (EN[c.code] || '')).includes(q); };
 
   // ---------------------------------------------------------------- the filter bar (shared by every view)
   function bar() {
@@ -263,16 +263,17 @@
     return Object.values(out).sort((a, b) => b.plans.length - a.plans.length || a.code.localeCompare(b.code));
   }
   function coursesView() {
-    const rows = courseRows(), shown = rows.slice(0, 600);
-    return `<p class="small text-muted"><i class="bi bi-info-circle"></i> ${rows.length} مقرراً في ${scoped().length} خطة ضمن التصفية، مرتبة حسب عدد الخطط التي تتضمنها. انقر عدد الخطط لرؤيتها.</p>
-      <section class="card"><div class="table-responsive"><table class="table table-sm align-middle mb-0 sp-tbl"><thead><tr><th>رمز المقرر</th><th>اسم المقرر</th><th class="text-center">الساعات</th><th class="text-center">النشاط</th>
-        <th class="text-center">في خطط</th><th>نوعه في الخطط</th><th>هذا الفصل</th></tr></thead><tbody>
+    const rows = courseRows(), shown = rows.slice(0, 600), hasEn = rows.some(c => EN[c.code]);
+    return `<p class="sp2-hint"><i class="bi bi-info-circle"></i> <b>${rows.length}</b> مقرراً في <b>${scoped().length}</b> خطة ضمن التصفية، مرتبة حسب عدد الخطط التي تتضمنها. انقر عدد الخطط لرؤيتها.</p>
+      <section class="sp2-tw"><table class="sp2-t sp2-ct"><thead><tr><th>رمز المقرر</th><th>اسم المقرر</th>${hasEn ? '<th class="en">Course name</th>' : ''}<th class="c">الساعات</th><th class="c">النشاط</th>
+        <th class="c">في خطط</th><th>نوعه في الخطط</th><th>هذا الفصل</th></tr></thead><tbody>
         ${shown.map(c => { const kinds = [...new Set(c.plans.map(x => kindOf(x.g)))];
-          return `<tr><td><code>${esc(c.code)}</code></td><td class="fw-semibold">${esc(c.name)}</td><td class="text-center"><span class="sp-h">${c.hours ?? '—'}</span></td><td class="text-center">${actBadge(c.activity)}</td>
-          <td class="text-center"><a href="#" class="sp-more badge rounded-pill text-bg-secondary" data-code="${esc(c.code)}">${c.plans.length}</a></td>
+          return `<tr><td class="cd">${esc(c.code)}</td><td class="nm">${esc(c.name)}</td>${hasEn ? `<td class="en" dir="ltr">${EN[c.code] ? esc(EN[c.code]) : '<em>—</em>'}</td>` : ''}
+          <td class="c"><b>${c.hours ?? '—'}</b></td><td class="c">${actBadge(c.activity)}</td>
+          <td class="c"><a href="#" class="sp-more sp2-np" data-code="${esc(c.code)}" title="في أي الخطط يرد هذا المقرر؟">${c.plans.length}</a></td>
           <td>${kinds.map(k => `<span class="sp-kind ${KIND[k][1]}">${KIND[k][0]}</span>`).join(' ')}</td><td>${offeredCell(c)}</td></tr>`; }).join('')
-          || '<tr><td colspan="7" class="text-muted p-3">لا مقررات تطابق البحث.</td></tr>'}</tbody></table></div></section>
-      ${rows.length > shown.length ? `<p class="small text-muted mt-2">يظهر أول ${shown.length}؛ ضيّق البحث أو صدّر القائمة كاملة.</p>` : ''}`;
+          || `<tr><td colspan="${hasEn ? 8 : 7}" class="sp2-empty">لا مقررات تطابق البحث.</td></tr>`}</tbody></table></section>
+      ${rows.length > shown.length ? `<p class="sp2-hint mt-2">يظهر أول ${shown.length}؛ ضيّق البحث أو صدّر القائمة كاملة.</p>` : ''}`;
   }
   function whereIs(code) {
     const list = IDX[code] || [], c = list[0] && list[0].c;
@@ -335,8 +336,8 @@
     const p = BYID[st.plan];
     if (st.view === 'all') return { name: 'الخطط_الدراسية', head: ['التخصص', 'القسم', 'الكلية', 'الدرجة', 'ساعات التخرج', 'إجباري', 'اختياري', 'حر', 'المقررات', 'مطروح الآن %'],
       rows: allRows().map(r => [r.major, r.p.dept, r.faculty, r.degree, r.total, r.req, r.el, r.free, r.courses, r.pct]) };
-    if (st.view === 'courses') return { name: 'مقررات_الخطط', head: ['رمز المقرر', 'اسم المقرر', 'الساعات', 'النشاط', 'عدد الخطط', 'الخطط', 'شعب هذا الفصل'],
-      rows: courseRows().map(c => [c.code, c.name, c.hours, c.activity, c.plans.length, c.plans.map(x => label(x.p)).join(' | '), secs(c).length]) };
+    if (st.view === 'courses') return { name: 'مقررات_الخطط', head: ['رمز المقرر', 'اسم المقرر', 'Course name', 'الساعات', 'النشاط', 'عدد الخطط', 'الخطط', 'شعب هذا الفصل'],
+      rows: courseRows().map(c => [c.code, c.name, EN[c.code] || '', c.hours, c.activity, c.plans.length, c.plans.map(x => label(x.p)).join(' | '), secs(c).length]) };
     if (!p) return null;
     return { name: 'خطة_' + p.major, head: ['المجموعة', 'النوع', 'الساعات المطلوبة من المجموعة', 'رمز المقرر', 'اسم المقرر', 'الساعات', 'النشاط', 'شعب هذا الفصل'],
       rows: p.groups.filter(g => !st.kind || kindOf(g) === st.kind).flatMap(g => g.courses.filter(keep).map(c => [groupKey(g.name), KIND[kindOf(g)][0], g.required_hours, c.code, c.name, c.hours, c.activity, secs(c).length])) };
@@ -530,10 +531,17 @@
     .sp2-cl em { flex: none; font-style: normal; font-weight: 800; font-size: .78rem; color: var(--c); background: color-mix(in srgb, var(--c) 10%, #fff); border-radius: 7px; min-width: 1.6rem; text-align: center; padding: .05rem .3rem; }
     .sp2-none { margin: 0; padding: .8rem; font-size: .82rem; color: #8a6d2e; } .sp2-p0 { background: #fff; border: 1px solid #ece6d8; border-radius: 14px; }
     @media (max-width: 991px) { .sp2-cols { grid-template-columns: 1fr; } .sp2-ov { grid-template-columns: auto 1fr; } .sp2-vs { grid-column: 1 / -1; } }
+    .sp2-hint { font-size: .8rem; color: #0b4a66; margin: 0 0 .5rem; } .sp2-hint b { color: #901d23; }
+    .sp2-ct td.cd { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .82rem; font-weight: 700; color: #0b4a66; white-space: nowrap; }
+    .sp2-ct td.nm { font-weight: 700; color: #091b22; } .sp2-ct .en { text-align: left; font-size: .8rem; color: #475569; } .sp2-ct thead th.en { text-align: left; color: #fff; }
+    .sp2-ct td.c b { color: #091b22; }
+    .sp2-np { display: inline-block; min-width: 2rem; font-size: .76rem; font-weight: 800; color: #0b4a66; background: #eef4f7; border: 1px solid #d6e4ec; border-radius: 99px; padding: .05rem .5rem; text-decoration: none; }
+    .sp2-np:hover { background: #0b4a66; color: #fff; }
     @media (max-width: 991px) { .sp2-sel, .sp2-sel.grow { flex: 1 1 45%; } .sp2-sel:not(.grow) select { max-width: none; field-sizing: fixed; } .sp2-vr { display: none; } .sp2-kpis { width: 100%; } .sp2-k { flex: 1 1 30%; } }
     @media print { .sp2-bar { display: none !important; } }
   </style>`);
-  Promise.all([U.getJSON('data/study_plans.json'), U.getJSON('data/timetable.json').catch(() => ({ sections: [] }))]).then(([d, tt]) => {
+  Promise.all([U.getJSON('data/study_plans.json'), U.getJSON('data/timetable.json').catch(() => ({ sections: [] })), U.getJSON('data/course_names_en.json').catch(() => ({ names: {} }))]).then(([d, tt, en]) => {
+    EN = en.names || {};
     D = d; PLANS = d.plans; BYID = Object.fromEntries(PLANS.map(p => [p.id, p]));
     (tt.sections || []).forEach(s => (TT[s.code] ||= []).push(s));
     // one section listed under two degrees is one section
