@@ -234,6 +234,7 @@
         <div class="btn-group btn-group-sm" role="group" aria-label="الترتيب"><button type="button" class="btn ${st.ml !== 'chain' ? 'btn-dark' : 'btn-outline-dark'}" data-ml="plan"><i class="bi bi-calendar3"></i> حسب فصول الخطة</button><button type="button" class="btn ${st.ml === 'chain' ? 'btn-dark' : 'btn-outline-dark'}" data-ml="chain"><i class="bi bi-diagram-2"></i> حسب سلسلة المتطلبات</button></div>
         <div class="d-flex flex-wrap gap-1">${flt.map(([k, l]) => `<button type="button" class="btn btn-sm am-f ${st.mf === k ? 'on' : ''}" data-mf="${k}">${l}</button>`).join('')}</div>
         <div class="am-legend ms-auto">${Object.entries(AV).map(([k, [l, c]]) => `<span><i style="background:${c}"></i>${l} <b>${counts[k]}</b></span>`).join('')}<span><i class="bi bi-lightning-charge-fill text-warning"></i> أطول سلسلة (${G.longest} مواد)</span></div></div></div>
+      ${G.nodes.some(n => (G.pre.get(n.key) || []).length) ? '' : '<div class="alert alert-light border small py-2"><i class="bi bi-info-circle"></i> ملف هذه الخطة لا يذكر المتطلبات السابقة للمواد، فتظهر المواد بلا روابط بينها؛ وتبقى حالة كل مادة وشعبها في الجدول الحالي ظاهرة.</div>'}
       <div class="am-row">
         <div class="am-scroll"><div class="am-canvas" id="am-canvas"><svg id="am-svg" aria-hidden="true"></svg>
           <div class="am-cols">${keys.map(k => `<div class="am-col"><header>${head(k)}<span>${cols.get(k).reduce((a, n) => a + (n.hours || 0), 0)} س</span></header>${cols.get(k).sort((a, b) => ORDER(a) - ORDER(b)).map(node).join('')}</div>`).join('')}</div></div></div>
