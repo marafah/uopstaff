@@ -407,7 +407,7 @@
     .am-col { gap: 16px !important; }
     .ad-bar .ad-s-v { flex: 0 0 auto !important; width: auto !important; min-width: 340px; field-sizing: content; padding-inline-end: 2.4rem; }
     .ad-bar .ad-s-p { flex: 0 1 auto !important; width: auto !important; field-sizing: content; min-width: 170px; max-width: 290px; padding-inline-end: 2.2rem; }
-    .ad-bar .ad-views { margin-inline-start: auto; } .ad-bar .ad-s-q { flex: 1 1 140px !important; min-width: 110px; max-width: 260px; } .ad-bar .ad-s-fac { flex: 0 1 160px !important; min-width: 120px; }
+    .ad-bar .ad-views { margin-inline-start: auto; } .ad-bar .ad-s-q { flex: 1 1 140px !important; min-width: 110px; max-width: 260px; } .ad-bar .ad-s-fac { flex: 0 0 auto !important; width: auto !important; field-sizing: content; min-width: 150px; padding-inline-end: 2.4rem; }
     .ad-hrow { display: flex; align-items: center; gap: .35rem; flex-wrap: nowrap; overflow: hidden; white-space: nowrap; }
     .ad-hrow .ad-title { font-size: 1.05rem; flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
     .ad-hrow .badge { font-size: .7rem; flex: none; } .ad-hrow .ad-kp { flex: none; } .ad-hrow .flex-none { flex: none; }
