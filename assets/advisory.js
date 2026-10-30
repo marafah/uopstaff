@@ -113,7 +113,7 @@
   function miniChip(n, G, major, extra = '') {
     const k = kindOf(n.code, major), av = avail(n.code), d = G.desc.get(n.key).size;
     return `<span class="ad-c pv-c s-${av.k}" data-code="${esc(n.code)}" style="--k:${KINDS[k][1]}" title="${esc((n.name || CODE_NAME[n.code] || '') + ' · ' + KINDS[k][0] + ' · ' + av.t + (n.prereq ? ' · المتطلب: ' + n.prereq : ''))}">
-      <i class="bi ${KINDS[k][2]}"></i><code>${esc(n.code)}</code><b>${esc(n.name || CODE_NAME[n.code] || '')}</b><em>${n.hours ?? '—'}س</em><u></u>${d ? `<small><i class="bi bi-unlock-fill"></i>${d}</small>` : ''}${extra}</span>`;
+      <i class="bi ${KINDS[k][2]}"></i><code>${esc(n.code)}</code><b>${esc(n.name || CODE_NAME[n.code] || '')}</b><em>${n.hours ?? '—'} س</em><u></u>${d ? `<small><i class="bi bi-unlock-fill"></i>${d}</small>` : ''}${extra}</span>`;
   }
   // pyramid: foundations at the base, each level up needs the levels below it
   function planPyramid(x) {
@@ -487,7 +487,11 @@
     .pv-c > i { color: var(--k); } .pv-c code { color: #64748b; font-size: .66rem; font-weight: 700; } .pv-c b { color: #0f1d24; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .pv-c em { font-style: normal; background: color-mix(in srgb, var(--k) 13%, #fff); color: var(--k); border-radius: 5px; padding: 0 .3rem; font-weight: 800; font-size: .66rem; }
     .pv-c u { width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; flex: none; } .pv-c.s-open u { background: #16a34a; } .pv-c.s-closed u { background: #ea580c; }
-    .pv-c small { color: #901d23; font-weight: 800; font-size: .64rem; } .pv-c small.pv-also { color: #6c757d; font-weight: 600; }
+    .pv-c small { display: inline-flex; align-items: center; gap: .25rem; color: #901d23; background: #fde8ea; border-radius: 99px; padding: .05rem .45rem; margin-inline-start: .2rem; font-weight: 800; font-size: .64rem; line-height: 1.2; white-space: nowrap; }
+    .pv-c small i { font-size: .62rem; } .pv-c small.pv-also { color: #6c757d; background: #f1f5f9; font-weight: 600; }
+    .pv-c u { margin-inline-start: .15rem; }
+    .pb-f > span { display: inline-flex; align-items: center; gap: .2rem; } .pb-f i { margin-inline-end: 0 !important; }
+    .am-meta span { gap: .25rem !important; padding: .02rem .4rem !important; }
     .pv-pyr { display: flex; flex-direction: column; align-items: center; gap: 6px; }
     .pv-lv { width: var(--w); min-width: 320px; border-radius: 14px; padding: .4rem .55rem .5rem; background: linear-gradient(180deg, hsl(calc(200 - 150 * var(--t)), 55%, calc(95% - 8% * var(--t))), #fff); border: 1px solid hsl(calc(200 - 150 * var(--t)), 40%, 85%); box-shadow: 0 2px 8px rgba(9,27,34,.06); }
     .pv-lv-h { display: flex; justify-content: center; align-items: baseline; gap: .5rem; margin-bottom: .3rem; } .pv-lv-h b { color: hsl(calc(200 - 150 * var(--t)), 60%, 25%); font-size: .86rem; } .pv-lv-h small { color: #6c757d; font-size: .7rem; }
