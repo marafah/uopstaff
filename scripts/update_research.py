@@ -152,7 +152,9 @@ def name_key(s):
     return ' '.join(re.findall(r'[a-z]+', s))
 
 
-def name_score(a, b):
+def name_score(a, b, last_only=False):
+    """last_only: the surname must match the other name's last part, not any of its parts
+    ("Ahmed ... Ali" is not "Ahmed S.A. Ali Agha")."""
     a, b = name_key(a), name_key(b)
     if not a or not b:
         return 0.0
@@ -162,7 +164,7 @@ def name_score(a, b):
     fl = 0.0
     if ta and tb:
         first = difflib.SequenceMatcher(None, ta[0], tb[0]).ratio()
-        last = max(difflib.SequenceMatcher(None, ta[-1], x).ratio() for x in tb)
+        last = difflib.SequenceMatcher(None, ta[-1], tb[-1]).ratio() if last_only else max(difflib.SequenceMatcher(None, ta[-1], x).ratio() for x in tb)
         fl = (first + last) / 2
     return max(full, fl)
 
@@ -1049,7 +1051,7 @@ def match_scopus(name, pool):
     strong, loose = [], []
     for sid, p in pool.items():
         full = max(difflib.SequenceMatcher(None, nk, name_key(n)).ratio() for n in p['names'])
-        fl = max(name_score(name, n) for n in p['names'])
+        fl = max(name_score(name, n, last_only=True) for n in p['names'])
         if full >= 0.86:
             strong.append((full, p['docs'], sid))
         elif fl >= 0.92:
