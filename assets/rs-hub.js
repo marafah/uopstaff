@@ -28,14 +28,14 @@
   const sq = SX ? SX.quartiles || {} : {}, sqTot = R.sum(['Q1', 'Q2', 'Q3', 'Q4'].map(k => sq[k] || 0));
   const scY5 = SX ? R.sum(Object.entries(SX.by_year || {}).filter(([y]) => +y >= Y - 4).map(([, n]) => n)) : 0;
   const kp = SX ? [
-    ['bi-bar-chart-line', R.n(SX.docs), 'وثيقة في Scopus (بانتماء البترا)', `<a href="${scUrl}" target="_blank" rel="noopener">${R.n(scY5)} في آخر 5 سنوات · افتح Scopus ↗</a>`, 'scopus'],
-    ['bi-quote', R.k(SX.cites), 'اقتباس في Scopus', `متوسط ${(SX.cites / (SX.docs || 1)).toFixed(1)} لكل وثيقة`, 'scopus'],
-    ['bi-award', sqTot ? R.pct(((sq.Q1 || 0) + (sq.Q2 || 0)) / sqTot) : '–', 'من المجلات المصنفة في Q1 و Q2', `Q1 ${R.n(sq.Q1 || 0)} · Q2 ${R.n(sq.Q2 || 0)} · Q3 ${R.n(sq.Q3 || 0)} · Q4 ${R.n(sq.Q4 || 0)}`, 'navy'],
-    ...(meta.wos_export ? [['bi-journal', R.n(meta.wos_export.docs), 'وثيقة في Web of Science', `${R.k(meta.wos_export.cites)} اقتباس · ${R.n(list.filter(r => r.wos).length)} باحث حالي`, 'wos']] : []),
-    ['bi-people', R.n(list.filter(r => r.sc).length), 'باحث حالي لديه وثائق في Scopus', `من ${R.n(list.length)} عضو هيئة تدريس`, ''],
-    ['bi-graph-up', R.median(scHs).toFixed(1), 'وسيط h-index في Scopus', `الأعلى ${Math.max(0, ...scHs)}`, 'teal'],
-    ['bi-journal-text', R.n(works.length), 'كل المنشورات (مصادر مكمّلة)', `OpenAlex و صفحات المدرسين · ${R.k(cites)} اقتباس`, ''],
-    ['bi-link-45deg', R.pct(withAny / (list.length || 1)), 'لديهم Scholar أو Scopus أو ORCID', `ORCID: ${R.n((meta.with || {}).orcid)} · Scopus: ${R.n((meta.with || {}).scopus)}`, 'navy']
+    ['bi-bar-chart-line', R.n(SX.docs), 'وثيقة في Scopus (بانتماء البترا)', [[R.n(scY5), 'في آخر 5 سنوات'], [`<a href="${scUrl}" target="_blank" rel="noopener">افتح Scopus <i class="bi bi-box-arrow-up-left"></i></a>`, '', 'lnk']], 'scopus'],
+    ['bi-quote', R.k(SX.cites), 'اقتباس في Scopus', [[(SX.cites / (SX.docs || 1)).toFixed(1), 'اقتباس لكل وثيقة (متوسط)']], 'scopus'],
+    ['bi-award', sqTot ? R.pct(((sq.Q1 || 0) + (sq.Q2 || 0)) / sqTot) : '–', 'من المجلات المصنفة في Q1 و Q2', [[R.n(sq.Q1 || 0), 'Q1', 'q1'], [R.n(sq.Q2 || 0), 'Q2', 'q2'], [R.n(sq.Q3 || 0), 'Q3', 'q3'], [R.n(sq.Q4 || 0), 'Q4', 'q4']], 'navy'],
+    ...(meta.wos_export ? [['bi-journal', R.n(meta.wos_export.docs), 'وثيقة في Web of Science', [[R.k(meta.wos_export.cites), 'اقتباس'], [R.n(list.filter(r => r.wos).length), 'باحث حالي']], 'wos']] : []),
+    ['bi-people', R.n(list.filter(r => r.sc).length), 'باحث حالي لديه وثائق في Scopus', [[R.n(list.length), 'عضو هيئة تدريس (الإجمالي)']], ''],
+    ['bi-graph-up', R.median(scHs).toFixed(1), 'وسيط h-index في Scopus', [[Math.max(0, ...scHs), 'أعلى h-index']], 'teal'],
+    ['bi-journal-text', R.n(works.length), 'كل المنشورات (مصادر مكمّلة)', [[R.k(cites), 'اقتباس'], ['', 'OpenAlex وصفحات المدرسين', 'note']], ''],
+    ['bi-link-45deg', R.pct(withAny / (list.length || 1)), 'لديهم Scholar أو Scopus أو ORCID', [[R.n((meta.with || {}).orcid), 'ORCID'], [R.n((meta.with || {}).scopus), 'Scopus']], 'navy']
   ] : [
     ['bi-people', R.n(list.length), 'باحث من الهيئة التدريسية', `${R.n(meta.matched_openalex)} مطابَق في OpenAlex`, ''],
     ['bi-journal-text', R.n(works.length), 'منشور (بعد إزالة التكرار)', `${R.n(w5)} في آخر 5 سنوات`, 'navy'],
@@ -71,7 +71,7 @@
 
   // ---------------------------------------------------------------- render
   app.innerHTML = `
-  <section class="rs-section rs-kpis">${kp.map(k => `<div class="rs-kpi ${k[4]}"><div class="v">${k[1]}</div><div class="l"><i class="bi ${k[0]}"></i>${k[2]}</div>${k[3] ? `<div class="d">${k[3]}</div>` : ''}</div>`).join('')}</section>
+  <section class="rs-section rs-kpis">${kp.map(k => `<div class="rs-kpi ${k[4]}"><div class="v">${k[1]}</div><div class="l"><i class="bi ${k[0]}"></i>${k[2]}</div>${k[3] ? (Array.isArray(k[3]) ? `<div class="d hk-d">${k[3].map(([v, l, c]) => `<span class="hk-c ${c || ''}">${v !== '' ? `<b dir="ltr">${v}</b>` : ''}${l ? `<small>${l}</small>` : ''}</span>`).join('')}</div>` : `<div class="d">${k[3]}</div>`) : ''}</div>`).join('')}</section>
 
   <section class="rs-section rs-grid wide">
     <div class="rs-card rs-span-2"><h3><i class="bi bi-bar-chart"></i>وثائق الجامعة في Scopus سنوياً ${R.srcBadge('Scopus', scUrl, 'bi-bar-chart-line')}</h3><div class="rs-chart"><canvas id="c-years"></canvas></div>

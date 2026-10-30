@@ -1705,3 +1705,11 @@ button.na-val { cursor: pointer; } button.na-val i { color: var(--g); font-size:
   .na-sg { min-width: 0; grid-template-columns: minmax(0, 1fr); }
 }
 @media screen and (max-width: 767.98px) { .rs-scroll:has(> .na-scan) { max-height: none !important; overflow: visible; } }
+/* research dashboard KPI details as clear chips */
+.rs-kpi .d.hk-d { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .45rem; }
+.hk-c { display: inline-flex; align-items: baseline; gap: .3rem; background: #fff; border: 1px solid color-mix(in srgb, var(--k) 25%, #fff); border-radius: 8px; padding: .12rem .5rem; line-height: 1.5; }
+.hk-c b { font-size: .92rem; font-weight: 800; color: var(--k); font-variant-numeric: tabular-nums; } .hk-c small { font-size: .76rem; color: #374151; font-weight: 600; }
+.hk-c.q1 { --k: #15803d; } .hk-c.q2 { --k: #0f766e; } .hk-c.q3 { --k: #b45309; } .hk-c.q4 { --k: #b91c1c; }
+.hk-c.q1 small, .hk-c.q2 small, .hk-c.q3 small, .hk-c.q4 small { color: var(--k); font-weight: 800; }
+.hk-c.lnk a { color: var(--k); font-weight: 800; font-size: .8rem; text-decoration: none; } .hk-c.lnk a:hover { text-decoration: underline; }
+.hk-c.note { border-style: dashed; } .hk-c.note small { color: #4b5563; }
