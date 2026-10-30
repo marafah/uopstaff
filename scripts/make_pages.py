@@ -97,7 +97,7 @@ PAGES = {
         hero="متابعة التسجيل", sub="امتلاء الشعب عبر الوقت، أسرع المقررات امتلاءً، والمقررات التي تحتاج شعباً إضافية",
         search="ابحث: رمز أو اسم مقرر…", about="لقطة من أعداد المسجلين تُحفظ مع كل تحديث ساعي للجدول الدراسي، فتظهر حركة التسجيل عبر الأيام."),
     "changes.html": dict(
-        title="ما الجديد؟", short="ما الجديد؟", what="ما الجديد؟", app="cg-app", js="changes.js", v="202611012100",
+        title="ما الجديد؟", short="ما الجديد؟", what="ما الجديد؟", app="cg-app", js="changes.js", v="202611030900",
         desc="ما تغيّر في جامعة البترا: شعب أُضيفت أو أُلغيت، تغيير مدرس أو قاعة أو موعد، موظفون جدد وتغيير الفرعيات، ومواعيد التقويم الجامعي.",
         hero="ما الجديد؟", sub="ما تغيّر في الجدول الدراسي ودليل الموظفين والتقويم الجامعي — يُفحص كل ساعة",
         search="ابحث في التغييرات…", about="يقارن الموقع بياناته كل ساعة بما كانت عليه، ويسجّل ما تغيّر مع إمكانية الطباعة والتصدير والاشتراك."),
@@ -127,7 +127,7 @@ PAGES = {
         hero="الخطط الاسترشادية", sub="خطة كل برنامج سنةً بسنة وفصلاً بفصل، بكل إصداراتها المنشورة — مع المقارنة بين الإصدارات، وما يُطرح هذا الفصل، وأداة للمرشد الأكاديمي",
         search="ابحث: رمز أو اسم مادة…", about="من صفحات الأقسام على مواقع الكليات؛ تُعرض الخطة جدولاً فقط حين تطابق ساعاتها كل المجاميع المطبوعة فيها، وإلا فصفحاتها الأصلية."),
     "plans.html": dict(
-        title="الخطط الدراسية", short="الخطط الدراسية", what="الخطط الدراسية", app="sp-app", js="plans.js", v="202611020900",
+        title="الخطط الدراسية", short="الخطط الدراسية", what="الخطط الدراسية", app="sp-app", js="plans.js", v="202611030900",
         desc="الخطط الدراسية لكل تخصصات جامعة البترا: متطلبات الجامعة والكلية والتخصص، الساعات المعتمدة، المقررات، وما يُطرح منها هذا الفصل.",
         hero="الخطط الدراسية", sub="خطة كل تخصص في كل الكليات: المجموعات والساعات والمقررات، وما يُطرح منها هذا الفصل — مع البحث والمقارنة والتصدير",
         search="ابحث: رمز أو اسم مقرر…", about="من الخطط الدراسية المنشورة على بوابة الجامعة، مربوطة بالجدول الدراسي، وتُراجَع مع كل تحديث للموقع."),
@@ -181,13 +181,13 @@ def app_shell(html):
     return add_voice(html)
 
 
-VOICE_V = "202611021100"
+VOICE_V = "202611030900"
 
 
 def add_voice(html):
     """the voice search (assets/voice.js) right after site.js, on every page that has the site's header"""
-    html = re.sub(r'\n<script src="assets/voice\.js\?v=\d+"></script>', "", html)
-    return re.sub(r'(<script src="assets/site\.js\?v=\d+"></script>)', lambda m: m.group(1) + f'\n<script src="assets/voice.js?v={VOICE_V}"></script>', html, count=1)
+    html = re.sub(r'\n<script src="assets/(?:voice|mobile)\.js\?v=\d+"></script>', "", html)
+    return re.sub(r'(<script src="assets/site\.js\?v=\d+"></script>)', lambda m: m.group(1) + f'\n<script src="assets/voice.js?v={VOICE_V}"></script>\n<script src="assets/mobile.js?v={VOICE_V}"></script>', html, count=1)
 
 
 def set_nav(html, active):
