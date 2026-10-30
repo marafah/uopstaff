@@ -468,6 +468,18 @@
 `; document.head.appendChild(c); }
   // full screen: the map fills the whole screen (styles kept here so they arrive with the script)
   if (!document.getElementById('am-fs-css')) { const c = document.createElement('style'); c.id = 'am-fs-css'; c.textContent = `
+
+    /* one vertical scroll bar: the map takes its full height (the page scrolls); the panel and the zoom tools stay in view */
+    .am-wrap:not(:fullscreen) .am-scroll { max-height: none !important; min-height: 0 !important; overflow-y: hidden; }
+    .am-wrap:not(:fullscreen) .am-row.floating { display: grid !important; grid-template-columns: minmax(0, 1fr); }
+    .am-wrap:not(:fullscreen) .am-row.floating > .am-stage, .am-wrap:not(:fullscreen) .am-row.floating > .am-side { grid-area: 1 / 1; }
+    .am-wrap:not(:fullscreen) .am-row.floating > .am-side { position: sticky !important; top: 70px; bottom: auto; justify-self: end; align-self: start; height: auto; max-height: calc(100vh - 86px) !important; }
+    .am-row.floating > .am-side { justify-self: end; }
+    .am-wrap:not(:fullscreen) .am-row.docked > .am-side { position: sticky; top: 70px; max-height: calc(100vh - 86px); }
+    .am-side { scrollbar-width: none; } .am-side::-webkit-scrollbar { width: 0; height: 0; }
+    .am-wrap:not(:fullscreen) .am-zoombar { position: sticky; float: left; bottom: 14px; margin: -54px 14px 0 0; right: auto; z-index: 7; }
+    .am-wrap:not(:fullscreen) .am-stage { display: flex; flex-direction: column; } .am-wrap:not(:fullscreen) .am-zoombar { order: 2; align-self: flex-start; margin: 8px 0 0; float: none; }
+    .am-wrap:not(:fullscreen) .am-hint { position: static; order: 3; align-self: flex-end; margin-top: -30px; }
     .am-wrap:fullscreen { display: flex; flex-direction: column; height: 100vh; width: 100vw; padding: .5rem; background: #f6f4ee; overflow: hidden; }
     .am-wrap:fullscreen > .am-tools { flex: none; margin-bottom: .4rem !important; }
     .am-wrap:fullscreen > .alert { display: none; }
@@ -648,8 +660,11 @@
       const left = row.classList.contains('floating') && row.classList.contains('open') ? Math.max(S.left, side.right) + 16 : S.left + 16;
       let dx = 0, dy = 0;
       if (r.left < left) dx = r.left - left; else if (r.right > S.right - 16) dx = r.right - S.right + 16;
-      if (r.top < S.top + 50) dy = r.top - S.top - 50; else if (r.bottom > S.bottom - 16) dy = r.bottom - S.bottom + 16;
-      if (dx || dy) sc.scrollBy({ left: dx, top: dy, behavior: 'smooth' }); };
+      if (dx) sc.scrollBy({ left: dx, behavior: 'smooth' });
+      // one scroll bar: the map grows with its content and the page scrolls (inside full screen the map scrolls itself)
+      const box = document.fullscreenElement ? S : { top: 70, bottom: innerHeight };
+      if (r.top < box.top + 50) dy = r.top - box.top - 50; else if (r.bottom > box.bottom - 70) dy = r.bottom - box.bottom + 70;
+      if (dy) (document.fullscreenElement ? sc : window).scrollBy({ top: dy, behavior: 'smooth' }); };
     const pick = (c, back) => { if (!back && st.sel && st.sel !== c) { HIST.push(st.sel); if (HIST.length > 20) HIST.shift(); } if (!c) HIST = []; st.sel = c; focus(c); if (c) requestAnimationFrame(() => reveal(c)); };
     const go = c => pick(c);
     function bindSide() {
@@ -718,7 +733,8 @@
     document.querySelectorAll('[data-z]').forEach(b => b.onclick = () => { const v = b.dataset.z;
       if (v === 'in') zoomTo(ZOOM * 1.2); else if (v === 'out') zoomTo(ZOOM / 1.2); else if (v === '1') zoomTo(1);
       else if (v === 'w') { setMode('fit'); autoFit(); }
-      else { zoomTo(Math.min(1.3, usableW() / cv.offsetWidth, (sc.clientHeight - 12) / cv.offsetHeight)); sc.scrollLeft = 0; sc.scrollTop = 0; } });
+      else { const H = document.fullscreenElement ? sc.clientHeight : innerHeight - 70 - 70;
+        zoomTo(Math.min(1.3, usableW() / cv.offsetWidth, (H - 12) / cv.offsetHeight)); sc.scrollLeft = 0; sc.scrollTop = 0; if (!document.fullscreenElement) sc.scrollIntoView({ block: 'start', behavior: 'smooth' }); } });
     sc.onwheel = e => { if (!e.ctrlKey && !e.metaKey) return; e.preventDefault(); zoomTo(ZOOM * (e.deltaY < 0 ? 1.1 : 1 / 1.1)); };
     // ---- drag the map to move around it
     let dragged = false;
