@@ -266,10 +266,42 @@ def main():
     same = {k: v for k, v in old.items() if k != "updated"} == {k: v for k, v in json.loads(json.dumps(out)).items() if k != "updated"}
     if same:
         print("advisory plans unchanged")
+        if not os.path.exists(EN_OUT):
+            write_english_names(out)
         return
     with open(OUT, "w", encoding="utf-8") as fh:
         json.dump(out, fh, ensure_ascii=False, separators=(",", ":"))
     print(f"advisory plans: {len(programs)} programmes, {len(docs)} documents, {len(used)} files read")
+    write_english_names(out)
+
+
+EN_OUT = os.path.join(ROOT, "data", "course_names_en.json")
+
+
+def write_english_names(data):
+    """data/course_names_en.json: the English name of each course code, from the English editions of the advisory plans.
+    The plans spell a name in several ways (and the PDF reading sometimes glues a neighbouring cell to it), so the
+    clean spelling met most often wins."""
+    seen = {}
+    def walk(o):
+        if isinstance(o, dict):
+            c, n = str(o.get("code", "")), o.get("name")
+            if re.fullmatch(r"\d{5,8}", c) and isinstance(n, str) and re.search(r"[A-Za-z]{3}", n):
+                n = re.sub(r"\s+", " ", n).strip()
+                if not re.search(r"\d{4,}|[\u0600-\u06ff]", n) and 3 <= len(n) <= 90:
+                    n = re.sub(r"\s*\(\s*(\w+)\s*\)", r" (\1)", n).strip()
+                    seen.setdefault(c, {}).setdefault(n, 0)
+                    seen[c][n] += 1
+            for v in o.values():
+                walk(v)
+        elif isinstance(o, list):
+            for x in o:
+                walk(x)
+    walk(data)
+    names = {c: max(v.items(), key=lambda kv: (kv[1], kv[0][:1].isupper(), -len(kv[0])))[0] for c, v in sorted(seen.items())}
+    with open(EN_OUT, "w", encoding="utf-8") as fh:
+        json.dump({"about": "English course names read from the English advisory plans (scripts/update_advisory.py)", "names": names}, fh, ensure_ascii=False, separators=(",", ":"))
+    print(f"English course names: {len(names)}")
 
 
 if __name__ == "__main__":
