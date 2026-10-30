@@ -77,7 +77,7 @@ PAGES = {
         hero="أين أجد…؟", sub="بحث واحد في كل الموقع: الأشخاص والفرعيات، المقررات والشعب، القاعات والمباني، الوحدات، ومواعيد التقويم",
         search="ابحث في كل الموقع…", about="يبحث في دليل الموظفين والجدول الدراسي والهيكل التنظيمي والتقويم الجامعي معاً."),
     "screen.html": dict(
-        title="شاشة المبنى", short="شاشة المبنى", what="شاشة المبنى", app="scr-app", js="screen.js", extra=["screen-reg.js", "screen-units.js"],
+        title="شاشة المبنى", short="شاشة المبنى", what="شاشة المبنى", app="scr-app", js="screen.js", v="202611021100", extra=["screen-reg.js", "screen-units.js"],
         desc="شاشة لمداخل مباني جامعة البترا: المحاضرات الجارية والقادمة، القاعات الشاغرة، والمواعيد القريبة، تتحدّث تلقائياً.",
         hero="شاشة المبنى", sub="للعرض على الشاشات في مداخل الكليات: ما يجري الآن في المبنى وما يبدأ قريباً والقاعات الشاغرة",
         search="ابحث عن قاعة…", about="تُعرض على شاشة في مدخل المبنى وتتحدّث وحدها كل دقيقة."),
@@ -177,7 +177,17 @@ def app_shell(html):
     html = re.sub(r'(<meta name="viewport"[^>]*>)', lambda m: m.group(1) + "\n  " + APP_HEAD, html, count=1)
     html = re.sub(r'\n<script src="assets/site\.js\?v=\d+"></script>', "", html)
     v = re.search(r'assets/app\.css\?v=(\d+)', html).group(1)
-    return re.sub(r'(<script src="assets/share\.js\?v=\d+"></script>)', lambda m: m.group(1) + f'\n<script src="assets/site.js?v={v}"></script>', html, count=1)
+    html = re.sub(r'(<script src="assets/share\.js\?v=\d+"></script>)', lambda m: m.group(1) + f'\n<script src="assets/site.js?v={v}"></script>', html, count=1)
+    return add_voice(html)
+
+
+VOICE_V = "202611021100"
+
+
+def add_voice(html):
+    """the voice search (assets/voice.js) right after site.js, on every page that has the site's header"""
+    html = re.sub(r'\n<script src="assets/voice\.js\?v=\d+"></script>', "", html)
+    return re.sub(r'(<script src="assets/site\.js\?v=\d+"></script>)', lambda m: m.group(1) + f'\n<script src="assets/voice.js?v={VOICE_V}"></script>', html, count=1)
 
 
 def set_nav(html, active):
@@ -241,6 +251,16 @@ def main():
             h = f.read()
         with open(path, "w", encoding="utf-8") as f:
             f.write(app_shell(set_nav(h, active)))
+    # every other page of the site (research pages and the rest) gets the voice search too
+    for name in sorted(os.listdir(ROOT)):
+        if name.endswith(".html"):
+            path = os.path.join(ROOT, name)
+            with open(path, encoding="utf-8") as f:
+                h = f.read()
+            n = add_voice(h)
+            if n != h:
+                with open(path, "w", encoding="utf-8") as f:
+                    f.write(n)
     print("pages:", ", ".join(PAGES))
 
 

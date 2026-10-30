@@ -291,6 +291,7 @@ TEMPLATE = '''<!doctype html>
 <script src="assets/common.js?v={v}"></script>
 <script src="assets/share.js?v={v}"></script>
 <script src="assets/site.js?v={v}"></script>
+<script src="assets/voice.js?v=202611021100"></script>
 </body>
 </html>
 '''
