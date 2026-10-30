@@ -229,20 +229,27 @@
   }
   function allView() {
     const rows = allRows(), max = Math.max(1, ...rows.map(r => r.total));
-    const facs = new Set(rows.map(r => r.faculty)).size;
-    return `<div class="row g-3 mb-3">${[[rows.length, 'خطة دراسية', 'bi-journal-text'], [facs, 'كلية', 'bi-bank2'], [new Set(rows.map(r => r.p.dept)).size, 'قسماً', 'bi-diagram-3'],
-        [new Set(rows.flatMap(r => r.p.groups.flatMap(g => g.courses.map(c => c.code)))).size, 'مقرراً مختلفاً', 'bi-journal-bookmark']]
-        .map(([v, l, i]) => `<div class="col-6 col-xl-3"><div class="stat-card"><div class="v">${v}</div><div class="l"><i class="bi ${i}"></i> ${l}</div></div></div>`).join('')}</div>
-      <section class="card"><div class="table-responsive"><table class="table align-middle mb-0 sp-all"><thead><tr>
-        ${ALLCOLS.map(([k, l]) => `<th class="${['major', 'faculty', 'degree'].includes(k) ? '' : 'text-center'}"><a href="#" data-sort="${k}" class="${st.sort === k ? 'on' : ''}">${l}${st.sort === k ? ' <i class="bi bi-sort-down"></i>' : ''}</a></th>`).join('')}
-        <th>توزيع الساعات</th></tr></thead><tbody>
-        ${rows.map(r => `<tr><td><a href="#" data-open="${esc(r.p.id)}" class="fw-bold">${esc(r.major)}</a><small class="d-block text-muted">${esc(r.p.dept)}</small></td>
-          <td><small>${esc(r.faculty)}</small></td><td><small>${esc(r.degree)}</small></td><td class="text-center fw-bold">${r.total}</td>
-          <td class="text-center">${r.req}</td><td class="text-center">${r.el}</td><td class="text-center">${r.free}</td><td class="text-center">${r.courses}</td>
-          <td class="text-center"><span class="sp-pct" style="--p:${r.pct}%">${r.pct}%</span></td>
-          <td class="sp-mini"><span style="width:${Math.round(100 * r.total / max)}%">${r.p.groups.filter(g => g.required_hours).map(g => `<i style="flex:${g.required_hours};background:${gcol(g.name)}" title="${esc(groupKey(g.name))}: ${g.required_hours}"></i>`).join('')}</span></td></tr>`).join('')
-          || '<tr><td colspan="10" class="text-muted p-3">لا خطط ضمن التصفية.</td></tr>'}</tbody></table></div></section>
-      <div class="sp-legend mt-2">${GROUPS.map(n => `<span><i style="background:${gcol(n)}"></i>${esc(n)}</span>`).join('')}</div>`;
+    const DEG = { 'البكالوريوس': '#0b4a66', 'الماجستير': '#0f766e', 'الدكتوراه': '#901d23', 'الدبلوم': '#6d28d9' };
+    const kpis = [[rows.length, 'خطة دراسية', 'bi-journal-text', '#901d23'], [new Set(rows.map(r => r.faculty)).size, 'كلية', 'bi-bank2', '#0b4a66'],
+      [new Set(rows.map(r => r.p.dept)).size, 'قسماً', 'bi-diagram-3', '#0f766e'], [new Set(rows.flatMap(r => r.p.groups.flatMap(g => g.courses.map(c => c.code)))).size, 'مقرراً مختلفاً', 'bi-journal-bookmark', '#475569'],
+      [rows.length ? Math.round(rows.reduce((a, r) => a + r.pct, 0) / rows.length) + '%' : '—', 'متوسط المطروح الآن', 'bi-calendar-check', '#15803d']];
+    const th = (k, l, cls) => `<th class="${cls || ''}"><button type="button" data-sort="${k}" class="${st.sort === k ? 'on' : ''}">${l}<i class="bi ${st.sort === k ? 'bi-sort-down' : 'bi-arrow-down-up'}"></i></button></th>`;
+    const pctCol = v => v >= 70 ? '#15803d' : v >= 40 ? '#0b4a66' : '#901d23';
+    return `<div class="sp2-kpis sp2-kpiw mb-3">${kpis.map(([v, l, i, c]) => `<div class="sp2-k" style="--c:${c}"><i class="bi ${i}"></i><b>${v}</b><span>${l}</span></div>`).join('')}</div>
+      <section class="sp2-tw"><table class="sp2-t"><thead><tr>
+        ${th('major', 'التخصص')}${th('faculty', 'الكلية')}${th('degree', 'الدرجة', 'c')}${th('total', 'ساعات التخرج', 'c')}${th('req', 'إجباري', 'c')}${th('el', 'اختياري', 'c')}${th('free', 'حر', 'c')}${th('courses', 'المقررات', 'c')}${th('pct', 'مطروح الآن', 'c')}
+        <th class="w-dist">توزيع الساعات على المجموعات</th></tr></thead><tbody>
+        ${rows.map((r, i) => `<tr>
+          <td class="mj"><a href="#" data-open="${esc(r.p.id)}">${esc(r.major)}</a>${r.p.dept && r.p.dept !== r.major ? `<small>${esc(r.p.dept)}</small>` : ''}</td>
+          <td class="fc">${esc(r.faculty)}</td>
+          <td class="c"><span class="sp2-deg" style="--c:${DEG[r.degree] || '#475569'}">${esc(r.degree)}</span></td>
+          <td class="c"><b class="sp2-tot">${r.total}</b></td>
+          <td class="c n" style="--c:#0b4a66">${r.req}</td><td class="c n" style="--c:#0f766e">${r.el || '<em>—</em>'}</td><td class="c n" style="--c:#901d23">${r.free || '<em>—</em>'}</td>
+          <td class="c">${r.courses}</td>
+          <td class="c"><div class="sp2-pc" style="--p:${r.pct}%;--c:${pctCol(r.pct)}" title="${r.offered} من ${r.courses} مقرراً مطروحة هذا الفصل"><i></i><b>${r.pct}%</b></div></td>
+          <td class="w-dist"><div class="sp2-mini"><span style="width:${Math.max(8, Math.round(100 * r.total / max))}%">${r.p.groups.filter(g => g.required_hours).map(g => `<i style="flex:${g.required_hours};background:${gcol(g.name)}" title="${esc(groupKey(g.name))}: ${g.required_hours} ساعة"></i>`).join('')}</span></div></td></tr>`).join('')
+          || '<tr><td colspan="10" class="sp2-empty">لا خطط ضمن التصفية.</td></tr>'}</tbody></table></section>
+      <details class="sp2-legd"><summary><i class="bi bi-palette"></i> ألوان المجموعات في عمود التوزيع (${GROUPS.length})</summary><div class="sp-legend mt-2">${GROUPS.map(n => `<span><i style="background:${gcol(n)}"></i>${esc(n)}</span>`).join('')}</div></details>`;
   }
 
   // ---------------------------------------------------------------- every course across the plans in scope
@@ -456,6 +463,25 @@
     .sp2-head .sp-pvbar { margin: 0; border: 0; border-top: 1px solid #ece6d8; border-radius: 0; box-shadow: none; background: #faf8f3; padding: 0 .5rem; display: flex; gap: .1rem; overflow-x: auto; }
     .sp2-head .sp-pvbar button { border-radius: 0; border: 0; border-bottom: 3px solid transparent; background: none; padding: .55rem .8rem; font-size: .84rem; box-shadow: none; }
     .sp2-head .sp-pvbar button.on { background: none; color: #901d23; border-bottom-color: #901d23; box-shadow: none; }
+    .sp2-kpiw { display: flex; width: 100%; } .sp2-kpiw .sp2-k { flex: 1 1 0; padding: .55rem 1rem; } .sp2-kpiw .sp2-k b { font-size: 1.4rem; } .sp2-kpiw .sp2-k span { font-size: .76rem; }
+    .sp2-tw { background: #fff; border: 1px solid #ece6d8; border-radius: 14px; overflow: auto; box-shadow: 0 2px 10px rgba(9,27,34,.04); }
+    .sp2-t { width: 100%; border-collapse: separate; border-spacing: 0; font-size: .86rem; }
+    .sp2-t thead th { position: sticky; top: 0; z-index: 1; background: #0b2a3a; color: #fff; font-weight: 700; font-size: .8rem; padding: .6rem .6rem; text-align: start; white-space: nowrap; }
+    .sp2-t thead th.c { text-align: center; } .sp2-t thead th button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; }
+    .sp2-t thead th button i { font-size: .75rem; opacity: .45; } .sp2-t thead th button.on, .sp2-t thead th button:hover { color: #f5c66b; } .sp2-t thead th button.on i { opacity: 1; }
+    .sp2-t tbody td { padding: .5rem .6rem; border-bottom: 1px solid #f1ece0; vertical-align: middle; } .sp2-t tbody tr:nth-child(even) td { background: #fcfbf8; }
+    .sp2-t tbody tr:hover td { background: #f7f1e6; } .sp2-t td.c { text-align: center; }
+    .sp2-t .mj a { font-weight: 800; color: #091b22; text-decoration: none; } .sp2-t .mj a:hover { color: #901d23; text-decoration: underline; }
+    .sp2-t .mj small { display: block; font-size: .74rem; color: #8a6d2e; } .sp2-t .fc { font-size: .8rem; color: #374151; }
+    .sp2-deg { display: inline-block; font-size: .72rem; font-weight: 700; color: var(--c); background: color-mix(in srgb, var(--c) 10%, #fff); border-radius: 99px; padding: .1rem .55rem; white-space: nowrap; }
+    .sp2-tot { display: inline-block; min-width: 2.6rem; font-size: .95rem; color: #901d23; background: #fbeff0; border-radius: 8px; padding: .05rem .4rem; }
+    .sp2-t td.n { color: var(--c); font-weight: 700; } .sp2-t td em { font-style: normal; color: #cbd5e1; }
+    .sp2-pc { position: relative; width: 84px; height: 20px; margin: 0 auto; border-radius: 99px; background: #eef2f5; overflow: hidden; }
+    .sp2-pc i { position: absolute; inset-block: 0; inset-inline-start: 0; width: var(--p); background: color-mix(in srgb, var(--c) 22%, #fff); border-inline-end: 2px solid var(--c); }
+    .sp2-pc b { position: relative; display: block; text-align: center; font-size: .74rem; line-height: 20px; color: var(--c); }
+    .sp2-t .w-dist { min-width: 200px; width: 22%; } .sp2-mini span { display: flex; height: 10px; gap: 1px; border-radius: 99px; overflow: hidden; background: #eef0f2; } .sp2-mini i { display: block; min-width: 2px; }
+    .sp2-empty { color: #8a6d2e; padding: 1rem !important; }
+    .sp2-legd { margin-top: .6rem; font-size: .8rem; } .sp2-legd summary { cursor: pointer; color: #0b4a66; font-weight: 700; }
     @media (max-width: 991px) { .sp2-sel, .sp2-sel.grow { flex: 1 1 45%; } .sp2-sel:not(.grow) select { max-width: none; field-sizing: fixed; } .sp2-vr { display: none; } .sp2-kpis { width: 100%; } .sp2-k { flex: 1 1 30%; } }
     @media print { .sp2-bar { display: none !important; } }
   </style>`);
