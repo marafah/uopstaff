@@ -345,7 +345,30 @@
     #ad-body .ap-term .ad-c.ap-r.done { background: #f3fbf5; } #ad-body .ap-term .ad-c.ap-r.done .ap-n b { text-decoration: line-through; color: #15803d; } #ad-body .ap-term .ad-c.ap-r.done .ap-h { background: #15803d; color: #fff; }
     #ad-body .ap-term .ad-c.ap-r.next { background: #fffbeb; box-shadow: inset -3px 0 0 #e8b923; }
     @media (max-width: 600px) { .ap-terms { grid-template-columns: 1fr; } .ap-term { border-inline-start: 0; border-top: 1px solid #eef0f2; } }
-    @media print { .ap-year { break-inside: avoid-page; } .ap-legend { display: none; } }`; document.head.appendChild(c); }
+    @media print { .ap-year { break-inside: avoid-page; } .ap-legend { display: none; } }
+    .am-tt { margin-top: .8rem; border: 1px solid #e3e9ee; border-radius: 14px; padding: .6rem .7rem; background: linear-gradient(180deg, #f8fbfd, #fff); }
+    .am-tt-h { display: flex; align-items: baseline; justify-content: space-between; gap: .4rem; } .am-tt-h h4 { margin: 0 !important; } .am-tt-h small { color: #6c757d; font-size: .7rem; }
+    .am-wk { margin: .55rem 0 .5rem; font-size: .66rem; }
+    .am-wk-hd { display: grid; grid-template-columns: 34px repeat(auto-fit, minmax(0, 1fr)); } .am-wk-hd { display: flex; } .am-wk-hd span { width: 34px; flex: none; } .am-wk-hd b { flex: 1; text-align: center; color: #0b4a66; font-weight: 800; }
+    .am-wk-bd { display: flex; height: calc(var(--rows) * 26px); min-height: 78px; }
+    .am-wk-t { width: 34px; flex: none; display: flex; flex-direction: column; } .am-wk-t span { flex: 1; color: #8a949b; border-top: 1px dashed #e5e9ee; padding-top: 1px; direction: ltr; text-align: right; padding-inline-end: 4px; }
+    .am-wk-g { flex: 1; display: grid; gap: 3px; background: repeating-linear-gradient(180deg, #edf1f4 0 1px, transparent 1px 26px); border-radius: 6px; }
+    .am-wk-d { position: relative; background: rgba(241,245,249,.55); border-radius: 6px; }
+    .am-wk-b { position: absolute; display: grid; place-items: center; box-sizing: border-box; border: 1.5px solid #fff; border-radius: 6px; color: #fff; font-weight: 800; font-size: .7rem; overflow: hidden; cursor: default; }
+    .am-wk-b.ok { background: #15803d; } .am-wk-b.full { background: #d97706; } .am-wk-b.no { background: #b91c1c; opacity: .75; }
+    .am-sl { display: flex; flex-direction: column; gap: .35rem; margin-top: .5rem; }
+    .am-sr { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: .5rem; align-items: center; border: 1px solid #e9edf1; border-inline-start: 4px solid #15803d; border-radius: 10px; padding: .35rem .5rem; background: #fff; }
+    .am-sr.full { border-inline-start-color: #d97706; } .am-sr.no { border-inline-start-color: #b91c1c; background: #fffafa; }
+    .am-sr-n { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; background: #0b4a66; color: #fff; font-weight: 800; font-size: .82rem; }
+    .am-sr-m { min-width: 0; } .am-sr-t { display: flex; flex-wrap: wrap; gap: .1rem .6rem; font-size: .78rem; } .am-sr-t b { color: #0f1d24; } .am-sr-t bdi { color: #0b4a66; font-weight: 700; }
+    .am-sr-t em { font-style: normal; background: #ede9fe; color: #5b21b6; border-radius: 5px; padding: 0 .3rem; font-size: .68rem; }
+    .am-sr-i { font-size: .7rem; color: #6c757d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .am-sr-i a { color: #334155; }
+    .am-sr-s { display: flex; flex-direction: column; align-items: flex-end; gap: .15rem; font-size: .68rem; color: #6c757d; }
+    .am-sr-seat { width: 54px; height: 5px; background: #e9ecef; border-radius: 99px; overflow: hidden; } .am-sr-seat i { display: block; height: 100%; background: #15803d; }
+    .am-sr.full .am-sr-seat i { background: #d97706; } .am-sr.no .am-sr-seat i { background: #b91c1c; }
+    .am-empty { display: flex; gap: .6rem; align-items: center; margin-top: .5rem; background: #f6f7f9; border-radius: 10px; padding: .6rem .7rem; color: #5b6970; font-size: .78rem; } .am-empty i { font-size: 1.4rem; color: #94a3b8; } .am-empty b { display: block; color: #334155; }
+    .am-kpis { grid-template-columns: repeat(6, 1fr) !important; gap: .25rem !important; } .am-kpis div { padding: .3rem .1rem !important; border-radius: 9px !important; } .am-kpis b { font-size: .98rem !important; } .am-kpis span { font-size: .58rem !important; line-height: 1.15; display: block; }
+`; document.head.appendChild(c); }
   // full screen: the map fills the whole screen (styles kept here so they arrive with the script)
   if (!document.getElementById('am-fs-css')) { const c = document.createElement('style'); c.id = 'am-fs-css'; c.textContent = `
     .am-wrap:fullscreen { display: flex; flex-direction: column; height: 100vh; width: 100vw; padding: .5rem; background: #f6f4ee; overflow: hidden; }
@@ -370,6 +393,36 @@
       <div class="am-sec-who"><i class="bi bi-door-open"></i> ${x.room === '0' ? 'قاعة افتراضية' : `<a href="room.html?q=${encodeURIComponent(x.room)}">${esc(x.room)}</a> <small class="text-muted">${esc(x.building || '')}</small>`}</div>
       <div class="am-sec-seat"><span class="am-seat w"><i style="width:${pc}%" class="${full ? 'full' : pc >= 80 ? 'hot' : ''}"></i></span><bdi dir="ltr">${x.registered}/${x.capacity}</bdi>${!closed && !full ? `<b>${x.capacity - x.registered} متاح</b>` : ''}</div></article>`;
   }
+  // the sections of a course on a small week grid, and as compact rows
+  const mins = t => { const m = String(t || '').match(/(\d{1,2}):(\d{2})/); return m ? +m[1] * 60 + +m[2] : null; };
+  const secState = x => x.status === 'مغلقة' ? 'no' : x.registered >= x.capacity ? 'full' : 'ok';
+  function weekMini(S) {
+    const M = S.flatMap(x => (x.meetings || []).filter(m => mins(m.start) != null && mins(m.end) != null).map(m => ({ x, d: m.day, a: mins(m.start), b: mins(m.end), mode: m.mode })));
+    if (!M.length) return '';
+    const days = ['ح', 'ن', 'ث', 'ر', 'خ', 'س'].filter(d => ['ح', 'ن', 'ث', 'ر', 'خ'].includes(d) || M.some(m => m.d === d));
+    const lo = Math.floor(Math.min(...M.map(m => m.a)) / 60) * 60, hi = Math.ceil(Math.max(...M.map(m => m.b)) / 60) * 60, span = Math.max(60, hi - lo);
+    const hours = []; for (let t = lo; t <= hi; t += 60) hours.push(t);
+    const col = d => days.map(D => M.filter(m => m.d === D)).map((list, i) => {
+      list.sort((p, q) => p.a - q.a); const lanes = [];
+      list.forEach(m => { let l = lanes.findIndex(end => end <= m.a); if (l < 0) { l = lanes.length; lanes.push(0); } lanes[l] = m.b; m.lane = l; });
+      return `<div class="am-wk-d">${list.map(m => `<span class="am-wk-b ${secState(m.x)}" style="top:${100 * (m.a - lo) / span}%;height:${100 * (m.b - m.a) / span}%;right:${100 * m.lane / lanes.length}%;width:${100 / lanes.length}%" title="شعبة ${esc(m.x.section)} · ${esc(m.x.activity)} · ${DAY[m.d] || m.d} ${String(Math.floor(m.a / 60)).padStart(2, '0')}:${String(m.a % 60).padStart(2, '0')}–${String(Math.floor(m.b / 60)).padStart(2, '0')}:${String(m.b % 60).padStart(2, '0')} · ${esc(m.x.instructor || '')}${m.mode && m.mode !== 'وجاهي' ? ' · ' + esc(m.mode) : ''}">${esc(m.x.section)}</span>`).join('')}</div>`; }).join('');
+    return `<div class="am-wk" style="--rows:${hours.length - 1}">
+      <div class="am-wk-hd"><span></span>${days.map(d => `<b>${DAY[d] || d}</b>`).join('')}</div>
+      <div class="am-wk-bd"><div class="am-wk-t">${hours.slice(0, -1).map(t => `<span>${Math.floor(t / 60)}:00</span>`).join('')}</div>
+        <div class="am-wk-g" style="grid-template-columns:repeat(${days.length},1fr)">${col()}</div></div></div>`;
+  }
+  function secRow(x) {
+    const sc = secState(x), pc = Math.min(100, x.capacity ? 100 * x.registered / x.capacity : 100);
+    const g = new Map(); (x.meetings || []).forEach(m => { const k = `${m.start}–${m.end}`; (g.get(k) || g.set(k, []).get(k)).push(m.day); });
+    const modes = [...new Set((x.meetings || []).map(m => m.mode).filter(m => m && m !== 'وجاهي'))];
+    return `<div class="am-sr ${sc}">
+      <span class="am-sr-n" title="الشعبة">${esc(x.section)}</span>
+      <div class="am-sr-m">
+        <div class="am-sr-t">${[...g].map(([t, d]) => `<span><b>${d.map(D => DAY[D] || D).join(' · ')}</b> <bdi dir="ltr">${t}</bdi></span>`).join('') || `<span>${esc(x.time || 'بلا موعد')}</span>`}${modes.map(m => `<em>${esc(m)}</em>`).join('')}</div>
+        <div class="am-sr-i"><small>${esc(x.activity)}</small> · <a href="instructor.html?q=${encodeURIComponent(x.instructor || '')}">${esc(x.instructor || '—')}</a> · ${x.room === '0' ? 'افتراضية' : `<a href="room.html?q=${encodeURIComponent(x.room)}">${esc(x.room)}</a>`}</div></div>
+      <div class="am-sr-s"><span class="am-pill ${sc}">${sc === 'no' ? 'مغلقة' : sc === 'full' ? 'ممتلئة' : 'مفتوحة'}</span>
+        <span class="am-sr-seat" title="المسجلون/السعة"><i style="width:${pc}%"></i></span><bdi dir="ltr">${x.registered}/${x.capacity}</bdi></div></div>`;
+  }
   function mapPanel(p, x, G, k) {
     const n = G.nodes.find(n => n.key === k); if (!n) return '';
     const done = getDone(p), av = avail(n.code), anc = G.anc(k), des = G.desc.get(k), dir = G.post.get(k) || [];
@@ -393,17 +446,17 @@
       ${realCode(n.code) && done.size ? (done.has(n.code) ? '<div class="am-note ok"><i class="bi bi-check-circle-fill"></i><div><b>مجتازة</b>معلّمة من اختيارات المرشد على هذا الجهاز.</div></div>'
         : missing.length ? `<div class="am-note wait"><i class="bi bi-hourglass-split"></i><div><b>تنتظر متطلباً</b>${missing.map(c => `<code>${c}</code> ${nm(c)}`).join('، ')}</div></div>`
         : `<div class="am-note go"><i class="bi bi-check2-circle"></i><div><b>يمكن تسجيلها</b>متطلباتها المذكورة في الخطة مجتازة${S.length ? (open.length ? ` و${open.length} شعبة مفتوحة الآن` : '، لكن كل شعبها مغلقة الآن') : '، وهي غير مطروحة هذا الفصل'}.</div></div>`) : ''}
+      <div class="am-tt"><div class="am-tt-h"><h4><i class="bi bi-calendar-week"></i> الجدول المطروح لهذه المادة</h4><small>${esc(TTERM || '')}</small></div>
+        ${S.length ? `${weekMini(S)}
+          <div class="am-cap"><div class="am-cap-bar"><i style="width:${Math.min(100, cap ? 100 * reg / cap : 100)}%"></i></div><span><b>${reg}</b>/${cap} مسجّلاً في ${S.length} شعبة · <b class="text-success">${free}</b> مقعداً متاحاً</span></div>
+          <div class="am-sl">${S.slice().sort((a, b) => (+a.section || 0) - (+b.section || 0) || String(a.activity).localeCompare(b.activity)).map(secRow).join('')}</div>`
+        : `<div class="am-empty"><i class="bi bi-calendar-x"></i><div><b>${realCode(n.code) ? 'غير مطروحة هذا الفصل' : 'خانة اختيار'}</b>${realCode(n.code) ? 'لا شعب لهذه المادة في الجدول الدراسي المنشور.' : 'يختار لها الطالب مادة من مجموعة الخطة.'}</div></div>`}</div>
       <h4><i class="bi bi-arrow-return-left"></i> متطلباتها السابقة</h4>
       <div class="am-chips">${(G.pre.get(k) || []).map(chip).join('') || '<small class="text-muted">لا متطلب من مواد الخطة</small>'}</div>
       ${ext.length || note ? `<p class="am-asis"><i class="bi bi-quote"></i> كما في الخطة: <b dir="ltr">${esc(n.prereq)}</b>${/P\.?T/i.test(n.prereq) ? ' <small>(P.T = امتحان مستوى)</small>' : ''}${ext.length ? ` · ${ext.map(c => `<code>${c}</code>${CODE_NAME[c] ? ' ' + esc(CODE_NAME[c]) : ''}`).join('، ')}` : ''}</p>` : ''}
       <h4><i class="bi bi-unlock"></i> تفتح مباشرة</h4>
       <div class="am-chips">${dir.map(chip).join('') || '<small class="text-muted">لا مادة في الخطة تشترطها</small>'}</div>
       ${des.size > dir.length ? `<p class="small text-muted mb-0 mt-1">ومعها ${des.size - dir.length} مادة أبعد في السلسلة: انظر «السلسلة».</p>` : ''}
-      <h4><i class="bi bi-calendar-check"></i> هذا الفصل <small class="text-muted fw-normal">${esc(TTERM || '')}</small></h4>
-      ${S.length ? `<div class="am-cap"><div class="am-cap-bar"><i style="width:${Math.min(100, cap ? 100 * reg / cap : 100)}%"></i></div><span><b>${reg}</b> مسجّلاً من <b>${cap}</b> مقعداً في ${S.length} شعبة · <b class="text-success">${free}</b> متاح</span></div>
-        <div class="am-tags">${[...new Set(S.map(s => s.instructor).filter(Boolean))].slice(0, 6).map(i => `<a href="instructor.html?q=${encodeURIComponent(i)}"><i class="bi bi-person"></i> ${esc(i)}</a>`).join('')}</div>
-        <button type="button" class="btn btn-sm btn-light w-100 mt-2" data-pt="secs">عرض الشعب بالتفصيل <i class="bi bi-chevron-left"></i></button>`
-        : `<p class="small text-muted mb-0"><span class="am-dot2" style="background:${AV[av.k][1]}"></span> ${realCode(n.code) ? 'غير مطروحة في الجدول الدراسي المنشور لهذا الفصل.' : 'خانة يختار لها الطالب مادة من مجموعة الخطة.'}</p>`}
       ${grp || others.length ? `<h4><i class="bi bi-journal-text"></i> في الخطط الدراسية على البوابة</h4>
         ${grp ? `<p class="small mb-1">في خطة «${esc(pm.pl.major)}»: <span class="badge ${grp.kind === 'required' ? 'text-bg-primary' : 'text-bg-info'}">${esc(grp.name)}</span></p>` : ''}
         ${others.length ? `<details class="small"><summary>تظهر في ${others.length} ${others.length === 1 ? 'خطة' : 'خطط'}</summary><div class="am-tags mt-1">${others.map(o => `<span>${esc(o)}</span>`).join('')}</div></details>` : ''}` : ''}`;
