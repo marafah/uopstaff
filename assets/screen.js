@@ -25,6 +25,12 @@
   }
   // ?b=others: every building that is not a faculty's (library, cafeteria, theatre…) on one screen
   const isOther = b => !!b && !/كلية|طب الأسنان/.test(b) && !/^-+$/.test(b);   // the dentistry building is a faculty's
+  // an icon for the building's faculty or use, shown beside its name
+  const bIcon = b => b === 'others' ? 'bi-buildings' : [[/الإعلام|الاعلام/, 'bi-broadcast-pin'], [/الصيدلة/, 'bi-capsule'], [/الهندسة/, 'bi-gear-wide-connected'],
+    [/تكنولوجيا المعلومات/, 'bi-cpu'], [/العمارة|التصميم|الفنون/, 'bi-vector-pen'], [/الآداب|العلوم$|الاداب/, 'bi-book-half'], [/الحقوق|القانون/, 'bi-bank2'],
+    [/الإدارية|الادارية|المالية|الأعمال/, 'bi-graph-up-arrow'], [/طب الأسنان|الأسنان/, 'bi-heart-pulse'], [/المكتبة/, 'bi-book'], [/مسرح/, 'bi-mask'],
+    [/الرياض|الملاعب/, 'bi-trophy'], [/المطعم|الكافتيريا|الكفاتيريا/, 'bi-cup-hot'], [/التسجيل|القبول/, 'bi-person-vcard'], [/المالية|المحاسبة/, 'bi-cash-coin']]
+    .find(([re]) => re.test(b || ''))?.[1] || 'bi-building';
   const inB = (s, b) => b === 'others' ? isOther(s.building) : s.building === b;
   const bShort = b => String(b || '').replace(/^مبنى\s*/, '');
   // the building's classes, a class listed twice by the portal (two degrees) only once
@@ -77,12 +83,20 @@
     document.body.classList.add('scr-on');
     const TITLE = B === 'others' ? 'المباني العامة' : B;
     document.title = `${TITLE} – شاشة المبنى`;
+    if (!document.getElementById('scr2-css')) document.head.insertAdjacentHTML('beforeend', `<style id="scr2-css">
+      .scr-bic { flex: none; width: 2.9em; height: 2.9em; border-radius: .7em; display: grid; place-items: center; font-size: 1.25em; color: #fff;
+        background: linear-gradient(140deg, #b8262f, #6e151a); box-shadow: 0 .25em .8em rgba(158,31,39,.45), inset 0 0 0 1px rgba(255,255,255,.18); }
+      .scr-tick .scr-date bdi { color: inherit; margin: 0; }
+      .scr-ev:not(.on) .scr-date { background: #f8fafc; color: #0b2a3a; box-shadow: inset 0 0 0 1px rgba(255,255,255,.4); }
+      .scr-ev:not(.on) .scr-date small { color: #9e1f27; }
+      .scr-ev .scr-et { color: #e8eef2; }
+    </style>`);
     const q = qrcode(0, 'M');
     q.addData(SITE + (B === 'others' ? 'room.html' : 'room.html?bld=' + encodeURIComponent(B)));
     q.make();
     const qr = q.createSvgTag({ cellSize: 4, margin: 1, scalable: true });
     document.body.insertAdjacentHTML('beforeend', `<div class="scr" id="scr">
-      <header class="scr-top"><img src="assets/logo.png" alt=""><div class="scr-t"><small>جامعة البترا${B === 'others' ? ' · ' + esc([...new Set(S.filter(s => isOther(s.building)).map(s => bShort(s.building)))].join('، ')) : ''}</small><h1>${esc(TITLE)}</h1></div>
+      <header class="scr-top"><img src="assets/logo.png" alt=""><span class="scr-bic" aria-hidden="true"><i class="bi ${bIcon(B)}"></i></span><div class="scr-t"><small>جامعة البترا${B === 'others' ? ' · ' + esc([...new Set(S.filter(s => isOther(s.building)).map(s => bShort(s.building)))].join('، ')) : ''}</small><h1>${esc(TITLE)}</h1></div>
         <div class="scr-clock"><b id="scr-time">--:--</b><span id="scr-date"></span></div></header>
       <main class="scr-main" id="scr-main"></main>
       <footer class="scr-foot"><div class="scr-tick" id="scr-tick"></div><div class="scr-qr">${qr}<span>امسح الرمز<br>لجدول كل قاعة</span></div></footer></div>`);
