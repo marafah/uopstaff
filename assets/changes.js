@@ -266,10 +266,10 @@
   // ---------------------------------------------------------------- styles
   if (!document.getElementById('cg2-css')) document.head.insertAdjacentHTML('beforeend', `<style id="cg2-css">
     .cg2-tabs { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; background: #fff; border: 1px solid #ece6d8; border-radius: 14px; padding: .35rem; margin-bottom: 1rem; box-shadow: 0 2px 10px rgba(9,27,34,.04); }
-    .cg2-tabs > button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .45rem; padding: .5rem 1rem; border-radius: 10px; font-weight: 700; font-size: .92rem; color: #4b5563; transition: background .15s, color .15s; }
+    .cg2-tabs > button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .45rem; padding: .5rem 1rem; border-radius: 10px; font-weight: 700; font-size: .9rem; line-height: 1.4; color: #0b4a66; transition: background .15s, color .15s; }
     .cg2-tabs > button:hover { background: #f6f3ec; color: #091b22; } .cg2-tabs > button:focus-visible { outline: 2px solid #901d23; }
     .cg2-tabs > button.on { background: linear-gradient(135deg, #901d23, #6e151a); color: #fff; box-shadow: 0 4px 12px rgba(144,29,35,.25); }
-    .cg2-tabs > button b { font-size: .72rem; background: rgba(0,0,0,.08); border-radius: 99px; padding: .05rem .5rem; } .cg2-tabs > button.on b { background: rgba(255,255,255,.22); }
+    .cg2-tabs > button b { font-size: .72rem; line-height: 1.5; min-width: 1.6rem; text-align: center; background: #eef4f7; color: #0b4a66; border-radius: 99px; padding: .05rem .5rem; } .cg2-tabs > button.on b { background: rgba(255,255,255,.22); color: #fff; }
     .cg2-upd { margin-inline-start: auto; font-size: .78rem; color: #6b7280; padding-inline: .6rem; } .cg2-upd b { color: #6d28d9; }
     .cg2-p { background: #fff; border: 1px solid #ece6d8; border-radius: 14px; padding: .9rem 1rem; box-shadow: 0 2px 10px rgba(9,27,34,.04); }
     .cg2-p > h3 { display: flex; align-items: center; gap: .45rem; font-size: .98rem; font-weight: 800; color: #091b22; margin: 0 0 .75rem; } .cg2-p > h3 > i { color: #901d23; }
@@ -324,11 +324,11 @@
     .cg2-act { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; font-size: .8rem; color: #901d23; }
     .cg2-act button { all: unset; cursor: pointer; background: #fbeff0; color: #901d23; border-radius: 99px; padding: .1rem .6rem; font-weight: 700; } .cg2-act button.all { background: none; color: #901d23; text-decoration: underline; }
     .cg2-ktabs { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 2px solid #e8e2d2; margin-bottom: .8rem; }
-    .cg2-ktabs button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .5rem; padding: .65rem 1.1rem; margin-bottom: -2px; border-bottom: 3px solid transparent; font-weight: 700; font-size: .95rem; color: color-mix(in srgb, var(--c) 70%, #fff); white-space: nowrap; transition: color .15s, border-color .15s, background .15s; border-radius: 10px 10px 0 0; }
-    .cg2-ktabs button i { color: var(--c); font-size: 1.05rem; } .cg2-ktabs button:hover { color: var(--c); background: color-mix(in srgb, var(--c) 6%, #fff); }
-    .cg2-ktabs button b { font-size: .74rem; min-width: 1.6rem; text-align: center; border-radius: 99px; padding: .05rem .5rem; background: color-mix(in srgb, var(--c) 12%, #fff); color: var(--c); }
+    .cg2-ktabs button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .5rem; padding: .65rem 1.1rem; margin-bottom: -2px; border-bottom: 3px solid transparent; font-weight: 700; font-size: .9rem; line-height: 1.4; color: color-mix(in srgb, var(--c) 75%, #fff); white-space: nowrap; transition: color .15s, border-color .15s, background .15s; border-radius: 10px 10px 0 0; }
+    .cg2-ktabs button i { color: var(--c); font-size: 1rem; } .cg2-tabs > button i { font-size: 1rem; } .cg2-ktabs button:hover { color: var(--c); background: color-mix(in srgb, var(--c) 6%, #fff); }
+    .cg2-ktabs button b { font-size: .72rem; line-height: 1.5; min-width: 1.6rem; text-align: center; border-radius: 99px; padding: .05rem .5rem; background: color-mix(in srgb, var(--c) 12%, #fff); color: var(--c); }
     .cg2-ktabs button.on { color: var(--c); border-bottom-color: var(--c); background: #fff; } .cg2-ktabs button.on b { background: var(--c); color: #fff; }
-    .cg2-ktabs button.zero b { background: transparent; border: 1px dashed color-mix(in srgb, var(--c) 35%, #fff); } .cg2-ktabs button:focus-visible { outline: 2px solid var(--c); outline-offset: -2px; }
+    .cg2-ktabs button.zero b { background: #fff; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 30%, #fff); color: var(--c); } .cg2-ktabs button:focus-visible { outline: 2px solid var(--c); outline-offset: -2px; }
     .cg2-optabs { display: inline-flex; gap: .3rem; flex-wrap: wrap; }
     .cg2-optabs button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem .75rem; border-radius: 99px; border: 1px solid #e3ddcc; background: #fff; font-size: .82rem; font-weight: 700; color: #0b4a66; }
     .cg2-optabs button b { font-size: .7rem; background: #eef4f7; border-radius: 99px; padding: 0 .4rem; color: #0b4a66; }
