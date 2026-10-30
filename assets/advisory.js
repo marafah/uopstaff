@@ -403,6 +403,8 @@
   // the programme header on one row
   if (!document.getElementById('ad-h-css')) { const c = document.createElement('style'); c.id = 'ad-h-css'; c.textContent = `
     .am-col { gap: 16px !important; }
+    .ad-bar .ad-s-v { flex: 0 0 auto !important; width: auto !important; min-width: 340px; field-sizing: content; padding-inline-end: 2.4rem; }
+    .ad-bar .ad-s-p { flex: 1 1 200px !important; min-width: 160px; } .ad-bar .ad-s-fac { flex: 0 1 160px !important; min-width: 120px; }
     .ad-hrow { display: flex; align-items: center; gap: .35rem; flex-wrap: nowrap; overflow: hidden; white-space: nowrap; }
     .ad-hrow .ad-title { font-size: 1.05rem; flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
     .ad-hrow .badge { font-size: .7rem; flex: none; } .ad-hrow .ad-kp { flex: none; } .ad-hrow .flex-none { flex: none; }
