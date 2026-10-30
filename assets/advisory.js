@@ -144,21 +144,51 @@
       ${slots.length ? `<div class="py-slots" title="خانات يختار لها الطالب مادة من مجموعة الخطة"><b><i class="bi bi-ui-checks-grid"></i> خانات اختيار (${slots.length})</b>${slots.map(n => `<span class="py-sl" style="--k:${KINDS[kindOf(n.code, major)][1]}">${esc(n.name || '')}<em>${n.hours ?? '—'} س</em></span>`).join('')}</div>` : ''}`;
   }
   // shape the layers into one triangle: each layer's sides follow the same two straight lines from the apex to the base
+  let pyrDraw = () => {};
   function pyrLayout() {
     const box = document.getElementById('py2'); if (!box) return;
     const rows = [...box.querySelectorAll('.py2-s')]; if (!rows.length) return;
-    const shape = () => { const apex = rows.length < 2 ? 1 : rows.length < 3 ? 0.6 : box.classList.contains('d2') ? 0.42 : 0.34;   // the top is a narrow flat cap, the base is the full width
-      for (let pass = 0; pass < 3; pass++) {
-        const T = rows[0].getBoundingClientRect().top, B = rows[rows.length - 1].getBoundingClientRect().bottom, H = Math.max(1, B - T);
-        const inset = y => (1 - apex) / 2 * (1 - (y - T) / H) * 100;   // % of the width cut from each side at height y
-        rows.forEach(r => { const R = r.getBoundingClientRect(), a = inset(R.top), b = inset(R.bottom);
-          r.style.clipPath = `polygon(${a}% 0, ${100 - a}% 0, ${100 - b}% 100%, ${b}% 100%)`;
-          r.querySelector('.py2-in').style.paddingInline = `calc(${a}% + 12px + var(--bx, 0px))`; });
-      } };
+    // one shape for the whole pyramid: two straight sides from a flat cap to the base, drawn once in SVG behind the layers
+    const NS = 'http://www.w3.org/2000/svg', mix = (t, w) => { const c = [0, 1, 2].map(i => Math.round(([11, 74, 102][i] * (1 - t) + [144, 29, 35][i] * t) * (1 - w) + 255 * w)); return `rgb(${c})`; };
+    const shape = () => { let apex = rows.length < 2 ? 1 : rows.length < 3 ? 0.6 : box.classList.contains('d2') ? 0.42 : 0.34;
+      { const w = [...rows[0].querySelectorAll('.py-p')].map(c => c.offsetWidth).sort((x, y) => y - x), W0 = rows[0].clientWidth || 1;   // the cap holds at least two courses side by side
+        apex = Math.min(1, Math.max(apex, ((w[0] || 0) + (w[1] || 0) + 48) / W0)); }
+      box.classList.add('svg');
+      const geo = () => { const K = box.getBoundingClientRect(), z = K.width / Math.max(1, box.offsetWidth) || 1, f = v => v / z;
+        const r0 = rows[0].getBoundingClientRect(), L = f(r0.left - K.left), R = f(r0.right - K.left), T = f(r0.top - K.top), B = f(rows[rows.length - 1].getBoundingClientRect().bottom - K.top);
+        const W = R - L, H = Math.max(1, B - T), cut = y => (1 - apex) / 2 * W * (1 - (y - T) / H);
+        return { K, z, f, L, R, T, B, W, H, cut, band: rows.map(r => { const q = r.getBoundingClientRect(); return [f(q.top - K.top), f(q.bottom - K.top)]; }) }; };
+      let g = geo(), sig = '';
+      for (let pass = 0; pass < 6; pass++) {   // padding follows the slope; repeat until the rows stop changing height
+        rows.forEach((r, i) => { const el = r.querySelector('.py2-in'), wide = Math.max(0, ...[...el.children].map(c => c.offsetWidth));
+          const pad = Math.min(g.cut(g.band[i][0]) + 10, Math.max(8, (g.W - wide - 12) / 2));   // never narrower than the widest course
+          el.style.paddingInline = `calc(${pad.toFixed(1)}px + var(--bx, 0px))`; });
+        g = geo(); const now = g.band.map(b => Math.round(b[1] - b[0])).join(); if (now === sig) break; sig = now; }
+      pyrDraw = () => { g = geo(); const { L, R, T, B, cut, band } = g, X = y => [L + cut(y), R - cut(y)];
+        let svg = box.querySelector(':scope > svg.py2-svg'); if (!svg) { svg = document.createElementNS(NS, 'svg'); svg.setAttribute('class', 'py2-svg'); svg.setAttribute('aria-hidden', 'true'); box.prepend(svg); }
+        svg.setAttribute('width', box.offsetWidth); svg.setAttribute('height', box.offsetHeight);
+        const P = pts => pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
+        const n = rows.length, edges = band.map((b, i) => i ? (band[i - 1][1] + b[0]) / 2 : T); edges.push(B);
+        let h = `<defs><linearGradient id="py2sh" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity=".07"/><stop offset=".42" stop-color="#fff" stop-opacity=".35"/><stop offset=".6" stop-color="#fff" stop-opacity=".12"/><stop offset="1" stop-color="#000" stop-opacity=".09"/></linearGradient>
+          <filter id="py2ds" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#0b2a3a" flood-opacity=".16"/></filter></defs>`;
+        h += `<ellipse cx="${(L + R) / 2}" cy="${B + 4}" rx="${(R - L) / 2}" ry="7" fill="#0b2a3a" opacity=".07"/>`;
+        h += `<polygon points="${P([[X(T)[0], T], [X(T)[1], T], [R, B], [L, B]])}" fill="#fff" filter="url(#py2ds)"/>`;
+        for (let i = 0; i < n; i++) { const t = n > 1 ? (n - 1 - i) / (n - 1) : 0, y0 = edges[i], y1 = edges[i + 1], a = X(y0), b = X(y1);
+          h += `<polygon points="${P([[a[0], y0], [a[1], y0], [b[1], y1], [b[0], y1]])}" fill="${mix(t, 0.8 + 0.035 * (i % 2))}"/>`; }
+        h += `<polygon points="${P([[X(T)[0], T], [X(T)[1], T], [R, B], [L, B]])}" fill="url(#py2sh)"/>`;
+        for (let i = 1; i < n; i++) { const y = edges[i], a = X(y); h += `<line x1="${a[0]}" y1="${y}" x2="${a[1]}" y2="${y}" stroke="#fff" stroke-width="3"/>`; }
+        h += `<polygon points="${P([[X(T)[0], T], [X(T)[1], T], [R, B], [L, B]])}" fill="none" stroke="${mix(0.5, 0.55)}" stroke-width="1.2" stroke-linejoin="round"/>`;
+        // leaders from each label to the pyramid side
+        box.querySelectorAll('.py2-r').forEach((r, i) => { const t = n > 1 ? (n - 1 - i) / (n - 1) : 0, y = (band[i][0] + band[i][1]) / 2, e = X(y)[1];
+          h += `<line x1="${R + 10}" y1="${y}" x2="${e + 5}" y2="${y}" stroke="${mix(t, 0.45)}" stroke-width="1" stroke-dasharray="2 3"/><circle cx="${e}" cy="${y}" r="3.2" fill="#fff" stroke="${mix(t, 0)}" stroke-width="1.6"/>`; });
+        svg.innerHTML = h; };
+      pyrDraw(); };
+    const flat = () => { box.classList.remove('svg'); const sv = box.querySelector(':scope > svg.py2-svg'); if (sv) sv.remove(); rows.forEach(r => r.querySelector('.py2-in').style.paddingInline = ''); };
     // fit the whole pyramid on one screen: from the view switcher down to the slot strip, no page scroll needed
     box.classList.remove('d1', 'd2'); box.style.zoom = '';
+    box.querySelectorAll('.py2-in').forEach(el => el.style.setProperty('--bx', '0px'));
     const balance = pyrBalance;
-    if (innerWidth <= 900) { shape(); return; }
+    if (innerWidth <= 900) { flat(); return; }
     const bar = document.querySelector('.pb-bar'), sl = document.querySelector('.py-slots');
     const head = box.getBoundingClientRect().top - (bar ? bar.getBoundingClientRect().top : box.getBoundingClientRect().top);
     const budget = innerHeight - head - (sl ? sl.offsetHeight + 8 : 0) - 14;
@@ -171,9 +201,11 @@
   function pyrBalance() {
     document.querySelectorAll('#py2 .py2-in').forEach(el => { el.style.setProperty('--bx', '0px');
       const lines = () => new Set([...el.children].map(c => c.offsetTop)).size, n = lines(); if (n < 2) return;
-      let lo = 0, hi = el.clientWidth / 2;
+      const cs = getComputedStyle(el), room = el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), wide = Math.max(...[...el.children].map(c => c.offsetWidth));
+      let lo = 0, hi = Math.max(0, (room - wide - 8) / 2);
       for (let i = 0; i < 9; i++) { const m = (lo + hi) / 2; el.style.setProperty('--bx', m + 'px'); if (lines() === n) lo = m; else hi = m; }
       el.style.setProperty('--bx', Math.max(0, lo - 6) + 'px'); });
+    pyrDraw();
   }
   // tree: from each foundation course down to everything it opens
   function planTree(x) {
@@ -622,6 +654,9 @@
     .py2-lab b { display: block; font-size: .82rem; color: var(--pc); } .py2-lab small { display: block; font-size: .64rem; color: #6c757d; line-height: 1.3; }
     .py2-s { background: linear-gradient(180deg, color-mix(in srgb, var(--pc) 16%, #fff), color-mix(in srgb, var(--pc) 9%, #fff)); border-top: 2px solid color-mix(in srgb, var(--pc) 45%, #fff); min-height: 44px; }
     .py2-r:first-child .py2-s { border-top-color: transparent; }
+    .py2.svg { padding-bottom: 12px; } .py2.svg .py2-s { background: none; border-top: 0; clip-path: none; } .py2.svg .py2-r { z-index: 1; } .py2.svg .py2-lab::after { display: none; }
+    .py2-svg { position: absolute; inset: 0 auto auto 0; pointer-events: none; z-index: 0; overflow: visible; }
+    .py2.svg { gap: 4px; }
     .py2-in { display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 4px 5px; padding-block: .45rem; min-height: 44px; }
     .ad-c.py-p { display: inline-flex; align-items: center; gap: .3rem; max-width: none; margin: 0; padding: .16rem .5rem .16rem .4rem; background: #fff; border: 1px solid color-mix(in srgb, var(--pc) 22%, #e5e9ee); border-inline-start: 3px solid var(--k); border-radius: 7px; font-size: .72rem; line-height: 1.3; cursor: pointer; box-shadow: 0 1px 2px rgba(9,27,34,.08); transition: transform .12s, opacity .12s, box-shadow .12s; }
     .ad-c.py-p:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(9,27,34,.18); z-index: 2; }
