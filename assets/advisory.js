@@ -50,17 +50,22 @@
 
   // ---------------------------------------------------------------- the plan as years and semesters
   const prereqCodes = s => (String(s || '').match(/\b\d{6,7}\b/g) || []);
+  let PNAME = {}, MAJOR = '';   // names of the plan's courses and its major prefix, for the course rows
+  const nameOf = c => PNAME[c] || CODE_NAME[c] || '';
+  function majorOf(r) { const f = {}; (r.years || []).forEach(y => y.terms.forEach(t => t.courses.forEach(c => { if (/^\d{6,7}$/.test(c.code) && !/^9/.test(c.code)) f[c.code.slice(0, 3)] = (f[c.code.slice(0, 3)] || 0) + (c.hours || 0); })));
+    return Object.entries(f).sort((a, b) => b[1] - a[1])[0]?.[0] || ''; }
   function courseCard(c, opts = {}) {
     const nm = c.name || CODE_NAME[c.code] || '';
+    const kd = kindOf(c.code, MAJOR);
     const pre = prereqCodes(c.prereq), note = String(c.prereq || '').replace(/\b\d{6,7}\b/g, '').replace(/^[\s+،,/]+|[\s+،,/]+$/g, '');
     const av = avail(c.code), slot = !/^\d/.test(c.code || '');
     const pill = av.k === 'open' ? `<a class="ap-st ok" href="timetable.html?q=${encodeURIComponent(c.code)}" title="${esc(av.t)}"><i></i>${av.open.length}/${av.s.length} مفتوحة</a>`
       : av.k === 'closed' ? `<a class="ap-st no" href="timetable.html?q=${encodeURIComponent(c.code)}" title="${esc(av.t)}"><i></i>مغلقة</a>`
       : av.k === 'slot' ? '<span class="ap-st el"><i></i>اختياري</span>' : '<span class="ap-st na"><i></i>غير مطروحة</span>';
-    return `<div class="ad-c ap-r ${slot ? 'slot' : ''} ${opts.done ? 'done' : ''} ${opts.next ? 'next' : ''}" data-code="${esc(c.code)}">
-      <span class="ap-h" title="ساعات معتمدة">${c.hours ?? '—'}</span>
+    return `<div class="ad-c ap-r k-${kd} ${slot ? 'slot' : ''} ${opts.done ? 'done' : ''} ${opts.next ? 'next' : ''}" data-code="${esc(c.code)}" style="--k:${KINDS[kd][1]}">
+      <span class="ap-h" title="${c.hours ?? '—'} ساعات معتمدة · ${KINDS[kd][0]}">${c.hours ?? '—'}<i class="bi ${KINDS[kd][2]}"></i></span>
       <div class="ap-m"><div class="ap-n"><code>${esc(c.code || '—')}</code><b title="${esc(nm)}">${esc(nm)}</b>${c.mark ? `<sup class="ap-mk" title="علامة في الخطة الأصلية">${esc(c.mark)}</sup>` : ''}</div>
-        ${c.prereq ? `<div class="ap-p"><i class="bi bi-arrow-return-left"></i>${pre.map(p => `<span title="${esc(CODE_NAME[p] || '')}">${p}</span>`).join('')}${note ? `<small>${esc(note)}</small>` : ''}</div>` : ''}</div>
+        ${c.prereq ? `<div class="ap-p"><i class="bi bi-arrow-return-left"></i>${pre.map(p => `<span class="ap-pc" title="${esc(nameOf(p))}"><code>${p}</code>${nameOf(p) ? ` ${esc(nameOf(p))}` : ''}</span>`).join('')}${note ? `<small>${esc(note)}</small>` : ''}</div>` : ''}</div>
       ${pill}</div>`;
   }
   function planGrid(x, opts = {}) {
@@ -70,9 +75,10 @@
     const done = opts.done || new Set(), next = opts.next || new Set();
     const q = norm(st.q.trim());
     const keep = c => !q || norm(c.code + ' ' + (c.name || '') + ' ' + (CODE_NAME[c.code] || '')).includes(q);
+    PNAME = {}; r.years.forEach(y => y.terms.forEach(t => t.courses.forEach(c => { if (c.name) PNAME[c.code] = c.name; }))); MAJOR = majorOf(r);
     const real = cs => cs.filter(c => /^\d/.test(c.code || ''));
     const offN = cs => real(cs).filter(c => secs(c.code).length).length;
-    return `<div class="ap-legend"><span><i class="ok"></i>مطروحة وفيها مقاعد</span><span><i class="no"></i>مطروحة ومغلقة</span><span><i class="na"></i>غير مطروحة هذا الفصل</span><span><i class="el"></i>خانة اختيار</span><span><i class="bi bi-arrow-return-left"></i> المتطلب السابق</span><span class="text-muted">انقر المادة لعرضها في الخريطة</span></div>
+    return `<div class="ap-legend">${Object.values(KINDS).map(([l, c, i]) => `<span><i class="bi ${i}" style="color:${c}"></i>${l}</span>`).join('')}<span class="ap-sep"></span><span><i class="ok"></i>مطروحة وفيها مقاعد</span><span><i class="no"></i>مطروحة ومغلقة</span><span><i class="na"></i>غير مطروحة هذا الفصل</span><span><i class="el"></i>خانة اختيار</span><span><i class="bi bi-arrow-return-left"></i> المتطلب السابق</span><span class="text-muted">انقر المادة لعرضها في الخريطة</span></div>
       <div class="ap-years">${r.years.map(y => { const all = y.terms.flatMap(t => t.courses);
         return `<section class="ap-year">
         <header><span class="ap-yn">${y.year}</span><b>${YEAR[y.year] || 'سنة'}</b>
@@ -95,10 +101,52 @@
     if (!x.r.ok || !(x.r.years || []).length) return original(x, true);
     const sw = `<div class="pb-bar no-print"><div class="btn-group btn-group-sm" role="group" aria-label="طريقة عرض الخطة">
         <button type="button" class="btn ${st.pl === 'board' ? 'btn-dark' : 'btn-outline-dark'}" data-pl="board"><i class="bi bi-kanban"></i> لوحة الخطة</button>
-        <button type="button" class="btn ${st.pl === 'list' ? 'btn-dark' : 'btn-outline-dark'}" data-pl="list"><i class="bi bi-list-columns-reverse"></i> جدول مفصّل</button></div>
+        <button type="button" class="btn ${st.pl === 'list' ? 'btn-dark' : 'btn-outline-dark'}" data-pl="list"><i class="bi bi-list-columns-reverse"></i> جدول مفصّل</button>
+        <button type="button" class="btn ${st.pl === 'pyramid' ? 'btn-dark' : 'btn-outline-dark'}" data-pl="pyramid"><i class="bi bi-triangle"></i> هرمي</button>
+        <button type="button" class="btn ${st.pl === 'tree' ? 'btn-dark' : 'btn-outline-dark'}" data-pl="tree"><i class="bi bi-diagram-3"></i> شجري</button></div>
+      ${st.pl === 'tree' ? '<div class="btn-group btn-group-sm"><button type="button" class="btn btn-outline-secondary" data-tree="open"><i class="bi bi-arrows-expand"></i> فتح الكل</button><button type="button" class="btn btn-outline-secondary" data-tree="close"><i class="bi bi-arrows-collapse"></i> طيّ الكل</button></div>' : ''}
       ${st.pl === 'board' ? `<div class="btn-group btn-group-sm" role="group" aria-label="التلوين"><span class="pb-lbl">التلوين:</span>
         ${[['type', 'نوع المادة', 'bi-tags'], ['status', 'حالتها هذا الفصل', 'bi-calendar-check'], ['chain', 'أهميتها في السلسلة', 'bi-diagram-3']].map(([k, l, i]) => `<button type="button" class="btn ${st.pc === k ? 'btn-maroon' : 'btn-outline-secondary'}" data-pc="${k}"><i class="bi ${i}"></i> ${l}</button>`).join('')}</div>` : ''}</div>`;
-    return sw + (st.pl === 'list' ? planGrid(x) : planBoard(x));
+    return sw + (st.pl === 'list' ? planGrid(x) : st.pl === 'pyramid' ? planPyramid(x) : st.pl === 'tree' ? planTree(x) : planBoard(x));
+  }
+  // a small course chip shared by the pyramid and the tree
+  function miniChip(n, G, major, extra = '') {
+    const k = kindOf(n.code, major), av = avail(n.code), d = G.desc.get(n.key).size;
+    return `<span class="ad-c pv-c s-${av.k}" data-code="${esc(n.code)}" style="--k:${KINDS[k][1]}" title="${esc((n.name || CODE_NAME[n.code] || '') + ' · ' + KINDS[k][0] + ' · ' + av.t + (n.prereq ? ' · المتطلب: ' + n.prereq : ''))}">
+      <i class="bi ${KINDS[k][2]}"></i><code>${esc(n.code)}</code><b>${esc(n.name || CODE_NAME[n.code] || '')}</b><em>${n.hours ?? '—'}س</em><u></u>${d ? `<small><i class="bi bi-unlock-fill"></i>${d}</small>` : ''}${extra}</span>`;
+  }
+  // pyramid: foundations at the base, each level up needs the levels below it
+  function planPyramid(x) {
+    const G = graph(x), major = majorOf(x.r), q = norm(st.q.trim());
+    const lv = new Map(); G.nodes.filter(n => realCode(n.code)).forEach(n => { const l = G.level(n.key); (lv.get(l) || lv.set(l, []).get(l)).push(n); });
+    const keys = [...lv.keys()].sort((a, b) => b - a), top = keys[0] || 1;
+    const slots = G.nodes.filter(n => !realCode(n.code));
+    const hit = n => !q || norm(n.code + ' ' + (n.name || '')).includes(q);
+    return `<div class="pv-help"><i class="bi bi-info-circle"></i> القاعدة: مواد بلا متطلب في الخطة؛ وكل طبقة أعلى تحتاج مواد من الطبقات تحتها. القمة آخر حلقة في أطول سلسلة (${top} مواد متتالية). انقر المادة لعرضها في الخريطة.</div>
+      <div class="pv-pyr">${keys.map(l => { const ns = lv.get(l).sort((a, b) => ORDER(a) - ORDER(b)), h = ns.reduce((a, n) => a + (n.hours || 0), 0);
+        return `<div class="pv-lv" style="--w:${Math.round(46 + 54 * (top - l + 1) / top)}%;--t:${(l - 1) / Math.max(1, top - 1)}">
+          <div class="pv-lv-h"><b>${l === 1 ? 'القاعدة' : l === top ? 'القمة' : 'الطبقة ' + l}</b><small>${ns.length} مادة · ${h} س</small></div>
+          <div class="pv-lv-b">${ns.map(n => `<span class="${hit(n) ? '' : 'dim'}">${miniChip(n, G, major)}</span>`).join('')}</div></div>`; }).join('')}</div>
+      ${slots.length ? `<div class="pv-slots"><b><i class="bi bi-ui-checks-grid"></i> خانات اختيار (${slots.length})</b>${slots.map(n => miniChip(n, G, major)).join('')}</div>` : ''}`;
+  }
+  // tree: from each foundation course down to everything it opens
+  function planTree(x) {
+    const G = graph(x), major = majorOf(x.r), q = norm(st.q.trim());
+    const real = G.nodes.filter(n => realCode(n.code)), byKey = new Map(real.map(n => [n.key, n]));
+    const roots = real.filter(n => !(G.pre.get(n.key) || []).length && (G.post.get(n.key) || []).length).sort((a, b) => G.desc.get(b.key).size - G.desc.get(a.key).size);
+    const alone = real.filter(n => !(G.pre.get(n.key) || []).length && !(G.post.get(n.key) || []).length).sort((a, b) => ORDER(a) - ORDER(b));
+    const hit = n => !q || norm(n.code + ' ' + (n.name || '')).includes(q);
+    const branch = (k, path, depth) => { const n = byKey.get(k); if (!n) return '';
+      const kids = (G.post.get(k) || []).filter(j => !path.has(j)).map(j => byKey.get(j)).filter(Boolean).sort((a, b) => ORDER(a) - ORDER(b));
+      const others = (G.pre.get(k) || []).filter(p => !path.has(p));
+      const extra = others.length && depth ? `<small class="pv-also" title="تحتاج أيضاً: ${esc(others.map(p => p + ' ' + (byKey.get(p)?.name || '')).join('، '))}">+${others.length} متطلب آخر</small>` : '';
+      const where = `<small class="pv-where">${YEAR[n.year] || ''} · ${TERM[n.term]}</small>`;
+      if (!kids.length) return `<li class="leaf ${hit(n) ? '' : 'dim'}">${miniChip(n, G, major, extra)}${where}</li>`;
+      const p2 = new Set(path); p2.add(k);
+      return `<li class="${hit(n) ? '' : 'dim'}"><details ${depth < 1 ? 'open' : ''}><summary>${miniChip(n, G, major, extra)}${where}<span class="pv-cnt">${kids.length}</span></summary><ul>${kids.map(j => branch(j.key, p2, depth + 1)).join('')}</ul></details></li>`; };
+    return `<div class="pv-help"><i class="bi bi-info-circle"></i> كل فرع يبدأ بمادة لا متطلب لها في الخطة ويتفرّع إلى ما تفتحه. المادة التي تحتاج أكثر من متطلب تظهر تحت كل منها مع «+ متطلب آخر».</div>
+      <div class="pv-tree"><ul>${roots.map(n => branch(n.key, new Set(), 0)).join('')}</ul></div>
+      ${alone.length ? `<div class="pv-slots"><b><i class="bi bi-dot"></i> مواد مستقلة (لا تتطلب ولا تفتح مادة في الخطة): ${alone.length}</b>${alone.map(n => miniChip(n, G, major)).join('')}</div>` : ''}`;
   }
   function planBoard(x) {
     const G = graph(x), r = x.r;
@@ -419,6 +467,42 @@
     .tp-s.s-open { background: #ecfdf3; color: #166534; } .tp-s.s-closed { background: #fff4ed; color: #9a3412; } .tp-s.s-none { background: #f1f5f9; color: #475569; } .tp-s.s-slot { background: #f5f3ff; color: #5b21b6; }
     .tp-ft { margin-top: .4rem; font-size: .66rem; color: #94a3b8; text-align: center; }
 
+
+    /* vivid detailed table */
+    .ap-year { border: 0; box-shadow: 0 2px 10px rgba(9,27,34,.08); }
+    .ap-term:nth-child(1) h4 { background: linear-gradient(90deg, #e8f1f6, #f7fafc); } .ap-term:nth-child(2) h4 { background: linear-gradient(90deg, #f6ecec, #fcf8f8); } .ap-term.sum h4 { background: linear-gradient(90deg, #f8efd9, #fffaf0); }
+    #ad-body .ap-term .ad-c.ap-r { grid-template-columns: 44px minmax(0, 1fr) auto; border-inline-start: 4px solid var(--k, #0b4a66); }
+    #ad-body .ap-term .ad-c.ap-r:hover { background: color-mix(in srgb, var(--k) 6%, #fff); }
+    .ap-h { width: 40px !important; height: 34px !important; flex-direction: column; gap: 0; background: color-mix(in srgb, var(--k, #0b4a66) 13%, #fff) !important; color: var(--k, #0b4a66) !important; font-size: .9rem !important; line-height: 1; display: flex !important; align-items: center; justify-content: center; }
+    .ap-h i { font-size: .62rem; opacity: .85; }
+    .ap-n b { font-size: .86rem; } .ap-n code { background: #f1f5f9; border-radius: 5px; padding: 0 .3rem; color: #334155; }
+    .ap-p { gap: .3rem; } .ap-p .ap-pc { display: inline-flex; gap: .25rem; align-items: center; background: #fff8e6; color: #6b4a00; border: 1px solid #f6e3b4; border-radius: 6px; padding: .02rem .4rem; font-family: inherit; font-weight: 600; font-size: .68rem; max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ap-p .ap-pc code { color: #9a6200; font-weight: 800; font-size: .66rem; }
+    .ap-st.ok { background: #16a34a; color: #fff; border-color: #16a34a; } .ap-st.ok i { background: #bbf7d0; } .ap-st.no { background: #ea580c; color: #fff; border-color: #ea580c; } .ap-st.no i { background: #fed7aa; }
+    .ap-legend .ap-sep { width: 1px; background: #dee2e6; }
+    /* pyramid and tree */
+    .pv-help { font-size: .76rem; color: #5b6970; background: #f8fafc; border: 1px dashed #dbe3ea; border-radius: 10px; padding: .4rem .7rem; margin-bottom: .6rem; }
+    .ad-c.pv-c { display: inline-flex; align-items: center; gap: .3rem; margin: 0; padding: .25rem .5rem; border: 1px solid #e5e9ee; border-inline-start: 4px solid var(--k); border-radius: 9px; background: #fff; font-size: .74rem; cursor: pointer; max-width: 100%; transition: transform .12s, box-shadow .12s; }
+    .ad-c.pv-c:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(9,27,34,.13); }
+    .pv-c > i { color: var(--k); } .pv-c code { color: #64748b; font-size: .66rem; font-weight: 700; } .pv-c b { color: #0f1d24; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pv-c em { font-style: normal; background: color-mix(in srgb, var(--k) 13%, #fff); color: var(--k); border-radius: 5px; padding: 0 .3rem; font-weight: 800; font-size: .66rem; }
+    .pv-c u { width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; flex: none; } .pv-c.s-open u { background: #16a34a; } .pv-c.s-closed u { background: #ea580c; }
+    .pv-c small { color: #901d23; font-weight: 800; font-size: .64rem; } .pv-c small.pv-also { color: #6c757d; font-weight: 600; }
+    .pv-pyr { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .pv-lv { width: var(--w); min-width: 320px; border-radius: 14px; padding: .4rem .55rem .5rem; background: linear-gradient(180deg, hsl(calc(200 - 150 * var(--t)), 55%, calc(95% - 8% * var(--t))), #fff); border: 1px solid hsl(calc(200 - 150 * var(--t)), 40%, 85%); box-shadow: 0 2px 8px rgba(9,27,34,.06); }
+    .pv-lv-h { display: flex; justify-content: center; align-items: baseline; gap: .5rem; margin-bottom: .3rem; } .pv-lv-h b { color: hsl(calc(200 - 150 * var(--t)), 60%, 25%); font-size: .86rem; } .pv-lv-h small { color: #6c757d; font-size: .7rem; }
+    .pv-lv-b { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; } .pv-lv-b > span.dim, .pv-tree li.dim > .pv-c, .pv-tree li.dim > details > summary .pv-c { opacity: .25; }
+    .pv-slots { margin-top: .8rem; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; background: #fffaf0; border: 1px solid #f3e3bd; border-radius: 12px; padding: .5rem .6rem; } .pv-slots > b { width: 100%; font-size: .78rem; color: #7a5a17; }
+    .pv-tree ul { list-style: none; margin: 0; padding-inline-start: 26px; position: relative; } .pv-tree > ul { padding-inline-start: 0; columns: 2 520px; column-gap: 1.2rem; }
+    .pv-tree > ul > li { break-inside: avoid; background: #fff; border: 1px solid #e7ebef; border-radius: 12px; padding: .45rem .55rem; margin-bottom: .6rem; box-shadow: 0 1px 4px rgba(9,27,34,.05); }
+    .pv-tree li { position: relative; margin: .25rem 0; }
+    .pv-tree ul ul > li::before { content: ""; position: absolute; inset-inline-start: -16px; top: -6px; height: calc(100% + 6px); border-inline-start: 2px solid #d6dee6; }
+    .pv-tree ul ul > li:last-child::before { height: 22px; }
+    .pv-tree ul ul > li::after { content: ""; position: absolute; inset-inline-start: -16px; top: 15px; width: 13px; border-top: 2px solid #d6dee6; }
+    .pv-tree summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: .4rem; } .pv-tree summary::-webkit-details-marker { display: none; }
+    .pv-tree summary::before { content: "+"; flex: none; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 5px; background: #0b4a66; color: #fff; font-weight: 800; font-size: .8rem; line-height: 1; } .pv-tree details[open] > summary::before { content: "−"; background: #901d23; }
+    .pv-tree li.leaf { display: flex; align-items: center; gap: .4rem; padding-inline-start: 22px; }
+    .pv-where { color: #94a3b8; font-size: .66rem; white-space: nowrap; } .pv-cnt { background: #fde8ea; color: #901d23; border-radius: 99px; padding: 0 .4rem; font-size: .66rem; font-weight: 800; }
     .pb-bar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .45rem; } .pb-lbl { align-self: center; font-size: .74rem; color: #6c757d; margin-inline-end: .35rem; }
     .pb-bar .btn { padding: .15rem .55rem; font-size: .78rem; }
     .pb-sum { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; margin-bottom: .45rem; }
@@ -876,6 +960,7 @@
       clearTimeout(window.__amR); window.onresize = () => { clearTimeout(window.__amR); window.__amR = setTimeout(() => st.view === 'map' && drawMap(p, x), 200); };
     }
     document.querySelectorAll('[data-pl]').forEach(b => b.onclick = () => { st.pl = b.dataset.pl; try { localStorage.setItem('uop-ad-pl', st.pl); } catch (e) { /* storage unavailable */ } render(); });
+    document.querySelectorAll('[data-tree]').forEach(b => b.onclick = () => document.querySelectorAll('.pv-tree details').forEach(d => { d.open = b.dataset.tree === 'open'; }));
     document.querySelectorAll('[data-pc]').forEach(b => b.onclick = () => { st.pc = b.dataset.pc; render(); });
     if (st.view === 'plan' && x && x.r.ok) document.querySelectorAll('#ad-body .ad-c[data-code]').forEach(c => { if (!realCode(c.dataset.code)) return;
       c.title = 'اعرضها في خريطة المتطلبات'; c.style.cursor = 'pointer'; c.onclick = e => { if (e.target.closest('a')) return; st.view = 'map'; st.sel = c.dataset.code; render(); scrollTo(0, 0); }; });
