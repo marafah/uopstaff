@@ -1024,6 +1024,23 @@ def scopus_author_pool(rows):
     return pool
 
 
+def name_simple(tok):
+    """A spelling-tolerant form of one Latin-script Arabic name part: Nasser/Naser, Al Jamal/Jamal, Muna/Mona, Mater/Matar."""
+    t = re.sub(r'^(al|el)(?=[a-z]{3,})', '', tok)
+    for a, b in (('ou', 'u'), ('oo', 'u'), ('ee', 'i'), ('ei', 'i'), ('ph', 'f'), ('q', 'k'), ('e', 'a'), ('o', 'u'), ('y', 'i'), ('dh', 'd'), ('th', 't')):
+        t = t.replace(a, b)
+    return re.sub(r'(.)\1+', r'\1', t)
+
+
+def name_parts_match(staff, scopus):
+    """Same first name and surname after spelling normalisation; Scopus usually drops the middle names
+    ("Naser Jamal" for "Nasser Mustafa Al Jamal")."""
+    a, b = [name_simple(x) for x in name_key(staff).split()], [name_simple(x) for x in name_key(scopus).split()]
+    if len(a) < 2 or len(b) < 2 or a[0] != b[0] or b[-1] not in a[1:]:
+        return False
+    return a[-1] == b[-1] or len(b) == 2 or all(x in a for x in b)
+
+
 def match_scopus(name, pool):
     """Scopus IDs for a staff name (English) among the university's Scopus authors, and how they were found."""
     if not name or not pool:
@@ -1041,6 +1058,9 @@ def match_scopus(name, pool):
         return [x[2] for x in sorted(strong, reverse=True)][:3], 'name'
     if loose:
         return [sorted(loose, reverse=True)[0][2]], 'name~'
+    parts = [sid for sid, p in pool.items() if any(name_parts_match(name, n) for n in p['names'])]
+    if len(parts) == 1:
+        return parts, 'name≈'
     return [], ''
 
 
@@ -1863,12 +1883,24 @@ def main():
     if sc_pool:
         save_json('scopus_authors.json', {sid: {'names': sorted(v['names']), 'docs': v['docs']} for sid, v in sc_pool.items()})
     quart = sjr_quartiles()
-    for r in researchers:   # Scopus author IDs: the staff-page link first, then the name among the university's Scopus authors
-        ids = [r['scopus_id']] if r['scopus_id'] else []
-        how = 'link' if ids else ''
+    sc_over = {k.lower(): v.get('scopus') for k, v in (load_json(os.path.join(OUT, 'overrides.json'), {}) or {}).items()
+               if not k.startswith('_') and isinstance(v, dict) and v.get('scopus')}
+    for r in researchers:   # Scopus author IDs: a manual override, the staff-page link, then the name among the university's Scopus authors
+        ov = sc_over.get((r.get('email') or '').lower()) or sc_over.get((r.get('uid') or '').lower())
+        ids = [str(x) for x in ov] if ov else ([r['scopus_id']] if r['scopus_id'] else [])
+        how = 'manual' if ov else 'link' if ids else ''
         if not ids:
             ids, how = match_scopus(r['name_en'], sc_pool)
         r['scopus_ids'], r['scopus_match'] = ids, how
+    claimed = {}   # an ID found only by a name may not also belong to another researcher
+    for r in researchers:
+        for sid in r['scopus_ids']:
+            claimed.setdefault(sid, []).append(r)
+    for sid, rs in claimed.items():
+        if len(rs) > 1:
+            for r in rs:
+                if r['scopus_match'] in ('name~', 'name≈') and any(x['scopus_match'] in ('manual', 'link', 'name') for x in rs if x is not r):
+                    r['scopus_ids'] = [x for x in r['scopus_ids'] if x != sid]
     sid_to_rid = {sid: r['id'] for r in researchers for sid in r['scopus_ids']}
     by_rid = {r['id']: r for r in researchers}
     HIDDEN = apply_manual(manual_rows(), all_works, DET, researchers, title_index)
