@@ -14,7 +14,7 @@
   'use strict';
   const U = window.UOP, { $, esc, norm } = U;
   const P = new URLSearchParams(location.search);
-  const st = { fac: P.get('fac') || '', p: P.get('p') || '', d: P.get('d') || '', v: P.get('v') || '', view: P.get('view') || 'plan', b: P.get('b') || '', q: '', sel: P.get('c') || '', ml: P.get('ml') || 'plan', mf: 'all', no: false };
+  const st = { fac: P.get('fac') || '', p: P.get('p') || '', d: P.get('d') || '', v: P.get('v') || '', view: P.get('view') || 'plan', b: P.get('b') || '', q: '', sel: P.get('c') || '', ml: P.get('ml') || 'plan', mf: 'all', no: false, pt: 'info', po: false, ma: false };
   let A, PROGS, DOCS, READS, TTERM = '', TT = {}, SP = null, CODE_NAME = {};
   const TERM = { first: 'الفصل الأول', second: 'الفصل الثاني', summer: 'الفصل الصيفي', null: 'فصل غير محدد' };
   const YEAR = ['', 'السنة الأولى', 'السنة الثانية', 'السنة الثالثة', 'السنة الرابعة', 'السنة الخامسة', 'السنة السادسة'];
@@ -193,6 +193,7 @@
     const seats = open.reduce((a, x) => a + Math.max(0, x.capacity - x.registered), 0);
     return open.length ? { k: 'open', t: `${open.length} من ${s.length} شعبة مفتوحة · ${seats} مقعداً`, s, open, seats } : { k: 'closed', t: `${s.length} شعبة، كلها مغلقة أو ممتلئة`, s, open, seats: 0 };
   }
+  let SIDE = (() => { try { return localStorage.getItem('uop-am-side') !== '0'; } catch (e) { return true; } })();
   const AV = { open: ['مفتوحة فيها مقاعد', '#15803d'], closed: ['مطروحة ومغلقة', '#c2410c'], none: ['غير مطروحة هذا الفصل', '#94a3b8'], slot: ['خانة اختيار', '#6d28d9'] };
   function when(s) {
     const g = new Map();
@@ -215,6 +216,19 @@
     const cols = new Map();
     G.nodes.forEach(n => { const k = st.ml === 'chain' ? G.level(n.key) : ORDER(n); (cols.get(k) || cols.set(k, []).get(k)).push(n); });
     const keys = [...cols.keys()].sort((a, b) => a - b);
+    // order the cards of each column next to the courses they connect to (barycentre sweeps), so arrows cross as little as possible;
+    // courses with no link in the plan go to the bottom of their column
+    const pos = new Map(), colOf = new Map();
+    keys.forEach((k, ci) => cols.get(k).sort((a, b) => ORDER(a) - ORDER(b)).forEach((n, i) => { pos.set(n.key, i); colOf.set(n.key, ci); }));
+    const nb = (n, d) => (d > 0 ? G.pre.get(n.key) || [] : G.post.get(n.key) || []).filter(j => colOf.has(j) && (d > 0 ? colOf.get(j) < colOf.get(n.key) : colOf.get(j) > colOf.get(n.key)));
+    const avg = a => a.reduce((s, j) => s + pos.get(j), 0) / a.length;
+    for (let it = 0; it < 6; it++) {
+      const d = it % 2 ? -1 : 1;
+      (d > 0 ? keys : [...keys].reverse()).forEach(k => {
+        const sc = new Map(cols.get(k).map(n => { const a = nb(n, d), b = nb(n, -d); return [n.key, a.length ? avg(a) : b.length ? avg(b) : 1e4 + pos.get(n.key)]; }));
+        cols.get(k).sort((x, y) => sc.get(x.key) - sc.get(y.key)).forEach((n, i) => pos.set(n.key, i));
+      });
+    }
     const q = norm(st.q.trim());
     const hit = n => { const av = avail(n.code).k;
       return (!q || norm(n.code + ' ' + (n.name || '') + ' ' + (CODE_NAME[n.code] || '')).includes(q)) &&
@@ -230,68 +244,141 @@
     const keyCourses = G.nodes.filter(n => realCode(n.code)).sort((a, b) => G.desc.get(b.key).size - G.desc.get(a.key).size || ORDER(a) - ORDER(b)).slice(0, 8);
     const counts = Object.fromEntries(Object.keys(AV).map(k => [k, G.nodes.filter(n => avail(n.code).k === k).length]));
     const flt = [['all', 'كل المواد'], ['seats', 'فيها مقاعد الآن'], ['offered', 'المطروحة الآن'], ['key', 'المفتاحية (تفتح 3+)'], ...(done.size ? [['ready', 'يمكن تسجيلها']] : [])];
-    return `<div class="am-tools card mb-2 no-print"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center">
+    return `<div class="am-wrap" id="am-wrap"><div class="am-tools card mb-2 no-print"><div class="card-body py-1 px-2 d-flex flex-wrap gap-2 align-items-center">
         <div class="btn-group btn-group-sm" role="group" aria-label="الترتيب"><button type="button" class="btn ${st.ml !== 'chain' ? 'btn-dark' : 'btn-outline-dark'}" data-ml="plan"><i class="bi bi-calendar3"></i> حسب فصول الخطة</button><button type="button" class="btn ${st.ml === 'chain' ? 'btn-dark' : 'btn-outline-dark'}" data-ml="chain"><i class="bi bi-diagram-2"></i> حسب سلسلة المتطلبات</button></div>
         <div class="d-flex flex-wrap gap-1">${flt.map(([k, l]) => `<button type="button" class="btn btn-sm am-f ${st.mf === k ? 'on' : ''}" data-mf="${k}">${l}</button>`).join('')}</div>
-        <div class="am-legend ms-auto">${Object.entries(AV).map(([k, [l, c]]) => `<span><i style="background:${c}"></i>${l} <b>${counts[k]}</b></span>`).join('')}<span><i class="bi bi-lightning-charge-fill text-warning"></i> أطول سلسلة (${G.longest} مواد)</span></div></div></div>
+        <div class="am-legend ms-auto">${Object.entries(AV).map(([k, [l, c]]) => `<span><i style="background:${c}"></i>${l} <b>${counts[k]}</b></span>`).join('')}<span><i class="bi bi-lightning-charge-fill text-warning"></i> أطول سلسلة (${G.longest} مواد)</span></div>
+        <button type="button" class="btn btn-sm am-f ${st.ma ? 'on' : ''}" id="am-ma" title="بشكل افتراضي تظهر أسهم المادة التي تمرّ عليها أو تختارها فقط"><i class="bi bi-bezier2"></i> كل الروابط</button>
+        <div class="btn-group btn-group-sm"><button type="button" class="btn btn-outline-secondary" id="am-side-t" title="${SIDE ? 'طيّ اللوحة الجانبية لتوسيع الخريطة' : 'إظهار اللوحة الجانبية'}"><i class="bi ${SIDE ? 'bi-layout-sidebar-inset' : 'bi-layout-sidebar'}"></i> ${SIDE ? 'طيّ اللوحة' : 'إظهار اللوحة'}</button>
+          <button type="button" class="btn btn-outline-secondary" id="am-fs" title="ملء الشاشة"><i class="bi bi-arrows-fullscreen"></i></button></div></div></div>
       ${G.nodes.some(n => (G.pre.get(n.key) || []).length) ? '' : '<div class="alert alert-light border small py-2"><i class="bi bi-info-circle"></i> ملف هذه الخطة لا يذكر المتطلبات السابقة للمواد، فتظهر المواد بلا روابط بينها؛ وتبقى حالة كل مادة وشعبها في الجدول الحالي ظاهرة.</div>'}
-      <div class="am-row">
-        <div class="am-scroll"><div class="am-canvas" id="am-canvas"><svg id="am-svg" aria-hidden="true"></svg>
-          <div class="am-cols">${keys.map(k => `<div class="am-col"><header>${head(k)}<span>${cols.get(k).reduce((a, n) => a + (n.hours || 0), 0)} س</span></header>${cols.get(k).sort((a, b) => ORDER(a) - ORDER(b)).map(node).join('')}</div>`).join('')}</div></div></div>
+      <div class="am-row ${SIDE ? '' : 'collapsed'}">
+        <div class="am-stage"><div class="am-mini no-print" id="am-mini" hidden></div><div class="am-scroll"><div class="am-canvas" id="am-canvas"><svg id="am-svg" aria-hidden="true"></svg>
+          <div class="am-cols">${keys.map(k => `<div class="am-col"><header>${head(k)}<span>${cols.get(k).reduce((a, n) => a + (n.hours || 0), 0)} س</span></header>${cols.get(k).map(node).join('')}</div>`).join('')}</div></div></div></div>
         <aside class="am-side" id="am-side">
           <div class="am-help"><h3><i class="bi bi-cursor"></i> اختر مادة من الخريطة</h3><p>تظهر <span class="am-k anc">متطلباتها</span> وكل ما قبلها، و<span class="am-k desc">ما تفتحه</span> وكل ما بعده، مع شعبها في الجدول الدراسي الحالي وحالة كل شعبة ومقاعدها.</p>
             <h4>المواد المفتاحية في هذه الخطة</h4><ol>${keyCourses.map(n => `<li><a href="#" data-go="${n.code}"><code>${n.code}</code> ${esc(n.name || CODE_NAME[n.code] || '')}</a> <small>تفتح ${G.desc.get(n.key).size}</small></li>`).join('')}</ol>
             <p class="small text-muted mb-0">${done.size ? `معلّم ${done.size} مادة مجتازة من «المرشد الأكاديمي»: المجتازة باهتة، والجاهزة للتسجيل بإطار ذهبي.` : 'علّم ما اجتازه الطالب (من هنا أو من «المرشد الأكاديمي») لتظهر المواد الجاهزة للتسجيل.'}</p></div>
         </aside>
-      </div>`;
+      </div></div>`;
+  }
+  const DAY = { ح: 'الأحد', ن: 'الاثنين', ث: 'الثلاثاء', ر: 'الأربعاء', خ: 'الخميس', س: 'السبت', ج: 'الجمعة' };
+  const DAYS = ['س', 'ح', 'ن', 'ث', 'ر', 'خ', 'ج'];
+  const isOpen = x => x.status !== 'مغلقة' && x.registered < x.capacity;
+  function secCard(x) {
+    const full = x.registered >= x.capacity, closed = x.status === 'مغلقة', pc = Math.min(100, x.capacity ? 100 * x.registered / x.capacity : 100);
+    const st_ = closed ? ['مغلقة', 'no'] : full ? ['ممتلئة', 'full'] : ['مفتوحة', 'ok'];
+    const g = new Map(); (x.meetings || []).forEach(m => { const k = `${m.start}|${m.end}|${m.mode || ''}`; (g.get(k) || g.set(k, []).get(k)).push(m.day); });
+    return `<article class="am-sec ${st_[1]}">
+      <header><span class="am-sec-n">${esc(x.section)}</span><span class="am-sec-a">${esc(x.activity)}</span><span class="am-pill ${st_[1]}">${st_[0]}</span></header>
+      <div class="am-sec-when">${[...g].map(([k, d]) => { const [a, b, m] = k.split('|'); return `<div><span class="am-days">${DAYS.map(D => `<i class="${d.includes(D) ? 'on' : ''}" title="${DAY[D]}">${D}</i>`).join('')}</span><bdi dir="ltr">${a}–${b}</bdi>${m && m !== 'وجاهي' ? `<small class="am-mode">${esc(m)}</small>` : ''}</div>`; }).join('') || `<small>${esc(x.time || 'بلا موعد')}</small>`}</div>
+      <div class="am-sec-who"><i class="bi bi-person-badge"></i> <a href="instructor.html?q=${encodeURIComponent(x.instructor || '')}">${esc(x.instructor || '—')}</a></div>
+      <div class="am-sec-who"><i class="bi bi-door-open"></i> ${x.room === '0' ? 'قاعة افتراضية' : `<a href="room.html?q=${encodeURIComponent(x.room)}">${esc(x.room)}</a> <small class="text-muted">${esc(x.building || '')}</small>`}</div>
+      <div class="am-sec-seat"><span class="am-seat w"><i style="width:${pc}%" class="${full ? 'full' : pc >= 80 ? 'hot' : ''}"></i></span><bdi dir="ltr">${x.registered}/${x.capacity}</bdi>${!closed && !full ? `<b>${x.capacity - x.registered} متاح</b>` : ''}</div></article>`;
   }
   function mapPanel(p, x, G, k) {
     const n = G.nodes.find(n => n.key === k); if (!n) return '';
     const done = getDone(p), av = avail(n.code), anc = G.anc(k), des = G.desc.get(k), dir = G.post.get(k) || [];
     const nm = c => esc((G.by.get(c) || {}).name || CODE_NAME[c] || '');
-    const chip = c => `<a href="#" class="am-chip ${done.has(c) ? 'ok' : ''}" data-go="${c}" title="${nm(c)}"><code>${c}</code> ${nm(c)}${done.has(c) ? ' <i class="bi bi-check2"></i>' : ''}</a>`;
+    const chip = c => { const a = avail(c).k; return `<a href="#" class="am-chip ${done.has(c) ? 'ok' : ''}" data-go="${c}" title="${esc(avail(c).t)}"><span class="am-dot2" style="background:${AV[a][1]}"></span><code>${c}</code> ${nm(c)}${done.has(c) ? ' <i class="bi bi-check2"></i>' : ''}</a>`; };
     const ext = G.ext.get(k) || [], note = String(n.prereq || '').replace(/\b\d{6,7}\b/g, '').replace(/^[\s+،,/]+|[\s+،,/]+$/g, '');
     const missing = (G.pre.get(k) || []).filter(c => !done.has(c));
     const deg = (SP && SP.degree) || 'البكالوريوس', crit = realCode(n.code) && G.level(k) + G.chain(k) - 1 === G.longest;
-    return `<div class="am-p"><div class="am-p-h av-${av.k}"><code>${esc(n.code)}</code><span>${n.hours ?? '—'} س.م</span><button type="button" class="btn-close btn-close-white" id="am-x" aria-label="إغلاق"></button></div>
-      <h3>${esc(n.name || CODE_NAME[n.code] || '')}</h3>
-      <p class="small text-muted mb-2">${YEAR[n.year] || ''} · ${TERM[n.term]}${n.mark ? ` · علامة الخطة <b>${esc(n.mark)}</b>` : ''}</p>
-      <div class="am-facts"><span><b>${anc.size}</b>قبلها في السلسلة</span><span><b>${des.size}</b>تفتحها بعدها</span><span><b>${G.chain(k) - 1}</b>مواد متتالية بعدها</span></div>
-      ${crit ? '<div class="am-warn"><i class="bi bi-lightning-charge-fill"></i> على أطول سلسلة متطلبات في الخطة: تأجيلها يؤجل ما بعدها وقد يؤخر التخرج.</div>' : ''}
-      ${realCode(n.code) && done.size ? (done.has(n.code) ? '<div class="am-st-ok"><i class="bi bi-check-circle-fill"></i> مجتازة</div>' : missing.length ? `<div class="am-st-wait"><i class="bi bi-hourglass-split"></i> تنتظر: ${missing.join('، ')}</div>` : '<div class="am-st-go"><i class="bi bi-check2-circle"></i> متطلباتها في الخطة مجتازة: يمكن تسجيلها</div>') : ''}
+    const S = av.s || [], open = S.filter(isOpen), cap = S.reduce((a, s) => a + s.capacity, 0), reg = S.reduce((a, s) => a + s.registered, 0);
+    const free = open.reduce((a, s) => a + s.capacity - s.registered, 0);
+    const pm = portalMatch(x), grp = pm && pm.pl.groups.find(g => g.courses.some(c => c.code === n.code));
+    const others = SP && realCode(n.code) ? [...new Set(SP.plans.filter(pl => pl.groups.some(g => g.courses.some(c => c.code === n.code))).map(pl => pl.major))] : [];
+    const tab = st.pt || 'info';
+    const tabs = [['info', 'نظرة عامة', 'bi-info-circle'], ['secs', `الشعب (${S.length})`, 'bi-calendar-week'], ['chain', 'السلسلة', 'bi-diagram-3']];
+    const levels = (set, f) => { const m = new Map(); [...set].forEach(c => { const l = f(c); (m.get(l) || m.set(l, []).get(l)).push(c); }); return [...m].sort((a, b) => a[0] - b[0]); };
+    let body = '';
+    if (tab === 'info') body = `
+      <div class="am-kpis">${[[n.hours ?? '—', 'ساعة معتمدة'], [anc.size, 'قبلها في السلسلة'], [des.size, 'تفتحها بعدها'], [G.chain(k) - 1, 'مواد متتالية بعدها'],
+          [S.length ? `${open.length}/${S.length}` : '—', 'شعب مفتوحة'], [S.length ? free : '—', 'مقعداً متاحاً']].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join('')}</div>
+      ${crit ? '<div class="am-note warn"><i class="bi bi-lightning-charge-fill"></i><div><b>على أطول سلسلة متطلبات في الخطة</b>تأجيلها يؤجل ما بعدها وقد يؤخر التخرج؛ الأَولى تسجيلها في موعدها.</div></div>' : ''}
+      ${realCode(n.code) && done.size ? (done.has(n.code) ? '<div class="am-note ok"><i class="bi bi-check-circle-fill"></i><div><b>مجتازة</b>معلّمة من اختيارات المرشد على هذا الجهاز.</div></div>'
+        : missing.length ? `<div class="am-note wait"><i class="bi bi-hourglass-split"></i><div><b>تنتظر متطلباً</b>${missing.map(c => `<code>${c}</code> ${nm(c)}`).join('، ')}</div></div>`
+        : `<div class="am-note go"><i class="bi bi-check2-circle"></i><div><b>يمكن تسجيلها</b>متطلباتها المذكورة في الخطة مجتازة${S.length ? (open.length ? ` و${open.length} شعبة مفتوحة الآن` : '، لكن كل شعبها مغلقة الآن') : '، وهي غير مطروحة هذا الفصل'}.</div></div>`) : ''}
       <h4><i class="bi bi-arrow-return-left"></i> متطلباتها السابقة</h4>
       <div class="am-chips">${(G.pre.get(k) || []).map(chip).join('') || '<small class="text-muted">لا متطلب من مواد الخطة</small>'}</div>
-      ${ext.length || note ? `<p class="small mt-1 mb-0"><i class="bi bi-info-circle"></i> كما في الخطة: ${ext.map(c => `<code>${c}</code>${CODE_NAME[c] ? ' ' + esc(CODE_NAME[c]) : ''}`).join('، ')}${note ? ` <span class="text-muted">${esc(note).replace('P.T', 'امتحان مستوى (P.T)')}</span>` : ''}</p>` : ''}
+      ${ext.length || note ? `<p class="am-asis"><i class="bi bi-quote"></i> كما في الخطة: <b dir="ltr">${esc(n.prereq)}</b>${/P\.?T/i.test(n.prereq) ? ' <small>(P.T = امتحان مستوى)</small>' : ''}${ext.length ? ` · ${ext.map(c => `<code>${c}</code>${CODE_NAME[c] ? ' ' + esc(CODE_NAME[c]) : ''}`).join('، ')}` : ''}</p>` : ''}
       <h4><i class="bi bi-unlock"></i> تفتح مباشرة</h4>
-      <div class="am-chips">${dir.map(c => chip(c)).join('') || '<small class="text-muted">لا مادة في الخطة تشترطها</small>'}</div>
-      ${des.size > dir.length ? `<p class="small text-muted mb-0">ومعها ${des.size - dir.length} مادة أخرى أبعد في السلسلة.</p>` : ''}
-      <h4><i class="bi bi-calendar-check"></i> في الجدول الدراسي الحالي <small class="text-muted">${esc(TTERM || '')}</small></h4>
-      <p class="small mb-1"><span class="am-dot2" style="background:${AV[av.k][1]}"></span> ${esc(av.t)}</p>
-      ${realCode(n.code) ? sectionsTable(n.code) : '<p class="small text-muted">خانة يختار الطالب لها مادة من مجموعة الخطة.</p>'}
-      <div class="d-flex flex-wrap gap-1 mt-2 no-print">
-        ${realCode(n.code) ? `<a class="btn btn-sm btn-outline-secondary" href="timetable.html?q=${n.code}"><i class="bi bi-table"></i> الجدول الدراسي</a>
-        ${av.s.length ? `<a class="btn btn-sm btn-maroon" href="planner.html?c=${encodeURIComponent(n.code + '|' + deg)}"><i class="bi bi-calendar2-plus"></i> أضفها إلى مخطط جدولي</a>` : ''}
-        <button type="button" class="btn btn-sm ${done.has(n.code) ? 'btn-outline-danger' : 'btn-outline-success'}" id="am-done" data-c="${n.code}"><i class="bi ${done.has(n.code) ? 'bi-x-circle' : 'bi-check2-circle'}"></i> ${done.has(n.code) ? 'إلغاء «مجتازة»' : 'علّمها مجتازة'}</button>` : ''}</div></div>`;
+      <div class="am-chips">${dir.map(chip).join('') || '<small class="text-muted">لا مادة في الخطة تشترطها</small>'}</div>
+      ${des.size > dir.length ? `<p class="small text-muted mb-0 mt-1">ومعها ${des.size - dir.length} مادة أبعد في السلسلة: انظر «السلسلة».</p>` : ''}
+      <h4><i class="bi bi-calendar-check"></i> هذا الفصل <small class="text-muted fw-normal">${esc(TTERM || '')}</small></h4>
+      ${S.length ? `<div class="am-cap"><div class="am-cap-bar"><i style="width:${Math.min(100, cap ? 100 * reg / cap : 100)}%"></i></div><span><b>${reg}</b> مسجّلاً من <b>${cap}</b> مقعداً في ${S.length} شعبة · <b class="text-success">${free}</b> متاح</span></div>
+        <div class="am-tags">${[...new Set(S.map(s => s.instructor).filter(Boolean))].slice(0, 6).map(i => `<a href="instructor.html?q=${encodeURIComponent(i)}"><i class="bi bi-person"></i> ${esc(i)}</a>`).join('')}</div>
+        <button type="button" class="btn btn-sm btn-light w-100 mt-2" data-pt="secs">عرض الشعب بالتفصيل <i class="bi bi-chevron-left"></i></button>`
+        : `<p class="small text-muted mb-0"><span class="am-dot2" style="background:${AV[av.k][1]}"></span> ${realCode(n.code) ? 'غير مطروحة في الجدول الدراسي المنشور لهذا الفصل.' : 'خانة يختار لها الطالب مادة من مجموعة الخطة.'}</p>`}
+      ${grp || others.length ? `<h4><i class="bi bi-journal-text"></i> في الخطط الدراسية على البوابة</h4>
+        ${grp ? `<p class="small mb-1">في خطة «${esc(pm.pl.major)}»: <span class="badge ${grp.kind === 'required' ? 'text-bg-primary' : 'text-bg-info'}">${esc(grp.name)}</span></p>` : ''}
+        ${others.length ? `<details class="small"><summary>تظهر في ${others.length} ${others.length === 1 ? 'خطة' : 'خطط'}</summary><div class="am-tags mt-1">${others.map(o => `<span>${esc(o)}</span>`).join('')}</div></details>` : ''}` : ''}`;
+    else if (tab === 'secs') { const L = S.filter(s => !st.po || isOpen(s)).sort((a, b) => (+a.section || 0) - (+b.section || 0));
+      body = S.length ? `<div class="d-flex justify-content-between align-items-center mb-2"><small class="text-muted">${open.length} مفتوحة من ${S.length} · ${free} مقعداً متاحاً</small>
+          <label class="form-check form-switch m-0 small"><input class="form-check-input" type="checkbox" id="am-po" ${st.po ? 'checked' : ''}> المفتوحة فقط</label></div>
+        <div class="am-secs">${L.map(secCard).join('') || '<p class="small text-muted">لا شعب مفتوحة.</p>'}</div>`
+        : '<p class="small text-muted">لا شعب لهذه المادة في الجدول الدراسي المنشور لهذا الفصل.</p>'; }
+    else body = `<p class="small text-muted">من أول متطلب إلى آخر مادة تعتمد عليها، مرتبة على مراحل. اضغط أي مادة لتنتقل إليها.</p>
+      <div class="am-path">${levels(anc, c => G.level(c)).map(([l, cs]) => `<div class="am-step anc"><span>مرحلة ${l}</span><div class="am-chips">${cs.map(chip).join('')}</div></div>`).join('')}
+        <div class="am-step me"><span>هذه المادة</span><div><code>${esc(n.code)}</code> ${nm(n.code) || esc(n.name || '')}</div></div>
+        ${levels(des, c => G.level(c)).map(([l, cs]) => `<div class="am-step desc"><span>مرحلة ${l}</span><div class="am-chips">${cs.map(chip).join('')}</div></div>`).join('')}</div>
+      ${!anc.size && !des.size ? '<p class="small text-muted">لا ترتبط بمواد أخرى في الخطة.</p>' : ''}`;
+    return `<div class="am-p">
+      <div class="am-hero av-${av.k}">
+        <div class="am-hero-top"><code>${esc(n.code)}</code><span>${n.hours ?? '—'} س.م</span>${n.mark ? `<span title="علامة في الخطة">${esc(n.mark)}</span>` : ''}
+          <button type="button" class="am-ic" id="am-x" title="إغلاق (Esc)"><i class="bi bi-x-lg"></i></button></div>
+        <h3>${esc(n.name || CODE_NAME[n.code] || '')}</h3>
+        <div class="am-hero-sub"><span><i class="bi bi-calendar3"></i> ${YEAR[n.year] || ''} · ${TERM[n.term]}</span><span><span class="am-dot2" style="background:#fff"></span> ${esc(av.t)}</span></div>
+      </div>
+      ${realCode(n.code) ? `<div class="am-acts no-print">
+        <a href="timetable.html?q=${n.code}" title="في الجدول الدراسي"><i class="bi bi-table"></i><span>الجدول</span></a>
+        ${S.length ? `<a href="planner.html?c=${encodeURIComponent(n.code + '|' + deg)}" title="أضفها إلى مخطط جدولي"><i class="bi bi-calendar2-plus"></i><span>مخطط جدولي</span></a>` : ''}
+        <button type="button" id="am-done" data-c="${n.code}" class="${done.has(n.code) ? 'on' : ''}"><i class="bi ${done.has(n.code) ? 'bi-check-circle-fill' : 'bi-check2-circle'}"></i><span>${done.has(n.code) ? 'مجتازة ✓' : 'علّمها مجتازة'}</span></button>
+        <button type="button" id="am-copy" title="نسخ رابط المادة في الخريطة"><i class="bi bi-link-45deg"></i><span>نسخ الرابط</span></button></div>` : ''}
+      <div class="am-tabs" role="tablist">${tabs.map(([t, l, i]) => `<button type="button" data-pt="${t}" class="${tab === t ? 'on' : ''}"><i class="bi ${i}"></i> ${l}</button>`).join('')}</div>
+      <div class="am-tab">${body}</div></div>`;
   }
   function drawMap(p, x) {
     const cv = $('#am-canvas'), svg = $('#am-svg'); if (!cv || !svg) return;
     const G = graph(x), R = cv.getBoundingClientRect(), box = {};
-    cv.querySelectorAll('.am-n').forEach(e => { const r = e.getBoundingClientRect(); box[e.dataset.k] = { l: r.left - R.left, r: r.right - R.left, y: r.top - R.top + r.height / 2 }; });
+    cv.querySelectorAll('.am-n').forEach(e => { const r = e.getBoundingClientRect(); box[e.dataset.k] = { l: r.left - R.left, r: r.right - R.left, t: r.top - R.top, h: r.height, y: r.top - R.top + r.height / 2 }; });
     svg.setAttribute('width', cv.scrollWidth); svg.setAttribute('height', cv.scrollHeight);
-    let paths = '';
-    G.nodes.forEach(n => (G.pre.get(n.key) || []).forEach(pk => { const a = box[pk], b = box[n.key]; if (!a || !b) return;
+    // every edge gets its own port on each card, ordered by where the other end sits, so arrows never pile up on one point
+    const edges = [], ins = new Map(), outs = new Map();
+    G.nodes.forEach(n => (G.pre.get(n.key) || []).forEach(pk => { if (!box[pk] || !box[n.key]) return;
+      const e = { a: pk, b: n.key }; edges.push(e); (outs.get(pk) || outs.set(pk, []).get(pk)).push(e); (ins.get(n.key) || ins.set(n.key, []).get(n.key)).push(e); }));
+    const port = (list, e, k, other) => { const bx = box[k]; list.sort((u, v) => box[u[other]].y - box[v[other]].y);
+      const i = list.indexOf(e), n = list.length; return n === 1 ? bx.y : bx.t + bx.h * (0.28 + 0.44 * i / (n - 1)); };
+    const paths = edges.map(e => { const a = box[e.a], b = box[e.b];
+      const ay = port(outs.get(e.a), e, e.a, 'b'), by = port(ins.get(e.b), e, e.b, 'a');
       let d;
-      if (b.r < a.l - 4) { const m = (a.l + b.r) / 2; d = `M${a.l},${a.y} C${m},${a.y} ${m},${b.y} ${b.r},${b.y}`; }          // RTL: the later course sits to the left
-      else if (a.r < b.l - 4) { const m = (a.r + b.l) / 2; d = `M${a.r},${a.y} C${m},${a.y} ${m},${b.y} ${b.l},${b.y}`; }
-      else { const o = Math.min(a.l, b.l) - 22; d = `M${a.l},${a.y} C${o},${a.y} ${o},${b.y} ${b.l},${b.y}`; }               // same column
-      paths += `<path d="${d}" data-a="${esc(pk)}" data-b="${esc(n.key)}" marker-end="url(#am-ar)"/>`; }));
-    svg.innerHTML = `<defs><marker id="am-ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z"/></marker></defs>${paths}`;
-    const focus = k => {
+      if (b.r < a.l - 4) { const c = Math.max(26, (a.l - b.r) * 0.5); d = `M${a.l},${ay} C${a.l - c},${ay} ${b.r + c},${by} ${b.r + 1},${by}`; }   // RTL: the later course sits to the left
+      else if (a.r < b.l - 4) { const c = Math.max(26, (b.l - a.r) * 0.5); d = `M${a.r},${ay} C${a.r + c},${ay} ${b.l - c},${by} ${b.l - 1},${by}`; }
+      else { const o = Math.min(a.l, b.l) - 26; d = `M${a.l},${ay} C${o},${ay} ${o},${by} ${b.l - 1},${by}`; }                                        // same column: a loop on the left
+      return `<path d="${d}" data-a="${esc(e.a)}" data-b="${esc(e.b)}" marker-end="url(#am-ar)"/>`; }).join('');
+    const mk = (id, c) => `<marker id="${id}" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="${id === 'am-ar' ? 9 : 11}" markerHeight="${id === 'am-ar' ? 9 : 11}" markerUnits="userSpaceOnUse" orient="auto"><path d="M1,1.5 L11,6 L1,10.5 L3.6,6 z" fill="${c}"/></marker>`;
+    svg.innerHTML = `<defs>${mk('am-ar', '#8fa5b5')}${mk('am-ar-anc', '#d97706')}${mk('am-ar-desc', '#901d23')}</defs>${paths}`;
+    const MK = { anc: 'url(#am-ar-anc)', desc: 'url(#am-ar-desc)', dim: '', off: '', '': 'url(#am-ar)' };
+    const light = k => {   // highlight a course's chain (hover preview or selection)
       cv.classList.toggle('focus', !!k);
       const anc = k ? G.anc(k) : new Set(), des = k ? G.desc.get(k) || new Set() : new Set();
       cv.querySelectorAll('.am-n').forEach(e => { const j = e.dataset.k; e.classList.toggle('sel', j === k); e.classList.toggle('anc', anc.has(j)); e.classList.toggle('desc', des.has(j)); });
+      const top = [];
       svg.querySelectorAll('path[data-a]').forEach(e => { const A = e.dataset.a, B = e.dataset.b;
-        e.setAttribute('class', !k ? '' : (B === k || (anc.has(B) && anc.has(A)) || (anc.has(A) && B === k)) ? 'anc' : (A === k || (des.has(A) && des.has(B))) ? 'desc' : 'dim'); });
+        const c = !k ? (st.ma ? '' : 'off') : (B === k || (anc.has(A) && anc.has(B))) ? 'anc' : (A === k || (des.has(A) && des.has(B))) ? 'desc' : 'dim';
+        e.setAttribute('class', c); MK[c] ? e.setAttribute('marker-end', MK[c]) : e.removeAttribute('marker-end'); if (c === 'anc' || c === 'desc') top.push(e); });
+      top.forEach(e => svg.appendChild(e));   // highlighted arrows drawn above the rest
+    };
+    const mini = k => { const m = $('#am-mini'); if (!m) return;
+      const n = k && G.nodes.find(n => n.key === k);
+      if (!n || SIDE) { m.hidden = true; return; }
+      const av = avail(n.code);
+      m.hidden = false;
+      m.innerHTML = `<span class="am-dot2" style="background:${AV[av.k][1]}"></span><code>${esc(n.code)}</code><b>${esc(n.name || CODE_NAME[n.code] || '')}</b><small>${esc(av.t)}</small>
+        <button type="button" class="btn btn-sm btn-maroon" id="am-mini-open"><i class="bi bi-layout-sidebar-inset"></i> التفاصيل والشعب</button>`;
+      $('#am-mini-open').onclick = () => toggleSide(true); };
+    const focus = k => {
+      light(k); mini(k);
       const side = $('#am-side');
       if (k) { side.dataset.help ||= side.innerHTML; side.innerHTML = mapPanel(p, x, G, k); } else if (side.dataset.help) side.innerHTML = side.dataset.help;
       bindSide();
@@ -302,10 +389,30 @@
       const side = $('#am-side');
       side.querySelectorAll('[data-go]').forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.go); });
       const xb = $('#am-x'); if (xb) xb.onclick = () => { st.sel = ''; focus(''); };
+      side.querySelectorAll('[data-pt]').forEach(b => b.onclick = () => { st.pt = b.dataset.pt; side.innerHTML = mapPanel(p, x, G, st.sel); bindSide(); side.scrollTop = 0; });
+      const po = $('#am-po'); if (po) po.onchange = e => { st.po = e.target.checked; side.innerHTML = mapPanel(p, x, G, st.sel); bindSide(); };
+      const cp = $('#am-copy'); if (cp) cp.onclick = () => { navigator.clipboard && navigator.clipboard.writeText(location.href).then(() => { cp.querySelector('span').textContent = 'نُسخ ✓'; }); };
       const db = $('#am-done'); if (db) db.onclick = () => { const d = getDone(p), c = db.dataset.c; d.has(c) ? d.delete(c) : d.add(c); setDone(p, d); const y = scrollY; render(); scrollTo(0, y); };
     }
-    cv.querySelectorAll('.am-n').forEach(e => e.onclick = () => { const k = e.dataset.k === st.sel ? '' : e.dataset.k; st.sel = k; focus(k); });
+    cv.querySelectorAll('.am-n').forEach(e => {
+      e.onclick = () => { const k = e.dataset.k === st.sel ? '' : e.dataset.k; st.sel = k; focus(k); };
+      e.onmouseenter = () => { if (!st.sel) light(e.dataset.k); };
+      e.onmouseleave = () => { if (!st.sel) light(''); };
+    });
     cv.onclick = e => { if (e.target === cv || e.target.classList.contains('am-cols') || e.target.tagName === 'svg') { st.sel = ''; focus(''); } };
+    window.__amKey && document.removeEventListener('keydown', window.__amKey);
+    window.__amKey = e => { if (e.key === 'Escape' && st.view === 'map' && st.sel && !document.fullscreenElement) { st.sel = ''; focus(''); } };
+    document.addEventListener('keydown', window.__amKey);
+    function toggleSide(v) {
+      SIDE = v == null ? !SIDE : v;
+      try { localStorage.setItem('uop-am-side', SIDE ? '1' : '0'); } catch (e) { /* storage unavailable */ }
+      $('.am-row').classList.toggle('collapsed', !SIDE);
+      const t = $('#am-side-t'); if (t) { t.innerHTML = `<i class="bi ${SIDE ? 'bi-layout-sidebar-inset' : 'bi-layout-sidebar'}"></i> ${SIDE ? 'طيّ اللوحة' : 'إظهار اللوحة'}`; t.title = SIDE ? 'طيّ اللوحة الجانبية لتوسيع الخريطة' : 'إظهار اللوحة الجانبية'; }
+      requestAnimationFrame(() => drawMap(p, x));
+    }
+    const t = $('#am-side-t'); if (t) t.onclick = () => toggleSide();
+    const ma = $('#am-ma'); if (ma) ma.onclick = () => { st.ma = !st.ma; ma.classList.toggle('on', st.ma); light(st.sel); };
+    const fs = $('#am-fs'); if (fs) fs.onclick = () => { const w = $('#am-wrap'); document.fullscreenElement ? document.exitFullscreen() : w.requestFullscreen && w.requestFullscreen(); };
     focus(st.sel && box[st.sel] ? st.sel : '');
   }
 
@@ -352,7 +459,7 @@
     const pm = portalMatch(x);
     const views = [['plan', 'الخطة', 'bi-grid-3x3'], ['map', 'خريطة المتطلبات', 'bi-diagram-3'], ['now', 'المطروح هذا الفصل', 'bi-calendar-check'], ['original', 'الأصل كما نُشر', 'bi-file-earmark-image'], ['versions', `الإصدارات (${vs.length})`, 'bi-clock-history'], ['advisor', 'المرشد الأكاديمي', 'bi-person-check'], ['files', 'كل الوثائق', 'bi-folder2-open']];
     const okN = PROGS.filter(q => planVersions(q).some(v => v.current && v.r.ok)).length;
-    $('#ad-app').innerHTML = `<div class="card mb-3 no-print"><div class="card-body">
+    $('#ad-app').innerHTML = `<div class="card mb-2 no-print ad-ctl"><div class="card-body py-2">
         <div class="row g-2 align-items-end">
           <div class="col-md-3"><label class="small fw-bold" for="ad-fac">الكلية</label><select class="form-select form-select-sm" id="ad-fac"><option value="">كل الكليات</option>${facs.map(f => `<option ${f === st.fac ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select></div>
           <div class="col-md-5"><label class="small fw-bold" for="ad-p">البرنامج (${list.length})</label><select class="form-select form-select-sm" id="ad-p">${['bachelor', 'master', 'phd'].map(t => { const g = list.filter(q => (q.type || 'bachelor') === t); return g.length ? `<optgroup label="${t === 'master' ? 'الماجستير' : t === 'phd' ? 'الدكتوراه' : 'البكالوريوس'}">${g.map(q => `<option value="${esc(q.id)}" ${q === p ? 'selected' : ''}>${esc(q.ar || q.en)}${planVersions(q).some(v => v.current && v.r.ok) ? ' ✓' : ''}</option>`).join('')}</optgroup>` : ''; }).join('')}</select></div>
@@ -364,21 +471,24 @@
             <button type="button" class="btn btn-sm btn-outline-secondary" id="ad-csv"><i class="bi bi-filetype-csv"></i> CSV</button>
             <button type="button" class="btn btn-sm btn-outline-secondary" id="ad-print"><i class="bi bi-printer"></i> طباعة</button></div>
         </div></div></div>
-      ${p ? `<section class="card mb-3 ad-head"><div class="card-body d-flex flex-wrap gap-3 justify-content-between align-items-start">
-          <div><div class="d-flex flex-wrap gap-1 mb-1"><span class="badge rounded-pill text-bg-light border">${esc(p.faculty)}</span><span class="badge rounded-pill text-bg-light border">${p.type === 'master' ? 'ماجستير' : 'بكالوريوس'}</span>
-            ${x ? (x.r.ok ? '<span class="badge rounded-pill text-bg-success"><i class="bi bi-check2-all"></i> قُرئت ومجاميع كل فصل تطابق المطبوع</span>' : '<span class="badge rounded-pill text-bg-secondary"><i class="bi bi-image"></i> تُعرض صفحاتها الأصلية</span>') : '<span class="badge rounded-pill text-bg-warning">لا خطة استرشادية منشورة على صفحة القسم</span>'}</div>
-            <h2 class="ad-title">${esc(p.ar || p.en)}</h2><small class="text-muted">${esc(p.en || '')}${x ? ` · ${esc(vTitle(x))} · ${esc(x.d.name)}` : ''}</small></div>
-          <div class="d-flex flex-column gap-1 align-items-end no-print">
-            ${x ? `<a class="btn btn-sm btn-outline-secondary" href="${esc(x.v.url)}" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> الملف الأصلي</a>` : ''}
-            <a class="btn btn-sm btn-light" href="${esc(p.url_ar)}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i> صفحة القسم</a>
-            ${pm ? `<a class="btn btn-sm btn-light" href="plans.html?plan=${encodeURIComponent(pm.pl.id)}" title="${pm.inter} مادة مشتركة"><i class="bi bi-journal-text"></i> الخطة الدراسية على البوابة</a>` : ''}</div>
-        </div>
-        ${x && x.r.ok ? `<div class="card-body pt-0"><div class="row g-2">${[[flat(x.r).size, 'مادة برقم', '#0b4a66'], [x.r.years.reduce((a, y) => a + y.read_hours, 0), 'ساعة في الخطة', '#901d23'], [x.r.years.length, 'سنوات', '#b8892b'],
-            [[...flat(x.r).keys()].filter(k => secs(k).length).length, 'مطروحة هذا الفصل', '#15803d'], [pm ? pm.missing.length : '—', 'ليست في الخطة الدراسية على البوابة', '#6d28d9']]
-            .map(([v, l, c]) => `<div class="col-6 col-md"><div class="sp-kpi" style="--c:${c}"><b>${v}</b><span>${l}</span></div></div>`).join('')}</div></div>` : ''}</section>` : ''}
+      ${p ? `<section class="card mb-2 ad-head"><div class="card-body py-2 px-3">
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <h2 class="ad-title m-0">${esc(p.ar || p.en)}</h2>
+            <span class="badge rounded-pill text-bg-light border">${esc(p.faculty)}</span><span class="badge rounded-pill text-bg-light border">${p.type === 'master' ? 'ماجستير' : 'بكالوريوس'}</span>
+            ${x ? (x.r.ok ? '<span class="badge rounded-pill text-bg-success" title="قُرئت ومجاميع كل فصل تطابق المطبوع في الخطة"><i class="bi bi-check2-all"></i> مطابقة للمطبوع</span>' : '<span class="badge rounded-pill text-bg-secondary"><i class="bi bi-image"></i> تُعرض صفحاتها الأصلية</span>') : '<span class="badge rounded-pill text-bg-warning">لا خطة استرشادية منشورة على صفحة القسم</span>'}
+            <div class="ms-auto d-flex flex-wrap gap-1 no-print">
+              ${x ? `<a class="btn btn-sm btn-light border ad-sb" href="${esc(x.v.url)}" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> الملف الأصلي</a>` : ''}
+              <a class="btn btn-sm btn-light border ad-sb" href="${esc(p.url_ar)}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i> صفحة القسم</a>
+              ${pm ? `<a class="btn btn-sm btn-light border ad-sb" href="plans.html?plan=${encodeURIComponent(pm.pl.id)}" title="${pm.inter} مادة مشتركة"><i class="bi bi-journal-text"></i> الخطة على البوابة</a>` : ''}</div></div>
+          <div class="d-flex flex-wrap align-items-center gap-1 mt-1">
+            <small class="text-muted me-1">${esc(p.en || '')}${x ? ` · ${esc(vTitle(x))} · ${esc(x.d.name)}` : ''}</small>
+            ${x && x.r.ok ? [[flat(x.r).size, 'مادة', '#0b4a66'], [x.r.years.reduce((a, y) => a + y.read_hours, 0), 'ساعة', '#901d23'], [x.r.years.length, 'سنوات', '#b8892b'],
+              [[...flat(x.r).keys()].filter(k => secs(k).length).length, 'مطروحة هذا الفصل', '#15803d'], ...(pm ? [[pm.missing.length, 'ليست في خطة البوابة', '#6d28d9']] : [])]
+              .map(([v, l, c]) => `<span class="ad-kp" style="--c:${c}"><b>${v}</b> ${l}</span>`).join('') : ''}</div>
+        </div></section>` : ''}
       <div id="ad-body">${!p || !x ? (p ? filesView(p) : '') : st.view === 'map' ? mapView(p, x) : st.view === 'now' ? nowView(p, x) : st.view === 'original' ? original(x) : st.view === 'versions' ? versionsView(p, vs, x) : st.view === 'advisor' ? advisorView(p, x) : st.view === 'files' ? filesView(p) : planGrid(x)}</div>
-      <p class="small text-muted mt-3"><i class="bi bi-info-circle"></i> المصدر: صفحات الأقسام على مواقع الكليات ومكتباتها (مع الإصدارات السابقة التي يحتفظ بها الموقع)، تُراجع مع كل تحديث للموقع.
-        ${okN} برنامجاً خطته الحالية مقروءة بمطابقة كاملة؛ الباقي تُعرض صفحاته الأصلية. «مطروح الآن» من الجدول الدراسي المنشور. المرجع المعتمد هو موقع الجامعة.</p>`;
+      <details class="ad-src mt-2"><summary><i class="bi bi-info-circle"></i> المصدر وطريقة القراءة</summary>المصدر: صفحات الأقسام على مواقع الكليات ومكتباتها (مع الإصدارات السابقة التي يحتفظ بها الموقع)، تُراجع مع كل تحديث للموقع.
+        ${okN} برنامجاً خطته الحالية مقروءة بمطابقة كاملة؛ الباقي تُعرض صفحاته الأصلية. «مطروح الآن» من الجدول الدراسي المنشور. المرجع المعتمد هو موقع الجامعة.</details>`;
     const url = new URL(location.href);
     [['fac', st.fac], ['p', st.p], ['v', st.v], ['view', st.view !== 'plan' && st.view], ['b', st.view === 'versions' && st.b], ['ml', st.view === 'map' && st.ml !== 'plan' && st.ml], ['c', st.view === 'map' && st.sel]].forEach(([k, v]) => v ? url.searchParams.set(k, v) : url.searchParams.delete(k));
     history.replaceState(null, '', url);
