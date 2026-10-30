@@ -51,15 +51,17 @@
   // ---------------------------------------------------------------- the plan as years and semesters
   const prereqCodes = s => (String(s || '').match(/\b\d{6,7}\b/g) || []);
   function courseCard(c, opts = {}) {
-    const s = secs(c.code), off = s.length;
     const nm = c.name || CODE_NAME[c.code] || '';
-    const pre = prereqCodes(c.prereq);
-    return `<div class="ad-c ${opts.done ? 'done' : ''} ${opts.next ? 'next' : ''}" data-code="${esc(c.code)}">
-      <div class="ad-c-top"><code>${esc(c.code || '—')}</code><span class="ad-h">${c.hours ?? '—'}</span></div>
-      <b>${esc(nm)}</b>
-      ${c.prereq ? `<div class="ad-pre"><i class="bi bi-arrow-return-left"></i> ${pre.length ? pre.map(p => `<span class="ad-chip" title="${esc(CODE_NAME[p] || '')}">${p}</span>`).join(' ') + (String(c.prereq).replace(/\b\d{6,7}\b|[+،,\s]/g, '').length ? ` <small>${esc(c.prereq.replace(/\b\d{6,7}\b/g, '').replace(/^[\s+،,]+|[\s+،,]+$/g, ''))}</small>` : '') : esc(c.prereq)}</div>` : ''}
-      <div class="ad-c-ft">${c.mark ? `<span class="ad-mark" title="علامة في الخطة">${esc(c.mark)}</span>` : ''}
-        ${c.code && /^\d/.test(c.code) ? (off ? `<a class="ad-off on" href="timetable.html?q=${encodeURIComponent(c.code)}"><i class="bi bi-calendar-check"></i> ${off} شعبة الآن</a>` : '<span class="ad-off">غير مطروح الآن</span>') : '<span class="ad-off">خانة اختيار</span>'}</div></div>`;
+    const pre = prereqCodes(c.prereq), note = String(c.prereq || '').replace(/\b\d{6,7}\b/g, '').replace(/^[\s+،,/]+|[\s+،,/]+$/g, '');
+    const av = avail(c.code), slot = !/^\d/.test(c.code || '');
+    const pill = av.k === 'open' ? `<a class="ap-st ok" href="timetable.html?q=${encodeURIComponent(c.code)}" title="${esc(av.t)}"><i></i>${av.open.length}/${av.s.length} مفتوحة</a>`
+      : av.k === 'closed' ? `<a class="ap-st no" href="timetable.html?q=${encodeURIComponent(c.code)}" title="${esc(av.t)}"><i></i>مغلقة</a>`
+      : av.k === 'slot' ? '<span class="ap-st el"><i></i>اختياري</span>' : '<span class="ap-st na"><i></i>غير مطروحة</span>';
+    return `<div class="ad-c ap-r ${slot ? 'slot' : ''} ${opts.done ? 'done' : ''} ${opts.next ? 'next' : ''}" data-code="${esc(c.code)}">
+      <span class="ap-h" title="ساعات معتمدة">${c.hours ?? '—'}</span>
+      <div class="ap-m"><div class="ap-n"><code>${esc(c.code || '—')}</code><b title="${esc(nm)}">${esc(nm)}</b>${c.mark ? `<sup class="ap-mk" title="علامة في الخطة الأصلية">${esc(c.mark)}</sup>` : ''}</div>
+        ${c.prereq ? `<div class="ap-p"><i class="bi bi-arrow-return-left"></i>${pre.map(p => `<span title="${esc(CODE_NAME[p] || '')}">${p}</span>`).join('')}${note ? `<small>${esc(note)}</small>` : ''}</div>` : ''}</div>
+      ${pill}</div>`;
   }
   function planGrid(x, opts = {}) {
     const r = x.r;
@@ -68,11 +70,18 @@
     const done = opts.done || new Set(), next = opts.next || new Set();
     const q = norm(st.q.trim());
     const keep = c => !q || norm(c.code + ' ' + (c.name || '') + ' ' + (CODE_NAME[c.code] || '')).includes(q);
-    return `<div class="ad-years">${r.years.map(y => `<section class="ad-year">
-      <header><span class="ad-yn">${y.year}</span><b>${YEAR[y.year] || 'سنة'}</b><small>${y.read_hours} ساعة${y.hours != null && y.hours !== y.read_hours ? ` <span class="badge text-bg-warning" title="العنوان في الخطة يذكر ${y.hours}">العنوان: ${y.hours}</span>` : ''}</small></header>
-      <div class="ad-terms">${y.terms.map(t => { const ck = checks[y.year + '|' + t.term];
-        return `<div class="ad-term"><h4>${TERM[t.term]} <span class="ad-sum">${t.hours} ساعة${ck ? ` <i class="bi bi-check-circle-fill text-success" title="يطابق المجموع المطبوع في الخطة (${ck.printed})"></i>` : ''}</span></h4>
-          ${t.courses.filter(keep).map(c => courseCard(c, { done: done.has(c.code), next: next.has(c.code) })).join('') || '<p class="small text-muted">—</p>'}</div>`; }).join('')}</div></section>`).join('')}</div>
+    const real = cs => cs.filter(c => /^\d/.test(c.code || ''));
+    const offN = cs => real(cs).filter(c => secs(c.code).length).length;
+    return `<div class="ap-legend"><span><i class="ok"></i>مطروحة وفيها مقاعد</span><span><i class="no"></i>مطروحة ومغلقة</span><span><i class="na"></i>غير مطروحة هذا الفصل</span><span><i class="el"></i>خانة اختيار</span><span><i class="bi bi-arrow-return-left"></i> المتطلب السابق</span><span class="text-muted">انقر المادة لعرضها في الخريطة</span></div>
+      <div class="ap-years">${r.years.map(y => { const all = y.terms.flatMap(t => t.courses);
+        return `<section class="ap-year">
+        <header><span class="ap-yn">${y.year}</span><b>${YEAR[y.year] || 'سنة'}</b>
+          <span class="ap-yk"><b>${y.read_hours}</b> ساعة</span><span class="ap-yk"><b>${real(all).length}</b> مادة</span><span class="ap-yk"><b>${offN(all)}</b> مطروحة الآن</span>
+          ${y.hours != null && y.hours !== y.read_hours ? `<span class="badge text-bg-warning" title="العنوان في الخطة يذكر ${y.hours}">العنوان: ${y.hours}</span>` : ''}</header>
+        <div class="ap-terms">${y.terms.map(t => { const ck = checks[y.year + '|' + t.term], cs = t.courses.filter(keep);
+          return `<div class="ap-term ${t.term === 'summer' ? 'sum' : ''}"><h4><span>${TERM[t.term]}</span><small>${real(t.courses).length} مادة · ${offN(t.courses)} مطروحة</small>
+              <em title="${ck ? `يطابق المجموع المطبوع في الخطة (${ck.printed})` : 'مجموع الساعات'}">${t.hours} س${ck ? ' <i class="bi bi-patch-check-fill"></i>' : ''}</em></h4>
+            <div class="ap-list">${cs.map(c => courseCard(c, { done: done.has(c.code), next: next.has(c.code) })).join('') || '<p class="small text-muted m-2">—</p>'}</div></div>`; }).join('')}</div></section>`; }).join('')}</div>
       ${(r.notes || []).length ? `<p class="small text-muted mt-2"><i class="bi bi-info-circle"></i> ملاحظة على الخطة الأصلية: ${r.notes.map(n => esc(n.replace(/year (\d+): header says (\d+) hours, its semesters total (\d+)/, 'السنة $1: العنوان يذكر $2 ساعة ومجموع فصولها المطبوع $3'))).join('، ')}.</p>` : ''}`;
   }
   function original(x, why) {
@@ -303,6 +312,40 @@
     @media (max-width: 1500px) { .ad-hrow .ad-sb span { display: none; } }
     @media (max-width: 1200px) { .ad-vt-s { display: none; } }
     @media (max-width: 900px) { .ad-hrow { flex-wrap: wrap; white-space: normal; } }`; document.head.appendChild(c); }
+  // the plan as years and semesters: compact, table-like course rows
+  if (!document.getElementById('ap-css')) { const c = document.createElement('style'); c.id = 'ap-css'; c.textContent = `
+    .ap-legend { display: flex; flex-wrap: wrap; gap: .4rem 1rem; font-size: .74rem; color: #495057; margin: 0 .2rem .5rem; }
+    .ap-legend i:not(.bi) { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-inline-end: .3rem; vertical-align: middle; }
+    .ap-legend i.ok, .ap-st.ok i { background: #15803d; } .ap-legend i.no, .ap-st.no i { background: #c2410c; } .ap-legend i.na, .ap-st.na i { background: #94a3b8; } .ap-legend i.el, .ap-st.el i { background: #6d28d9; }
+    .ap-years { display: flex; flex-direction: column; gap: .8rem; }
+    .ap-year { background: #fff; border: 1px solid #e7e3d8; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 3px rgba(9,27,34,.05); }
+    .ap-year > header { display: flex; align-items: center; gap: .6rem; padding: .45rem .9rem; background: linear-gradient(90deg, #0b4a66, #091b22); color: #fff; }
+    .ap-yn { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #fff; color: #901d23; font-weight: 800; font-size: .9rem; }
+    .ap-year > header > b { font-size: 1rem; margin-inline-end: auto; }
+    .ap-yk { font-size: .76rem; background: rgba(255,255,255,.12); border-radius: 99px; padding: .05rem .6rem; } .ap-yk b { font-size: .86rem; }
+    .ap-terms { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); }
+    .ap-term { border-inline-start: 1px solid #eef0f2; min-width: 0; } .ap-term:first-child { border-inline-start: 0; } .ap-term.sum { background: #fffdf6; }
+    .ap-term h4 { display: flex; align-items: center; gap: .5rem; margin: 0; padding: .45rem .8rem; font-size: .86rem; font-weight: 800; color: #0b4a66; background: #f7f9fb; border-bottom: 1px solid #eef0f2; }
+    .ap-term h4 small { font-weight: 600; color: #6c757d; font-size: .72rem; }
+    .ap-term h4 em { margin-inline-start: auto; font-style: normal; background: #0b4a66; color: #fff; border-radius: 99px; padding: .05rem .55rem; font-size: .76rem; } .ap-term h4 em i { color: #86efac; }
+    .ap-list { display: flex; flex-direction: column; }
+    #ad-body .ap-term .ad-c.ap-r { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: .6rem; margin: 0; padding: .42rem .8rem; border: 0; border-bottom: 1px solid #f1f3f5; border-radius: 0; background: #fff; font-size: .82rem; transition: background .12s; }
+    #ad-body .ap-term .ad-c.ap-r:last-child { border-bottom: 0; } #ad-body .ap-term .ad-c.ap-r:hover { background: #f6f9fb; }
+    .ap-h { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; background: #eef3f7; color: #0b4a66; font-weight: 800; font-size: .85rem; }
+    .ap-m { min-width: 0; } .ap-n { display: flex; align-items: baseline; gap: .45rem; min-width: 0; }
+    .ap-n code { color: #6c7a83; font-size: .72rem; font-weight: 700; flex: none; } .ap-n b { color: #0f1d24; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ap-mk { color: #901d23; font-weight: 800; }
+    .ap-p { display: flex; align-items: center; flex-wrap: wrap; gap: .25rem; margin-top: .12rem; font-size: .7rem; color: #8a949b; }
+    .ap-p span { background: #fff4d6; color: #7a4b00; border-radius: 5px; padding: 0 .3rem; font-family: monospace; font-weight: 700; } .ap-p small { color: #6c757d; }
+    .ap-st { display: inline-flex; align-items: center; gap: .3rem; white-space: nowrap; font-size: .72rem; font-weight: 700; border-radius: 99px; padding: .1rem .55rem; text-decoration: none; border: 1px solid transparent; }
+    .ap-st i { width: 7px; height: 7px; border-radius: 50%; }
+    .ap-st.ok { background: #ecfdf3; color: #166534; border-color: #bbf7d0; } .ap-st.no { background: #fff4ed; color: #9a3412; border-color: #fed7aa; }
+    .ap-st.na { background: #f6f7f9; color: #7b8794; } .ap-st.el { background: #f5f3ff; color: #5b21b6; }
+    #ad-body .ap-term .ad-c.ap-r.slot .ap-n b { color: #5b21b6; font-weight: 600; }
+    #ad-body .ap-term .ad-c.ap-r.done { background: #f3fbf5; } #ad-body .ap-term .ad-c.ap-r.done .ap-n b { text-decoration: line-through; color: #15803d; } #ad-body .ap-term .ad-c.ap-r.done .ap-h { background: #15803d; color: #fff; }
+    #ad-body .ap-term .ad-c.ap-r.next { background: #fffbeb; box-shadow: inset -3px 0 0 #e8b923; }
+    @media (max-width: 600px) { .ap-terms { grid-template-columns: 1fr; } .ap-term { border-inline-start: 0; border-top: 1px solid #eef0f2; } }
+    @media print { .ap-year { break-inside: avoid-page; } .ap-legend { display: none; } }`; document.head.appendChild(c); }
   // full screen: the map fills the whole screen (styles kept here so they arrive with the script)
   if (!document.getElementById('am-fs-css')) { const c = document.createElement('style'); c.id = 'am-fs-css'; c.textContent = `
     .am-wrap:fullscreen { display: flex; flex-direction: column; height: 100vh; width: 100vw; padding: .5rem; background: #f6f4ee; overflow: hidden; }
