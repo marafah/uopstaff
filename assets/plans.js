@@ -286,28 +286,48 @@
 
   // ---------------------------------------------------------------- compare two plans
   function compareView() {
-    const a = BYID[st.plan], b = BYID[st.b] || PLANS.find(p => p.id !== st.plan && p.faculty === (a && a.faculty)) || PLANS.find(p => p !== a);
-    if (!a || !b) return '<div class="alert alert-info">اختر خطتين.</div>';
+    const a = BYID[st.plan];
+    if (!a) return '<div class="alert alert-info">اختر خطتين.</div>';
+    // the comparison stays inside one faculty: the second plan is one of its other programmes (same degree first)
+    const peers = PLANS.filter(p => p !== a && p.faculty === a.faculty).sort((x, y) => (x.degree !== a.degree) - (y.degree !== a.degree) || label(x).localeCompare(label(y), 'ar'));
+    const b = (BYID[st.b] && BYID[st.b].faculty === a.faculty && BYID[st.b] !== a) ? BYID[st.b] : peers[0];
+    if (!b) return `<div class="sp2-none sp2-p0"><i class="bi bi-info-circle"></i> لا توجد خطة أخرى في ${esc(a.faculty)} للمقارنة بها. المقارنة تكون بين خطط أقسام الكلية الواحدة.</div>`;
     st.b = b.id;
     const codes = p => new Map(p.groups.flatMap(g => g.courses.map(c => [c.code, { c, g }])));
     const A = codes(a), B = codes(b);
     const both = [...A.keys()].filter(k => B.has(k)), onlyA = [...A.keys()].filter(k => !B.has(k)), onlyB = [...B.keys()].filter(k => !A.has(k));
     const fa = figures(a), fb = figures(b);
     const sumH = (m, ks) => ks.reduce((s, k) => s + (m.get(k).c.hours || 0), 0);
-    const tbl = (m, ks, other) => `<table class="table table-sm align-middle mb-0 sp-tbl"><tbody>${ks.map(k => { const { c, g } = m.get(k);
-      return `<tr><td><code>${esc(c.code)}</code></td><td>${esc(c.name)}<small class="d-block text-muted">${esc(groupKey(g.name))}${other && other.get(k) && groupKey(other.get(k).g.name) !== groupKey(g.name) ? ` ↔ ${esc(groupKey(other.get(k).g.name))}` : ''}</small></td><td class="text-center"><span class="sp-h">${c.hours}</span></td></tr>`; }).join('')
-      || '<tr><td class="text-muted">لا شيء</td></tr>'}</tbody></table>`;
-    return `<div class="card mb-3 no-print"><div class="card-body row g-2 align-items-end">
-        <div class="col-md-6"><label class="small fw-bold">الخطة الأولى</label><div class="form-control form-control-sm bg-light">${esc(label(a))} · ${esc(a.faculty)}</div></div>
-        <div class="col-md-6"><label class="small fw-bold" for="sp-b">الخطة الثانية</label><select class="form-select form-select-sm" id="sp-b">${PLANS.filter(p => p !== a).map(p =>
-          `<option value="${esc(p.id)}" ${p.id === b.id ? 'selected' : ''}>${esc(label(p))} · ${esc(p.faculty)}</option>`).join('')}</select></div></div></div>
-      <div class="row g-3 mb-3">${[[both.length, 'مقرر مشترك', sumH(A, both) + ' ساعة', '#15803d'], [onlyA.length, 'في ' + a.major + ' فقط', sumH(A, onlyA) + ' ساعة', '#901d23'], [onlyB.length, 'في ' + b.major + ' فقط', sumH(B, onlyB) + ' ساعة', '#0b4a66'],
-        [`${a.total || fa.sum} / ${b.total || fb.sum}`, 'ساعات التخرج', `إجباري ${fa.req} / ${fb.req}`, '#b8892b']]
-        .map(([v, l, s, c]) => `<div class="col-6 col-xl-3"><div class="sp-kpi" style="--c:${c}"><b>${v}</b><span>${esc(l)}</span><small>${esc(s)}</small></div></div>`).join('')}</div>
-      <div class="row g-3">
-        <div class="col-lg-4"><section class="card sp-cmp" style="--g:#15803d"><h3>مشترك (${both.length})</h3>${tbl(A, both, B)}</section></div>
-        <div class="col-lg-4"><section class="card sp-cmp" style="--g:#901d23"><h3>${esc(a.major)} فقط (${onlyA.length})</h3>${tbl(A, onlyA)}</section></div>
-        <div class="col-lg-4"><section class="card sp-cmp" style="--g:#0b4a66"><h3>${esc(b.major)} فقط (${onlyB.length})</h3>${tbl(B, onlyB)}</section></div></div>`;
+    const q = norm(st.q.trim()), hit = k => { const x = (A.get(k) || B.get(k)).c; return !q || norm(x.code + ' ' + x.name).includes(q); };
+    const list = (m, ks, other, col) => { const rows = ks.filter(hit);
+      return rows.length ? `<ul class="sp2-cl">${rows.map(k => { const { c, g } = m.get(k), og = other && other.get(k) && groupKey(other.get(k).g.name) !== groupKey(g.name) ? groupKey(other.get(k).g.name) : '';
+        return `<li><code>${esc(c.code)}</code><div><b>${esc(c.name)}</b><small><i style="background:${gcol(g.name)}"></i>${esc(groupKey(g.name))}${og ? ` <span title="المجموعة في الخطة الثانية">⇄ ${esc(og)}</span>` : ''}</small></div><em style="--c:${col}">${c.hours ?? '—'}</em></li>`; }).join('')}</ul>`
+        : `<p class="sp2-none">${q ? 'لا مقررات تطابق البحث.' : 'لا شيء.'}</p>`; };
+    const hb = sumH(A, both), ha = sumH(A, onlyA), hbb = sumH(B, onlyB), tot = Math.max(1, ha + hb + hbb);
+    const sim = Math.round(100 * both.length / Math.max(1, both.length + onlyA.length + onlyB.length));
+    const col = ['#901d23', '#15803d', '#0b4a66'];
+    return `<div class="sp2-cmpbar no-print">
+        <div class="sp2-pl a"><small>الخطة الأولى</small><b>${esc(label(a))}</b><span>${esc(a.dept)} · ${esc(a.faculty)}</span></div>
+        <button type="button" class="sp2-swap" id="sp-swap" title="تبديل الخطتين"><i class="bi bi-arrow-left-right"></i></button>
+        <label class="sp2-pl b"><small>الخطة الثانية</small><select class="form-select form-select-sm" id="sp-b" aria-label="الخطة الثانية">${[...new Set(peers.map(p => p.dept))].map(d =>
+          `<optgroup label="قسم ${esc(d)}">${peers.filter(p => p.dept === d).map(p => `<option value="${esc(p.id)}" ${p.id === b.id ? 'selected' : ''}>${esc(label(p))}</option>`).join('')}</optgroup>`).join('')}</select><span>من خطط ${esc(a.faculty)} (${peers.length})</span></label>
+        <label class="sp2-q"><i class="bi bi-search"></i><input id="sp-q" type="search" value="${esc(st.q)}" placeholder="ابحث في المقررات…" aria-label="بحث في المقررات"></label>
+      </div>
+      <section class="sp2-ov">
+        <div class="sp2-sim" style="--p:${sim}"><b>${sim}%</b><span>تشابه</span></div>
+        <div class="sp2-ovb">
+          <div class="sp2-stack">${[[ha, onlyA.length, a.major + ' فقط', col[0]], [hb, both.length, 'مشترك', col[1]], [hbb, onlyB.length, b.major + ' فقط', col[2]]].map(([h, n, l, c]) =>
+            `<i style="flex:${Math.max(h, .5)};background:${c}" title="${esc(l)}: ${n} مقرراً · ${h} ساعة"></i>`).join('')}</div>
+          <div class="sp2-ovl">${[[onlyA.length, ha, esc(a.major) + ' فقط', col[0]], [both.length, hb, 'مشترك', col[1]], [onlyB.length, hbb, esc(b.major) + ' فقط', col[2]]].map(([n, h, l, c]) =>
+            `<span style="--c:${c}"><i></i><b>${n}</b> مقرراً · ${h} ساعة <em>${l}</em></span>`).join('')}</div></div>
+        <table class="sp2-vs"><thead><tr><th></th><th style="color:${col[0]}">${esc(a.major)}</th><th style="color:${col[2]}">${esc(b.major)}</th></tr></thead><tbody>
+          ${[['ساعات التخرج', a.total || fa.sum, b.total || fb.sum], ['إجباري', fa.req, fb.req], ['اختياري', fa.el, fb.el], ['حر', fa.free, fb.free], ['المقررات', fa.courses, fb.courses]]
+            .map(([l, x, y]) => `<tr><th>${l}</th><td class="${x > y ? 'hi' : ''}">${x}</td><td class="${y > x ? 'hi' : ''}">${y}</td></tr>`).join('')}</tbody></table>
+      </section>
+      <div class="sp2-cols">
+        <section class="sp2-col" style="--c:${col[0]}"><h3><span>${esc(a.major)} فقط</span><b>${onlyA.length}</b></h3>${list(A, onlyA, null, col[0])}</section>
+        <section class="sp2-col" style="--c:${col[1]}"><h3><span><i class="bi bi-intersect"></i> مشترك بين الخطتين</span><b>${both.length}</b></h3>${list(A, both, B, col[1])}</section>
+        <section class="sp2-col" style="--c:${col[2]}"><h3><span>${esc(b.major)} فقط</span><b>${onlyB.length}</b></h3>${list(B, onlyB, null, col[2])}</section></div>`;
   }
 
   // ---------------------------------------------------------------- export and print
@@ -405,6 +425,7 @@
     $('#sp-dept').onchange = e => { st.dept = e.target.value; render(); };
     $('#sp-plan').onchange = e => { st.plan = e.target.value; if (st.view === 'all' || st.view === 'courses') st.view = 'plan'; render(); };
     const b = $('#sp-b'); if (b) b.onchange = e => { st.b = e.target.value; render(); };
+    const sw = $('#sp-swap'); if (sw) sw.onclick = () => { const x = st.plan; st.plan = st.b; st.b = x; const pp = BYID[st.plan]; if (pp) { st.deg = st.deg && pp.degree; st.fac = st.fac && pp.faculty; st.dept = st.dept && pp.dept; } render(); };
     document.querySelectorAll('[data-kind]').forEach(x => x.onclick = () => { st.kind = x.dataset.kind; render(); });
     document.querySelectorAll('[data-act]').forEach(x => x.onclick = () => { st.act = x.dataset.act; render(); });
     document.querySelectorAll('[data-off]').forEach(x => x.onclick = () => { st.offered = x.dataset.off; render(); });
@@ -482,6 +503,33 @@
     .sp2-t .w-dist { min-width: 200px; width: 22%; } .sp2-mini span { display: flex; height: 10px; gap: 1px; border-radius: 99px; overflow: hidden; background: #eef0f2; } .sp2-mini i { display: block; min-width: 2px; }
     .sp2-empty { color: #8a6d2e; padding: 1rem !important; }
     .sp2-legd { margin-top: .6rem; font-size: .8rem; } .sp2-legd summary { cursor: pointer; color: #0b4a66; font-weight: 700; }
+    .sp2-cmpbar { display: flex; align-items: stretch; gap: .5rem; flex-wrap: wrap; background: #fff; border: 1px solid #ece6d8; border-radius: 14px; padding: .5rem; margin-bottom: .75rem; box-shadow: 0 2px 10px rgba(9,27,34,.04); }
+    .sp2-pl { flex: 1 1 260px; display: flex; flex-direction: column; justify-content: center; gap: .05rem; margin: 0; padding: .3rem .7rem; border-radius: 10px; border-inline-start: 4px solid; }
+    .sp2-pl.a { background: #fbeff0; border-color: #901d23; } .sp2-pl.b { background: #eef4f7; border-color: #0b4a66; }
+    .sp2-pl small { font-size: .66rem; font-weight: 800; color: #8a6d2e; } .sp2-pl b { font-size: .95rem; color: #091b22; } .sp2-pl span { font-size: .74rem; color: #6b7280; }
+    .sp2-pl select { height: 30px; border-radius: 8px; font-weight: 700; color: #091b22; background-color: #fff; }
+    .sp2-swap { all: unset; cursor: pointer; align-self: center; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: #fff; border: 1px solid #dee2e6; color: #0b4a66; transition: transform .2s, background .15s; }
+    .sp2-swap:hover { background: #f6f3ec; transform: rotate(180deg); }
+    .sp2-cmpbar .sp2-q { align-self: center; flex: 0 1 240px; }
+    .sp2-ov { display: grid; grid-template-columns: auto 1fr auto; gap: 1.2rem; align-items: center; background: #fff; border: 1px solid #ece6d8; border-radius: 14px; padding: .7rem 1rem; margin-bottom: .75rem; box-shadow: 0 2px 10px rgba(9,27,34,.04); }
+    .sp2-sim { width: 76px; height: 76px; border-radius: 50%; display: grid; place-content: center; text-align: center; background: radial-gradient(closest-side, #fff 76%, transparent 78% 100%), conic-gradient(#15803d calc(var(--p) * 1%), #eef0f2 0); }
+    .sp2-sim b { font-size: 1.15rem; color: #15803d; line-height: 1; } .sp2-sim span { font-size: .66rem; color: #6b7280; }
+    .sp2-stack { display: flex; height: 16px; border-radius: 99px; overflow: hidden; gap: 2px; } .sp2-stack i { display: block; }
+    .sp2-ovl { display: flex; flex-wrap: wrap; gap: .3rem 1.2rem; margin-top: .45rem; font-size: .8rem; color: #374151; }
+    .sp2-ovl span i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; background: var(--c); margin-inline-end: .3rem; } .sp2-ovl b { color: var(--c); } .sp2-ovl em { font-style: normal; color: #6b7280; }
+    .sp2-vs { border-collapse: collapse; font-size: .8rem; } .sp2-vs th, .sp2-vs td { padding: .12rem .6rem; text-align: center; white-space: nowrap; } .sp2-vs thead th { font-size: .74rem; max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+    .sp2-vs tbody th { text-align: start; color: #6b7280; font-weight: 600; } .sp2-vs td { font-weight: 700; color: #374151; } .sp2-vs td.hi { color: #091b22; background: #f6f3ec; border-radius: 6px; }
+    .sp2-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; align-items: start; }
+    .sp2-col { background: #fff; border: 1px solid #ece6d8; border-top: 3px solid var(--c); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(9,27,34,.04); }
+    .sp2-col h3 { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin: 0; padding: .55rem .8rem; font-size: .9rem; font-weight: 800; color: var(--c); background: color-mix(in srgb, var(--c) 6%, #fff); border-bottom: 1px solid #f0ebe0; }
+    .sp2-col h3 b { font-size: .78rem; color: #fff; background: var(--c); border-radius: 99px; padding: .05rem .55rem; }
+    .sp2-cl { list-style: none; margin: 0; padding: 0; } .sp2-cl li { display: flex; align-items: center; gap: .55rem; padding: .38rem .8rem; border-bottom: 1px solid #f4f0e6; } .sp2-cl li:last-child { border-bottom: 0; }
+    .sp2-cl li:hover { background: #fcfaf5; } .sp2-cl code { flex: none; font-size: .74rem; color: #0b4a66; background: #eef4f7; border-radius: 6px; padding: .05rem .35rem; }
+    .sp2-cl div { flex: 1; min-width: 0; } .sp2-cl b { display: block; font-size: .84rem; font-weight: 700; color: #091b22; line-height: 1.35; }
+    .sp2-cl small { display: block; font-size: .7rem; color: #6b7280; } .sp2-cl small i { display: inline-block; width: 7px; height: 7px; border-radius: 2px; margin-inline-end: .25rem; } .sp2-cl small span { color: #b45309; }
+    .sp2-cl em { flex: none; font-style: normal; font-weight: 800; font-size: .78rem; color: var(--c); background: color-mix(in srgb, var(--c) 10%, #fff); border-radius: 7px; min-width: 1.6rem; text-align: center; padding: .05rem .3rem; }
+    .sp2-none { margin: 0; padding: .8rem; font-size: .82rem; color: #8a6d2e; } .sp2-p0 { background: #fff; border: 1px solid #ece6d8; border-radius: 14px; }
+    @media (max-width: 991px) { .sp2-cols { grid-template-columns: 1fr; } .sp2-ov { grid-template-columns: auto 1fr; } .sp2-vs { grid-column: 1 / -1; } }
     @media (max-width: 991px) { .sp2-sel, .sp2-sel.grow { flex: 1 1 45%; } .sp2-sel:not(.grow) select { max-width: none; field-sizing: fixed; } .sp2-vr { display: none; } .sp2-kpis { width: 100%; } .sp2-k { flex: 1 1 30%; } }
     @media print { .sp2-bar { display: none !important; } }
   </style>`);
