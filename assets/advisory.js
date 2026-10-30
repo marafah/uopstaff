@@ -483,9 +483,18 @@
   // the programme header on one row
   if (!document.getElementById('ad-h-css')) { const c = document.createElement('style'); c.id = 'ad-h-css'; c.textContent = `
     .am-col { gap: 16px !important; }
-    .ad-bar .ad-s-v { flex: 0 0 auto !important; width: auto !important; min-width: 340px; field-sizing: content; padding-inline-end: 2.4rem; }
+    .ad-bar .ad-s-v { flex: 0 0 auto !important; width: auto !important; min-width: 200px; field-sizing: content; padding-inline-end: 2.4rem; }
+    .ad-bar { gap: .45rem !important; } .ad-bar > .form-select { height: 32px; border-radius: 9px; }
+    .ad-sep { flex: none; width: 1px; align-self: stretch; margin: 4px 0; background: #dfe3e8; }
+    .ad-bar .ad-views .btn { height: 32px; display: inline-flex; align-items: center; gap: .25rem; }
+    .ad-sq { flex: 1 1 200px; min-width: 120px; height: 32px; margin: 0; display: flex; align-items: center; gap: .4rem; padding: 0 .6rem; background: #f7f8fa; border: 1px solid #dee2e6; border-radius: 9px; cursor: text; transition: border-color .15s, box-shadow .15s, background .15s; }
+    .ad-sq:focus-within { background: #fff; border-color: #901d23; box-shadow: 0 0 0 3px rgba(144,29,35,.12); }
+    .ad-sq > i { color: #8a96a3; font-size: .85rem; } .ad-sq input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: .82rem; padding: 0; }
+    .ad-sq kbd { flex: none; font-size: .66rem; padding: .05rem .38rem; color: #6c757d; background: #fff; border: 1px solid #d5dae0; border-bottom-width: 2px; border-radius: 5px; box-shadow: none; }
+    .ad-sq:focus-within kbd { display: none; }
+    .ad-bar .ad-ib { width: 32px; height: 32px; padding: 0; display: inline-grid; place-items: center; border-radius: 9px; }
     .ad-bar .ad-s-p { flex: 0 1 auto !important; width: auto !important; field-sizing: content; min-width: 170px; max-width: 290px; padding-inline-end: 2.2rem; }
-    .ad-bar .ad-views { margin-inline-start: auto; } .ad-bar .ad-s-q { flex: 1 1 140px !important; min-width: 110px; max-width: 260px; } .ad-bar .ad-s-fac { flex: 0 0 auto !important; width: auto !important; field-sizing: content; min-width: 150px; padding-inline-end: 2.4rem; }
+    .ad-bar .ad-views { margin-inline-start: 0; } .ad-bar .ad-s-fac { flex: 0 0 auto !important; width: auto !important; field-sizing: content; min-width: 150px; padding-inline-end: 2.4rem; }
     .ad-hrow { display: flex; align-items: center; gap: .35rem; flex-wrap: nowrap; overflow: hidden; white-space: nowrap; }
     .ad-hrow .ad-title { font-size: 1.05rem; flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
     .ad-hrow .badge { font-size: .7rem; flex: none; } .ad-hrow .ad-kp { flex: none; } .ad-hrow .flex-none { flex: none; }
@@ -1080,8 +1089,10 @@
           <select class="form-select form-select-sm ad-s-fac" id="ad-fac" title="الكلية" aria-label="الكلية"><option value="">كل الكليات</option>${facs.map(f => `<option ${f === st.fac ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select>
           <select class="form-select form-select-sm ad-s-p" id="ad-p" title="البرنامج (${list.length})" aria-label="البرنامج">${['bachelor', 'master', 'phd'].map(t => { const g = list.filter(q => (q.type || 'bachelor') === t); return g.length ? `<optgroup label="${t === 'master' ? 'الماجستير' : t === 'phd' ? 'الدكتوراه' : 'البكالوريوس'}">${g.map(q => `<option value="${esc(q.id)}" ${q === p ? 'selected' : ''}>${esc(q.ar || q.en)}${planVersions(q).some(v => v.current && v.r.ok) ? ' ✓' : ''}</option>`).join('')}</optgroup>` : ''; }).join('')}</select>
           <select class="form-select form-select-sm ad-s-v" id="ad-v" title="الإصدار" aria-label="الإصدار">${vs.map(o => `<option value="${o.v.sha}" ${o === x ? 'selected' : ''}>${esc(vTitle(o))}${o.r.ok ? ' ✓' : ''}</option>`).join('') || '<option>لا خطة منشورة</option>'}</select>
+          <span class="ad-sep" aria-hidden="true"></span>
           <div class="btn-group btn-group-sm ad-views" role="group" aria-label="طريقة العرض">${views.map(([k, l, i, t]) => `<button type="button" class="btn ${st.view === k ? 'btn-maroon' : 'btn-outline-secondary'}" data-view="${k}" title="${t}"><i class="bi ${i}"></i><span> ${l}</span></button>`).join('')}</div>
-          <input class="form-control form-control-sm ad-s-q" id="ad-q" placeholder="ابحث في الخطة…" value="${esc(st.q)}" aria-label="ابحث في الخطة">
+          <span class="ad-sep" aria-hidden="true"></span>
+          <label class="ad-sq" title="ابحث برقم المادة أو اسمها — اضغط / للانتقال إلى البحث"><i class="bi bi-search"></i><input class="ad-s-q" id="ad-q" type="search" placeholder="ابحث: رقم أو اسم مادة…" value="${esc(st.q)}" aria-label="ابحث في الخطة"><kbd>/</kbd></label>
           <button type="button" class="btn btn-sm btn-outline-secondary ad-ib" id="ad-csv" title="تصدير CSV"><i class="bi bi-filetype-csv"></i></button>
           <button type="button" class="btn btn-sm btn-outline-secondary ad-ib" id="ad-print" title="طباعة"><i class="bi bi-printer"></i></button>
         </div></div></div>
@@ -1142,6 +1153,8 @@
     if (st.view === 'now') { const n = $('#am-no'); if (n) n.onchange = e => { st.no = e.target.checked; render(); }; }
     document.querySelectorAll('[data-pick]').forEach(a => a.onclick = e => { e.preventDefault(); st.v = a.dataset.pick; st.view = 'plan'; render(); });
     const b = $('#ad-b'); if (b) b.onchange = e => { st.b = e.target.value; render(); };
+    if (!window.__adSlash) { window.__adSlash = true; document.addEventListener('keydown', e => { if (e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+      const a = document.activeElement; if (a && (/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || a.isContentEditable)) return; const q = document.getElementById('ad-q'); if (q) { e.preventDefault(); q.focus(); q.select(); } }); }
     let t; $('#ad-q').oninput = e => { clearTimeout(t); t = setTimeout(() => { st.q = e.target.value; render(); const i = $('#ad-q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 250); };
     if (st.view === 'advisor' && p && x && x.r.ok) {
       document.querySelectorAll('#ad-body .ad-c[data-code]').forEach(c => c.onclick = () => { const d = getDone(p), k = c.dataset.code; if (!/^\d/.test(k)) return; d.has(k) ? d.delete(k) : d.add(k); setDone(p, d); const y = scrollY; render(); scrollTo(0, y); });
