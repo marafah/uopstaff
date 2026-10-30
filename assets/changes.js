@@ -20,7 +20,7 @@
   const PAGE = 60;
   // pages behind the research section's sign-in (assets/research.js): their features show a lock
   const LOCKED = new Set(['annual', 'award', 'compare', 'dept', 'experts', 'goals', 'impact', 'integrity', 'intl', 'jordan', 'journals', 'network', 'projects', 'promotion',
-    'publication', 'publications', 'publish', 'regulations', 'reports', 'research', 'researcher', 'researchers', 'reward', 'sabbatical', 'simulator', 'universities']);
+    'publication', 'publications', 'publish', 'regulations', 'reports', 'research', 'researcher', 'researchers', 'reward', 'sabbatical', 'simulator', 'universities', 'audit']);
   const locked = f => f.locked != null ? !!f.locked : LOCKED.has(String(f.link || '').split(/[?#]/)[0].replace(/\.html$/, ''));
   let D, F = [];
   const day = iso => U.amman(iso).iso;  // the Amman date of a moment
