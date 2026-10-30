@@ -227,6 +227,17 @@
     return scoped().map(p => { const f = figures(p); return { p, major: label(p), faculty: p.faculty, degree: p.degree, total: p.total || f.sum, ...f, pct: f.courses ? Math.round(100 * f.offered / f.courses) : 0 }; })
       .sort((a, b) => typeof a[st.sort] === 'string' ? a[st.sort].localeCompare(b[st.sort], 'ar') : b[st.sort] - a[st.sort]);
   }
+  // a plan's hours by requirement group: a labelled bar (hours inside the wider parts) and a short key under it
+  const shortGroup = n => { let k = groupKey(n).replace(/^متطلبات\s+/, '').replace(/\s*\((?!اختيارية)[^)]*\)/g, '');
+    k = /اختيار/.test(k.replace(/\(اختيارية\)/, '')) ? k.replace(/\s*\(اختيارية\)/, '') : k.replace(/\s*\(اختيارية\)/, ' اختياري');
+    return k.replace(/\s+/g, ' ').trim(); };
+  function dist(r) {
+    const gs = r.p.groups.filter(g => g.required_hours), sum = gs.reduce((a, g) => a + g.required_hours, 0) || 1;
+    const agg = new Map(); gs.forEach(g => { const k = shortGroup(g.name), o = agg.get(k) || { h: 0, c: gcol(g.name), full: [] }; o.h += g.required_hours; o.full.push(`${groupKey(g.name)}: ${g.required_hours}`); agg.set(k, o); });
+    return `<div class="sp2-dbar">${gs.map(g => { const w = g.required_hours / sum;
+        return `<i style="flex:${g.required_hours};background:${gcol(g.name)}" title="${esc(groupKey(g.name))}: ${g.required_hours} ساعة (${Math.round(100 * w)}%)">${w >= .07 ? g.required_hours : ''}</i>`; }).join('')}</div>
+      <div class="sp2-dleg">${[...agg].sort((a, b) => b[1].h - a[1].h).map(([k, o]) => `<span title="${esc(o.full.join(' · '))}"><i style="background:${o.c}"></i>${esc(k)} <b>${o.h}</b></span>`).join('')}</div>`;
+  }
   function allView() {
     const rows = allRows(), max = Math.max(1, ...rows.map(r => r.total));
     const DEG = { 'البكالوريوس': '#0b4a66', 'الماجستير': '#0f766e', 'الدكتوراه': '#901d23', 'الدبلوم': '#6d28d9' };
@@ -238,7 +249,7 @@
     return `<div class="sp2-kpis sp2-kpiw mb-3">${kpis.map(([v, l, i, c]) => `<div class="sp2-k" style="--c:${c}"><i class="bi ${i}"></i><b>${v}</b><span>${l}</span></div>`).join('')}</div>
       <section class="sp2-tw"><table class="sp2-t"><thead><tr>
         ${th('major', 'التخصص')}${th('faculty', 'الكلية')}${th('degree', 'الدرجة', 'c')}${th('total', 'ساعات التخرج', 'c')}${th('req', 'إجباري', 'c')}${th('el', 'اختياري', 'c')}${th('free', 'حر', 'c')}${th('courses', 'المقررات', 'c')}${th('pct', 'مطروح الآن', 'c')}
-        <th class="w-dist">توزيع الساعات على المجموعات</th></tr></thead><tbody>
+        <th class="w-dist">توزيع الساعات على مجموعات المتطلبات</th></tr></thead><tbody>
         ${rows.map((r, i) => `<tr>
           <td class="mj"><a href="#" data-open="${esc(r.p.id)}">${esc(r.major)}</a>${r.p.dept && r.p.dept !== r.major ? `<small>${esc(r.p.dept)}</small>` : ''}</td>
           <td class="fc">${esc(r.faculty)}</td>
@@ -247,7 +258,7 @@
           <td class="c n" style="--c:#0b4a66">${r.req}</td><td class="c n" style="--c:#0f766e">${r.el || '<em>—</em>'}</td><td class="c n" style="--c:#901d23">${r.free || '<em>—</em>'}</td>
           <td class="c">${r.courses}</td>
           <td class="c"><div class="sp2-pc" style="--p:${r.pct}%;--c:${pctCol(r.pct)}" title="${r.offered} من ${r.courses} مقرراً مطروحة هذا الفصل"><i></i><b>${r.pct}%</b></div></td>
-          <td class="w-dist"><div class="sp2-mini"><span style="width:${Math.max(8, Math.round(100 * r.total / max))}%">${r.p.groups.filter(g => g.required_hours).map(g => `<i style="flex:${g.required_hours};background:${gcol(g.name)}" title="${esc(groupKey(g.name))}: ${g.required_hours} ساعة"></i>`).join('')}</span></div></td></tr>`).join('')
+          <td class="w-dist">${dist(r)}</td></tr>`).join('')
           || '<tr><td colspan="10" class="sp2-empty">لا خطط ضمن التصفية.</td></tr>'}</tbody></table></section>
       <details class="sp2-legd"><summary><i class="bi bi-palette"></i> ألوان المجموعات في عمود التوزيع (${GROUPS.length})</summary><div class="sp-legend mt-2">${GROUPS.map(n => `<span><i style="background:${gcol(n)}"></i>${esc(n)}</span>`).join('')}</div></details>`;
   }
@@ -537,6 +548,11 @@
     .sp2-ct td.c b { color: #091b22; }
     .sp2-np { display: inline-block; min-width: 2rem; font-size: .76rem; font-weight: 800; color: #0b4a66; background: #eef4f7; border: 1px solid #d6e4ec; border-radius: 99px; padding: .05rem .5rem; text-decoration: none; }
     .sp2-np:hover { background: #0b4a66; color: #fff; }
+    .sp2-t .w-dist { min-width: 340px; width: 36%; }
+    .sp2-dbar { display: flex; height: 20px; gap: 2px; border-radius: 6px; overflow: hidden; background: #eef0f2; }
+    .sp2-dbar i { display: flex; align-items: center; justify-content: center; min-width: 3px; font-style: normal; font-size: .68rem; font-weight: 800; color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,.25); }
+    .sp2-dleg { display: flex; flex-wrap: wrap; gap: .1rem .65rem; margin-top: .3rem; font-size: .7rem; color: #374151; line-height: 1.5; }
+    .sp2-dleg span { display: inline-flex; align-items: center; gap: .25rem; white-space: nowrap; } .sp2-dleg i { width: 8px; height: 8px; border-radius: 2px; flex: none; } .sp2-dleg b { color: #091b22; }
     @media (max-width: 991px) { .sp2-sel, .sp2-sel.grow { flex: 1 1 45%; } .sp2-sel:not(.grow) select { max-width: none; field-sizing: fixed; } .sp2-vr { display: none; } .sp2-kpis { width: 100%; } .sp2-k { flex: 1 1 30%; } }
     @media print { .sp2-bar { display: none !important; } }
   </style>`);
