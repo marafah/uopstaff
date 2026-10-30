@@ -22,13 +22,13 @@
 
   // ---------------------------------------------------------------- data preparation
   const PTYPE = [['article', 'مقالة مجلة', 'bi-journal-text', '#0b4a66'], ['conf', 'ورقة مؤتمر', 'bi-easel2', '#901d23'], ['chapter', 'فصل كتاب', 'bi-book-half', '#0f766e'],
-    ['review', 'مراجعة', 'bi-search', '#6a2fb0'], ['book', 'كتاب', 'bi-book', '#b45309'], ['other', 'أخرى', 'bi-three-dots', '#64748b']];
+    ['review', 'مراجعة', 'bi-search', '#6a2fb0'], ['book', 'كتاب', 'bi-book', '#b45309'], ['other', 'أخرى', 'bi-three-dots', '#0891b2']];
   const PT = Object.fromEntries(PTYPE.map(x => [x[0], x]));
   const ptype = w => { const t = String(w.type || '').toLowerCase(), st = String(w.st || '').toLowerCase();
     if (/conference|proceeding/.test(t) || /conference/.test(st) || w.vt === 'conference') return 'conf';
     if (/chapter/.test(t)) return 'chapter'; if (t === 'book') return 'book'; if (t === 'review' || st === 'review') return 'review';
     if (t === 'article' || /article/.test(st)) return 'article'; return 'other'; };
-  const QCOL = { Q1: '#15803d', Q2: '#0f766e', Q3: '#b45309', Q4: '#b91c1c', nr: '#64748b', conf: '#901d23', x: '#cbd5e1' };
+  const QCOL = { Q1: '#15803d', Q2: '#0f766e', Q3: '#b45309', Q4: '#b91c1c', nr: '#7c3aed', conf: '#901d23', x: '#0891b2' };
   const QLBL = { Q1: 'Q1', Q2: 'Q2', Q3: 'Q3', Q4: 'Q4', nr: 'مجلة غير مصنّفة', conf: 'مؤتمر', x: 'أخرى' };
   const QORD = ['Q1', 'Q2', 'Q3', 'Q4', 'nr', 'conf', 'x'];
   const RET = { byDoi: {}, byEid: {}, byP: {}, G: {}, RAR: (I && I.reason_ar) || {} };
@@ -122,7 +122,9 @@
   }
   const scoreOf = rows => R.sum(rows.map(r => r[5] === 2 ? (r[0] === 'ret' ? 6 : r[0] === 'da' ? 4 : 2.5) : r[5] === 1 ? 1 : 0));
   const level = s => s >= 6 ? ['high', 'يستحق مراجعة عاجلة', 'bi-shield-fill-exclamation'] : s >= 3 ? ['mid', 'يستحق المراجعة', 'bi-shield-fill-minus'] : s > 0 ? ['low', 'ملاحظات بسيطة', 'bi-shield-fill-check'] : ['ok', 'لا مؤشرات تنبيه', 'bi-shield-fill-check'];
-  const LV = { 2: ['c', 'مرتفع'], 1: ['r', 'للمراجعة'], 0: ['o', 'ضمن المعتاد'], '-1': ['p', 'إيجابي'] };
+  const LV = { 2: ['c', 'مرتفع', 'bi-exclamation-octagon-fill'], 1: ['r', 'للمراجعة', 'bi-exclamation-triangle-fill'], 0: ['o', 'ضمن المعتاد', 'bi-check-circle-fill'], '-1': ['p', 'إيجابي', 'bi-star-fill'] };
+  const GRP = [['سلامة النشر', 'bi-shield-exclamation', '#b91c1c', ['ret', 'da', 'dl']], ['جودة الأوعية', 'bi-award', '#b45309', ['low']],
+    ['أنماط النشر والتعاون', 'bi-diagram-3', '#6a2fb0', ['tv', 'cl', 'tp']], ['الإنتاجية', 'bi-graph-up-arrow', '#0b4a66', ['burst', 'maxY']], ['عوامل إيجابية', 'bi-stars', '#15803d', ['hi', 'fw', 'intl']]];
 
 
   // ---------------------------------------------------------------- print report: identification block and sign-off
@@ -140,6 +142,14 @@
       <div class="na-sigs3"><div><span>أعدّه</span><i></i><small>الاسم والتوقيع</small></div><div><span>راجعه</span><i></i><small>الاسم والتوقيع</small></div><div><span>اعتمده</span><i></i><small>رئيس اللجنة · التاريخ</small></div></div>
     </section>`;
   }
+
+  // coloured badges shared by the venues and papers tables
+  const typeBadge = k => `<span class="np-tp" style="--c:${PT[k][3]}"><i class="bi ${PT[k][2]}"></i>${PT[k][1]}</span>`;
+  const qBadge = (q, k) => q ? `<span class="na-q q${q[1]}"><i class="bi bi-bar-chart-fill"></i>${q}</span>` : (k === 'article' || k === 'review' ? '<span class="na-q nr"><i class="bi bi-question-circle-fill"></i>غير مصنّفة</span>' : '<span class="na-q na"><i class="bi bi-dash-circle"></i>لا ينطبق</span>');
+  const statusBadge = (st, end) => st === 'ret' ? '<span class="na-st bad"><i class="bi bi-x-octagon-fill"></i>مسحوب</span>' : st === 'after' ? `<span class="na-st bad"><i class="bi bi-journal-x"></i>محذوفة قبل النشر${end ? ' · ' + end : ''}</span>` : st === 'later' ? `<span class="na-st warn"><i class="bi bi-exclamation-triangle-fill"></i>حُذفت لاحقاً${end ? ' · ' + end : ''}</span>` : '<span class="na-st ok"><i class="bi bi-check-circle-fill"></i>مفهرسة/سليمة</span>';
+
+  // ranked rows: label, bar (share of the total), count and percentage
+  const rowsList = (rows, n, keep) => `<ul class="na-rows">${(keep ? rows : rows.sort((a, b) => b[1] - a[1])).map(([l, c, col, ic]) => `<li style="--c:${col}"><span class="lb"><i class="bi ${ic}"></i>${esc(l)}</span><span class="tr"><i style="width:${Math.max(2, Math.round(100 * c / Math.max(1, n)))}%"></i></span><b>${R.n(c)}</b><small>${R.pct(c / Math.max(1, n))}</small></li>`).join('') || '<li class="text-muted">لا بيانات</li>'}</ul>`;
 
   // ---------------------------------------------------------------- page
   const yOpt = (v, first) => `<option value="">${first}</option>` + Array.from({ length: Y1 - Y0 + 1 }, (_, i) => Y1 - i).map(y => `<option${y === v ? ' selected' : ''}>${y}</option>`).join('');
@@ -211,7 +221,7 @@
     let people;
     if (single) {
       const pc = {}; ws.forEach(w => w._jo.forEach(o => { if (o !== ids[0]) (pc[o] = pc[o] || []).push(w); }));
-      people = Object.entries(pc).sort((a, b) => b[1].length - a[1].length).slice(0, 15).map(([id, pw]) => { const pm = measure(pw, [ids[0], id]); return { r: byId[id], s: pw.length, t: (BY[id] || []).filter(inY).length, sh: pw.length / n, hi: pm.hiS, da: pm.da, ret: pm.ret.length, sc: scoreOf(scorecard(pm, [ids[0], id])) }; });
+      people = Object.entries(pc).sort((a, b) => b[1].length - a[1].length).slice(0, 15).map(([id, pw]) => { const pm = measure(pw, [ids[0], id]); return { r: byId[id], s: pw.length, t: (BY[id] || []).filter(inY).length, sh: pw.length / n, hi: pm.hiS, da: pm.da, ret: pm.ret.length, sc: scoreOf(scorecard(pm, [ids[0], id])), isc: (() => { const all = (BY[id] || []).filter(inY); return all.length >= 5 ? scoreOf(scorecard(measure(all, [id]), [id])) : null; })() }; });
     } else people = ids.map(id => { const all = (BY[id] || []).filter(inY), mm = measure(all, [id]); return { r: byId[id], t: all.length, s: ws.filter(w => (w.r || []).includes(id)).length, hi: mm.hiS, da: mm.da, ret: mm.ret.length, sc: scoreOf(scorecard(mm, [id])) }; });
     const per = AU.from || AU.to ? `${AU.from || 'البداية'}–${AU.to || 'الآن'}` : 'كل السنوات';
     R.$('#na-body').innerHTML = `
@@ -235,25 +245,25 @@
     <div class="na-tab" data-nt="crit"${AU.tab === 'crit' ? '' : ' hidden'}>
     <section class="rs-card na-sec"><h3><i class="bi bi-clipboard2-check"></i>معايير التدقيق <small class="fw-normal text-muted">كل معيار مقارن بتوزيع باحثي الجامعة في الفترة نفسها</small></h3>
       <div class="rs-scroll"><table class="rs-table na-t na-sc"><thead><tr><th>المعيار</th><th>القيمة</th><th>مرجع الجامعة</th><th>التقييم</th><th>التوضيح</th></tr></thead><tbody>
-      ${sc.map(r => `<tr class="l${LV[r[5]][0]}"><td><i class="bi ${r[1]}"></i> <b>${r[2]}</b></td><td>${r[7] ? `<button type="button" class="na-lnk" data-pf="${esc(r[7])}">${esc(r[3])}</button>` : esc(r[3])}</td><td class="small text-muted">${esc(r[4])}</td><td><span class="na-lv ${LV[r[5]][0]}">${LV[r[5]][1]}</span></td><td class="small">${esc(r[6])}</td></tr>`).join('')}</tbody></table></div>
+      ${GRP.map(([g, gi, gc, keys]) => { const rs = sc.filter(r => keys.includes(r[0])); return rs.length ? `<tr class="na-grp" style="--g:${gc}"><td colspan="5"><i class="bi ${gi}"></i>${g}</td></tr>` + rs.map(r => `<tr class="l${LV[r[5]][0]}" style="--g:${gc}"><td><span class="na-crit-n"><i class="bi ${r[1]}"></i><b>${r[2]}</b></span></td><td>${r[7] ? `<button type="button" class="na-val" data-pf="${esc(r[7])}" title="اعرض الأبحاث">${esc(r[3])} <i class="bi bi-box-arrow-up-left"></i></button>` : `<span class="na-val">${esc(r[3])}</span>`}</td><td class="na-ref">${esc(r[4])}</td><td><span class="na-lv ${LV[r[5]][0]}"><i class="bi ${LV[r[5]][2]}"></i>${LV[r[5]][1]}</span></td><td class="na-exp">${esc(r[6])}</td></tr>`).join('') : ''; }).join('')}</tbody></table></div>
       <p class="rs-note mb-0 mt-2"><i class="bi bi-info-circle"></i> المعايير أدوات فرز لا أحكام: «للمراجعة» تعني أن القيمة أعلى من 90% من باحثي الجامعة، و«مرتفع» تعني تجاوز حدّ واضح (مثل بحث مسحوب). القرار يعود للجنة المختصة بعد الاطلاع على الأبحاث وسياق التخصص؛ فبعض التخصصات تنشر عادة في مؤتمرات أو مجلات محلية.</p></section>
     </div>
     <div class="na-tab" data-nt="mix"${AU.tab === 'mix' ? '' : ' hidden'}>
     <section class="na-grid">
-      <div class="rs-card na-mix"><h3><i class="bi bi-pie-chart"></i>نوع النشر والجودة</h3>
-        <div class="na-lbl">نوع النشر</div><div class="np-bar">${PTYPE.filter(t => tc[t[0]]).map(t => `<i style="flex:${tc[t[0]]};background:${t[3]}" title="${t[1]}: ${tc[t[0]]}">${tc[t[0]] / n > .08 ? tc[t[0]] : ''}</i>`).join('')}</div>
-        <div class="np-leg">${PTYPE.filter(t => tc[t[0]]).map(t => `<span><i class="bi ${t[2]}" style="color:${t[3]}"></i>${t[1]} <b>${tc[t[0]]}</b></span>`).join('')}</div>
-        <div class="na-lbl">تصنيف الوعاء (SJR)</div><div class="np-bar">${QORD.filter(q => qc[q]).map(q => `<i style="flex:${qc[q]};background:${QCOL[q]}" title="${QLBL[q]}: ${qc[q]}">${qc[q] / n > .07 ? qc[q] : ''}</i>`).join('')}</div>
-        <div class="np-leg">${QORD.filter(q => qc[q]).map(q => `<span><i class="na-sq" style="background:${QCOL[q]}"></i>${QLBL[q]} <b>${qc[q]}</b></span>`).join('')}</div></div>
-      <div class="rs-card na-mix"><h3><i class="bi bi-calendar3"></i>عبر السنوات حسب التصنيف</h3>
-        ${yrs.length ? `<div class="na-yrs">${yrs.map(y => { const t = R.sum(Object.values(yq[y] || {})); return `<div title="${y}: ${t}">${t ? `<em>${t}</em>` : ''}<span style="height:${Math.round(100 * t / ymax)}%">${QORD.filter(q => (yq[y] || {})[q]).map(q => `<i style="flex:${yq[y][q]};background:${QCOL[q]}"></i>`).join('')}</span><small>${y === yrs[0] || y === yrs[yrs.length - 1] ? y : (yrs.length <= 14 ? String(y).slice(2) : '')}</small></div>`; }).join('')}</div>` : '<div class="text-muted small">لا سنوات</div>'}
-        <div class="np-leg mt-2">${QORD.filter(q => qc[q]).map(q => `<span><i class="na-sq" style="background:${QCOL[q]}"></i>${QLBL[q]}</span>`).join('')}</div></div>
+      <div class="rs-card na-mix"><h3><i class="bi bi-pie-chart"></i>نوع النشر <small class="fw-normal text-muted">${R.n(n)} ${single ? 'منشوراً' : 'بحثاً'}</small></h3>
+        ${rowsList(PTYPE.filter(t => tc[t[0]]).map(t => [t[1], tc[t[0]], t[3], t[2]]), n)}</div>
+      <div class="rs-card na-mix"><h3><i class="bi bi-award"></i>تصنيف الوعاء <small class="fw-normal text-muted">حسب SJR (Scopus)</small></h3>
+        ${rowsList(QORD.filter(q => qc[q]).map(q => [QLBL[q], qc[q], QCOL[q], q === 'conf' ? 'bi-easel2' : q === 'x' ? 'bi-three-dots' : q === 'nr' ? 'bi-question-circle' : 'bi-bar-chart-fill']), n, true)}</div>
+    </section>
+    <section class="rs-card na-mix na-yrcard"><h3><i class="bi bi-calendar3"></i>عبر السنوات حسب التصنيف <small class="fw-normal text-muted">مرّر الفأرة على أي عمود لتفاصيله</small></h3>
+      <div class="na-yleg">${QORD.filter(q => qc[q]).map(q => `<span><i style="background:${QCOL[q]}"></i>${QLBL[q]} <b>${qc[q]}</b></span>`).join('')}</div>
+      ${yrs.length ? `<div class="na-yrs">${yrs.map(y => { const o = yq[y] || {}, t = R.sum(Object.values(o)); return `<div title="${y}: ${t}${t ? ' — ' + QORD.filter(q => o[q]).map(q => QLBL[q] + ' ' + o[q]).join('، ') : ''}">${t ? `<em>${t}</em>` : ''}<span style="height:${Math.round(100 * t / ymax)}%">${QORD.filter(q => o[q]).map(q => `<i style="flex:${o[q]};background:${QCOL[q]}"></i>`).join('')}</span><small>${yrs.length <= 16 || y % 2 === 0 || y === yrs[yrs.length - 1] ? y : ''}</small></div>`; }).join('')}</div>` : '<div class="text-muted small">لا سنوات</div>'}
     </section>
     </div>
     <div class="na-tab" data-nt="people"${AU.tab === 'people' ? '' : ' hidden'}>
-    <section class="rs-card na-sec"><h3><i class="bi bi-people"></i>${single ? 'أكثر الشركاء من الجامعة' : 'أعضاء المجموعة'} <small class="fw-normal text-muted">${single ? 'اضغط «دقّق» لتدقيق الثنائي' : 'كل عضو مقاس على إنتاجه كله في الفترة'}</small></h3>
-      ${people.length ? `<div class="rs-scroll na-free"><table class="rs-table na-t"><thead><tr><th>الباحث</th>${single ? '<th class="num">مشترك</th><th>من إنتاجه</th>' : '<th class="num">كل منشوراته</th><th class="num">في هذه المجموعة</th>'}<th class="num">Q1–Q2</th><th class="num">مجلات محذوفة</th><th class="num">مسحوبة</th><th>تنبيه</th><th class="na-act"></th></tr></thead><tbody>
-      ${people.map(p => { const l = level(p.sc); return `<tr><td><div class="d-flex align-items-center gap-2">${R.avatar(p.r, 'sm')}<div>${who(p.r)}</div></div></td>${single ? `<td class="num"><b>${p.s}</b></td><td><div class="na-pc"><span><i style="width:${Math.round(100 * p.sh)}%"></i></span><b>${R.pct(p.sh)}</b></div></td>` : `<td class="num">${R.n(p.t)}</td><td class="num"><b>${R.n(p.s)}</b> <small class="text-muted">(${p.t ? R.pct(p.s / p.t) : '–'})</small></td>`}<td class="num">${p.hi == null ? '–' : R.pct(p.hi)}</td><td class="num">${p.da ? `<span class="na-bad">${p.da}</span>` : '–'}</td><td class="num">${p.ret ? `<span class="na-bad">${p.ret}</span>` : '–'}</td><td><span class="na-rb ${l[0]}"><i class="bi ${l[2]}"></i>${l[1]}</span></td><td class="na-act"><button type="button" class="na-ib na-do" data-ids="${single ? ids[0] + ',' + p.r.id : p.r.id}" title="${single ? 'تدقيق الثنائي' : 'تدقيق فردي'}"><i class="bi bi-search"></i><span>دقّق</span></button></td></tr>`; }).join('')}</tbody></table></div>` : '<div class="text-muted small">لا شركاء من الجامعة في الفترة.</div>'}</section>
+    <section class="rs-card na-sec"><h3><i class="bi bi-people"></i>${single ? 'أكثر الشركاء من الجامعة' : 'أعضاء المجموعة'} <small class="fw-normal text-muted">${single ? '«تنبيه الثنائي» يقيس أبحاثهما المشتركة فقط، و«تنبيه الباحث وحده» يقيس كل إنتاج الشريك؛ لذلك قد يختلفان · اضغط «دقّق» لتدقيق الثنائي' : 'كل عضو مقاس على إنتاجه كله في الفترة'}</small></h3>
+      ${people.length ? `<div class="rs-scroll na-free"><table class="rs-table na-t"><thead><tr><th>الباحث</th>${single ? '<th class="num">مشترك</th><th>من إنتاجه</th>' : '<th class="num">كل منشوراته</th><th class="num">في هذه المجموعة</th>'}<th class="num">Q1–Q2</th><th class="num">مجلات محذوفة</th><th class="num">مسحوبة</th>${single ? '<th title="مؤشرات أبحاثهما المشتركة فقط">تنبيه الثنائي</th><th title="مؤشرات كل إنتاج الشريك">تنبيه الباحث وحده</th>' : '<th title="مؤشرات كل إنتاج العضو">تنبيه الباحث</th>'}<th class="na-act"></th></tr></thead><tbody>
+      ${people.map(p => { const l = level(p.sc); return `<tr><td><div class="d-flex align-items-center gap-2">${R.avatar(p.r, 'sm')}<div>${who(p.r)}</div></div></td>${single ? `<td class="num"><b>${p.s}</b></td><td><div class="na-pc"><span><i style="width:${Math.round(100 * p.sh)}%"></i></span><b>${R.pct(p.sh)}</b></div></td>` : `<td class="num">${R.n(p.t)}</td><td class="num"><b>${R.n(p.s)}</b> <small class="text-muted">(${p.t ? R.pct(p.s / p.t) : '–'})</small></td>`}<td class="num">${p.hi == null ? '–' : R.pct(p.hi)}</td><td class="num">${p.da ? `<span class="na-bad">${p.da}</span>` : '–'}</td><td class="num">${p.ret ? `<span class="na-bad">${p.ret}</span>` : '–'}</td><td><span class="na-rb ${l[0]}"><i class="bi ${l[2]}"></i>${l[1]}</span></td>${single ? `<td>${p.isc == null ? '<span class="na-rb ok">أقل من 5 منشورات</span>' : (li => `<span class="na-rb ${li[0]}"><i class="bi ${li[2]}"></i>${li[1]}</span>`)(level(p.isc))}</td>` : ''}<td class="na-act"><button type="button" class="na-ib na-do" data-ids="${single ? ids[0] + ',' + p.r.id : p.r.id}" title="${single ? 'تدقيق الثنائي' : 'تدقيق فردي'}"><i class="bi bi-search"></i><span>دقّق</span></button></td></tr>`; }).join('')}</tbody></table></div>` : '<div class="text-muted small">لا شركاء من الجامعة في الفترة.</div>'}</section>
     </div>
     <div class="na-tab" data-nt="ret"${AU.tab === 'ret' ? '' : ' hidden'}>
     ${m.ret.length ? `<section class="rs-card na-sec na-retsec"><h3><i class="bi bi-x-octagon"></i>الأبحاث المسحوبة وأسبابها <small class="fw-normal text-muted">${m.ret.length}</small></h3>${m.ret.map(p => { const rw = p.rw || {}; const rs = (rw.r || []).filter(r => !/^(Investigation|Notice|Date of|Upgrade|Retract and Replace)/i.test(r)); return `<div class="na-ret"><div class="t"><a class="ltr" dir="auto" href="${p.doi ? 'https://doi.org/' + esc(p.doi) : '#'}" target="_blank" rel="noopener">${esc(String(p.t || '').replace(/^RETRACTED:\s*/i, ''))}</a><div class="m"><span>${p.y || ''}</span>${p.j ? `<span class="ltr" dir="ltr">${esc(p.j)}</span>` : ''}${p.pub ? `<span>${esc(p.pub)}</span>` : ''}${rw.date ? `<span>أُعلن السحب ${esc(rw.date)}</span>` : ''}${rw.nat && rw.nat !== 'Retraction' ? `<span>${esc(rw.nat)}</span>` : ''}</div></div>
@@ -262,26 +272,25 @@
     </div>
     <div class="na-tab" data-nt="venues"${AU.tab === 'venues' ? '' : ' hidden'}>
     <section class="rs-card na-sec"><h3><i class="bi bi-journal-bookmark"></i>أوعية النشر <small class="fw-normal text-muted">${R.n(venues.length)} · اضغط صفاً لعرض أبحاثه</small></h3>
-      <div class="rs-scroll na-free"><table class="rs-table na-t"><thead><tr><th>المجلة / المؤتمر</th><th>النوع</th><th class="num">الأبحاث</th><th class="num">الحصة</th><th>التصنيف</th><th>وضعها في Scopus</th><th>السنوات</th></tr></thead><tbody>
-      ${venues.map(v => `<tr data-pfv="${esc(v.v)}" class="na-click"><td class="ltr na-vn" dir="ltr">${esc(v.v)}</td><td><span class="np-tp" style="--c:${PT[v.k][3]}"><i class="bi ${PT[v.k][2]}"></i>${PT[v.k][1]}</span></td><td class="num"><b>${v.n}</b>${v.r ? ` <span class="na-bad" title="مسحوبة">${v.r} مسحوب</span>` : ''}</td><td class="num">${R.pct(v.n / n)}</td><td>${v.q ? R.qTag(v.q) : (v.k === 'article' || v.k === 'review' ? '<span class="text-muted small">غير مصنّفة</span>' : '–')}</td><td>${v.d === 'after' ? `<span class="na-bad">محذوفة قبل النشر${v.de ? ' · ' + v.de : ''}</span>` : v.d === 'later' ? `<span class="na-warn">حُذفت لاحقاً${v.de ? ' · ' + v.de : ''}</span>` : '<span class="text-muted small">—</span>'}</td><td dir="ltr" class="small">${v.y1 ? (v.y0 === v.y1 ? v.y0 : v.y0 + '–' + v.y1) : ''}</td></tr>`).join('')}</tbody></table></div></section>
+      <div class="rs-scroll na-free"><table class="rs-table na-t na-vt"><thead><tr><th>المجلة / المؤتمر</th><th>النوع</th><th class="num">الأبحاث</th><th>الحصة</th><th>التصنيف</th><th>وضعها في Scopus</th><th>السنوات</th></tr></thead><tbody>
+      ${venues.map(v => `<tr data-pfv="${esc(v.v)}" class="na-click${v.r ? ' ret' : v.d === 'after' ? ' disc' : ''}" style="--c:${PT[v.k][3]}"><td><div class="na-vn"><span class="na-vi"><i class="bi ${PT[v.k][2]}"></i></span><span class="ltr" dir="ltr">${esc(v.v)}</span></div></td><td>${typeBadge(v.k)}</td><td class="num"><span class="na-cnt">${v.n}</span>${v.r ? ` <span class="na-st bad"><i class="bi bi-x-octagon-fill"></i>${v.r} مسحوب</span>` : ''}</td><td><div class="na-pc"><span><i style="width:${Math.round(100 * v.n / Math.max(1, venues[0].n))}%;background:var(--c)"></i></span><b>${R.pct(v.n / n)}</b></div></td><td>${qBadge(v.q, v.k)}</td><td>${statusBadge(v.r ? 'ret' : v.d, v.de)}</td><td><span class="na-yrs2" dir="ltr">${v.y1 ? (v.y0 === v.y1 ? v.y0 : v.y0 + '–' + v.y1) : '–'}</span></td></tr>`).join('')}</tbody></table></div></section>
     </div>
     <div class="na-tab" data-nt="papers"${AU.tab === 'papers' ? '' : ' hidden'}>
     <section class="rs-card na-sec" id="na-papers-sec"><h3><i class="bi bi-files"></i>${single ? 'المنشورات' : 'الأبحاث المشتركة'} <small class="fw-normal text-muted" id="na-pcount"></small></h3>
-      <div class="rs-seg na-seg na-pf no-print" id="na-pf"></div><ol class="np-papers na-papers" id="na-papers"></ol></section>` : ''}
+      <div class="rs-seg na-seg na-pf no-print" id="na-pf"></div><div class="rs-scroll na-free" id="na-papers"></div></section>` : ''}
     </div>
     ${printSign()}`;
     if (n) papers(ws);
   }
   function papers(ws) {
-    const F = [['all', 'الكل', () => true], ['ret', 'مسحوبة', w => w._ret], ['disc', 'مجلات محذوفة', w => w._disc], ['hi', 'Q1–Q2', w => w._qq === 'Q1' || w._qq === 'Q2'], ['low', 'Q3–Q4 وغير مصنّفة', w => ['Q3', 'Q4', 'nr'].includes(w._qq)], ['conf', 'مؤتمرات', w => w._qq === 'conf']];
+    const F = [['all', 'الكل', () => true, 'bi-collection', '#0b4a66'], ['ret', 'مسحوبة', w => w._ret, 'bi-x-octagon-fill', '#b91c1c'], ['disc', 'مجلات محذوفة', w => w._disc, 'bi-journal-x', '#b45309'], ['hi', 'Q1–Q2', w => w._qq === 'Q1' || w._qq === 'Q2', 'bi-award-fill', '#15803d'], ['low', 'Q3–Q4 وغير مصنّفة', w => ['Q3', 'Q4', 'nr'].includes(w._qq), 'bi-bar-chart-steps', '#7c3aed'], ['conf', 'مؤتمرات', w => w._qq === 'conf', 'bi-easel2-fill', '#901d23']];
     const cur = AU.pf, custom = /^(v|vy|y):/.test(cur);
     const fn = custom ? (cur.startsWith('v:') ? w => w.v === cur.slice(2) : cur.startsWith('y:') ? w => String(w.y) === cur.slice(2) : w => (w.v + '|' + w.y) === cur.slice(3)) : (F.find(f => f[0] === cur) || F[0])[2];
-    R.$('#na-pf').innerHTML = F.map(f => { const c = ws.filter(f[2]).length; return c || f[0] === 'all' ? `<button type="button" data-pf="${f[0]}" class="${cur === f[0] ? 'on' : ''}">${f[1]} <b>${c}</b></button>` : ''; }).join('')
-      + (custom ? `<button type="button" class="on" data-pf="all" title="إلغاء التصفية"><span class="ltr">${esc(cur.replace(/^(v|vy|y):/, '').replace('|', ' · '))}</span> <i class="bi bi-x"></i></button>` : '');
+    R.$('#na-pf').innerHTML = F.map(f => { const c = ws.filter(f[2]).length; return c || f[0] === 'all' ? `<button type="button" data-pf="${f[0]}" style="--c:${f[4]}" class="${cur === f[0] ? 'on' : ''}"><i class="bi ${f[3]}"></i>${f[1]} <b>${c}</b></button>` : ''; }).join('')
+      + (custom ? `<button type="button" class="on cus" data-pf="all" style="--c:#0b4a66" title="إلغاء التصفية"><i class="bi bi-funnel-fill"></i><span class="ltr">${esc(cur.replace(/^(v|vy|y):/, '').replace('|', ' · '))}</span> <i class="bi bi-x-lg"></i></button>` : '');
     const L = ws.filter(fn);
     R.$('#na-pcount').textContent = `${R.n(L.length)} من ${R.n(ws.length)}`;
-    R.$('#na-papers').innerHTML = L.slice(0, 200).map(w => { const t = PT[w._pt]; return `<li class="${w._ret ? 'ret' : w._disc === 'after' ? 'disc' : ''}"><span class="y">${w.y || '–'}</span><div><a class="ltr" dir="auto" href="${R.docUrl(w)}">${esc(w.t)}</a><div class="m"><span class="np-tp" style="--c:${t[3]}"><i class="bi ${t[2]}"></i>${t[1]}</span>${R.qTag(w.q)}${w._ret ? '<span class="na-bad"><i class="bi bi-x-octagon-fill"></i> مسحوب</span>' : ''}${w._disc === 'after' ? '<span class="na-bad">مجلة محذوفة وقت النشر</span>' : w._disc === 'later' ? '<span class="na-warn">حُذفت المجلة لاحقاً</span>' : ''}${w.v ? `<span class="ltr" dir="ltr">${esc(w.v)}</span>` : ''}<span>${w._jo.length} من البترا${w.na ? ` · ${w.na} مؤلفين` : ''}${w.sc != null || w.c != null ? ` · ${R.n(w.sc ?? w.c)} اقتباس` : ''}</span></div></div></li>`; }).join('')
-      + (L.length > 200 ? `<li class="text-muted small">أول 200 من ${R.n(L.length)}؛ صدّر CSV للقائمة كاملة</li>` : '') || '<li class="text-muted">لا أبحاث بهذه التصفية.</li>';
+    R.$('#na-papers').innerHTML = L.length ? `<table class="rs-table na-pt"><thead><tr><th>السنة</th><th>البحث</th><th>النوع</th><th>التصنيف</th><th>الحالة</th><th class="num">المؤلفون</th><th class="num">اقتباس</th></tr></thead><tbody>${L.slice(0, 200).map(w => { const t = PT[w._pt]; return `<tr class="${w._ret ? 'ret' : w._disc === 'after' ? 'disc' : ''}"><td><span class="na-yr">${w.y || '–'}</span></td><td class="na-pti"><a class="ltr" dir="auto" href="${R.docUrl(w)}">${esc(w.t)}</a>${w.v ? `<span class="ltr" dir="ltr"><i class="bi ${t[2]}" style="color:${t[3]}"></i> ${esc(w.v)}</span>` : ''}</td><td>${typeBadge(w._pt)}</td><td>${qBadge(w.q, w._pt)}</td><td>${statusBadge(w._ret ? 'ret' : w._disc)}</td><td class="num"><span class="na-au" title="من البترا / كل المؤلفين"><b>${w._jo.length}</b>${w.na ? ` / ${w.na}` : ''}</span></td><td class="num"><span class="na-ct">${R.n(w.sc ?? w.c ?? 0)}</span></td></tr>`; }).join('')}</tbody></table>${L.length > 200 ? `<p class="small mt-2 mb-0" style="color:#0b4a66">أول 200 من ${R.n(L.length)}؛ صدّر CSV للقائمة كاملة</p>` : ''}` : '<div class="rs-empty">لا أبحاث بهذه التصفية.</div>';
   }
 
   // ---------------------------------------------------------------- scan: where to look first
