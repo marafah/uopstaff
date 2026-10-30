@@ -311,12 +311,13 @@
         (st.mf === 'offered' ? av === 'open' || av === 'closed' : st.mf === 'seats' ? av === 'open' : st.mf === 'key' ? G.desc.get(n.key).size >= 3 : st.mf === 'ready' ? ready.has(n.code) : true); };
     const head = k => { if (st.ml === 'chain') return `<b>المرحلة ${k}</b><small>${k === 1 ? 'بلا متطلب في الخطة' : `بعد ${k - 1} ${k - 1 === 1 ? 'مادة' : 'مواد'} متتالية`}</small>`;
       const y = Math.floor(k / 10), t = ['', 'first', 'second', 'summer'][k % 10]; return `<b>${YEAR[y] || 'سنة'}</b><small>${TERM[t] || ''}</small>`; };
-    const node = n => { const av = avail(n.code), d = G.desc.get(n.key).size, crit = realCode(n.code) && G.level(n.key) + G.chain(n.key) - 1 === G.longest;
-      return `<button type="button" class="am-n av-${av.k} ${done.has(n.code) ? 'done' : ''} ${done.size && ready.has(n.code) ? 'ready' : ''} ${hit(n) ? '' : 'faded'}" data-k="${esc(n.key)}" title="${esc(av.t)}">
-        <span class="am-n-top"><code>${esc(n.code)}</code><span class="am-hr">${n.hours ?? '—'}</span></span>
+    const node = n => { const av = avail(n.code), d = G.desc.get(n.key).size, np = (G.pre.get(n.key) || []).length, crit = realCode(n.code) && G.level(n.key) + G.chain(n.key) - 1 === G.longest;
+      const st_ = av.k === 'open' ? ['bi-door-open-fill', `${av.open.length}/${av.s.length} مفتوحة`] : av.k === 'closed' ? ['bi-door-closed-fill', 'مغلقة'] : av.k === 'slot' ? ['bi-ui-checks-grid', 'اختياري'] : ['bi-slash-circle', 'غير مطروحة'];
+      return `<button type="button" class="am-n av-${av.k} ${crit ? 'crit' : ''} ${done.has(n.code) ? 'done' : ''} ${done.size && ready.has(n.code) ? 'ready' : ''} ${hit(n) ? '' : 'faded'}" data-k="${esc(n.key)}" aria-label="${esc((n.name || CODE_NAME[n.code] || '') + ' · ' + av.t)}">
+        <span class="am-n-top"><code>${esc(n.code)}</code>${crit ? '<span class="am-tag-crit" title="على أطول سلسلة متطلبات"><i class="bi bi-lightning-charge-fill"></i> حرجة</span>' : ''}<span class="am-hr">${n.hours ?? '—'} <small>س</small></span></span>
         <span class="am-nm">${esc(n.name || CODE_NAME[n.code] || '')}</span>
-        <span class="am-n-ft"><span class="am-dot"></span>${av.k === 'open' ? `${av.open.length}/${av.s.length} مفتوحة` : av.k === 'closed' ? 'مغلقة' : av.k === 'slot' ? 'اختياري' : 'غير مطروحة'}
-          ${d ? `<span class="am-un" title="تفتح ${d} مادة بعدها في الخطة"><i class="bi bi-unlock"></i>${d}</span>` : ''}${crit ? '<span class="am-crit" title="على أطول سلسلة متطلبات في الخطة: تأخيرها يؤخر ما بعدها"><i class="bi bi-lightning-charge-fill"></i></span>' : ''}</span></button>`; };
+        <span class="am-n-ft"><span class="am-stp s-${av.k}"><i class="bi ${st_[0]}"></i>${st_[1]}</span>
+          ${d ? `<span class="am-meta"><span class="un" title="تفتح ${d} مادة بعدها في الخطة"><i class="bi bi-unlock-fill"></i>تفتح ${d}</span></span>` : ''}</span></button>`; };
     const keyCourses = G.nodes.filter(n => realCode(n.code)).sort((a, b) => G.desc.get(b.key).size - G.desc.get(a.key).size || ORDER(a) - ORDER(b)).slice(0, 8);
     const counts = Object.fromEntries(Object.keys(AV).map(k => [k, G.nodes.filter(n => avail(n.code).k === k).length]));
     const flt = [['all', 'كل المواد'], ['seats', 'فيها مقاعد الآن'], ['offered', 'المطروحة الآن'], ['key', 'المفتاحية (تفتح 3+)'], ...(done.size ? [['ready', 'يمكن تسجيلها']] : [])];
@@ -395,6 +396,29 @@
     #ad-body .ap-term .ad-c.ap-r.next { background: #fffbeb; box-shadow: inset -3px 0 0 #e8b923; }
     @media (max-width: 600px) { .ap-terms { grid-template-columns: 1fr; } .ap-term { border-inline-start: 0; border-top: 1px solid #eef0f2; } }
     @media print { .ap-year { break-inside: avoid-page; } .ap-legend { display: none; } }
+    .am-n { gap: .2rem !important; padding: .42rem .5rem .38rem !important; }
+    .am-n-top { gap: .3rem; } .am-n-top code { font-size: .74rem !important; letter-spacing: .3px; }
+    .am-hr { margin-inline-start: auto; background: #0b4a66 !important; color: #fff; border-radius: 6px !important; padding: .02rem .4rem !important; font-size: .72rem; font-weight: 800; } .am-hr small { font-weight: 600; opacity: .85; font-size: .62rem; }
+    .am-tag-crit { background: #fef3c7; color: #b45309; border-radius: 99px; padding: 0 .35rem; font-size: .62rem; font-weight: 800; white-space: nowrap; } .am-tag-crit i { font-size: .62rem; }
+    .am-n.crit { box-shadow: inset 0 0 0 1px #fcd34d; }
+    .am-n-ft { justify-content: space-between; margin-top: .1rem; }
+    .am-stp { display: inline-flex; align-items: center; gap: .25rem; border-radius: 99px; padding: .05rem .45rem; font-size: .66rem; font-weight: 800; white-space: nowrap; }
+    .am-stp i { font-size: .7rem; }
+    .am-stp.s-open { background: #dcfce7; color: #166534; } .am-stp.s-closed { background: #ffedd5; color: #9a3412; } .am-stp.s-none { background: #f1f5f9; color: #64748b; } .am-stp.s-slot { background: #ede9fe; color: #5b21b6; }
+    .am-meta { display: inline-flex; gap: .3rem; } .am-meta span { display: inline-flex; align-items: center; gap: .15rem; background: #f1f5f9; color: #334155; border-radius: 6px; padding: 0 .3rem; font-size: .66rem; font-weight: 800; }
+    .am-meta span.un { background: #fde8ea; color: #901d23; } .am-meta i { font-size: .66rem; }
+    .am-n .am-dot, .am-n .am-un, .am-n .am-crit { display: none; }
+    #am-tip { position: fixed; z-index: 2000; pointer-events: none; opacity: 0; transform: translateY(4px); transition: opacity .14s, transform .14s; background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 18px 44px rgba(9,27,34,.28), 0 0 0 1px rgba(9,27,34,.06); font-size: .78rem; direction: rtl; }
+    #am-tip.on { opacity: 1; transform: none; }
+    .tp-h { display: flex; align-items: center; gap: .4rem; color: #fff; padding: .4rem .7rem; background: #0b4a66; } .tp-h.av-open { background: linear-gradient(135deg, #15803d, #0f5a2b); } .tp-h.av-closed { background: linear-gradient(135deg, #c2410c, #8a2e08); } .tp-h.av-none { background: linear-gradient(135deg, #475569, #2c3644); } .tp-h.av-slot { background: linear-gradient(135deg, #6d28d9, #4c1d95); }
+    .tp-h code { color: #fff; font-weight: 800; font-size: .9rem; } .tp-h span { background: rgba(255,255,255,.2); border-radius: 99px; padding: 0 .5rem; font-size: .7rem; font-weight: 700; }
+    .tp-b { padding: .55rem .7rem .5rem; } .tp-n { display: block; font-size: .95rem; color: #0f1d24; line-height: 1.35; } .tp-sub { color: #6c757d; font-size: .72rem; margin: .1rem 0 .45rem; }
+    .tp-g { display: grid; grid-template-columns: repeat(4, 1fr); gap: .25rem; margin-bottom: .45rem; } .tp-g div { background: #f6f8fa; border-radius: 8px; text-align: center; padding: .2rem 0; } .tp-g b { display: block; font-size: .92rem; color: #0f1d24; } .tp-g span { font-size: .58rem; color: #6c757d; }
+    .tp-r { display: flex; gap: .4rem; align-items: flex-start; margin-bottom: .3rem; } .tp-r > em { flex: none; font-style: normal; font-size: .64rem; font-weight: 800; background: #fff4d6; color: #7a4b00; border-radius: 5px; padding: .05rem .35rem; margin-top: .1rem; } .tp-r > em.un { background: #fde8ea; color: #901d23; } .tp-r > div { display: flex; flex-direction: column; gap: .1rem; min-width: 0; } .tp-r span { font-size: .72rem; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .tp-r code { color: #0b4a66; font-weight: 800; }
+    .tp-s { display: flex; gap: .45rem; align-items: flex-start; border-radius: 10px; padding: .35rem .5rem; margin-top: .2rem; } .tp-s b { display: block; font-size: .74rem; } .tp-s small { display: block; color: inherit; opacity: .85; font-size: .68rem; direction: rtl; }
+    .tp-s.s-open { background: #ecfdf3; color: #166534; } .tp-s.s-closed { background: #fff4ed; color: #9a3412; } .tp-s.s-none { background: #f1f5f9; color: #475569; } .tp-s.s-slot { background: #f5f3ff; color: #5b21b6; }
+    .tp-ft { margin-top: .4rem; font-size: .66rem; color: #94a3b8; text-align: center; }
+
     .pb-bar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .45rem; } .pb-lbl { align-self: center; font-size: .74rem; color: #6c757d; margin-inline-end: .35rem; }
     .pb-bar .btn { padding: .15rem .55rem; font-size: .78rem; }
     .pb-sum { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; margin-bottom: .45rem; }
@@ -644,10 +668,33 @@
       const db = $('#am-done'); if (db) db.onclick = () => { const d = getDone(p), c = db.dataset.c; d.has(c) ? d.delete(c) : d.add(c); setDone(p, d); const y = scrollY; render(); scrollTo(0, y); };
     }
     cv.querySelectorAll('.am-n').forEach(e => {
-      e.onclick = () => { if (dragged) return; pick(e.dataset.k === st.sel ? '' : e.dataset.k); };
-      e.onmouseenter = () => { if (!st.sel) light(e.dataset.k); };
-      e.onmouseleave = () => { if (!st.sel) light(''); };
+      e.onclick = () => { if (dragged) return; hideTip(); pick(e.dataset.k === st.sel ? '' : e.dataset.k); };
+      e.onmouseenter = () => { if (!st.sel) light(e.dataset.k); showTip(e); };
+      e.onmouseleave = () => { if (!st.sel) light(''); hideTip(); };
     });
+    // a rich card when the pointer rests on a course
+    let tipT;
+    const tip = (() => { let t = document.getElementById('am-tip'); if (!t) { t = document.createElement('div'); t.id = 'am-tip'; t.setAttribute('role', 'tooltip'); document.body.appendChild(t); } return t; })();
+    function hideTip() { clearTimeout(tipT); tip.classList.remove('on'); }
+    function showTip(el) { clearTimeout(tipT); tipT = setTimeout(() => {
+      const k = el.dataset.k, n = G.nodes.find(q => q.key === k); if (!n || dragged) return;
+      const av = avail(n.code), S = av.s || [], open = S.filter(isOpen), pre = G.pre.get(k) || [], dir = G.post.get(k) || [], des = G.desc.get(k).size;
+      const nm = c => esc((G.by.get(c) || {}).name || CODE_NAME[c] || '');
+      const times = [...new Set(S.flatMap(x => { const g = new Map(); (x.meetings || []).forEach(m => { const t = `${m.start}–${m.end}`; (g.get(t) || g.set(t, []).get(t)).push(m.day); }); return [...g].map(([t, d]) => `${d.map(D => DAY[D] || D).join('/')} <bdi dir="ltr">${t}</bdi>`); }))];
+      const crit = realCode(n.code) && G.level(k) + G.chain(k) - 1 === G.longest;
+      tip.innerHTML = `<div class="tp-h av-${av.k}"><code>${esc(n.code)}</code><span>${n.hours ?? '—'} س.م</span>${crit ? '<span><i class="bi bi-lightning-charge-fill"></i> حرجة</span>' : ''}</div>
+        <div class="tp-b"><b class="tp-n">${esc(n.name || CODE_NAME[n.code] || '')}</b>
+          <div class="tp-sub"><i class="bi bi-calendar3"></i> ${YEAR[n.year] || ''} · ${TERM[n.term]}${n.mark ? ` · علامة الخطة ${esc(n.mark)}` : ''}</div>
+          <div class="tp-g"><div><b>${pre.length}</b><span>متطلب سابق</span></div><div><b>${dir.length}</b><span>تفتح مباشرة</span></div><div><b>${des}</b><span>تفتح إجمالاً</span></div><div><b>${S.length ? open.length + '/' + S.length : '—'}</b><span>شعب مفتوحة</span></div></div>
+          ${pre.length ? `<div class="tp-r"><em>يتطلب</em><div>${pre.map(c => `<span><code>${c}</code> ${nm(c)}</span>`).join('')}</div></div>` : n.prereq ? `<div class="tp-r"><em>يتطلب</em><div><span>${esc(n.prereq)}</span></div></div>` : ''}
+          ${dir.length ? `<div class="tp-r"><em class="un">تفتح</em><div>${dir.slice(0, 4).map(c => `<span><code>${c}</code> ${nm(c)}</span>`).join('')}${dir.length > 4 ? `<span class="text-muted">و${dir.length - 4} أخرى</span>` : ''}</div></div>` : ''}
+          <div class="tp-s s-${av.k}"><i class="bi ${S.length ? 'bi-calendar-check' : 'bi-calendar-x'}"></i><div><b>${esc(av.t)}</b>${times.length ? times.slice(0, 4).map(t => `<small>${t}</small>`).join('') + (times.length > 4 ? `<small>و${times.length - 4} مواعيد أخرى</small>` : '') : ''}</div></div>
+          <div class="tp-ft">انقر لعرض الشعب والتفاصيل</div></div>`;
+      const r = el.getBoundingClientRect(), W = 300; tip.style.width = W + 'px'; tip.classList.add('on');
+      const h = tip.offsetHeight; let x = r.left - W - 12; if (x < 8) x = r.right + 12; if (x + W > innerWidth - 8) x = innerWidth - W - 8;
+      let y = r.top + r.height / 2 - h / 2; y = Math.max(8, Math.min(innerHeight - h - 8, y));
+      tip.style.left = x + 'px'; tip.style.top = y + 'px'; }, 260); }
+    sc.addEventListener('scroll', hideTip, { passive: true });
     cv.onclick = e => { if (!dragged && (e.target === cv || e.target.classList.contains('am-cols') || e.target.tagName === 'svg')) pick(''); };
     window.__amKey && document.removeEventListener('keydown', window.__amKey);
     window.__amKey = e => { if (st.view !== 'map' || !$('#am-canvas')) return;
