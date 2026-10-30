@@ -280,6 +280,15 @@
       </div></div>`;
   }
   const pinBtn = light => `<button type="button" class="am-ic ${light ? '' : 'dark'} ${PIN ? 'on' : ''}" data-pin title="${PIN ? 'إلغاء التثبيت: تطفو اللوحة فوق الخريطة وتُغلق مع إلغاء الاختيار' : 'تثبيت اللوحة بجانب الخريطة'}"><i class="bi ${PIN ? 'bi-pin-angle-fill' : 'bi-pin-angle'}"></i></button>`;
+  // the programme header on one row
+  if (!document.getElementById('ad-h-css')) { const c = document.createElement('style'); c.id = 'ad-h-css'; c.textContent = `
+    .ad-hrow { display: flex; align-items: center; gap: .35rem; flex-wrap: nowrap; overflow: hidden; white-space: nowrap; }
+    .ad-hrow .ad-title { font-size: 1.05rem; flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    .ad-hrow .badge { font-size: .7rem; flex: none; } .ad-hrow .ad-kp { flex: none; } .ad-hrow .flex-none { flex: none; }
+    .ad-vt-s { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: .72rem; }
+    @media (max-width: 1500px) { .ad-hrow .ad-sb span { display: none; } }
+    @media (max-width: 1200px) { .ad-vt-s { display: none; } }
+    @media (max-width: 900px) { .ad-hrow { flex-wrap: wrap; white-space: normal; } }`; document.head.appendChild(c); }
   // full screen: the map fills the whole screen (styles kept here so they arrive with the script)
   if (!document.getElementById('am-fs-css')) { const c = document.createElement('style'); c.id = 'am-fs-css'; c.textContent = `
     .am-wrap:fullscreen { display: flex; flex-direction: column; height: 100vh; width: 100vw; padding: .5rem; background: #f6f4ee; overflow: hidden; }
@@ -532,21 +541,20 @@
           <button type="button" class="btn btn-sm btn-outline-secondary ad-ib" id="ad-csv" title="تصدير CSV"><i class="bi bi-filetype-csv"></i></button>
           <button type="button" class="btn btn-sm btn-outline-secondary ad-ib" id="ad-print" title="طباعة"><i class="bi bi-printer"></i></button>
         </div></div></div>
-      ${p ? `<section class="card mb-2 ad-head"><div class="card-body py-2 px-3">
-          <div class="d-flex flex-wrap align-items-center gap-2">
-            <h2 class="ad-title m-0">${esc(p.ar || p.en)}</h2>
+      ${p ? `<section class="card mb-2 ad-head"><div class="card-body py-1 px-2">
+          <div class="ad-hrow">
+            <h2 class="ad-title m-0" title="${esc(p.en || '')}${x ? ` · ${esc(vTitle(x))} · ${esc(x.d.name)}` : ''}">${esc(p.ar || p.en)}</h2>
             <span class="badge rounded-pill text-bg-light border">${esc(p.faculty)}</span><span class="badge rounded-pill text-bg-light border">${p.type === 'master' ? 'ماجستير' : 'بكالوريوس'}</span>
-            ${x ? (x.r.ok ? '<span class="badge rounded-pill text-bg-success" title="قُرئت ومجاميع كل فصل تطابق المطبوع في الخطة"><i class="bi bi-check2-all"></i> مطابقة للمطبوع</span>' : '<span class="badge rounded-pill text-bg-secondary"><i class="bi bi-image"></i> تُعرض صفحاتها الأصلية</span>') : '<span class="badge rounded-pill text-bg-warning">لا خطة استرشادية منشورة على صفحة القسم</span>'}
-            <div class="ms-auto d-flex flex-wrap gap-1 no-print">
-              ${x ? `<a class="btn btn-sm btn-light border ad-sb" href="${esc(x.v.url)}" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> الملف الأصلي</a>` : ''}
-              <a class="btn btn-sm btn-light border ad-sb" href="${esc(p.url_ar)}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i> صفحة القسم</a>
-              ${pm ? `<a class="btn btn-sm btn-light border ad-sb" href="plans.html?plan=${encodeURIComponent(pm.pl.id)}" title="${pm.inter} مادة مشتركة"><i class="bi bi-journal-text"></i> الخطة على البوابة</a>` : ''}</div></div>
-          <div class="d-flex flex-wrap align-items-center gap-1 mt-1">
-            <small class="text-muted me-1">${esc(p.en || '')}${x ? ` · ${esc(vTitle(x))} · ${esc(x.d.name)}` : ''}</small>
+            ${x ? (x.r.ok ? '<span class="badge rounded-pill text-bg-success" title="قُرئت ومجاميع كل فصل تطابق المطبوع في الخطة"><i class="bi bi-check2-all"></i> مطابقة للمطبوع</span>' : '<span class="badge rounded-pill text-bg-secondary"><i class="bi bi-image"></i> صفحات أصلية</span>') : '<span class="badge rounded-pill text-bg-warning">لا خطة منشورة</span>'}
+            ${x ? `<small class="text-muted ad-vt-s" title="${esc(x.d.name)}">${esc(vTitle(x))}</small>` : ''}
             ${x && x.r.ok ? [[flat(x.r).size, 'مادة', '#0b4a66'], [x.r.years.reduce((a, y) => a + y.read_hours, 0), 'ساعة', '#901d23'], [x.r.years.length, 'سنوات', '#b8892b'],
-              [[...flat(x.r).keys()].filter(k => secs(k).length).length, 'مطروحة هذا الفصل', '#15803d'], ...(pm ? [[pm.missing.length, 'ليست في خطة البوابة', '#6d28d9']] : [])]
-              .map(([v, l, c]) => `<span class="ad-kp" style="--c:${c}"><b>${v}</b> ${l}</span>`).join('') : ''}</div>
-        </div></section>` : ''}
+              [[...flat(x.r).keys()].filter(k => secs(k).length).length, 'مطروحة', '#15803d'], ...(pm ? [[pm.missing.length, 'ليست في خطة البوابة', '#6d28d9']] : [])]
+              .map(([v, l, c]) => `<span class="ad-kp" style="--c:${c}"><b>${v}</b> ${l}</span>`).join('') : ''}
+            <span class="ms-auto d-inline-flex gap-1 no-print flex-none">
+              ${x ? `<a class="btn btn-sm btn-light border ad-sb" href="${esc(x.v.url)}" target="_blank" rel="noopener" title="الملف الأصلي على موقع الجامعة"><i class="bi bi-file-earmark-pdf"></i><span> الأصل</span></a>` : ''}
+              <a class="btn btn-sm btn-light border ad-sb" href="${esc(p.url_ar)}" target="_blank" rel="noopener" title="صفحة القسم"><i class="bi bi-box-arrow-up-left"></i><span> القسم</span></a>
+              ${pm ? `<a class="btn btn-sm btn-light border ad-sb" href="plans.html?plan=${encodeURIComponent(pm.pl.id)}" title="الخطة الدراسية على البوابة (${pm.inter} مادة مشتركة)"><i class="bi bi-journal-text"></i><span> البوابة</span></a>` : ''}</span>
+          </div></div></section>` : ''}
       <div id="ad-body">${!p || !x ? (p ? filesView(p) : '') : st.view === 'map' ? mapView(p, x) : st.view === 'now' ? nowView(p, x) : st.view === 'original' ? original(x) : st.view === 'versions' ? versionsView(p, vs, x) : st.view === 'advisor' ? advisorView(p, x) : st.view === 'files' ? filesView(p) : planGrid(x)}</div>
       <details class="ad-src mt-2"><summary><i class="bi bi-info-circle"></i> المصدر وطريقة القراءة</summary>المصدر: صفحات الأقسام على مواقع الكليات ومكتباتها (مع الإصدارات السابقة التي يحتفظ بها الموقع)، تُراجع مع كل تحديث للموقع.
         ${okN} برنامجاً خطته الحالية مقروءة بمطابقة كاملة؛ الباقي تُعرض صفحاته الأصلية. «مطروح الآن» من الجدول الدراسي المنشور. المرجع المعتمد هو موقع الجامعة.</details>`;
