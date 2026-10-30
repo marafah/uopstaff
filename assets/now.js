@@ -90,8 +90,8 @@
     const end = new Date(now.iso); end.setDate(end.getDate() + 14);
     const endIso = end.toISOString().slice(0, 10);
     const events = CAL.semesters.flatMap(s => s.events).filter(e => e.end >= now.iso && e.start <= endIso).sort((a, b) => a.start.localeCompare(b.start)).slice(0, 6);
-    const facs = [...new Set(S.map(s => s.faculty))].sort((a, b) => a.localeCompare(b, 'ar'));
-    const depts = [...new Set(S.filter(s => !st.fac || s.faculty === st.fac).map(s => s.department).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ar'));
+    const facs = [...new Set(S.filter(s => !st.bld || s.building === st.bld).map(s => s.faculty))].sort((a, b) => a.localeCompare(b, 'ar'));
+    const depts = [...new Set(S.filter(s => (!st.fac || s.faculty === st.fac) && (!st.bld || s.building === st.bld)).map(s => s.department).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ar'));
     const blds = [...new Set(S.map(s => s.building).filter(b => !/^-+$/.test(b)))].sort((a, b) => a.localeCompare(b, 'ar'));
     // what changes next: the nearest end or start
     const nextChange = T.ok ? Math.min(...scoped.flatMap(x => [x.a, x.b]).filter(t => t > now.min), 1e9) : 1e9;
@@ -141,9 +141,9 @@
     const kpi = (v, l, i, c) => `<div class="nw-k" style="--c:${c}"><i class="bi ${i}"></i><b>${v}</b><span>${l}</span></div>`;
     $('#now-app').innerHTML = `
       ${KIOSK ? '' : `<div class="nw-bar no-print">
+        <label class="nw-sel"><i class="bi bi-building"></i><select id="now-bld" aria-label="المبنى"><option value="">كل المباني</option>${blds.map(b => `<option ${b === st.bld ? 'selected' : ''}>${esc(b)}</option>`).join('')}</select></label>
         <label class="nw-sel"><i class="bi bi-bank2"></i><select id="now-fac" aria-label="الكلية"><option value="">كل الكليات</option>${facs.map(f => `<option ${f === st.fac ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select></label>
         <label class="nw-sel"><i class="bi bi-diagram-3"></i><select id="now-dept" aria-label="القسم"><option value="">كل الأقسام</option>${depts.map(d => `<option ${d === st.dept ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select></label>
-        <label class="nw-sel"><i class="bi bi-building"></i><select id="now-bld" aria-label="المبنى"><option value="">كل المباني</option>${blds.map(b => `<option ${b === st.bld ? 'selected' : ''}>${esc(b)}</option>`).join('')}</select></label>
         ${st.q ? `<span class="nw-q"><i class="bi bi-search"></i> «${esc(P.get('q') || st.q)}»</span>` : ''}
         <span class="nw-live"><span class="dot"></span> مباشر · تتحدّث كل دقيقة</span>
         <a class="nw-kiosk" href="?kiosk=1${st.fac ? '&fac=' + encodeURIComponent(st.fac) : ''}${st.dept ? '&dept=' + encodeURIComponent(st.dept) : ''}${st.bld ? '&bld=' + encodeURIComponent(st.bld) : ''}"><i class="bi bi-display"></i> وضع الشاشة</a></div>`}
@@ -178,7 +178,7 @@
     const f = $('#now-fac'), b = $('#now-bld');
     if (f) f.addEventListener('change', e => { st.fac = e.target.value; st.dept = ''; st.pg = {}; sync(); render(); });
     const dp = $('#now-dept'); if (dp) dp.addEventListener('change', e => { st.dept = e.target.value; st.pg = {}; sync(); render(); });
-    if (b) b.addEventListener('change', e => { st.bld = e.target.value; sync(); render(); });
+    if (b) b.addEventListener('change', e => { st.bld = e.target.value; st.pg = {}; if (st.fac && !S.some(x => x.faculty === st.fac && (!st.bld || x.building === st.bld))) st.fac = st.dept = ''; if (st.dept && !S.some(x => x.department === st.dept && (!st.bld || x.building === st.bld))) st.dept = ''; sync(); render(); });
     document.querySelectorAll('[data-bf]').forEach(x => x.addEventListener('click', () => { st.bf = x.dataset.bf; st.pg = {}; render(); }));
     paginate();
   }
