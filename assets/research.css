@@ -1676,3 +1676,32 @@ button.na-val { cursor: pointer; } button.na-val i { color: var(--g); font-size:
 .np-tp { white-space: nowrap; } .na-pt .np-tp, .na-vt .np-tp { font-size: .8rem; padding: .15rem .55rem; }
 @media screen and (max-width: 767.98px) { .na-vt td:first-child { flex: 1 1 100%; } }
 .na-rb.ok { background: #dcfce7; color: #166534; } .na-scnt .ok { background: #dcfce7; color: #166534; }
+/* scan: criteria that need review as uniform cards */
+.na-sg { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: .45rem; min-width: 280px; }
+.na-si { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; align-items: center; gap: .5rem; background: #fff; border: 1px solid color-mix(in srgb, var(--g) 22%, #fff); border-inline-start: 4px solid var(--g); border-radius: 10px; padding: .4rem .55rem; }
+.na-si.l2 { background: color-mix(in srgb, var(--g) 6%, #fff); }
+.na-si > i { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; background: color-mix(in srgb, var(--g) 13%, #fff); color: var(--g); font-size: .95rem; }
+.na-si .tx { min-width: 0; line-height: 1.3; } .na-si .tx b { display: block; font-size: .8rem; color: #091b22; }
+.na-si .tx span { display: block; font-size: .76rem; font-weight: 700; color: var(--g); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: rtl; }
+.na-si em { font-style: normal; display: inline-flex; align-items: center; gap: .25rem; font-size: .7rem; font-weight: 800; border-radius: 99px; padding: .12rem .5rem; white-space: nowrap; }
+.na-si.l2 em { background: #b91c1c; color: #fff; } .na-si.l1 em { background: #fde7c7; color: #92400e; }
+.na-scan td:nth-last-child(2) { min-width: 300px; }
+@media print { .na-sg { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1mm; min-width: 0; } .na-si { padding: .8mm 1.2mm; grid-template-columns: 5mm minmax(0, 1fr) auto; } .na-si > i { width: 5mm; height: 5mm; font-size: 6.5pt; } .na-si .tx b { font-size: 6.8pt; } .na-si .tx span { font-size: 6.5pt; white-space: normal; } .na-si em { font-size: 6pt; } .na-scan td:nth-last-child(2) { min-width: 0; } }
+.na-sg { grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); }
+.na-si { min-height: 56px; align-items: center; }
+.na-si .tx b { font-size: .8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.na-si .tx span { direction: rtl; font-size: .78rem; }
+.na-si .tx small { display: block; font-size: .7rem; color: #4b5563; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right; }
+.na-si em { flex-direction: column; gap: 0; padding: .2rem .4rem; border-radius: 8px; font-size: .64rem; line-height: 1.2; }
+.na-si em i { font-size: .8rem; }
+.na-si em.hi { background: #b91c1c; color: #fff; } .na-si em.md { background: #fde7c7; color: #92400e; }
+.na-sg { grid-template-columns: repeat(auto-fill, minmax(235px, 1fr)); align-items: stretch; }
+.na-si .tx b, .na-si .tx span { white-space: normal; overflow: visible; }
+@media screen and (max-width: 767.98px) {
+  .na-scan thead { display: none; } .na-scan, .na-scan tbody { display: block; width: 100% !important; }
+  .na-scan tbody tr { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem .6rem; padding: .7rem .4rem; border-bottom: 1px solid #f0ece2; }
+  .na-scan tbody td { display: block; padding: 0 !important; border: 0 !important; background: transparent !important; min-width: 0 !important; }
+  .na-scan td:nth-last-child(2) { flex: 1 1 100%; order: 5; } .na-scan td.na-act { order: 6; }
+  .na-sg { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+}
+@media screen and (max-width: 767.98px) { .rs-scroll:has(> .na-scan) { max-height: none !important; overflow: visible; } }
