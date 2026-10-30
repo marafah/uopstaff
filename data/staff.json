@@ -1,5 +1,5 @@
 {
-"updated": "2026-10-29T16:59:30Z",
+"updated": "2026-10-30T16:00:44Z",
 "main_line": "+96265799555",
 "main_line_display": "06 5799555",
 "faculties": [
@@ -3076,7 +3076,7 @@
 "type": "academic",
 "faculty": 1,
 "name": "د. محمد عطاالله محمد العودات",
-"name_en": "Mohammad Attahhah Mo'd Al Awdat",
+"name_en": "Mohammad Atallah Moh'd AL-Oudat",
 "job": "رئيس قسم علم الحاسوب",
 "rank": "أستاذ مساعد",
 "rank_order": 3,
@@ -4811,10 +4811,10 @@
 "ext": "8301",
 "office": "8301",
 "email": "hshaker@uop.edu.jo",
-"photo": "assets/photos/c7f8cc0b213333fc.jpg",
+"photo": "assets/photos/d85040206cc40bd8.jpg",
 "profile": "https://pharma.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=68007300680061006B0065007200400075006F0070002E006500640075002E006A006F00",
 "source": "academic_api",
-"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20251007.jpg"
+"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20251007.png"
 },
 {
 "id": "A:73006100620075006A00610064006100790069006C00400075006F0070002E006500640075002E006A006F00",
