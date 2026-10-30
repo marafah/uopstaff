@@ -234,6 +234,19 @@
         cols.get(k).sort((x, y) => sc.get(x.key) - sc.get(y.key)).forEach((n, i) => pos.set(n.key, i));
       });
     }
+    // then swap neighbours in a column whenever that shortens the links and crosses fewer of them
+    const E = []; G.nodes.forEach(n => (G.pre.get(n.key) || []).forEach(a => { if (colOf.has(a) && colOf.get(a) !== colOf.get(n.key)) E.push([a, n.key]); }));
+    const touch = new Map(); E.forEach(e => e.forEach(k => (touch.get(k) || touch.set(k, []).get(k)).push(e)));
+    const cost = ks => { const es = new Set(ks.flatMap(k => touch.get(k) || [])); let c = 0;
+      es.forEach(([a, b]) => { c += Math.abs(pos.get(a) - pos.get(b)); });
+      es.forEach(e1 => E.forEach(e2 => { if (e1 === e2) return;   // links that share their two columns and cross
+        if (colOf.get(e1[0]) === colOf.get(e2[0]) && colOf.get(e1[1]) === colOf.get(e2[1]) && (pos.get(e1[0]) - pos.get(e2[0])) * (pos.get(e1[1]) - pos.get(e2[1])) < 0) c += 1.5; }));
+      return c; };
+    for (let it = 0, better = true; it < 8 && better; it++) { better = false;
+      keys.forEach(k => { const arr = cols.get(k);
+        for (let i = 0; i + 1 < arr.length; i++) { const u = arr[i], v = arr[i + 1]; if (!touch.has(u.key) && !touch.has(v.key)) continue;
+          const before = cost([u.key, v.key]); pos.set(u.key, i + 1); pos.set(v.key, i);
+          if (cost([u.key, v.key]) + 1e-9 < before) { arr[i] = v; arr[i + 1] = u; better = true; } else { pos.set(u.key, i); pos.set(v.key, i + 1); } } }); }
     const q = norm(st.q.trim());
     const hit = n => { const av = avail(n.code).k;
       return (!q || norm(n.code + ' ' + (n.name || '') + ' ' + (CODE_NAME[n.code] || '')).includes(q)) &&
@@ -282,6 +295,7 @@
   const pinBtn = light => `<button type="button" class="am-ic ${light ? '' : 'dark'} ${PIN ? 'on' : ''}" data-pin title="${PIN ? 'إلغاء التثبيت: تطفو اللوحة فوق الخريطة وتُغلق مع إلغاء الاختيار' : 'تثبيت اللوحة بجانب الخريطة'}"><i class="bi ${PIN ? 'bi-pin-angle-fill' : 'bi-pin-angle'}"></i></button>`;
   // the programme header on one row
   if (!document.getElementById('ad-h-css')) { const c = document.createElement('style'); c.id = 'ad-h-css'; c.textContent = `
+    .am-col { gap: 16px !important; }
     .ad-hrow { display: flex; align-items: center; gap: .35rem; flex-wrap: nowrap; overflow: hidden; white-space: nowrap; }
     .ad-hrow .ad-title { font-size: 1.05rem; flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
     .ad-hrow .badge { font-size: .7rem; flex: none; } .ad-hrow .ad-kp { flex: none; } .ad-hrow .flex-none { flex: none; }
@@ -387,10 +401,29 @@
       const e = { a: pk, b: n.key }; edges.push(e); (outs.get(pk) || outs.set(pk, []).get(pk)).push(e); (ins.get(n.key) || ins.set(n.key, []).get(n.key)).push(e); }));
     const port = (list, e, k, other) => { const bx = box[k]; list.sort((u, v) => box[u[other]].y - box[v[other]].y);
       const i = list.indexOf(e), n = list.length; return n === 1 ? bx.y : bx.t + bx.h * (0.28 + 0.44 * i / (n - 1)); };
+    // the columns, right to left, with the free gaps between their cards: a link that skips columns runs through those gaps
+    const COLS = [...cv.querySelectorAll('.am-col')].map(c => { const r = c.getBoundingClientRect(), cards = [...c.querySelectorAll('.am-n')].map(e => box[e.dataset.k]).filter(Boolean);
+      const hd = c.querySelector('header'), hb = hd ? (hd.getBoundingClientRect().bottom - R.top) / z : (r.top - R.top) / z;
+      const gaps = [];
+      cards.forEach((q, i) => gaps.push(i ? (cards[i - 1].t + cards[i - 1].h + q.t) / 2 : (hb + q.t) / 2));
+      if (cards.length) { const last = cards[cards.length - 1]; gaps.push(last.t + last.h + 10); } else gaps.push(hb + 20);
+      return { l: (r.left - R.left) / z, r: (r.right - R.left) / z, gaps, use: new Map() }; }).sort((u, v) => v.l - u.l);
+    const colAt = bx => COLS.findIndex(c => bx.l >= c.l - 2 && bx.r <= c.r + 2);
     const paths = edges.map(e => { const a = box[e.a], b = box[e.b];
       const ay = port(outs.get(e.a), e, e.a, 'b'), by = port(ins.get(e.b), e, e.b, 'a');
       let d;
-      if (b.r < a.l - 4) { const c = Math.max(26, (a.l - b.r) * 0.5); d = `M${a.l},${ay} C${a.l - c},${ay} ${b.r + c},${by} ${b.r + 2},${by}`; }   // RTL: the later course sits to the left
+      const ia = colAt(a), ib = colAt(b);
+      if (ia >= 0 && ib > ia + 1) {   // skips columns: through the nearest gap of each column on the way, never across a card
+        let x = a.l, y = ay; d = `M${a.l},${ay}`;
+        for (let c = ia + 1; c < ib; c++) { const C = COLS[c], steps = ib - c;
+          const want = y + (by - y) / steps;   // drift towards the target
+          let g = C.gaps.reduce((best, gy) => Math.abs(gy - want) + 0.35 * Math.abs(gy - y) < Math.abs(best - want) + 0.35 * Math.abs(best - y) ? gy : best, C.gaps[0]);
+          const n = C.use.get(g) || 0; C.use.set(g, n + 1); const gy = g + (n % 2 ? -1 : 1) * Math.ceil(n / 2) * 3;   // several links in one gap sit side by side
+          const k = Math.max(14, (x - C.r) / 2);
+          d += ` C${x - k},${y} ${C.r + k},${gy} ${C.r},${gy} L${C.l},${gy}`; x = C.l; y = gy; }
+        const k = Math.max(14, (x - b.r) / 2); d += ` C${x - k},${y} ${b.r + k},${by} ${b.r + 2},${by}`;
+      }
+      else if (b.r < a.l - 4) { const c = Math.max(26, (a.l - b.r) * 0.5); d = `M${a.l},${ay} C${a.l - c},${ay} ${b.r + c},${by} ${b.r + 2},${by}`; }   // RTL: the later course sits to the left
       else if (a.r < b.l - 4) { const c = Math.max(26, (b.l - a.r) * 0.5); d = `M${a.r},${ay} C${a.r + c},${ay} ${b.l - c},${by} ${b.l - 2},${by}`; }
       else { const o = Math.min(a.l, b.l) - 26; d = `M${a.l},${ay} C${o},${ay} ${o},${by} ${b.l - 2},${by}`; }                                        // same column: a loop on the left
       return `<path d="${d}" data-a="${esc(e.a)}" data-b="${esc(e.b)}" marker-end="url(#am-ar)"/>`; }).join('');
