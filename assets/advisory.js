@@ -443,6 +443,24 @@
     @media (max-width: 1100px) { .pb-board { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); } }
     @media print { .pb-board { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); } }
 
+
+    .am-stb { border: 1px solid #e6ebf0; border-radius: 12px; overflow: hidden; background: #fff; }
+    .am-stb table { width: 100%; border-collapse: collapse; font-size: .74rem; table-layout: fixed; }
+    .am-stb th { position: sticky; top: 0; background: #0b4a66; color: #fff; font-weight: 700; font-size: .68rem; padding: .35rem .4rem; text-align: start; }
+    .am-stb th:nth-child(1) { width: 46px; } .am-stb th:nth-child(2) { width: 96px; } .am-stb th:nth-child(4) { width: 78px; }
+    .am-stb td { padding: .38rem .4rem; border-top: 1px solid #f0f2f4; vertical-align: middle; } .am-stb tr:nth-child(even) td { background: #fafbfc; }
+    .am-stb tr td:first-child { border-inline-start: 3px solid #15803d; } .am-stb tr.full td:first-child { border-inline-start-color: #d97706; } .am-stb tr.no td:first-child { border-inline-start-color: #b91c1c; }
+    .am-stb tr.no td { color: #8a949b; }
+    .am-stb-n { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 7px; background: #0b4a66; color: #fff; font-weight: 800; font-size: .76rem; } .am-stb tr.no .am-stb-n { background: #94a3b8; }
+    .am-stb td small { display: block; color: #6c757d; font-size: .64rem; margin-top: .1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .am-stb-t { display: flex; flex-direction: column; gap: .1rem; margin-bottom: .15rem; } .am-stb-t bdi { font-weight: 700; color: #0b4a66; font-size: .74rem; }
+    .am-stb-d { display: inline-flex; gap: 2px; } .am-stb-d i { font-style: normal; display: grid; place-items: center; width: 17px; height: 17px; border-radius: 4px; background: #0b4a66; color: #fff; font-size: .62rem; font-weight: 800; }
+    .am-stb td em { font-style: normal; background: #ede9fe; color: #5b21b6; border-radius: 5px; padding: 0 .3rem; font-size: .62rem; }
+    .am-stb td:nth-child(3) a:first-child { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #0f1d24; font-weight: 600; line-height: 1.3; text-decoration: none; } .am-stb td:nth-child(3) a:first-child:hover { text-decoration: underline; }
+    .am-stb td:nth-child(3) small a { color: #0b4a66; }
+    .am-stb .am-pill { display: inline-block; font-size: .62rem; padding: 0 .4rem; }
+    .am-stb-bar { display: block; height: 5px; background: #e9ecef; border-radius: 99px; overflow: hidden; margin: .2rem 0 .1rem; } .am-stb-bar i { display: block; height: 100%; background: #15803d; }
+    .am-stb tr.full .am-stb-bar i { background: #d97706; } .am-stb tr.no .am-stb-bar i { background: #b91c1c; } .am-stb td small b { color: #15803d; }
     .am-tt { margin-top: .8rem; border: 1px solid #e3e9ee; border-radius: 14px; padding: .6rem .7rem; background: linear-gradient(180deg, #f8fbfd, #fff); }
     .am-tt-h { display: flex; align-items: baseline; justify-content: space-between; gap: .4rem; } .am-tt-h h4 { margin: 0 !important; } .am-tt-h small { color: #6c757d; font-size: .7rem; }
     .am-wk { margin: .55rem 0 .5rem; font-size: .66rem; }
@@ -520,6 +538,18 @@
       <div class="am-wk-bd"><div class="am-wk-t">${hours.slice(0, -1).map(t => `<span>${Math.floor(t / 60)}:00</span>`).join('')}</div>
         <div class="am-wk-g" style="grid-template-columns:repeat(${days.length},1fr)">${col()}</div></div></div>`;
   }
+  // every section of a course as a compact table
+  function secTable(L) {
+    return `<div class="am-stb"><table><thead><tr><th>شعبة</th><th>الموعد</th><th>المدرّس · القاعة</th><th>المقاعد</th></tr></thead><tbody>
+      ${L.map(x => { const sc = secState(x), pc = Math.min(100, x.capacity ? 100 * x.registered / x.capacity : 100), left = Math.max(0, x.capacity - x.registered);
+        const g = new Map(); (x.meetings || []).forEach(m => { const k = `${m.start}–${m.end}`; (g.get(k) || g.set(k, []).get(k)).push(m.day); });
+        const modes = [...new Set((x.meetings || []).map(m => m.mode).filter(m => m && m !== 'وجاهي'))];
+        return `<tr class="${sc}">
+          <td><span class="am-stb-n">${esc(x.section)}</span><small>${esc(x.activity)}</small></td>
+          <td>${[...g].map(([t, d]) => `<div class="am-stb-t"><span class="am-stb-d">${d.map(D => `<i title="${DAY[D] || D}">${D}</i>`).join('')}</span><bdi dir="ltr">${t}</bdi></div>`).join('') || `<small>${esc(x.time || '—')}</small>`}${modes.map(m => `<em>${esc(m)}</em>`).join('')}</td>
+          <td><a href="instructor.html?q=${encodeURIComponent(x.instructor || '')}" title="${esc(x.instructor || '')}">${esc(x.instructor || '—')}</a><small><i class="bi bi-door-open"></i> ${x.room === '0' ? 'قاعة افتراضية' : `<a href="room.html?q=${encodeURIComponent(x.room)}" title="${esc(x.building || '')}">${esc(x.room)}</a>`}</small></td>
+          <td><span class="am-pill ${sc}">${sc === 'no' ? 'مغلقة' : sc === 'full' ? 'ممتلئة' : 'مفتوحة'}</span><span class="am-stb-bar"><i style="width:${pc}%"></i></span><small><bdi dir="ltr">${x.registered}/${x.capacity}</bdi>${sc === 'ok' ? ` · <b>${left} متاح</b>` : ''}</small></td></tr>`; }).join('')}</tbody></table></div>`;
+  }
   function secRow(x) {
     const sc = secState(x), pc = Math.min(100, x.capacity ? 100 * x.registered / x.capacity : 100);
     const g = new Map(); (x.meetings || []).forEach(m => { const k = `${m.start}–${m.end}`; (g.get(k) || g.set(k, []).get(k)).push(m.day); });
@@ -572,7 +602,7 @@
     else if (tab === 'secs') { const L = S.filter(s => !st.po || isOpen(s)).sort((a, b) => (+a.section || 0) - (+b.section || 0));
       body = S.length ? `<div class="d-flex justify-content-between align-items-center mb-2"><small class="text-muted">${open.length} مفتوحة من ${S.length} · ${free} مقعداً متاحاً</small>
           <label class="form-check form-switch m-0 small"><input class="form-check-input" type="checkbox" id="am-po" ${st.po ? 'checked' : ''}> المفتوحة فقط</label></div>
-        <div class="am-secs">${L.map(secCard).join('') || '<p class="small text-muted">لا شعب مفتوحة.</p>'}</div>`
+        ${L.length ? secTable(L) : '<p class="small text-muted">لا شعب مفتوحة.</p>'}`
         : '<p class="small text-muted">لا شعب لهذه المادة في الجدول الدراسي المنشور لهذا الفصل.</p>'; }
     else body = `<p class="small text-muted">من أول متطلب إلى آخر مادة تعتمد عليها، مرتبة على مراحل. اضغط أي مادة لتنتقل إليها.</p>
       <div class="am-path">${levels(anc, c => G.level(c)).map(([l, cs]) => `<div class="am-step anc"><span>مرحلة ${l}</span><div class="am-chips">${cs.map(chip).join('')}</div></div>`).join('')}
