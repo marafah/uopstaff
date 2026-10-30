@@ -116,18 +116,34 @@
       <i class="bi ${KINDS[k][2]}"></i><code>${esc(n.code)}</code><b>${esc(n.name || CODE_NAME[n.code] || '')}</b><em>${n.hours ?? '—'} س</em><u></u>${d ? `<small title="تفتح ${d} مادة بعدها"><i class="bi bi-unlock-fill"></i>تفتح ${d}</small>` : ''}${extra}</span>`;
   }
   // pyramid: foundations at the base, each level up needs the levels below it
+  const YR = ['', 'الأولى', 'الثانية', 'الثالثة', 'الرابعة', 'الخامسة', 'السادسة'];
   function planPyramid(x) {
     const G = graph(x), major = majorOf(x.r), q = norm(st.q.trim());
+    window.__pyrG = G;
     const lv = new Map(); G.nodes.filter(n => realCode(n.code)).forEach(n => { const l = G.level(n.key); (lv.get(l) || lv.set(l, []).get(l)).push(n); });
     const keys = [...lv.keys()].sort((a, b) => b - a), top = keys[0] || 1;
     const slots = G.nodes.filter(n => !realCode(n.code));
     const hit = n => !q || norm(n.code + ' ' + (n.name || '')).includes(q);
-    return `<div class="pv-help"><i class="bi bi-info-circle"></i> القاعدة: مواد بلا متطلب في الخطة؛ وكل طبقة أعلى تحتاج مواد من الطبقات تحتها. القمة آخر حلقة في أطول سلسلة (${top} مواد متتالية). انقر المادة لعرضها في الخريطة.</div>
-      <div class="pv-pyr">${keys.map(l => { const ns = lv.get(l).sort((a, b) => ORDER(a) - ORDER(b)), h = ns.reduce((a, n) => a + (n.hours || 0), 0);
-        return `<div class="pv-lv" style="--w:${Math.round(46 + 54 * (top - l + 1) / top)}%;--t:${(l - 1) / Math.max(1, top - 1)}">
-          <div class="pv-lv-h"><b>${l === 1 ? 'القاعدة' : l === top ? 'القمة' : 'الطبقة ' + l}</b><small>${ns.length} مادة · ${h} س</small></div>
-          <div class="pv-lv-b">${ns.map(n => `<span class="${hit(n) ? '' : 'dim'}">${miniChip(n, G, major)}</span>`).join('')}</div></div>`; }).join('')}</div>
-      ${slots.length ? `<div class="pv-slots"><b><i class="bi bi-ui-checks-grid"></i> خانات اختيار (${slots.length})</b>${slots.map(n => miniChip(n, G, major)).join('')}</div>` : ''}`;
+    const all = G.nodes.filter(n => realCode(n.code)), offAll = all.filter(n => secs(n.code).length).length;
+    const card = n => { const k = kindOf(n.code, major), av = avail(n.code), d = G.desc.get(n.key).size, pre = (G.pre.get(n.key) || []).length;
+      return `<div class="ad-c py-c ${hit(n) ? '' : 'dim'}" data-code="${esc(n.code)}" data-k="${esc(n.key)}" style="--k:${KINDS[k][1]}" title="${esc(KINDS[k][0] + ' · ' + av.t + (n.prereq ? ' · المتطلب: ' + n.prereq : ''))}">
+        <div class="py-t"><i class="bi ${KINDS[k][2]}"></i><code>${esc(n.code)}</code><span>${n.hours ?? '—'} س</span></div>
+        <b>${esc(n.name || CODE_NAME[n.code] || '')}</b>
+        <div class="py-f"><span class="py-s s-${av.k}">${av.k === 'open' ? `${av.open.length}/${av.s.length} مفتوحة` : av.k === 'closed' ? 'مغلقة' : 'غير مطروحة'}</span>${pre ? `<span class="py-b req">يتطلب ${pre}</span>` : ''}${d ? `<span class="py-b unl"><i class="bi bi-unlock-fill"></i> تفتح ${d}</span>` : ''}</div>
+        <small class="py-w">السنة ${YR[n.year] || n.year} · ${TERM[n.term]}</small></div>`; };
+    return `<div class="py-sum">
+        <div><b>${top}</b><span>طبقات (أطول سلسلة متطلبات)</span></div>
+        <div><b>${(lv.get(1) || []).length}</b><span>مادة تأسيسية بلا متطلب</span></div>
+        <div><b>${all.length}</b><span>مادة برقم في الخطة</span></div>
+        <div><b>${offAll}</b><span>مطروحة هذا الفصل</span></div>
+        <p><i class="bi bi-lightbulb"></i> اقرأ الهرم من الأسفل: لا يُبنى طابق قبل ما تحته. مرّر على مادة لترى ما تحتاجه (بالبرتقالي) وما تفتحه (بالأخضر)، وانقرها لعرضها في الخريطة.</p></div>
+      <div class="py">${keys.map(l => { const ns = lv.get(l).sort((a, b) => ORDER(a) - ORDER(b)), h = ns.reduce((a, n) => a + (n.hours || 0), 0), t = (l - 1) / Math.max(1, top - 1);
+        const yrs = [...new Set(ns.map(n => n.year))].sort((a, b) => a - b), off = ns.filter(n => secs(n.code).length).length;
+        const name = l === 1 ? 'القاعدة' : l === top ? 'القمة' : 'الطبقة ' + l, role = l === 1 ? 'مواد تأسيسية' : l === top ? 'آخر حلقة في السلسلة' : t < .5 ? 'مواد بناء' : 'مواد متقدمة';
+        return `<section class="py-l" style="--t:${t};--w:${Math.round(58 + 42 * (1 - t))}%">
+          <aside><span class="py-n">${l}</span><div><b>${name}</b><small>${role}</small><small>${ns.length} مادة · ${h} س</small><small>السنة ${yrs.map(y => YR[y] || y).join('–')}</small><small class="py-o">${off} مطروحة الآن</small></div></aside>
+          <div class="py-band"><div class="py-grid">${ns.map(card).join('')}</div></div></section>`; }).join('')}</div>
+      ${slots.length ? `<div class="pv-slots"><b><i class="bi bi-ui-checks-grid"></i> خانات اختيار (${slots.length}) — يختار لها الطالب مادة من مجموعة الخطة</b>${slots.map(n => miniChip(n, G, major)).join('')}</div>` : ''}`;
   }
   // tree: from each foundation course down to everything it opens
   function planTree(x) {
@@ -522,6 +538,31 @@
     .pv-c small { color: #15803d !important; background: #dcfce7 !important; } .pv-c small.pv-also { color: #6c757d !important; background: #f1f5f9 !important; }
     .am-meta span.un { background: #dcfce7 !important; color: #15803d !important; }
     .am-meta i, .pv-c small i { font-size: .72rem !important; }
+
+    /* pyramid */
+    .py-sum { display: flex; flex-wrap: wrap; gap: .5rem; align-items: stretch; margin-bottom: .8rem; }
+    .py-sum > div { background: #fff; border: 1px solid #e6ebf0; border-radius: 12px; padding: .35rem .8rem; min-width: 120px; box-shadow: 0 1px 3px rgba(9,27,34,.05); }
+    .py-sum > div b { display: block; font-size: 1.3rem; color: #0b4a66; line-height: 1.1; } .py-sum > div span { font-size: .7rem; color: #6c757d; }
+    .py-sum p { flex: 1 1 320px; margin: 0; align-self: center; font-size: .76rem; color: #5b6970; background: #fffbea; border: 1px dashed #f1d98a; border-radius: 10px; padding: .4rem .7rem; }
+    .py { display: flex; flex-direction: column; gap: 6px; }
+    .py-l { --pc: color-mix(in srgb, #901d23 calc(var(--t) * 100%), #0b4a66); display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 10px; align-items: stretch; }
+    .py-l aside { display: flex; gap: .5rem; align-items: center; background: #fff; border: 1px solid #e6ebf0; border-inline-start: 5px solid var(--pc); border-radius: 12px; padding: .4rem .55rem; }
+    .py-n { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; color: #fff; font-weight: 800; background: var(--pc); }
+    .py-l aside b { display: block; font-size: .86rem; color: #0f1d24; } .py-l aside small { display: block; font-size: .66rem; color: #6c757d; line-height: 1.35; } .py-l aside small.py-o { color: #15803d; font-weight: 700; }
+    .py-band { width: var(--w); margin: 0 auto; padding: .55rem 4.5%; clip-path: polygon(3% 0, 97% 0, 100% 100%, 0 100%); background: linear-gradient(180deg, var(--pc), color-mix(in srgb, var(--pc) 72%, #ffffff)); border-radius: 4px; }
+    .py-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+    .ad-c.py-c { width: 196px; margin: 0; background: #fff; border: 0; border-top: 3px solid var(--k); border-radius: 10px; padding: .35rem .5rem .3rem; font-size: .74rem; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.15); transition: transform .12s, opacity .12s, box-shadow .12s; }
+    .ad-c.py-c:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,.25); }
+    .py-t { display: flex; align-items: center; gap: .3rem; } .py-t i { color: var(--k); } .py-t code { color: #64748b; font-size: .66rem; font-weight: 700; } .py-t span { margin-inline-start: auto; background: color-mix(in srgb, var(--k) 14%, #fff); color: var(--k); border-radius: 6px; padding: 0 .35rem; font-weight: 800; font-size: .66rem; }
+    .py-c > b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #0f1d24; line-height: 1.3; min-height: 2.6em; margin: .15rem 0; }
+    .py-f { display: flex; flex-wrap: wrap; gap: .2rem; } .py-s, .py-b { display: inline-flex; align-items: center; gap: .2rem; border-radius: 99px; padding: .02rem .4rem; font-size: .6rem; font-weight: 800; white-space: nowrap; }
+    .py-s.s-open { background: #16a34a; color: #fff; } .py-s.s-closed { background: #ea580c; color: #fff; } .py-s.s-none { background: #e2e8f0; color: #475569; }
+    .py-b.req { background: #fff4d6; color: #8a5a00; } .py-b.unl { background: #dcfce7; color: #15803d; }
+    .py-w { display: block; color: #94a3b8; font-size: .6rem; margin-top: .15rem; }
+    .py.focus .py-c { opacity: .3; } .py.focus .py-c.sel, .py.focus .py-c.anc, .py.focus .py-c.desc { opacity: 1; }
+    .py-c.sel { outline: 3px solid #0b4a66; } .py-c.anc { outline: 3px solid #f59e0b; } .py-c.desc { outline: 3px solid #16a34a; }
+    .py-c.dim { opacity: .3; }
+    @media (max-width: 900px) { .py-l { grid-template-columns: 1fr; } .py-band { width: 100%; clip-path: none; } }
     .pb-bar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .45rem; } .pb-lbl { align-self: center; font-size: .74rem; color: #6c757d; margin-inline-end: .35rem; }
     .pb-bar .btn { padding: .15rem .55rem; font-size: .78rem; }
     .pb-sum { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; margin-bottom: .45rem; }
@@ -981,6 +1022,9 @@
       clearTimeout(window.__amR); window.onresize = () => { clearTimeout(window.__amR); window.__amR = setTimeout(() => st.view === 'map' && drawMap(p, x), 200); };
     }
     document.querySelectorAll('[data-pl]').forEach(b => b.onclick = () => { st.pl = b.dataset.pl; try { localStorage.setItem('uop-ad-pl', st.pl); } catch (e) { /* storage unavailable */ } render(); });
+    document.querySelectorAll('.py-c').forEach(c => { c.onmouseenter = () => { const G = window.__pyrG; if (!G) return; const k = c.dataset.k, anc = G.anc(k), des = G.desc.get(k) || new Set();
+        const box = c.closest('.py'); box.classList.add('focus'); box.querySelectorAll('.py-c').forEach(e => { const j = e.dataset.k; e.classList.toggle('sel', j === k); e.classList.toggle('anc', anc.has(j)); e.classList.toggle('desc', des.has(j)); }); };
+      c.onmouseleave = () => { const box = c.closest('.py'); box.classList.remove('focus'); box.querySelectorAll('.py-c').forEach(e => e.classList.remove('sel', 'anc', 'desc')); }; });
     document.querySelectorAll('[data-tree]').forEach(b => b.onclick = () => document.querySelectorAll('.pv-tree details').forEach(d => { d.open = b.dataset.tree === 'open'; }));
     document.querySelectorAll('[data-pc]').forEach(b => b.onclick = () => { st.pc = b.dataset.pc; render(); });
     if (st.view === 'plan' && x && x.r.ok) document.querySelectorAll('#ad-body .ad-c[data-code]').forEach(c => { if (!realCode(c.dataset.code)) return;
