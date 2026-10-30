@@ -130,32 +130,40 @@
         title="${esc((n.name || CODE_NAME[n.code] || '') + ' — ' + n.code + ' · ' + (n.hours ?? '—') + ' س · ' + KINDS[k][0] + ' · ' + av.t + ' · السنة ' + (YR[n.year] || n.year) + ' ' + TERM[n.term] + (n.prereq ? ' · المتطلب: ' + n.prereq : '') + (d ? ' · تفتح ' + d + ' مادة' : ''))}">
         <u></u><b>${esc(n.name || CODE_NAME[n.code] || '')}</b><code>${esc(n.code)}</code>${d ? `<em>${d}</em>` : ''}</span>`; };
     return `<div class="py-sum">
-        <div><b>${top}</b><span>طبقات = أطول سلسلة متطلبات</span></div>
-        <div><b>${(lv.get(1) || []).length}</b><span>مادة تأسيسية في القاعدة</span></div>
-        <div><b>${all.length}</b><span>مادة برقم في الخطة</span></div>
-        <div><b>${offAll}</b><span>مطروحة هذا الفصل</span></div>
-        <div class="py-key"><span><u class="s-open"></u>مفتوحة</span><span><u class="s-closed"></u>مغلقة</span><span><u class="s-none"></u>غير مطروحة</span><span><em>5</em> عدد ما تفتحه</span>
-          <small>مرّر على مادة: <b class="o">متطلباتها</b> و<b class="g">ما تفتحه</b> · انقرها لعرضها في الخريطة</small></div></div>
+        <div><b>${top}</b><span>طبقات</span></div><div><b>${(lv.get(1) || []).length}</b><span>تأسيسية</span></div>
+        <div><b>${all.length}</b><span>مادة</span></div><div><b>${offAll}</b><span>مطروحة</span></div>
+        <div class="py-key"><span><u class="s-open"></u>مفتوحة</span><span><u class="s-closed"></u>مغلقة</span><span><u class="s-none"></u>غير مطروحة</span><span><em>5</em> تفتح</span>
+          <small>مرّر على مادة: <b class="o">متطلباتها</b> و<b class="g">ما تفتحه</b> · انقرها للخريطة</small></div></div>
       <div class="py2" id="py2">${keys.map((l, i) => { const ns = lv.get(l).sort((a, b) => ORDER(a) - ORDER(b)), h = ns.reduce((a, n) => a + (n.hours || 0), 0), t = (l - 1) / Math.max(1, top - 1);
         const yrs = [...new Set(ns.map(n => n.year))].sort((a, b) => a - b), off = ns.filter(n => secs(n.code).length).length;
         const name = l === 1 ? 'القاعدة' : l === top ? 'القمة' : 'الطبقة ' + l;
         return `<div class="py2-r" style="--t:${t}">
           <div class="py2-lab"><span class="py2-n">${l}</span><div><b>${name}</b><small>${ns.length} مادة · ${h} س · ${off} مطروحة</small><small>السنة ${yrs.map(y => YR[y] || y).join(' – ')}</small></div></div>
           <div class="py2-s"><div class="py2-in">${ns.map(pill).join('')}</div></div></div>`; }).join('')}</div>
-      ${slots.length ? `<div class="pv-slots"><b><i class="bi bi-ui-checks-grid"></i> خانات اختيار (${slots.length}) — يختار لها الطالب مادة من مجموعة الخطة</b>${slots.map(n => miniChip(n, G, major)).join('')}</div>` : ''}`;
+      ${slots.length ? `<div class="py-slots" title="خانات يختار لها الطالب مادة من مجموعة الخطة"><b><i class="bi bi-ui-checks-grid"></i> خانات اختيار (${slots.length})</b>${slots.map(n => `<span class="py-sl" style="--k:${KINDS[kindOf(n.code, major)][1]}">${esc(n.name || '')}<em>${n.hours ?? '—'} س</em></span>`).join('')}</div>` : ''}`;
   }
   // shape the layers into one triangle: each layer's sides follow the same two straight lines from the apex to the base
   function pyrLayout() {
     const box = document.getElementById('py2'); if (!box) return;
     const rows = [...box.querySelectorAll('.py2-s')]; if (!rows.length) return;
-    const apex = 0.3;   // the top is a narrow flat cap, the base is the full width
-    for (let pass = 0; pass < 3; pass++) {
-      const T = rows[0].getBoundingClientRect().top, B = rows[rows.length - 1].getBoundingClientRect().bottom, H = Math.max(1, B - T);
-      const inset = y => (1 - apex) / 2 * (1 - (y - T) / H) * 100;   // % of the width cut from each side at height y
-      rows.forEach(r => { const R = r.getBoundingClientRect(), a = inset(R.top), b = inset(R.bottom);
-        r.style.clipPath = `polygon(${a}% 0, ${100 - a}% 0, ${100 - b}% 100%, ${b}% 100%)`;
-        r.querySelector('.py2-in').style.paddingInline = `calc(${a}% + 14px)`; });
-    }
+    const shape = () => { const apex = rows.length < 2 ? 1 : rows.length < 3 ? 0.6 : box.classList.contains('d2') ? 0.42 : 0.34;   // the top is a narrow flat cap, the base is the full width
+      for (let pass = 0; pass < 3; pass++) {
+        const T = rows[0].getBoundingClientRect().top, B = rows[rows.length - 1].getBoundingClientRect().bottom, H = Math.max(1, B - T);
+        const inset = y => (1 - apex) / 2 * (1 - (y - T) / H) * 100;   // % of the width cut from each side at height y
+        rows.forEach(r => { const R = r.getBoundingClientRect(), a = inset(R.top), b = inset(R.bottom);
+          r.style.clipPath = `polygon(${a}% 0, ${100 - a}% 0, ${100 - b}% 100%, ${b}% 100%)`;
+          r.querySelector('.py2-in').style.paddingInline = `calc(${a}% + 12px)`; });
+      } };
+    // fit the whole pyramid on one screen: from the view switcher down to the slot strip, no page scroll needed
+    box.classList.remove('d1', 'd2'); box.style.zoom = '';
+    if (innerWidth <= 900) { shape(); return; }
+    const bar = document.querySelector('.pb-bar'), sl = document.querySelector('.py-slots');
+    const head = box.getBoundingClientRect().top - (bar ? bar.getBoundingClientRect().top : box.getBoundingClientRect().top);
+    const budget = innerHeight - head - (sl ? sl.offsetHeight + 8 : 0) - 14;
+    shape(); if (box.offsetHeight <= budget) return;
+    box.classList.add('d1'); shape(); if (box.offsetHeight <= budget) return;
+    box.classList.add('d2'); shape(); if (box.offsetHeight <= budget) return;
+    box.style.zoom = Math.max(0.72, budget / box.offsetHeight).toFixed(3); shape();
   }
   // tree: from each foundation course down to everything it opens
   function planTree(x) {
@@ -580,19 +588,27 @@
     .py-sum .py-key { flex: 1 1 360px; display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .9rem; background: #fff; border: 1px solid #e6ebf0; border-radius: 12px; padding: .4rem .8rem; font-size: .72rem; color: #495057; }
     .py-key u { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-inline-end: .3rem; vertical-align: middle; } .py-key u.s-open { background: #16a34a; } .py-key u.s-closed { background: #ea580c; } .py-key u.s-none { background: #94a3b8; }
     .py-key em { font-style: normal; background: #dcfce7; color: #15803d; border-radius: 99px; padding: 0 .35rem; font-weight: 800; } .py-key small { width: 100%; color: #6c757d; } .py-sum .py-key b { display: inline; font-size: inherit; line-height: inherit; } .py-key b.o { color: #b45309; } .py-key b.g { color: #15803d; }
-    .py2 { position: relative; display: flex; flex-direction: column; gap: 3px; padding-inline-start: 190px; }
+    .py2 { position: relative; display: flex; flex-direction: column; gap: 3px; padding-inline-start: 170px; }
+    .py-sum { flex-wrap: nowrap; gap: .35rem; margin-bottom: .5rem; } .py-sum > div:not(.py-key) { min-width: 0; padding: .2rem .6rem; display: flex; align-items: baseline; gap: .3rem; border-radius: 10px; }
+    .py-sum > div:not(.py-key) b { display: inline; font-size: 1.05rem; } .py-sum > div:not(.py-key) span { font-size: .7rem; white-space: nowrap; }
+    .py-sum .py-key { flex: 1 1 auto; padding: .2rem .7rem; gap: .2rem .8rem; } .py-sum .py-key small { width: auto; margin-inline-start: auto; }
+    .py-slots { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; background: #fffaf0; border: 1px solid #f3e3bd; border-radius: 10px; padding: .25rem .5rem; font-size: .7rem; }
+    .py-slots > b { color: #7a5a17; margin-inline-end: .3rem; font-size: .72rem; } .py-sl { background: #fff; border: 1px solid #eadfc4; border-inline-start: 3px solid var(--k); border-radius: 6px; padding: .05rem .4rem; color: #495057; white-space: nowrap; }
+    .py-sl em { font-style: normal; color: #94a3b8; margin-inline-start: .3rem; font-size: .62rem; }
+    .py2.d1 .py2-in { padding-block: .25rem; gap: 3px 4px; min-height: 34px; } .py2.d1 .py2-s { min-height: 34px; } .py2.d1 .ad-c.py-p { font-size: .68rem; padding: .08rem .42rem .08rem .34rem; } .py2.d1 .py2-lab small + small { display: none; }
+    .py2.d2 .py-p code { display: none; } .py2.d2 .ad-c.py-p { font-size: .66rem; }
     .py2-r { --pc: color-mix(in srgb, #901d23 calc(var(--t) * 100%), #0b4a66); position: relative; }
-    .py2-lab { position: absolute; inset-inline-start: -190px; top: 50%; transform: translateY(-50%); width: 176px; display: flex; gap: .45rem; align-items: center; }
+    .py2-lab { position: absolute; inset-inline-start: -170px; top: 50%; transform: translateY(-50%); width: 158px; display: flex; gap: .45rem; align-items: center; }
     .py2-lab::after { content: ""; position: absolute; inset-inline-end: -14px; top: 50%; width: 14px; border-top: 1px dashed #b8c4cf; }
     .py2-n { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--pc); color: #fff; font-weight: 800; font-size: .86rem; box-shadow: 0 2px 6px color-mix(in srgb, var(--pc) 40%, transparent); }
     .py2-lab b { display: block; font-size: .82rem; color: var(--pc); } .py2-lab small { display: block; font-size: .64rem; color: #6c757d; line-height: 1.3; }
     .py2-s { background: linear-gradient(180deg, color-mix(in srgb, var(--pc) 16%, #fff), color-mix(in srgb, var(--pc) 9%, #fff)); border-top: 2px solid color-mix(in srgb, var(--pc) 45%, #fff); min-height: 44px; }
     .py2-r:first-child .py2-s { border-top-color: transparent; }
     .py2-in { display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 4px 5px; padding-block: .45rem; min-height: 44px; }
-    .ad-c.py-p { display: inline-flex; align-items: center; gap: .3rem; max-width: 250px; margin: 0; padding: .16rem .5rem .16rem .4rem; background: #fff; border: 1px solid color-mix(in srgb, var(--pc) 22%, #e5e9ee); border-inline-start: 3px solid var(--k); border-radius: 7px; font-size: .72rem; line-height: 1.3; cursor: pointer; box-shadow: 0 1px 2px rgba(9,27,34,.08); transition: transform .12s, opacity .12s, box-shadow .12s; }
+    .ad-c.py-p { display: inline-flex; align-items: center; gap: .3rem; max-width: none; margin: 0; padding: .16rem .5rem .16rem .4rem; background: #fff; border: 1px solid color-mix(in srgb, var(--pc) 22%, #e5e9ee); border-inline-start: 3px solid var(--k); border-radius: 7px; font-size: .72rem; line-height: 1.3; cursor: pointer; box-shadow: 0 1px 2px rgba(9,27,34,.08); transition: transform .12s, opacity .12s, box-shadow .12s; }
     .ad-c.py-p:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(9,27,34,.18); z-index: 2; }
     .py-p u { flex: none; width: 7px; height: 7px; border-radius: 50%; background: #94a3b8; } .py-p.s-open u { background: #16a34a; } .py-p.s-closed u { background: #ea580c; }
-    .py-p b { color: #0f1d24; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .py-p code { flex: none; color: #94a3b8; font-size: .62rem; }
+    .py-p b { color: #0f1d24; font-weight: 700; white-space: nowrap; } .py-p code { flex: none; color: #94a3b8; font-size: .62rem; }
     .py-p em { flex: none; font-style: normal; background: #dcfce7; color: #15803d; border-radius: 99px; padding: 0 .32rem; font-size: .62rem; font-weight: 800; }
     .py2.focus .py-p { opacity: .28; } .py2.focus .py-p.sel, .py2.focus .py-p.anc, .py2.focus .py-p.desc { opacity: 1; }
     .py-p.sel { box-shadow: 0 0 0 2px #0b4a66; } .py-p.anc { box-shadow: 0 0 0 2px #f59e0b; background: #fffbeb; } .py-p.desc { box-shadow: 0 0 0 2px #16a34a; background: #f0fdf4; } .py-p.dim { opacity: .3; }
@@ -1055,7 +1071,8 @@
         const cvs = $('#am-canvas .am-cols'); if (cvs) window.__amRO.observe(cvs); }
       clearTimeout(window.__amR); window.onresize = () => { clearTimeout(window.__amR); window.__amR = setTimeout(() => st.view === 'map' && drawMap(p, x), 200); };
     }
-    document.querySelectorAll('[data-pl]').forEach(b => b.onclick = () => { st.pl = b.dataset.pl; try { localStorage.setItem('uop-ad-pl', st.pl); } catch (e) { /* storage unavailable */ } render(); });
+    document.querySelectorAll('[data-pl]').forEach(b => b.onclick = () => { st.pl = b.dataset.pl; try { localStorage.setItem('uop-ad-pl', st.pl); } catch (e) { /* storage unavailable */ } render();
+      if (st.pl === 'pyramid') { const bar = document.querySelector('.pb-bar'); if (bar) bar.scrollIntoView({ block: 'start', behavior: 'smooth' }); } });
     document.querySelectorAll('.py-p').forEach(c => { c.onmouseenter = () => { const G = window.__pyrG; if (!G) return; const k = c.dataset.k, anc = G.anc(k), des = G.desc.get(k) || new Set();
         const box = c.closest('.py2'); box.classList.add('focus'); box.querySelectorAll('.py-p').forEach(e => { const j = e.dataset.k; e.classList.toggle('sel', j === k); e.classList.toggle('anc', anc.has(j)); e.classList.toggle('desc', des.has(j)); }); };
       c.onmouseleave = () => { const box = c.closest('.py2'); box.classList.remove('focus'); box.querySelectorAll('.py-p').forEach(e => e.classList.remove('sel', 'anc', 'desc')); }; });
