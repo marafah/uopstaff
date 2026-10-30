@@ -68,7 +68,9 @@
           <span><i class="ring"></i> منصب قيادي</span><span><i style="background:#1f6f78"></i> قسم</span></div>
         <div class="btn-group btn-group-sm"><button type="button" class="btn btn-light" data-og="in" title="تكبير"><i class="bi bi-zoom-in"></i></button>
           <button type="button" class="btn btn-light" data-og="out" title="تصغير"><i class="bi bi-zoom-out"></i></button>
-          <button type="button" class="btn btn-light" data-og="fit" title="ملاءمة الشاشة"><i class="bi bi-fullscreen"></i></button>
+          <button type="button" class="btn btn-light" data-og="fitw" title="ملاءمة العرض (قراءة مريحة)"><i class="bi bi-arrows-expand-vertical"></i></button>
+          <button type="button" class="btn btn-light" data-og="fit" title="إظهار المخطط كاملاً في المساحة الظاهرة"><i class="bi bi-aspect-ratio"></i></button>
+          <button type="button" class="btn btn-light" data-og="fs" title="ملء الشاشة (Esc للخروج)"><i class="bi bi-arrows-fullscreen"></i></button>
           <button type="button" class="btn btn-light" data-og="names" title="إظهار الأسماء"><i class="bi bi-fonts"></i></button></div></div>
       <svg id="og-svg" role="img" aria-label="شبكة الموظفين: ${list.length} موظفاً"></svg>
       <div class="og-tip" id="og-tip" hidden></div><div class="og-card" id="og-card" hidden></div>
@@ -80,7 +82,7 @@
   function draw(root, list, ctx) {
     const d3 = window.d3, wrap = root.querySelector('#og-wrap'), svgEl = root.querySelector('#og-svg');
     if (!wrap) return;
-    const W = wrap.clientWidth, H = wrap.clientHeight;
+    let W = wrap.clientWidth, H = wrap.clientHeight;
     const U = hierarchy(list, ctx.FAC);
     const tip = root.querySelector('#og-tip'), card = root.querySelector('#og-card'), crumb = root.querySelector('#og-crumb');
     const svg = d3.select(svgEl).attr('viewBox', [-W / 2, -H / 2, W, H]);
@@ -155,8 +157,8 @@
 
     // ---------------------------------------------------------------- one unit: an org chart of department panels with readable person cards
     const offc = m => { const o = String(m.office || '').trim(); return o && o !== m.ext && !/^0*$/.test(o) ? o : ''; };
-    const fitBox = (x0, y0, x1, y1, ms) => {
-      const w = x1 - x0, h = y1 - y0, k = Math.min(1.05, .96 * W / w, h * Math.min(1.05, .96 * W / w) > H ? 9 : .94 * H / h);
+    const fitBox = (x0, y0, x1, y1, ms, all) => {   // all: the whole chart in view; otherwise fit the width and start at the top
+      const w = x1 - x0, h = y1 - y0, k = all ? Math.min(1.05, .96 * W / w, .94 * H / h) : Math.min(1.05, .96 * W / w, h * Math.min(1.05, .96 * W / w) > H ? 9 : .94 * H / h);
       const ty = h * k > H ? -H / 2 + 16 - y0 * k : -k * (y0 + y1) / 2;
       svg.transition().duration(ms || 0).call(zoom.transform, d3.zoomIdentity.translate(-k * (x0 + x1) / 2, ty).scale(k));
     };
@@ -236,18 +238,27 @@
         });
         y = top + hmax + 14;
       }
-      const fit = ms => fitBox(minx - 20, -120, maxx + 20, Math.max(y, 200) + 20, ms);
+      const fit = (ms, all) => fitBox(minx - 20, all ? -150 : -120, maxx + 20, Math.max(y, 200) + 20, ms, all);
       fit(U.length > 1 ? 500 : 0);
       return fit;
     }
 
     let current = U.length === 1 ? focus(U[0]) : overview();
+    // the drawing follows the size of its frame: window resize, full screen on and off
+    const resized = refit => { const w = wrap.clientWidth, h = wrap.clientHeight; if (!w || !h || (w === W && h === H && !refit)) return; W = w; H = h;
+      svg.attr('viewBox', [-W / 2, -H / 2, W, H]); if (refit) current(300, true); };
+    if (window.__ogRO) window.__ogRO.disconnect();
+    window.__ogRO = new ResizeObserver(() => resized(false)); window.__ogRO.observe(wrap);
+    wrap.onfullscreenchange = () => { const on = document.fullscreenElement === wrap, b = root.querySelector('[data-og="fs"]');
+      if (b) { b.classList.toggle('active', on); b.title = on ? 'الخروج من ملء الشاشة (Esc)' : 'ملء الشاشة (Esc للخروج)'; b.innerHTML = `<i class="bi ${on ? 'bi-fullscreen-exit' : 'bi-arrows-fullscreen'}"></i>`; }
+      requestAnimationFrame(() => resized(true)); };
     root.querySelector('#og-load').remove();
     root.querySelectorAll('[data-og]').forEach(b => b.onclick = () => {
       const a = b.dataset.og;
       if (a === 'in') svg.transition().duration(300).call(zoom.scaleBy, 1.5);
       else if (a === 'out') svg.transition().duration(300).call(zoom.scaleBy, 1 / 1.5);
-      else if (a === 'fit') current(500);
+      else if (a === 'fit' || a === 'fitw') { if (!document.fullscreenElement) wrap.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); current(500, a === 'fit'); }
+      else if (a === 'fs') { if (document.fullscreenElement) document.exitFullscreen(); else if (wrap.requestFullscreen) wrap.requestFullscreen().catch(() => wrap.classList.toggle('og-max')); else wrap.classList.toggle('og-max'); if (!wrap.requestFullscreen) resized(true); }
       else { names = !names; b.classList.toggle('active', names); labels(); }
     });
   }
@@ -288,8 +299,10 @@
     .ot-pt { min-width: 0; flex: 1; } .ot-pt b { display: block; font-size: .84rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ot-pt small { display: block; font-size: .72rem; color: #5b6970; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .ot-ext { font-size: .75rem; font-weight: 700; text-decoration: none; background: #eef1f4; color: #13222a; border-radius: 999px; padding: .05rem .5rem; white-space: nowrap; }
-    .og-wrap { position: relative; height: 78vh; min-height: 520px; background: radial-gradient(circle at 50% 40%, #ffffff 0, #f3f5f8 70%); border: 1px solid #e6e9ef; border-radius: 16px; overflow: hidden; }
+    .og-wrap { position: relative; height: calc(100vh - 24px); min-height: 520px; background: radial-gradient(circle at 50% 40%, #ffffff 0, #f3f5f8 70%); border: 1px solid #e6e9ef; border-radius: 16px; overflow: hidden; }
     .og-wrap svg { width: 100%; height: 100%; display: block; cursor: grab; }
+    .og-wrap:fullscreen { width: 100vw; height: 100vh; min-height: 0; border: 0; border-radius: 0; }
+    .og-wrap.og-max { position: fixed; inset: 0; z-index: 1080; height: auto; min-height: 0; border-radius: 0; border: 0; }
     .og-tools { position: absolute; inset-inline: .7rem; top: .6rem; display: flex; flex-wrap: wrap; gap: .5rem; justify-content: space-between; z-index: 2; pointer-events: none; }
     .og-tools > * { pointer-events: auto; }
     .og-legend { display: flex; flex-wrap: wrap; gap: .25rem .8rem; background: rgba(255,255,255,.92); border: 1px solid #e6e9ef; border-radius: 10px; padding: .3rem .7rem; font-size: .75rem; }
