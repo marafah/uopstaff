@@ -37,7 +37,10 @@
   const fillDepts = () => { depSel.innerHTML = opt('', 'كل الأقسام', st.dept) + R.depts(list, st.fac).map(d => opt(d, d, st.dept)).join(''); };
   fillDepts();
 
-  const scv = (r, k) => (r.sc || {})[k] || 0;
+  // Scopus figures as on the author's Scopus page (whole profile) when they were read, otherwise the Petra-affiliated ones
+  const SF = r => r.scopus && r.scopus.docs != null ? r.scopus : (r.sc || {});
+  const scv = (r, k) => SF(r)[k] || 0;
+  const uopLine = r => r.scopus && r.sc ? `<small class="rs-uopv" title="الوثائق بانتماء جامعة البترا">البترا: ${R.n(r.sc.docs || 0)}</small>` : '';
   const val = (r, k) => k === 'scholar' ? ((r.scholar || {}).cites || -1)
     : k === 'q12' ? (((r.sc || {}).q || {}).Q1 || 0) + (((r.sc || {}).q || {}).Q2 || 0)
     : k.startsWith('sc_') ? scv(r, k.slice(3)) : k.startsWith('wos_') ? ((r.wos || {})[k.slice(4)] || 0) : (r[k] || 0);
@@ -62,9 +65,9 @@
     return `<div class="rs-person">
       <a class="top" href="${R.profileUrl(r)}">${R.avatar(r)}<span><span class="nm">${R.esc(r.name)}</span><br>
         <span class="sub">${R.esc([r.rank, r.dept].filter(Boolean).join(' · '))}<br>${R.esc(r.faculty)}</span></span></a>
-      <div class="stats" title="Scopus: الوثائق بانتماء جامعة البترا">
-        <div><b>${R.n(sc.docs || 0)}</b><span>وثيقة Scopus</span></div><div><b>${R.k(sc.cites || 0)}</b><span>اقتباس Scopus</span></div>
-        <div><b>${sc.h || 0}</b><span>h في Scopus</span></div><div><b>${(q.Q1 || 0) + (q.Q2 || 0)}</b><span>Q1 + Q2</span></div></div>
+      <div class="stats" title="${r.scopus ? `Scopus: ملف الباحث كما في صفحته على Scopus${r.scopus.at ? ' بتاريخ ' + r.scopus.at : ''}` : 'Scopus: الوثائق بانتماء جامعة البترا'}">
+        <div><b>${R.n(SF(r).docs || 0)}</b><span>وثيقة Scopus</span>${uopLine(r)}</div><div><b>${R.k(SF(r).cites || 0)}</b><span>اقتباس Scopus</span></div>
+        <div><b>${SF(r).h || 0}</b><span>h في Scopus</span></div><div><b>${(q.Q1 || 0) + (q.Q2 || 0)}</b><span>Q1 + Q2</span></div></div>
       <div title="وثائق Scopus سنوياً ${Y - 9}–${Y}">${R.spark(by, Y - 9, Y)}</div>
       ${r.wos ? `<div class="rs-note">Web of Science: <b>${R.n(r.wos.docs)}</b> وثيقة · ${R.n(r.wos.cites)} اقتباس · h <b>${r.wos.h}</b></div>` : ''}
       <div class="rs-note">OpenAlex: ${R.n(r.works)} منشور · ${R.n(r.cites)} اقتباس · h ${r.h}${sch ? ` · Google Scholar: ${R.n(sch.cites)} اقتباس، h ${R.n(sch.h)} ${R.srcBadge(r.scholar_at ? 'قُرئ ' + r.scholar_at : 'Scholar', r.links.scholar, 'bi-google')}` : ''}</div>
@@ -82,9 +85,9 @@
       ${rows.map((r, n) => { const sc = r.sc || {}, q = sc.q || {}, su = R.scUrl(r), q12 = (q.Q1 || 0) + (q.Q2 || 0); const by = {}; Object.entries(sc.by_year || {}).forEach(([y, v]) => by[y] = [v]);
         return `<tr><td class="who"><a href="${R.profileUrl(r)}"><span class="rk">${n + 1}</span>${R.avatar(r, 'sm')}<span><b>${R.esc(r.name)}</b>${r.rank ? `<span class="rs-rank" style="--rc:${RK[r.rank] || '#6b7a80'}">${R.esc(r.rank)}</span>` : ''}</span></a></td>
         <td class="dp"><b>${R.esc(r.dept)}</b><small><i class="bi bi-bank2"></i> ${R.esc(r.faculty)}</small></td>
-        <td class="c"><div class="cellv">${su ? `<a class="pill or" href="${R.esc(su)}" target="_blank" rel="noopener" title="افتح في Scopus">${R.n(sc.docs || 0)} <i class="bi bi-box-arrow-up-left"></i></a>` : `<span class="pill gr">${R.n(sc.docs || 0)}</span>`}<span class="bar o"><i style="width:${(100 * (sc.docs || 0) / mD).toFixed(0)}%"></i></span></div></td>
-        <td class="c"><div class="cellv"><b class="big">${R.n(sc.cites || 0)}</b><span class="bar y"><i style="width:${(100 * (sc.cites || 0) / mC).toFixed(0)}%"></i></span></div></td>
-        <td class="c"><span class="hb ${hT(sc.h || 0)}">${sc.h || 0}</span></td>
+        <td class="c"><div class="cellv">${su ? `<a class="pill or" href="${R.esc(su)}" target="_blank" rel="noopener" title="افتح في Scopus للمطابقة">${R.n(scv(r, 'docs'))} <i class="bi bi-box-arrow-up-left"></i></a>` : `<span class="pill gr">${R.n(scv(r, 'docs'))}</span>`}${uopLine(r)}<span class="bar o"><i style="width:${(100 * scv(r, 'docs') / mD).toFixed(0)}%"></i></span></div></td>
+        <td class="c"><div class="cellv"><b class="big">${R.n(scv(r, 'cites'))}</b>${r.scopus && r.sc ? `<small class="rs-uopv">البترا: ${R.n(r.sc.cites || 0)}</small>` : ''}<span class="bar y"><i style="width:${(100 * scv(r, 'cites') / mC).toFixed(0)}%"></i></span></div></td>
+        <td class="c"><span class="hb ${hT(scv(r, 'h'))}">${scv(r, 'h')}</span>${r.scopus && r.sc ? `<small class="rs-uopv d-block">البترا: ${r.sc.h || 0}</small>` : ''}</td>
         <td class="c">${q12 ? `<span class="pill qg"><i class="bi bi-award-fill"></i> ${q12}</span>` : '<span class="na">0</span>'}</td>
         <td class="c">${R.n(r.works)}</td><td class="c">${r.h || 0}</td>
         <td class="c">${r.scholar ? `<a class="pill bl" href="${R.esc(r.links.scholar)}" target="_blank" rel="noopener">${R.n(r.scholar.cites)}</a>` : '<span class="na">—</span>'}</td>
@@ -95,7 +98,8 @@
 
   function render() {
     const rows = filtered();
-    R.$('#f-count').innerHTML = `${R.n(rows.length)} باحث${rows.length !== list.length ? ` من ${R.n(list.length)}` : ''} · مجموع منشوراتهم ${R.n(R.sum(rows.map(r => r.works)))} · ${R.n(R.sum(rows.map(r => (r.sc || {}).docs || 0)))} وثيقة Scopus · وسيط h في Scopus ${R.median(rows.filter(r => r.sc).map(r => r.sc.h))}`;
+    const scAt = list.map(r => (r.scopus || {}).at).filter(Boolean).sort().pop(), scN = list.filter(r => r.scopus).length;
+    R.$('#f-count').innerHTML = `${scN ? `<span class="rs-sc-asof"><i class="bi bi-patch-check"></i> أرقام Scopus لـ ${R.n(scN)} باحثاً كما في صفحاتهم على Scopus بتاريخ ${R.esc(scAt)}، وتحتها ما يحمل انتماء جامعة البترا</span> · ` : ''}${R.n(rows.length)} باحث${rows.length !== list.length ? ` من ${R.n(list.length)}` : ''} · مجموع منشوراتهم ${R.n(R.sum(rows.map(r => r.works)))} · ${R.n(R.sum(rows.map(r => (r.sc || {}).docs || 0)))} وثيقة Scopus بانتماء البترا · وسيط h في Scopus ${R.median(rows.filter(r => r.scopus || r.sc).map(r => scv(r, 'h')))}`;
     R.$$('#f-view button').forEach(b => b.classList.toggle('on', b.dataset.v === st.view));
     const out = R.$('#f-out');
     if (!rows.length) { out.innerHTML = '<div class="rs-empty"><i class="bi bi-search"></i>لا توجد نتائج مطابقة</div>'; R.$('#f-more').classList.add('d-none'); return; }
@@ -125,6 +129,7 @@
   R.$('#f-csv').addEventListener('click', () => R.csv(filtered().map(r => ({
     name: r.name, name_en: r.name_en, rank: r.rank, faculty: r.faculty, department: r.dept, works: r.works, works_5y: r.w5,
     citations_openalex: r.cites, h_index: r.h, i10: r.i10, scholar_citations: (r.scholar || {}).cites || '', scholar_h: (r.scholar || {}).h || '',
+    scopus_docs_profile: r.scopus ? r.scopus.docs : '', scopus_citations_profile: r.scopus ? r.scopus.cites : '', scopus_h_profile: r.scopus ? r.scopus.h : '', scopus_profile_date: r.scopus ? r.scopus.at || '' : '',
     scopus_docs_uop: (r.sc || {}).docs || 0, scopus_citations_uop: (r.sc || {}).cites || 0, scopus_h_uop: (r.sc || {}).h || 0,
     q1: ((r.sc || {}).q || {}).Q1 || 0, q2: ((r.sc || {}).q || {}).Q2 || 0, q3: ((r.sc || {}).q || {}).Q3 || 0, q4: ((r.sc || {}).q || {}).Q4 || 0,
     wos_docs_uop: (r.wos || {}).docs || 0, wos_citations_uop: (r.wos || {}).cites || 0, wos_h_uop: (r.wos || {}).h || 0,

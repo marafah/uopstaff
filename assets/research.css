@@ -1733,3 +1733,6 @@ button.na-val { cursor: pointer; } button.na-val i { color: var(--g); font-size:
 .rs-pb-val .money.a8 b { font-size: 1rem; color: #a3262c; } .rs-pb-val .money.a8 small { color: #a3262c; }
 .rs-kpi .d.rs-kpi-all { margin-top: .35rem; padding-top: .3rem; border-top: 1px dashed rgba(0,0,0,.12); color: #8a3b12; } .rs-kpi .d.rs-kpi-all b { color: #c2410c; }
 .rs-note.rs-skipnote { background: #fff8ec; border: 1px dashed #f0c987; border-radius: 10px; padding: .45rem .75rem; color: #7a4a00; }
+.rs-uopv { display: block; font-size: .7rem; color: #8a3b12; font-weight: 600; line-height: 1.3; }
+.rs-person .stats .rs-uopv { margin-top: .1rem; }
+.rs-sc-asof { color: #1d7a3e; font-weight: 700; }
