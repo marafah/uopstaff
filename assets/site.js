@@ -31,10 +31,32 @@
   const foot = document.querySelector('.foot-share-row > div');
   let prompt = null;
   const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone;
-  const remove = () => ['#app-install', '#app-install-top'].forEach(s => { const b = $(s); if (b) b.remove(); });
+  // no install offer from the browser: it is already installed here, or this browser installs from its own menu
+  function installHelp() {
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const edge = /edg\//i.test(navigator.userAgent);
+    const steps = ios
+      ? ['افتح الموقع في Safari.', 'اضغط زر المشاركة <i class="bi bi-box-arrow-up"></i> أسفل الشاشة.', 'اختر «إضافة إلى الشاشة الرئيسية».']
+      : edge
+        ? ['اضغط قائمة المتصفح <b>…</b> أعلى الشاشة.', 'اختر «التطبيقات» ثم «تثبيت هذا الموقع كتطبيق».']
+        : ['اضغط قائمة المتصفح <b>⋮</b> أعلى الشاشة.', 'اختر «حفظ ومشاركة» أو «Cast, save and share» ثم «تثبيت الصفحة كتطبيق».'];
+    let m = $('#installModal');
+    if (!m) {
+      document.body.insertAdjacentHTML('beforeend', `<div class="modal fade" id="installModal" tabindex="-1" aria-labelledby="installTitle" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title fw-bold" id="installTitle"><i class="bi bi-download"></i> تثبيت التطبيق</h5><button type="button" class="btn-close ms-0 me-auto" data-bs-dismiss="modal" aria-label="إغلاق"></button></div>
+        <div class="modal-body">
+          <div class="alert alert-success py-2 small mb-3"><i class="bi bi-check-circle-fill"></i> إذا ظهر لك زر <b>«Open in app»</b> أو <b>«فتح في التطبيق»</b> في شريط العنوان، فالتطبيق مثبّت على هذا الجهاز؛ اضغطه لفتحه، أو افتحه من قائمة البرامج أو الشاشة الرئيسية.</div>
+          <p class="fw-bold mb-2">لتثبيته على جهاز جديد:</p><ol class="mb-0" id="installSteps"></ol>
+        </div></div></div></div>`);
+      m = $('#installModal');
+    }
+    $('#installSteps').innerHTML = steps.map(x => `<li class="mb-1">${x}</li>`).join('');
+    if (window.bootstrap && bootstrap.Modal) bootstrap.Modal.getOrCreateInstance(m).show();
+    else alert(steps.map(x => x.replace(/<[^>]+>/g, '')).join('\n'));
+  }
   async function install() {
-    if (prompt) { prompt.prompt(); await prompt.userChoice.catch(() => {}); prompt = null; remove(); return; }
-    alert('للتثبيت على iPhone: اضغط زر المشاركة في Safari ثم «إضافة إلى الشاشة الرئيسية».');
+    if (prompt) { prompt.prompt(); await prompt.userChoice.catch(() => {}); prompt = null; return; }
+    installHelp();
   }
   // in the top bar beside «مشاركة», only while it fits on one line (otherwise the footer button is enough)
   const share = document.querySelector('.uop-topbar .btn-share[data-bs-target="#shareModal"]');
@@ -47,20 +69,19 @@
   }
   function installUI() {
     if (standalone()) return;
-    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !prompt;
-    if (!prompt && !ios) return;
-    if (foot && !$('#app-install')) {
-      foot.insertAdjacentHTML('beforeend', `<button type="button" class="btn btn-sm btn-light mt-2 ms-1" id="app-install"><i class="bi bi-phone"></i> ثبّت التطبيق</button>`);
-      $('#app-install').addEventListener('click', install);
-    }
     if (share && !$('#app-install-top')) {
       share.insertAdjacentHTML('afterend', `<button type="button" class="btn btn-share no-print" id="app-install-top" title="تثبيت الموقع كتطبيق على هذا الجهاز" aria-label="تثبيت التطبيق"><i class="bi bi-download"></i><span class="d-none d-sm-inline"> تثبيت التطبيق</span></button>`);
       $('#app-install-top').addEventListener('click', install);
       fitTop();
     }
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (foot && !$('#app-install') && (prompt || ios)) {
+      foot.insertAdjacentHTML('beforeend', `<button type="button" class="btn btn-sm btn-light mt-2 ms-1" id="app-install"><i class="bi bi-phone"></i> ثبّت التطبيق</button>`);
+      $('#app-install').addEventListener('click', install);
+    }
   }
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); prompt = e; installUI(); });
-  window.addEventListener('appinstalled', remove);
+  window.addEventListener('appinstalled', () => { const b = $('#app-install'); if (b) b.remove(); });
   window.addEventListener('resize', () => { clearTimeout(fitTop.t); fitTop.t = setTimeout(fitTop, 150); });
   window.addEventListener('load', fitTop);
   installUI();
