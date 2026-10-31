@@ -5,7 +5,7 @@ name: Watch research regulations
 # data/research/regulations/sources.json (the page then marks it) and an issue asks for the text to be reviewed.
 on:
   schedule:
-    - cron: '40 4 * * *'          # every day, 07:40 Amman time
+    - cron: '0 3 * * *'          # every day, 06:00 Amman time
   workflow_dispatch:
 
 permissions:
