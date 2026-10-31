@@ -142,7 +142,7 @@
         ${row('الوصول المفتوح', col('oa_share'), v => R.pct(v))}
         ${row('Google Scholar: اقتباسات', P.map(r => (r.scholar || {}).cites), null, R.srcBadge('Scholar', '', 'bi-google'))}
         ${row('Google Scholar: h-index', P.map(r => (r.scholar || {}).h))}
-        ${row('Scopus API: h-index (كل المسيرة)', P.map(r => (r.scopus || {}).h))}
+        ${row('Scopus: h-index (الملف الكامل)', P.map(r => (r.scopus || {}).h))}
         ${row('مؤلفون مشاركون خارجيون', col('ext_coauthors'))}${row('دول متعاونة', P.map(r => (r.countries || []).filter(c => c[0] !== 'JO').length))}
         <tr><td>أبرز المواضيع</td>${P.map(r => `<td><small>${(r.topics || []).slice(0, 3).map(t => R.esc(t[0])).join('<br>')}</small></td>`).join('')}</tr>
         <tr><td>روابط التحقق</td>${P.map(r => `<td>${R.linkList(r)}</td>`).join('')}</tr>

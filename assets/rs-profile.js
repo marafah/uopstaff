@@ -62,11 +62,10 @@
   </section>
 
   <section class="rs-section rs-kpis">
-    <div class="rs-kpi scopus"><div class="v">${R.n(su ? su.docs : 0)}</div><div class="l"><i class="bi bi-bar-chart-line"></i>وثيقة في Scopus ${R.srcBadge('افتح', scUrl, 'bi-box-arrow-up-left')}</div><div class="d">بانتماء جامعة البترا · ${R.n(su ? su.w5 : 0)} في آخر 5 سنوات</div></div>
-    <div class="rs-kpi scopus"><div class="v">${R.n(su ? su.cites : 0)}</div><div class="l"><i class="bi bi-quote"></i>اقتباس في Scopus</div><div class="d">h-index: <b>${su ? su.h : 0}</b> · i10: ${su ? su.i10 : 0}</div></div>
+    <div class="rs-kpi scopus"><div class="v">${R.n(su ? su.docs : 0)}</div><div class="l"><i class="bi bi-bar-chart-line"></i>وثيقة في Scopus ${R.srcBadge('افتح', scUrl, 'bi-box-arrow-up-left')}</div><div class="d">بانتماء جامعة البترا · ${R.n(su ? su.w5 : 0)} في آخر 5 سنوات</div>${sc ? `<div class="d rs-kpi-all" title="كل وثائق ملفه في Scopus بكل انتماءاته (كما تظهر في صفحة المؤلف على Scopus)">ملفه الكامل في Scopus: <b>${R.n(sc.docs)}</b> وثيقة</div>` : ''}</div>
+    <div class="rs-kpi scopus"><div class="v">${R.n(su ? su.cites : 0)}</div><div class="l"><i class="bi bi-quote"></i>اقتباس في Scopus</div><div class="d">h-index: <b>${su ? su.h : 0}</b> · i10: ${su ? su.i10 : 0}</div>${sc ? `<div class="d rs-kpi-all" title="من كل وثائق ملفه في Scopus بكل انتماءاته">ملفه الكامل: <b>${R.n(sc.cites)}</b> اقتباس · h <b>${R.n(sc.h)}</b></div>` : ''}</div>
     <div class="rs-kpi navy"><div class="v">${(sq.Q1 || 0) + (sq.Q2 || 0)}</div><div class="l"><i class="bi bi-award"></i>أبحاث Q1 و Q2</div><div class="d">Q1 ${sq.Q1 || 0} · Q2 ${sq.Q2 || 0} · Q3 ${sq.Q3 || 0} · Q4 ${sq.Q4 || 0}</div></div>
     ${r.wos ? `<div class="rs-kpi wos"><div class="v">${R.n(r.wos.docs)}</div><div class="l"><i class="bi bi-journal"></i>وثيقة في Web of Science</div><div class="d">${R.n(r.wos.cites)} اقتباس · h ${r.wos.h}</div></div>` : ''}
-    ${sc ? `<div class="rs-kpi scopus"><div class="v">${R.n(sc.h)}</div><div class="l"><i class="bi bi-bar-chart-line"></i>h-index في Scopus (كل المسيرة)</div><div class="d">${R.n(sc.docs)} وثيقة · ${R.n(sc.cites)} اقتباس</div></div>` : ''}
     <div class="rs-kpi teal"><div class="v">${R.n(r.works)}</div><div class="l"><i class="bi bi-journal-text"></i>كل المنشورات ${R.srcBadge('OpenAlex', oaUrl, 'bi-globe2')}</div><div class="d">${R.n(r.cites)} اقتباس · h ${r.h}</div></div>
     ${sch ? `<div class="rs-kpi"><div class="v">${R.n(sch.cites)}</div><div class="l"><i class="bi bi-google"></i>Google Scholar ${R.srcBadge(r.scholar_at || 'افتح', L.scholar, 'bi-box-arrow-up-left')}</div><div class="d">h ${R.n(sch.h)} · i10 ${R.n(sch.i10)}</div></div>` : ''}
   </section>
@@ -78,13 +77,13 @@
         <th class="num">Web of Science<br><small class="text-muted fw-normal">بانتماء البترا</small></th>
         <th class="num">OpenAlex ${oaUrl ? `<a href="${oaUrl}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i></a>` : ''}</th>
         <th class="num">Scholar ${L.scholar ? `<a href="${R.esc(L.scholar)}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i></a>` : ''}</th>
-        <th class="num">Scopus API<br><small class="text-muted fw-normal">كل المسيرة</small></th>
+        <th class="num">Scopus ${scUrl ? `<a href="${R.esc(scUrl)}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i></a>` : ''}<br><small class="text-muted fw-normal">ملفه الكامل (كل الانتماءات)</small></th>
         <th class="num">صفحة المدرس ${r.profile ? `<a href="${R.esc(r.profile)}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i></a>` : ''}</th></tr></thead>
       <tbody>
         <tr><td>المنشورات</td>${cell(su ? su.docs : null)}${cell(r.wos ? r.wos.docs : null)}${cell(oaW.length)}${cell(null)}${cell(sc ? sc.docs : null)}${cell(r.uop_pubs, '', r.uop_pubs ? `<br><small class="text-muted">${r.uop_matched} مطابَق</small>` : '')}</tr>
         <tr><td>الاقتباسات</td>${cell(su ? su.cites : null)}${cell(r.wos ? r.wos.cites : null)}${cell(R.sum(oaW.map(w => w.c)))}${cell(sch ? sch.cites : null)}${cell(sc ? sc.cites : null)}${cell(null)}</tr>
         <tr><td>h-index</td>${cell(su ? su.h : null)}${cell(r.wos ? r.wos.h : null)}${cell(r.h)}${cell(sch ? sch.h : null)}${cell(sc ? sc.h : null)}${cell(null)}</tr>
-        <tr><td>i10-index</td>${cell(su ? su.i10 : null)}${cell(null)}${cell(r.i10)}${cell(sch ? sch.i10 : null)}${cell(null)}${cell(null)}</tr>
+        <tr><td>i10-index</td>${cell(su ? su.i10 : null)}${cell(null)}${cell(r.i10)}${cell(sch ? sch.i10 : null)}${cell(sc && sc.i10 != null ? sc.i10 : null)}${cell(null)}</tr>
         <tr><td>Q1 + Q2</td>${cell(su ? (sq.Q1 || 0) + (sq.Q2 || 0) : null)}${cell(null)}${cell(null)}${cell(null)}${cell(null)}${cell(null)}</tr>
       </tbody></table></div>
       <p class="rs-note mt-2 mb-0">${!L.scholar && !L.scopus && !L.orcid ? '<i class="bi bi-exclamation-circle text-warning"></i> لم تُضف روابط Scholar أو Scopus أو ORCID في صفحة المدرس على موقع الجامعة؛ إضافتها تحسّن دقة البيانات.' : ''}
