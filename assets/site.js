@@ -60,18 +60,26 @@
   }
   // in the top bar beside «مشاركة», only while it fits on one line (otherwise the footer button is enough)
   const share = document.querySelector('.uop-topbar .btn-share[data-bs-target="#shareModal"]');
-  // full label if the top bar stays as tall as without the button, else the icon alone, else not at all
+  // the top bar stays on one line: the button with its label; else icons only (install, then share too) and a
+  // narrower search box; else no button in the bar (the footer one stays)
   function fitTop() {
     const b = $('#app-install-top');
     if (!b || !share) return;
-    const nav = share.closest('.uop-topbar') || share.parentElement, lab = b.querySelector('span');
-    b.hidden = true;
-    const h0 = nav.offsetHeight;
-    b.hidden = false; b.classList.remove('btn-icon'); if (lab) lab.hidden = false;
-    if (nav.offsetHeight <= h0 + 2) return;
-    b.classList.add('btn-icon'); if (lab) lab.hidden = true;
-    if (nav.offsetHeight <= h0 + 2) return;
-    b.hidden = true;
+    const nav = share.closest('.uop-topbar') || share.parentElement, lab = b.querySelector('span'),
+      sLab = share.querySelector('span'), q = share.parentElement.querySelector('.uop-search');
+    const set = (on, iconB, iconS, narrow) => {
+      b.hidden = !on;
+      b.classList.toggle('btn-icon', iconB); if (lab) lab.style.setProperty('display', iconB ? 'none' : '', iconB ? 'important' : '');
+      share.classList.toggle('btn-icon', iconS); if (sLab) sLab.style.setProperty('display', iconS ? 'none' : '', iconS ? 'important' : '');
+      if (q) q.style.width = narrow ? '150px' : '';
+    };
+    set(false, false, false, false);
+    const h0 = nav.offsetHeight, fits = () => nav.offsetHeight <= h0 + 2;
+    for (const step of [[true, false, false, false], [true, true, false, false], [true, true, true, false], [true, true, true, true]]) {
+      set(...step);
+      if (fits()) return;
+    }
+    set(false, false, false, false);
   }
   function installUI() {
     if (standalone()) return;
