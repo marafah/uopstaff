@@ -29,7 +29,7 @@
     return au.length ? !!(last && R.norm(au[0]).includes(last)) : true; };
   const hum = r => /إنسان|الآداب|الحقوق|الإعلام|العمارة|التصميم/.test(r.faculty || '') && !/العلوم/.test(r.faculty || '');
   const windowFrom = () => thisYear - 3;      // the three years before applying (this year's output included)
-  const itemsOf = r => works.filter(w => (w.r || []).includes(r.id) && (w.y || 0) >= windowFrom() && !['dataset', 'preprint', 'other'].includes(w.type))
+  const itemsOf = r => works.filter(w => (w.r || []).includes(r.id) && (w.y || 0) >= windowFrom() && !R.SKIP_TYPES.includes(w.type))
     .map(w => ({ id: w.id, t: w.t, y: w.y, v: w.v || '', q: w.q || '', k: kindOf(w), lead: leadOf(w, r), inc: true, auto: true }));
   const score = (items, cites) => { const pts = items.filter(x => x.inc).reduce((t, x) => t + W[x.k][x.lead ? 1 : 2], 0), cp = 10 * (cites || 0) / 50; return { pts, cp, total: pts + cp }; };
 

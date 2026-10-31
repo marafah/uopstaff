@@ -16,7 +16,7 @@
   const SC = { Q1: [400, 1200], Q2: [400, 800], Q3: [200, 500], Q4: [200, 200], NA: [200, 200] };   // تعليمات البحث العلمي م(7/4) بعد قرار 6841
   const shares = n => n <= 1 ? [1] : n === 2 ? [0.6, 0.4] : n === 3 ? [0.5, 0.25, 0.25] : [0.35, ...Array(n - 1).fill(0.65 / (n - 1))];
   const AWARD = { Q1: [60, 30], Q2: [50, 25], Q3: [40, 20], Q4: [30, 15], NA: [20, 10] };
-  const SKIP = ['dataset', 'preprint', 'other', 'peer-review', 'erratum', 'editorial', 'letter'];
+  const SKIP = R.SKIP_TYPES;   // not research output (research.js)
   const st = { rid: R.param('id'), y: +R.param('y') || thisYear - (new Date().getMonth() < 2 ? 1 : 0) };
 
   const posOf = (w, r) => { const au = (w.au || '').replace(/ …$/, '').split(/,\s*/).filter(Boolean); const last = R.norm(r.name_en || '').split(' ').pop();
@@ -92,6 +92,7 @@
       <div class="rs-card"><h3><i class="bi bi-briefcase"></i>مشاريع مدعومة من الجامعة</h3>
         ${projs.length ? `<p class="mb-2">${pY.length ? `<b>${pY.length}</b> في ${y}` : `لا مشاريع في ${y}`} · ${projs.length} إجمالاً</p>${(pY.length ? pY : projs.slice(0, 3)).map(p => R.projectCard(p, { compact: true })).join('')}` : '<p class="text-muted mb-0">لا مشاريع مدعومة باسمك في قائمة عمادة البحث العلمي.</p>'}</div>
     </section>
+    <p class="rs-note rs-skipnote">${R.skipNote(works.filter(w => (w.r || []).includes(r.id)))}</p>
     <p class="rs-note">المصادر: منشورات الباحث كما يجمعها هذا الموقع من Scopus وOpenAlex وWeb of Science وصفحة المدرس؛ الاقتباسات السنوية من OpenAlex، وتصنيف المجلات من SCImago. المبالغ والنقاط تقديرية حسب جداول التعليمات، والقرار للجهات المختصة.</p>`;
 
     const ys = []; for (let i = y - 5; i <= y; i++) ys.push(i);

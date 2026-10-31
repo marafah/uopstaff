@@ -165,7 +165,7 @@
   }
   function load(r) {
     st.rid = r ? r.id : '';
-    st.items = r ? works.filter(w => (w.r || []).includes(r.id) && !['dataset', 'preprint', 'other'].includes(w.type)).sort((a, b) => (b.y || 0) - (a.y || 0)).map(w => fromWork(w, r)) : [];
+    st.items = r ? works.filter(w => (w.r || []).includes(r.id) && !R.SKIP_TYPES.includes(w.type)).sort((a, b) => (b.y || 0) - (a.y || 0)).map(w => fromWork(w, r)) : [];
     if (r && /إنسان|الآداب|الحقوق|الإعلام|العمارة/.test(r.faculty || '') && !R.param('fac')) st.fac = 'hum';
     if (r && /مشارك/.test(r.rank || '') && !R.param('to')) st.target = 'full';
     render();

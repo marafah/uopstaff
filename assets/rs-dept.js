@@ -11,7 +11,7 @@
   R.updated(data.meta || {});
   const esc = R.esc, works = wdata.works || [], thisYear = new Date().getFullYear(), FROM = thisYear - 4;
   const ref = (a, d) => `<a class="rs-ref" href="regulations.html?doc=${d}&a=${a}" target="_blank" rel="noopener">م(${a})</a>`;
-  const SKIP = ['dataset', 'preprint', 'other', 'peer-review', 'erratum', 'editorial', 'letter'];
+  const SKIP = R.SKIP_TYPES;   // not research output (research.js)
   const staff = list.filter(r => (r.rank_order || 9) <= 4);
   const W = {}; staff.forEach(r => { W[r.id] = []; });
   works.forEach(w => { if (SKIP.includes(w.type)) return; (w.r || []).forEach(id => { if (W[id]) W[id].push(w); }); });
@@ -87,6 +87,7 @@
           <div class="rs-card rs-act warn"><h3><i class="bi bi-exclamation-triangle-fill"></i>إنذار مبكر: لا إنتاج منذ 3–4 سنوات <span class="rs-tag warn">${early.length}</span></h3>${early.length ? `<ul class="rs-act-list">${early.sort((a, b) => (a.last || 0) - (b.last || 0)).map(row).join('')}</ul>` : '<p class="text-muted mb-0">لا أحد.</p>'}</div>
         </section>
         ${none.length ? `<section class="rs-section rs-card"><h3><i class="bi bi-question-circle"></i>لا ملف بحثي مطابق في المصادر <span class="rs-tag">${none.length}</span><small class="fw-normal text-muted">لا يمكن الحكم على نشاطهم من بيانات الموقع</small></h3><div class="d-flex flex-wrap gap-1">${none.map(p => `<a class="rs-chip" href="${R.profileUrl(p.r)}">${esc(p.r.name)}</a>`).join('')}</div></section>` : ''}
+        <p class="rs-note rs-skipnote">${R.skipNote(works.filter(w => (w.r || []).some(id => W[id])))}</p>
         <p class="rs-note">يشمل التنبيه رتبة أستاذ مساعد فما فوق فقط، ولا يستثني من شغل منصب عميد فما فوق (يُستثنى يدوياً). «آخر إنتاج» هو أحدث سنة نشر مسجّلة للعضو في أي مصدر.</p>`;
     }
     R.$('#dp-body').innerHTML = html;

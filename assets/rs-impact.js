@@ -14,7 +14,7 @@
   R.updated(data.meta || {});
   const esc = R.esc, thisYear = new Date().getFullYear();
   const cit = w => w.sc != null ? w.sc : (w.c || 0);
-  const SKIP = ['dataset', 'preprint', 'other', 'peer-review', 'erratum', 'editorial'];
+  const SKIP = R.SKIP_TYPES;   // not research output (research.js)
   const works = (wdata.works || []).filter(w => !SKIP.includes(w.type) && (w.r || []).length && w.y)
     .map(w => Object.assign(w, { _fac: [...new Set(w.r.map(id => byId[id] && byId[id].faculty).filter(Boolean))] }));
   const ranked = works.map(cit).sort((a, b) => b - a);
@@ -39,6 +39,7 @@
   <nav class="rs-tabs no-print" id="im-tabs">${Object.entries(TABS).map(([k, v]) => `<button data-t="${k}"><i class="bi ${v[1]}"></i> ${v[0]}</button>`).join('')}</nav>
   <section class="rs-section" id="im-head"></section>
   <section class="rs-section rs-im-list" id="im-out"></section>
+  <p class="rs-note rs-skipnote">${R.skipNote((wdata.works || []).filter(w => (w.r || []).length))}</p>
   <p class="rs-note">الاقتباسات من Scopus إن كان البحث مفهرساً فيه، وإلا من OpenAlex؛ وFWCI من OpenAlex. «أعلى 1%» بين كل أبحاث باحثي الجامعة في هذا الموقع. «باسم جامعة البترا» = الأبحاث الواردة في تصدير Scopus الرسمي للجامعة. روابط المشاركة تشير إلى البحث نفسه (DOI) لأن صفحات هذا القسم تتطلب الدخول.</p>`;
 
   function pick() {

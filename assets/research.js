@@ -62,9 +62,21 @@
   R.load = function (name) {
     if (!cache[name]) {
       cache[name] = R.gate.then(() => fetch(`data/research/${name}.json?v=${V}`, { cache: 'no-cache' })
-        .then(r => { if (!r.ok) throw new Error(name + ': ' + r.status); return r.json(); }));
+        .then(r => { if (!r.ok) throw new Error(name + ': ' + r.status); return r.json(); })
+        .then(d => { if (name === 'works') (d.works || []).forEach(R.scopusType); return d; }));
     }
     return cache[name];
+  };
+  // a document indexed in Scopus takes Scopus' document type (OpenAlex calls a Note, a Letter or a retracted paper "article")
+  const SC_TYPE = { 'Article': 'article', 'Review': 'review', 'Conference paper': 'conference-paper', 'Conference review': 'conference-review', 'Book chapter': 'book-chapter',
+    'Book': 'book', 'Editorial': 'editorial', 'Erratum': 'erratum', 'Retracted': 'retracted', 'Note': 'note', 'Letter': 'letter', 'Data paper': 'data-paper', 'Short survey': 'short-survey' };
+  R.scopusType = w => { const t = SC_TYPE[w.st]; if (t && t !== w.type) { w.type0 = w.type; w.type = t; } };
+  // types that are not research output: left out of productivity counts (annual report, department, impact), shown everywhere else
+  R.SKIP_TYPES = ['dataset', 'preprint', 'other', 'peer-review', 'erratum', 'editorial', 'letter', 'retracted', 'retraction', 'paratext', 'supplementary-materials'];
+  R.skipNote = function (ws, extra) {
+    const c = {}; ws.forEach(w => { if (R.SKIP_TYPES.includes(w.type)) { const l = R.typeAr(w.type); c[l] = (c[l] || 0) + 1; } });
+    const parts = Object.entries(c).sort((a, b) => b[1] - a[1]).map(([l, n]) => `${l} (${R.n(n)})`);
+    return `<i class="bi bi-funnel"></i> لا تُحتسب هنا الأنواع التي ليست بحثاً: افتتاحية، تصويب، رسالة إلى المحرر، بحث مسحوب، بيانات، ما قبل النشر${extra ? '، ' + extra : ''}${parts.length ? ` — المستثنى في هذه البيانات: ${parts.join('، ')}` : ''}. تبقى معروضة في ملفات الباحثين وقائمة المنشورات، ويشملها عدد الوثائق في Scopus.`;
   };
   R.loadAll = names => Promise.all(names.map(R.load));
   R.loadText = function (path) {   // a non-JSON data file (e.g. jordan/docs.tsv), after sign-in, cached like R.load
@@ -181,7 +193,9 @@
     return a.join('');
   };
 
-  R.TYPE_AR = { article: 'مقالة', 'journal-article': 'مقالة', conference: 'مؤتمر', 'proceedings-article': 'مؤتمر', chapter: 'فصل كتاب', 'book-chapter': 'فصل كتاب', book: 'كتاب', review: 'مراجعة', preprint: 'ما قبل النشر', dataset: 'بيانات', dissertation: 'أطروحة', letter: 'رسالة', editorial: 'افتتاحية', erratum: 'تصويب', patent: 'براءة', paratext: 'أخرى', other: 'أخرى', 'conference paper': 'مؤتمر', 'book chapter': 'فصل كتاب' };
+  R.TYPE_AR = { note: 'ملاحظة علمية (Note)', retracted: 'بحث مسحوب', retraction: 'إشعار سحب', 'data-paper': 'ورقة بيانات', 'data paper': 'ورقة بيانات', 'conference-paper': 'مؤتمر', 'conference-review': 'مراجعة مؤتمر',
+    'short-survey': 'مسح قصير', 'conference-abstract': 'ملخص مؤتمر', 'meeting abstract': 'ملخص مؤتمر', 'reference-entry': 'مدخل مرجعي', 'peer-review': 'تقرير تحكيم', software: 'برمجيات',
+    'supplementary-materials': 'مواد مكملة', report: 'تقرير', 'book-review': 'مراجعة كتاب', article: 'مقالة', 'journal-article': 'مقالة', conference: 'مؤتمر', 'proceedings-article': 'مؤتمر', chapter: 'فصل كتاب', 'book-chapter': 'فصل كتاب', book: 'كتاب', review: 'مراجعة', preprint: 'ما قبل النشر', dataset: 'بيانات', dissertation: 'أطروحة', letter: 'رسالة إلى المحرر', editorial: 'افتتاحية', erratum: 'تصويب', patent: 'براءة', paratext: 'أخرى', other: 'أخرى', 'conference paper': 'مؤتمر', 'book chapter': 'فصل كتاب' };
   R.typeAr = t => R.TYPE_AR[(t || '').toLowerCase()] || t || 'أخرى';
   R.OA_AR = { gold: 'ذهبي', green: 'أخضر', hybrid: 'هجين', bronze: 'برونزي', diamond: 'ماسي', closed: 'مغلق', oa: 'مفتوح' };
   R.isOA = w => w.oa && w.oa !== 'closed';
