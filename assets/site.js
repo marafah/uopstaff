@@ -39,6 +39,13 @@
       body { overflow-wrap: break-word; }
       .rs-pub { grid-template-columns: minmax(0, 1fr) !important; }
       .rs-pub > * { min-width: 0; overflow-wrap: anywhere; }
+      /* section tabs: all visible in rows of two instead of a strip that hides some of them sideways */
+      .rs-tabs { flex-wrap: wrap !important; overflow-x: visible !important; position: static !important; }
+      .uop-topbar .dropdown-menu .dropdown-item { white-space: normal; text-align: start; }
+      .uop-topbar .dropdown-menu .dropdown-item span, .uop-topbar .dropdown-menu .dropdown-item b, .uop-topbar .dropdown-menu .dropdown-item small { text-align: start; }
+      .sp2-dleg, .staff-contact.one-row { flex-wrap: wrap !important; overflow: visible !important; }
+      .rs-seg, .sp2-views { flex-wrap: wrap !important; overflow-x: visible !important; }
+      .rs-tabs > button { flex: 1 1 calc(50% - .45rem); min-width: 0; justify-content: center; white-space: normal; font-size: .86rem; padding: .45rem .5rem; line-height: 1.3; }
     }
     @media (max-width: 767.98px) { html, body { overflow-x: clip; } }`;
     document.head.appendChild(st);
@@ -207,3 +214,69 @@ document.addEventListener('show.bs.dropdown', e => {
     + fs.map(f => li(...RS.find(r => r[0] === f))).join('') + '</ul></li>').join(''), rsHere, true), more);
 })();
 
+
+// phones: every top-bar menu opens as a full-width panel under its button, never partly off the screen
+(function () {
+  const phone = () => matchMedia('(max-width: 575.98px)').matches;
+  function place(t) {
+    const menu = t.parentElement && t.parentElement.querySelector('.dropdown-menu');
+    if (!menu || !t.closest('.uop-topbar')) return;
+    if (!phone()) { ['position', 'inset', 'transform', 'max-height', 'width', 'min-width', 'margin'].forEach(p => menu.style.removeProperty(p)); return; }
+    const top = Math.round(t.getBoundingClientRect().bottom + 6);
+    const set = (p, v) => menu.style.setProperty(p, v, 'important');
+    set('position', 'fixed'); set('inset', `${top}px 8px auto 8px`); set('transform', 'none'); set('margin', '0');
+    set('width', 'auto'); set('min-width', '0'); set('max-height', `calc(100vh - ${top + 12}px)`);
+    menu.style.overflowY = 'auto';
+  }
+  document.addEventListener('shown.bs.dropdown', e => place(e.target));
+  window.addEventListener('resize', () => document.querySelectorAll('.uop-topbar .dropdown-toggle.show').forEach(place));
+})();
+
+// phones: a wide table (one that would need sideways scrolling) is shown as a stack of cards, one per row,
+// each value with its column name; tables that are grids (row headers, merged cells) keep scrolling sideways
+(function () {
+  const phone = () => matchMedia('(max-width: 575.98px)').matches;
+  const st = document.createElement('style');
+  st.textContent = `@media (max-width: 575.98px) {
+    table.site-stack, table.site-stack tbody, table.site-stack tfoot, table.site-stack tr, table.site-stack td, table.site-stack tfoot th { display: block; width: 100% !important; min-width: 0 !important; max-width: 100%; }
+    table.site-stack thead, table.site-stack colgroup { display: none; }
+    table.site-stack tr { border: 1px solid rgba(144,29,35,.18); border-radius: 12px; margin: 0 0 .55rem; padding: .35rem .7rem; background: var(--bs-body-bg, #fff); box-shadow: 0 1px 3px rgba(9,27,34,.06); }
+    table.site-stack td, table.site-stack tfoot th { border: 0 !important; padding: .28rem 0 !important; text-align: start !important; white-space: normal !important; position: static !important; overflow-wrap: break-word; }
+    table.site-stack td + td, table.site-stack tfoot th + td { border-top: 1px dashed rgba(9,27,34,.1) !important; }
+    table.site-stack td[data-label]::before { content: attr(data-label); display: block; margin-bottom: .1rem; font-weight: 700; font-size: .78rem; color: #901d23; }
+    table.site-stack tfoot tr { background: rgba(144,29,35,.06); }
+    table.site-stack td > * { max-width: 100%; }
+    table.site-stack td:empty { display: none; }
+    .site-stack-wrap { overflow: visible !important; max-height: none !important; height: auto !important; }
+  }`;
+  document.head.appendChild(st);
+  function stack() {
+    if (!phone()) return;
+    document.querySelectorAll('main table:not(.no-stack), .container-fluid table:not(.no-stack)').forEach(t => {
+      if (t.classList.contains('site-stack')) {   // rows drawn again (a new page, a new sort): label them too
+        const L = JSON.parse(t.dataset.stackLabels || '[]');
+        t.querySelectorAll('tbody tr, tfoot tr').forEach(r => [...r.cells].forEach((c, i) => { if (L[i] && !c.dataset.label && !c.hasAttribute('colspan')) c.dataset.label = L[i]; }));
+        return;
+      }
+      if (!t.offsetParent || t.closest('.uop-topbar, .modal, .dropdown-menu')) return;
+      const box = t.parentElement;
+      if (t.scrollWidth <= box.clientWidth + 4) return;
+      const head = t.tHead && t.tHead.rows[t.tHead.rows.length - 1];
+      if (!head || t.tHead.rows.length > 1) return;
+      const labels = [...head.cells].map(c => c.textContent.replace(/[⇅↕↑↓▲▼]/g, '').trim());
+      const body = [...t.tBodies].flatMap(b => [...b.rows]), foot = t.tFoot ? [...t.tFoot.rows] : [];
+      if (!body.length || body.some(r => r.querySelector('th, [colspan], [rowspan]') && !r.cells[0].hasAttribute('colspan')) ||
+          head.querySelector('[colspan], [rowspan]')) return;
+      body.concat(foot).forEach(r => { let k = 0; [...r.cells].forEach(c => { const span = +c.getAttribute('colspan') || 1; if (labels[k] && span === 1) c.dataset.label = labels[k]; k += span; }); });
+      t.dataset.stackLabels = JSON.stringify(labels);
+      t.classList.add('site-stack');
+      if (box && /auto|scroll/.test(getComputedStyle(box).overflowX)) box.classList.add('site-stack-wrap');
+    });
+  }
+  let tm = 0;
+  const later = () => { clearTimeout(tm); tm = setTimeout(stack, 150); };
+  new MutationObserver(later).observe(document.body, { childList: true, subtree: true });
+  window.addEventListener('resize', later);
+  window.addEventListener('load', later);
+  later();
+})();
