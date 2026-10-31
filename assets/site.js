@@ -24,6 +24,21 @@
     $('#theme-btn').addEventListener('click', () => theme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
   }
 
+  // ---------------------------------------------------------------- phones: the top bar's tools on one row inside the screen,
+  // and nothing pushes the page sideways (Android and iPhone)
+  if (!$('#site-mobile-css')) {
+    const st = document.createElement('style');
+    st.id = 'site-mobile-css';
+    st.textContent = `@media (max-width: 575.98px) {
+      .uop-topbar .container-fluid > .d-flex.ms-auto { flex-wrap: nowrap; min-width: 0; max-width: 100%; }
+      .uop-topbar .uop-search { flex: 1 1 auto; width: auto !important; min-width: 0; }
+      .uop-topbar .btn-share { flex: 0 0 auto; padding: .32rem .6rem; }
+      .uop-topbar .btn-share > span { display: none !important; }
+    }
+    @media (max-width: 767.98px) { html, body { overflow-x: clip; } }`;
+    document.head.appendChild(st);
+  }
+
   // ---------------------------------------------------------------- app: offline copy and install
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
@@ -74,7 +89,9 @@
       if (q) q.style.width = narrow ? '150px' : '';
     };
     set(false, false, false, false);
-    const h0 = nav.offsetHeight, fits = () => nav.offsetHeight <= h0 + 2;
+    const row = share.parentElement, h0 = nav.offsetHeight;
+    const fits = () => nav.offsetHeight <= h0 + 2 && row.scrollWidth <= row.clientWidth + 1 &&
+      row.getBoundingClientRect().right <= document.documentElement.clientWidth + 1 && row.getBoundingClientRect().left >= -1 && (!q || q.offsetWidth >= 120);
     for (const step of [[true, false, false, false], [true, true, false, false], [true, true, true, false], [true, true, true, true]]) {
       set(...step);
       if (fits()) return;
