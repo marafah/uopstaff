@@ -707,7 +707,8 @@ def jordan_citations(prev_path):
     What is already known (the official exports, jordan/docs.tsv and last week's file) is reused as it is: one count
     request per university tells whether Scopus lists a different number of documents; only then are its years
     counted, and only the years whose count differs are read again (new, removed or re-indexed documents).
-    A year that could not be read keeps its previous figures."""
+    Citations change without the counts changing, so once a month (28 days after the last complete pass) every
+    year of every university is read again for its citations. A year that could not be read keeps its previous figures."""
     old = load_json(prev_path, {}) or {}
     if not SCOPUS_KEY:
         return old
@@ -726,8 +727,15 @@ def jordan_citations(prev_path):
                 e, y = (r.get('EID') or '').replace('2-s2.0-', ''), str(r.get('Year') or '')
                 if e and y.isdigit():
                     ey.setdefault(e, int(y))
-    out = {'updated': dt.date.today().isoformat(), 'universities': {}, 'eid': dict(old.get('eid') or {})}
-    quota = False
+    today = dt.date.today()
+    try:
+        last_full = dt.date.fromisoformat(old.get('full_at') or old.get('updated') or '2000-01-01')   # until now every run was complete
+    except ValueError:
+        last_full = dt.date(2000, 1, 1)
+    full = (today - last_full).days >= 28   # the monthly pass: every year re-read for current citations
+    out = {'updated': today.isoformat(), 'full_at': old.get('full_at') or old.get('updated'), 'universities': {}, 'eid': dict(old.get('eid') or {})}
+    quota, full_ok = False, full
+    log(f'jordan citations: {"monthly complete pass (citations)" if full else "changes only"}, last complete pass {old.get("full_at") or "never"}')
     for afid, name, _ in JO_SCOPUS:
         prev_u = (old.get('universities') or {}).get(afid) or {}
         by_year = defaultdict(set)   # the documents known for this university, by year
@@ -738,6 +746,9 @@ def jordan_citations(prev_path):
         total = None if quota else scopus_count(f'AF-ID({afid})')
         if total is None:
             quota = quota or SC_BUDGET['remaining'] is not None and SC_BUDGET['remaining'] < 300
+            full_ok = False
+        elif full:
+            changed = sorted({y for y in by_year if y} | {THIS_YEAR, THIS_YEAR + 1} | (set(range(1970, THIS_YEAR)) if not prev_u.get('eids') else set()), reverse=True)
         elif total != known or not prev_u.get('eids'):
             for y in sorted({y for y in by_year if y} | {THIS_YEAR, THIS_YEAR + 1} | (set(range(1970, THIS_YEAR)) if not prev_u.get('eids') else set()), reverse=True):
                 n = scopus_count(f'AF-ID({afid}) AND PUBYEAR = {y}')
@@ -752,6 +763,7 @@ def jordan_citations(prev_path):
                     quota = True
                 if state != 'ok' or (tot or 0) > 5000:
                     missed.append(y)
+                    full_ok = False
                     continue
                 by_year[y] = set()
                 for eid, c in got.items():
@@ -768,9 +780,11 @@ def jordan_citations(prev_path):
         out['universities'][afid] = {'docs': len(eids), 'cites': sum(cites), 'h': h_index(cites),
                                      'cited_share': round(sum(1 for c in cites if c) / len(cites), 3) if cites else 0,
                                      'eids': sorted(eids)}
-        log(f'  citations {name}: {len(eids)} documents ({"unchanged" if total == known else f"{read} changed years re-read"}{", " + str(len(missed)) + " kept" if missed else ""}), '
+        log(f'  citations {name}: {len(eids)} documents ({f"{read} years re-read (monthly)" if full else "unchanged" if total == known else f"{read} changed years re-read"}{", " + str(len(missed)) + " kept" if missed else ""}), '
             f'{sum(cites)} citations, h {h_index(cites)}')
-    log(f'jordan citations (changes only): {len(out["eid"])} documents, {SC_BUDGET["used"]} requests, quota left {SC_BUDGET["remaining"]}')
+    if full and full_ok:
+        out['full_at'] = today.isoformat()
+    log(f'jordan citations ({"monthly complete" if full else "changes only"}{"" if not full or full_ok else ", incomplete: retried next week"}): {len(out["eid"])} documents, {SC_BUDGET["used"]} requests, quota left {SC_BUDGET["remaining"]}')
     return out
 
 
