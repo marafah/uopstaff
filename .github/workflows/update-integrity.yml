@@ -4,7 +4,7 @@ name: Update research integrity
 # Search API (SCOPUS_API_KEY secret) and the Retraction Watch database (Crossref, open). Light: a few API calls.
 on:
   schedule:
-    - cron: '41 2 * * *'        # every day 05:41 Amman time
+    - cron: '0 3 * * *'        # every day 06:00 Amman time
   workflow_dispatch:
 
 permissions:
