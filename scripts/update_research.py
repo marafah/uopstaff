@@ -430,6 +430,30 @@ def scopus_author_metrics(sid):
         return None
 
 
+def scopus_author_career(ids):
+    """The whole Scopus author profile (every affiliation, the whole career) from the Search API, for keys that may
+    not use the Author Retrieval API: documents, citations, h-index and i10 over AU-ID(...) - the figures on the
+    author's Scopus page. None when Scopus does not answer."""
+    if not (SCOPUS_KEY and ids):
+        return None
+    if SC_BUDGET['remaining'] is not None and SC_BUDGET['remaining'] < 500:
+        return None
+    rows, state = scopus_query_all(' OR '.join(f'AU-ID({i})' for i in ids), full=False, limit=2000)
+    if state != 'ok' or not rows:
+        return None
+    seen, cites = set(), []
+    for x in rows:
+        if x['EID'] in seen:
+            continue
+        seen.add(x['EID'])
+        try:
+            cites.append(int(x.get('Cited by') or 0))
+        except ValueError:
+            cites.append(0)
+    return {'docs': len(cites), 'cites': sum(cites), 'h': h_index(cites), 'i10': sum(1 for c in cites if c >= 10),
+            'at': dt.date.today().isoformat(), 'src': 'search'}
+
+
 def scopus_affiliation():
     if not SCOPUS_KEY:
         return None
@@ -1911,6 +1935,16 @@ def main():
                 if r['scopus_match'] in ('name~', 'name≈') and any(x['scopus_match'] in ('manual', 'link', 'name') for x in rs if x is not r):
                     r['scopus_ids'] = [x for x in r['scopus_ids'] if x != sid]
     sid_to_rid = {sid: r['id'] for r in researchers for sid in r['scopus_ids']}
+    career_n = 0
+    for r in researchers:   # the whole Scopus profile (all affiliations), as on the author's Scopus page
+        if not r['scopus_ids']:
+            r['scopus'] = None
+            continue
+        c = scopus_author_career(r['scopus_ids'])
+        if c:
+            r['scopus'], career_n = c, career_n + 1
+    if career_n:
+        log(f'scopus: whole author profiles for {career_n} researchers')
     by_rid = {r['id']: r for r in researchers}
     HIDDEN = apply_manual(manual_rows(), all_works, DET, researchers, title_index)
 
