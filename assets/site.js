@@ -34,6 +34,11 @@
       .uop-topbar .uop-search { flex: 1 1 auto; width: auto !important; min-width: 0; }
       .uop-topbar .btn-share { flex: 0 0 auto; padding: .32rem .6rem; }
       .uop-topbar .btn-share > span { display: none !important; }
+      input, select, textarea { min-width: 0; max-width: 100%; }
+      img, video, canvas { max-width: 100%; }
+      body { overflow-wrap: break-word; }
+      .rs-pub { grid-template-columns: minmax(0, 1fr) !important; }
+      .rs-pub > * { min-width: 0; overflow-wrap: anywhere; }
     }
     @media (max-width: 767.98px) { html, body { overflow-x: clip; } }`;
     document.head.appendChild(st);
