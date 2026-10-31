@@ -60,12 +60,18 @@
   }
   // in the top bar beside «مشاركة», only while it fits on one line (otherwise the footer button is enough)
   const share = document.querySelector('.uop-topbar .btn-share[data-bs-target="#shareModal"]');
+  // full label if the top bar stays as tall as without the button, else the icon alone, else not at all
   function fitTop() {
     const b = $('#app-install-top');
     if (!b || !share) return;
-    b.hidden = false;
-    const row = share.parentElement;
-    if (row.scrollWidth > row.clientWidth + 1 || Math.abs(b.offsetTop - share.offsetTop) > 4) b.hidden = true;
+    const nav = share.closest('.uop-topbar') || share.parentElement, lab = b.querySelector('span');
+    b.hidden = true;
+    const h0 = nav.offsetHeight;
+    b.hidden = false; b.classList.remove('btn-icon'); if (lab) lab.hidden = false;
+    if (nav.offsetHeight <= h0 + 2) return;
+    b.classList.add('btn-icon'); if (lab) lab.hidden = true;
+    if (nav.offsetHeight <= h0 + 2) return;
+    b.hidden = true;
   }
   function installUI() {
     if (standalone()) return;
