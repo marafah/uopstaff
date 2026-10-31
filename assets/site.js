@@ -31,18 +31,38 @@
   const foot = document.querySelector('.foot-share-row > div');
   let prompt = null;
   const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  const remove = () => ['#app-install', '#app-install-top'].forEach(s => { const b = $(s); if (b) b.remove(); });
+  async function install() {
+    if (prompt) { prompt.prompt(); await prompt.userChoice.catch(() => {}); prompt = null; remove(); return; }
+    alert('للتثبيت على iPhone: اضغط زر المشاركة في Safari ثم «إضافة إلى الشاشة الرئيسية».');
+  }
+  // in the top bar beside «مشاركة», only while it fits on one line (otherwise the footer button is enough)
+  const share = document.querySelector('.uop-topbar .btn-share[data-bs-target="#shareModal"]');
+  function fitTop() {
+    const b = $('#app-install-top');
+    if (!b || !share) return;
+    b.hidden = false;
+    const row = share.parentElement;
+    if (row.scrollWidth > row.clientWidth + 1 || Math.abs(b.offsetTop - share.offsetTop) > 4) b.hidden = true;
+  }
   function installUI() {
-    if (!foot || standalone() || $('#app-install')) return;
+    if (standalone()) return;
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !prompt;
     if (!prompt && !ios) return;
-    foot.insertAdjacentHTML('beforeend', `<button type="button" class="btn btn-sm btn-light mt-2 ms-1" id="app-install"><i class="bi bi-phone"></i> ثبّت التطبيق</button>`);
-    $('#app-install').addEventListener('click', async () => {
-      if (prompt) { prompt.prompt(); await prompt.userChoice.catch(() => {}); prompt = null; $('#app-install').remove(); return; }
-      alert('للتثبيت على iPhone: اضغط زر المشاركة في Safari ثم «إضافة إلى الشاشة الرئيسية».');
-    });
+    if (foot && !$('#app-install')) {
+      foot.insertAdjacentHTML('beforeend', `<button type="button" class="btn btn-sm btn-light mt-2 ms-1" id="app-install"><i class="bi bi-phone"></i> ثبّت التطبيق</button>`);
+      $('#app-install').addEventListener('click', install);
+    }
+    if (share && !$('#app-install-top')) {
+      share.insertAdjacentHTML('afterend', `<button type="button" class="btn btn-share no-print" id="app-install-top" title="تثبيت الموقع كتطبيق على هذا الجهاز" aria-label="تثبيت التطبيق"><i class="bi bi-download"></i><span class="d-none d-sm-inline"> تثبيت التطبيق</span></button>`);
+      $('#app-install-top').addEventListener('click', install);
+      fitTop();
+    }
   }
   window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); prompt = e; installUI(); });
-  window.addEventListener('appinstalled', () => { const b = $('#app-install'); if (b) b.remove(); });
+  window.addEventListener('appinstalled', remove);
+  window.addEventListener('resize', () => { clearTimeout(fitTop.t); fitTop.t = setTimeout(fitTop, 150); });
+  window.addEventListener('load', fitTop);
   installUI();
 
   // the network is down: say that the page shows the copy kept on this device
