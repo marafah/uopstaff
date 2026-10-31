@@ -666,6 +666,9 @@ def _scopus_eids(query):
         if rem and rem.isdigit():
             SC_BUDGET['remaining'] = int(rem)
         if r.status_code == 429:
+            if rem == '0' or SC_BUDGET.get('throttled', 0) >= 3:
+                return out, total, 'quota'
+            SC_BUDGET['throttled'] = SC_BUDGET.get('throttled', 0) + 1
             time.sleep(30)
             continue
         if r.status_code != 200:
@@ -700,31 +703,70 @@ def _scopus_range(afid, y0, y1, acc):
 
 
 def jordan_citations(prev_path):
-    """Weekly: citations of every Scopus document of every Jordanian university (EID -> times cited).
-    About 5,500 requests for ~136,000 documents; the export files under data/research/universities_export
-    hold the full details, this keeps their citations current."""
+    """Weekly, incremental: citations of every Scopus document of every Jordanian university (EID -> times cited).
+    The official exports (universities_export, scopus_export) and jordan/docs.tsv already hold every document and
+    its year, so a run does not download everything again: it re-reads the current and next publication year
+    (where new documents appear) and a quarter of the earlier years in rotation, so every year is refreshed at
+    least once in four weeks - about a third of the old full download, leaving Scopus quota for researcher profiles.
+    A year that could not be read keeps its previous figures."""
     old = load_json(prev_path, {}) or {}
     if not SCOPUS_KEY:
         return old
+    ey = {}   # EID (without the 2-s2.0- prefix) -> publication year, from the documents already known
+    tsv = os.path.join(OUT, 'jordan', 'docs.tsv')
+    if os.path.exists(tsv):
+        with open(tsv, encoding='utf-8') as f:
+            next(f, None)
+            for line in f:
+                c = line.split('\t', 2)
+                if len(c) > 1 and c[1].isdigit():
+                    ey[c[0]] = int(c[1])
+    for path in glob.glob(os.path.join(OUT, 'universities_export', '*.csv')) + glob.glob(os.path.join(OUT, 'scopus_export', '*.csv')):
+        with open(path, encoding='utf-8-sig', newline='') as f:
+            for r in csv.DictReader(f):
+                e, y = (r.get('EID') or '').replace('2-s2.0-', ''), str(r.get('Year') or '')
+                if e and y.isdigit():
+                    ey.setdefault(e, int(y))
+    week = dt.date.today().isocalendar()[1]
     out = {'updated': dt.date.today().isoformat(), 'universities': {}, 'eid': dict(old.get('eid') or {})}
+    quota = False
     for afid, name, _ in JO_SCOPUS:
-        acc = {}
-        state = _scopus_range(afid, 1950, THIS_YEAR + 1, acc)
         prev_u = (old.get('universities') or {}).get(afid) or {}
-        if state != 'ok' and len(acc) < (prev_u.get('docs') or 0):   # incomplete: keep last week's figures
-            out['universities'][afid] = prev_u
-            log(f'  citations {name}: incomplete ({state}), kept previous')
+        by_year = defaultdict(set)   # the documents known for this university, by year
+        for e in prev_u.get('eids') or []:
+            by_year[ey.get(e)].add(e)   # None: year unknown, kept as is
+        years = {THIS_YEAR, THIS_YEAR + 1} | {y for y in by_year if y and y < THIS_YEAR and y % 4 == week % 4}
+        if not prev_u.get('eids'):
+            years |= set(range(1970, THIS_YEAR))   # a university seen for the first time: read it whole once
+        read, missed = 0, []
+        for y in sorted(years, reverse=True):
+            if quota:
+                missed.append(y)
+                continue
+            got, total, state = _scopus_eids(f'AF-ID({afid}) AND PUBYEAR = {y}')
             if state == 'quota':
-                break
+                quota = True
+            if state != 'ok' or (total or 0) > 5000:
+                missed.append(y)
+                continue
+            by_year[y] = set()
+            for eid, c in got.items():
+                k = eid[7:] if eid.startswith('2-s2.0-') else eid
+                by_year[y].add(k)
+                out['eid'][k] = c
+                ey[k] = y
+            read += 1
+        eids = set().union(*by_year.values()) if by_year else set()
+        if not eids:
+            out['universities'][afid] = prev_u
             continue
-        for eid, c in acc.items():
-            out['eid'][eid[7:] if eid.startswith('2-s2.0-') else eid] = c
-        cites = sorted(acc.values(), reverse=True)
-        out['universities'][afid] = {'docs': len(acc), 'cites': sum(cites), 'h': h_index(cites),
+        cites = sorted((out['eid'].get(e, 0) for e in eids), reverse=True)
+        out['universities'][afid] = {'docs': len(eids), 'cites': sum(cites), 'h': h_index(cites),
                                      'cited_share': round(sum(1 for c in cites if c) / len(cites), 3) if cites else 0,
-                                     'eids': sorted(e[7:] if e.startswith('2-s2.0-') else e for e in acc)}
-        log(f'  citations {name}: {len(acc)} documents, {sum(cites)} citations, h {h_index(cites)}')
-    log(f'jordan citations: {len(out["eid"])} documents, {SC_BUDGET["used"]} requests, quota left {SC_BUDGET["remaining"]}')
+                                     'eids': sorted(eids)}
+        log(f'  citations {name}: {len(eids)} documents ({read} years re-read{", " + str(len(missed)) + " kept" if missed else ""}), '
+            f'{sum(cites)} citations, h {h_index(cites)}')
+    log(f'jordan citations (incremental): {len(out["eid"])} documents, {SC_BUDGET["used"]} requests, quota left {SC_BUDGET["remaining"]}')
     return out
 
 
