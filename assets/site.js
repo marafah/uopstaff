@@ -280,3 +280,36 @@ document.addEventListener('show.bs.dropdown', e => {
   window.addEventListener('load', later);
   later();
 })();
+
+// phones: a box that grows wider than the screen because of what it holds (a grid or row whose items will not shrink)
+// is allowed to shrink to the screen; checked whenever the page draws new content
+(function () {
+  const phone = () => matchMedia('(max-width: 575.98px)').matches;
+  const skip = e => e.closest('.uop-topbar, table, svg, .modal, .dropdown-menu, .no-fit');
+  function fit() {
+    if (!phone()) return;
+    const W = document.documentElement.clientWidth;
+    if (document.body.scrollWidth <= W + 1) return;
+    for (let pass = 0; pass < 4; pass++) {
+      let changed = false;
+      for (const el of document.body.querySelectorAll('*')) {
+        const r = el.getBoundingClientRect();
+        if (!r.width || (r.right <= W + 1 && r.left >= -1) || skip(el)) continue;
+        const p = el.parentElement, pr = p.getBoundingClientRect();
+        if (pr.right > W + 1 || pr.left < -1) continue;            // the parent overflows too: fix it first
+        let a = p, scroller = false;
+        while (a && a !== document.body) { if (/auto|scroll/.test(getComputedStyle(a).overflowX)) { scroller = true; break; } a = a.parentElement; }
+        if (scroller) continue;                                      // inside a box that scrolls sideways on purpose
+        if (el.style.minWidth !== '0px') { el.style.minWidth = '0'; el.style.maxWidth = '100%'; changed = true; }
+        else if (/grid/.test(getComputedStyle(p).display) && !p.dataset.fit) { p.style.gridTemplateColumns = 'minmax(0, 1fr)'; p.dataset.fit = '1'; changed = true; }
+      }
+      if (!changed || document.body.scrollWidth <= W + 1) break;
+    }
+  }
+  let tm = 0;
+  const later = () => { clearTimeout(tm); tm = setTimeout(fit, 400); };
+  new MutationObserver(later).observe(document.body, { childList: true, subtree: true });
+  window.addEventListener('resize', later);
+  window.addEventListener('load', later);
+  later();
+})();
