@@ -90,8 +90,7 @@
     };
     set(false, false, false, false);
     const row = share.parentElement, h0 = nav.offsetHeight;
-    const fits = () => nav.offsetHeight <= h0 + 2 && row.scrollWidth <= row.clientWidth + 1 &&
-      row.getBoundingClientRect().right <= document.documentElement.clientWidth + 1 && row.getBoundingClientRect().left >= -1 && (!q || q.offsetWidth >= 120);
+    const fits = () => nav.offsetHeight <= h0 + 2 && row.scrollWidth <= row.clientWidth + 1 && (!q || q.offsetWidth >= 120);
     for (const step of [[true, false, false, false], [true, true, false, false], [true, true, true, false], [true, true, true, true]]) {
       set(...step);
       if (fits()) return;
