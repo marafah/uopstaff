@@ -451,7 +451,47 @@ def scopus_author_career(ids):
         except ValueError:
             cites.append(0)
     return {'docs': len(cites), 'cites': sum(cites), 'h': h_index(cites), 'i10': sum(1 for c in cites if c >= 10),
-            'at': dt.date.today().isoformat(), 'src': 'search'}
+            'ids': sorted(ids), 'at': dt.date.today().isoformat(), 'src': 'search'}
+
+
+PROFILES_DIR = os.path.join(OUT, 'scopus_profiles')
+
+
+def scopus_profile_rows():
+    """Scopus CSV exports of the researchers' whole author profiles (all affiliations), in data/research/scopus_profiles:
+    the search AU-ID(...) OR AU-ID(...) exported with Author(s) ID, EID and Cited by. Only the newest file counts."""
+    files = sorted(glob.glob(os.path.join(PROFILES_DIR, '*.csv')), key=os.path.getmtime)
+    if not files:
+        return []
+    rows = []
+    for path in files:
+        with open(path, encoding='utf-8-sig', newline='') as f:
+            rows += list(csv.DictReader(f))
+    seen, out = set(), []
+    for x in reversed(rows):   # the newest export wins for a document in several files
+        k = x.get('EID') or (norm_title(x.get('Title')) + str(x.get('Year')))
+        if k in seen:
+            continue
+        seen.add(k)
+        x['_ids'] = {a.strip() for a in re.split(r'[;,]', x.get('Author(s) ID') or '') if a.strip()}
+        out.append(x)
+    log(f'scopus profiles csv: {len(out)} documents')
+    return out
+
+
+def scopus_career_from_rows(ids, rows):
+    ids = set(ids)
+    cites = []
+    for x in rows:
+        if x['_ids'] & ids:
+            try:
+                cites.append(int(str(x.get('Cited by') or '0').strip() or 0))
+            except ValueError:
+                cites.append(0)
+    if not cites:
+        return None
+    return {'docs': len(cites), 'cites': sum(cites), 'h': h_index(cites), 'i10': sum(1 for c in cites if c >= 10),
+            'ids': sorted(ids), 'at': dt.date.today().isoformat(), 'src': 'export'}
 
 
 def scopus_affiliation():
@@ -1881,7 +1921,7 @@ def main():
             'topics': [[t, f, c] for (t, f), c in topics.most_common(12)],
             'countries': countries.most_common(25), 'sdgs': sdgs.most_common(8),
             'ext_coauthors': len(coauth_ext),
-            'scopus': scopus_author_metrics(sid) or old.get('scopus'),
+            'scopus': (None if QUICK else scopus_author_metrics(sid)) or old.get('scopus'),
             'scholar': old.get('scholar'), 'scholar_at': old.get('scholar_at'),
         }
         r['_keys'] = my_keys
@@ -1893,7 +1933,7 @@ def main():
     saved_pool = load_json(os.path.join(OUT, 'scopus_authors.json'), {}) or {}
     known_ids = sorted({r['scopus_id'] for r in researchers if r['scopus_id']} |
                        {sid for r in prev.get('researchers', []) for sid in (r.get('scopus_ids') or [])})
-    sc_rows = scopus_search_docs(known_ids) + scopus_csv_rows()
+    sc_rows = (scopus_search_docs(known_ids) if not QUICK else []) + scopus_csv_rows()   # an upload rebuild spares the weekly API quota
     seen_eid, uniq = {}, []
     for row in sc_rows:   # several exports may overlap: keep one row, but join what each one knows
         k = row.get('EID') or norm_title(row.get('Title')) + str(row.get('Year'))
@@ -1935,16 +1975,22 @@ def main():
                 if r['scopus_match'] in ('name~', 'name≈') and any(x['scopus_match'] in ('manual', 'link', 'name') for x in rs if x is not r):
                     r['scopus_ids'] = [x for x in r['scopus_ids'] if x != sid]
     sid_to_rid = {sid: r['id'] for r in researchers for sid in r['scopus_ids']}
-    career_n = 0
+    prof_rows = scopus_profile_rows()
+    career_n, career_src = 0, Counter()
     for r in researchers:   # the whole Scopus profile (all affiliations), as on the author's Scopus page
         if not r['scopus_ids']:
             r['scopus'] = None
             continue
-        c = scopus_author_career(r['scopus_ids'])
+        c = scopus_career_from_rows(r['scopus_ids'], prof_rows) if prof_rows else None
+        if not c and not QUICK:
+            c = scopus_author_career(r['scopus_ids'])
         if c:
             r['scopus'], career_n = c, career_n + 1
+            career_src[c['src']] += 1
+        elif (r.get('scopus') or {}).get('ids') and set(r['scopus']['ids']) != set(r['scopus_ids']):
+            r['scopus'] = None   # an earlier profile of other IDs
     if career_n:
-        log(f'scopus: whole author profiles for {career_n} researchers')
+        log(f'scopus: whole author profiles for {career_n} researchers ({dict(career_src)})')
     by_rid = {r['id']: r for r in researchers}
     HIDDEN = apply_manual(manual_rows(), all_works, DET, researchers, title_index)
 
