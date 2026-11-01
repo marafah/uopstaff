@@ -503,6 +503,10 @@
     const out = grp === 'lead' ? lead : grp === 'acad' ? acad : grp === 'both' ? lead.concat(acad) : dflt;
     return [...new Set(out)].sort((a, b) => a.localeCompare(b, 'ar'));
   }
+  // a staff member who teaches nothing this term (administrators, centre directors…) can join a meeting: no timetable,
+  // so free at every hour shown
+  const isStaff = n => !!STAFF && STAFF.some(m => m.name === n && m.type !== 'board');
+  const noTimetable = n => !S.some(s => s.instructor === n);
   function freeScope(st) {
     // pool = the instructors offered for selection: those teaching in the chosen faculty/department, plus that
     // unit's own instructors teaching elsewhere, plus anyone added by name.
@@ -510,7 +514,7 @@
     const teaching = st.inst ? [st.inst]
       : [...new Set(S.filter(s => (!st.fac || s.faculty === st.fac) && (!st.dept || s.department === st.dept)).map(s => s.instructor))];
     const own = st.inst || (!st.fac && !st.dept) ? [] : Object.keys(DATA.homes || {}).filter(i => homeGroup(i, st) === 'home' && S.some(s => s.instructor === i));
-    const valid = (st.ppl || []).filter(x => S.some(s => s.instructor === x));
+    const valid = (st.ppl || []).filter(x => S.some(s => s.instructor === x) || isStaff(x));
     const pool = [...new Set(teaching.concat(own, valid))].sort((a, b) => a.localeCompare(b, 'ar'));
     const dflt = st.inst ? pool : pool.filter(p => homeGroup(p, st) === 'home');
     const people = st.ppl ? valid.slice().sort((a, b) => a.localeCompare(b, 'ar')) : dflt;
@@ -621,6 +625,10 @@
     .fr-q i { color: #901d23; } .fr-q input { border: 0; outline: 0; flex: 1; min-width: 0; font-size: .85rem; background: transparent; }
     .fr-mini { border: 1px solid #e3d9c5; background: #fff; border-radius: 30px; padding: .22rem .65rem; font-size: .78rem; font-weight: 700; color: #24323a; white-space: nowrap; }
     .fr-mini:hover { border-color: #901d23; color: #901d23; }
+    .fr-mini small { font-weight: 500; color: #7a8a90; }
+    .fr-nores { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; padding: .45rem .6rem; margin-bottom: .5rem; border: 1px dashed #d9a3a6; border-radius: 12px; background: #fffafa; font-size: .82rem; color: #6e151a; }
+    .fr-nores[hidden] { display: none; }
+    .lv-x { --lc: #5c6b72; }
     .fr-compact .fr-secs { max-height: 360px !important; }
     @media (max-width: 575.98px) { .fr-when { margin-inline-start: 0; } .fr-mini span { display: none; } .fr-compact .fr-grp b { font-size: .76rem; } .fr-grp-l { width: 100%; } }`;
   if (!document.getElementById('fr-css2')) { const el = document.createElement('style'); el.id = 'fr-css2'; el.textContent = FR_CSS; document.head.appendChild(el); }
@@ -638,6 +646,8 @@
     days.forEach(d => { freeN[d] = slots.map((t, i) => people.filter(p => !busy[p][d][i]).length); });
     const timesOpt = sel => { const o = []; for (let t = 7 * 60; t <= 23 * 60; t += 30) o.push(`<option ${toTime(t) === sel ? 'selected' : ''}>${toTime(t)}</option>`); return o.join(''); };
     const allNames = [...new Set(S.map(s => s.instructor))].sort((a, b) => a.localeCompare(b, 'ar'));
+    const staffOnly = STAFF ? [...new Set(STAFF.filter(m => m.type !== 'board' && noTimetable(m.name)).map(m => m.name))].sort((a, b) => a.localeCompare(b, 'ar')) : [];
+    const staffJob = STAFF ? Object.fromEntries(STAFF.map(m => [m.name, m.job || ''])) : {};
     const { pool } = freeScope(st);
     const scopeName = st.inst ? esc(st.inst) : st.dept ? `قسم ${esc(st.dept)}` : st.fac ? `كلية ${esc(st.fac)}` : 'كل مدرسي الجامعة';
     const tab = ['best', 'map', 'busy'].includes(st.ftab) ? st.ftab : 'best';
@@ -657,11 +667,12 @@
         ${groupBar(st)}
         <div class="fr-row3">
           <div class="fr-q"><i class="bi bi-search"></i><input id="fr-find" list="fr-names" placeholder="ابحث في الأسماء أو أضف مدرساً من قسم آخر…" autocomplete="off" title="اكتب لتصفية الأسماء؛ اختر اسماً من القائمة المقترحة لإضافته">
-            <datalist id="fr-names">${allNames.filter(n => !pool.includes(n)).map(n => `<option value="${esc(n)}">`).join('')}</datalist></div>
+            <datalist id="fr-names">${allNames.filter(n => !pool.includes(n)).map(n => `<option value="${esc(n)}">`).join('')}${staffOnly.filter(n => !pool.includes(n)).map(n => `<option value="${esc(n)}" label="${esc((staffJob[n] || 'موظف') + ' · لا يدرّس هذا الفصل')}">`).join('')}</datalist></div>
           ${st.fac || st.dept ? `<button type="button" class="fr-mini" id="fr-own" title="مدرسو ${st.dept ? 'القسم' : 'الكلية'} فقط"><i class="bi bi-house-door"></i><span> ${st.dept ? 'القسم' : 'الكلية'}</span></button>` : ''}
           <button type="button" class="fr-mini" id="fr-all" title="تحديد الكل"><i class="bi bi-check2-all"></i><span> الكل</span></button>
           <button type="button" class="fr-mini" id="fr-none" title="إلغاء التحديد"><i class="bi bi-x-lg"></i><span> لا أحد</span></button>
         </div>
+        <div id="fr-nores" class="fr-nores" hidden></div>
         <div class="fr-chips fr-secs">${(st.inst || (!st.fac && !st.dept) ? [['home', 'المدرسون', '']] : homeGroups(st)).map(([g, title, hint]) => {
           const ps = pool.filter(p => st.inst || homeGroup(p, st) === g)
             .sort((x, y) => (LEAD[x] ? 'tdhc'.indexOf(LEAD[x].lv) : 9) - (LEAD[y] ? 'tdhc'.indexOf(LEAD[y].lv) : 9) || x.localeCompare(y, 'ar'));
@@ -671,7 +682,7 @@
           return `<section class="fr-sec g-${g}"><header><b>${title || 'المدرسون'}</b><span class="fr-cnt">${on} / ${ps.length}</span>${hint ? `<small>${hint}</small>` : ''}
               <span class="fr-sec-act"><button type="button" data-gsel="${g}" title="تحديد كل المجموعة"><i class="bi bi-check2-all"></i> الكل</button><button type="button" data-gclr="${g}" title="إلغاء المجموعة"><i class="bi bi-x-lg"></i> لا أحد</button></span></header>
             <div class="fr-grid">${ps.map(p => `<button type="button" class="fr-person ${people.includes(p) ? 'on' : ''} g-${g}" data-toggle-p="${esc(p)}" data-g="${g}" aria-pressed="${people.includes(p)}" title="${esc(p)}${LEAD[p] ? ' · ' + esc(LEAD[p].job) : ''}">
-              <i class="bi ${people.includes(p) ? 'bi-check-square-fill' : 'bi-square'} fr-ck"></i><span class="fr-av ${LEAD[p] ? 'lv-' + LEAD[p].lv : ''}">${esc(ini(p))}</span><span class="fr-nm">${esc(p)}</span>${LEAD[p] ? `<span class="fr-lead lv-${LEAD[p].lv}"><i class="bi bi-award-fill"></i>${esc(LV_SHORT[LEAD[p].lv])}</span>` : ''}</button>`).join('')}</div></section>`;
+              <i class="bi ${people.includes(p) ? 'bi-check-square-fill' : 'bi-square'} fr-ck"></i><span class="fr-av ${LEAD[p] ? 'lv-' + LEAD[p].lv : ''}">${esc(ini(p))}</span><span class="fr-nm">${esc(p)}</span>${noTimetable(p) ? '<span class="fr-lead lv-x" title="لا يدرّس هذا الفصل: يُعدّ متفرغاً في كل الأوقات"><i class="bi bi-calendar-x"></i>بلا جدول</span>' : ''}${LEAD[p] ? `<span class="fr-lead lv-${LEAD[p].lv}"><i class="bi bi-award-fill"></i>${esc(LV_SHORT[LEAD[p].lv])}</span>` : ''}</button>`).join('')}</div></section>`;
         }).join('')
           || '<span class="text-muted small">لا يوجد مدرسون في النطاق؛ اختر كلية أو قسماً من التصفية أو أضف مدرساً بالاسم.</span>'}</div>
       </div></div></div>`;
@@ -791,13 +802,25 @@
       const v = e.target.value.trim();
       if (S.some(s => s.instructor === v) && !people.includes(v)) set({ ppl: people.concat([v]) });
     });
-    on('#fr-find', 'change', e => {
-      const v = e.target.value.trim();
-      if (S.some(s => s.instructor === v) && !pool.includes(v)) set({ ppl: people.concat([v]) });
-    });
+    const addName = v => { if ((S.some(s => s.instructor === v) || isStaff(v)) && !people.includes(v)) { set({ ppl: people.concat([v]) }); return true; } return false; };
+    on('#fr-find', 'change', e => { addName(e.target.value.trim()); });
     on('#fr-find', 'input', e => {
-      const q = norm(e.target.value.trim());
-      document.querySelectorAll('[data-toggle-p]').forEach(b => { b.hidden = !!q && !norm(b.dataset.toggleP).includes(q); });
+      // every word typed must appear in the name, in any order («سعد المغربي» finds «سعد علي المغربي»)
+      const words = norm(e.target.value.trim()).split(/\s+/).filter(Boolean);
+      const hit = n => words.every(w => norm(n).includes(w));
+      let shown = 0;
+      document.querySelectorAll('[data-toggle-p]').forEach(b => { b.hidden = !!words.length && !hit(b.dataset.toggleP); if (!b.hidden) shown++; });
+      const box = $('#fr-nores');
+      if (!box) return;
+      if (!words.length || shown) { box.hidden = true; return; }
+      const cands = [...new Set(S.map(s => s.instructor))].concat(STAFF ? STAFF.filter(m => m.type !== 'board').map(m => m.name) : [])
+        .filter((n, i, a) => a.indexOf(n) === i && hit(n) && !people.includes(n)).slice(0, 6);
+      const job = n => { const m = STAFF && STAFF.find(x => x.name === n); return m ? m.job || '' : ''; };
+      box.hidden = false;
+      box.innerHTML = cands.length
+        ? `<span><i class="bi bi-info-circle"></i> ليس ضمن مدرسي هذا النطاق. أضفه للاجتماع:</span>${cands.map(n => `<button type="button" class="fr-mini" data-addp="${esc(n)}"><i class="bi bi-person-plus"></i> ${esc(n)}${noTimetable(n) ? ` <small>(${esc(job(n) || 'موظف')} · بلا جدول تدريس، يُعدّ متفرغاً)</small>` : ''}</button>`).join('')}`
+        : '<span><i class="bi bi-search"></i> لا يوجد اسم مطابق في الجدول الدراسي ولا في دليل الموظفين.</span>';
+      box.querySelectorAll('[data-addp]').forEach(x => x.addEventListener('click', () => addName(x.dataset.addp)));
     });
     document.querySelectorAll('[data-toggle-p]').forEach(b => b.addEventListener('click', () => {
       const p = b.dataset.toggleP;
