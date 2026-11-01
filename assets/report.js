@@ -67,8 +67,23 @@ window.printReport = (function () {
   .raw table thead { display: table-header-group; }
   .raw .tt-grid thead th, .raw .mx-table thead th, .raw .fr-heat thead th, .raw .fr-strips thead th { background: #091b22 !important; color: #fff !important; }
   .raw th, .raw td { min-width: 0 !important; }
-  .raw .tt-grid { table-layout: fixed; }
-  .raw .tt-chip { max-width: 100%; }`;
+  .raw .tt-chip, .raw .ti-chip { max-width: 100%; }
+  /* readable on paper: the screen sizes (≈ 9–10px) are too small once printed */
+  .raw table { font-size: 9.5pt !important; }
+  .raw .tt-grid, .raw .mx-table, .raw .fr-heat, .raw .fr-strips, .raw .ti-table { font-size: 9.5pt !important; }
+  .raw thead th { font-size: 9.5pt !important; padding: 5px 6px !important; }
+  .raw tbody th { font-size: 9.5pt !important; }
+  .raw .tt-chip, .raw .ti-chip { font-size: 9pt !important; line-height: 1.35 !important; padding: 3px 6px !important; }
+  .raw .tt-chip small, .raw .ti-room, .raw .ti-inst small, .raw .ti-hrs small { font-size: 8pt !important; }
+  .raw .ti-top b, .raw .tt-chip-c b { font-size: 9.5pt !important; }
+  .raw .ti-name, .raw .tt-chip-n { font-size: 8.5pt !important; }
+  .raw .ti-sec, .raw .tt-chip-s { font-size: 8pt !important; }
+  .raw .fr-heat td a, .raw .mx-c, .raw .mx-tot { font-size: 10pt !important; }
+  .raw .fr-heat td a small { font-size: 8pt !important; opacity: 1 !important; }
+  .raw .ti-inst { min-width: 150px !important; }
+  .raw .tt-chip.static { font-size: 8.5pt !important; }
+  .raw .part-h { font-size: 9pt; color: #901d23; font-weight: 700; margin: 0 0 4px; }
+  .raw .part + .part { break-before: page; }`;
   function cell(c) {
     if (c && typeof c === 'object' && !Array.isArray(c)) return `<td class="${c.cls || ''}">${c.html != null ? c.html : esc(c.text)}${c.sub ? `<small>${esc(c.sub)}</small>` : ''}</td>`;
     return `<td>${esc(c)}</td>`;
@@ -88,6 +103,71 @@ window.printReport = (function () {
       q.addData(url); q.make();
       return `<div class="qr">${q.createSvgTag({ cellSize: 2, margin: 0, scalable: true })}<span>${esc(o.qrLabel || 'امسح للنسخة الحية')}</span></div>`;
     } catch (e) { return ''; }
+  }
+  // the cells of a table as a grid: every cell with its first column and how many columns it spans (rowspans included)
+  function gridOf(rows) {
+    const taken = [], out = [];
+    rows.forEach((r, ri) => {
+      let c = 0; out[ri] = [];
+      [...r.cells].forEach(cell => {
+        while (taken[ri] && taken[ri][c]) c++;
+        const cs = cell.colSpan || 1, rs = cell.rowSpan || 1;
+        out[ri].push({ cell, c, cs });
+        for (let i = 0; i < rs; i++) for (let j = 0; j < cs; j++) ((taken[ri + i] ||= [])[c + j] = true);
+        c += cs;
+      });
+    });
+    return out;
+  }
+  function splitTable(doc, raw, t, printable) {
+    const rows = [...t.rows], grid = gridOf(rows);
+    const n = Math.max(...grid.map(r => r.reduce((a, x) => Math.max(a, x.c + x.cs), 0)));
+    if (n < 3) return;
+    // the width of each column, from the cells that span one column
+    const wcol = Array(n).fill(0);
+    grid.forEach(r => r.forEach(x => { if (x.cs === 1) wcol[x.c] = Math.max(wcol[x.c], x.cell.getBoundingClientRect().width); }));
+    for (let i = 0; i < n; i++) if (!wcol[i]) wcol[i] = 80;
+    const first = wcol[0], room = printable - first - 4;
+    const parts = [];
+    let cur = [], w = 0;
+    for (let i = 1; i < n; i++) {
+      if (cur.length && w + wcol[i] > room) { parts.push(cur); cur = []; w = 0; }
+      cur.push(i); w += wcol[i];
+    }
+    if (cur.length) parts.push(cur);
+    if (parts.length < 2) return;
+    const label = i => { for (const r of grid) { const x = r.find(x => x.c === i && x.cs === 1); if (x) return x.cell.innerText.trim().split('\n')[0]; } return ''; };
+    const out = parts.map((cols, k) => {
+      const keep = new Set([0, ...cols]);
+      const nt = t.cloneNode(false);
+      ['thead', 'tbody', 'tfoot'].forEach(tag => {
+        const sec = t.querySelector(':scope > ' + tag);
+        if (!sec) return;
+        const ns = sec.cloneNode(false);
+        [...sec.rows].forEach(r => {
+          const ri = rows.indexOf(r), nr = r.cloneNode(false);
+          grid[ri].forEach(x => {
+            let m = 0;
+            for (let j = 0; j < x.cs; j++) if (keep.has(x.c + j)) m++;
+            if (!m) return;
+            const nc = x.cell.cloneNode(true);
+            if (x.cs > 1) nc.colSpan = m;
+            nr.appendChild(nc);
+          });
+          ns.appendChild(nr);
+        });
+        nt.appendChild(ns);
+      });
+      nt.style.width = '100%';
+      const d = doc.createElement('div');
+      d.className = 'part';
+      d.innerHTML = `<p class="part-h">الجزء ${k + 1} من ${parts.length} · الأعمدة: ${esc(label(cols[0]))} – ${esc(label(cols[cols.length - 1]))}</p>`;
+      d.appendChild(nt);
+      return d;
+    });
+    const wrap = t.closest('.table-responsive, .mx-wrap, .tt-grid-wrap, .ti-wrap') || t;
+    out.forEach(d => wrap.parentNode.insertBefore(d, wrap));
+    wrap.remove();
   }
   return function printReport(o) {
     // a hidden frame, not a pop-up window: nothing for a pop-up blocker to stop, and only the report is printed
@@ -130,7 +210,14 @@ window.printReport = (function () {
         const height = (orient === 'landscape' ? 794 : 1123) - 38 - 64;  // A4 minus the top margin and the footer zone, in CSS px
         const scale = Math.min(1, printable / page.scrollWidth, height / page.scrollHeight);
         if (scale < 1) page.style.zoom = scale.toFixed(3);
-      } else if (raw && raw.scrollWidth > printable) raw.style.zoom = (printable / raw.scrollWidth).toFixed(3);  // a wide matrix: page width, not cut
+      } else if (raw) {
+        // a wide matrix is split into parts that each fit the page at a readable size (the first column repeated in
+        // every part), instead of shrinking the whole table until it can no longer be read
+        const t = raw.querySelector('table');
+        if (t && t.scrollWidth > printable) splitTable(w.document, raw, t, printable);
+        raw.querySelectorAll('.part').forEach(p => { if (p.scrollWidth > printable) p.style.zoom = Math.max(0.6, printable / p.scrollWidth).toFixed(3); });
+        if (!raw.querySelector('.part') && raw.scrollWidth > printable) raw.style.zoom = (printable / raw.scrollWidth).toFixed(3);
+      }
       try { w.focus(); w.print(); } catch (e) { /* printing not available */ }
     };
     if (w.document.fonts && w.document.fonts.ready) w.document.fonts.ready.then(() => setTimeout(go, 300)); else setTimeout(go, 800);

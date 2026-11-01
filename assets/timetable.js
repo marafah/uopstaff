@@ -569,6 +569,7 @@
         <b>${esc(DAYS[r.d])}</b><bdi dir="ltr">${toTime(r.a)}–${toTime(r.b)}</bdi><small>${dur(r.n)}</small>
         ${r.away.length ? `<em>يغيب: ${r.away.length > 2 ? r.away.length + ' مدرسين' : esc(r.away.map(x => x.replace(/^(أ\.?\s?د|د|م|أ)\.+\s*/, '').split(' ').slice(0, 2).join(' ')).join('، '))}</em>` : ''}</a>`;
     const anyRun = tiers.some(t => t.runs.length);
+    window.__frBest = { tiers, people, from: st.from, to: st.to };  // for printing and exporting the suggested times
     const bestCard = `<div class="card mb-3 fr-bestcard"><div class="card-header d-flex flex-wrap gap-2 align-items-baseline"><span><i class="bi bi-stars"></i> أفضل الأوقات المقترحة</span>
         <span class="small text-muted">${N} مدرس · الأطول أولاً · انقر أي وقت لعرض المتفرغين والمشغولين</span></div>
       <div class="card-body">${tiers.map(t => `<section class="fr-tier ${t.cls}">
@@ -1123,8 +1124,25 @@
       : st.ftab === 'busy' ? 'أوقات الفراغ – انشغال المدرسين' : 'أوقات الفراغ – خريطة التفرغ';
     return { table: t, title };
   }
+  // the suggested free times (free-time view, «best» tab) as rows: group, day, time, length, who is away
+  function bestRows() {
+    const b = window.__frBest;
+    if (!b) return null;
+    return b.tiers.flatMap(t => t.runs.map(r => [t.title, DAYS[r.d], `${toTime(r.a)}–${toTime(r.b)}`, dur(r.n), r.away.length ? r.away.join('، ') : 'لا أحد']));
+  }
+  const isBest = st => st.view === 'free' && (!st.ftab || st.ftab === 'best') && window.__frBest;
   function printTimetable(list) {
     const st = readState();
+    if (isBest(st)) {
+      const b = window.__frBest;
+      return printReport({ title: 'الجدول الدراسي', subtitle: `${DATA.term} – أوقات الفراغ: أفضل الأوقات المقترحة`, source: 'المصدر: بوابة الجامعة (edugate)', orientation: 'portrait',
+        filters: [['المدرسون', `${b.people.length} مدرس`], ['الساعات', `${b.from}–${b.to}`]],
+        stats: b.tiers.map(t => [t.title, t.runs.length]),
+        sections: [{ title: 'المدرسون المختارون', columns: ['#', 'المدرس'], numCols: [0], rows: b.people.map((p, i) => [{ text: i + 1, cls: 'num' }, p]) }]
+          .concat(b.tiers.map(t => ({ title: t.title, columns: ['اليوم', 'الوقت', 'المدة', 'يغيب'], widths: ['14%', '18%', '16%', '52%'],
+            rows: t.runs.map(r => [{ html: `<b>${esc(DAYS[r.d])}</b>` }, { text: `${toTime(r.a)}–${toTime(r.b)}`, cls: 'ltr' }, dur(r.n), r.away.length ? r.away.join('، ') : '—']) }))),
+      });
+    }
     const shown = shownMatrix(st);
     const filters = [...FK, 'seats'].filter(k => st[k]).map(k => [k === 'seats' ? 'المقاعد' : F.find(f => f[0] === k)[1], k === 'seats' ? 'متاحة فقط' : label(k, st[k])]);
     if (st.q) filters.unshift(['بحث', st.q]);
@@ -1163,6 +1181,17 @@
   }
   function exportAs(kind, list) {
     if (kind === 'print') return printTimetable(list);
+    if (isBest(readState()) && (kind === 'xlsx' || kind === 'csv')) {
+      const head = ['الفئة', 'اليوم', 'الوقت', 'المدة', 'يغيب'], rows = bestRows();
+      if (kind === 'csv') return download(new Blob(['\ufeff' + [head, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' }), 'أفضل_الأوقات.csv');
+      if (!window.XLSX) return alert('مكتبة Excel لم تُحمَّل بعد؛ أعد المحاولة بعد لحظات.');
+      const ws = XLSX.utils.aoa_to_sheet([head, ...rows]);
+      styleSheet(ws, 1, false);
+      ws['!cols'] = [{ wch: 22 }, { wch: 12 }, { wch: 16 }, { wch: 14 }, { wch: 60 }];
+      const wb = XLSX.utils.book_new(); wb.Workbook = { Views: [{ RTL: true }] };
+      XLSX.utils.book_append_sheet(wb, ws, 'أفضل الأوقات');
+      return XLSX.writeFile(wb, 'أفضل_الأوقات.xlsx');
+    }
     const shown = shownMatrix(readState());
     if (shown && (kind === 'xlsx' || kind === 'csv')) return exportMatrix(kind, shown);
     const head = ['رمز المقرر', 'اسم المقرر', 'النشاط', 'الوقت', 'القاعة', 'الشعبة', 'الحالة', 'المسجلون', 'السعة', 'اسم المدرس', 'المبنى', 'الكلية', 'القسم', 'الدرجة العلمية', 'نوع الدراسة'];
@@ -1176,7 +1205,8 @@
     if (kind === 'xlsx') {
       if (!window.XLSX) return alert('مكتبة Excel لم تُحمَّل بعد؛ أعد المحاولة بعد لحظات.');
       const ws = XLSX.utils.aoa_to_sheet([head, ...rows]);
-      ws['!cols'] = head.map((h, i) => ({ wch: [10, 34, 7, 34, 9, 6, 8, 8, 6, 30, 26, 24, 26, 12, 10][i] }));
+      styleSheet(ws, 1, false);
+      ws['!cols'] = head.map((h, i) => ({ wch: [11, 36, 8, 36, 10, 7, 9, 9, 7, 32, 28, 26, 28, 13, 11][i] }));
       const wb = XLSX.utils.book_new();
       wb.Workbook = { Views: [{ RTL: true }] };
       XLSX.utils.book_append_sheet(wb, ws, 'الجدول الدراسي');
@@ -1187,7 +1217,8 @@
   function exportMatrix(kind, shown) {
     const t = shown.table.cloneNode(true);
     t.querySelectorAll('.tt-more, .tt-clash-tag').forEach(x => x.remove());
-    t.querySelectorAll('.tt-chip, .ti-chip').forEach(c => { c.textContent = c.innerText.replace(/\s*\n\s*/g, ' · ').trim() + '\n'; });
+    // each section on its own lines (code and section, name, room), a blank line between sections: clear in a wrapped Excel cell
+    t.querySelectorAll('.tt-chip, .ti-chip').forEach(c => { c.textContent = c.innerText.split(/\s*\n\s*/).filter(Boolean).join('\n') + '\n\n'; });
     t.querySelectorAll('td, th').forEach(c => {
       const sub = c.querySelector('.fr-bar');
       if (sub) c.textContent = [...sub.querySelectorAll('i')].map(i => i.title.split('\n')[1] || '').filter(Boolean).join('\n');
@@ -1203,12 +1234,41 @@
     document.body.appendChild(t);
     t.style.cssText = 'position:fixed;left:-10000px;top:0';
     const ws = XLSX.utils.table_to_sheet(t, { raw: true });
+    const headRows = t.tHead ? t.tHead.rows.length : 1;
     t.remove();
-    ws['!cols'] = [{ wch: 18 }].concat(Array(60).fill({ wch: 26 }));
+    styleSheet(ws, headRows, true);
     const wb = XLSX.utils.book_new();
     wb.Workbook = { Views: [{ RTL: true }] };
     XLSX.utils.book_append_sheet(wb, ws, 'المصفوفة');
     XLSX.writeFile(wb, base + '.xlsx');
+  }
+  // Excel: clear on screen and on paper — large font, wrapped text, borders, a coloured header and first column,
+  // rows tall enough for their lines (styles need the xlsx-js-style build of the library; plain SheetJS ignores them)
+  function styleSheet(ws, headRows, matrix) {
+    if (!ws['!ref']) return;
+    const R = XLSX.utils.decode_range(ws['!ref']);
+    const thin = { style: 'thin', color: { rgb: 'D9D2C3' } };
+    const border = { top: thin, bottom: thin, left: thin, right: thin };
+    const lines = [], widest = [];
+    for (let r = R.s.r; r <= R.e.r; r++) for (let c = R.s.c; c <= R.e.c; c++) {
+      const a = XLSX.utils.encode_cell({ r, c });
+      const cell = ws[a] || (ws[a] = { t: 's', v: '' });
+      const head = r < headRows, first = matrix && c === R.s.c && !head;
+      const v = String(cell.v == null ? '' : cell.v).replace(/\n+$/, '');
+      cell.v = v; if (cell.t !== 'n') cell.t = 's';
+      cell.s = {
+        font: { name: 'Arial', sz: head ? 12 : 11, bold: head || first, color: { rgb: head ? 'FFFFFF' : '1F2D33' } },
+        fill: head ? { patternType: 'solid', fgColor: { rgb: '901D23' } } : first ? { patternType: 'solid', fgColor: { rgb: 'F6F1E7' } } : (r - headRows) % 2 ? { patternType: 'solid', fgColor: { rgb: 'FBF9F5' } } : undefined,
+        alignment: { wrapText: true, vertical: head || first ? 'center' : 'top', horizontal: head ? 'center' : 'right', readingOrder: 2 },
+        border,
+      };
+      const ls = v.split('\n');
+      lines[r] = Math.max(lines[r] || 1, ls.length);
+      widest[c] = Math.max(widest[c] || 0, ...ls.map(x => x.length));
+    }
+    ws['!rows'] = lines.map((n, r) => ({ hpt: Math.min(409, Math.max(r < headRows ? 24 : 20, 15.5 * (n || 1) + 4)) }));
+    if (matrix) ws['!cols'] = widest.map((n, c) => ({ wch: Math.max(c === R.s.c ? 22 : 16, Math.min(40, (n || 8) + 3)) }));
+    ws['!freeze'] = { xSplit: matrix ? 1 : 0, ySplit: headRows };
   }
   function download(blob, name) {
     const a = document.createElement('a');
@@ -1253,7 +1313,18 @@
       alert('تعذّر التحديث الآن (' + e.message + '). البيانات المعروضة من آخر نسخة محمَّلة.');
     }
   }
+  // a specialisation the portal lists as «department / programme» (e.g. «علم الحاسوب / الواقع الافتراضي والمعزز») belongs to
+  // that department when the department itself is listed in the same faculty: merged into it, the programme kept on the section
+  function mergePrograms(d) {
+    const has = new Set(d.sections.map(s => s.faculty + '|' + s.department));
+    d.sections.forEach(s => {
+      const m = /^(.+?)\s*\/\s*(.+)$/.exec(s.department || '');
+      if (m && has.has(s.faculty + '|' + m[1].trim())) { s.program = m[2].trim(); s.department = m[1].trim(); }
+    });
+    return d;
+  }
   function load(d) {
+    d = mergePrograms(d);
     DATA = d;
     S = d.sections;
     DAYS = d.days;
@@ -1263,7 +1334,8 @@
   Promise.all([fetch('data/timetable.json?t=' + Math.floor(Date.now() / 600000), { cache: 'no-cache' }).then(r => r.json()),
     fetch('data/instructors.json?t=' + Math.floor(Date.now() / 600000), { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).catch(() => null)]).then(([d, ins]) => {
     if (ins) INST_ID = Object.fromEntries(ins.instructors.map(i => [i.name, i.id]));
-    DATA = d;
+    DATA = mergePrograms(d);
+    d = DATA;
     S = d.sections;
     DAYS = d.days;
     $('#tt-term').textContent = '– ' + d.term;
