@@ -284,6 +284,13 @@ def main():
     # obvious spelling slips in the portal's building names (e.g. "مينى كلية الصيدلة"), corrected after the checks
     for r in rows:
         r["building"] = re.sub(r"^مينى\s", "مبنى ", r["building"])
+    # a specialisation listed as "department / programme" (e.g. "علم الحاسوب / الواقع الافتراضي والمعزز") is part of that
+    # department when the department itself is listed in the same faculty: merged into it, the programme kept (after the checks)
+    listed = {(r["faculty"], r["department"]) for r in rows}
+    for r in rows:
+        m = re.match(r"^(.+?)\s*/\s*(.+)$", r.get("department") or "")
+        if m and (r["faculty"], m.group(1).strip()) in listed:
+            r["program"], r["department"] = m.group(2).strip(), m.group(1).strip()
     data = {
         "updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "checked": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
