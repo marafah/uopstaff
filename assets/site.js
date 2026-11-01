@@ -82,7 +82,16 @@
     put('.sf-count .sf-slot', count); put('.sf-upd .sf-slot', upd); put('.sf-qr', qr); put('.sf-year', year);
     if (src) { src.className = 'sf-link'; put('.sf-src', src); }
     const pp = f.querySelector('.sf-people');
-    people.forEach(p => { if (!p.a) return; const d = document.createElement('div'); d.className = 'sf-person'; d.innerHTML = `<small>${p.role}</small>`; p.a.className = 'sf-name'; d.prepend(p.a); pp.appendChild(d); });
+    // team photos (the same ones the staff directory shows); initials if a photo is missing
+    const PHOTO = { 'عرفة': 'assets/photos/71ba67046bdd9507.jpg', 'المقوسي': 'assets/photos/ddeb550f05d31822.jpg' };
+    people.forEach(p => {
+      if (!p.a) return;
+      const nm = p.a.textContent.trim(), key = Object.keys(PHOTO).find(k => nm.includes(k));
+      const ini = nm.replace(/^د\.\s*/, '').split(/\s+/).map(w => w[0]).slice(0, 2).join(' ');
+      const d = document.createElement('div'); d.className = 'sf-person';
+      d.innerHTML = `<span class="sf-av">${key ? `<img src="${PHOTO[key]}" alt="" loading="lazy" onerror="this.replaceWith(document.createTextNode('${ini}'))">` : ini}</span><span class="sf-who"></span><small>${p.role}</small>`;
+      p.a.className = 'sf-name'; d.querySelector('.sf-who').appendChild(p.a); pp.appendChild(d);
+    });
     const st = document.createElement('style');
     st.textContent = `
       footer.site-footer { padding: 0 !important; margin-top: 2.5rem; background: #091b22; color: #c9d4d8; font-size: .86rem; }
@@ -102,6 +111,10 @@
       .sf-person { display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; padding: .4rem .7rem; border-radius: 10px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); }
       .sf-name { font-weight: 800; text-decoration: none; } .sf-name:hover { color: #f3c9cb; }
       .sf-person small { color: #8fa3ab; font-size: .74rem; white-space: nowrap; }
+      .sf-person { align-items: center; justify-content: flex-start; padding: .35rem .6rem .35rem .7rem; }
+      .sf-who { flex: 1 1 auto; min-width: 0; }
+      .sf-av { width: 36px; height: 36px; border-radius: 50%; flex: none; overflow: hidden; display: grid; place-items: center; background: #901d23; color: #fff; font-weight: 800; font-size: .8rem; border: 2px solid rgba(255,255,255,.85); box-shadow: 0 2px 6px rgba(0,0,0,.35); }
+      .sf-av img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; display: block; }
       .sf-share { display: flex; gap: .8rem; align-items: flex-start; }
       .sf-qr { flex: none; }
       .sf-qr .foot-qr, .sf-qr button { width: 84px; height: 84px; padding: 4px; border-radius: 10px; background: #fff; border: 0; display: block; }
@@ -121,8 +134,10 @@
         .site-footer h6 { display: none; }
         .sf-note { -webkit-line-clamp: 3; margin: .45rem 0 .4rem; }
         .sf-people { flex-direction: row; flex-wrap: wrap; gap: .25rem .9rem; }
-        .sf-person { padding: 0; background: none; border: 0; flex-direction: row-reverse; justify-content: flex-start; gap: .35rem; }
-        .sf-person small::after { content: ':'; }
+        .sf-person { padding: 0; background: none; border: 0; justify-content: flex-start; gap: .35rem; }
+        .sf-person small::after { content: ''; }
+        .sf-person { flex-direction: row; align-items: center; gap: .45rem; } .sf-person small { order: 3; }
+        .sf-av { width: 30px; height: 30px; }
         .sf-share { display: block; } .sf-url { display: none; }
         .sf-disc { white-space: normal; } .sf-bottom .container-fluid { flex-direction: column; align-items: flex-start; gap: .25rem; }
       }
