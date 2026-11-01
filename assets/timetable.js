@@ -533,12 +533,11 @@
   function groupBar(st) {
     const grp = st.grp || '', lv = st.lv || 'tdhc', L = leaders();
     const n = g => groupPeople(st, g).length;
-    const btn = (g, icon, t, sub) => `<button type="button" class="fr-grp ${grp === g ? 'on' : ''}" data-grp="${g}" aria-pressed="${grp === g}">
-        <i class="bi ${icon}"></i><span><b>${t}</b><small>${sub}</small></span><em>${STAFF ? n(g) : '…'}</em></button>`;
+    const btn = (g, icon, t, sub) => `<button type="button" class="fr-grp ${grp === g ? 'on' : ''}" data-grp="${g}" aria-pressed="${grp === g}"
+        title="${esc(sub)}"><i class="bi ${icon}"></i><b>${t}</b><em>${STAFF ? n(g) : '…'}</em></button>`;
     const scope = st.fac || st.dept ? `كلية ${esc(st.fac || (S.find(s => s.department === st.dept) || {}).faculty || '')}` : 'الجامعة';
     return `<div class="fr-grpbar">
-        <div class="fr-grp-h"><i class="bi bi-people-fill"></i> <b>نوع الاجتماع</b><small>اختر المجموعة ثم عدّل الأسماء بالنقر عليها إن لزم</small></div>
-        <div class="fr-grps">
+        <div class="fr-grps"><span class="fr-grp-l"><i class="bi bi-people-fill"></i> الاجتماع:</span>
           ${btn('', 'bi-house-door', 'مدرسو النطاق', 'كما في التصفية')}
           ${btn('lead', 'bi-award', 'القياديون', `في ${scope} + الإدارة العليا`)}
           ${btn('acad', 'bi-mortarboard', 'الأكاديميون', 'مدرسو النطاق بلا منصب')}
@@ -547,7 +546,7 @@
         ${grp === 'lead' || grp === 'both' ? `<div class="fr-lvs"><small>مستويات القياديين:</small>${Object.entries(LV).map(([k, t]) => {
           const c = Object.values(L).filter(x => x.lv === k).length;
           return `<button type="button" class="fr-lv lv-${k} ${lv.includes(k) ? 'on' : ''}" data-lv="${k}" aria-pressed="${lv.includes(k)}"><i class="bi ${lv.includes(k) ? 'bi-check-square-fill' : 'bi-square'}"></i> ${t}</button>`;
-        }).join('')}<small class="text-muted">القياديون غير المدرّسين هذا الفصل لا جدول لهم فلا يظهرون.</small></div>` : ''}
+        }).join('')}<i class="bi bi-info-circle text-muted" title="القياديون غير المدرّسين هذا الفصل لا جدول لهم فلا يظهرون."></i></div>` : ''}
       </div>`;
   }
   const FR_CSS = `
@@ -596,7 +595,34 @@
       .fr-grid { grid-template-columns: minmax(0, 1fr); }
       .fr-sec > header small { display: none; }
     }
-    @media (max-width: 991.98px) { .fr-grps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }`;
+    @media (max-width: 991.98px) { .fr-grps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .fr-compact .card-body { padding: .7rem .85rem; }
+    .fr-row1 { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
+    .fr-scope1 { display: flex; align-items: center; gap: .4rem; font-size: 1rem; color: #091b22; min-width: 0; }
+    .fr-scope1 i { color: #901d23; }
+    .fr-cntall { background: #901d23; color: #fff; border-radius: 30px; padding: 0 .55rem; font-size: .75rem; font-weight: 700; }
+    .fr-when { display: flex; align-items: center; gap: .35rem; margin-inline-start: auto; font-size: .82rem; flex-wrap: wrap; }
+    .fr-when > i { color: #901d23; }
+    .fr-when select { width: auto; padding: .15rem .55rem .15rem 1.9rem !important; background-position: left .45rem center !important; font-size: .82rem; direction: ltr; }
+    .fr-tg { display: inline-flex; align-items: center; gap: .3rem; border: 1px solid #e3d9c5; border-radius: 30px; padding: .15rem .6rem; cursor: pointer; background: #fff; white-space: nowrap; }
+    .fr-tg:has(input:checked) { border-color: #901d23; color: #901d23; background: #fdf2f2; }
+    .fr-tg input { accent-color: #901d23; margin: 0; }
+    .fr-compact .fr-people { margin-top: .6rem; }
+    .fr-compact .fr-grpbar { padding: .45rem .55rem; margin-bottom: .55rem; }
+    .fr-compact .fr-grps { display: flex !important; flex-wrap: wrap; gap: .35rem; align-items: center; }
+    .fr-grp-l { font-weight: 800; color: #091b22; font-size: .85rem; margin-inline-end: .2rem; } .fr-grp-l i { color: #901d23; }
+    .fr-compact .fr-grp { padding: .25rem .65rem; border-radius: 30px; gap: .35rem; flex: 0 0 auto; }
+    .fr-compact .fr-grp > i { font-size: .95rem; } .fr-compact .fr-grp b { font-size: .82rem; display: inline; }
+    .fr-compact .fr-grp em { padding: 0 .45rem; font-size: .72rem; }
+    .fr-compact .fr-lvs { margin-top: .4rem; }
+    .fr-row3 { display: flex; gap: .35rem; align-items: center; margin-bottom: .5rem; }
+    .fr-q { flex: 1 1 auto; display: flex; align-items: center; gap: .4rem; border: 1px solid #ddd3c0; border-radius: 30px; padding: .2rem .75rem; background: #fff; min-width: 0; }
+    .fr-q:focus-within { border-color: #901d23; box-shadow: 0 0 0 3px rgba(144,29,35,.12); }
+    .fr-q i { color: #901d23; } .fr-q input { border: 0; outline: 0; flex: 1; min-width: 0; font-size: .85rem; background: transparent; }
+    .fr-mini { border: 1px solid #e3d9c5; background: #fff; border-radius: 30px; padding: .22rem .65rem; font-size: .78rem; font-weight: 700; color: #24323a; white-space: nowrap; }
+    .fr-mini:hover { border-color: #901d23; color: #901d23; }
+    .fr-compact .fr-secs { max-height: 360px !important; }
+    @media (max-width: 575.98px) { .fr-when { margin-inline-start: 0; } .fr-mini span { display: none; } .fr-compact .fr-grp b { font-size: .76rem; } .fr-grp-l { width: 100%; } }`;
   if (!document.getElementById('fr-css2')) { const el = document.createElement('style'); el.id = 'fr-css2'; el.textContent = FR_CSS; document.head.appendChild(el); }
   function freeView(st) {
     needStaff();
@@ -616,31 +642,26 @@
     const scopeName = st.inst ? esc(st.inst) : st.dept ? `قسم ${esc(st.dept)}` : st.fac ? `كلية ${esc(st.fac)}` : 'كل مدرسي الجامعة';
     const tab = ['best', 'map', 'busy'].includes(st.ftab) ? st.ftab : 'best';
 
-    const head = `<div class="card mb-3 fr-head"><div class="card-body">
-      <div class="d-flex flex-wrap gap-3 align-items-end">
-        <div class="fr-scope"><small>النطاق</small><b>${scopeName}</b><span>${N} من ${pool.length} مدرس محددون · ${days.length} أيام · <bdi dir="ltr">${toTime(from)}–${toTime(to)}</bdi></span></div>
-        <div class="d-flex flex-wrap gap-2 align-items-end ms-auto">
-          <label class="small fr-lbl">من<select class="form-select form-select-sm" id="fr-from">${timesOpt(toTime(from))}</select></label>
-          <label class="small fr-lbl">إلى<select class="form-select form-select-sm" id="fr-to">${timesOpt(toTime(to))}</select></label>
-          <div class="form-check form-switch small mb-1"><input class="form-check-input" type="checkbox" id="fr-sat" ${st.sat ? 'checked' : ''}><label class="form-check-label" for="fr-sat">يشمل السبت</label></div>
-          <div class="form-check form-switch small mb-1" title="المحاضرات غير المتزامنة ليس لها وقت حضور ثابت؛ فعّل الخيار لاعتبار وقتها المسجّل مشغولاً">
-            <input class="form-check-input" type="checkbox" id="fr-async" ${st.async ? 'checked' : ''}><label class="form-check-label" for="fr-async">احتساب غير المتزامن مشغولاً</label></div>
+    const head = `<div class="card mb-3 fr-head fr-compact"><div class="card-body">
+      <div class="fr-row1">
+        <div class="fr-scope1"><i class="bi bi-bullseye"></i> <b>${scopeName}</b><span class="fr-cntall">${N} / ${pool.length}</span></div>
+        <div class="fr-when">
+          <i class="bi bi-clock"></i>
+          <select class="form-select form-select-sm" id="fr-from" aria-label="من">${timesOpt(toTime(from))}</select><span>–</span>
+          <select class="form-select form-select-sm" id="fr-to" aria-label="إلى">${timesOpt(toTime(to))}</select>
+          <label class="fr-tg" title="يشمل يوم السبت"><input type="checkbox" id="fr-sat" ${st.sat ? 'checked' : ''}> السبت</label>
+          <label class="fr-tg" title="المحاضرات غير المتزامنة ليس لها وقت حضور ثابت؛ فعّل الخيار لاعتبار وقتها المسجّل مشغولاً"><input type="checkbox" id="fr-async" ${st.async ? 'checked' : ''}> غير المتزامن مشغول</label>
         </div>
       </div>
-      <div class="fr-people mt-3">
+      <div class="fr-people">
         ${groupBar(st)}
-        <div class="fr-ptools">
-          <b class="small">اختر المدرسين <span class="badge rounded-pill text-bg-primary">${N} / ${pool.length}</span></b>
-          ${st.fac || st.dept ? `<button type="button" class="btn btn-sm btn-outline-primary" id="fr-own"><i class="bi bi-house-door"></i> مدرسو ${st.dept ? 'القسم' : 'الكلية'} فقط</button>` : ''}
-          <button type="button" class="btn btn-sm btn-outline-primary" id="fr-all"><i class="bi bi-check2-all"></i> تحديد الكل</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" id="fr-none"><i class="bi bi-x-lg"></i> إلغاء التحديد</button>
-          <div class="input-group input-group-sm fr-find"><span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input class="form-control" id="fr-find" placeholder="ابحث في الأسماء…" autocomplete="off"></div>
-          <div class="input-group input-group-sm fr-add"><span class="input-group-text"><i class="bi bi-person-plus"></i></span>
-            <input class="form-control" id="fr-add" list="fr-names" placeholder="أضف مدرساً من قسم آخر…" autocomplete="off">
+        <div class="fr-row3">
+          <div class="fr-q"><i class="bi bi-search"></i><input id="fr-find" list="fr-names" placeholder="ابحث في الأسماء أو أضف مدرساً من قسم آخر…" autocomplete="off" title="اكتب لتصفية الأسماء؛ اختر اسماً من القائمة المقترحة لإضافته">
             <datalist id="fr-names">${allNames.filter(n => !pool.includes(n)).map(n => `<option value="${esc(n)}">`).join('')}</datalist></div>
+          ${st.fac || st.dept ? `<button type="button" class="fr-mini" id="fr-own" title="مدرسو ${st.dept ? 'القسم' : 'الكلية'} فقط"><i class="bi bi-house-door"></i><span> ${st.dept ? 'القسم' : 'الكلية'}</span></button>` : ''}
+          <button type="button" class="fr-mini" id="fr-all" title="تحديد الكل"><i class="bi bi-check2-all"></i><span> الكل</span></button>
+          <button type="button" class="fr-mini" id="fr-none" title="إلغاء التحديد"><i class="bi bi-x-lg"></i><span> لا أحد</span></button>
         </div>
-        <p class="small text-muted mb-2"><i class="bi bi-hand-index"></i> انقر الاسم لتحديده أو إلغائه. مثال لاجتماع مدرسَين: «إلغاء التحديد» ثم انقر الاسمين.${st.fac || st.dept ? ` المحدَّد تلقائياً: مدرسو ${st.dept ? 'القسم' : 'الكلية'} حسب دليل الموظفين.` : ''}</p>
         <div class="fr-chips fr-secs">${(st.inst || (!st.fac && !st.dept) ? [['home', 'المدرسون', '']] : homeGroups(st)).map(([g, title, hint]) => {
           const ps = pool.filter(p => st.inst || homeGroup(p, st) === g)
             .sort((x, y) => (LEAD[x] ? 'tdhc'.indexOf(LEAD[x].lv) : 9) - (LEAD[y] ? 'tdhc'.indexOf(LEAD[y].lv) : 9) || x.localeCompare(y, 'ar'));
@@ -769,6 +790,10 @@
     on('#fr-add', 'change', e => {
       const v = e.target.value.trim();
       if (S.some(s => s.instructor === v) && !people.includes(v)) set({ ppl: people.concat([v]) });
+    });
+    on('#fr-find', 'change', e => {
+      const v = e.target.value.trim();
+      if (S.some(s => s.instructor === v) && !pool.includes(v)) set({ ppl: people.concat([v]) });
     });
     on('#fr-find', 'input', e => {
       const q = norm(e.target.value.trim());
