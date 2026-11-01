@@ -69,14 +69,15 @@
     const tag = (cls, ic) => `<span class="sf-chip ${cls}"><i class="bi ${ic}"></i><span class="sf-slot"></span></span>`;
     f.dataset.sf = '1';
     f.innerHTML = `<div class="container-fluid px-4"><div class="sf-row">
-        <div class="sf-about">
+        <div class="sf-about"><h6>عن الصفحة</h6>
           <div class="sf-brand"><span class="sf-logo"><i class="${icon}"></i></span><div><b>${name}</b><small>جامعة البترا</small></div></div>
           ${note ? `<p class="sf-note" title="${note.replace(/"/g, '&quot;')}">${note}</p>` : ''}
           <div class="sf-chips">${count ? tag('sf-count', 'bi-collection') : ''}${upd ? tag('sf-upd', 'bi-arrow-repeat') : ''}<span class="sf-src"></span></div>
         </div>
         <div class="sf-team"><h6>فريق العمل</h6><div class="sf-people"></div></div>
-        <div class="sf-share"><span class="sf-qr"></span><div><h6>شارك الموقع</h6><div class="sf-url" dir="ltr">marafah.github.io/uopstaff</div>
-          <div class="sf-actions"><button type="button" class="sf-btn" data-bs-toggle="modal" data-bs-target="#shareModal"><i class="bi bi-share-fill"></i> مشاركة</button></div></div></div>
+        <div class="sf-share-col"><h6>شارك الموقع</h6><div class="sf-share"><span class="sf-qr"></span><div><div class="sf-url" dir="ltr">marafah.github.io/uopstaff</div>
+          <p class="sf-hint">امسح الرمز أو شارك الرابط.</p>
+          <div class="sf-actions"><button type="button" class="sf-btn" data-bs-toggle="modal" data-bs-target="#shareModal"><i class="bi bi-share-fill"></i> مشاركة</button></div></div></div></div>
       </div></div>
       <div class="sf-bottom"><div class="container-fluid px-4"><span class="sf-disc"><i class="bi bi-info-circle"></i> ${disclaimer}</span><span class="sf-copy">© <span class="sf-year"></span></span></div></div>`;
     const put = (sel, el) => { const box = f.querySelector(sel); if (box && el) box.appendChild(el); };
@@ -124,9 +125,12 @@
       .sf-av img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; display: block; }
       .sf-share { display: flex; gap: .8rem; align-items: flex-start; }
       .sf-qr { flex: none; }
+      .sf-hint { margin: 0 0 .45rem; color: #8fa3ab; font-size: .76rem; }
+      .sf-about h6, .sf-team h6, .sf-share-col h6 { display: table; }
+      .sf-share { align-items: center; }
       .sf-qr .foot-qr, .sf-qr button { width: 84px; height: 84px; padding: 4px; border-radius: 10px; background: #fff; border: 0; display: block; }
       .sf-qr svg { width: 100%; height: 100%; display: block; }
-      .sf-url { font-weight: 700; color: #fff; font-size: .8rem; margin-bottom: .45rem; }
+      .sf-url { font-weight: 700; color: #fff; font-size: .8rem; margin-bottom: .15rem; }
       .sf-actions { display: flex; flex-wrap: wrap; gap: .35rem; }
       .sf-btn, .sf-actions .btn { display: inline-flex; align-items: center; gap: .3rem; padding: .25rem .7rem !important; margin: 0 !important; border-radius: 30px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #fff; font-size: .78rem; font-weight: 700; }
       .sf-btn:hover, .sf-actions .btn:hover { background: #fff; color: #901d23; }
@@ -145,7 +149,7 @@
         .sf-person small::after { content: ''; }
         .sf-person { flex-direction: row; align-items: center; gap: .45rem; } .sf-person small { order: 3; }
         .sf-av { width: 30px; height: 30px; }
-        .sf-share { display: block; } .sf-url { display: none; }
+        .sf-share { display: block; } .sf-url, .sf-hint { display: none; }
         .sf-disc { white-space: normal; } .sf-bottom .container-fluid { flex-direction: column; align-items: flex-start; gap: .25rem; }
       }
       @media print { footer.site-footer { display: none; } }`;
