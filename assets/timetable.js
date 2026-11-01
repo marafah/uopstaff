@@ -569,6 +569,33 @@
     .fr-lead { display: inline-flex; align-items: center; gap: .2rem; margin-inline-start: .35rem; padding: 0 .45rem; border-radius: 30px; font-size: .68rem; font-weight: 700;
       color: var(--lc); background: color-mix(in srgb, var(--lc) 10%, #fff); border: 1px solid color-mix(in srgb, var(--lc) 35%, #fff); }
     .fr-person.on .fr-lead { background: #fff; }
+    .fr-secs { display: grid !important; grid-template-columns: minmax(0, 1fr) !important; gap: .6rem !important; max-height: 440px !important; overflow: auto; padding: 2px; flex-wrap: nowrap !important; }
+    .fr-sec { border: 1px solid #ece4d4; border-radius: 12px; background: #fff; }
+    .fr-sec > header { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .45rem .7rem; background: #faf6ee; border-bottom: 1px solid #ece4d4; border-radius: 12px 12px 0 0; position: sticky; top: 0; z-index: 1; }
+    .fr-sec > header b { color: #091b22; font-size: .88rem; }
+    .fr-sec > header small { color: #8a979c; font-size: .72rem; }
+    .fr-cnt { background: #901d23; color: #fff; border-radius: 30px; padding: 0 .5rem; font-size: .72rem; font-weight: 700; }
+    .fr-sec-act { margin-inline-start: auto; display: flex; gap: .3rem; }
+    .fr-sec-act button { border: 1px solid #e3d9c5; background: #fff; border-radius: 30px; padding: .05rem .55rem; font-size: .72rem; color: #24323a; }
+    .fr-sec-act button:hover { border-color: #901d23; color: #901d23; }
+    .fr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: .35rem; padding: .55rem; }
+    .fr-secs button.fr-person { display: flex !important; align-items: center; gap: .45rem; width: 100%; text-align: start; border-radius: 10px !important; padding: .3rem .5rem !important;
+      background: #fff; border: 1px solid #ebe5d8; color: #3a464c; font-size: .8rem; font-weight: 500; min-height: 40px; }
+    .fr-secs button.fr-person[hidden] { display: none !important; }
+    .fr-secs button.fr-person:hover { border-color: #901d23; background: #fffafa; }
+    .fr-secs button.fr-person.on { background: #fdf2f2; border-color: #d9a3a6; color: #6e151a; font-weight: 700; }
+    .fr-ck { font-size: 1rem; color: #c3bcae !important; flex: none; } .fr-person.on .fr-ck { color: #901d23 !important; }
+    .fr-av { width: 28px; height: 28px; border-radius: 50%; flex: none; display: grid; place-items: center; font-size: .7rem; font-weight: 800; background: #eef1f2; color: #4a5a61; }
+    .fr-av[class*="lv-"] { background: color-mix(in srgb, var(--lc) 14%, #fff); color: var(--lc); box-shadow: 0 0 0 1.5px var(--lc); }
+    .fr-nm { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .fr-secs .fr-lead { margin: 0; flex: none; }
+    @media (max-width: 575.98px) {
+      .fr-grps { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: .35rem; }
+      .fr-grp { padding: .45rem .5rem; gap: .35rem; } .fr-grp > i { font-size: 1.05rem; } .fr-grp b { font-size: .8rem; } .fr-grp small { display: none; }
+      .fr-grp-h small { display: none; }
+      .fr-grid { grid-template-columns: minmax(0, 1fr); }
+      .fr-sec > header small { display: none; }
+    }
     @media (max-width: 991.98px) { .fr-grps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }`;
   if (!document.getElementById('fr-css2')) { const el = document.createElement('style'); el.id = 'fr-css2'; el.textContent = FR_CSS; document.head.appendChild(el); }
   function freeView(st) {
@@ -614,10 +641,16 @@
             <datalist id="fr-names">${allNames.filter(n => !pool.includes(n)).map(n => `<option value="${esc(n)}">`).join('')}</datalist></div>
         </div>
         <p class="small text-muted mb-2"><i class="bi bi-hand-index"></i> انقر الاسم لتحديده أو إلغائه. مثال لاجتماع مدرسَين: «إلغاء التحديد» ثم انقر الاسمين.${st.fac || st.dept ? ` المحدَّد تلقائياً: مدرسو ${st.dept ? 'القسم' : 'الكلية'} حسب دليل الموظفين.` : ''}</p>
-        <div class="fr-chips">${(st.inst || (!st.fac && !st.dept) ? [['home', '', '']] : homeGroups(st)).map(([g, title, hint]) => {
-          const ps = pool.filter(p => st.inst || homeGroup(p, st) === g);
-          return ps.length ? `${title ? `<div class="fr-group"><b>${title} <span>(${ps.length})</span></b><small>${hint}</small></div>` : ''}${ps.map(p => `<button type="button" class="fr-person ${people.includes(p) ? 'on' : ''} g-${g}" data-toggle-p="${esc(p)}" aria-pressed="${people.includes(p)}">
-            <i class="bi ${people.includes(p) ? 'bi-check-circle-fill' : 'bi-circle'}"></i> ${esc(p)}${LEAD[p] ? `<span class="fr-lead lv-${LEAD[p].lv}" title="${esc(LEAD[p].job)}"><i class="bi bi-award-fill"></i>${esc(LV_SHORT[LEAD[p].lv])}</span>` : ''}</button>`).join('')}` : '';
+        <div class="fr-chips fr-secs">${(st.inst || (!st.fac && !st.dept) ? [['home', 'المدرسون', '']] : homeGroups(st)).map(([g, title, hint]) => {
+          const ps = pool.filter(p => st.inst || homeGroup(p, st) === g)
+            .sort((x, y) => (LEAD[x] ? 'tdhc'.indexOf(LEAD[x].lv) : 9) - (LEAD[y] ? 'tdhc'.indexOf(LEAD[y].lv) : 9) || x.localeCompare(y, 'ar'));
+          if (!ps.length) return '';
+          const on = ps.filter(p => people.includes(p)).length;
+          const ini = n => n.replace(/^(أ\.?\s?د|د|م|أ)\.+\s*/, '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('');
+          return `<section class="fr-sec g-${g}"><header><b>${title || 'المدرسون'}</b><span class="fr-cnt">${on} / ${ps.length}</span>${hint ? `<small>${hint}</small>` : ''}
+              <span class="fr-sec-act"><button type="button" data-gsel="${g}" title="تحديد كل المجموعة"><i class="bi bi-check2-all"></i> الكل</button><button type="button" data-gclr="${g}" title="إلغاء المجموعة"><i class="bi bi-x-lg"></i> لا أحد</button></span></header>
+            <div class="fr-grid">${ps.map(p => `<button type="button" class="fr-person ${people.includes(p) ? 'on' : ''} g-${g}" data-toggle-p="${esc(p)}" data-g="${g}" aria-pressed="${people.includes(p)}" title="${esc(p)}${LEAD[p] ? ' · ' + esc(LEAD[p].job) : ''}">
+              <i class="bi ${people.includes(p) ? 'bi-check-square-fill' : 'bi-square'} fr-ck"></i><span class="fr-av ${LEAD[p] ? 'lv-' + LEAD[p].lv : ''}">${esc(ini(p))}</span><span class="fr-nm">${esc(p)}</span>${LEAD[p] ? `<span class="fr-lead lv-${LEAD[p].lv}"><i class="bi bi-award-fill"></i>${esc(LV_SHORT[LEAD[p].lv])}</span>` : ''}</button>`).join('')}</div></section>`;
         }).join('')
           || '<span class="text-muted small">لا يوجد مدرسون في النطاق؛ اختر كلية أو قسماً من التصفية أو أضف مدرساً بالاسم.</span>'}</div>
       </div></div></div>`;
@@ -720,6 +753,9 @@
     on('#fr-all', 'click', () => set({ grp: '', ppl: pool.length === dflt.length ? null : pool }));
     on('#fr-own', 'click', () => set({ grp: '', ppl: null }));
     on('#fr-none', 'click', () => set({ grp: '', ppl: [] }));
+    const groupNames = g => [...document.querySelectorAll(`[data-toggle-p][data-g="${g}"]`)].map(b => b.dataset.toggleP);
+    document.querySelectorAll('[data-gsel]').forEach(b => b.addEventListener('click', () => set({ ppl: [...new Set(people.concat(groupNames(b.dataset.gsel)))] })));
+    document.querySelectorAll('[data-gclr]').forEach(b => b.addEventListener('click', () => { const out = new Set(groupNames(b.dataset.gclr)); set({ ppl: people.filter(p => !out.has(p)) }); }));
     document.querySelectorAll('[data-grp]').forEach(b => b.addEventListener('click', () => {
       const g = b.dataset.grp;
       set({ grp: g, ppl: g ? groupPeople(st, g) : null });
