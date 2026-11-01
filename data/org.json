@@ -1,5 +1,5 @@
 {
-"updated": "2026-10-29T10:06:11Z",
+"updated": "2026-11-01T16:51:53Z",
 "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
 "revision": "Rev.E",
 "revision_date": "2023-12-20",
@@ -1233,8 +1233,8 @@
 "unit": {
 "id": "1",
 "name": "كلية تكنولوجيا المعلومات",
-"count": 51,
-"academic": 43
+"count": 52,
+"academic": 44
 },
 "people": [
 {
@@ -1318,7 +1318,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "علم البيانات والذكاء الاصطناعي",
-"count": 10,
+"count": 11,
 "people": [
 {
 "id": "A:6D006F00680061006D006D00610064002E00610072006100660061006800400075006F0070002E006500640075002E006A006F000D00",

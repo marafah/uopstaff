@@ -1,6 +1,6 @@
 {
 "term": "الفصل الأول 2027/2026",
-"updated": "2026-11-01T09:29:32Z",
+"updated": "2026-11-01T16:55:57Z",
 "teaching": {
 "start": "2026-10-18",
 "end": "2027-01-19",
@@ -936,7 +936,7 @@
 {
 "id": "2f299b7e8e",
 "name": "د. ابراهيم حسين محمد خليل",
-"sections": 6,
+"sections": 5,
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "faculty": "الآداب والعلوم",
 "email": "ikhalil@uop.edu.jo",
@@ -2694,7 +2694,7 @@
 {
 "id": "e82bcac36d",
 "name": "د. عرابي شريف حبيب الراوي",
-"sections": 5,
+"sections": 6,
 "department": "الهندسة المدنية",
 "faculty": "الهندسة",
 "email": "orabi.alrawi@uop.edu.jo",
@@ -3033,7 +3033,7 @@
 {
 "id": "99bea44bb2",
 "name": "د. قصي ابراهيم احمد القواسمه",
-"sections": 6,
+"sections": 5,
 "department": "الهندسة المدنية",
 "faculty": "الهندسة",
 "email": "qusi.alqawasmeh@uop.edu.jo",
@@ -3167,8 +3167,19 @@
 "id": "9569416d0b",
 "name": "د. لميس راتب احمد الزعبي",
 "sections": 1,
-"department": "",
-"faculty": "",
+"department": "علم البيانات والذكاء الاصطناعي",
+"faculty": "تكنولوجيا المعلومات",
+"email": "lamees.alzoubi@uop.edu.jo",
+"ext": "",
+"office": "",
+"photo": "",
+"rank": "أستاذ مساعد",
+"job": "عضو هيئة تدريس",
+"role": "",
+"profile": "https://fit.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6C0061006D006500650073002E0061006C007A006F00750062006900400075006F0070002E006500640075002E006A006F00",
+"name_en": "Lamees Rateb Ahmed Al Zoubi",
+"directory_id": "A:6C0061006D006500650073002E0061006C007A006F00750062006900400075006F0070002E006500640075002E006A006F00",
+"corrected": false,
 "ics": "data/ics/9569416d0b.ics"
 },
 {
@@ -4656,7 +4667,7 @@
 "email": "hshaker@uop.edu.jo",
 "ext": "8301",
 "office": "",
-"photo": "assets/photos/c7f8cc0b213333fc.jpg",
+"photo": "assets/photos/d85040206cc40bd8.jpg",
 "rank": "أستاذ مساعد",
 "job": "عضو هيئة تدريس",
 "role": "",

@@ -1,9 +1,9 @@
 {
-"updated": "2026-11-01T09:29:32Z",
-"checked": "2026-11-01T09:29:32Z",
+"updated": "2026-11-01T16:55:57Z",
+"checked": "2026-11-01T16:55:57Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
-"count": 1652,
+"count": 1651,
 "days": {
 "ح": "الأحد",
 "ن": "الاثنين",
@@ -4043,7 +4043,7 @@
 "department": "الكيمياء",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 45,
+"registered": 44,
 "capacity": 42,
 "meetings": [
 {
@@ -8072,7 +8072,7 @@
 "name": "التصميم الداخلي (1)",
 "activity": "نظري",
 "time": "[ 12:30_16:00 ] ح وجاهي ث وجاهي",
-"room": "4325",
+"room": "4321",
 "section": "1",
 "status": "مفتوحة",
 "instructor": "م. نورا مازن علي الطباع",
@@ -8347,7 +8347,7 @@
 "department": "التصميم الداخلي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 21,
+"registered": 22,
 "capacity": 21,
 "meetings": [
 {
@@ -8458,7 +8458,7 @@
 "department": "التصميم الداخلي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 24,
+"registered": 25,
 "capacity": 23,
 "meetings": [
 {
@@ -8519,14 +8519,14 @@
 "time": "[ 13:30_16:00 ] ن وجاهي ر وجاهي[ 13:30_15:30 ] س غير متزامن",
 "room": "4328",
 "section": "2",
-"status": "مفتوحة",
+"status": "مغلقة",
 "instructor": "د. منى مروان محمود الأنصاري",
 "building": "مبنى كلية العمارة والتصميم",
 "faculty": "العمارة و التصميم",
 "department": "التصميم الداخلي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 14,
+"registered": 15,
 "capacity": 15,
 "meetings": [
 {
@@ -8600,7 +8600,7 @@
 "department": "التصميم الداخلي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 23,
+"registered": 24,
 "capacity": 23,
 "meetings": [
 {
@@ -9641,7 +9641,7 @@
 "department": "التصميم الجرافيكي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 26,
+"registered": 25,
 "capacity": 24,
 "meetings": [
 {
@@ -9715,7 +9715,7 @@
 "department": "التصميم الجرافيكي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 26,
+"registered": 27,
 "capacity": 24,
 "meetings": [
 {
@@ -15743,7 +15743,7 @@
 "department": "الأعمال والتجارة الالكترونية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 46,
+"registered": 45,
 "capacity": 50,
 "meetings": [
 {
@@ -16331,7 +16331,7 @@
 "department": "ذكاء الأعمال وتحليل البيانات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 29,
+"registered": 30,
 "capacity": 29,
 "meetings": [
 {
@@ -16640,7 +16640,7 @@
 "department": "ذكاء الأعمال وتحليل البيانات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 57,
+"registered": 58,
 "capacity": 56,
 "meetings": [
 {
@@ -16776,7 +16776,7 @@
 "department": "ذكاء الأعمال وتحليل البيانات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 59,
+"registered": 60,
 "capacity": 51,
 "meetings": [
 {
@@ -20214,7 +20214,7 @@
 "department": "العلوم المالية والمصرفية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 44,
+"registered": 43,
 "capacity": 60,
 "meetings": [
 {
@@ -21473,7 +21473,7 @@
 "building": "مبنى كلية الآداب والعلوم",
 "faculty": "الآداب والعلوم",
 "department": "اللغة العربية وآدابها",
-"degree": "البكالوريوس",
+"degree": "الماجستير",
 "study_type": "صباحي",
 "registered": 10,
 "capacity": 30,
@@ -21504,7 +21504,7 @@
 "building": "مبنى كلية الآداب والعلوم",
 "faculty": "الآداب والعلوم",
 "department": "اللغة العربية وآدابها",
-"degree": "الماجستير",
+"degree": "البكالوريوس",
 "study_type": "صباحي",
 "registered": 10,
 "capacity": 30,
@@ -21537,7 +21537,7 @@
 "department": "اللغة العربية وآدابها",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 21,
+"registered": 22,
 "capacity": 35,
 "meetings": [
 {
@@ -22698,7 +22698,7 @@
 "building": "مبنى كلية الآداب والعلوم",
 "faculty": "الآداب والعلوم",
 "department": "اللغة الانجليزية وآدابها",
-"degree": "البكالوريوس",
+"degree": "الماجستير",
 "study_type": "صباحي",
 "registered": 29,
 "capacity": 30,
@@ -22729,7 +22729,7 @@
 "building": "مبنى كلية الآداب والعلوم",
 "faculty": "الآداب والعلوم",
 "department": "اللغة الانجليزية وآدابها",
-"degree": "الماجستير",
+"degree": "البكالوريوس",
 "study_type": "صباحي",
 "registered": 29,
 "capacity": 30,
@@ -25448,37 +25448,6 @@
 ]
 },
 {
-"code": "410111",
-"name": "اللغة العربية للمبتدئين",
-"activity": "نظري",
-"time": "[ 08:00_09:30 ] ن وجاهي ر وجاهي",
-"room": "06312",
-"section": "1",
-"status": "مفتوحة",
-"instructor": "د. ابراهيم حسين محمد خليل",
-"building": "مبنى كلية الآداب والعلوم",
-"faculty": "الآداب والعلوم",
-"department": "مركز اللغات",
-"degree": "البكالوريوس",
-"study_type": "صباحي",
-"registered": 0,
-"capacity": 20,
-"meetings": [
-{
-"day": "ن",
-"start": "08:00",
-"end": "09:30",
-"mode": "وجاهي"
-},
-{
-"day": "ر",
-"start": "08:00",
-"end": "09:30",
-"mode": "وجاهي"
-}
-]
-},
-{
 "code": "410112",
 "name": "اللغة العربية - المستوى المتوسط",
 "activity": "نظري",
@@ -27321,31 +27290,6 @@
 {
 "code": "501241",
 "name": "كيمياء تحليلية للعلوم الطبية",
-"activity": "عملي",
-"time": "[ 08:00_11:00 ] ث وجاهي",
-"room": "0",
-"section": "1",
-"status": "مفتوحة",
-"instructor": "د. هبه فتحي امين السيد",
-"building": "-",
-"faculty": "الصيدلة والعلوم الطبية",
-"department": "الصيدلة",
-"degree": "البكالوريوس",
-"study_type": "صباحي",
-"registered": 13,
-"capacity": 20,
-"meetings": [
-{
-"day": "ث",
-"start": "08:00",
-"end": "11:00",
-"mode": "وجاهي"
-}
-]
-},
-{
-"code": "501241",
-"name": "كيمياء تحليلية للعلوم الطبية",
 "activity": "نظري",
 "time": "[ 14:00_15:00 ] ن وجاهي ر وجاهي",
 "room": "8B-8143",
@@ -27370,6 +27314,31 @@
 "day": "ر",
 "start": "14:00",
 "end": "15:00",
+"mode": "وجاهي"
+}
+]
+},
+{
+"code": "501241",
+"name": "كيمياء تحليلية للعلوم الطبية",
+"activity": "عملي",
+"time": "[ 08:00_11:00 ] ث وجاهي",
+"room": "0",
+"section": "1",
+"status": "مفتوحة",
+"instructor": "د. هبه فتحي امين السيد",
+"building": "-",
+"faculty": "الصيدلة والعلوم الطبية",
+"department": "الصيدلة",
+"degree": "البكالوريوس",
+"study_type": "صباحي",
+"registered": 13,
+"capacity": 20,
+"meetings": [
+{
+"day": "ث",
+"start": "08:00",
+"end": "11:00",
 "mode": "وجاهي"
 }
 ]
@@ -27972,7 +27941,7 @@
 "department": "الصيدلة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 36,
+"registered": 37,
 "capacity": 40,
 "meetings": [
 {
@@ -28034,7 +28003,7 @@
 "department": "الصيدلة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 20,
+"registered": 21,
 "capacity": 20,
 "meetings": [
 {
@@ -29706,7 +29675,7 @@
 "department": "الصيدلة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 2,
+"registered": 3,
 "capacity": 5,
 "meetings": [
 {
@@ -29961,7 +29930,7 @@
 "department": "الصيدلة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 29,
+"registered": 30,
 "capacity": 35,
 "meetings": [
 {
@@ -30247,7 +30216,7 @@
 "department": "الصيدلة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 4,
+"registered": 5,
 "capacity": 9,
 "meetings": [
 {
@@ -30637,14 +30606,14 @@
 "time": "[ 16:00_19:00 ] خ الكتروني كامل",
 "room": "0",
 "section": "1",
-"status": "مفتوحة",
+"status": "مغلقة",
 "instructor": "م. محمد نيازي امين ياسين",
 "building": "-",
 "faculty": "الصيدلة والعلوم الطبية",
 "department": "الصيدلة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 8,
+"registered": 9,
 "capacity": 9,
 "meetings": [
 {
@@ -32177,14 +32146,14 @@
 "time": "[ 08:00_11:00 ] ن وجاهي",
 "room": "7104",
 "section": "9",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "م. شذا عادل هلال الربطة",
 "building": "مبنى كلية تكنولوجيا المعلومات",
 "faculty": "الصيدلة والعلوم الطبية",
 "department": "التغذية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 20,
+"registered": 19,
 "capacity": 20,
 "meetings": [
 {
@@ -32365,6 +32334,31 @@
 {
 "code": "503225",
 "name": "أساسيات الأحياء الدقيقة",
+"activity": "عملي",
+"time": "[ 13:00_16:00 ] ح وجاهي",
+"room": "0",
+"section": "1",
+"status": "مفتوحة",
+"instructor": "د. لينا محمد احمد احمد",
+"building": "-",
+"faculty": "الصيدلة والعلوم الطبية",
+"department": "التغذية",
+"degree": "البكالوريوس",
+"study_type": "صباحي",
+"registered": 18,
+"capacity": 20,
+"meetings": [
+{
+"day": "ح",
+"start": "13:00",
+"end": "16:00",
+"mode": "وجاهي"
+}
+]
+},
+{
+"code": "503225",
+"name": "أساسيات الأحياء الدقيقة",
 "activity": "نظري",
 "time": "[ 08:00_09:00 ] ح وجاهي ث وجاهي",
 "room": "8401",
@@ -32396,24 +32390,30 @@
 {
 "code": "503225",
 "name": "أساسيات الأحياء الدقيقة",
-"activity": "عملي",
-"time": "[ 13:00_16:00 ] ح وجاهي",
-"room": "0",
-"section": "1",
-"status": "مفتوحة",
+"activity": "نظري",
+"time": "[ 11:00_12:00 ] ح وجاهي ث وجاهي",
+"room": "8401",
+"section": "2",
+"status": "مغلقة",
 "instructor": "د. لينا محمد احمد احمد",
-"building": "-",
+"building": "مبنى كلية الصيدلة",
 "faculty": "الصيدلة والعلوم الطبية",
 "department": "التغذية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 18,
-"capacity": 20,
+"registered": 23,
+"capacity": 23,
 "meetings": [
 {
 "day": "ح",
-"start": "13:00",
-"end": "16:00",
+"start": "11:00",
+"end": "12:00",
+"mode": "وجاهي"
+},
+{
+"day": "ث",
+"start": "11:00",
+"end": "12:00",
 "mode": "وجاهي"
 }
 ]
@@ -32439,37 +32439,6 @@
 "day": "ث",
 "start": "13:00",
 "end": "16:00",
-"mode": "وجاهي"
-}
-]
-},
-{
-"code": "503225",
-"name": "أساسيات الأحياء الدقيقة",
-"activity": "نظري",
-"time": "[ 11:00_12:00 ] ح وجاهي ث وجاهي",
-"room": "8401",
-"section": "2",
-"status": "مغلقة",
-"instructor": "د. لينا محمد احمد احمد",
-"building": "مبنى كلية الصيدلة",
-"faculty": "الصيدلة والعلوم الطبية",
-"department": "التغذية",
-"degree": "البكالوريوس",
-"study_type": "صباحي",
-"registered": 23,
-"capacity": 23,
-"meetings": [
-{
-"day": "ح",
-"start": "11:00",
-"end": "12:00",
-"mode": "وجاهي"
-},
-{
-"day": "ث",
-"start": "11:00",
-"end": "12:00",
 "mode": "وجاهي"
 }
 ]
@@ -32514,31 +32483,6 @@
 {
 "code": "503308",
 "name": "تخطيط وجبات الطعام",
-"activity": "عملي",
-"time": "[ 08:00_11:00 ] ح وجاهي",
-"room": "8116",
-"section": "1",
-"status": "مفتوحة",
-"instructor": "د.سهام محمد اسماعيل ابوجدايل",
-"building": "مبنى كلية الصيدلة",
-"faculty": "الصيدلة والعلوم الطبية",
-"department": "التغذية",
-"degree": "البكالوريوس",
-"study_type": "صباحي",
-"registered": 24,
-"capacity": 25,
-"meetings": [
-{
-"day": "ح",
-"start": "08:00",
-"end": "11:00",
-"mode": "وجاهي"
-}
-]
-},
-{
-"code": "503308",
-"name": "تخطيط وجبات الطعام",
 "activity": "نظري",
 "time": "[ 12:30_14:00 ] ن وجاهي ر وجاهي",
 "room": "8406",
@@ -32563,6 +32507,31 @@
 "day": "ر",
 "start": "12:30",
 "end": "14:00",
+"mode": "وجاهي"
+}
+]
+},
+{
+"code": "503308",
+"name": "تخطيط وجبات الطعام",
+"activity": "عملي",
+"time": "[ 08:00_11:00 ] ح وجاهي",
+"room": "8116",
+"section": "1",
+"status": "مفتوحة",
+"instructor": "د.سهام محمد اسماعيل ابوجدايل",
+"building": "مبنى كلية الصيدلة",
+"faculty": "الصيدلة والعلوم الطبية",
+"department": "التغذية",
+"degree": "البكالوريوس",
+"study_type": "صباحي",
+"registered": 24,
+"capacity": 25,
+"meetings": [
+{
+"day": "ح",
+"start": "08:00",
+"end": "11:00",
 "mode": "وجاهي"
 }
 ]
@@ -32601,31 +32570,6 @@
 {
 "code": "503310",
 "name": "كيمياء وتحليل الأغذية",
-"activity": "عملي",
-"time": "[ 13:00_16:00 ] ن وجاهي",
-"room": "0",
-"section": "1",
-"status": "مفتوحة",
-"instructor": "د. لينا محمد احمد احمد",
-"building": "-",
-"faculty": "الصيدلة والعلوم الطبية",
-"department": "التغذية",
-"degree": "البكالوريوس",
-"study_type": "صباحي",
-"registered": 18,
-"capacity": 20,
-"meetings": [
-{
-"day": "ن",
-"start": "13:00",
-"end": "16:00",
-"mode": "وجاهي"
-}
-]
-},
-{
-"code": "503310",
-"name": "كيمياء وتحليل الأغذية",
 "activity": "نظري",
 "time": "[ 12:00_13:00 ] ح وجاهي ث وجاهي",
 "room": "8207",
@@ -32650,6 +32594,31 @@
 "day": "ث",
 "start": "12:00",
 "end": "13:00",
+"mode": "وجاهي"
+}
+]
+},
+{
+"code": "503310",
+"name": "كيمياء وتحليل الأغذية",
+"activity": "عملي",
+"time": "[ 13:00_16:00 ] ن وجاهي",
+"room": "0",
+"section": "1",
+"status": "مفتوحة",
+"instructor": "د. لينا محمد احمد احمد",
+"building": "-",
+"faculty": "الصيدلة والعلوم الطبية",
+"department": "التغذية",
+"degree": "البكالوريوس",
+"study_type": "صباحي",
+"registered": 18,
+"capacity": 20,
+"meetings": [
+{
+"day": "ن",
+"start": "13:00",
+"end": "16:00",
 "mode": "وجاهي"
 }
 ]
@@ -32713,6 +32682,31 @@
 {
 "code": "503313",
 "name": "تحضير الأغذية",
+"activity": "عملي",
+"time": "[ 13:00_16:00 ] ث وجاهي",
+"room": "0",
+"section": "2",
+"status": "مغلقة",
+"instructor": "أد. عمر امين يونس الحاج",
+"building": "-",
+"faculty": "الصيدلة والعلوم الطبية",
+"department": "التغذية",
+"degree": "البكالوريوس",
+"study_type": "صباحي",
+"registered": 24,
+"capacity": 20,
+"meetings": [
+{
+"day": "ث",
+"start": "13:00",
+"end": "16:00",
+"mode": "وجاهي"
+}
+]
+},
+{
+"code": "503313",
+"name": "تحضير الأغذية",
 "activity": "نظري",
 "time": "[ 11:00_12:30 ] ن وجاهي ر وجاهي",
 "room": "8101",
@@ -32742,24 +32736,24 @@
 ]
 },
 {
-"code": "503313",
-"name": "تحضير الأغذية",
+"code": "503320",
+"name": "التغذية العلاجية (1)",
 "activity": "عملي",
-"time": "[ 13:00_16:00 ] ث وجاهي",
-"room": "0",
-"section": "2",
+"time": "[ 13:00_16:00 ] ح وجاهي",
+"room": "8401",
+"section": "1",
 "status": "مغلقة",
-"instructor": "أد. عمر امين يونس الحاج",
-"building": "-",
+"instructor": "د.سهام محمد اسماعيل ابوجدايل",
+"building": "مبنى كلية الصيدلة",
 "faculty": "الصيدلة والعلوم الطبية",
 "department": "التغذية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 24,
+"registered": 27,
 "capacity": 20,
 "meetings": [
 {
-"day": "ث",
+"day": "ح",
 "start": "13:00",
 "end": "16:00",
 "mode": "وجاهي"
@@ -32800,24 +32794,30 @@
 {
 "code": "503320",
 "name": "التغذية العلاجية (1)",
-"activity": "عملي",
-"time": "[ 13:00_16:00 ] ح وجاهي",
-"room": "8401",
-"section": "1",
-"status": "مغلقة",
-"instructor": "د.سهام محمد اسماعيل ابوجدايل",
+"activity": "نظري",
+"time": "[ 12:30_14:00 ] ن وجاهي ر وجاهي",
+"room": "8405",
+"section": "2",
+"status": "مفتوحة",
+"instructor": "أ.د. رفعت أحمد فوزي الكرد",
 "building": "مبنى كلية الصيدلة",
 "faculty": "الصيدلة والعلوم الطبية",
 "department": "التغذية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 27,
+"registered": 10,
 "capacity": 20,
 "meetings": [
 {
-"day": "ح",
-"start": "13:00",
-"end": "16:00",
+"day": "ن",
+"start": "12:30",
+"end": "14:00",
+"mode": "وجاهي"
+},
+{
+"day": "ر",
+"start": "12:30",
+"end": "14:00",
 "mode": "وجاهي"
 }
 ]
@@ -32843,37 +32843,6 @@
 "day": "ث",
 "start": "08:00",
 "end": "11:00",
-"mode": "وجاهي"
-}
-]
-},
-{
-"code": "503320",
-"name": "التغذية العلاجية (1)",
-"activity": "نظري",
-"time": "[ 12:30_14:00 ] ن وجاهي ر وجاهي",
-"room": "8405",
-"section": "2",
-"status": "مفتوحة",
-"instructor": "أ.د. رفعت أحمد فوزي الكرد",
-"building": "مبنى كلية الصيدلة",
-"faculty": "الصيدلة والعلوم الطبية",
-"department": "التغذية",
-"degree": "البكالوريوس",
-"study_type": "صباحي",
-"registered": 10,
-"capacity": 20,
-"meetings": [
-{
-"day": "ن",
-"start": "12:30",
-"end": "14:00",
-"mode": "وجاهي"
-},
-{
-"day": "ر",
-"start": "12:30",
-"end": "14:00",
 "mode": "وجاهي"
 }
 ]
@@ -33464,31 +33433,6 @@
 {
 "code": "503782",
 "name": "طرق مخبرية متقدمة في الغذاء والتغذية",
-"activity": "نظري",
-"time": "[ 16:00_18:00 ] ح وجاهي",
-"room": "3309",
-"section": "1",
-"status": "مغلقة",
-"instructor": "أد. عمر امين يونس الحاج",
-"building": "مبنى كلية الإعلام",
-"faculty": "الصيدلة والعلوم الطبية",
-"department": "التغذية",
-"degree": "الماجستير",
-"study_type": "صباحي",
-"registered": 15,
-"capacity": 15,
-"meetings": [
-{
-"day": "ح",
-"start": "16:00",
-"end": "18:00",
-"mode": "وجاهي"
-}
-]
-},
-{
-"code": "503782",
-"name": "طرق مخبرية متقدمة في الغذاء والتغذية",
 "activity": "عملي",
 "time": "[ 13:00_16:00 ] ح وجاهي",
 "room": "0",
@@ -33507,6 +33451,31 @@
 "day": "ح",
 "start": "13:00",
 "end": "16:00",
+"mode": "وجاهي"
+}
+]
+},
+{
+"code": "503782",
+"name": "طرق مخبرية متقدمة في الغذاء والتغذية",
+"activity": "نظري",
+"time": "[ 16:00_18:00 ] ح وجاهي",
+"room": "3309",
+"section": "1",
+"status": "مغلقة",
+"instructor": "أد. عمر امين يونس الحاج",
+"building": "مبنى كلية الإعلام",
+"faculty": "الصيدلة والعلوم الطبية",
+"department": "التغذية",
+"degree": "الماجستير",
+"study_type": "صباحي",
+"registered": 15,
+"capacity": 15,
+"meetings": [
+{
+"day": "ح",
+"start": "16:00",
+"end": "18:00",
 "mode": "وجاهي"
 }
 ]
@@ -33587,7 +33556,7 @@
 "department": "التحاليل الطبية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 11,
+"registered": 12,
 "capacity": 20,
 "meetings": [
 {
@@ -36103,7 +36072,7 @@
 "department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 32,
+"registered": 33,
 "capacity": 40,
 "meetings": [
 {
@@ -36134,7 +36103,7 @@
 "department": "علم الحاسوب",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 32,
+"registered": 33,
 "capacity": 40,
 "meetings": [
 {
@@ -36165,7 +36134,7 @@
 "department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 27,
+"registered": 28,
 "capacity": 26,
 "meetings": [
 {
@@ -36190,7 +36159,7 @@
 "department": "علم الحاسوب",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 27,
+"registered": 28,
 "capacity": 26,
 "meetings": [
 {
@@ -36895,7 +36864,7 @@
 "department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 53,
+"registered": 54,
 "capacity": 50,
 "meetings": [
 {
@@ -37409,14 +37378,14 @@
 "time": "[ 12:00_13:00 ] ح وجاهي ث وجاهي خ غير متزامن",
 "room": "7324",
 "section": "3",
-"status": "مفتوحة",
+"status": "مغلقة",
 "instructor": "د. نسرين احمد توفيق عتوم",
 "building": "مبنى كلية تكنولوجيا المعلومات",
 "faculty": "تكنولوجيا المعلومات",
 "department": "هندسة البرمجيات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 39,
+"registered": 40,
 "capacity": 40,
 "meetings": [
 {
@@ -40315,7 +40284,7 @@
 "department": "علم البيانات والذكاء الاصطناعي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 33,
+"registered": 34,
 "capacity": 40,
 "meetings": [
 {
@@ -40736,7 +40705,7 @@
 "department": "علم البيانات والذكاء الاصطناعي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 24,
+"registered": 25,
 "capacity": 26,
 "meetings": [
 {
@@ -41048,7 +41017,7 @@
 "instructor": "د. فارس امين مفلح ابو حشيش",
 "building": "مبنى كلية تكنولوجيا المعلومات",
 "faculty": "تكنولوجيا المعلومات",
-"department": "علم الحاسوب / الواقع الافتراضي والمعزز",
+"department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
 "registered": 24,
@@ -41066,7 +41035,8 @@
 "end": "09:30",
 "mode": "وجاهي"
 }
-]
+],
+"program": "الواقع الافتراضي والمعزز"
 },
 {
 "code": "607101",
@@ -41079,7 +41049,7 @@
 "instructor": "د. فارس امين مفلح ابو حشيش",
 "building": "مبنى كلية تكنولوجيا المعلومات",
 "faculty": "تكنولوجيا المعلومات",
-"department": "علم الحاسوب / الواقع الافتراضي والمعزز",
+"department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
 "registered": 21,
@@ -41097,7 +41067,8 @@
 "end": "11:30",
 "mode": "وجاهي"
 }
-]
+],
+"program": "الواقع الافتراضي والمعزز"
 },
 {
 "code": "607233",
@@ -41110,7 +41081,7 @@
 "instructor": "د. جمال سامي شاهين زراقو",
 "building": "مبنى كلية تكنولوجيا المعلومات",
 "faculty": "تكنولوجيا المعلومات",
-"department": "علم الحاسوب / الواقع الافتراضي والمعزز",
+"department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
 "registered": 8,
@@ -41134,7 +41105,8 @@
 "end": "10:30",
 "mode": "غير متزامن"
 }
-]
+],
+"program": "الواقع الافتراضي والمعزز"
 },
 {
 "code": "607353",
@@ -41147,7 +41119,7 @@
 "instructor": "د. جمال سامي شاهين زراقو",
 "building": "مبنى كلية تكنولوجيا المعلومات",
 "faculty": "تكنولوجيا المعلومات",
-"department": "علم الحاسوب / الواقع الافتراضي والمعزز",
+"department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
 "registered": 7,
@@ -41165,7 +41137,8 @@
 "end": "09:30",
 "mode": "وجاهي"
 }
-]
+],
+"program": "الواقع الافتراضي والمعزز"
 },
 {
 "code": "607392",
@@ -41178,7 +41151,7 @@
 "instructor": "د. جمال سامي شاهين زراقو",
 "building": "مبنى كلية تكنولوجيا المعلومات",
 "faculty": "تكنولوجيا المعلومات",
-"department": "علم الحاسوب / الواقع الافتراضي والمعزز",
+"department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
 "registered": 10,
@@ -41202,7 +41175,8 @@
 "end": "13:00",
 "mode": "غير متزامن"
 }
-]
+],
+"program": "الواقع الافتراضي والمعزز"
 },
 {
 "code": "701111",
@@ -41255,7 +41229,7 @@
 "department": "القانون الخاص",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 50,
+"registered": 51,
 "capacity": 50,
 "meetings": [
 {
@@ -42183,7 +42157,7 @@
 "department": "القانون العام",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 50,
+"registered": 51,
 "capacity": 46,
 "meetings": [
 {
@@ -42205,7 +42179,7 @@
 "name": "النظم السياسية والقانون الدستوري",
 "activity": "نظري",
 "time": "[ 10:00_11:30 ] ح وجاهي ث وجاهي",
-"room": "3502",
+"room": "3504",
 "section": "2",
 "status": "مغلقة",
 "instructor": "د. سيف عبد المحسن رشيد محمد",
@@ -42313,7 +42287,7 @@
 "department": "القانون العام",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 40,
+"registered": 41,
 "capacity": 40,
 "meetings": [
 {
@@ -46344,7 +46318,7 @@
 "room": "0",
 "section": "1",
 "status": "مغلقة",
-"instructor": "د. قصي ابراهيم احمد القواسمه",
+"instructor": "د. عرابي شريف حبيب الراوي",
 "building": "-",
 "faculty": "الهندسة",
 "department": "الهندسة المدنية",
@@ -46636,7 +46610,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 88,
+"registered": 89,
 "capacity": 85,
 "meetings": [
 {
@@ -47080,7 +47054,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 86,
+"registered": 87,
 "capacity": 85,
 "meetings": [
 {
@@ -47877,7 +47851,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 82,
+"registered": 83,
 "capacity": 85,
 "meetings": [
 {
@@ -47988,7 +47962,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 86,
+"registered": 87,
 "capacity": 85,
 "meetings": [
 {
@@ -48391,7 +48365,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 85,
+"registered": 86,
 "capacity": 85,
 "meetings": [
 {
@@ -49194,7 +49168,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 89,
+"registered": 88,
 "capacity": 90,
 "meetings": [
 {
@@ -49416,7 +49390,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 89,
+"registered": 88,
 "capacity": 85,
 "meetings": [
 {
@@ -49527,7 +49501,7 @@
 "department": "اللغة العربية وآدابها",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 89,
+"registered": 90,
 "capacity": 85,
 "meetings": [
 {
@@ -50489,7 +50463,7 @@
 "department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 49,
+"registered": 50,
 "capacity": 45,
 "meetings": [
 {
@@ -50896,7 +50870,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 87,
+"registered": 88,
 "capacity": 85,
 "meetings": [
 {
@@ -54006,6 +53980,12 @@
 "تكنولوجيا تصميم الفيلم الرقمي"
 ]
 },
+"د. لميس راتب احمد الزعبي": {
+"faculty": "تكنولوجيا المعلومات",
+"departments": [
+"علم البيانات والذكاء الاصطناعي"
+]
+},
 "د. ليث خلدون محمود الصبابحه": {
 "faculty": "الآداب والعلوم",
 "departments": [
@@ -54842,14 +54822,14 @@
 }
 },
 "checks": {
-"rows": 1652,
-"details_read": 1652,
+"rows": 1651,
+"details_read": 1651,
 "filters": [
 "degree",
 "study_type",
 "faculty",
 "department"
 ],
-"status_vs_seats": 1652
+"status_vs_seats": 1651
 }
 }

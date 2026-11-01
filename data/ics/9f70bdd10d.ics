@@ -29,7 +29,7 @@ DESCRIPTION:نظري · وجاهي · اللغة الانجليزية وآ
  دابها – الآداب والعلوم
 END:VEVENT
 BEGIN:VEVENT
-UID:020e1a66382e42c7@uopstaff
+UID:7a697c6dadaf9f52@uopstaff
 DTSTAMP:20261018T000000Z
 DTSTART;TZID=Asia/Amman:20261019T123000
 DTEND;TZID=Asia/Amman:20261019T140000
@@ -40,7 +40,7 @@ DESCRIPTION:نظري · وجاهي · اللغة الانجليزية وآ
  دابها – الآداب والعلوم
 END:VEVENT
 BEGIN:VEVENT
-UID:7a697c6dadaf9f52@uopstaff
+UID:020e1a66382e42c7@uopstaff
 DTSTAMP:20261018T000000Z
 DTSTART;TZID=Asia/Amman:20261019T123000
 DTEND;TZID=Asia/Amman:20261019T140000

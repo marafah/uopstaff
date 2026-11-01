@@ -30,7 +30,7 @@ DESCRIPTION:نظري · وجاهي · اللغة العربية وآداب
  ها – الآداب والعلوم
 END:VEVENT
 BEGIN:VEVENT
-UID:dadcc46ae36cec50@uopstaff
+UID:f4d9d5b881c179f2@uopstaff
 DTSTAMP:20261018T000000Z
 DTSTART;TZID=Asia/Amman:20261019T110000
 DTEND;TZID=Asia/Amman:20261019T123000
@@ -41,7 +41,7 @@ DESCRIPTION:نظري · وجاهي · اللغة العربية وآداب
  ها – الآداب والعلوم
 END:VEVENT
 BEGIN:VEVENT
-UID:f4d9d5b881c179f2@uopstaff
+UID:dadcc46ae36cec50@uopstaff
 DTSTAMP:20261018T000000Z
 DTSTART;TZID=Asia/Amman:20261019T110000
 DTEND;TZID=Asia/Amman:20261019T123000

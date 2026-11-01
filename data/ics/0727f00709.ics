@@ -58,7 +58,7 @@ DTEND;TZID=Asia/Amman:20261018T160000
 RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T123000
 SUMMARY:202231 التصميم الداخلي (1) – ش1
-LOCATION:4325 – مبنى كلية العمارة والتصميم
+LOCATION:4321 – مبنى كلية العمارة والتصميم
 DESCRIPTION:نظري · وجاهي · التصميم الداخلي – ا
  لعمارة و التصميم
 END:VEVENT
