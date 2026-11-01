@@ -2,8 +2,8 @@
    fetched fresh when online and the last copy is used when offline or when the network is too slow; libraries,
    fonts and photos are kept once used. VERSION changes with every release of the site (the same ?v= the pages use),
    which replaces the kept pages and scripts. */
-const VERSION = '202611011900';
-const CORE = 'uop-core-' + VERSION, DATA = 'uop-data', LIBS = 'uop-libs';
+const VERSION = '202611012000';
+const CORE = 'uop-core-' + VERSION, DATA = 'uop-data', LIBS = 'uop-libs', ASSETS = 'uop-assets';
 const PAGES = ['./', 'index.html', 'directory.html', 'timetable.html', 'calendar.html', 'now.html', 'notes.html', 'changes.html', 'makeup.html', 'load.html',
   'phones.html', 'together.html', 'instructor.html', 'planner.html', 'room.html', 'office-hours.html', 'usage.html', 'screen.html', 'trends.html', 'org.html', 'plans.html', 'advisory.html',
   'research.html', 'researchers.html', 'researcher.html', 'publications.html', 'compare.html', 'universities.html', 'network.html', 'publication.html', 'jordan.html', 'journals.html', 'experts.html', 'simulator.html', 'reports.html', 'projects.html', 'regulations.html', 'promotion.html', 'reward.html', 'award.html', 'sabbatical.html', 'publish.html', 'annual.html', 'dept.html', 'goals.html', 'intl.html', 'impact.html', 'integrity.html'];
@@ -70,8 +70,12 @@ self.addEventListener('fetch', e => {
     } else if (path.startsWith('assets/photos/') || path.startsWith('assets/icons/') || /\.(png|jpe?g|svg|webp)$/.test(path)) {
       e.respondWith(keptFirst(req, LIBS));
     } else {
-      // scripts and styles: the kept copy of this exact ?v=, else the server (not the browser's 10-minute cache), so a release shows at once
-      e.respondWith(caches.match(req).then(r => r || fetch(req, { cache: 'no-cache' })));
+      // scripts and styles: the kept copy of this exact ?v=, else the server (not the browser's 10-minute cache), so a release
+      // shows at once; every copy fetched is also kept by its path, so a page still looks right when the network drops
+      e.respondWith(caches.match(req).then(r => r || fetch(new Request(req.url, { cache: 'no-cache', credentials: 'same-origin' }))
+        .then(n => { if (!n.ok) return fetch(req); const c = n.clone(); caches.open(ASSETS).then(k => k.put(url.origin + url.pathname, c)); return n; })
+        .catch(() => fetch(req))
+        .catch(() => caches.match(url.origin + url.pathname, { ignoreSearch: true }).then(k => k || caches.match(req, { ignoreSearch: true })).then(k => k || Response.error()))));
     }
   } else if (LIB_HOSTS.includes(url.hostname)) {
     e.respondWith(keptFirst(req, LIBS));
