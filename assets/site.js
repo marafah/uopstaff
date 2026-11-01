@@ -102,7 +102,11 @@
     });
     const st = document.createElement('style');
     st.textContent = `
-      footer.site-footer { padding: 0 !important; margin-top: 2.5rem; background: #091b22; color: #c9d4d8; font-size: .86rem; }
+      /* the footer at the bottom of the window on short pages, after the content on long ones */
+      body { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+      body > footer.site-footer { margin-top: auto !important; }
+      body > main, body > .container-fluid { flex: 0 0 auto; }
+      footer.site-footer { padding: 0 !important; background: #091b22; color: #c9d4d8; font-size: .86rem; }
       footer.site-footer a { color: #fff; }
       .sf-row { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1.1fr); gap: 1.6rem; align-items: start; padding: 1.25rem 0 1.1rem; }
       .sf-brand { display: flex; align-items: center; gap: .6rem; }
