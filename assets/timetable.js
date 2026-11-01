@@ -245,7 +245,7 @@
       times.add(t); cells.has(k) || cells.set(k, []); cells.get(k).push({ s, m });
     }));
     const cols = [...times].sort();
-    const names = !!st.names, LIMIT = names ? 8 : 6;
+    const names = !!st.names && st.names !== '0', LIMIT = names ? 8 : 6;
     const chip = ({ s, m }) => `<a href="#" class="tt-chip ${(MODE[m.mode] || {}).cls || ''} ${s.activity === 'عملي' ? 'lab' : ''}" data-open="${S.indexOf(s)}"
         title="${esc(`${s.code} ${s.name} – شعبة ${s.section}\n${DAYS[m.day]} ${m.start}–${m.end} · ${m.mode}\n${s.room} · ${s.instructor}`)}">
         <span class="tt-chip-c"><b dir="ltr">${esc(s.code)}</b><span class="tt-chip-s">ش${esc(s.section)}</span></span>${names ? `<span class="tt-chip-n">${esc(s.name)}</span>` : ''}
@@ -280,7 +280,7 @@
     }));
     const rowsAll = [...new Set([...cells.keys()].map(k => k.split('\u0000')[0]))]
       .sort((a, b) => rowsBy === 'time' ? a.localeCompare(b) : a.localeCompare(b, 'ar'));
-    const names = !!st.names;
+    const names = !!st.names && st.names !== '0';
     const LIMIT = names ? 8 : 6;
     const many = rowsAll.length > 120;
     const rowsShown = many ? rowsAll.slice(0, 120) : rowsAll;
@@ -307,6 +307,127 @@
             ${clash ? `<span class="tt-clash-tag" title="${rowsBy === 'room' ? 'في هذه القاعة' : 'لهذا المدرس'} أكثر من شعبة في أوقات متداخلة كما في الجدول الرسمي؛ غالباً شعب تُدرَّس معاً"><i class="bi bi-layers-fill"></i> أكثر من شعبة في الوقت نفسه</span>` : ''}</td>`;
         }).join('')}</tr>`).join('')}</tbody></table></div></div>`;
   }
+  // ------------------------------------------------------------------ styles of the instructors' timetable (also printed)
+  const TI_CSS = `
+    .ti-card { overflow: hidden; border-radius: 14px; }
+    .ti-bar { background: linear-gradient(90deg, #fbf6ee, #fff); border-bottom: 1px solid #eadfcb; }
+    .ti-title { font-weight: 800; color: #901d23; font-size: .95rem; display: inline-flex; gap: .35rem; align-items: center; }
+    .ti-wrap { max-height: 78vh; }
+    .ti-table { font-size: .74rem; border-collapse: separate; border-spacing: 0; }
+    .ti-table th, .ti-table td { border-color: #e8e1d3 !important; }
+    .ti-table thead th { position: sticky; z-index: 3; text-align: center; white-space: nowrap; }
+    .ti-table thead tr:first-child th { top: 0; }
+    .ti-table thead tr:nth-child(2) th { top: 34px; }
+    .ti-table .ti-pat { background: var(--pt) !important; color: #fff !important; box-shadow: none !important; font-weight: 800; font-size: .8rem; height: 34px; vertical-align: middle; border-color: rgba(255,255,255,.35) !important; }
+    .ti-pat i { opacity: .85; }
+    .ti-table .ti-patg { text-align: start; }
+    .ti-patl { position: sticky; right: 160px; left: 8px; display: inline-flex; gap: .35rem; align-items: center; padding: 0 .6rem; }
+    .ti-patl small { font-weight: 600; opacity: .8; font-size: .7rem; }
+    .ti-table .ti-sum { background: #091b22 !important; }
+    .ti-table .ti-time { background: color-mix(in srgb, var(--pt) 12%, #fff) !important; box-shadow: none !important; color: #091b22; font-weight: 700; min-width: 112px; border-top: 3px solid var(--pt) !important; }
+    .ti-table .ti-corner { background: #091b22 !important; color: #fff !important; box-shadow: none !important; right: 0; z-index: 5 !important; min-width: 150px; vertical-align: middle; }
+    .ti-table .ti-inst { position: sticky; right: 0; z-index: 2; background: #f6f1e7 !important; box-shadow: -2px 0 0 #e8e1d3 !important; min-width: 150px; max-width: 190px; font-weight: 800; vertical-align: middle; box-shadow: -2px 0 0 #e8e1d3; }
+    .ti-inst a { color: #091b22; text-decoration: none; } .ti-inst a:hover { color: #901d23; }
+    .ti-inst small { display: block; font-weight: 500; color: #7a8a90; font-size: .68rem; }
+    .ti-table td { vertical-align: top; padding: 3px; background: #fff !important; box-shadow: none !important; }
+    .ti-table tbody tr:nth-child(even) td { background: #fcfaf6 !important; }
+    .ti-table td.busy { background: #fff !important; }
+    .ti-gap { border-right: 3px solid #091b22 !important; }
+    .ti-clash { box-shadow: inset 0 0 0 2px #e0a100; }
+    .ti-chip { display: flex; flex-direction: column; gap: 1px; margin: 1px 0; padding: 3px 6px; border-radius: 8px; border: 1px solid #d9e4dc; border-inline-start: 4px solid #1d7a3e;
+      background: #f4faf6; color: #12202a; text-decoration: none; line-height: 1.3; }
+    .ti-chip:hover { border-color: #901d23; box-shadow: 0 2px 8px rgba(144,29,35,.15); }
+    .ti-chip.m-online { background: #f1f4fd; border-color: #d6def5; border-inline-start-color: #2b4cb3; }
+    .ti-chip.m-async { background: #fdf8ec; border-color: #efe2bd; border-inline-start-color: #b8892b; }
+    .ti-chip.m-blend { background: #f6f1fb; border-color: #e3d6f1; border-inline-start-color: #6a2fb0; }
+    .ti-chip.lab { background-image: repeating-linear-gradient(135deg, transparent 0 6px, rgba(10,162,192,.06) 6px 12px); }
+    .ti-top { display: flex; align-items: center; gap: .3rem; }
+    .ti-top b { color: #901d23; font-size: .78rem; }
+    .ti-sec { background: #091b22; color: #fff; border-radius: 20px; padding: 0 .4rem; font-size: .64rem; font-weight: 700; }
+    .ti-lab { color: #0a7f98; margin-inline-start: auto; }
+    .ti-name { font-weight: 700; font-size: .72rem; color: #24323a; }
+    .ti-room { color: #5c6b72; font-size: .66rem; display: inline-flex; gap: .2rem; align-items: center; }
+    .ti-table .ti-hrs { text-align: center; vertical-align: middle !important; background: #f6f1e7 !important; min-width: 64px; }
+    .ti-hrs b { display: block; font-size: 1.05rem; color: #901d23; } .ti-hrs small { color: #7a8a90; }
+    .ti-table:not(.named) .ti-time { min-width: 86px; }
+    @media print { .ti-wrap { max-height: none; } .ti-table thead th, .ti-inst { position: static; } }`;
+  if (!document.getElementById('ti-css')) { const el = document.createElement('style'); el.id = 'ti-css'; el.textContent = TI_CSS; document.head.appendChild(el); }
+
+  // ------------------------------------------------------------------ instructors' timetable (a report)
+  // One row per instructor, one column per time slot, the columns grouped by day pattern
+  // (Sun·Tue·Thu, Mon·Wed, …) as in the departments' own timetable sheets. Instructors come from the filters;
+  // each one's sections come from the whole timetable (other departments too). A section listed twice by the portal
+  // (same course, section, activity, time and room) shows once.
+  const PAT_NAME = ds => ds.split('').map(d => DAYS[d]).join(' · ');
+  function instView(list, st) {
+    const insts = [...new Set(list.map(s => s.instructor))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ar'));
+    if (!insts.length) return '<div class="card"><div class="card-body text-center text-muted py-5">لا يوجد مدرسون في نطاق التصفية.</div></div>';
+    const LIMIT = 80, shownI = insts.slice(0, LIMIT), set = new Set(shownI);
+    const seen = new Set(), secs = S.filter(s => set.has(s.instructor)).filter(s => {
+      const k = [s.instructor, s.code, s.section, s.activity, s.time, s.room].join('|');
+      return seen.has(k) ? false : (seen.add(k), true);
+    });
+    // a section's meetings with the same time and mode make one pattern (e.g. Sun+Tue+Thu 09:00–10:00)
+    const items = [], async = {};
+    secs.forEach(s => {
+      const g = {};
+      s.meetings.forEach(m => {
+        if (m.mode === 'غير متزامن' || !m.start) { (async[s.instructor] ||= []).push(s); return; }
+        const k = m.start + '–' + m.end + '|' + m.mode;
+        (g[k] ||= { t: m.start + '–' + m.end, mode: m.mode, days: [] }).days.push(m.day);
+      });
+      Object.values(g).forEach(x => items.push({ s, t: x.t, mode: x.mode, pat: x.days.sort((a, b) => WEEK.indexOf(a) - WEEK.indexOf(b)).join('') }));
+    });
+    // patterns by how often they are used; times in order inside each
+    const patN = {};
+    items.forEach(x => { patN[x.pat] = (patN[x.pat] || 0) + 1; });
+    const pats = Object.keys(patN).sort((a, b) => patN[b] - patN[a] || WEEK.indexOf(a[0]) - WEEK.indexOf(b[0]));
+    const cols = pats.flatMap(p => [...new Set(items.filter(x => x.pat === p).map(x => x.t))].sort().map(t => ({ p, t })));
+    const cell = {};
+    items.forEach(x => { (cell[x.s.instructor + '\u0000' + x.pat + '\u0000' + x.t] ||= []).push(x); });
+    const names = st.names !== '0';
+    const short = n => n.replace(/\s*-\s*(نظري|عملي)\s*$/, '');
+    const chip = x => `<a href="#" class="ti-chip ${(MODE[x.mode] || {}).cls || ''} ${x.s.activity === 'عملي' ? 'lab' : ''}" data-open="${S.indexOf(x.s)}"
+        title="${esc(`${x.s.code} ${x.s.name} – شعبة ${x.s.section}\n${PAT_NAME(x.pat)} ${x.t} · ${x.mode}\nالقاعة ${x.s.room} · ${x.s.building}\n${x.s.registered}/${x.s.capacity} مسجّل`)}">
+        <span class="ti-top"><b dir="ltr">${esc(x.s.code)}</b><span class="ti-sec">ش${esc(x.s.section)}</span>${x.s.activity === 'عملي' ? '<i class="bi bi-pc-display ti-lab" title="عملي"></i>' : ''}</span>
+        ${names ? `<span class="ti-name">${esc(short(x.s.name))}</span>` : ''}
+        <span class="ti-room"><i class="bi bi-geo-alt"></i>${x.s.room === '0' ? 'افتراضية' : esc(x.s.room)}</span></a>`;
+    const hoursOf = i => {  // weekly teaching hours (meetings with a time), counted once per slot
+      const slots = new Set();
+      items.filter(x => x.s.instructor === i).forEach(x => x.pat.split('').forEach(d => {
+        const [a, b] = x.t.split('–').map(toMin);
+        for (let t = a; t < b; t += 30) slots.add(d + t);
+      }));
+      return slots.size / 2;
+    };
+    const tone = ['#901d23', '#1f6f78', '#6a2fb0', '#b8892b', '#2b5ea7', '#1d7a3e', '#c0392b'];
+    const patTone = Object.fromEntries(pats.map((p, i) => [p, tone[i % tone.length]]));
+    const anyAsync = shownI.some(i => async[i]);
+    const head1 = `<tr><th class="ti-corner" rowspan="2"><i class="bi bi-person-badge"></i> المدرس</th>${pats.map(p => {
+        const n = cols.filter(c => c.p === p).length;
+        return `<th class="ti-pat ti-patg" colspan="${n}" style="--pt:${patTone[p]}"><span class="ti-patl"><i class="bi bi-calendar3-week"></i> ${esc(PAT_NAME(p))} <small>${n} ${n > 2 ? 'أوقات' : n === 2 ? 'وقتان' : 'وقت'}</small></span></th>`;
+      }).join('')}${anyAsync ? '<th class="ti-pat" rowspan="2" style="--pt:#8a6d1f"><i class="bi bi-hourglass-split"></i> غير متزامن</th>' : ''}<th class="ti-pat ti-sum" rowspan="2"><i class="bi bi-clock-history"></i> الساعات</th></tr>`;
+    const head2 = `<tr>${cols.map((c, i) => `<th class="ti-time ${i && cols[i - 1].p !== c.p ? 'ti-gap' : ''}" style="--pt:${patTone[c.p]}"><bdi dir="ltr">${esc(c.t)}</bdi></th>`).join('')}</tr>`;
+    const rows = shownI.map(i => {
+      const h = hoursOf(i), nSec = new Set(secs.filter(s => s.instructor === i).map(s => s.code + '/' + s.section + '/' + s.activity)).size;
+      return `<tr><th class="ti-inst"><a href="#" data-pick="inst" data-v="${esc(i)}">${esc(i)}</a><small>${nSec} شعبة</small></th>${cols.map((c, j) => {
+        const xs = cell[i + '\u0000' + c.p + '\u0000' + c.t] || [];
+        const clash = new Set(xs.map(x => x.s.code)).size > 1;
+        return `<td class="${j && cols[j - 1].p !== c.p ? 'ti-gap' : ''} ${xs.length ? 'busy' : ''} ${clash ? 'ti-clash' : ''}">${xs.map(chip).join('')}</td>`;
+      }).join('')}${anyAsync ? `<td>${(async[i] || []).filter((s, k, a) => a.indexOf(s) === k).map(s => chip({ s, mode: 'غير متزامن', pat: '', t: '' })).join('')}</td>` : ''}
+        <td class="ti-hrs"><b>${h % 1 ? h.toFixed(1) : h}</b><small>ساعة</small></td></tr>`;
+    });
+    return `<div class="card ti-card"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center small ti-bar">
+        <span class="ti-title"><i class="bi bi-person-lines-fill"></i> جدول المدرسين التفصيلي</span>
+        <span class="text-muted">${shownI.length} مدرساً · كل خانة: رمز المقرر، الشعبة${names ? '، الاسم' : ''} والقاعة · الأعمدة مجمّعة حسب نمط الأيام</span>
+        <div class="form-check form-switch m-0 ms-auto"><input class="form-check-input" type="checkbox" id="ti-names" ${names ? 'checked' : ''}><label class="form-check-label fw-bold" for="ti-names">اسم المقرر</label></div>
+        <span class="d-flex flex-wrap gap-2">${Object.entries(MODE).map(([k, v]) => `<span class="tt-chip ${v.cls} static"><i class="bi ${v.icon}"></i> ${k}</span>`).join('')}<span class="tt-chip static lab"><i class="bi bi-pc-display"></i> عملي</span></span></div>
+      ${insts.length > LIMIT ? `<div class="alert alert-info small m-2 mb-0"><i class="bi bi-info-circle"></i> ${insts.length} مدرساً في النطاق؛ يُعرض أول ${LIMIT}. اختر كلية أو قسماً من التصفية لعرض مدرسيه فقط.</div>` : ''}
+      ${!st.dept && !st.fac && !st.inst ? '<div class="alert alert-warning small m-2 mb-0"><i class="bi bi-funnel"></i> للحصول على جدول قسم كامل مثل جداول الأقسام: اختر <b>الكلية</b> ثم <b>القسم</b> من التصفية.</div>' : ''}
+      <div class="table-responsive ti-wrap"><table class="table table-bordered mb-0 ti-table ${names ? 'named' : ''} no-stack">
+        <thead>${head1}${head2}</thead><tbody>${rows.join('')}</tbody></table></div></div>`;
+  }
+
   function hasOverlap(items) {
     // same room or same instructor at overlapping times on that day (face-to-face or online, not async)
     const live = items.filter(x => x.m.mode !== 'غير متزامن').sort((a, b) => a.m.start.localeCompare(b.m.start));
@@ -913,13 +1034,13 @@
         ${instSelect(st)}
       </div></form>`;
     const chips = active.map(k => `<a href="#" data-clear="${k}" class="badge rounded-pill text-bg-light border text-decoration-none filter-chip">${k === 'seats' ? 'مقاعد متاحة' : F.find(f => f[0] === k)[1] + ': ' + esc(label(k, st[k]))} <i class="bi bi-x-circle-fill"></i></a>`).join(' ');
-    const views = [['dash', 'bi-speedometer', 'لوحة المؤشرات'], ['table', 'bi-table', 'جدول'], ['cards', 'bi-grid-3x2-gap-fill', 'بطاقات'], ['courses', 'bi-journal-bookmark', 'حسب المقرر'], ['grid', 'bi-calendar-week', 'مصفوفة أسبوعية'], ['free', 'bi-hourglass-split', 'أوقات الفراغ'], ['mx', 'bi-grid-3x3', 'مصفوفات جاهزة']];
+    const views = [['dash', 'bi-speedometer', 'لوحة المؤشرات'], ['table', 'bi-table', 'جدول'], ['cards', 'bi-grid-3x2-gap-fill', 'بطاقات'], ['courses', 'bi-journal-bookmark', 'حسب المقرر'], ['grid', 'bi-calendar-week', 'مصفوفة أسبوعية'], ['inst', 'bi-person-lines-fill', 'جدول المدرسين'], ['free', 'bi-hourglass-split', 'أوقات الفراغ'], ['mx', 'bi-grid-3x3', 'مصفوفات جاهزة']];
     $('#tt-toolbar').innerHTML = `<div class="card mb-3 no-print"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center">
       <button type="button" class="btn btn-sm btn-outline-primary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#fpanel" aria-controls="fpanel"><i class="bi bi-funnel-fill"></i> التصفية${active.length ? ` <span class="badge text-bg-primary">${active.length}</span>` : ''}</button>
       <b class="me-1">${list.length} شعبة</b> ${chips}
       ${st.inst && (st.fac || st.dept) ? '<span class="small text-muted w-100"><i class="bi bi-info-circle"></i> تُعرض كل شعب المدرس، بما فيها شعبه خارج الكلية أو القسم المختار.</span>' : ''}
       <div class="ms-auto d-flex flex-wrap gap-2">
-        ${['grid', 'free', 'mx', 'dash'].includes(st.view) ? '' : `<select class="form-select form-select-sm w-auto" id="tt-sort">${[['code', 'رمز المقرر'], ['name', 'اسم المقرر'], ['time', 'اليوم والوقت'], ['inst', 'المدرس'], ['room', 'القاعة'], ['seats', 'المقاعد المتاحة'], ['fill', 'نسبة الامتلاء']].map(([k, t]) =>
+        ${['grid', 'free', 'mx', 'dash', 'inst'].includes(st.view) ? '' : `<select class="form-select form-select-sm w-auto" id="tt-sort">${[['code', 'رمز المقرر'], ['name', 'اسم المقرر'], ['time', 'اليوم والوقت'], ['inst', 'المدرس'], ['room', 'القاعة'], ['seats', 'المقاعد المتاحة'], ['fill', 'نسبة الامتلاء']].map(([k, t]) =>
           `<option value="${k}" ${st.sort === k ? 'selected' : ''}>ترتيب: ${t}</option>`).join('')}</select>`}
         <div class="btn-group btn-group-sm flex-wrap">${views.map(([k, i, t]) => `<button type="button" class="btn ${st.view === k ? 'btn-primary' : 'btn-outline-primary'}" data-view="${k}"><i class="bi ${i}"></i> ${t}</button>`).join('')}</div>
         <div class="dropdown"><button class="btn btn-sm btn-success dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-download"></i> تصدير</button>
@@ -931,7 +1052,7 @@
             <li><a class="dropdown-item" href="#" data-export="print"><i class="bi bi-printer"></i> طباعة / PDF</a></li></ul></div>
       </div></div></div>`;
     $('#tt-results').innerHTML = st.view === 'dash' ? dashView(list, st) : st.view === 'free' ? freeView(st) : st.view === 'mx' ? matrixView(list, st) : !list.length ? '<div class="card"><div class="card-body text-center text-muted py-5"><i class="bi bi-search fs-2 d-block mb-2"></i>لا توجد شعب تطابق التصفية الحالية.</div></div>'
-      : st.view === 'cards' ? cardsView(list, st) : st.view === 'courses' ? coursesView(list, st) : st.view === 'grid' ? gridView(list, st) : tableView(list, st);
+      : st.view === 'cards' ? cardsView(list, st) : st.view === 'courses' ? coursesView(list, st) : st.view === 'grid' ? gridView(list, st) : st.view === 'inst' ? instView(list, st) : tableView(list, st);
     bind(list, st);
     if (focus) { const q = $('#tt-filters input[name=q]'); q.focus(); q.setSelectionRange(q.value.length, q.value.length); }
   }
@@ -959,6 +1080,8 @@
     document.querySelectorAll('[data-rows]').forEach(b => b.addEventListener('click', () => set({ rows: b.dataset.rows })));
     const nm = $('#tt-names');
     if (nm) nm.addEventListener('change', e => set({ names: e.target.checked ? '1' : '' }));
+    const tin = $('#ti-names');
+    if (tin) tin.addEventListener('change', e => set({ names: e.target.checked ? '' : '0' }));
     document.querySelectorAll('[data-sort]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); set({ sort: a.dataset.sort }); }));
     const sort = $('#tt-sort');
     if (sort) sort.addEventListener('change', e => set({ sort: e.target.value }));
@@ -992,10 +1115,10 @@
   // ------------------------------------------------------------------ export
   // the table on screen in the matrix views (weekly matrix, ready-made matrices, free-time map / busy strips)
   function shownMatrix(st) {
-    if (!['grid', 'mx', 'free'].includes(st.view)) return null;
-    const t = document.querySelector('#tt-results .tt-grid, #tt-results .mx-table, #tt-results .fr-heat, #tt-results .fr-strips');
+    if (!['grid', 'mx', 'free', 'inst'].includes(st.view)) return null;
+    const t = document.querySelector('#tt-results .tt-grid, #tt-results .mx-table, #tt-results .fr-heat, #tt-results .fr-strips, #tt-results .ti-table');
     if (!t) return null;
-    const title = st.view === 'grid' ? `المصفوفة الأسبوعية – الصفوف: ${{ time: 'الوقت', day: 'اليوم', room: 'القاعة', inst: 'المدرس' }[st.rows] || 'الوقت'}`
+    const title = st.view === 'inst' ? 'جدول المدرسين التفصيلي' : st.view === 'grid' ? `المصفوفة الأسبوعية – الصفوف: ${{ time: 'الوقت', day: 'اليوم', room: 'القاعة', inst: 'المدرس' }[st.rows] || 'الوقت'}`
       : st.view === 'mx' ? MX[st.mx in MX ? st.mx : 'load'].t
       : st.ftab === 'busy' ? 'أوقات الفراغ – انشغال المدرسين' : 'أوقات الفراغ – خريطة التفرغ';
     return { table: t, title };
@@ -1010,7 +1133,7 @@
       const legend = document.querySelector('#tt-results .fr-legend, #tt-results .mx-days + div .ms-auto');
       return printReport(Object.assign(base, { subtitle: `${DATA.term} – ${shown.title}`,
         css: ['https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css', 'assets/app.css'],
-        raw: (legend ? `<div class="small mb-2">${legend.outerHTML}</div>` : '') + shown.table.outerHTML }));
+        raw: (st.view === 'inst' ? `<style>${TI_CSS}</style>` : '') + (legend ? `<div class="small mb-2">${legend.outerHTML}</div>` : '') + shown.table.outerHTML }));
     }
     const reg = list.reduce((a, s) => a + s.registered, 0), cap = list.reduce((a, s) => a + s.capacity, 0);
     const timeHtml = s => {
@@ -1064,7 +1187,7 @@
   function exportMatrix(kind, shown) {
     const t = shown.table.cloneNode(true);
     t.querySelectorAll('.tt-more, .tt-clash-tag').forEach(x => x.remove());
-    t.querySelectorAll('.tt-chip').forEach(c => { c.textContent = c.innerText.replace(/\s*\n\s*/g, ' · ').trim() + '\n'; });
+    t.querySelectorAll('.tt-chip, .ti-chip').forEach(c => { c.textContent = c.innerText.replace(/\s*\n\s*/g, ' · ').trim() + '\n'; });
     t.querySelectorAll('td, th').forEach(c => {
       const sub = c.querySelector('.fr-bar');
       if (sub) c.textContent = [...sub.querySelectorAll('i')].map(i => i.title.split('\n')[1] || '').filter(Boolean).join('\n');
