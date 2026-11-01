@@ -235,8 +235,40 @@
           <td class="small">${instLink(s)}</td><td>${seats(s)}</td></tr>`).join('')}</tbody></table></div></details>`;
     }).join('')}</div><div class="card mt-3">${pager(keys.length, st)}</div>`;
   }
-  // weekly matrix: rows = time / room / instructor, columns = days
+  const ROWS_OPTS = [['time', 'الوقت'], ['day', 'اليوم'], ['room', 'القاعة'], ['inst', 'المدرس']];
+  // rows = the days of the week, columns = the meeting times
+  function dayGridView(list, st) {
+    const days = WEEK.filter(d => list.some(s => s.meetings.some(m => m.day === d)));
+    const cells = new Map(), times = new Set();
+    list.forEach(s => s.meetings.forEach(m => {
+      const t = m.start + '–' + m.end, k = m.day + '\u0000' + t;
+      times.add(t); cells.has(k) || cells.set(k, []); cells.get(k).push({ s, m });
+    }));
+    const cols = [...times].sort();
+    const names = !!st.names, LIMIT = names ? 8 : 6;
+    const chip = ({ s, m }) => `<a href="#" class="tt-chip ${(MODE[m.mode] || {}).cls || ''} ${s.activity === 'عملي' ? 'lab' : ''}" data-open="${S.indexOf(s)}"
+        title="${esc(`${s.code} ${s.name} – شعبة ${s.section}\n${DAYS[m.day]} ${m.start}–${m.end} · ${m.mode}\n${s.room} · ${s.instructor}`)}">
+        <span class="tt-chip-c"><b dir="ltr">${esc(s.code)}</b><span class="tt-chip-s">ش${esc(s.section)}</span></span>${names ? `<span class="tt-chip-n">${esc(s.name)}</span>` : ''}
+        <small>${esc(s.room)}${names ? ` · ${esc(s.instructor)}` : ''}</small></a>`;
+    return `<div class="card"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center small">
+        <span class="fw-bold">الصفوف:</span>
+        <div class="btn-group btn-group-sm">${ROWS_OPTS.map(([k, t]) =>
+          `<button type="button" class="btn ${k === 'day' ? 'btn-primary' : 'btn-outline-primary'}" data-rows="${k}">${t}</button>`).join('')}</div>
+        <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="tt-names" ${names ? 'checked' : ''}><label class="form-check-label fw-bold" for="tt-names">عرض اسم المقرر والمدرس</label></div>
+        <span class="text-muted">الأعمدة: أوقات المحاضرات · كل خانة: رمز المقرر، الشعبة (ش)${names ? '، الاسم' : ''} والقاعة</span>
+        <span class="ms-auto d-flex flex-wrap gap-2">${Object.entries(MODE).map(([k, v]) => `<span class="tt-chip ${v.cls} static"><i class="bi ${v.icon}"></i> ${k}</span>`).join('')}</span></div>
+      <div class="table-responsive tt-grid-wrap"><table class="table table-bordered mb-0 tt-grid tt-grid-days ${names ? 'named' : ''}">
+        <thead><tr><th class="tt-gh">اليوم</th>${cols.map(t => `<th><bdi dir="ltr">${esc(t)}</bdi></th>`).join('')}</tr></thead>
+        <tbody>${days.map(d => `<tr><th class="tt-gh">${esc(DAYS[d])}</th>${cols.map(t => {
+          const items = (cells.get(d + '\u0000' + t) || []).sort((a, b) => a.s.code.localeCompare(b.s.code) || a.s.section.localeCompare(b.s.section));
+          if (!items.length) return '<td></td>';
+          return `<td>${items.slice(0, LIMIT).map(chip).join('')}${items.length > LIMIT
+            ? `<a href="#" class="tt-more" data-cell="${esc(JSON.stringify({ day: d, time: t.split('–')[0] }))}">+${items.length - LIMIT} أخرى</a>` : ''}</td>`;
+        }).join('')}</tr>`).join('')}</tbody></table></div></div>`;
+  }
+  // weekly matrix: rows = time / room / instructor, columns = days; or rows = days, columns = times
   function gridView(list, st) {
+    if (st.rows === 'day') return dayGridView(list, st);
     const rowsBy = st.rows;
     const days = WEEK.filter(d => list.some(s => s.meetings.some(m => m.day === d)));
     const rowKey = (s, m) => rowsBy === 'room' ? s.room : rowsBy === 'inst' ? s.instructor : m.start + '–' + m.end;
@@ -258,7 +290,7 @@
         <small>${rowsBy === 'time' ? esc(s.room) : `<bdi dir="ltr">${m.start}–${m.end}</bdi>`}${names && rowsBy !== 'inst' ? ` · ${esc(s.instructor)}` : ''}</small></a>`;
     return `<div class="card"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center small">
         <span class="fw-bold">الصفوف:</span>
-        <div class="btn-group btn-group-sm">${[['time', 'الوقت'], ['room', 'القاعة'], ['inst', 'المدرس']].map(([k, t]) =>
+        <div class="btn-group btn-group-sm">${ROWS_OPTS.map(([k, t]) =>
           `<button type="button" class="btn ${rowsBy === k ? 'btn-primary' : 'btn-outline-primary'}" data-rows="${k}">${t}</button>`).join('')}</div>
         <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" id="tt-names" ${names ? 'checked' : ''}><label class="form-check-label fw-bold" for="tt-names">عرض اسم المقرر والمدرس</label></div>
         <span class="text-muted">الأعمدة: أيام الأسبوع · كل خانة: رمز المقرر، الشعبة (ش)${names ? '، الاسم' : ''} و${rowsBy === 'time' ? 'القاعة' : 'الوقت'}</span>
@@ -963,7 +995,7 @@
     if (!['grid', 'mx', 'free'].includes(st.view)) return null;
     const t = document.querySelector('#tt-results .tt-grid, #tt-results .mx-table, #tt-results .fr-heat, #tt-results .fr-strips');
     if (!t) return null;
-    const title = st.view === 'grid' ? `المصفوفة الأسبوعية – الصفوف: ${{ time: 'الوقت', room: 'القاعة', inst: 'المدرس' }[st.rows] || 'الوقت'}`
+    const title = st.view === 'grid' ? `المصفوفة الأسبوعية – الصفوف: ${{ time: 'الوقت', day: 'اليوم', room: 'القاعة', inst: 'المدرس' }[st.rows] || 'الوقت'}`
       : st.view === 'mx' ? MX[st.mx in MX ? st.mx : 'load'].t
       : st.ftab === 'busy' ? 'أوقات الفراغ – انشغال المدرسين' : 'أوقات الفراغ – خريطة التفرغ';
     return { table: t, title };
