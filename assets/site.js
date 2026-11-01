@@ -51,11 +51,112 @@
     document.head.appendChild(st);
   }
 
+  // ---------------------------------------------------------------- one footer for every page: compact, the same layout
+  // everywhere; the page's own name, note, figures and source link are kept (the elements other scripts fill move as they are)
+  (function unifyFooter() {
+    const f = document.querySelector('footer.site-footer');
+    if (!f || f.dataset.sf) return;
+    const q = s => f.querySelector(s);
+    const name = (q('.foot-brand b') || {}).textContent || document.title.split('–')[0].trim();
+    const icon = ((q('.foot-logo i') || {}).className || 'bi bi-grid').trim();
+    const note = ((q('.foot-col .foot-text') || {}).textContent || '').trim();
+    const src = q('.foot-col .foot-link');
+    const keep = id => { const e = f.querySelector('#' + id); return e ? e : null; };
+    const count = keep('foot-count'), upd = keep('foot-updated'), qr = keep('foot-qr'), year = keep('year');
+    const people = [...f.querySelectorAll('.credit-line')].map(l => ({ role: (l.querySelector('.credit-role') || {}).textContent.trim(), a: l.querySelector('a') }));
+    const disclaimer = ((q('.foot-bottom span:not(.foot-copy):not(#year)') || {}).textContent || '').trim();
+    const tag = (cls, ic) => `<span class="sf-chip ${cls}"><i class="bi ${ic}"></i><span class="sf-slot"></span></span>`;
+    f.dataset.sf = '1';
+    f.innerHTML = `<div class="container-fluid px-4"><div class="sf-row">
+        <div class="sf-about">
+          <div class="sf-brand"><span class="sf-logo"><i class="${icon}"></i></span><div><b>${name}</b><small>جامعة البترا</small></div></div>
+          ${note ? `<p class="sf-note" title="${note.replace(/"/g, '&quot;')}">${note}</p>` : ''}
+          <div class="sf-chips">${count ? tag('sf-count', 'bi-collection') : ''}${upd ? tag('sf-upd', 'bi-arrow-repeat') : ''}<span class="sf-src"></span></div>
+        </div>
+        <div class="sf-team"><h6>فريق العمل</h6><div class="sf-people"></div></div>
+        <div class="sf-share"><span class="sf-qr"></span><div><h6>شارك الموقع</h6><div class="sf-url" dir="ltr">marafah.github.io/uopstaff</div>
+          <div class="sf-actions"><button type="button" class="sf-btn" data-bs-toggle="modal" data-bs-target="#shareModal"><i class="bi bi-share-fill"></i> مشاركة</button></div></div></div>
+      </div></div>
+      <div class="sf-bottom"><div class="container-fluid px-4"><span class="sf-disc"><i class="bi bi-info-circle"></i> ${disclaimer}</span><span class="sf-copy">© <span class="sf-year"></span></span></div></div>`;
+    const put = (sel, el) => { const box = f.querySelector(sel); if (box && el) box.appendChild(el); };
+    put('.sf-count .sf-slot', count); put('.sf-upd .sf-slot', upd); put('.sf-qr', qr); put('.sf-year', year);
+    if (src) { src.className = 'sf-link'; put('.sf-src', src); }
+    const pp = f.querySelector('.sf-people');
+    people.forEach(p => { if (!p.a) return; const d = document.createElement('div'); d.className = 'sf-person'; d.innerHTML = `<small>${p.role}</small>`; p.a.className = 'sf-name'; d.prepend(p.a); pp.appendChild(d); });
+    const st = document.createElement('style');
+    st.textContent = `
+      footer.site-footer { padding: 0 !important; margin-top: 2.5rem; background: #091b22; color: #c9d4d8; font-size: .86rem; }
+      footer.site-footer a { color: #fff; }
+      .sf-row { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1.1fr); gap: 1.6rem; align-items: start; padding: 1.25rem 0 1.1rem; }
+      .sf-brand { display: flex; align-items: center; gap: .6rem; }
+      .sf-logo { width: 38px; height: 38px; border-radius: 10px; background: #901d23; color: #fff; display: grid; place-items: center; font-size: 1.1rem; flex: none; }
+      .sf-brand b { display: block; color: #fff; font-size: 1rem; line-height: 1.2; } .sf-brand small { color: #8fa3ab; font-size: .75rem; }
+      .sf-note { margin: .55rem 0 .5rem; color: #b5c3c8; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .sf-chips { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+      .sf-chip { display: inline-flex; align-items: center; gap: .35rem; padding: .18rem .6rem; border-radius: 30px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.05); color: #e6eef0; font-size: .78rem; white-space: nowrap; }
+      .sf-chip i { color: #e0a100; }
+      .sf-link { display: inline-flex; align-items: center; gap: .3rem; font-size: .8rem; color: #f3c9cb !important; text-decoration: none; }
+      .sf-link:hover { text-decoration: underline; }
+      .site-footer h6 { color: #fff; font-size: .8rem; font-weight: 800; letter-spacing: .02em; margin: 0 0 .5rem; padding-bottom: .3rem; border-bottom: 2px solid #901d23; display: inline-block; }
+      .sf-people { display: flex; flex-direction: column; gap: .35rem; }
+      .sf-person { display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; padding: .4rem .7rem; border-radius: 10px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); }
+      .sf-name { font-weight: 800; text-decoration: none; } .sf-name:hover { color: #f3c9cb; }
+      .sf-person small { color: #8fa3ab; font-size: .74rem; white-space: nowrap; }
+      .sf-share { display: flex; gap: .8rem; align-items: flex-start; }
+      .sf-qr { flex: none; }
+      .sf-qr .foot-qr, .sf-qr button { width: 84px; height: 84px; padding: 4px; border-radius: 10px; background: #fff; border: 0; display: block; }
+      .sf-qr svg { width: 100%; height: 100%; display: block; }
+      .sf-url { font-weight: 700; color: #fff; font-size: .8rem; margin-bottom: .45rem; }
+      .sf-actions { display: flex; flex-wrap: wrap; gap: .35rem; }
+      .sf-btn, .sf-actions .btn { display: inline-flex; align-items: center; gap: .3rem; padding: .25rem .7rem !important; margin: 0 !important; border-radius: 30px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #fff; font-size: .78rem; font-weight: 700; }
+      .sf-btn:hover, .sf-actions .btn:hover { background: #fff; color: #901d23; }
+      .sf-bottom { border-top: 1px solid rgba(255,255,255,.08); background: #071419; }
+      .sf-bottom .container-fluid { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding-top: .55rem; padding-bottom: .55rem; font-size: .74rem; color: #8fa3ab; }
+      .sf-disc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+      .sf-copy { white-space: nowrap; flex: none; }
+      @media (max-width: 991.98px) { .sf-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .sf-about { grid-column: 1 / -1; } }
+      @media (max-width: 575.98px) {
+        .sf-row { grid-template-columns: minmax(0, 1fr); gap: 1rem; padding: 1rem 0 .9rem; }
+        .sf-qr { display: none; }
+        .site-footer h6 { display: none; }
+        .sf-note { -webkit-line-clamp: 3; margin: .45rem 0 .4rem; }
+        .sf-people { flex-direction: row; flex-wrap: wrap; gap: .25rem .9rem; }
+        .sf-person { padding: 0; background: none; border: 0; flex-direction: row-reverse; justify-content: flex-start; gap: .35rem; }
+        .sf-person small::after { content: ':'; }
+        .sf-share { display: block; } .sf-url { display: none; }
+        .sf-disc { white-space: normal; } .sf-bottom .container-fluid { flex-direction: column; align-items: flex-start; gap: .25rem; }
+      }
+      @media print { footer.site-footer { display: none; } }`;
+    document.head.appendChild(st);
+    // floating buttons in a bottom corner (PDF, sign out) must not sit on the footer's text: keep that side of the footer clear
+    const pad = () => {
+      const need = { low: [0, 0], high: [0, 0] };   // [right, left] for the bottom line and for the row above it
+      document.querySelectorAll('body *').forEach(e => {
+        if (f.contains(e) || getComputedStyle(e).position !== 'fixed' || !e.getClientRects().length) return;
+        const r = e.getBoundingClientRect(), cs = getComputedStyle(e);
+        if (!r.width || r.top < innerHeight - 170 || cs.visibility === 'hidden' || +cs.opacity === 0) return;
+        const k = r.top > innerHeight - 70 ? 'low' : 'high';
+        if (r.left > innerWidth - 260) need[k][0] = Math.max(need[k][0], innerWidth - r.left);
+        else if (r.right < 260) need[k][1] = Math.max(need[k][1], r.right);
+      });
+      const set = (c, [rt, lf]) => {
+        if (!c) return;
+        if (rt) c.style.setProperty('padding-right', (rt + 12) + 'px', 'important'); else c.style.removeProperty('padding-right');
+        if (lf) c.style.setProperty('padding-left', (lf + 12) + 'px', 'important'); else c.style.removeProperty('padding-left');
+      };
+      set(f.querySelector('.sf-bottom .container-fluid'), need.low);
+      set(f.querySelector(':scope > .container-fluid'), need.high);
+    };
+    [800, 2000, 4500].forEach(t => setTimeout(pad, t));
+    window.addEventListener('load', () => setTimeout(pad, 300));
+    window.addEventListener('resize', () => { clearTimeout(pad.t); pad.t = setTimeout(pad, 300); });
+  })();
+
   // ---------------------------------------------------------------- app: offline copy and install
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
   }
-  const foot = document.querySelector('.foot-share-row > div');
+  const foot = document.querySelector('.sf-actions') || document.querySelector('.foot-share-row > div');
   let prompt = null;
   const standalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   // no install offer from the browser: it is already installed here, or this browser installs from its own menu
@@ -117,8 +218,8 @@
       fitTop();
     }
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    if (foot && !$('#app-install') && (prompt || ios)) {
-      foot.insertAdjacentHTML('beforeend', `<button type="button" class="btn btn-sm btn-light mt-2 ms-1" id="app-install"><i class="bi bi-phone"></i> ثبّت التطبيق</button>`);
+    if (foot && !$('#app-install')) {
+      foot.insertAdjacentHTML('beforeend', `<button type="button" class="sf-btn" id="app-install"><i class="bi bi-download"></i> ثبّت التطبيق</button>`);
       $('#app-install').addEventListener('click', install);
     }
   }
