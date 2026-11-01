@@ -148,6 +148,7 @@
       set(f.querySelector(':scope > .container-fluid'), need.high);
     };
     [800, 2000, 4500].forEach(t => setTimeout(pad, t));
+    if ('IntersectionObserver' in window) new IntersectionObserver(es => { if (es.some(x => x.isIntersecting)) pad(); }).observe(f);
     window.addEventListener('load', () => setTimeout(pad, 300));
     window.addEventListener('resize', () => { clearTimeout(pad.t); pad.t = setTimeout(pad, 300); });
   })();
