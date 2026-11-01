@@ -62,6 +62,7 @@
     const note = ((q('.foot-col .foot-text') || {}).textContent || '').trim();
     const src = q('.foot-col .foot-link');
     const keep = id => { const e = f.querySelector('#' + id); return e ? e : null; };
+    const withId = [...f.querySelectorAll('[id]')].filter(e => e.id !== 'app-install');   // other scripts fill these by id: none may be lost
     const count = keep('foot-count'), upd = keep('foot-updated'), qr = keep('foot-qr'), year = keep('year');
     const people = [...f.querySelectorAll('.credit-line')].map(l => ({ role: (l.querySelector('.credit-role') || {}).textContent.trim(), a: l.querySelector('a') }));
     const disclaimer = ((q('.foot-bottom span:not(.foot-copy):not(#year)') || {}).textContent || '').trim();
@@ -81,6 +82,12 @@
     const put = (sel, el) => { const box = f.querySelector(sel); if (box && el) box.appendChild(el); };
     put('.sf-count .sf-slot', count); put('.sf-upd .sf-slot', upd); put('.sf-qr', qr); put('.sf-year', year);
     if (src) { src.className = 'sf-link'; put('.sf-src', src); }
+    withId.forEach(e => {
+      if (f.contains(e)) return;
+      if (e.tagName === 'A') { e.className = 'sf-link'; put('.sf-src', e); return; }
+      const chip = document.createElement('span'); chip.className = 'sf-chip'; chip.innerHTML = '<i class="bi bi-database"></i>';
+      chip.appendChild(e); f.querySelector('.sf-chips').insertBefore(chip, f.querySelector('.sf-src'));
+    });
     const pp = f.querySelector('.sf-people');
     // team photos (the same ones the staff directory shows); initials if a photo is missing
     const PHOTO = { 'عرفة': 'assets/photos/71ba67046bdd9507.jpg', 'المقوسي': 'assets/photos/ddeb550f05d31822.jpg' };
