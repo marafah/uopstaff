@@ -71,5 +71,5 @@ jobs:
           git add data/research
           if git diff --cached --quiet; then echo "no changes"; exit 0; fi
           git commit -m "Research data $(date -u +%Y-%m-%d)"
-          git pull --rebase --autostash
+          git pull --rebase -X theirs --autostash
           git push
