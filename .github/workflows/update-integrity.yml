@@ -37,5 +37,5 @@ jobs:
           git add data/research/integrity.json data/research/rw_journals.json data/research/retractions
           if git diff --cached --quiet; then echo "no changes"; exit 0; fi
           git commit -m "Research integrity $(date -u +%Y-%m-%d)"
-          git pull --rebase --autostash
+          git pull --rebase -X theirs --autostash
           git push
