@@ -40,7 +40,7 @@
       // free-time view: chosen instructors, working window, Saturday, asynchronous meetings
       ppl: p.has('ppl') ? p.get('ppl').split('|').filter(Boolean) : null, ftab: p.get('ftab') || 'best', from: p.get('from') || '08:00', to: p.get('to') || '16:00',
       sat: p.get('sat') || '', async: p.get('async') || '',
-      mx: p.get('mx') || 'load', mxday: p.get('mxday') || '' };
+      mx: p.get('mx') || 'load', mxday: p.get('mxday') || '', grp: p.get('grp') || '', lv: p.get('lv') || 'tdhc' };
     FK.forEach(k => st[k] = p.get(k) || '');
     return st;
   }
@@ -60,6 +60,8 @@
     if (st.async) p.set('async', st.async);
     if (st.mx !== 'load') p.set('mx', st.mx);
     if (st.mxday) p.set('mxday', st.mxday);
+    if (st.grp) p.set('grp', st.grp);
+    if (st.lv !== 'tdhc') p.set('lv', st.lv);
     history.replaceState(null, '', location.pathname + (p.toString() ? '?' + p : ''));
   }
   function hay(s) {
@@ -464,6 +466,43 @@
       ['other', `من ${st.dept ? 'أقسام' : 'كليات'} أخرى`, `يدرّسون مقررات ${unit} وقسمهم الأصلي غير ${unit} المختار`],
       ['unknown', 'قسمهم غير معروف', 'غير موجودين في دليل الموظفين (غالباً غير متفرغين أو من خارج الجامعة)']];
   }
+  // ------------------------------------------------------------------ leaders (for meetings)
+  // From the staff directory (data/staff.json, loaded when the free-time view first needs it): the university's
+  // leadership, deans with their deputies and assistants, heads of department and directors of centres. Only those
+  // who teach this term have a timetable, so only they can be placed in a meeting time.
+  let STAFF = null, staffAsked = false;
+  const LV = { t: 'الإدارة العليا', d: 'العمداء ونوابهم ومساعدوهم', h: 'رؤساء الأقسام', c: 'مديرو المراكز والوحدات' };
+  function leaderLevel(m) {
+    const r = m.role || '', j = m.job || '';
+    if (/رئيس الجامعة|نائب رئيس الجامعة/.test(r) || /مساعد الرئيس|نائب رئيس الجامعة/.test(j)) return 't';
+    if (/عميد/.test(r)) return 'd';
+    if (/رئيس قسم/.test(r)) return 'h';
+    if (/مدير/.test(r)) return 'c';
+    return '';
+  }
+  function leaders() {
+    if (!STAFF) return {};
+    const teach = new Set(S.map(s => s.instructor)), out = {};
+    STAFF.forEach(m => { const lv = leaderLevel(m); if (lv && teach.has(m.name) && !out[m.name]) out[m.name] = { lv, job: m.job || m.role }; });
+    return out;
+  }
+  function needStaff() {
+    if (STAFF || staffAsked) return;
+    staffAsked = true;
+    fetch('data/staff.json?t=' + Math.floor(Date.now() / 600000)).then(r => r.json()).then(d => { STAFF = d.members || []; render(); }).catch(() => {});
+  }
+  // the people of a meeting group: leaders (of the chosen levels; within the chosen faculty when there is one, the
+  // university's top leadership always), academics (the unit's instructors who hold no leading post), or both
+  function groupPeople(st, grp) {
+    const L = leaders(), lv = st.lv || 'tdhc';
+    const fac = st.fac || (st.dept && (S.find(s => s.department === st.dept) || {}).faculty) || '';
+    const inFac = n => !fac || ((DATA.homes || {})[n] || {}).faculty === fac;
+    const lead = Object.keys(L).filter(n => lv.includes(L[n].lv) && (L[n].lv === 't' || inFac(n)));
+    const { dflt } = freeScope(Object.assign({}, st, { ppl: null }));
+    const acad = dflt.filter(n => !L[n]);
+    const out = grp === 'lead' ? lead : grp === 'acad' ? acad : grp === 'both' ? lead.concat(acad) : dflt;
+    return [...new Set(out)].sort((a, b) => a.localeCompare(b, 'ar'));
+  }
   function freeScope(st) {
     // pool = the instructors offered for selection: those teaching in the chosen faculty/department, plus that
     // unit's own instructors teaching elsewhere, plus anyone added by name.
@@ -490,7 +529,51 @@
     });
     return busy;
   }
+  const LV_SHORT = { t: 'إدارة عليا', d: 'عمادة', h: 'رئيس قسم', c: 'مدير مركز' };
+  function groupBar(st) {
+    const grp = st.grp || '', lv = st.lv || 'tdhc', L = leaders();
+    const n = g => groupPeople(st, g).length;
+    const btn = (g, icon, t, sub) => `<button type="button" class="fr-grp ${grp === g ? 'on' : ''}" data-grp="${g}" aria-pressed="${grp === g}">
+        <i class="bi ${icon}"></i><span><b>${t}</b><small>${sub}</small></span><em>${STAFF ? n(g) : '…'}</em></button>`;
+    const scope = st.fac || st.dept ? `كلية ${esc(st.fac || (S.find(s => s.department === st.dept) || {}).faculty || '')}` : 'الجامعة';
+    return `<div class="fr-grpbar">
+        <div class="fr-grp-h"><i class="bi bi-people-fill"></i> <b>نوع الاجتماع</b><small>اختر المجموعة ثم عدّل الأسماء بالنقر عليها إن لزم</small></div>
+        <div class="fr-grps">
+          ${btn('', 'bi-house-door', 'مدرسو النطاق', 'كما في التصفية')}
+          ${btn('lead', 'bi-award', 'القياديون', `في ${scope} + الإدارة العليا`)}
+          ${btn('acad', 'bi-mortarboard', 'الأكاديميون', 'مدرسو النطاق بلا منصب')}
+          ${btn('both', 'bi-diagram-3', 'القياديون والأكاديميون', 'الاثنان معاً')}
+        </div>
+        ${grp === 'lead' || grp === 'both' ? `<div class="fr-lvs"><small>مستويات القياديين:</small>${Object.entries(LV).map(([k, t]) => {
+          const c = Object.values(L).filter(x => x.lv === k).length;
+          return `<button type="button" class="fr-lv lv-${k} ${lv.includes(k) ? 'on' : ''}" data-lv="${k}" aria-pressed="${lv.includes(k)}"><i class="bi ${lv.includes(k) ? 'bi-check-square-fill' : 'bi-square'}"></i> ${t}</button>`;
+        }).join('')}<small class="text-muted">القياديون غير المدرّسين هذا الفصل لا جدول لهم فلا يظهرون.</small></div>` : ''}
+      </div>`;
+  }
+  const FR_CSS = `
+    .fr-grpbar { border: 1px solid #eadfcb; background: linear-gradient(180deg, #fbf7ef, #fff); border-radius: 14px; padding: .7rem .8rem; margin-bottom: .8rem; }
+    .fr-grp-h { display: flex; align-items: baseline; gap: .45rem; flex-wrap: wrap; margin-bottom: .5rem; color: #091b22; }
+    .fr-grp-h i { color: #901d23; } .fr-grp-h small { color: #7a8a90; }
+    .fr-grps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; }
+    .fr-grp { display: flex; align-items: center; gap: .55rem; text-align: start; padding: .55rem .7rem; border-radius: 12px; border: 1.5px solid #e3d9c5; background: #fff; color: #091b22; }
+    .fr-grp > i { font-size: 1.35rem; color: #901d23; }
+    .fr-grp span { flex: 1; min-width: 0; } .fr-grp b { display: block; font-size: .9rem; } .fr-grp small { display: block; font-size: .72rem; color: #7a8a90; }
+    .fr-grp em { font-style: normal; font-weight: 800; background: #f6f1e7; color: #901d23; border-radius: 30px; padding: .05rem .55rem; font-size: .8rem; }
+    .fr-grp:hover { border-color: #901d23; }
+    .fr-grp.on { background: #901d23; border-color: #901d23; color: #fff; box-shadow: 0 4px 12px rgba(144,29,35,.25); }
+    .fr-grp.on > i, .fr-grp.on small { color: #fff; } .fr-grp.on em { background: #fff; }
+    .fr-lvs { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-top: .6rem; }
+    .fr-lv { border: 1px solid #e3d9c5; background: #fff; border-radius: 30px; padding: .2rem .7rem; font-size: .8rem; font-weight: 700; color: #24323a; }
+    .fr-lv.on { border-color: var(--lc); color: var(--lc); background: color-mix(in srgb, var(--lc) 8%, #fff); }
+    .lv-t { --lc: #6a2fb0; } .lv-d { --lc: #901d23; } .lv-h { --lc: #1f6f78; } .lv-c { --lc: #b8892b; }
+    .fr-lead { display: inline-flex; align-items: center; gap: .2rem; margin-inline-start: .35rem; padding: 0 .45rem; border-radius: 30px; font-size: .68rem; font-weight: 700;
+      color: var(--lc); background: color-mix(in srgb, var(--lc) 10%, #fff); border: 1px solid color-mix(in srgb, var(--lc) 35%, #fff); }
+    .fr-person.on .fr-lead { background: #fff; }
+    @media (max-width: 991.98px) { .fr-grps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }`;
+  if (!document.getElementById('fr-css2')) { const el = document.createElement('style'); el.id = 'fr-css2'; el.textContent = FR_CSS; document.head.appendChild(el); }
   function freeView(st) {
+    needStaff();
+    const LEAD = leaders();
     const days = FREE_DAYS.concat(st.sat ? ['س'] : []);
     const from = toMin(st.from), to = Math.max(toMin(st.to), from + 30);
     const slots = [];
@@ -518,6 +601,7 @@
         </div>
       </div>
       <div class="fr-people mt-3">
+        ${groupBar(st)}
         <div class="fr-ptools">
           <b class="small">اختر المدرسين <span class="badge rounded-pill text-bg-primary">${N} / ${pool.length}</span></b>
           ${st.fac || st.dept ? `<button type="button" class="btn btn-sm btn-outline-primary" id="fr-own"><i class="bi bi-house-door"></i> مدرسو ${st.dept ? 'القسم' : 'الكلية'} فقط</button>` : ''}
@@ -533,7 +617,7 @@
         <div class="fr-chips">${(st.inst || (!st.fac && !st.dept) ? [['home', '', '']] : homeGroups(st)).map(([g, title, hint]) => {
           const ps = pool.filter(p => st.inst || homeGroup(p, st) === g);
           return ps.length ? `${title ? `<div class="fr-group"><b>${title} <span>(${ps.length})</span></b><small>${hint}</small></div>` : ''}${ps.map(p => `<button type="button" class="fr-person ${people.includes(p) ? 'on' : ''} g-${g}" data-toggle-p="${esc(p)}" aria-pressed="${people.includes(p)}">
-            <i class="bi ${people.includes(p) ? 'bi-check-circle-fill' : 'bi-circle'}"></i> ${esc(p)}</button>`).join('')}` : '';
+            <i class="bi ${people.includes(p) ? 'bi-check-circle-fill' : 'bi-circle'}"></i> ${esc(p)}${LEAD[p] ? `<span class="fr-lead lv-${LEAD[p].lv}" title="${esc(LEAD[p].job)}"><i class="bi bi-award-fill"></i>${esc(LV_SHORT[LEAD[p].lv])}</span>` : ''}</button>`).join('')}` : '';
         }).join('')
           || '<span class="text-muted small">لا يوجد مدرسون في النطاق؛ اختر كلية أو قسماً من التصفية أو أضف مدرساً بالاسم.</span>'}</div>
       </div></div></div>`;
@@ -633,9 +717,19 @@
     on('#fr-to', 'change', e => set({ to: e.target.value }));
     on('#fr-sat', 'change', e => set({ sat: e.target.checked ? '1' : '' }));
     on('#fr-async', 'change', e => set({ async: e.target.checked ? '1' : '' }));
-    on('#fr-all', 'click', () => set({ ppl: pool.length === dflt.length ? null : pool }));
-    on('#fr-own', 'click', () => set({ ppl: null }));
-    on('#fr-none', 'click', () => set({ ppl: [] }));
+    on('#fr-all', 'click', () => set({ grp: '', ppl: pool.length === dflt.length ? null : pool }));
+    on('#fr-own', 'click', () => set({ grp: '', ppl: null }));
+    on('#fr-none', 'click', () => set({ grp: '', ppl: [] }));
+    document.querySelectorAll('[data-grp]').forEach(b => b.addEventListener('click', () => {
+      const g = b.dataset.grp;
+      set({ grp: g, ppl: g ? groupPeople(st, g) : null });
+    }));
+    document.querySelectorAll('[data-lv]').forEach(b => b.addEventListener('click', () => {
+      const k = b.dataset.lv, cur = st.lv || 'tdhc';
+      const lv = cur.includes(k) ? cur.replace(k, '') : 'tdhc'.split('').filter(x => cur.includes(x) || x === k).join('');
+      const st2 = Object.assign({}, st, { lv });
+      set({ lv: lv || 'x', ppl: groupPeople(st2, st.grp) });
+    }));
     on('#fr-add', 'change', e => {
       const v = e.target.value.trim();
       if (S.some(s => s.instructor === v) && !people.includes(v)) set({ ppl: people.concat([v]) });
