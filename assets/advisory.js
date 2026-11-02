@@ -16,7 +16,7 @@
   const P = new URLSearchParams(location.search);
   const st = { fac: P.get('fac') || '', p: P.get('p') || '', d: P.get('d') || '', v: P.get('v') || '', view: P.get('view') || 'plan', b: P.get('b') || '', q: '', sel: P.get('c') || '', ml: P.get('ml') || 'plan', mf: 'all', no: false, pt: 'info', po: false, ma: true, pl: (() => { try { return localStorage.getItem('uop-ad-pl') || 'board'; } catch (e) { return 'board'; } })(), pc: 'type' };
   let A, PROGS, DOCS, READS, TTERM = '', TT = {}, SP = null, CODE_NAME = {};
-  const TERM = { first: 'الفصل الأول', second: 'الفصل الثاني', summer: 'الفصل الصيفي', null: 'فصل غير محدد' };
+  const TERM = { first: 'الفصل الأول', second: 'الفصل الثاني', summer: 'الفصل الصيفي', null: 'فصل غير محدد', req: 'مواد إجبارية', opt: 'يُختار منها' };
   const YEAR = ['', 'السنة الأولى', 'السنة الثانية', 'السنة الثالثة', 'السنة الرابعة', 'السنة الخامسة', 'السنة السادسة'];
   const KIND = { advisory: ['الخطة الاسترشادية', 'bi-signpost-split'], handbook: ['كتيّب القسم', 'bi-book'], tree: ['شجرة المواد', 'bi-diagram-3'], studyplan: ['الخطة الدراسية', 'bi-journal-text'] };
   const secs = code => TT[code] || [];
@@ -85,7 +85,6 @@
   }
   function planGrid(x, opts = {}) {
     const r = x.r;
-    if (!(r.years || []).length && (r.sections || []).length) return sectionsGrid(x);
     if (!r.ok || !(r.years || []).length) return original(x, true);
     const checks = Object.fromEntries((r.checks || []).map(c => [c.year + '|' + c.term, c]));
     const done = opts.done || new Set(), next = opts.next || new Set();
@@ -97,7 +96,7 @@
     return `<div class="ap-legend">${Object.values(KINDS).map(([l, c, i]) => `<span><i class="bi ${i}" style="color:${c}"></i>${l}</span>`).join('')}<span class="ap-sep"></span><span><i class="ok"></i>مطروحة وفيها مقاعد</span><span><i class="no"></i>مطروحة ومغلقة</span><span><i class="na"></i>غير مطروحة هذا الفصل</span><span><i class="el"></i>خانة اختيار</span><span><i class="bi bi-arrow-return-left"></i> المتطلب السابق</span><span class="text-muted">انقر المادة لعرضها في الخريطة</span></div>
       <div class="ap-years">${r.years.map(y => { const all = y.terms.flatMap(t => t.courses);
         return `<section class="ap-year">
-        <header><span class="ap-yn">${y.year}</span><b>${YEAR[y.year] || 'سنة'}</b>
+        <header><span class="ap-yn">${y.year > 100 ? y.year - 100 : y.year}</span><b>${YEAR[y.year] || 'سنة'}</b>
           <span class="ap-yk"><b>${y.read_hours}</b> ساعة</span><span class="ap-yk"><b>${real(all).length}</b> مادة</span><span class="ap-yk"><b>${offN(all)}</b> مطروحة الآن</span>
           ${y.hours != null && y.hours !== y.read_hours ? `<span class="badge text-bg-warning" title="العنوان في الخطة يذكر ${y.hours}">العنوان: ${y.hours}</span>` : ''}</header>
         <div class="ap-terms">${y.terms.map(t => { const ck = checks[y.year + '|' + t.term], cs = t.courses.filter(keep);
@@ -115,9 +114,8 @@
   }
   const KINDS = { uni: ['متطلب جامعة', '#6d28d9', 'bi-bank'], fac: ['مساند / كلية', '#0b4a66', 'bi-building'], maj: ['تخصص', '#901d23', 'bi-mortarboard'], el: ['خانة اختيار', '#b8892b', 'bi-ui-checks-grid'] };
   function planView(x) {
-    if (!(x.r.years || []).length && (x.r.sections || []).length) return sectionsGrid(x);
     if (!x.r.ok || !(x.r.years || []).length) return original(x, true);
-    const sw = `<div class="pb-bar no-print"><div class="btn-group btn-group-sm" role="group" aria-label="طريقة عرض الخطة">
+    const sw = (x.r.bycat ? '<div class="alert alert-light border small mb-2"><i class="bi bi-diagram-3"></i> هذه الخطة مطبوعة حسب فئات المتطلبات لا حسب الفصول، فكل عمود فئة كما طُبعت (إجبارية أو يُختار منها).</div>' : '') + `<div class="pb-bar no-print"><div class="btn-group btn-group-sm" role="group" aria-label="طريقة عرض الخطة">
         <button type="button" class="btn ${st.pl === 'board' ? 'btn-dark' : 'btn-outline-dark'}" data-pl="board"><i class="bi bi-kanban"></i> لوحة الخطة</button>
         <button type="button" class="btn ${st.pl === 'list' ? 'btn-dark' : 'btn-outline-dark'}" data-pl="list"><i class="bi bi-list-columns-reverse"></i> جدول مفصّل</button>
         <button type="button" class="btn ${st.pl === 'pyramid' ? 'btn-dark' : 'btn-outline-dark'}" data-pl="pyramid"><i class="bi bi-triangle"></i> هرمي</button>
@@ -146,7 +144,7 @@
     const dz = n => G.desc.get(n.key).size, KEY = new Set(all.filter(n => dz(n) >= 5).sort((a, b) => dz(b) - dz(a)).slice(0, 5).map(n => n.key));
     const pill = n => { const k = kindOf(n.code, major), av = avail(n.code), d = G.desc.get(n.key).size;
       return `<span class="ad-c py-p s-${av.k} ${hit(n) ? '' : 'dim'} ${KEY.has(n.key) ? 'key' : ''}" data-code="${esc(n.code)}" data-k="${esc(n.key)}" style="--k:${KINDS[k][1]}"
-        title="${esc((n.name || CODE_NAME[n.code] || '') + ' — ' + n.code + ' · ' + (n.hours ?? '—') + ' س · ' + KINDS[k][0] + ' · ' + av.t + ' · السنة ' + (YR[n.year] || n.year) + ' ' + TERM[n.term] + (n.prereq ? ' · المتطلب: ' + n.prereq : '') + (d ? ' · تفتح ' + d + ' مادة' : '') + (KEY.has(n.key) ? ' · مادة مفتاحية: من أكثر المواد فتحاً لما بعدها' : ''))}">
+        title="${esc((n.name || CODE_NAME[n.code] || '') + ' — ' + n.code + ' · ' + (n.hours ?? '—') + ' س · ' + KINDS[k][0] + ' · ' + av.t + ' · ' + (n.year > 100 ? YEAR[n.year] : 'السنة ' + (YR[n.year] || n.year)) + ' ' + TERM[n.term] + (n.prereq ? ' · المتطلب: ' + n.prereq : '') + (d ? ' · تفتح ' + d + ' مادة' : '') + (KEY.has(n.key) ? ' · مادة مفتاحية: من أكثر المواد فتحاً لما بعدها' : ''))}">
         <u></u>${KEY.has(n.key) ? '<i class="py-star">★</i>' : ''}<b>${esc(n.name || CODE_NAME[n.code] || '')}</b><code>${esc(n.code)}</code>${d ? `<em>${d}</em>` : ''}</span>`; };
     return `<div class="py-sum">
         <div><b>${top}</b><span>طبقات</span></div><div><b>${(lv.get(1) || []).length}</b><span>تأسيسية</span></div>
@@ -1121,7 +1119,7 @@
             <span class="badge rounded-pill text-bg-light border">${esc(p.faculty)}</span><span class="badge rounded-pill text-bg-light border">${p.type === 'master' ? 'ماجستير' : 'بكالوريوس'}</span>
             ${x ? (x.r.manual ? '<span class="badge rounded-pill text-bg-info" title="أُدخلت يدوياً من صفحات الخطة المنشورة لأن ملفها صور"><i class="bi bi-pencil-square"></i> مُدخلة من الأصل</span>' : x.r.ok ? '<span class="badge rounded-pill text-bg-success" title="قُرئت ومجاميع كل فصل تطابق المطبوع في الخطة"><i class="bi bi-check2-all"></i> مطابقة للمطبوع</span>' : '<span class="badge rounded-pill text-bg-secondary"><i class="bi bi-image"></i> صفحات أصلية</span>') : '<span class="badge rounded-pill text-bg-warning">لا خطة منشورة</span>'}
             ${x ? `<small class="text-muted ad-vt-s" title="${esc(x.d.name)}">${esc(vTitle(x))}</small>` : ''}
-            ${x && x.r.ok ? [[flat(x.r).size, 'مادة', '#0b4a66'], [x.r.years.reduce((a, y) => a + y.read_hours, 0), 'ساعة', '#901d23'], [x.r.years.length, 'سنوات', '#b8892b'],
+            ${x && x.r.ok ? [[flat(x.r).size, 'مادة', '#0b4a66'], [x.r.years.reduce((a, y) => a + y.read_hours, 0), 'ساعة', '#901d23'], [x.r.years.length, x.r.bycat ? 'فئات' : 'سنوات', '#b8892b'],
               [[...flat(x.r).keys()].filter(k => secs(k).length).length, 'مطروحة', '#15803d'], ...(pm ? [[pm.missing.length, 'ليست في خطة البوابة', '#6d28d9']] : [])]
               .map(([v, l, c]) => `<span class="ad-kp" style="--c:${c}"><b>${v}</b> ${l}</span>`).join('') : ''}
             <span class="ms-auto d-inline-flex gap-1 no-print flex-none">
@@ -1238,7 +1236,17 @@
     A = a; DOCS = a.docs; READS = a.reads;
     // plans published as scanned pages, entered by hand from those pages (data/advisory_manual.json, keyed by the file's sha;
     // "<sha>__2" is the second track printed in the same file)
+    let cat = 0;
     Object.entries(man || {}).forEach(([k, r]) => {
+      // a plan printed by requirement category: each category becomes a column (a «year» named after the category), so
+      // every view of the page (board, list, pyramid, tree, map, advisor) shows it exactly like a semester plan
+      if ((r.sections || []).length && !(r.years || []).length) {
+        r.checks = [];
+        r.years = r.sections.map(s => { const yk = 100 + (++cat), sum = s.courses.reduce((a, c) => a + (c.hours || 0), 0), term = s.choose ? 'opt' : 'req';
+          YEAR[yk] = s.name; if (!s.choose && s.hours != null && s.hours === sum) r.checks.push({ year: yk, term, printed: s.hours, read: sum });
+          return { year: yk, hours: s.hours ?? sum, read_hours: s.choose && s.hours != null ? s.hours : sum, terms: [{ term, hours: s.choose && s.hours != null ? s.hours : sum, courses: s.courses }] }; });
+        r.ok = true; r.bycat = true;
+      }
       READS[k] = r;
       const base = k.split('__')[0];
       if (base !== k) Object.values(DOCS).forEach(d => { const i = d.versions.findIndex(v => v.sha === base); if (i >= 0 && !d.versions.some(v => v.sha === k)) d.versions.splice(i, 0, { ...d.versions[i], sha: k }); });
