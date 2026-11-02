@@ -31,7 +31,7 @@
         if (!v.sha || seen.has(v.sha)) return;
         seen.add(v.sha);
         const r = READS[v.sha] || {};
-        out.push({ d, v, r, current: v.label === 'current', usable: d.kind === 'advisory' || (r.years || []).length });
+        out.push({ d, v, r, current: v.label === 'current', usable: d.kind === 'advisory' || (r.years || []).length || (r.sections || []).length });
       });
     });
     return out.filter(x => x.usable);
@@ -68,8 +68,24 @@
         ${c.prereq ? `<div class="ap-p"><i class="bi bi-arrow-return-left"></i>${pre.map(p => `<span class="ap-pc" title="${esc(nameOf(p))}"><code>${p}</code>${nameOf(p) ? ` ${esc(nameOf(p))}` : ''}</span>`).join('')}${note ? `<small>${esc(note)}</small>` : ''}</div>` : ''}</div>
       ${pill}</div>`;
   }
+  // a plan printed by requirement category (university / faculty / department, compulsory / elective), not by semester
+  function sectionsGrid(x) {
+    const r = x.r, all = r.sections.flatMap(s => s.courses);
+    PNAME = {}; all.forEach(c => { if (c.name) PNAME[c.code] = c.name; });
+    const f = {}; all.forEach(c => { if (/^\d{6,7}$/.test(c.code) && !/^9/.test(c.code)) f[c.code.slice(0, 3)] = (f[c.code.slice(0, 3)] || 0) + (c.hours || 0); });
+    MAJOR = Object.keys(f).sort((a, b) => f[b] - f[a])[0] || '';
+    const q = norm(st.q.trim()), keep = c => !q || norm(c.code + ' ' + (c.name || '') + ' ' + (c.name_en || '')).includes(q);
+    const sum = s => s.courses.reduce((a, c) => a + (c.hours || 0), 0);
+    return `<div class="alert alert-light border small"><i class="bi bi-diagram-3"></i> هذه الخطة منشورة حسب فئات المتطلبات (لا حسب السنوات والفصول)، فتُعرض فئةً فئة كما طُبعت.${r.total_printed ? ` مجموع الخطة: <b>${r.total_printed}</b> ساعة.` : ''}</div>
+      <div class="ap-years ap-secs">${r.sections.map((s, i) => `<section class="ap-year">
+        <header><span class="ap-yn">${i + 1}</span><b>${esc(s.name)}</b>
+          ${s.hours != null ? `<span class="ap-yk"><b>${s.hours}</b> ساعة مطلوبة</span>` : ''}<span class="ap-yk"><b>${s.courses.length}</b> مادة</span>
+          ${s.choose ? '<span class="badge text-bg-warning">يُختار منها</span>' : s.hours != null && sum(s) === s.hours ? '<span class="badge text-bg-success"><i class="bi bi-patch-check-fill"></i> مطابقة</span>' : ''}</header>
+        <div class="ap-terms"><div class="ap-term"><div class="ap-list">${s.courses.filter(keep).map(c => courseCard(c)).join('') || '<p class="small text-muted m-2">—</p>'}</div></div></div></section>`).join('')}</div>`;
+  }
   function planGrid(x, opts = {}) {
     const r = x.r;
+    if (!(r.years || []).length && (r.sections || []).length) return sectionsGrid(x);
     if (!r.ok || !(r.years || []).length) return original(x, true);
     const checks = Object.fromEntries((r.checks || []).map(c => [c.year + '|' + c.term, c]));
     const done = opts.done || new Set(), next = opts.next || new Set();
@@ -99,6 +115,7 @@
   }
   const KINDS = { uni: ['متطلب جامعة', '#6d28d9', 'bi-bank'], fac: ['مساند / كلية', '#0b4a66', 'bi-building'], maj: ['تخصص', '#901d23', 'bi-mortarboard'], el: ['خانة اختيار', '#b8892b', 'bi-ui-checks-grid'] };
   function planView(x) {
+    if (!(x.r.years || []).length && (x.r.sections || []).length) return sectionsGrid(x);
     if (!x.r.ok || !(x.r.years || []).length) return original(x, true);
     const sw = `<div class="pb-bar no-print"><div class="btn-group btn-group-sm" role="group" aria-label="طريقة عرض الخطة">
         <button type="button" class="btn ${st.pl === 'board' ? 'btn-dark' : 'btn-outline-dark'}" data-pl="board"><i class="bi bi-kanban"></i> لوحة الخطة</button>
@@ -507,6 +524,7 @@
   if (!document.getElementById('ap-css')) { const c = document.createElement('style'); c.id = 'ap-css'; c.textContent = `
     .ap-legend { display: flex; flex-wrap: wrap; gap: .4rem 1rem; font-size: .74rem; color: #495057; margin: 0 .2rem .5rem; }
     .ap-legend i:not(.bi) { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-inline-end: .3rem; vertical-align: middle; }
+    .ap-secs .ap-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 0 10px; } .ap-secs { grid-template-columns: 1fr !important; }
     .ap-legend i.ok, .ap-st.ok i { background: #15803d; } .ap-legend i.no, .ap-st.no i { background: #c2410c; } .ap-legend i.na, .ap-st.na i { background: #94a3b8; } .ap-legend i.el, .ap-st.el i { background: #6d28d9; }
     .ap-years { display: flex; flex-direction: column; gap: .8rem; }
     .ap-year { background: #fff; border: 1px solid #e7e3d8; border-radius: 14px; overflow: hidden; box-shadow: 0 1px 3px rgba(9,27,34,.05); }
