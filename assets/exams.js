@@ -433,7 +433,7 @@
         <div class="ex-acts"><button class="btn btn-ex" id="ex-solve" title="توليد جدول جديد من البداية (المثبّت يبقى)"><i class="bi bi-magic"></i> توليد من جديد</button>
           <button class="btn btn-outline-primary" id="ex-improve" title="تحسين الجدول الحالي دون البدء من جديد"><i class="bi bi-stars"></i> تحسين</button>
           <button class="btn btn-outline-secondary" id="ex-undo" ${undo.length ? '' : 'disabled'} title="تراجع عن آخر تعديل"><i class="bi bi-arrow-counterclockwise"></i> تراجع</button></div></div>
-      ${filterBar()}
+      ${filterBar(v === 'cohort' || v === 'dept' ? `<label class="ex-switch"><input type="checkbox" data-f="names" ${F().names ? 'checked' : ''}><span></span> إظهار أسماء المقررات</label>` : '')}
       ${v === 'matrix' ? matrixView(st) : v === 'days' ? daysView(st) : v === 'list' ? listView(st) : v === 'cohort' ? cohortView(st) : deptView(st)}
       ${C.some(c => c.s < 0) ? `<h5 class="ex-h"><i class="bi bi-inbox"></i> غير مجدولة</h5><div class="ex-pool ex-cell" data-s="-1">${C.filter(c => c.s < 0).map(c => card(c)).join('')}</div>` : ''}`;
   }
@@ -485,17 +485,17 @@
   function cohortView() {
     const cs = G.filter(g => g.kind === 'cohort' && g.c.some(i => match(C[i])));
     return `<p class="ex-note"><i class="bi bi-info-circle-fill"></i> كل صف تخصص وسنة دراسية: امتحاناته موزعة على الأيام. <span class="bdg red">أحمر</span> = تعارض في الفترة نفسها، <span class="bdg amber">برتقالي</span> = أكثر من ${S.maxDay} في اليوم.</p>
-      <div class="ex-grid-wrap"><table class="ex-mx"><thead><tr><th>التخصص · السنة</th>${DAYS.map(d => `<th>${esc(d.wd)}<small>${+d.iso.slice(8)}/${+d.iso.slice(5, 7)}</small></th>`).join('')}<th>المجموع</th></tr></thead><tbody>
+      <div class="ex-grid-wrap"><table class="ex-mx${F().names ? ' named' : ''}"><thead><tr><th>التخصص · السنة</th>${DAYS.map(d => `<th>${esc(d.wd)}<small>${+d.iso.slice(8)}/${+d.iso.slice(5, 7)}</small></th>`).join('')}<th>المجموع</th></tr></thead><tbody>
       ${cs.map(g => `<tr><th class="rh">${esc(g.name)}</th>${DAYS.map((d, di) => { const xs = g.c.filter(i => C[i].s >= 0 && dayOf(C[i].s) === di), per = {}; xs.forEach(i => { per[C[i].s] = (per[C[i].s] || 0) + 1; });
         const cl = Object.values(per).some(n => n > 1) ? 'clash' : xs.length > S.maxDay ? 'over' : xs.length ? 'ok' : '';
-        return `<td class="${cl}">${xs.sort((a, b) => C[a].s - C[b].s).map(i => `<span class="ex-code sm" data-go="${i}" style="--c:${C[i].col[0]};--b:${C[i].col[1]}" title="${esc(C[i].name)} · ${esc(slotLabel(C[i].s))}">${esc(C[i].code)}<sub><bdi>ف${C[i].s % P + 1}</bdi></sub></span>`).join('')}</td>`; }).join('')}
+        return `<td class="${cl}">${xs.sort((a, b) => C[a].s - C[b].s).map(i => `<span class="ex-code sm" data-go="${i}" style="--c:${C[i].col[0]};--b:${C[i].col[1]}" title="${esc(C[i].name)} · ${esc(slotLabel(C[i].s))}">${esc(C[i].code)}<sub><bdi>ف${C[i].s % P + 1}</bdi></sub>${F().names ? `<small>${esc(C[i].name)}</small>` : ''}</span>`).join('')}</td>`; }).join('')}
         <td class="tot">${g.c.length}</td></tr>`).join('') || `<tr><td colspan="${DAYS.length + 2}">لا توجد تخصصات ضمن التصفية</td></tr>`}</tbody></table></div>`;
   }
   function deptView() {
     const ds = [...new Set(C.filter(match).map(c => c.dept))].sort();
-    return `<div class="ex-grid-wrap"><table class="ex-mx"><thead><tr><th>القسم</th>${DAYS.map(d => `<th>${esc(d.wd)}<small>${+d.iso.slice(8)}/${+d.iso.slice(5, 7)}</small></th>`).join('')}<th>المجموع</th></tr></thead><tbody>
+    return `<div class="ex-grid-wrap"><table class="ex-mx${F().names ? ' named' : ''}"><thead><tr><th>القسم</th>${DAYS.map(d => `<th>${esc(d.wd)}<small>${+d.iso.slice(8)}/${+d.iso.slice(5, 7)}</small></th>`).join('')}<th>المجموع</th></tr></thead><tbody>
       ${ds.map(dp => { const mine = C.filter(c => c.dept === dp && match(c)); return `<tr><th class="rh">${esc(dp)}</th>${DAYS.map((d, di) => { const xs = mine.filter(c => c.s >= 0 && dayOf(c.s) === di);
-        return `<td class="${xs.length ? 'ok' : ''}">${xs.sort((a, b) => a.s - b.s).map(c => `<span class="ex-code sm" data-go="${c.i}" style="--c:${c.col[0]};--b:${c.col[1]}" title="${esc(c.name)} · ${c.students} طالب · ${esc(slotLabel(c.s))}">${esc(c.code)}<sub><bdi>ف${c.s % P + 1}</bdi></sub></span>`).join('')}</td>`; }).join('')}
+        return `<td class="${xs.length ? 'ok' : ''}">${xs.sort((a, b) => a.s - b.s).map(c => `<span class="ex-code sm" data-go="${c.i}" style="--c:${c.col[0]};--b:${c.col[1]}" title="${esc(c.name)} · ${c.students} طالب · ${esc(slotLabel(c.s))}">${esc(c.code)}<sub><bdi>ف${c.s % P + 1}</bdi></sub>${F().names ? `<small>${esc(c.name)}</small>` : ''}</span>`).join('')}</td>`; }).join('')}
         <td class="tot">${mine.length}</td></tr>`; }).join('')}</tbody></table></div>`;
   }
   function checkView(st) {
@@ -895,7 +895,7 @@
   .ex-tbl tr.bad td { background: #fff4f4; } .ex-tbl select { min-width: 170px; }
   .ex-when { font-weight: 700; white-space: nowrap; font-size: .9rem; }
   .ex-code { display: inline-block; background: var(--b); color: var(--c); border: 1px solid var(--c); border-radius: 7px; padding: .05rem .45rem; font-weight: 800; cursor: pointer; }
-  .ex-code.sm { font-size: .85rem; margin: 2px; } .ex-code sub { font-weight: 600; opacity: .8; margin-inline-start: 2px; bottom: 0; }
+  .ex-code.sm { font-size: .85rem; margin: 2px; } .ex-code small { display: none; } .ex-mx.named .ex-code.sm { display: block; text-align: start; } .ex-mx.named .ex-code small { display: block; font-weight: 600; color: #0f1f26; font-size: .82rem; line-height: 1.3; } .ex-mx.named td { min-width: 150px; } .ex-code sub { font-weight: 600; opacity: .8; margin-inline-start: 2px; bottom: 0; }
   .bdg { display: inline-flex; gap: .25rem; align-items: center; border-radius: 999px; padding: .08rem .55rem; font-size: .82rem; font-weight: 700; background: #eef2f4; color: #2b3b42; white-space: nowrap; }
   .bdg.blue { background: #e6edfd; color: #1d4ed8; } .bdg.green { background: #e4f5e9; color: #15803d; } .bdg.red { background: #fde8e8; color: #b42318; } .bdg.amber { background: #fdf1dc; color: #9a5b00; } .bdg.teal { background: #e0f4f1; color: #0f766e; }
   /* cohort / dept matrix */
