@@ -183,6 +183,20 @@
     window.addEventListener('resize', () => { clearTimeout(pad.t); pad.t = setTimeout(pad, 300); });
   })();
 
+  // ---------------------------------------------------------------- iPhone: typing in a search box must not zoom the page
+  // Safari zooms in on any field whose text is smaller than 16px and stays zoomed, so the page no longer fits the screen.
+  // Fields get 16px text on phones, and on iOS the page may not be zoomed beyond 100% by focus (pinch-zoom still works).
+  if (!$('#site-ios-css')) {
+    const st = document.createElement('style');
+    st.id = 'site-ios-css';
+    st.textContent = `@media (max-width: 767.98px) { input, select, textarea { font-size: 16px !important; } }`;
+    document.head.appendChild(st);
+    if (/iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+      const vp = document.querySelector('meta[name=viewport]');
+      if (vp && !/maximum-scale/.test(vp.content)) vp.content = vp.content + ', maximum-scale=1';
+    }
+  }
+
   // ---------------------------------------------------------------- app: offline copy and install
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
