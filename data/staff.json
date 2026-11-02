@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-01T16:51:53Z",
+"updated": "2026-11-02T18:28:15Z",
 "main_line": "+96265799555",
 "main_line_display": "06 5799555",
 "faculties": [
@@ -1658,10 +1658,10 @@
 "ext": "5200",
 "office": "دائرة الموارد البشرية",
 "email": "fuad.abusafieh@uop.edu.jo",
-"photo": "",
+"photo": "assets/photos/9fcf75400b992101.jpg",
 "profile": "https://www.uop.edu.jo/Ar/HRD/Pages/AdministrativeStaff.aspx",
 "source": "admin_hrd",
-"photo_src": ""
+"photo_src": "https://www.uop.edu.jo/En/HRD/PublishingImages/Staff/Fouad%20Abu%20Safieh.png"
 },
 {
 "id": "S:hrd:20",
@@ -1680,10 +1680,10 @@
 "ext": "5230",
 "office": "دائرة الموارد البشرية",
 "email": "anas.abushawer@uop.edu.jo",
-"photo": "",
+"photo": "assets/photos/9401a3c097a9e1a1.jpg",
 "profile": "https://www.uop.edu.jo/Ar/HRD/Pages/AdministrativeStaff.aspx",
 "source": "admin_hrd",
-"photo_src": ""
+"photo_src": "https://www.uop.edu.jo/En/HRD/PublishingImages/Staff/Anas%20Abu%20Shawer.JPG"
 },
 {
 "id": "S:hrd:18",
@@ -1702,10 +1702,10 @@
 "ext": "5240",
 "office": "دائرة الموارد البشرية",
 "email": "yallabadi@uop.edu.jo",
-"photo": "assets/photos/e16ae1fbb879e607.jpg",
+"photo": "assets/photos/5ca8be5156935373.jpg",
 "profile": "https://www.uop.edu.jo/Ar/HRD/Pages/AdministrativeStaff.aspx",
 "source": "admin_hrd",
-"photo_src": "https://www.uop.edu.jo/En/HRD/PublishingImages/Staff/%D9%8A%D8%A7%D8%B3%D9%85%D9%8A%D9%86%20%D8%A7%D9%84%D9%84%D8%A8%D8%AF%D9%8A%20%D8%AC%D8%A7%D9%85%D8%B9%D8%A9%20%D8%A7%D9%84%D8%A8%D8%AA%D8%B1%D8%A7.jpg"
+"photo_src": "https://www.uop.edu.jo/En/HRD/PublishingImages/Staff/Yasmeen%20Allabadi.png"
 },
 {
 "id": "S:hrd:21",
@@ -11466,21 +11466,21 @@
 "faculty": 13,
 "name": "د. بيان يوسف عمر غانم",
 "name_en": "Dr Bayan Yousef Omar Ghanem",
-"job": "عضو هيئة تدريس",
+"job": "أستاذ مساعد",
 "rank": "أستاذ مساعد",
 "rank_order": 3,
 "role": "",
 "sort": 10,
 "department": "طب وجراحة الأسنان",
-"specialization": "",
+"specialization": "الصيدلة والتقنيات الحيوية – علم الأحياء الجزيئي وتطبيقاته",
 "qualification": "",
 "ext": "",
-"office": "",
+"office": "A24106",
 "email": "bayan.ghanim@uop.edu.jo",
-"photo": "",
+"photo": "assets/photos/60d148d1cad966aa.jpg",
 "profile": "https://dentist.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=62006100790061006E002E006700680061006E0069006D00400075006F0070002E006500640075002E006A006F00",
 "source": "academic_api",
-"photo_src": ""
+"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20261010.jpg"
 },
 {
 "id": "A:740061006C0061002E006D00610072006100670068006100400075006F0070002E006500640075002E006A006F00",
