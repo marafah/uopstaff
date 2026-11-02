@@ -624,7 +624,7 @@
     ${bx(1, 'bi-journal-bookmark-fill', '#901d23', 'الدورة', 'نوع الامتحانات والكليات المشمولة', `
       <div class="ex-types">${Object.entries(TYPES).map(([k, t]) => `<label class="ex-type${S.type === k ? ' on' : ''}"><input type="radio" name="ty" data-ty="${k}" ${S.type === k ? 'checked' : ''}><i class="bi ${{ final: 'bi-mortarboard-fill', mid1: 'bi-1-square-fill', midterm: 'bi-hourglass-split', mid2: 'bi-2-square-fill', makeup: 'bi-arrow-repeat' }[k]}"></i><b>${t.name}</b></label>`).join('')}</div>
       <label class="ex-fld"><span>عنوان الجدول (يظهر في الطباعة)</span><input class="form-control" data-k="label" placeholder="${esc(TYPES[S.type].name)} – ${esc(TT.term)}" value="${esc(S.label || '')}"></label>
-      <div class="ex-fld"><span>الكليات المشمولة</span><div class="ex-chipset"><label class="ex-chk${!S.facs.length ? ' on' : ''}"><input type="checkbox" data-facall ${!S.facs.length ? 'checked' : ''}> <i class="bi bi-buildings-fill"></i> كل الكليات</label>
+      <div class="ex-fld"><span>الكليات المشمولة</span><div class="ex-chipset ex-facs"><label class="ex-chk${!S.facs.length ? ' on' : ''}"><input type="checkbox" data-facall ${!S.facs.length ? 'checked' : ''}> <i class="bi bi-buildings-fill"></i> كل الكليات</label>
         ${facs.map(x => `<label class="ex-chk${S.facs.includes(x) ? ' on' : ''}"><input type="checkbox" data-fac="${esc(x)}" ${S.facs.includes(x) ? 'checked' : ''}> ${esc(x)}</label>`).join('')}</div>
         <small>جدول واحد لعدة كليات يمنع تعارض المواد المشتركة (متطلبات الجامعة والمواد الخدمية).</small></div>`)}
     ${bx(2, 'bi-calendar-range-fill', '#0b4a66', 'التقويم', 'أيام الامتحانات والعطل', `
@@ -640,14 +640,8 @@
       <button class="btn btn-outline-primary" data-addp><i class="bi bi-plus-lg"></i> إضافة فترة</button>`)}
     ${bx(4, 'bi-rulers', '#9a5b00', 'قواعد الجدولة', 'ما يمنعه النظام وما يحاول تجنّبه', `
       <div class="ex-rule hard"><i class="bi bi-shield-fill-check"></i> دائماً: لا يجتمع امتحانان لطالب في الفترة نفسها، ولا يتجاوز عدد الطلبة مقاعد القاعات.</div>
-      ${num('maxDay', 'أقصى عدد امتحانات للطالب في اليوم', 1, 4)}
-      ${sw('b2b', 'تجنّب امتحانين متتاليين في اليوم نفسه', 'يترك فترة راحة بين امتحاني الطالب')}
-      ${sw('near', 'مراعاة طلبة السنتين المتتاليتين', 'تجنّب تزامن مواد السنة الثانية والثالثة مثلاً في التخصص نفسه')}
-      ${sw('insClash', 'منع تزامن امتحانين لمدرّس واحد', 'ليحضر المدرّس امتحان كل مقرر يدرّسه')}
-      ${sw('early', 'المقررات الكبيرة في الأيام الأولى', 'ليتسع وقت التصحيح')}
-      ${sw('busy', 'مراعاة المحاضرات القائمة', 'لا تُستخدم قاعة فيها محاضرة وقت الامتحان ولا يراقب مدرّس عنده محاضرة (للامتحانات خلال الفصل)')}
-      ${sw('practical', 'تضمين الشعب العملية', '')}${sw('grad', 'تضمين الماجستير', '')}
-      <label class="ex-fld"><span>عمق البحث عن أفضل جدول</span><select class="form-select" data-k="depth">${[['quick', 'سريع (ثوانٍ)'], ['normal', 'متوازن'], ['deep', 'عميق (أبطأ وأدق)']].map(([k, t]) => `<option value="${k}" ${S.depth === k ? 'selected' : ''}>${t}</option>`).join('')}</select></label>`)}
+      <div class="row2">${num('maxDay', 'أقصى عدد امتحانات للطالب في اليوم', 1, 4)}<label class="ex-fld"><span>عمق البحث عن أفضل جدول</span><select class="form-select" data-k="depth">${[['quick', 'سريع (ثوانٍ)'], ['normal', 'متوازن'], ['deep', 'عميق (أبطأ وأدق)']].map(([k, t]) => `<option value="${k}" ${S.depth === k ? 'selected' : ''}>${t}</option>`).join('')}</select></label></div>
+      <div class="ex-rules2">${sw('b2b', 'تجنّب امتحانين متتاليين في اليوم نفسه', 'يترك فترة راحة بين امتحاني الطالب')}${sw('near', 'مراعاة طلبة السنتين المتتاليتين', 'تجنّب تزامن مواد السنة الثانية والثالثة مثلاً في التخصص نفسه')}${sw('insClash', 'منع تزامن امتحانين لمدرّس واحد', 'ليحضر المدرّس امتحان كل مقرر يدرّسه')}${sw('early', 'المقررات الكبيرة في الأيام الأولى', 'ليتسع وقت التصحيح')}${sw('busy', 'مراعاة المحاضرات القائمة', 'لا تُستخدم قاعة فيها محاضرة وقت الامتحان ولا يراقب مدرّس عنده محاضرة (للامتحانات خلال الفصل)')}${sw('practical', 'تضمين الشعب العملية', '')}${sw('grad', 'تضمين الماجستير', '')}</div>`)}
     ${bx(5, 'bi-people-fill', '#6d28d9', 'بيانات الطلبة', 'من يجلس مع من؟', `
       <div class="ex-srcs">${[['plans', 'bi-diagram-3-fill', 'الخطط الدراسية', 'تقدير حسب التخصص والسنة'], ['reg', 'bi-file-earmark-spreadsheet-fill', 'كشف التسجيل', 'دقيق لكل طالب'], ['both', 'bi-intersect', 'الاثنان معاً', 'الأدق والأشمل']]
         .map(([k, ic, t, d]) => `<label class="ex-type${S.src === k ? ' on' : ''}"><input type="radio" name="src" data-src="${k}" ${S.src === k ? 'checked' : ''}><i class="bi ${ic}"></i><b>${t}</b><small>${d}</small></label>`).join('')}</div>
@@ -937,12 +931,14 @@
   .ex-box > header > i { font-size: 1.5rem; color: var(--a); } .ex-box h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: #091b22; } .ex-box header small { color: #4a5a61; font-size: .9rem; }
   .ex-box .bb { padding: .9rem 1rem; display: flex; flex-direction: column; gap: .7rem; }
   .ex-fld { display: flex; flex-direction: column; gap: .3rem; margin: 0; } .ex-fld > span { font-weight: 700; font-size: .95rem; } .ex-fld small { color: #5b6b72; font-size: .85rem; }
-  .ex-set .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; align-items: start; }
+  .ex-set .row2, .ex-setwrap .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; align-items: start; }
   .ex-types, .ex-srcs { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: .45rem; }
   .ex-type { border: 2px solid #e2e8ec; border-radius: 12px; padding: .6rem; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: .15rem; margin: 0; }
   .ex-type input { display: none; } .ex-type i { font-size: 1.5rem; color: #6b7a80; } .ex-type b { font-size: .92rem; } .ex-type small { font-size: .8rem; color: #5b6b72; }
   .ex-type.on { border-color: var(--a, #901d23); background: color-mix(in srgb, var(--a, #901d23) 7%, #fff); } .ex-type.on i { color: var(--a, #901d23); }
   .ex-chipset { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .ex-facs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; } .ex-facs .ex-chk { flex: none; white-space: nowrap; padding: .22rem .6rem; font-size: .88rem; }
+  .ex-rules2 { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem 1.4rem; } @media (max-width: 900px) { .ex-rules2 { grid-template-columns: 1fr; } }
   .ex-chk { display: inline-flex; gap: .35rem; align-items: center; border: 1.5px solid #d6dee3; border-radius: 999px; padding: .25rem .7rem; font-size: .92rem; cursor: pointer; margin: 0; background: #fff; }
   .ex-chk input { accent-color: #901d23; } .ex-chk.on { border-color: #901d23; background: #fff3f3; color: #901d23; font-weight: 700; }
   .ex-tagx { display: inline-flex; align-items: center; gap: .2rem; background: #e6edfd; color: #1d4ed8; border-radius: 999px; padding: .15rem .3rem .15rem .6rem; font-weight: 700; font-size: .88rem; } .ex-tagx button { border: 0; background: transparent; color: inherit; padding: 0 .2rem; }
@@ -963,7 +959,7 @@
   [data-theme=dark] .ex-card, [data-theme=dark] .ex-row { background: #1b2f37; } [data-theme=dark] .ex-grid th.day, [data-theme=dark] .ex-mx th.rh, [data-theme=dark] .ex-views { background: #1b2f37; color: #e8eef0; }
   @media (max-width: 700px) {
     .ex-step { min-width: 120px; padding: .45rem; } .ex-step .tx small { display: none; } .ex-steps .sep { display: none; }
-    .ex-set { grid-template-columns: 1fr; } .ex-set .row2 { grid-template-columns: 1fr; } .ex-days-v { grid-template-columns: 1fr; }
+    .ex-set { grid-template-columns: 1fr; } .ex-set .row2, .ex-setwrap .row2 { grid-template-columns: 1fr; } .ex-days-v { grid-template-columns: 1fr; }
     .ex-grid { min-width: 0; border-spacing: 3px; } .ex-grid .corner, .ex-grid th.day { width: 56px; } .ex-grid th small { font-size: .75rem; }
     .ex-card { padding: 3px 4px; } .ex-card .n, .ex-card .m { display: none; } .ex-card .t b { font-size: .82rem; } .ex-cell { height: 56px; } .ex-cell .cap { display: none; }
     .ex-prow { grid-template-columns: 1fr 1fr; } .ex-per { grid-template-columns: 1fr; } .ex-filter .form-select { flex: 1 1 45%; }
