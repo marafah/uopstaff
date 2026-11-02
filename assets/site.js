@@ -365,7 +365,7 @@ document.addEventListener('show.bs.dropdown', e => {
 })();
 
 // phones: a wide table (one that would need sideways scrolling) is shown as a stack of cards, one per row,
-// each value with its column name; tables that are grids (row headers, merged cells) keep scrolling sideways
+// each value with its column name (merged headers combined); a row header becomes the card's title, empty cells are left out
 (function () {
   const phone = () => matchMedia('(max-width: 575.98px)').matches;
   const st = document.createElement('style');
@@ -378,31 +378,87 @@ document.addEventListener('show.bs.dropdown', e => {
     table.site-stack td[data-label]::before { content: attr(data-label); display: block; margin-bottom: .1rem; font-weight: 700; font-size: .78rem; color: #901d23; }
     table.site-stack tfoot tr { background: rgba(144,29,35,.06); }
     table.site-stack td > * { max-width: 100%; }
-    table.site-stack td:empty { display: none; }
+    table.site-stack td:empty, table.site-stack .stk-empty { display: none !important; }
+    table.site-stack th.stk-h { display: block; width: 100% !important; position: static !important; text-align: start !important; background: rgba(144,29,35,.07) !important; color: #6e151a !important;
+      margin: -.35rem -.7rem .3rem; width: calc(100% + 1.4rem) !important; padding: .4rem .7rem !important; border: 0 !important; border-radius: 12px 12px 0 0; font-weight: 800; min-width: 0 !important; max-width: none !important; box-shadow: none !important; }
+    table.site-stack tbody th:not(.stk-h) { display: block; width: 100% !important; border: 0 !important; }
+    table.site-stack td[data-label]::before { white-space: normal; }
+    table.site-stack td > a, table.site-stack td > .tt-chip, table.site-stack td > .ti-chip { display: flex; }
+    .nb-board { grid-template-columns: minmax(0, 1fr) !important; overflow: visible !important; }
+    .cg2-seg { flex-wrap: wrap; }
+    table.site-fit { table-layout: fixed !important; width: 100% !important; min-width: 0 !important; font-size: .62rem !important; }
+    table.site-fit th, table.site-fit td { min-width: 0 !important; width: auto !important; padding: 1px !important; white-space: normal !important; overflow-wrap: anywhere; }
+    table.site-fit thead th { font-size: .6rem !important; }
+    table.site-fit th:first-child { width: 3.2rem !important; }
+    table.site-fit td { height: auto !important; padding: 3px 1px !important; }
+    table.site-fit td.fit-n { font-size: .5rem !important; white-space: nowrap !important; overflow-wrap: normal !important; letter-spacing: -.02em; text-align: center; }
+    table.site-fit { border-spacing: 1px !important; }
     .site-stack-wrap { overflow: visible !important; max-height: none !important; height: auto !important; }
   }`;
   document.head.appendChild(st);
+  // every column's label from the header rows (merged header cells included): «الأحد · الثلاثاء 08:00–09:00»
+  function headLabels(t) {
+    const rows = t.tHead ? [...t.tHead.rows] : [];
+    const taken = [], lab = [];
+    rows.forEach((r, ri) => {
+      let c = 0;
+      [...r.cells].forEach(cell => {
+        while (taken[ri] && taken[ri][c]) c++;
+        const cs = cell.colSpan || 1, rs = cell.rowSpan || 1;
+        const txt = cell.textContent.replace(/[⇅↕↑↓▲▼]/g, '').replace(/\s+/g, ' ').trim();
+        for (let i = 0; i < rs; i++) for (let j = 0; j < cs; j++) ((taken[ri + i] ||= [])[c + j] = true);
+        for (let j = 0; j < cs; j++) if (txt && !(lab[c + j] || []).includes(txt)) (lab[c + j] ||= []).push(txt);
+        c += cs;
+      });
+    });
+    return lab.map(x => (x || []).join(' · '));
+  }
+  function label(t, L) {
+    const rows = [...t.tBodies].flatMap(b => [...b.rows]).concat(t.tFoot ? [...t.tFoot.rows] : []);
+    rows.forEach(r => {
+      let k = 0;
+      [...r.cells].forEach((c, i) => {
+        const span = c.colSpan || 1;
+        if (c.tagName === 'TH' && i === 0) c.classList.add('stk-h');
+        else if (L[k] && span === 1 && !c.dataset.label) c.dataset.label = L[k];
+        if (!c.textContent.trim() && !c.querySelector('img, svg, input, button, i')) c.classList.add('stk-empty');
+        k += span;
+      });
+    });
+  }
   function stack() {
     if (!phone()) return;
     document.querySelectorAll('main table:not(.no-stack), .container-fluid table:not(.no-stack)').forEach(t => {
-      if (t.classList.contains('site-stack')) {   // rows drawn again (a new page, a new sort): label them too
-        const L = JSON.parse(t.dataset.stackLabels || '[]');
-        t.querySelectorAll('tbody tr, tfoot tr').forEach(r => [...r.cells].forEach((c, i) => { if (L[i] && !c.dataset.label && !c.hasAttribute('colspan')) c.dataset.label = L[i]; }));
-        return;
-      }
-      if (!t.offsetParent || t.closest('.uop-topbar, .modal, .dropdown-menu')) return;
+      if (t.closest('svg, .uop-topbar, .modal, .dropdown-menu')) return;
+      if (t.classList.contains('site-fit')) return;
+      if (t.classList.contains('site-stack')) { label(t, JSON.parse(t.dataset.stackLabels || '[]')); return; }   // rows drawn again
+      if (!t.offsetParent) return;
       const box = t.parentElement;
       if (t.scrollWidth <= box.clientWidth + 4) return;
-      const head = t.tHead && t.tHead.rows[t.tHead.rows.length - 1];
-      if (!head || t.tHead.rows.length > 1) return;
-      const labels = [...head.cells].map(c => c.textContent.replace(/[⇅↕↑↓▲▼]/g, '').trim());
-      const body = [...t.tBodies].flatMap(b => [...b.rows]), foot = t.tFoot ? [...t.tFoot.rows] : [];
-      if (!body.length || body.some(r => r.querySelector('th, [colspan], [rowspan]') && !r.cells[0].hasAttribute('colspan')) ||
-          head.querySelector('[colspan], [rowspan]')) return;
-      body.concat(foot).forEach(r => { let k = 0; [...r.cells].forEach(c => { const span = +c.getAttribute('colspan') || 1; if (labels[k] && span === 1) c.dataset.label = labels[k]; k += span; }); });
-      t.dataset.stackLabels = JSON.stringify(labels);
+      if (!t.tBodies.length || !t.tBodies[0].rows.length) return;
+      // a colour grid (most cells hold no text, e.g. a heat map): squeezed to the screen width instead, so the picture stays
+      // (few columns, and most cells empty or a bare number)
+      const tds = [...t.querySelectorAll('tbody td')], blank = tds.filter(c => /^[\d.,%\s/–-]*$/.test(c.textContent.trim())).length;
+      const ncol = Math.max(...[...t.rows].map(r => [...r.cells].reduce((a, c) => a + (c.colSpan || 1), 0)));
+      const nums = tds.filter(c => /^[\d.,%]+$/.test(c.textContent.trim())).length;
+      if (tds.length && ((ncol <= 9 && blank / tds.length > 0.6) || (ncol <= 28 && nums / tds.length > 0.6))) {
+        tds.forEach(c => { if (/^[\d.,%]+$/.test(c.textContent.trim())) c.classList.add('fit-n'); });
+        t.classList.add('site-fit');
+        const wraps = [];
+        let a = t.parentElement;
+        while (a && a !== document.body) { if (/auto|scroll/.test(getComputedStyle(a).overflowX)) { a.classList.add('site-stack-wrap'); wraps.push(a); } a = a.parentElement; }
+        // still wider than the screen, or text cut: cards instead
+        const W = (t.parentElement || document.body).clientWidth;
+        const cut = [...t.querySelectorAll('td:not(.fit-n), th')].some(c => c.scrollWidth > c.clientWidth + 2);
+        if (t.scrollWidth <= W + 2 && !cut) return;
+        t.classList.remove('site-fit');
+      }
+      const L = headLabels(t);
+      t.dataset.stackLabels = JSON.stringify(L);
+      label(t, L);
       t.classList.add('site-stack');
-      if (box && /auto|scroll/.test(getComputedStyle(box).overflowX)) box.classList.add('site-stack-wrap');
+      let a = t.parentElement;
+      while (a && a !== document.body) { if (/auto|scroll/.test(getComputedStyle(a).overflowX)) a.classList.add('site-stack-wrap'); a = a.parentElement; }
     });
   }
   let tm = 0;

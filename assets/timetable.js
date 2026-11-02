@@ -426,7 +426,7 @@
         <span class="d-flex flex-wrap gap-2">${Object.entries(MODE).map(([k, v]) => `<span class="tt-chip ${v.cls} static"><i class="bi ${v.icon}"></i> ${k}</span>`).join('')}<span class="tt-chip static lab"><i class="bi bi-pc-display"></i> عملي</span></span></div>
       ${insts.length > LIMIT ? `<div class="alert alert-info small m-2 mb-0"><i class="bi bi-info-circle"></i> ${insts.length} مدرساً في النطاق؛ يُعرض أول ${LIMIT}. اختر كلية أو قسماً من التصفية لعرض مدرسيه فقط.</div>` : ''}
       ${!st.dept && !st.fac && !st.inst ? '<div class="alert alert-warning small m-2 mb-0"><i class="bi bi-funnel"></i> للحصول على جدول قسم كامل مثل جداول الأقسام: اختر <b>الكلية</b> ثم <b>القسم</b> من التصفية.</div>' : ''}
-      <div class="table-responsive ti-wrap"><table class="table table-bordered mb-0 ti-table ${names ? 'named' : ''} no-stack">
+      <div class="table-responsive ti-wrap"><table class="table table-bordered mb-0 ti-table ${names ? 'named' : ''}">
         <thead>${head1}${head2}</thead><tbody>${rows.join('')}</tbody></table></div></div>`;
   }
 
