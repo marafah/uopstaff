@@ -166,6 +166,8 @@ def nav(active):
 APP_HEAD = """<!-- app -->
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#901d23">
+  <meta name="apple-mobile-web-app-title" content="بوصلة البترا">
+  <meta name="application-name" content="بوصلة البترا">
   <link rel="icon" href="assets/icons/favicon-32.png" sizes="32x32">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
   <script>try { if (localStorage.getItem('uop-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) { /* storage unavailable */ }</script>
@@ -199,12 +201,12 @@ def main():
         shell = f.read()
     for page, p in PAGES.items():
         h = shell
-        h = re.sub(r"<title>.*?</title>", f"<title>{p['title']} – جامعة البترا</title>", h)
+        h = re.sub(r"<title>.*?</title>", f"<title>{p['title']} – بوصلة البترا</title>", h)
         h = re.sub(r'<meta name="description" content="[^"]*">', f'<meta name="description" content="{p["desc"]}">', h)
-        h = re.sub(r'<meta property="og:title" content="[^"]*">', f'<meta property="og:title" content="{p["title"]} – جامعة البترا">', h)
+        h = re.sub(r'<meta property="og:title" content="[^"]*">', f'<meta property="og:title" content="{p["title"]} – بوصلة البترا">', h)
         h = re.sub(r'<meta property="og:description" content="[^"]*">', f'<meta property="og:description" content="{p["desc"]}">', h)
         h = h.replace("https://marafah.github.io/uopstaff/timetable.html", "https://marafah.github.io/uopstaff/" + ("" if page == "index.html" else page))
-        h = re.sub(r'data-share-title="[^"]*" data-share-what="[^"]*"', f'data-share-title="{p["title"]} – جامعة البترا" data-share-what="{p["what"]}"', h)
+        h = re.sub(r'data-share-title="[^"]*" data-share-what="[^"]*"', f'data-share-title="{p["title"]} – بوصلة البترا" data-share-what="{p["what"]}"', h)
         h = h.replace('<span class="sys"><b>الجدول الدراسي</b>', f'<span class="sys"><b>{p["short"]}</b>')
         h = re.sub(r'<input class="uop-search" id="tt-top-q"[^>]*>',
                    f'<input class="uop-search" id="pg-q" type="search" placeholder="{p["search"]}" aria-label="بحث">', h)
@@ -223,13 +225,13 @@ def main():
   <div class="loading"><div><div class="spinner-border text-secondary"></div><div class="mt-2">جارٍ التحميل…</div></div></div>
 </main>''', h, flags=re.S)
         h = re.sub(r'(<h6 class="foot-h">)عن الجدول(</h6>)', rf'\g<1>عن {p["short"]}\2', h)
-        h = re.sub(r'<div><b>الجدول الدراسي</b><small>جامعة البترا</small></div>', f'<div><b>{p["short"]}</b><small>جامعة البترا</small></div>', h)
+        h = re.sub(r'<div><b>الجدول الدراسي</b><small>بوصلة البترا</small></div>', f'<div><b>{p["short"]}</b><small>بوصلة البترا</small></div>', h)
         href_of = "./" if page == "index.html" else page
         icon = HEAD[href_of][0] if href_of in HEAD else next(ic for href, ic, *_ in MAIN + MORE if href == href_of)
         h = h.replace('<span class="foot-logo"><i class="bi bi-table"></i></span>', f'<span class="foot-logo"><i class="bi {icon}"></i></span>')
         h = re.sub(r'(<p class="foot-text">)شعب الفصل الحالي كما تنشرها.*?(</p>)', rf'\g<1>{p["about"]}\2', h, flags=re.S)
         h = h.replace('مشاركة الجدول الدراسي</h5>', f'مشاركة {p["short"]}</h5>').replace('الجدول كاملاً</label>', 'هذه الصفحة</label>')
-        h = h.replace('<b>الجدول الدراسي – جامعة البترا</b>', f'<b>{p["title"]} – جامعة البترا</b>')
+        h = h.replace('<b>الجدول الدراسي – بوصلة البترا</b>', f'<b>{p["title"]} – بوصلة البترا</b>')
         h = re.sub(r'<script src="https://cdn.jsdelivr.net/npm/xlsx@[^"]+" defer></script>\n', '', h)
         h = re.sub(r'<script src="assets/timetable\.js\?v=(\d+)"></script>',
                    lambda m: "\n".join(f'<script src="assets/{js}?v={p.get("v", m.group(1)) if js == p["js"] else m.group(1)}"></script>' for js in ["common.js"] + p.get("extra", []) + [p["js"]]), h)
@@ -241,7 +243,7 @@ def main():
             f.write(h)
     # the old address of «أين أجد؟» keeps working
     with open(os.path.join(ROOT, "find.html"), "w", encoding="utf-8") as f:
-        f.write('<!doctype html>\n<html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>أين أجد؟ – جامعة البترا</title>\n'
+        f.write('<!doctype html>\n<html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>أين أجد؟ – بوصلة البترا</title>\n'
                 '<link rel="canonical" href="https://marafah.github.io/uopstaff/">\n'
                 '<script>location.replace("./" + location.search + location.hash);</script>\n'
                 '<meta http-equiv="refresh" content="0; url=./"></head><body><a href="./">أين أجد؟</a></body></html>\n')

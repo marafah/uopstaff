@@ -199,7 +199,7 @@ def save(log):
                        f'<link href="{SITE}{escape(e.get("link", "changes.html"))}"/><content type="text">{escape(what)}</content></entry>')
     with open(FEED, "w", encoding="utf-8") as f:
         f.write('<?xml version="1.0" encoding="utf-8"?>\n<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="ar">'
-                f'<title>ما الجديد؟ – جامعة البترا (غير رسمي)</title><id>{SITE}changes.html</id><link href="{SITE}changes.html"/>'
+                f'<title>ما الجديد؟ – بوصلة البترا (غير رسمي)</title><id>{SITE}changes.html</id><link href="{SITE}changes.html"/>'
                 f'<updated>{log["updated"]}</updated><author><name>marafah.github.io/uopstaff</name></author>' + "".join(entries) + "</feed>\n")
 
 

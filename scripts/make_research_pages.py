@@ -160,7 +160,9 @@ TEMPLATE = '''<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#901d23">
-<title>{title} – جامعة البترا</title>
+  <meta name="apple-mobile-web-app-title" content="بوصلة البترا">
+  <meta name="application-name" content="بوصلة البترا">
+<title>{title} – بوصلة البترا</title>
 <meta name="description" content="{sub}">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="assets/logo.png">
@@ -172,12 +174,12 @@ TEMPLATE = '''<!doctype html>
 <link rel="stylesheet" href="assets/app.css?v={v}">
 <link rel="stylesheet" href="assets/research.css?v={v}">
 </head>
-<body data-share-title="{title} – جامعة البترا" data-share-what="{title}">
+<body data-share-title="{title} – بوصلة البترا" data-share-what="{title}">
 <nav class="navbar uop-topbar py-0 sticky-top no-print">
   <div class="container-fluid gap-2">
     <a class="brand py-2" href="research.html">
       <img src="assets/logo.png" alt="جامعة البترا" onerror="this.remove()">
-      <span class="sys"><b>البحث العلمي</b><small>جامعة البترا</small></span>
+      <span class="sys"><b>البحث العلمي</b><small>بوصلة البترا</small></span>
     </a>
     <nav class="site-nav" aria-label="أقسام الموقع">
 {sitenav}
@@ -211,7 +213,7 @@ TEMPLATE = '''<!doctype html>
       <section class="foot-col">
         <h6 class="foot-h">عن {title}</h6>
         <div class="foot-brand"><span class="foot-logo"><i class="bi {icon}"></i></span>
-          <div><b>{title}</b><small>جامعة البترا</small></div></div>
+          <div><b>{title}</b><small>بوصلة البترا</small></div></div>
         <p class="foot-text">روابط الباحثين وقوائم أبحاثهم من صفحات المدرسين على موقع الجامعة، مع OpenAlex و Scopus و Google Scholar، ورابط تحقق لكل رقم. تتحدّث أسبوعياً.</p>
         <div class="foot-tags">
           <span class="foot-tag"><i class="bi bi-collection"></i> <span id="foot-count">—</span></span>
@@ -266,7 +268,7 @@ TEMPLATE = '''<!doctype html>
           <input type="radio" class="btn-check" name="shareWhat" id="sw-view" value="view"><label class="btn btn-outline-primary btn-sm" for="sw-view"><i class="bi bi-funnel"></i> النتيجة الحالية</label>
         </div>
         <div class="qr-card" id="qr-card">
-          <div class="qr-head"><b>{title} – جامعة البترا</b><small id="qr-sub">امسح الرمز لفتح الصفحة</small></div>
+          <div class="qr-head"><b>{title} – بوصلة البترا</b><small id="qr-sub">امسح الرمز لفتح الصفحة</small></div>
           <div class="qr-box" id="qr"></div>
           <div class="qr-url" id="share-url-text" dir="ltr"></div>
         </div>
