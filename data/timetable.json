@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-02T00:56:10Z",
-"checked": "2026-11-02T00:56:10Z",
+"updated": "2026-11-02T07:50:17Z",
+"checked": "2026-11-02T07:50:17Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -9752,7 +9752,7 @@
 "department": "التصميم الجرافيكي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 36,
+"registered": 37,
 "capacity": 32,
 "meetings": [
 {
@@ -40495,7 +40495,7 @@
 "room": "2103",
 "section": "3",
 "status": "مفتوحة",
-"instructor": "د. غادة حماد عبد المهدي الرواشده",
+"instructor": "د. لميس راتب احمد الزعبي",
 "building": "مبنى المكتبة",
 "faculty": "تكنولوجيا المعلومات",
 "department": "علم البيانات والذكاء الاصطناعي",
@@ -49013,14 +49013,14 @@
 "time": "[ 09:00_10:00 ] ح وجاهي ث وجاهي خ غير متزامن",
 "room": "06227",
 "section": "1",
-"status": "مفتوحة",
+"status": "مغلقة",
 "instructor": "م. سماح مصطفى احسان الحنبلي",
 "building": "مبنى كلية الآداب والعلوم",
 "faculty": "الآداب والعلوم",
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 29,
+"registered": 30,
 "capacity": 30,
 "meetings": [
 {

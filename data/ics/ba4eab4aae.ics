@@ -75,16 +75,4 @@ LOCATION:7319 – مبنى كلية تكنولوجيا المعلومات
 DESCRIPTION:نظري · وجاهي · علم البيانات والذكا
  ء الاصطناعي – تكنولوجيا المعلومات
 END:VEVENT
-BEGIN:VEVENT
-UID:e4f0c9572af5519b@uopstaff
-DTSTAMP:20261018T000000Z
-DTSTART;TZID=Asia/Amman:20261018T080000
-DTEND;TZID=Asia/Amman:20261018T093000
-RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
-EXDATE;TZID=Asia/Amman:20270105T080000
-SUMMARY:606374 تنقيب البيانات ومستودعاتها – ش3
-LOCATION:2103 – مبنى المكتبة
-DESCRIPTION:نظري · وجاهي · علم البيانات والذكا
- ء الاصطناعي – تكنولوجيا المعلومات
-END:VEVENT
 END:VCALENDAR
