@@ -403,16 +403,22 @@
     return `<div class="ex-nav">${p ? `<button class="btn btn-outline-secondary" data-tab="${p[0]}"><i class="bi bi-arrow-right"></i> السابق: ${p[2]}</button>` : '<span></span>'}
       ${n ? `<button class="btn btn-ex btn-lg" ${tab === 'set' ? 'id="ex-setdone"' : `data-tab="${n[0]}"`}>التالي: ${n[2]} <i class="bi bi-arrow-left"></i></button>` : ''}</div>`; };
   // filter bar (every table and view)
+  // clickable badges (coloured like the exam cards) in place of drop-down lists for faculty and department
+  function chips(key, ic, allTxt, list, cur) {
+    const colOf = x => { const c = C.find(y => y[key] === x); return c && (key === COLBY || COLBY === 'dept') ? c.col : c ? U.PALETTE[list.indexOf(x) % U.PALETTE.length] : ['#475569', '#edf0f4']; };
+    const cnt = x => C.filter(c => c[key] === x && (key === 'fac' || !F().fac || c.fac === F().fac)).length;
+    return `<div class="ex-legend" role="group"><button class="ex-lg all${cur ? '' : ' on'}" data-fk="${key}" data-fv=""><i class="bi ${ic}"></i> ${allTxt}</button>
+      ${list.map(x => { const [c, b] = colOf(x); return `<button class="ex-lg${cur === x ? ' on' : ''}" data-fk="${key}" data-fv="${esc(x)}" style="--c:${c};--b:${b}">${esc(x)} <span class="k">${cnt(x)}</span></button>`; }).join('')}</div>`;
+  }
   function filterBar(extra) {
     const f = F(), facs = [...new Set(C.map(c => c.fac))].sort(), depts = [...new Set(C.filter(c => !f.fac || c.fac === f.fac).map(c => c.dept))].sort(), lvs = [...new Set(C.map(c => c.lv))].sort();
     const n = C.filter(match).length;
     return `<div class="ex-filter"><i class="bi bi-funnel-fill"></i>
       <input class="form-control" data-f="q" placeholder="ابحث: رمز، مقرر، مدرّس…" value="${esc(f.q || '')}">
-      ${facs.length > 1 ? `<select class="form-select" data-f="fac"><option value="">كل الكليات</option>${facs.map(x => `<option ${f.fac === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select>` : ''}
-      <select class="form-select" data-f="dept"><option value="">كل الأقسام</option>${depts.map(x => `<option ${f.dept === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select>
       <select class="form-select" data-f="lv"><option value="">كل السنوات</option>${lvs.map(l => `<option value="${l}" ${String(f.lv) === String(l) && f.lv !== '' && f.lv != null ? 'selected' : ''}>${LV(l)}</option>`).join('')}</select>
       <label class="ex-switch"><input type="checkbox" data-f="prob" ${f.prob ? 'checked' : ''}><span></span> ذات الملاحظات فقط</label>
-      ${extra || ''}<span class="ex-count"><b>${n}</b> / ${C.length}</span>${n < C.length ? '<button class="btn btn-sm btn-link" data-fclear>مسح التصفية</button>' : ''}</div>`;
+      ${extra || ''}<span class="ex-count"><b>${n}</b> / ${C.length}</span>${n < C.length ? '<button class="btn btn-sm btn-link" data-fclear>مسح التصفية</button>' : ''}</div>
+      ${facs.length > 1 ? chips('fac', 'bi-buildings', 'كل الكليات', facs, f.fac) : ''}${chips('dept', 'bi-diagram-3', 'كل الأقسام', depts, f.dept)}`;
   }
   const GV = [['matrix', 'bi-grid-3x3-gap', 'المصفوفة'], ['days', 'bi-calendar-week', 'حسب اليوم'], ['list', 'bi-table', 'القائمة'], ['cohort', 'bi-mortarboard', 'التخصصات والسنوات'], ['dept', 'bi-diagram-3', 'الأقسام']];
   function gridView(st) {
@@ -428,7 +434,6 @@
           <button class="btn btn-outline-primary" id="ex-improve" title="تحسين الجدول الحالي دون البدء من جديد"><i class="bi bi-stars"></i> تحسين</button>
           <button class="btn btn-outline-secondary" id="ex-undo" ${undo.length ? '' : 'disabled'} title="تراجع عن آخر تعديل"><i class="bi bi-arrow-counterclockwise"></i> تراجع</button></div></div>
       ${filterBar()}
-      <div class="ex-legend">${keys.map(k => { const c = C.find(x => x[COLBY] === k); return `<span style="--c:${c.col[0]};--b:${c.col[1]}">${esc(k)}</span>`; }).join('')}</div>
       ${v === 'matrix' ? matrixView(st) : v === 'days' ? daysView(st) : v === 'list' ? listView(st) : v === 'cohort' ? cohortView(st) : deptView(st)}
       ${C.some(c => c.s < 0) ? `<h5 class="ex-h"><i class="bi bi-inbox"></i> غير مجدولة</h5><div class="ex-pool ex-cell" data-s="-1">${C.filter(c => c.s < 0).map(c => card(c)).join('')}</div>` : ''}`;
   }
@@ -743,6 +748,7 @@
       if (t.id === 'ex-setdone') { S.setupDone = true; save(); tab = 'grid'; render(); if (!C.some(c => c.s >= 0) && C.length) busy(() => solve(false)); window.scrollTo(0, 0); return; }
       if (t.dataset.tab) { tab = t.dataset.tab; sel = null; render(); if (t.closest('.ex-nav')) window.scrollTo(0, 0); return; }
       if (t.dataset.st) { S.setTab = +t.dataset.st; save(); render(); const m = app.querySelector('.ex-setwrap'); if (m && m.getBoundingClientRect().top < 0) m.scrollIntoView({ behavior: 'smooth' }); return; }
+      if (t.dataset.fk) { const f = F(), k = t.dataset.fk, v = t.dataset.fv; f[k] = f[k] === v ? '' : v; if (k === 'fac') f.dept = ''; save(); render(); return; }
       if (t.dataset.gv) { S.gview = t.dataset.gv; save(); render(); return; }
       if (t.dataset.ov) { outView = t.dataset.ov; render(); return; }
       if (t.dataset.sort) { const k = t.dataset.sort; sortD = sortK === k ? -sortD : 1; sortK = k; render(); return; }
@@ -848,7 +854,11 @@
   .ex-switch { display: inline-flex; align-items: center; gap: .35rem; font-weight: 700; font-size: .92rem; cursor: pointer; }
   .ex-switch input { display: none; } .ex-switch span { width: 38px; height: 22px; border-radius: 999px; background: #cbd5da; position: relative; transition: .2s; }
   .ex-switch span::after { content: ''; position: absolute; top: 3px; right: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: .2s; } .ex-switch input:checked + span { background: #901d23; } .ex-switch input:checked + span::after { right: 19px; }
-  .ex-legend { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .6rem; } .ex-legend span { background: var(--b); color: var(--c); border: 1px solid var(--c); border-radius: 999px; padding: .1rem .6rem; font-size: .85rem; font-weight: 700; }
+  .ex-legend { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .6rem; }
+  .ex-lg { --c: #091b22; --b: #fff; background: var(--b); color: var(--c); border: 1.5px solid var(--c); border-radius: 999px; padding: .25rem .75rem; font-size: .92rem; font-weight: 700; cursor: pointer; transition: .15s; }
+  .ex-lg .k { display: inline-block; min-width: 1.5em; padding: 0 .35em; border-radius: 999px; background: rgba(255,255,255,.75); font-size: .78rem; margin-inline-start: .2rem; }
+  .ex-lg:hover { box-shadow: 0 2px 6px rgba(0,0,0,.15); } .ex-lg.on { background: var(--c); color: #fff; } .ex-lg.on .k { background: rgba(255,255,255,.25); color: #fff; }
+  .ex-lg.all { --c: #091b22; --b: #eef2f4; }
   .ex-hint { background: #fff8e6; border: 1px solid #f3d38b; border-radius: 12px; padding: .55rem .8rem; font-size: .95rem; margin-bottom: .6rem; display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; } .ex-hint.soft { background: #f1f6f9; border-color: #d8e3ea; }
   .ex-hint > i { font-size: 1.15rem; color: #9a5b00; } .ex-hint.soft > i { color: #0b4a66; } .ex-hint span[class^=h-] { padding: .05rem .5rem; border-radius: 6px; font-weight: 700; font-size: .85rem; }
   .ex-note { font-size: .93rem; color: #3d4d54; background: #f1f6f9; border-radius: 10px; padding: .45rem .7rem; }
