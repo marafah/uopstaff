@@ -16,7 +16,7 @@
   const P = new URLSearchParams(location.search);
   const st = { fac: P.get('fac') || '', p: P.get('p') || '', d: P.get('d') || '', v: P.get('v') || '', view: P.get('view') || 'plan', b: P.get('b') || '', q: '', sel: P.get('c') || '', ml: P.get('ml') || 'plan', mf: 'all', no: false, pt: 'info', po: false, ma: true, pl: (() => { try { return localStorage.getItem('uop-ad-pl') || 'board'; } catch (e) { return 'board'; } })(), pc: 'type' };
   let A, PROGS, DOCS, READS, TTERM = '', TT = {}, SP = null, CODE_NAME = {};
-  const TERM = { first: 'الفصل الأول', second: 'الفصل الثاني', summer: 'الفصل الصيفي', null: 'فصل غير محدد', req: 'مواد إجبارية', opt: 'يُختار منها' };
+  const TERM = { first: 'الفصل الأول', second: 'الفصل الثاني', summer: 'الفصل الصيفي', null: 'فصل غير محدد', req: 'مواد إجبارية', opt: 'يُختار منها', fld: 'مواد المجال' };
   const YEAR = ['', 'السنة الأولى', 'السنة الثانية', 'السنة الثالثة', 'السنة الرابعة', 'السنة الخامسة', 'السنة السادسة'];
   const KIND = { advisory: ['الخطة الاسترشادية', 'bi-signpost-split'], handbook: ['كتيّب القسم', 'bi-book'], tree: ['شجرة المواد', 'bi-diagram-3'], studyplan: ['الخطة الدراسية', 'bi-journal-text'] };
   const secs = code => TT[code] || [];
@@ -115,7 +115,7 @@
   const KINDS = { uni: ['متطلب جامعة', '#6d28d9', 'bi-bank'], fac: ['مساند / كلية', '#0b4a66', 'bi-building'], maj: ['تخصص', '#901d23', 'bi-mortarboard'], el: ['خانة اختيار', '#b8892b', 'bi-ui-checks-grid'] };
   function planView(x) {
     if (!x.r.ok || !(x.r.years || []).length) return original(x, true);
-    const sw = (x.r.bycat ? '<div class="alert alert-light border small mb-2"><i class="bi bi-diagram-3"></i> هذه الخطة مطبوعة حسب فئات المتطلبات لا حسب الفصول، فكل عمود فئة كما طُبعت (إجبارية أو يُختار منها).</div>' : '') + `<div class="pb-bar no-print"><div class="btn-group btn-group-sm" role="group" aria-label="طريقة عرض الخطة">
+    const sw = (x.r.bycat && !x.r.fields ? '<div class="alert alert-light border small mb-2"><i class="bi bi-diagram-3"></i> هذه الخطة مطبوعة حسب فئات المتطلبات لا حسب الفصول، فكل عمود فئة كما طُبعت (إجبارية أو يُختار منها).</div>' : '') + `<div class="pb-bar no-print"><div class="btn-group btn-group-sm" role="group" aria-label="طريقة عرض الخطة">
         <button type="button" class="btn ${st.pl === 'board' ? 'btn-dark' : 'btn-outline-dark'}" data-pl="board"><i class="bi bi-kanban"></i> لوحة الخطة</button>
         <button type="button" class="btn ${st.pl === 'list' ? 'btn-dark' : 'btn-outline-dark'}" data-pl="list"><i class="bi bi-list-columns-reverse"></i> جدول مفصّل</button>
         <button type="button" class="btn ${st.pl === 'pyramid' ? 'btn-dark' : 'btn-outline-dark'}" data-pl="pyramid"><i class="bi bi-triangle"></i> هرمي</button>
@@ -1119,7 +1119,7 @@
             <span class="badge rounded-pill text-bg-light border">${esc(p.faculty)}</span><span class="badge rounded-pill text-bg-light border">${p.type === 'master' ? 'ماجستير' : 'بكالوريوس'}</span>
             ${x ? (x.r.manual ? '<span class="badge rounded-pill text-bg-info" title="أُدخلت يدوياً من صفحات الخطة المنشورة لأن ملفها صور"><i class="bi bi-pencil-square"></i> مُدخلة من الأصل</span>' : x.r.ok ? '<span class="badge rounded-pill text-bg-success" title="قُرئت ومجاميع كل فصل تطابق المطبوع في الخطة"><i class="bi bi-check2-all"></i> مطابقة للمطبوع</span>' : '<span class="badge rounded-pill text-bg-secondary"><i class="bi bi-image"></i> صفحات أصلية</span>') : '<span class="badge rounded-pill text-bg-warning">لا خطة منشورة</span>'}
             ${x ? `<small class="text-muted ad-vt-s" title="${esc(x.d.name)}">${esc(vTitle(x))}</small>` : ''}
-            ${x && x.r.ok ? [[flat(x.r).size, 'مادة', '#0b4a66'], [x.r.years.reduce((a, y) => a + y.read_hours, 0), 'ساعة', '#901d23'], [x.r.years.length, x.r.bycat ? 'فئات' : 'سنوات', '#b8892b'],
+            ${x && x.r.ok ? [[flat(x.r).size, 'مادة', '#0b4a66'], [x.r.years.reduce((a, y) => a + y.read_hours, 0), 'ساعة', '#901d23'], [x.r.years.length, x.r.bycat ? (x.r.fields ? 'مجالات' : 'فئات') : 'سنوات', '#b8892b'],
               [[...flat(x.r).keys()].filter(k => secs(k).length).length, 'مطروحة', '#15803d'], ...(pm ? [[pm.missing.length, 'ليست في خطة البوابة', '#6d28d9']] : [])]
               .map(([v, l, c]) => `<span class="ad-kp" style="--c:${c}"><b>${v}</b> ${l}</span>`).join('') : ''}
             <span class="ms-auto d-inline-flex gap-1 no-print flex-none">
@@ -1242,7 +1242,7 @@
       // every view of the page (board, list, pyramid, tree, map, advisor) shows it exactly like a semester plan
       if ((r.sections || []).length && !(r.years || []).length) {
         r.checks = [];
-        r.years = r.sections.map(s => { const yk = 100 + (++cat), sum = s.courses.reduce((a, c) => a + (c.hours || 0), 0), term = s.choose ? 'opt' : 'req';
+        r.years = r.sections.map(s => { const yk = 100 + (++cat), sum = s.courses.reduce((a, c) => a + (c.hours || 0), 0), term = s.term || (s.choose ? 'opt' : 'req');
           YEAR[yk] = s.name; if (!s.choose && s.hours != null && s.hours === sum) r.checks.push({ year: yk, term, printed: s.hours, read: sum });
           return { year: yk, hours: s.hours ?? sum, read_hours: s.choose && s.hours != null ? s.hours : sum, terms: [{ term, hours: s.choose && s.hours != null ? s.hours : sum, courses: s.courses }] }; });
         r.ok = true; r.bycat = true;
