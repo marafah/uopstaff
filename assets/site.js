@@ -70,7 +70,7 @@
     f.dataset.sf = '1';
     f.innerHTML = `<div class="container-fluid px-4"><div class="sf-row">
         <div class="sf-about"><h6>عن الصفحة</h6>
-          <div class="sf-brand"><span class="sf-logo"><i class="${icon}"></i></span><div><b>${name}</b><small>جامعة البترا</small></div></div>
+          <div class="sf-brand"><span class="sf-logo"><i class="${icon}"></i></span><div><b>${name}</b><small>بوصلة البترا</small></div></div>
           ${note ? `<p class="sf-note" title="${note.replace(/"/g, '&quot;')}">${note}</p>` : ''}
           <div class="sf-chips">${count ? tag('sf-count', 'bi-collection') : ''}${upd ? tag('sf-upd', 'bi-arrow-repeat') : ''}<span class="sf-src"></span></div>
         </div>

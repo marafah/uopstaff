@@ -12,7 +12,7 @@ window.printReport = (function () {
   /* multi-page reports: the footer and page numbers in the page margin of every page (a fixed footer would land on the
      next page's title); one-page reports (no margin) keep the footer line below */
   @page { @bottom-right { content: "صفحة غير رسمية تعرض البيانات المنشورة على الموقع الرسمي للجامعة؛ المرجع المعتمد هو الموقع الرسمي."; font: 7.5pt Tajawal, sans-serif; color: #777; }
-          @bottom-left { content: "marafah.github.io/uopstaff  ·  " counter(page) " / " counter(pages); font: 7.5pt Tajawal, sans-serif; color: #777; } }
+          @bottom-left { content: "بوصلة البترا  ·  marafah.github.io/uopstaff  ·  " counter(page) " / " counter(pages); font: 7.5pt Tajawal, sans-serif; color: #777; } }
   * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   html, body { margin: 0; background: #fff; color: #1f2d33; font-family: Tajawal, 'Segoe UI', Tahoma, sans-serif; font-size: 10.5pt; }
   .page { padding: 0; }
@@ -188,7 +188,7 @@ window.printReport = (function () {
       <style>${CSS.replace('__ORIENT__', orient).replace('__MARGIN__', o.fit ? '0' : '14mm 12mm 16mm')}${o.raw ? RAW_CSS : ''}</style></head><body class="${o.fit ? 'fit' : ''}">
       <div class="page">
         <header class="rh"><img src="${logo}" alt="">
-          <div class="t"><small>جامعة البترا</small><h1>${esc(o.title)}</h1>${o.subtitle ? `<h2>${esc(o.subtitle)}</h2>` : ''}</div>
+          <div class="t"><small>بوصلة البترا · جامعة البترا</small><h1>${esc(o.title)}</h1>${o.subtitle ? `<h2>${esc(o.subtitle)}</h2>` : ''}</div>
           <div class="meta">تاريخ التقرير: ${now()}<br>${o.source ? esc(o.source) : ''}</div>${qr(o)}</header>
         ${o.filters && o.filters.length ? `<div class="filters">${o.filters.map(([k, v]) => `<span>${esc(k)}: <b>${esc(v)}</b></span>`).join('')}</div>` : ''}
         ${o.stats && o.stats.length ? `<div class="stats">${o.stats.map(([k, v]) => `<div><b>${esc(v)}</b><span>${esc(k)}</span></div>`).join('')}</div>` : ''}
@@ -196,7 +196,7 @@ window.printReport = (function () {
         ${o.raw ? `<div class="raw">${o.raw}</div>` : ''}
         ${o.note ? `<p class="note">${esc(o.note)}</p>` : ''}
       </div>
-      <footer class="rf"><span>صفحة غير رسمية تعرض البيانات المنشورة على الموقع الرسمي للجامعة؛ المرجع المعتمد هو الموقع الرسمي.</span><span>marafah.github.io/uopstaff</span></footer>
+      <footer class="rf"><span>صفحة غير رسمية تعرض البيانات المنشورة على الموقع الرسمي للجامعة؛ المرجع المعتمد هو الموقع الرسمي.</span><span>بوصلة البترا · marafah.github.io/uopstaff</span></footer>
       </body></html>`;
     w.document.open();
     w.document.write(html);

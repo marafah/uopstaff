@@ -2,14 +2,14 @@
 (function () {
   'use strict';
   const $ = s => document.querySelector(s);
-  const TITLE = document.body.dataset.shareTitle || 'دليل موظفي جامعة البترا';  // set per page on <body>
+  const TITLE = document.body.dataset.shareTitle || 'بوصلة البترا';  // set per page on <body>
   const NAVY = '#091b22', MAROON = '#901d23';
   let current = '';
 
   const baseUrl = () => location.origin + location.pathname.replace(/index\.html$/, '');
   // the site's main page («أين أجد؟») is what the site address, the footer QR and the default share open
   const siteUrl = () => location.origin + location.pathname.replace(/[^/]*$/, '');
-  const SITE_TITLE = 'جامعة البترا – أين أجد؟';
+  const SITE_TITLE = 'بوصلة البترا – أين أجد؟';
   function viewLabel() {
     const p = new URLSearchParams(location.search);
     const parts = [];
