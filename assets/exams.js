@@ -921,14 +921,14 @@
   .ex-empty.warn { border-color: #f3d38b; background: #fffaf0; } .ex-empty > i { font-size: 2.4rem; display: block; color: #15803d; } .ex-empty { color: #15803d; font-weight: 700; font-size: 1.1rem; }
   /* settings */
   .ex-set { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 1rem; }
-  .ex-setwrap { display: grid; grid-template-columns: 270px 1fr; gap: 1rem; align-items: start; }
+  .ex-setwrap { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 1rem; align-items: start; }
   .ex-setnav { display: flex; flex-direction: column; gap: .35rem; position: sticky; top: 80px; }
   .ex-sn { display: flex; gap: .55rem; align-items: center; text-align: start; border: 1.5px solid #e2e8ec; background: #fff; border-radius: 12px; padding: .55rem .65rem; color: #0f1f26; }
   .ex-sn .bn { width: 26px; height: 26px; border-radius: 50%; background: #eef2f4; color: #4a5a61; display: grid; place-items: center; font-weight: 800; font-size: .85rem; flex: none; }
   .ex-sn > i { font-size: 1.3rem; color: var(--a); } .ex-sn .tx b { display: block; font-size: 1rem; } .ex-sn .tx small { display: block; font-size: .8rem; color: #5b6b72; }
   .ex-sn:hover { border-color: var(--a); } .ex-sn.on { border-color: var(--a); background: color-mix(in srgb, var(--a) 8%, #fff); box-shadow: inset -4px 0 0 var(--a); } .ex-sn.on .bn { background: var(--a); color: #fff; }
-  .ex-setmain { min-width: 0; } .ex-setmain .ex-box { max-width: 900px; }
-  .ex-subnav { display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; margin-top: .8rem; max-width: 900px; }
+  .ex-setmain { min-width: 0; } .ex-setmain .ex-box { width: 100%; }
+  .ex-subnav { display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; margin-top: .8rem; }
   @media (max-width: 900px) { .ex-setwrap { grid-template-columns: 1fr; } .ex-setnav { position: static; flex-direction: row; overflow-x: auto; padding-bottom: 4px; } .ex-sn { flex: none; } .ex-sn .tx small { display: none; } }
   [data-theme=dark] .ex-sn { background: #13232a; color: #e8eef0; border-color: #2c4048; }
   .ex-box { border: 1px solid #e2e8ec; border-radius: 18px; background: #fff; overflow: hidden; box-shadow: 0 2px 10px rgba(9,27,34,.05); } .ex-box.wide { grid-column: 1 / -1; }
