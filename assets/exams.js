@@ -257,25 +257,22 @@
       const can = n => !busy.has(n) && (!S.maxDuty || (load[n] || 0) < S.maxDuty) && (!S.maxDutyDay || ((dayLoad[n] || {})[dd] || 0) < S.maxDutyDay);
       const take = n => { load[n] = (load[n] || 0) + 1; (dayLoad[n] = dayLoad[n] || {})[dd] = ((dayLoad[n] || {})[dd] || 0) + 1; };
       out[s] = list.map(c => {
-        let left = c.students; const got = [];
-        while (left > 0 && freeR.length) {
-          let k = freeR.findIndex((r, j) => r.c >= left && (j === freeR.length - 1 || freeR[j + 1].c < left));
-          if (k < 0) k = 0;
-          const r = freeR.splice(k, 1)[0], n = Math.min(left, r.c); got.push({ room: r.n, n, cap: r.c, proc: [] }); left -= n;
-        }
-        if (left > 0) unseated.push({ c, n: left, s });
-        // a course with several sections sits in several rooms at the same time: each section goes whole into a room
-        // where it fits (largest first), so its own instructor can proctor it; a section is split only if it must be
-        const secs = c.sl.slice().sort((a, b) => b.n - a.n), room = got.map(r => ({ r, free: r.n }));
-        got.forEach(r => { r.secs = []; r.ins = []; });
-        secs.forEach(x => {
+        // each section goes whole into the smallest free room it fits (or the room its course already uses, if there is
+        // space), so a section stays together with its own instructor; only a section larger than every room is split
+        const got = [], parts = c.sl.length ? c.sl.slice().sort((a, b) => b.n - a.n) : [{ s: '', n: c.students, ins: '' }];
+        let left = 0;
+        const put = (r, x, k) => { r.n += k; r.free -= k; r.secs.push(x.s ? x.s + (k < x.n ? ` (${k} من ${x.n})` : '') : ''); if (x.ins && !r.ins.includes(x.ins)) r.ins.push(x.ins); };
+        const open = cap => { const k = cap == null ? 0 : freeR.reduce((b, r, j) => r.c >= cap && (b < 0 || r.c < freeR[b].c) ? j : b, -1); if (k < 0 || !freeR.length) return null;
+          const r = freeR.splice(k, 1)[0], o = { room: r.n, n: 0, cap: r.c, free: r.c, proc: [], secs: [], ins: [] }; got.push(o); return o; };
+        parts.forEach(x => {
           let rest = x.n;
-          const whole = room.filter(o => o.free >= rest).sort((a, b) => a.free - b.free)[0];
-          for (const o of whole ? [whole] : room.slice().sort((a, b) => b.free - a.free)) {
-            if (rest <= 0) break; const k = Math.min(rest, o.free); if (k <= 0) continue;
-            o.free -= k; rest -= k; o.r.secs.push(x.s + (k < x.n ? `(${k})` : '')); if (x.ins && !o.r.ins.includes(x.ins)) o.r.ins.push(x.ins);
-          }
+          const share = got.filter(o => o.free >= rest).sort((a, b) => a.free - b.free)[0] || open(rest);
+          if (share) { put(share, x, rest); return; }
+          while (rest > 0) { const o = got.filter(g => g.free > 0).sort((a, b) => b.free - a.free)[0] || open(null); if (!o) break; const k = Math.min(rest, o.free); put(o, x, k); rest -= k; }
+          left += rest;
         });
+        got.forEach(o => { o.secs = o.secs.filter(Boolean); });
+        if (left > 0) unseated.push({ c, n: left, s });
         return { c, rooms: got, left };
       });
       // proctors: the course's own instructors first, then whoever has proctored least
@@ -534,7 +531,7 @@
     rows.sort((a, b) => a.s - b.s || a.c.code.localeCompare(b.c.code));
     const d = r => DAYS[dayOf(r.s)], tm = r => `${S.periods[r.s % P][0]}–${S.periods[r.s % P][1]}`;
     const base = r => [d(r).wd, d(r).iso, tm(r), r.c.code, r.c.name];
-    const rm = r => r.rooms.map(x => `${x.room} (${x.n}${x.secs && x.secs.length && r.c.sl.length > 1 ? ' · ش ' + x.secs.join('،') : ''})`).join('، ') + (r.left ? ` + ${r.left} بلا قاعة` : '');
+    const rm = r => r.rooms.map(x => `${x.room}: ${x.n} طالب${x.secs && x.secs.length && r.c.sl.length > 1 ? ' – شعبة ' + x.secs.join(' و') : ''}`).join(' ؛ ') + (r.left ? ` ؛ ${r.left} بلا قاعة` : '');
     const pr = r => [...new Set(r.rooms.flatMap(x => x.proc))].map(U.shortName).join('، ');
     const H = ['اليوم', 'التاريخ', 'الوقت', 'الرمز', 'المقرر'];
     const sec = (title, columns, list) => ({ title, columns, rows: list });
@@ -554,6 +551,26 @@
     return Object.keys(byI).sort((a, b) => U.shortName(a).localeCompare(U.shortName(b), 'ar')).map(n => sec(U.shortName(n), H.concat(['المهمة', 'القاعة']), byI[n].sort((a, b) => (a[1] + a[2]).localeCompare(b[1] + b[2]))));
   }
   const OUTIC = { all: 'bi-table', day: 'bi-calendar-week', dept: 'bi-diagram-3', cohort: 'bi-mortarboard', ins: 'bi-person-badge', room: 'bi-door-open' };
+  // on screen, the plain cells of the reports become clear chips and badges (print and Excel keep the text)
+  const COLS = { 'اليوم': 'day', 'التاريخ': 'date', 'الوقت': 'time', 'الرمز': 'code', 'المقرر': 'name', 'القسم': 'dept', 'الطلبة': 'num', 'الطلبة في القاعة': 'num', 'الشعب': 'secs',
+    'القاعات': 'rooms', 'القاعة': 'rooms', 'المراقبون': 'ppl', 'المدرسون': 'ppl', 'المهمة': 'task' };
+  const colCls = h => COLS[h] || 'txt';
+  const dayKey = (cols, r) => { const j = cols.indexOf('التاريخ'); return j < 0 ? '' : r[j]; };
+  function cellHtml(h, v) {
+    const k = colCls(h), s = String(v == null ? '' : v);
+    if (!s) return '<span class="text-muted">—</span>';
+    if (k === 'date') return `<span class="ex-dt">${+s.slice(8)}/${+s.slice(5, 7)}<small>${s.slice(0, 4)}</small></span>`;
+    if (k === 'day') return `<b class="ex-dw">${esc(s)}</b>`;
+    if (k === 'time') return `<span class="ex-tm" dir="ltr"><i class="bi bi-clock"></i> ${esc(s.replace('–', ' – '))}</span>`;
+    if (k === 'code') { const c = BY[s]; return `<span class="ex-code" ${c ? `style="--c:${c.col[0]};--b:${c.col[1]}"` : ''}>${esc(s)}</span>`; }
+    if (k === 'name') return `<b class="ex-nm">${esc(s)}</b>`;
+    if (k === 'num') return `<span class="bdg blue"><i class="bi bi-people-fill"></i> ${esc(s)}</span>`;
+    if (k === 'rooms') return `<div class="ex-chips">${s.split(/\s*؛\s*/).map(x => { const m = x.match(/^(.+?):\s*(\d+) طالب(?:\s*–\s*(.+))?$/);
+      return m ? `<span class="ex-rm"><i class="bi bi-door-open-fill"></i> <b>${esc(m[1])}</b><span class="n">${m[2]}</span>${m[3] ? `<small>${esc(m[3])}</small>` : ''}</span>` : `<span class="ex-rm ${/بلا قاعة/.test(x) ? 'bad' : ''}">${esc(x)}</span>`; }).join('')}</div>`;
+    if (k === 'ppl') return `<div class="ex-chips">${s.split(/\s*،\s*/).filter(Boolean).map(n => `<span class="ex-pp"><i class="bi bi-person-fill"></i> ${esc(n)}</span>`).join('')}</div>`;
+    if (k === 'task') return s === 'مراقبة' ? '<span class="bdg amber"><i class="bi bi-eye-fill"></i> مراقبة</span>' : '<span class="bdg green"><i class="bi bi-journal-check"></i> امتحان مقرره</span>';
+    return esc(s);
+  }
   function outView_() {
     const secs = outData(), n = secs.reduce((a, s) => a + s.rows.length, 0);
     return `<div class="ex-outbar"><div class="ex-views">${Object.entries(OUT).map(([k, t]) => `<button class="ex-vbtn${outView === k ? ' on' : ''}" data-ov="${k}"><i class="bi ${OUTIC[k]}"></i> ${t}</button>`).join('')}</div>
@@ -562,7 +579,7 @@
       ${filterBar()}
       <p class="ex-note"><i class="bi bi-info-circle-fill"></i> ${secs.length > 1 ? `${secs.length} جدولاً` : 'جدول واحد'} · ${n} صفاً — الطباعة والتصدير يأخذان العرض والتصفية الحاليين؛ في Excel كل جدول في ورقة.</p>
       ${secs.map(s => `${s.title ? `<h5 class="ex-h"><i class="bi ${OUTIC[outView]}"></i> ${esc(s.title)} <span class="ex-n">${s.rows.length}</span></h5>` : ''}<div class="table-responsive ex-tbl"><table class="table table-striped align-middle"><thead><tr>${s.columns.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead>
-        <tbody>${s.rows.map(r => `<tr>${r.map(v => `<td>${esc(v)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${s.columns.length}" class="text-muted">لا شيء</td></tr>`}</tbody></table></div>`).join('')}`;
+        <tbody>${s.rows.map((r, k) => `<tr class="${k && dayKey(s.columns, r) !== dayKey(s.columns, s.rows[k - 1]) ? 'nd' : ''}">${r.map((v, j) => `<td class="c-${colCls(s.columns[j])}">${cellHtml(s.columns[j], v)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${s.columns.length}" class="text-muted">لا شيء</td></tr>`}</tbody></table></div>`).join('')}`;
   }
   const title = () => (S.label || TYPES[S.type].name) + ' – ' + facLabel();
   function doPrint() {
@@ -892,7 +909,18 @@
   /* list / tables */
   .ex-tbl { border: 1px solid #e2e8ec; border-radius: 12px; } .ex-tbl table { margin: 0; font-size: .95rem; }
   .ex-tbl thead th { background: #091b22; color: #fff; font-size: .9rem; white-space: nowrap; position: sticky; top: 0; } .ex-tbl th.sortable { cursor: pointer; } .ex-tbl th.sortable:hover { background: #163746; }
-  .ex-tbl tr.bad td { background: #fff4f4; } .ex-tbl select { min-width: 170px; }
+  .ex-tbl tr.bad td { background: #fff4f4; }
+  .ex-tbl td { vertical-align: middle; padding: .6rem .55rem; } .ex-tbl tr.nd td { border-top: 3px solid #901d23; }
+  .ex-tbl .c-day, .ex-tbl .c-date, .ex-tbl .c-time, .ex-tbl .c-code, .ex-tbl .c-num { white-space: nowrap; width: 1%; }
+  .ex-tbl .c-name { min-width: 170px; } .ex-tbl .c-rooms { min-width: 220px; } .ex-tbl .c-ppl { min-width: 220px; }
+  .ex-dw { color: #091b22; } .ex-dt { font-weight: 800; color: #0b4a66; font-size: 1rem; } .ex-dt small { display: block; font-weight: 400; color: #6b7a80; font-size: .75rem; }
+  .ex-tm { display: inline-flex; gap: .3rem; align-items: center; background: #e0f4f1; color: #0f766e; border-radius: 8px; padding: .15rem .5rem; font-weight: 700; font-size: .88rem; }
+  .ex-nm { font-size: .97rem; }
+  .ex-chips { display: flex; flex-wrap: wrap; gap: .3rem; }
+  .ex-rm { display: inline-flex; align-items: center; gap: .3rem; background: #eef6f0; color: #14532d; border: 1px solid #cfe8d6; border-radius: 9px; padding: .15rem .5rem; font-size: .88rem; }
+  .ex-rm .n { background: #15803d; color: #fff; border-radius: 999px; padding: 0 .4rem; font-size: .78rem; font-weight: 700; } .ex-rm small { color: #4a5a61; } .ex-rm.bad { background: #fde8e8; color: #b42318; border-color: #f5c2c2; }
+  .ex-pp { display: inline-flex; align-items: center; gap: .25rem; background: #f3eefe; color: #5b21b6; border-radius: 999px; padding: .12rem .55rem; font-size: .86rem; font-weight: 600; }
+  [data-theme=dark] .ex-dw, [data-theme=dark] .ex-nm { color: #e8eef0; } .ex-tbl select { min-width: 170px; }
   .ex-when { font-weight: 700; white-space: nowrap; font-size: .9rem; }
   .ex-code { display: inline-block; background: var(--b); color: var(--c); border: 1px solid var(--c); border-radius: 7px; padding: .05rem .45rem; font-weight: 800; cursor: pointer; }
   .ex-code.sm { font-size: .85rem; margin: 2px; } .ex-code small { display: none; } .ex-mx.named .ex-code.sm { display: block; text-align: start; } .ex-mx.named .ex-code small { display: block; font-weight: 600; color: #0f1f26; font-size: .82rem; line-height: 1.3; } .ex-mx.named td { min-width: 150px; } .ex-code sub { font-weight: 600; opacity: .8; margin-inline-start: 2px; bottom: 0; }

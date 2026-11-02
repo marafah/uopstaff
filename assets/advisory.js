@@ -36,7 +36,7 @@
     });
     return out.filter(x => x.usable);
   }
-  const vTitle = x => `${x.r.academic_year ? x.r.academic_year.replace('/', '–') : dt(x.v.created)}${x.r.edition ? ` · إصدار ${x.r.edition}` : ''} · ${x.d.lang === 'ar' ? 'عربي' : 'English'}${x.current ? ' · الحالي' : ` · نسخة ${x.v.label}`}`;
+  const vTitle = x => `${x.r.track ? x.r.track + ' · ' : ''}${x.r.academic_year ? x.r.academic_year.replace('/', '–') : dt(x.v.created)}${x.r.edition ? ` · إصدار ${x.r.edition}` : ''} · ${x.d.lang === 'ar' ? 'عربي' : 'English'}${x.current ? ' · الحالي' : ` · نسخة ${x.v.label}`}`;
   function choose(p) {
     const vs = planVersions(p);
     let x = vs.find(x => x.v.sha === st.v) || null;
@@ -88,6 +88,7 @@
           return `<div class="ap-term ${t.term === 'summer' ? 'sum' : ''}"><h4><span>${TERM[t.term]}</span><small>${real(t.courses).length} مادة · ${offN(t.courses)} مطروحة</small>
               <em title="${ck ? `يطابق المجموع المطبوع في الخطة (${ck.printed})` : 'مجموع الساعات'}">${t.hours} س${ck ? ' <i class="bi bi-patch-check-fill"></i>' : ''}</em></h4>
             <div class="ap-list">${cs.map(c => courseCard(c, { done: done.has(c.code), next: next.has(c.code) })).join('') || '<p class="small text-muted m-2">—</p>'}</div></div>`; }).join('')}</div></section>`; }).join('')}</div>
+      ${(r.warn || []).length ? `<div class="alert alert-warning small mt-2"><i class="bi bi-exclamation-triangle-fill"></i> في الخطة المنشورة نفسها اختلاف بين المجموع المطبوع ومجموع المواد: ${r.warn.map(esc).join('؛ ')}. عُرضت المواد كما طُبعت.</div>` : ''}
       ${(r.notes || []).length ? `<p class="small text-muted mt-2"><i class="bi bi-info-circle"></i> ملاحظة على الخطة الأصلية: ${r.notes.map(n => esc(n.replace(/year (\d+): header says (\d+) hours, its semesters total (\d+)/, 'السنة $1: العنوان يذكر $2 ساعة ومجموع فصولها المطبوع $3'))).join('، ')}.</p>` : ''}`;
   }
   // ---------------------------------------------------------------- the plan at a glance: every semester side by side on one screen
@@ -1100,7 +1101,7 @@
           <div class="ad-hrow">
             <h2 class="ad-title m-0" title="${esc(p.en || '')}${x ? ` · ${esc(vTitle(x))} · ${esc(x.d.name)}` : ''}">${esc(p.ar || p.en)}</h2>
             <span class="badge rounded-pill text-bg-light border">${esc(p.faculty)}</span><span class="badge rounded-pill text-bg-light border">${p.type === 'master' ? 'ماجستير' : 'بكالوريوس'}</span>
-            ${x ? (x.r.ok ? '<span class="badge rounded-pill text-bg-success" title="قُرئت ومجاميع كل فصل تطابق المطبوع في الخطة"><i class="bi bi-check2-all"></i> مطابقة للمطبوع</span>' : '<span class="badge rounded-pill text-bg-secondary"><i class="bi bi-image"></i> صفحات أصلية</span>') : '<span class="badge rounded-pill text-bg-warning">لا خطة منشورة</span>'}
+            ${x ? (x.r.manual ? '<span class="badge rounded-pill text-bg-info" title="أُدخلت يدوياً من صفحات الخطة المنشورة لأن ملفها صور"><i class="bi bi-pencil-square"></i> مُدخلة من الأصل</span>' : x.r.ok ? '<span class="badge rounded-pill text-bg-success" title="قُرئت ومجاميع كل فصل تطابق المطبوع في الخطة"><i class="bi bi-check2-all"></i> مطابقة للمطبوع</span>' : '<span class="badge rounded-pill text-bg-secondary"><i class="bi bi-image"></i> صفحات أصلية</span>') : '<span class="badge rounded-pill text-bg-warning">لا خطة منشورة</span>'}
             ${x ? `<small class="text-muted ad-vt-s" title="${esc(x.d.name)}">${esc(vTitle(x))}</small>` : ''}
             ${x && x.r.ok ? [[flat(x.r).size, 'مادة', '#0b4a66'], [x.r.years.reduce((a, y) => a + y.read_hours, 0), 'ساعة', '#901d23'], [x.r.years.length, 'سنوات', '#b8892b'],
               [[...flat(x.r).keys()].filter(k => secs(k).length).length, 'مطروحة', '#15803d'], ...(pm ? [[pm.missing.length, 'ليست في خطة البوابة', '#6d28d9']] : [])]
@@ -1215,8 +1216,15 @@
       note: 'كشف استرشادي من اختيارات المرشد على جهازه؛ المرجع المعتمد هو كشف العلامات والخطة الرسمية.' });
   }
 
-  Promise.all([U.getJSON('data/advisory_plans.json'), U.getJSON('data/timetable.json').catch(() => ({ sections: [] })), U.getJSON('data/study_plans.json').catch(() => null)]).then(([a, tt, sp]) => {
-    A = a; DOCS = a.docs; READS = a.reads; SP = sp; TTERM = tt.term || '';
+  Promise.all([U.getJSON('data/advisory_plans.json'), U.getJSON('data/timetable.json').catch(() => ({ sections: [] })), U.getJSON('data/study_plans.json').catch(() => null), U.getJSON('data/advisory_manual.json').catch(() => ({}))]).then(([a, tt, sp, man]) => {
+    A = a; DOCS = a.docs; READS = a.reads;
+    // plans published as scanned pages, entered by hand from those pages (data/advisory_manual.json, keyed by the file's sha;
+    // "<sha>__2" is the second track printed in the same file)
+    Object.entries(man || {}).forEach(([k, r]) => {
+      READS[k] = r;
+      const base = k.split('__')[0];
+      if (base !== k) Object.values(DOCS).forEach(d => { const i = d.versions.findIndex(v => v.sha === base); if (i >= 0 && !d.versions.some(v => v.sha === k)) d.versions.splice(i, 0, { ...d.versions[i], sha: k }); });
+    }); SP = sp; TTERM = tt.term || '';
     PROGS = a.programs.filter(p => p.docs.length || p.links.some(l => l.kind));
     (tt.sections || []).forEach(s => { const k = s.section + '|' + s.activity; (TT[s.code] ||= new Map()).set(k, s); });
     Object.keys(TT).forEach(k => { TT[k] = [...TT[k].values()]; });
