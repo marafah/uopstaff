@@ -52,7 +52,7 @@
   const today = () => new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10);
   function fresh(type) {
     const t = TYPES[type || 'final'];
-    return { type: type || 'final', start: today(), days: t.days, off: [5, 6], hol: '', periods: t.periods.map(p => p.slice()), maxDay: 2, perProc: 30,
+    return { type: type || 'final', start: today(), days: t.days, off: [5, 6], hol: '', periods: t.periods.map(p => p.slice()), maxDay: 2, perProc: 30, minProc: 1, maxDuty: 0, maxDutyDay: 2, busy: type === 'mid1' || type === 'mid2',
       faculty: 'تكنولوجيا المعلومات', practical: false, grad: true, src: 'plans', rooms: null, excl: {}, pins: {}, slot: {}, reg: null, regInfo: '', extraProc: '', drafts: [], approved: null };
   }
   let S;
@@ -75,7 +75,7 @@
     for (let guard = 0; out.length < S.days && guard < 120; guard++, d.setUTCDate(d.getUTCDate() + 1)) {
       const iso = d.toISOString().slice(0, 10);
       if (S.off.includes(d.getUTCDay()) || hol.has(iso)) continue;
-      out.push({ iso, wd: WD[d.getUTCDay()], label: `${WD[d.getUTCDay()]} ${+iso.slice(8)}/${+iso.slice(5, 7)}` });
+      out.push({ iso, dl: U.JS_DAY[d.getUTCDay()], wd: WD[d.getUTCDay()], label: `${WD[d.getUTCDay()]} ${+iso.slice(8)}/${+iso.slice(5, 7)}` });
     }
     return out;
   }
@@ -120,6 +120,20 @@
     // slots: keep the saved ones that still exist
     C.forEach(c => { const s = S.slot[c.code]; c.s = Number.isInteger(s) && s >= 0 && s < NS ? s : -1; const p = S.pins[c.code]; c.pin = Number.isInteger(p) && p < NS ? p : null; if (c.pin != null) c.s = c.pin; });
     capTotal = rooms().filter(r => r.on).reduce((a, r) => a + r.c, 0);
+    // rooms and instructors taken by lectures at an exam's time (when exams run during teaching weeks, e.g. midterms)
+    const busyR = {}, busyI = {};
+    if (S.busy) TT.sections.forEach(x => x.meetings.forEach(m => {
+      if (!m.start || m.mode === 'غير متزامن') return;
+      const a = U.toMin(m.start), b = U.toMin(m.end);
+      for (let s = 0; s < NS; s++) {
+        const d = DAYS[dayOf(s)], p = S.periods[s % P];
+        if (d.dl !== m.day || !(a < U.toMin(p[1]) && U.toMin(p[0]) < b)) continue;
+        if (x.room && x.room !== '0') (busyR[s] = busyR[s] || new Set()).add(x.room);
+        if (x.instructor) (busyI[s] = busyI[s] || new Set()).add(x.instructor);
+      }
+    }));
+    AV = []; CAP = []; BUSYI = busyI;
+    for (let s = 0; s < NS; s++) { AV[s] = rooms().filter(r => r.on && !(busyR[s] && busyR[s].has(r.n))); CAP[s] = AV[s].reduce((a, r) => a + r.c, 0); }
   }
   // rooms: by default the rooms the faculty teaches in, with an exam capacity of half the largest class seen there
   function rooms() {
@@ -131,7 +145,8 @@
     }
     return S.rooms;
   }
-  let capTotal = 0;
+  let capTotal = 0, AV = [], CAP = [], BUSYI = {};
+  const capOf = s => CAP[s] == null ? capTotal : CAP[s];
 
   // ---------- cost ----------
   const W = { clash: 1000, softClash: 60, overDay: 45, sameDay: 4, backToBack: 12, ins: 150, seat: 80, spread: 0.08, early: 0.0005 };
@@ -153,7 +168,8 @@
   function seatCost(s, sl) {
     if (s < 0) return 0;
     let n = 0; C.forEach(c => { if (sl[c.i] === s) n += c.students; });
-    return Math.max(0, n - capTotal) * W.seat + (capTotal ? n * n / capTotal * W.spread : 0);  // spread the load over the periods
+    const cap = capOf(s);
+    return Math.max(0, n - cap) * W.seat + (cap ? n * n / cap * W.spread : n * W.spread);  // spread the load over the periods
   }
   function insCost(i, sl) {
     let cost = 0;
@@ -218,13 +234,14 @@
 
   // ---------- rooms & proctors ----------
   function seating() {
-    const R = rooms().filter(r => r.on).slice().sort((a, b) => b.c - a.c);
-    const out = {}, load = {}, unseated = [];
+    const out = {}, load = {}, unseated = [], short = [], dayLoad = {};
     const pool = [...new Set(Object.keys(INS).concat(S.extraProc.split(/\n/).map(x => x.trim()).filter(Boolean)))];
     pool.forEach(n => { load[n] = 0; });
     for (let s = 0; s < NS; s++) {
       const list = C.filter(c => c.s === s).sort((a, b) => b.students - a.students);
-      const freeR = R.slice(), busy = new Set();
+      const freeR = (AV[s] || rooms().filter(r => r.on)).slice().sort((a, b) => b.c - a.c), busy = new Set(BUSYI[s] || []), dd = dayOf(s);
+      const can = n => !busy.has(n) && (!S.maxDuty || (load[n] || 0) < S.maxDuty) && (!S.maxDutyDay || ((dayLoad[n] || {})[dd] || 0) < S.maxDutyDay);
+      const take = n => { load[n] = (load[n] || 0) + 1; (dayLoad[n] = dayLoad[n] || {})[dd] = ((dayLoad[n] || {})[dd] || 0) + 1; };
       out[s] = list.map(c => {
         let left = c.students; const got = [];
         while (left > 0 && freeR.length) {
@@ -248,21 +265,25 @@
         return { c, rooms: got, left };
       });
       // proctors: the course's own instructors first, then whoever has proctored least
-      out[s].forEach(x => x.c.ins.forEach(n => busy.add(n)));
+      // (an instructor whose own exam is now is kept for it; one teaching a lecture now is not available)
+      const ownNow = new Set(); out[s].forEach(x => x.c.ins.forEach(n => { if (!busy.has(n)) ownNow.add(n); }));
       out[s].forEach(x => {
-        const own = x.c.ins.slice(), used = new Set();
+        const used = new Set();
         x.rooms.forEach(r => {
-          const need = Math.max(1, Math.ceil(r.n / S.perProc)), mine = (r.ins || []).filter(n => !used.has(n));
+          const need = Math.max(S.minProc || 1, Math.ceil(r.n / S.perProc));
+          const mine = (r.ins || []).concat(x.c.ins).filter(n => ownNow.has(n) && !used.has(n));
           while (r.proc.length < need) {
-            let n = mine.shift() || own.filter(o => !used.has(o)).shift();
-            if (n) used.add(n);
-            if (!n) { n = pool.filter(p => !busy.has(p)).sort((a, b) => load[a] - load[b] || a.localeCompare(b))[0]; if (!n) break; busy.add(n); }
-            r.proc.push(n); load[n] = (load[n] || 0) + 1;
+            let n = mine.shift();
+            if (n) { used.add(n); ownNow.delete(n); busy.add(n); }
+            else { n = pool.filter(p => can(p) && !ownNow.has(p)).sort((a, b) => (load[a] || 0) - (load[b] || 0) || a.localeCompare(b))[0]; if (!n) break; busy.add(n); }
+            r.proc.push(n); take(n);
           }
+          r.need = need;
+          if (r.proc.length < need) short.push({ c: x.c, s, room: r.room, miss: need - r.proc.length });
         });
       });
     }
-    return { out, load, unseated };
+    return { out, load, unseated, short };
   }
 
   // ---------- checks ----------
@@ -285,7 +306,7 @@
     const is = issues(), seat = seating(), reg = G.filter(g => g.kind === 'students');
     const stu = k => is.filter(x => x.k === k && x.g && x.g.kind === 'students').reduce((a, x) => a + x.g.w, 0);
     return { is, seat, clash: is.filter(x => x.k === 'clash').length, day: is.filter(x => x.k === 'day').length, b2b: is.filter(x => x.k === 'b2b').length,
-      ins: is.filter(x => x.k === 'ins').length, soft: is.filter(x => x.k === 'soft').length, unseated: seat.unseated.reduce((a, u) => a + u.n, 0),
+      ins: is.filter(x => x.k === 'ins').length, soft: is.filter(x => x.k === 'soft').length, unseated: seat.unseated.reduce((a, u) => a + u.n, 0), short: seat.short.reduce((a, u) => a + u.miss, 0),
       stuClash: stu('clash'), stuDay: stu('day'), reg: reg.length, placed: C.filter(c => c.s >= 0).length };
   }
 
@@ -319,7 +340,7 @@
       <div class="ex-grid-wrap"><table class="ex-grid"><thead><tr><th>اليوم</th>${S.periods.map((p, k) => `<th>الفترة ${k + 1}<small dir="ltr">${p[0]}–${p[1]}</small></th>`).join('')}</tr></thead><tbody>
       ${DAYS.map((d, di) => `<tr><th class="day">${esc(d.wd)}<small>${+d.iso.slice(8)}/${+d.iso.slice(5, 7)}</small></th>${S.periods.map((p, k) => {
         const s = di * P + k, list = C.filter(c => c.s === s), seats = list.reduce((a, c) => a + c.students, 0);
-        return `<td class="ex-cell ${cls(heat[s])}" data-s="${s}"><div class="cap ${seats > capTotal ? 'over' : ''}">${seats ? `${seats}/${capTotal}` : ''}</div>${list.map(c => card(c).replace('ex-card', 'ex-card' + (bad.has(c.i) ? ' bad' : ''))).join('')}</td>`;
+        return `<td class="ex-cell ${cls(heat[s])}" data-s="${s}"><div class="cap ${seats > capOf(s) ? 'over' : ''}" title="مقاعد مستخدمة / متاحة في هذه الفترة">${seats || capOf(s) !== capTotal ? `${seats}/${capOf(s)}` : ''}</div>${list.map(c => card(c).replace('ex-card', 'ex-card' + (bad.has(c.i) ? ' bad' : ''))).join('')}</td>`;
       }).join('')}</tr>`).join('')}</tbody></table></div>
       ${C.some(c => c.s < 0) ? `<h6 class="mt-3">غير مجدولة</h6><div class="ex-pool ex-cell" data-s="-1">${C.filter(c => c.s < 0).map(card).join('')}</div>` : ''}`;
   }
@@ -329,11 +350,15 @@
     const groups = { clash: 'تعارضات (يجب أن تكون صفراً)', ins: 'تعارض لمدرّس', day: `أكثر من ${S.maxDay} امتحان في اليوم`, b2b: 'امتحانات متتالية', soft: 'تعارض محتمل بين سنتين متتاليتين' };
     return `<div class="ex-kpis">${k(st.clash, 'تعارض إلزامي', 'bi-x-octagon')}${k(st.unseated, 'طالب بلا مقعد', 'bi-door-closed')}${k(st.ins, 'تعارض مدرّس', 'bi-person-x', 1)}
       ${k(st.day, `يوم بأكثر من ${S.maxDay} امتحان`, 'bi-calendar-x', 1)}${k(st.b2b, 'امتحانان متتاليان', 'bi-arrow-left-right', 1)}${k(st.soft, 'تعارض محتمل', 'bi-question-diamond', 1)}
-      <div class="ex-kpi info"><i class="bi bi-person-badge"></i><b>${mn}–${mx}</b><span>مراقبات لكل مدرّس</span></div>
+      ${k(st.short, 'نقص مراقبين', 'bi-person-dash', 1)}<div class="ex-kpi info"><i class="bi bi-person-badge"></i><b>${mn}–${mx}</b><span>مراقبات لكل مدرّس</span></div>
       ${st.reg ? `<div class="ex-kpi ${st.stuClash ? 'bad' : 'ok'}"><i class="bi bi-people"></i><b>${st.stuClash}</b><span>طالب لديه تعارض (من الكشف)</span></div><div class="ex-kpi ${st.stuDay ? 'warn' : 'ok'}"><i class="bi bi-people"></i><b>${st.stuDay}</b><span>طالب بأكثر من ${S.maxDay} في اليوم</span></div>` : ''}</div>
+      ${st.unseated || st.short ? (() => { const need = C.reduce((x, c) => x + c.students, 0), have = CAP.reduce((x, n) => x + n, 0), full = NS * capTotal;
+        return `<div class="alert alert-warning small"><i class="bi bi-lightbulb"></i> المقاعد المتاحة في كل الفترات: <b>${have}</b>${S.busy && have < full ? ` (من ${full} لولا المحاضرات القائمة)` : ''} مقابل <b>${need}</b> مقعداً مطلوباً.
+          للحل: زد عدد الأيام أو الفترات، أو أضف قاعات أو ارفع سعتها${S.busy ? '، أو ألغِ «مراعاة المحاضرات القائمة» إن كانت المحاضرات معلّقة في أسبوع الامتحانات' : ''}${st.short ? '؛ ولنقص المراقبين: أضف مراقبين إضافيين أو ارفع حد المراقبات اليومي' : ''}.</div>`; })() : ''}
       ${S.src === 'plans' || !S.reg ? '<div class="alert alert-info small"><i class="bi bi-info-circle"></i> التعارضات هنا مقدّرة من الخطط الدراسية (التخصص × السنة). لنتيجة دقيقة لكل طالب ارفع كشف التسجيل من «الإعداد».</div>' : ''}
       ${Object.entries(groups).map(([kk, t]) => { const l = st.is.filter(x => x.k === kk); return l.length ? `<h6 class="ex-h">${t} <span class="ex-n">${l.length}</span></h6><ul class="ex-issues">${l.slice(0, 80).map(x =>
         `<li><span>${esc(x.txt)}${x.g ? ` <small>· ${esc(x.g.name)}</small>` : ''}</span><button class="btn btn-sm btn-link" data-go="${x.cs[0]}">عرض</button></li>`).join('')}</ul>` : ''; }).join('')}
+      ${st.seat.short.length ? `<h6 class="ex-h">نقص المراقبين</h6><ul class="ex-issues">${st.seat.short.map(u => `<li><span>${esc(u.c.code)} ${esc(u.c.name)} — القاعة ${esc(u.room)}: ينقص ${u.miss} مراقب (${esc(slotLabel(u.s))})</span><button class="btn btn-sm btn-link" data-go="${u.c.i}">عرض</button></li>`).join('')}</ul>` : ''}
       ${st.seat.unseated.length ? `<h6 class="ex-h">نقص المقاعد</h6><ul class="ex-issues">${st.seat.unseated.map(u => `<li><span>${esc(u.c.code)} ${esc(u.c.name)}: ${u.n} طالب بلا قاعة (${esc(slotLabel(u.s))})</span><button class="btn btn-sm btn-link" data-go="${u.c.i}">عرض</button></li>`).join('')}</ul>` : ''}
       ${!st.is.length && !st.unseated ? '<div class="ex-empty"><i class="bi bi-patch-check-fill"></i> الجدول نظيف: لا تعارض ولا ضغط زائد ولا نقص مقاعد.</div>' : ''}`;
   }
@@ -419,6 +444,10 @@
         <h6 class="mt-3"><i class="bi bi-rulers"></i> القواعد</h6>
         <div class="row2"><label>أقصى عدد امتحانات للطالب في اليوم<input type="number" min="1" max="4" class="form-control form-control-sm" data-k="maxDay" value="${S.maxDay}"></label>
         <label>طالب لكل مراقب<input type="number" min="10" max="80" class="form-control form-control-sm" data-k="perProc" value="${S.perProc}"></label></div>
+        <div class="row2"><label>أقل عدد مراقبين في القاعة<input type="number" min="1" max="5" class="form-control form-control-sm" data-k="minProc" value="${S.minProc || 1}"></label>
+        <label>أقصى مراقبات للشخص في اليوم<input type="number" min="0" max="6" class="form-control form-control-sm" data-k="maxDutyDay" value="${S.maxDutyDay ?? 2}"></label></div>
+        <label>أقصى عدد مراقبات للشخص في الدورة كلها (0 = بلا حد)<input type="number" min="0" max="60" class="form-control form-control-sm" data-k="maxDuty" value="${S.maxDuty || 0}"></label>
+        <label class="ex-chip"><input type="checkbox" data-k="busy" ${S.busy ? 'checked' : ''}> مراعاة المحاضرات القائمة: لا تُستخدم قاعة فيها محاضرة وقت الامتحان، ولا يراقب مدرّس لديه محاضرة</label>
         <label class="ex-chip"><input type="checkbox" data-k="practical" ${S.practical ? 'checked' : ''}> تضمين الشعب العملية</label> <label class="ex-chip"><input type="checkbox" data-k="grad" ${S.grad ? 'checked' : ''}> تضمين الماجستير</label>
         <p class="small text-muted mt-2">الإلزامي: لا تعارض لطالب، لا تجاوز لسعة القاعات. المرغوب: ألّا يزيد عن الحد اليومي، تجنّب امتحانين متتاليين، ألّا يتزامن امتحانان لمدرّس واحد، والمقررات الكبيرة مبكراً.</p></section>
       <section><h6><i class="bi bi-people"></i> مصدر بيانات الطلبة</h6>
@@ -512,7 +541,7 @@
     });
     app.addEventListener('change', e => {
       const t = e.target, k = t.dataset.k;
-      if (k === 'type') { const d = S.drafts; const f = fresh(t.value); Object.assign(S, { type: t.value, periods: f.periods, days: f.days, slot: {}, pins: {}, approved: null }); S.drafts = d; rebuild(); return; }
+      if (k === 'type') { const d = S.drafts; const f = fresh(t.value); Object.assign(S, { type: t.value, periods: f.periods, days: f.days, busy: f.busy, slot: {}, pins: {}, approved: null }); S.drafts = d; rebuild(); return; }
       if (k === 'faculty') { S.faculty = t.value; S.rooms = null; S.excl = {}; S.slot = {}; S.pins = {}; rebuild(); return; }
       if (k) { S[k] = t.type === 'checkbox' ? t.checked : t.type === 'number' ? Math.max(+t.min || 0, +t.value || 0) : t.value; rebuild(); return; }
       if (t.dataset.off != null) { const i = +t.dataset.off; S.off = t.checked ? S.off.concat(i) : S.off.filter(x => x !== i); rebuild(); return; }
