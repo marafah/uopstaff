@@ -1255,6 +1255,16 @@
     (tt.sections || []).forEach(s => { const k = s.section + '|' + s.activity; (TT[s.code] ||= new Map()).set(k, s); });
     Object.keys(TT).forEach(k => { TT[k] = [...TT[k].values()]; });
     if (sp) sp.plans.forEach(pl => pl.groups.forEach(g => g.courses.forEach(c => { CODE_NAME[c.code] ||= c.name; })));
+    // a few PDFs embed their Arabic font without a usable character map, so some letters come out as «�»: take the name
+    // from the study plans / timetable by course number, and mend the generic requirement slots by their known wording
+    const TTNAME = {}; (tt.sections || []).forEach(s => { if (s.name && !s.name.includes('�')) TTNAME[s.code] ||= s.name; });
+    const SLOT = [[/إج�اري/g, 'إجباري'], [/[إا]خت�اري/g, 'اختياري'], [/�ل�ة/g, 'كلية']];
+    const mend = c => { if (!c || !c.name || !c.name.includes('�')) return;
+      const good = CODE_NAME[c.code] || TTNAME[c.code];
+      if (good && !good.includes('�')) { c.name = good; return; }
+      let n = c.name; SLOT.forEach(([re, w]) => { n = n.replace(re, w); });
+      c.name = n.replace(/\s*�+\s*/g, ' ').replace(/\s{2,}/g, ' ').trim(); };
+    Object.values(READS).forEach(r => (r.years || []).forEach(y => (y.terms || []).forEach(t => (t.courses || []).forEach(mend))));
     // ?sp=<study plan id> (from «الخطط الدراسية»): the programme whose plan shares the most courses with it
     if (P.get('sp') && sp && !st.p) {
       const pl = sp.plans.find(x => x.id === P.get('sp'));
