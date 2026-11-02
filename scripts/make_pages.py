@@ -207,7 +207,10 @@ def main():
         h = re.sub(r'<meta property="og:description" content="[^"]*">', f'<meta property="og:description" content="{p["desc"]}">', h)
         h = h.replace("https://marafah.github.io/uopstaff/timetable.html", "https://marafah.github.io/uopstaff/" + ("" if page == "index.html" else page))
         h = re.sub(r'data-share-title="[^"]*" data-share-what="[^"]*"', f'data-share-title="{p["title"]} – بوصلة البترا" data-share-what="{p["what"]}"', h)
-        h = h.replace('<span class="sys"><b>الجدول الدراسي</b>', f'<span class="sys"><b>{p["short"]}</b>')
+        if page == "index.html":  # the home page shows the site's own name
+            h = h.replace('<b>الجدول الدراسي</b><small>بوصلة البترا</small>', '<b>بوصلة البترا</b><small>دليلك في جامعة البترا</small>', 1)
+        else:
+            h = h.replace('<b>الجدول الدراسي</b><small>بوصلة البترا</small>', f'<b>{p["short"]}</b><small>بوصلة البترا</small>', 1)
         h = re.sub(r'<input class="uop-search" id="tt-top-q"[^>]*>',
                    f'<input class="uop-search" id="pg-q" type="search" placeholder="{p["search"]}" aria-label="بحث">', h)
         h = re.sub(r'<header class="uop-hero">.*?</header>', f'''<header class="uop-hero{' home-hero' if page == 'index.html' else ''}">

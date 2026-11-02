@@ -177,10 +177,10 @@ TEMPLATE = '''<!doctype html>
 <body data-share-title="{title} – بوصلة البترا" data-share-what="{title}">
 <nav class="navbar uop-topbar py-0 sticky-top no-print">
   <div class="container-fluid gap-2">
-    <a class="brand py-2" href="research.html">
-      <img src="assets/logo.png" alt="جامعة البترا" onerror="this.remove()">
-      <span class="sys"><b>البحث العلمي</b><small>بوصلة البترا</small></span>
-    </a>
+    <div class="brand py-2">
+      <a class="uni" href="https://www.uop.edu.jo/" target="_blank" rel="noopener" title="الموقع الرسمي لجامعة البترا" aria-label="الموقع الرسمي لجامعة البترا"><img src="assets/logo.png" alt="جامعة البترا" onerror="this.remove()"></a>
+      <a class="sys" href="research.html" style="color:inherit;text-decoration:none"><b>البحث العلمي</b><small>بوصلة البترا</small></a>
+    </div>
     <nav class="site-nav" aria-label="أقسام الموقع">
 {sitenav}
     </nav>
