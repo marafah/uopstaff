@@ -59,6 +59,7 @@
   try { S = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { S = null; }
   if (!S || !S.type) S = fresh();
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage full / blocked */ } };
+  let repCache = [], repFilter = '';
   let TT, PLANS, tab = new URLSearchParams(location.search).get('tab') || 'grid', sel = null, outView = 'all', undo = [];
 
   // ---------- model ----------
@@ -302,6 +303,46 @@
     });
     return list;
   }
+  // every problem as one detailed, de-duplicated row: severity, type, when, which exams, who is affected, why, and a fix
+  const KIND = {
+    clash: ['حرج', 'تعارض طالب', 'bi-x-octagon-fill'], unseated: ['حرج', 'نقص مقاعد', 'bi-door-closed-fill'], ins: ['مرتفع', 'تعارض مدرّس', 'bi-person-x-fill'],
+    short: ['مرتفع', 'نقص مراقبين', 'bi-person-dash-fill'], day: ['متوسط', 'ضغط يومي', 'bi-calendar-x-fill'], b2b: ['منخفض', 'امتحانان متتاليان', 'bi-arrow-left-right'],
+    soft: ['منخفض', 'تعارض محتمل', 'bi-question-circle-fill'] };
+  const SEV = { 'حرج': 0, 'مرتفع': 1, 'متوسط': 2, 'منخفض': 3 };
+  function bestFix(cs) {
+    const sl = SL(); let best = null;
+    cs.filter(i => C[i].pin == null).forEach(i => { for (let s = 0; s < NS; s++) { const d = delta(i, s, sl); if (d < -0.5 && (!best || d < best.d)) best = { i, s, d }; } });
+    return best;
+  }
+  function report(st) {
+    const rows = {}, add = (k, cs, when, who, n, exact, why) => {
+      const key = k + '|' + cs.slice().sort((a, b) => a - b).join(',') + '|' + when;
+      const r = rows[key] || (rows[key] = { k, cs, when, who: [], n: 0, exact, why });
+      if (who && !r.who.includes(who)) r.who.push(who);
+      r.n = exact ? r.n + n : Math.max(r.n, n);
+    };
+    const slotOf = cs => [...new Set(cs.map(i => C[i].s))].map(slotLabel).join(' / ');
+    const est = cs => Math.min(...cs.map(i => C[i].students));
+    st.is.forEach(x => {
+      const exact = x.g && x.g.kind === 'students', n = x.k === 'ins' ? 0 : exact ? x.g.w : est(x.cs);
+      const who = x.k === 'ins' ? U.shortName(x.txt.split(':')[0]) : x.g ? (exact ? 'طلبة من كشف التسجيل' : x.g.name) : '';
+      const why = {
+        clash: 'امتحانان أو أكثر في الفترة نفسها لطلبة يدرسون المقررات معاً — لا يمكن للطالب حضورهما.',
+        soft: 'المقرران من سنتين متتاليتين في التخصص نفسه؛ قد يجمعهما بعض الطلبة المتأخرين أو المتقدمين.',
+        day: `أكثر من ${S.maxDay} امتحان في اليوم نفسه للفئة نفسها من الطلبة.`,
+        b2b: 'امتحانان في فترتين متتاليتين من اليوم نفسه بلا استراحة.',
+        ins: 'المدرّس نفسه يدرّس المقررين وامتحاناهما في الوقت نفسه؛ لا يستطيع الحضور في القاعتين.' }[x.k];
+      add(x.k, x.cs, x.k === 'day' || x.k === 'b2b' ? x.txt.replace(/^.*يوم /, '') : slotOf(x.cs), who, n, exact, why);
+    });
+    st.seat.unseated.forEach(u => add('unseated', [u.c.i], slotLabel(u.s), '', u.n, true, `لا تتسع القاعات المتاحة في هذه الفترة لكل الطلبة (${u.n} طالب بلا مقعد).`));
+    st.seat.short.forEach(u => add('short', [u.c.i], slotLabel(u.s), 'القاعة ' + u.room, u.miss, true, `ينقص ${u.miss} مراقب في القاعة ${u.room}: كل المتاحين مشغولون أو بلغوا حدّ المراقبات.`));
+    return Object.values(rows).map(r => ({ ...r, sev: KIND[r.k][0], fix: r.k === 'short' ? null : bestFix(r.cs) }))
+      .sort((a, b) => SEV[a.sev] - SEV[b.sev] || a.when.localeCompare(b.when));
+  }
+  const fixTxt = f => f ? `انقل ${C[f.i].code} إلى ${slotLabel(f.s)}` : '';
+  const repLine = (r, k) => [k + 1, r.sev, KIND[r.k][1], r.when, r.cs.map(i => `${C[i].code} ${C[i].name} (${C[i].students})`).join(' | '), r.who.join('، '),
+    r.k === 'ins' ? '' : r.exact ? r.n : r.n ? `حتى ${r.n} (تقدير)` : '', r.why, fixTxt(r.fix) || (r.k === 'short' ? 'أضف مراقبين أو ارفع حد المراقبات' : 'لا يوجد نقل أفضل؛ عدّل الأيام أو القاعات')];
+  const REP_H = ['#', 'الخطورة', 'النوع', 'الموعد', 'الامتحانات (عدد الطلبة)', 'الفئة المتأثرة', 'الطلبة المتأثرون', 'السبب', 'الحل المقترح'];
   function stats() {
     const is = issues(), seat = seating(), reg = G.filter(g => g.kind === 'students');
     const stu = k => is.filter(x => x.k === k && x.g && x.g.kind === 'students').reduce((a, x) => a + x.g.w, 0);
@@ -347,19 +388,29 @@
   function checkView(st) {
     const k = (n, t, ic, good) => `<div class="ex-kpi ${n ? (good ? 'warn' : 'bad') : 'ok'}"><i class="bi ${ic}"></i><b>${n}</b><span>${t}</span></div>`;
     const loads = Object.values(st.seat.load).filter(Boolean), mx = Math.max(0, ...loads), mn = loads.length ? Math.min(...loads) : 0;
-    const groups = { clash: 'تعارضات (يجب أن تكون صفراً)', ins: 'تعارض لمدرّس', day: `أكثر من ${S.maxDay} امتحان في اليوم`, b2b: 'امتحانات متتالية', soft: 'تعارض محتمل بين سنتين متتاليتين' };
-    return `<div class="ex-kpis">${k(st.clash, 'تعارض إلزامي', 'bi-x-octagon')}${k(st.unseated, 'طالب بلا مقعد', 'bi-door-closed')}${k(st.ins, 'تعارض مدرّس', 'bi-person-x', 1)}
-      ${k(st.day, `يوم بأكثر من ${S.maxDay} امتحان`, 'bi-calendar-x', 1)}${k(st.b2b, 'امتحانان متتاليان', 'bi-arrow-left-right', 1)}${k(st.soft, 'تعارض محتمل', 'bi-question-diamond', 1)}
+        return `<div class="ex-kpis">${k(st.clash, 'تعارض إلزامي', 'bi-x-octagon')}${k(st.unseated, 'طالب بلا مقعد', 'bi-door-closed')}${k(st.ins, 'تعارض مدرّس', 'bi-person-x', 1)}
+      ${k(st.day, `يوم بأكثر من ${S.maxDay} امتحان`, 'bi-calendar-x', 1)}${k(st.b2b, 'امتحانان متتاليان', 'bi-arrow-left-right', 1)}${k(st.soft, 'تعارض محتمل', 'bi-question-circle', 1)}
       ${k(st.short, 'نقص مراقبين', 'bi-person-dash', 1)}<div class="ex-kpi info"><i class="bi bi-person-badge"></i><b>${mn}–${mx}</b><span>مراقبات لكل مدرّس</span></div>
       ${st.reg ? `<div class="ex-kpi ${st.stuClash ? 'bad' : 'ok'}"><i class="bi bi-people"></i><b>${st.stuClash}</b><span>طالب لديه تعارض (من الكشف)</span></div><div class="ex-kpi ${st.stuDay ? 'warn' : 'ok'}"><i class="bi bi-people"></i><b>${st.stuDay}</b><span>طالب بأكثر من ${S.maxDay} في اليوم</span></div>` : ''}</div>
       ${st.unseated || st.short ? (() => { const need = C.reduce((x, c) => x + c.students, 0), have = CAP.reduce((x, n) => x + n, 0), full = NS * capTotal;
         return `<div class="alert alert-warning small"><i class="bi bi-lightbulb"></i> المقاعد المتاحة في كل الفترات: <b>${have}</b>${S.busy && have < full ? ` (من ${full} لولا المحاضرات القائمة)` : ''} مقابل <b>${need}</b> مقعداً مطلوباً.
           للحل: زد عدد الأيام أو الفترات، أو أضف قاعات أو ارفع سعتها${S.busy ? '، أو ألغِ «مراعاة المحاضرات القائمة» إن كانت المحاضرات معلّقة في أسبوع الامتحانات' : ''}${st.short ? '؛ ولنقص المراقبين: أضف مراقبين إضافيين أو ارفع حد المراقبات اليومي' : ''}.</div>`; })() : ''}
       ${S.src === 'plans' || !S.reg ? '<div class="alert alert-info small"><i class="bi bi-info-circle"></i> التعارضات هنا مقدّرة من الخطط الدراسية (التخصص × السنة). لنتيجة دقيقة لكل طالب ارفع كشف التسجيل من «الإعداد».</div>' : ''}
-      ${Object.entries(groups).map(([kk, t]) => { const l = st.is.filter(x => x.k === kk); return l.length ? `<h6 class="ex-h">${t} <span class="ex-n">${l.length}</span></h6><ul class="ex-issues">${l.slice(0, 80).map(x =>
-        `<li><span>${esc(x.txt)}${x.g ? ` <small>· ${esc(x.g.name)}</small>` : ''}</span><button class="btn btn-sm btn-link" data-go="${x.cs[0]}">عرض</button></li>`).join('')}</ul>` : ''; }).join('')}
-      ${st.seat.short.length ? `<h6 class="ex-h">نقص المراقبين</h6><ul class="ex-issues">${st.seat.short.map(u => `<li><span>${esc(u.c.code)} ${esc(u.c.name)} — القاعة ${esc(u.room)}: ينقص ${u.miss} مراقب (${esc(slotLabel(u.s))})</span><button class="btn btn-sm btn-link" data-go="${u.c.i}">عرض</button></li>`).join('')}</ul>` : ''}
-      ${st.seat.unseated.length ? `<h6 class="ex-h">نقص المقاعد</h6><ul class="ex-issues">${st.seat.unseated.map(u => `<li><span>${esc(u.c.code)} ${esc(u.c.name)}: ${u.n} طالب بلا قاعة (${esc(slotLabel(u.s))})</span><button class="btn btn-sm btn-link" data-go="${u.c.i}">عرض</button></li>`).join('')}</ul>` : ''}
+      ${(() => { const rep = report(st); if (!rep.length) return ''; repCache = rep;
+        const types = [...new Set(rep.map(r => r.k))], f = repFilter && types.includes(repFilter) ? repFilter : '';
+        const list = rep.filter(r => !f || r.k === f);
+        return `<div class="ex-rephead"><h6 class="ex-h m-0"><i class="bi bi-list-ul"></i> تقرير التعارضات والملاحظات <span class="ex-n ${st.clash ? 'bad' : ''}">${rep.length}</span></h6>
+          <span><button class="btn btn-sm btn-outline-secondary" id="ex-rprint"><i class="bi bi-printer"></i> طباعة التقرير</button> <button class="btn btn-sm btn-outline-secondary" id="ex-rxlsx"><i class="bi bi-file-earmark-excel"></i> Excel</button>
+          ${rep.some(r => r.fix) ? '<button class="btn btn-sm btn-ex" id="ex-fixall"><i class="bi bi-magic"></i> طبّق كل الحلول</button>' : ''}</span></div>
+          <div class="ex-filters"><button class="ex-tab${f ? '' : ' on'}" data-rf="">الكل (${rep.length})</button>${types.map(k => `<button class="ex-tab${f === k ? ' on' : ''}" data-rf="${k}"><i class="bi ${KIND[k][2]}"></i> ${KIND[k][1]} (${rep.filter(r => r.k === k).length})</button>`).join('')}</div>
+          <div class="ex-rep">${list.map((r, k) => `<article class="ex-ri sev${SEV[r.sev]}">
+            <header><span class="sev">${r.sev}</span><b><i class="bi ${KIND[r.k][2]}"></i> ${KIND[r.k][1]}</b><span class="when"><i class="bi bi-clock"></i> ${esc(r.when)}</span>
+              ${r.k !== 'ins' && r.n ? `<span class="aff"><i class="bi bi-people-fill"></i> ${r.exact ? r.n : 'حتى ' + r.n} طالب${r.exact ? '' : ' (تقدير)'}</span>` : ''}</header>
+            <ul class="cs">${r.cs.map(i => `<li style="--c:${C[i].col[0]}"><b>${esc(C[i].code)}</b> ${esc(C[i].name)} <small>· ${esc(C[i].dept)} · ${C[i].students} طالب · ${esc(C[i].ins.map(U.shortName).join('، ') || '—')}</small></li>`).join('')}</ul>
+            ${r.who.length ? `<div class="who"><i class="bi bi-diagram-3"></i> ${r.who.map(esc).join(' · ')}</div>` : ''}
+            <p class="why">${esc(r.why)}</p>
+            <footer>${r.fix ? `<span class="fix"><i class="bi bi-lightbulb-fill"></i> الحل المقترح: ${esc(fixTxt(r.fix))}</span><button class="btn btn-sm btn-ex" data-fix="${r.fix.i},${r.fix.s}">تطبيق</button>` : `<span class="fix muted">${r.k === 'short' ? 'أضف مراقبين أو ارفع حد المراقبات اليومي' : 'لا يوجد نقل يحسّن الوضع؛ زد الأيام أو الفترات أو القاعات'}</span>`}
+              <button class="btn btn-sm btn-link" data-go="${r.cs[0]}">عرض في الجدول</button></footer></article>`).join('')}</div>`; })()}
       ${!st.is.length && !st.unseated ? '<div class="ex-empty"><i class="bi bi-patch-check-fill"></i> الجدول نظيف: لا تعارض ولا ضغط زائد ولا نقص مقاعد.</div>' : ''}`;
   }
   // ---------- outputs ----------
@@ -425,6 +476,20 @@
     const q = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`, lines = [];
     outData().forEach(s => { if (s.title) lines.push(q(s.title)); lines.push(s.columns.map(q).join(',')); s.rows.forEach(r => lines.push(r.map(q).join(','))); lines.push(''); });
     U.download(`${title()}_${OUT[outView]}.csv`.replace(/\s+/g, '_'), '﻿' + lines.join('\r\n'), 'text/csv;charset=utf-8');
+  }
+  function repExport(xl) {
+    const st = stats(), rep = report(st), rows = rep.map(repLine);
+    if (!xl) return window.printReport({ title: 'تقرير التعارضات – ' + title(), subtitle: TT.term, orientation: 'landscape', qr: false,
+      filters: [['الحالة', S.approved ? 'معتمدة: ' + S.approved : 'مسودة'], ['مصدر بيانات الطلبة', S.reg && S.src !== 'plans' ? 'كشف التسجيل' : 'الخطط الدراسية (تقدير)']],
+      stats: [['تعارض طالب', st.clash], ['بلا مقعد', st.unseated], ['تعارض مدرّس', st.ins], ['نقص مراقبين', st.short], ['ضغط يومي', st.day], ['متتالية', st.b2b]],
+      sections: [{ columns: REP_H, widths: ['3%', '6%', '8%', '11%', '24%', '12%', '7%', '17%', '12%'], rows }],
+      note: rows.length ? 'الخطورة: حرج = يجب حلّه قبل الاعتماد؛ مرتفع = يُفضّل حلّه؛ متوسط ومنخفض = تحسينات.' : 'لا توجد تعارضات.' });
+    loadXLSX().then(() => {
+      const ws = XLSX.utils.aoa_to_sheet([['تقرير التعارضات – ' + title()], [], REP_H].concat(rows)); ws['!views'] = [{ RTL: true }];
+      ws['!cols'] = [4, 8, 14, 22, 60, 30, 12, 50, 36].map(w => ({ wch: w }));
+      REP_H.forEach((h, j) => { const c = ws[XLSX.utils.encode_cell({ r: 2, c: j })]; if (c) c.s = { font: { bold: true, color: { rgb: 'FFFFFF' } }, fill: { fgColor: { rgb: '901D23' } }, alignment: { horizontal: 'center', wrapText: true } }; });
+      const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'التعارضات'); XLSX.writeFile(wb, `تقرير_التعارضات_${title()}.xlsx`.replace(/\s+/g, '_'));
+    }).catch(() => alert('تعذّر تحميل مكتبة Excel.'));
   }
   // ---------- settings ----------
   function setView() {
@@ -515,6 +580,10 @@
       if (t.id === 'ex-improve') { push(); busy(() => solve(true)); return; }
       if (t.id === 'ex-undo') { const u = undo.pop(); if (u) { Object.assign(S, JSON.parse(u)); rebuild(); } return; }
       if (t.id === 'ex-print') return doPrint();
+      if (t.dataset.rf != null) { repFilter = t.dataset.rf; render(); return; }
+      if (t.dataset.fix) { const [i, s] = t.dataset.fix.split(',').map(Number); move(i, s); return; }
+      if (t.id === 'ex-fixall') { push(); for (let n = 0; n < 60; n++) { const r = report(stats()).find(x => x.fix); if (!r) break; C[r.fix.i].s = r.fix.s; S.slot[C[r.fix.i].code] = r.fix.s; } save(); render(); return; }
+      if (t.id === 'ex-rprint' || t.id === 'ex-rxlsx') return repExport(t.id === 'ex-rxlsx');
       if (t.id === 'ex-xlsx') return doXLSX();
       if (t.id === 'ex-csv') return doCSV();
       if (t.dataset.c != null && tab === 'grid') {
@@ -594,6 +663,20 @@
   .ex-kpi.ok { background: #effaf2; color: #15803d; } .ex-kpi.bad { background: #fdeeee; color: #b42318; } .ex-kpi.warn { background: #fff6e4; color: #9a5b00; } .ex-kpi.info { background: #eef4f8; color: #0b4a66; }
   .ex-h { margin: .9rem 0 .4rem; font-weight: 800; color: #091b22; }
   .ex-issues { list-style: none; padding: 0; margin: 0; } .ex-issues li { display: flex; justify-content: space-between; gap: .5rem; align-items: center; border-bottom: 1px solid #edf0f2; padding: .3rem 0; font-size: .88rem; }
+  .ex-rephead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .4rem; margin: 1rem 0 .4rem; }
+  .ex-filters { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .6rem; } .ex-filters .ex-tab { font-size: .8rem; padding: .2rem .6rem; }
+  .ex-rep { display: grid; gap: .55rem; }
+  .ex-ri { border: 1px solid #e3e8eb; border-inline-start: 5px solid #94a3b8; border-radius: 12px; padding: .6rem .75rem; background: #fff; }
+  .ex-ri.sev0 { border-inline-start-color: #b42318; background: #fffafa; } .ex-ri.sev1 { border-inline-start-color: #c2410c; } .ex-ri.sev2 { border-inline-start-color: #b7791f; } .ex-ri.sev3 { border-inline-start-color: #64748b; }
+  .ex-ri header { display: flex; flex-wrap: wrap; gap: .3rem .7rem; align-items: center; font-size: .9rem; }
+  .ex-ri .sev { font-size: .72rem; font-weight: 800; padding: .05rem .5rem; border-radius: 999px; background: #e2e8f0; }
+  .ex-ri.sev0 .sev { background: #b42318; color: #fff; } .ex-ri.sev1 .sev { background: #fde5d4; color: #9a3412; } .ex-ri.sev2 .sev { background: #fdf1dc; color: #9a5b00; }
+  .ex-ri .when, .ex-ri .aff { font-size: .82rem; color: #4a5a61; }
+  .ex-ri .cs { list-style: none; padding: 0; margin: .4rem 0; display: grid; gap: .2rem; } .ex-ri .cs li { border-inline-start: 3px solid var(--c); padding-inline-start: .45rem; font-size: .86rem; } .ex-ri .cs small { color: #5b6b72; }
+  .ex-ri .who { font-size: .82rem; color: #0b4a66; } .ex-ri .why { font-size: .84rem; color: #374151; margin: .3rem 0; }
+  .ex-ri footer { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; border-top: 1px dashed #e3e8eb; padding-top: .4rem; }
+  .ex-ri .fix { font-size: .84rem; font-weight: 700; color: #15803d; } .ex-ri .fix.muted { color: #6b7a80; font-weight: 400; }
+  [data-theme=dark] .ex-ri { background: #13232a; border-color: #2c4048; } [data-theme=dark] .ex-ri .why { color: #cbd5dc; }
   .ex-empty { text-align: center; padding: 2rem; color: #15803d; font-weight: 700; font-size: 1.05rem; } .ex-empty i { font-size: 2rem; display: block; }
   .ex-outbar { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .6rem; } .ex-outbar select { width: auto; max-width: 100%; }
   .ex-out thead th { background: #091b22; color: #fff; font-size: .82rem; } .ex-out td { font-size: .85rem; }
