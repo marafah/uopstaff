@@ -74,7 +74,25 @@
   migrate();
   const inFac = f => !S.facs.length || S.facs.includes(f);
   const facLabel = () => !S.facs.length ? 'كل الكليات' : S.facs.length === 1 ? S.facs[0] : S.facs.length + ' كليات';
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage full / blocked */ } };
+  // Nothing is kept on this device until «حفظ»: changes live in the page; save() only marks them unsaved, store() keeps them.
+  let DIRTY = false, READY = false, HAS = false, SAVED_AT = 0;
+  try { HAS = !!localStorage.getItem(KEY); } catch (e) { /* */ }
+  const save = () => { if (READY) { DIRTY = true; savebar(); } };
+  function store() {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { alert('تعذّر الحفظ في هذا المتصفح (المساحة ممتلئة أو التخزين محظور).'); return; }
+    DIRTY = false; HAS = true; SAVED_AT = Date.now(); savebar();
+  }
+  function savebar() {
+    let b = document.getElementById('ex-savebar');
+    if (!b) { b = document.createElement('div'); b.id = 'ex-savebar'; b.setAttribute('role', 'status'); document.body.appendChild(b);
+      b.addEventListener('click', e => { if (e.target.closest('[data-store]')) store(); }); }
+    const just = Date.now() - SAVED_AT < 2500;
+    b.className = DIRTY ? 'on' : just ? 'on ok' : '';
+    b.innerHTML = DIRTY ? '<i class="bi bi-exclamation-circle-fill"></i><span><b>تغييرات غير محفوظة</b><small>لا يُحفظ شيء على هذا الجهاز إلا عند الضغط على «حفظ»</small></span><button class="btn btn-light btn-sm" data-store><i class="bi bi-save-fill"></i> حفظ</button>'
+      : just ? '<i class="bi bi-check-circle-fill"></i><span><b>حُفظ على هذا الجهاز</b></span>' : '';
+    if (just && !DIRTY) setTimeout(savebar, 2600);
+  }
+  window.addEventListener('beforeunload', e => { if (DIRTY) { e.preventDefault(); e.returnValue = ''; } });
   let repCache = [], repFilter = '';
   let REGMEM = null;   // the registration report's names: read when uploaded, never saved
   let TT, PLANS, tab = new URLSearchParams(location.search).get('tab') || (S.setupDone ? 'grid' : 'set'), sel = null, outView = 'all', undo = [];
@@ -936,9 +954,25 @@
       if (m >= 6) box.innerHTML = '<i class="bi bi-hourglass-split"></i> لم يظهر بعد. تأكّد أنك ضغطت <b>Commit changes</b> في صفحة GitHub، ثم انتظر قليلاً.';
     }), 10000);
   }
+  // nothing reaches the screens without the committee's approval: the same username and password as the sign-in
+  function approve(what, info, then) {
+    U.modal('<i class="bi bi-shield-lock-fill"></i> موافقة على ' + what, `<form id="ex-apf" autocomplete="on">
+      <p class="mb-2">${info}</p>
+      <div class="row g-2"><div class="col-sm-6"><label class="form-label small mb-1">اسم المستخدم</label><input name="u" class="form-control" autocomplete="username" required></div>
+      <div class="col-sm-6"><label class="form-label small mb-1">كلمة المرور</label><input name="p" type="password" class="form-control" autocomplete="current-password" required></div></div>
+      <div class="text-danger small mt-2" id="ex-aperr" hidden><i class="bi bi-exclamation-triangle-fill"></i> اسم المستخدم أو كلمة المرور غير صحيحة</div>
+      <button class="btn btn-ex w-100 mt-3" type="submit"><i class="bi bi-check2-circle"></i> أوافق على ${what}</button></form>`);
+    const f = document.getElementById('ex-apf'); setTimeout(() => f.u.focus(), 300);
+    f.onsubmit = async e => { e.preventDefault();
+      if (await sha('uopstaff-research|' + f.u.value.trim() + '|' + f.p.value) !== GATE) { document.getElementById('ex-aperr').hidden = false; f.p.value = ''; f.p.focus(); return; }
+      then(); };
+  }
   async function publish() {
     if (!C.some(c => c.s >= 0)) return alert('ولّد الجدول أولاً.');
-    if (!S.approved && !confirm('هذه النسخة مسودة (غير معتمدة). نشرها على الشاشات وصفحة الطلبة الآن؟')) return;
+    const doc0 = pubDoc();
+    return approve('النشر', `سيُنشر <b>${esc(doc0.title)}</b> (${doc0.exams.length} امتحاناً) على شاشات المباني وصفحة «امتحاناتي».${S.approved ? ` النسخة المعتمدة: ${esc(S.approved)}.` : ' <span class="text-danger">هذه النسخة مسودة غير معتمدة</span> (يمكنك اعتمادها من «الحفظ والاعتماد» أولاً).'}`, () => publishNow());
+  }
+  async function publishNow() {
     const doc = pubDoc(); let txt;
     try { txt = await pack(doc); } catch (e) { return alert('هذا المتصفح لا يدعم النشر المباشر. استخدم Chrome أو Edge حديثاً.'); }
     U.modal('<i class="bi bi-cloud-arrow-up-fill"></i> نشر الجدول على الشاشات', `
@@ -958,6 +992,9 @@
   }
   // take the timetable off the screens and the students' page
   function unpublish(after) {
+    approve('إزالة الجدول من الشاشات', 'سيُزال الجدول المنشور من شاشات المباني وصفحة «امتحاناتي»، وتعود الشاشات إلى عرض المحاضرات.', () => unpublishNow(after));
+  }
+  function unpublishNow(after) {
     U.modal('<i class="bi bi-cloud-slash"></i> إزالة الجدول من الشاشات', `
       <p class="mb-2">تُفتح صفحة GitHub وفيها طلب الإزالة جاهزاً؛ اضغط <b>Commit changes</b> (مرتين) فقط.</p>
       <button class="btn btn-danger btn-lg w-100" id="ex-gounpub"><i class="bi bi-box-arrow-up-left"></i> افتح GitHub لإزالة الجدول</button>
@@ -1163,7 +1200,7 @@
   }
   function draftsView() {
     return `<div class="ex-set">
-      ${box(1, 'bi-save-fill', '#0b4a66', 'حفظ نسخة', 'احفظ الجدول الحالي قبل تجربة تعديلات أخرى', `
+      ${box(1, 'bi-save-fill', '#0b4a66', 'حفظ نسخة', 'لا يُحفظ شيء على هذا الجهاز إلا بزر «حفظ» (هنا أو في الشريط السفلي)', `
         <div class="ex-add"><input class="form-control" id="ex-dname" placeholder="اسم النسخة، مثل: مسودة 1"><button class="btn btn-ex" id="ex-dsave"><i class="bi bi-save"></i> حفظ</button></div>
         <ul class="ex-drafts">${S.drafts.map((d, k) => `<li class="${S.approved === d.name ? 'app' : ''}"><i class="bi ${S.approved === d.name ? 'bi-patch-check-fill' : 'bi-file-earmark-text'}"></i><span><b>${esc(d.name)}</b><small>${esc(d.at)} · ${d.n} مقرر</small></span>
           ${S.approved === d.name ? '<span class="bdg green">معتمدة</span>' : ''}<span class="acts"><button class="btn btn-sm btn-outline-primary" data-dload="${k}"><i class="bi bi-folder2-open"></i> فتح</button><button class="btn btn-sm btn-outline-success" data-dapp="${k}"><i class="bi bi-patch-check"></i> ${S.approved === d.name ? 'إلغاء الاعتماد' : 'اعتماد'}</button><button class="btn btn-sm btn-outline-danger" data-ddel="${k}" aria-label="حذف"><i class="bi bi-trash"></i></button></span></li>`).join('') || '<li class="empty">لا نسخ محفوظة بعد.</li>'}</ul>`)}
@@ -1171,7 +1208,8 @@
         <p>صدّر الخطة كملف وأرسله لأعضاء اللجنة؛ يفتحونه هنا بـ«استيراد» ليروا الجدول نفسه ويعدّلوا عليه.</p>
         <div class="ex-acts"><button class="btn btn-outline-primary" id="ex-export"><i class="bi bi-download"></i> تصدير ملف الخطة</button>
         <label class="btn btn-outline-primary mb-0"><i class="bi bi-upload"></i> استيراد ملف<input type="file" id="ex-import" accept=".json" hidden></label></div>
-        <hr><button class="btn btn-outline-danger" id="ex-reset"><i class="bi bi-trash"></i> بدء خطة جديدة</button>`)}</div>`;
+        <hr><div class="d-flex flex-wrap gap-2"><button class="btn btn-outline-danger" id="ex-reset"><i class="bi bi-trash"></i> بدء خطة جديدة</button>
+        ${HAS ? '<button class="btn btn-outline-secondary" id="ex-forget"><i class="bi bi-eraser"></i> مسح المحفوظ من هذا الجهاز</button>' : ''}</div>`)}</div>`;
   }
 
   // ---------- render & events ----------
@@ -1426,11 +1464,12 @@
       if (t.hasAttribute('data-clrmk')) { if (confirm('حذف قائمة التكميلي؟')) { S.mk = null; S.slot = {}; S.pins = {}; rebuild(); } return; }
       if (t.hasAttribute('data-clrreq')) { if (confirm('مسح متطلبات كل المقررات؟')) { S.req = {}; rebuild(); } return; }
       if (t.hasAttribute('data-clrreg')) { S.reg = null; S.regN = null; S.regSec = null; S.regInfo = ''; S.src = 'plans'; rebuild(); return; }
-      if (t.id === 'ex-dsave') { const n = ($('#ex-dname').value || '').trim() || `نسخة ${S.drafts.length + 1}`; S.drafts.unshift({ name: n, at: new Date().toLocaleString('ar-JO'), n: C.length, slot: { ...S.slot }, pins: { ...S.pins } }); save(); render(); return; }
+      if (t.id === 'ex-dsave') { const n = ($('#ex-dname').value || '').trim() || `نسخة ${S.drafts.length + 1}`; S.drafts.unshift({ name: n, at: new Date().toLocaleString('ar-JO'), n: C.length, slot: { ...S.slot }, pins: { ...S.pins } }); store(); render(); return; }
       if (t.dataset.dload != null) { const d = S.drafts[+t.dataset.dload]; push(); S.slot = { ...d.slot }; S.pins = { ...d.pins }; tab = 'grid'; rebuild(); return; }
-      if (t.dataset.dapp != null) { const d = S.drafts[+t.dataset.dapp]; S.approved = S.approved === d.name ? null : d.name; S.slot = { ...d.slot }; S.pins = { ...d.pins }; rebuild(); return; }
-      if (t.dataset.ddel != null) { if (confirm('حذف هذه النسخة؟')) { S.drafts.splice(+t.dataset.ddel, 1); save(); render(); } return; }
+      if (t.dataset.dapp != null) { const d = S.drafts[+t.dataset.dapp]; S.approved = S.approved === d.name ? null : d.name; S.slot = { ...d.slot }; S.pins = { ...d.pins }; rebuild(); store(); return; }
+      if (t.dataset.ddel != null) { if (confirm('حذف هذه النسخة؟')) { S.drafts.splice(+t.dataset.ddel, 1); store(); render(); } return; }
       if (t.id === 'ex-export') { U.download(`خطة_${title()}.json`.replace(/\s+/g, '_'), JSON.stringify(S), 'application/json'); return; }
+      if (t.id === 'ex-forget') { if (confirm('مسح الخطة والنسخ المحفوظة من هذا الجهاز؟ (يبقى ما على الشاشة حتى تغلق الصفحة)')) { try { localStorage.removeItem(KEY); } catch (x) { /* */ } HAS = false; DIRTY = true; render(); savebar(); } return; }
       if (t.id === 'ex-reset') { if (confirm('بدء خطة جديدة؟ ستُحذف الخطة الحالية (تبقى النسخ المحفوظة).')) { const d = S.drafts; S = fresh(S.type); S.drafts = d; migrate(); tab = 'set'; rebuild(); } }
     });
     app.addEventListener('change', e => {
@@ -1633,6 +1672,10 @@
   .ex-prow.ex-nowin { grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr); background: #fdf1f1; border: 1px solid #f3c9c9; border-radius: 10px; padding: .45rem .55rem; margin-bottom: .6rem; } .ex-prow.ex-nowin .bdg { grid-column: auto; } .ex-nowin small { grid-column: 3 / -1; color: #7a2a2a; } .ex-prow.ex-nowin { grid-template-columns: auto minmax(0, 10rem) 1fr; } .ex-chk.lock { cursor: not-allowed; opacity: .9; }
   .ex-pub { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; background: linear-gradient(90deg, #f1f7fb, #fff); border: 1px solid #bcd3e3; border-inline-start: 5px solid #0b4a66; border-radius: 12px; padding: .6rem .8rem; margin-bottom: .6rem; }
   .ex-pub .t { font-weight: 800; color: #0b4a66; margin-inline-end: .4rem; } .ex-pub .sp { flex: 1; }
+  #ex-savebar { position: fixed; inset-inline-start: 16px; bottom: 16px; z-index: 1040; display: none; align-items: center; gap: .6rem; background: #7a1d24; color: #fff; border-radius: 14px; padding: .55rem .7rem .55rem .9rem; box-shadow: 0 8px 24px rgba(0,0,0,.25); max-width: calc(100vw - 32px); }
+  #ex-savebar.on { display: flex; } #ex-savebar.ok { background: #146c43; } #ex-savebar > i { font-size: 1.3rem; }
+  #ex-savebar span { display: flex; flex-direction: column; line-height: 1.25; } #ex-savebar small { opacity: .85; font-size: .78rem; }
+  @media print { #ex-savebar { display: none !important; } }
   .ex-pubsteps { padding-inline-start: 1.3rem; margin-bottom: .8rem; } .ex-pubsteps li { margin-bottom: .25rem; }
   .ex-pubsteps kbd { background: #eef2f6; color: #222; border: 1px solid #c9d3dd; padding: 0 .35rem; font-size: .85em; }
   .ex-pubst { margin-top: .8rem; padding: .6rem .8rem; border-radius: 10px; background: #f4f6f8; color: #445; font-size: .92rem; }
@@ -1735,5 +1778,6 @@
     build();
     wire();
     render();
+    READY = true;
   }).catch(e => { console.error(e); $(APP).innerHTML = '<div class="alert alert-warning">تعذّر تحميل البيانات. أعد المحاولة بعد قليل.</div>'; });
 })();
