@@ -1,0 +1,88 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – م. طه محمد محمود درويش
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:A-1001322-2026-11-05-08:00-8221@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: الاستعاضات السنية المتحركة -
+  عملي ( 1 ) * – القاعة 8221
+LOCATION:جامعة البترا – القاعة 8221
+DESCRIPTION:A-1001322 · 25 طالب في القاعة · مع م. سيف 
+ عبد الغفار بدوي ابوعيشه
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الاستعاضات السنية ال
+ متحركة - عملي ( 1 ) * – القاعة 8221
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الاستعاضات السني
+ ة المتحركة - عملي ( 1 ) * – القاعة 8221
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001212-2026-11-12-08:00-7324@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: علم وظائف الأعضاء – القاعة 73
+ 24
+LOCATION:جامعة البترا – القاعة 7324
+DESCRIPTION:1001212 · 25 طالب في القاعة · مع م. شذا ع
+ ادل هلال الربطة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: علم وظائف الأعضاء – 
+ القاعة 7324
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: علم وظائف الأعضا
+ ء – القاعة 7324
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9300105-2026-11-26-08:00-9319@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: الريادة والابتكار – القاعة 9
+ 319
+LOCATION:جامعة البترا – القاعة 9319
+DESCRIPTION:9300105 · 35 طالب في القاعة · مع م. سيف ع
+ بد الغفار بدوي ابوعيشه
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الريادة والابتكار – 
+ القاعة 9319
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الريادة والابتكا
+ ر – القاعة 9319
+END:VALARM
+END:VEVENT
+END:VCALENDAR

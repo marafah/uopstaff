@@ -1,0 +1,133 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. ضحى محمد عادل محمد ا
+ لصمادي
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:601105-2026-11-05-08:00-7109@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان مقررك: أساسيات تكنولوجيا الم
+ علومات – القاعة 7109
+LOCATION:جامعة البترا – القاعة 7109
+DESCRIPTION:601105 · 25 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: أساسيات تكنولو
+ جيا المعلومات – القاعة 7109
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: أساسيات تك
+ نولوجيا المعلومات – القاعة 7109
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:601105-2026-11-05-08:00-7109@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان مقررك: أساسيات تكنولوجيا الم
+ علومات – القاعة 7109
+LOCATION:جامعة البترا – القاعة 7109
+DESCRIPTION:601105 · 25 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: أساسيات تكنولو
+ جيا المعلومات – القاعة 7109
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: أساسيات تك
+ نولوجيا المعلومات – القاعة 7109
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001321-2026-11-12-08:00-8201@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: الاستعاضات السنية المتحركة -
+  نظري ( 1 ) * – القاعة 8201
+LOCATION:جامعة البترا – القاعة 8201
+DESCRIPTION:A-1001321 · 25 طالب في القاعة · مع د. زين
+ ة رافع مبارك الزعبي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الاستعاضات السنية ال
+ متحركة - نظري ( 1 ) * – القاعة 8201
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الاستعاضات السني
+ ة المتحركة - نظري ( 1 ) * – القاعة 8201
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001316-2026-11-19-08:00-7104@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: المعالجة اللبية -عملي ( 1 )* – 
+ القاعة 7104
+LOCATION:جامعة البترا – القاعة 7104
+DESCRIPTION:A-1001316 · 22 طالب في القاعة · مع د. زيد 
+ غازي فلاح المومني
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: المعالجة اللبية -عمل
+ ي ( 1 )* – القاعة 7104
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: المعالجة اللبية -
+ عملي ( 1 )* – القاعة 7104
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:312110-2026-11-26-08:00-8B-8145@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: رياضيات للعلوم الإدارية - E - 
+ – القاعة 8B-8145
+LOCATION:جامعة البترا – القاعة 8B-8145
+DESCRIPTION:312110 · 25 طالب في القاعة · مع د. عبد ا
+ لكريم مصباح عبد اللطيف البنا
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: رياضيات للعلوم الإدا
+ رية - E - – القاعة 8B-8145
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: رياضيات للعلوم ا
+ لإدارية - E - – القاعة 8B-8145
+END:VALARM
+END:VEVENT
+END:VCALENDAR

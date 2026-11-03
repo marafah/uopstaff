@@ -1,0 +1,111 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. سامر أحمد الصاوي اح
+ مد
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:304101-2026-11-05-08:00-9422@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: مقدمة في الأعمال الالكتروني
+ ة – القاعة 9422
+LOCATION:جامعة البترا – القاعة 9422
+DESCRIPTION:304101 · 30 طالب في القاعة · مع د. سامي 
+ محمد محمود الوقاد
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مقدمة في الأعمال الا
+ لكترونية – القاعة 9422
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مقدمة في الأعمال 
+ الالكترونية – القاعة 9422
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:103101-2026-11-12-08:00-9422@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: تفاضل وتكامل (1) – القاعة 9422
+LOCATION:جامعة البترا – القاعة 9422
+DESCRIPTION:103101 · 30 طالب في القاعة · مع د. بيبرت
+  ميسر طاهر جانبيك
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: تفاضل وتكامل (1) – الق
+ اعة 9422
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: تفاضل وتكامل (1) –
+  القاعة 9422
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400113-2026-11-19-08:00-8B-8142@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: مهارات الاتصال والتواصل بال
+ لغة العربية (1) – القاعة 8B-8142
+LOCATION:جامعة البترا – القاعة 8B-8142
+DESCRIPTION:9400113 · 30 طالب في القاعة · مع د. سجود 
+ محمد سلامة الخطيب
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مهارات الاتصال والتو
+ اصل باللغة العربية (1) – القاعة 8B-8142
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مهارات الاتصال و
+ التواصل باللغة العربية (1) – القاعة 8B-8142
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301103-2026-11-26-08:00-8109@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: مقدمة في مناهج البحث العلمي 
+ – القاعة 8109
+LOCATION:جامعة البترا – القاعة 8109
+DESCRIPTION:301103 · 30 طالب في القاعة · مع د. سجود 
+ محمد سلامة الخطيب
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مقدمة في مناهج البحث 
+ العلمي – القاعة 8109
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مقدمة في مناهج ال
+ بحث العلمي – القاعة 8109
+END:VALARM
+END:VEVENT
+END:VCALENDAR

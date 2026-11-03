@@ -1,0 +1,92 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د.نجوى ابراهيم عبد الر
+ حمن قندقجي
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:201135-2026-11-05-08:00-B24247@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: تاريخ ونظريات الفن والعمارة 
+ (1) – القاعة B24247
+LOCATION:جامعة البترا – القاعة B24247
+DESCRIPTION:201135 · 25 طالب في القاعة · مع د. شذا ر
+ امز مسعود ملحيس
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: تاريخ ونظريات الفن و
+ العمارة (1) – القاعة B24247
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: تاريخ ونظريات ال
+ فن والعمارة (1) – القاعة B24247
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304311-2026-11-12-08:00-A24222@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: إدارة شبكات التواصل الاجتما
+ عي والعلاقة الالكترونية مع الزبائن – ال
+ قاعة A24222
+LOCATION:جامعة البترا – القاعة A24222
+DESCRIPTION:304311 · 25 طالب في القاعة · مع د.محمد م
+ حمود شحده اشتي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: إدارة شبكات التواصل 
+ الاجتماعي والعلاقة الالكترونية مع الزب
+ ائن – القاعة A24222
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: إدارة شبكات التو
+ اصل الاجتماعي والعلاقة الالكترونية مع ا
+ لزبائن – القاعة A24222
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9300105-2026-11-26-08:00-9318@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: الريادة والابتكار – القاعة 9
+ 318
+LOCATION:جامعة البترا – القاعة 9318
+DESCRIPTION:9300105 · 35 طالب في القاعة · مع د. هناء 
+ عبد الرحمن محمد الصعوب
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الريادة والابتكار – 
+ القاعة 9318
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الريادة والابتكا
+ ر – القاعة 9318
+END:VALARM
+END:VEVENT
+END:VCALENDAR

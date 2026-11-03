@@ -1,0 +1,132 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. فايز محمد سعيد حامد 
+ المومني
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:503171-2026-11-05-08:00-4226@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: مختبر علوم الحياة – القاعة 42
+ 26
+LOCATION:جامعة البترا – القاعة 4226
+DESCRIPTION:503171 · 20 طالب في القاعة · مع د. فاطمة
+  يس عبدالمتجلى مليجي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مختبر علوم الحياة – 
+ القاعة 4226
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مختبر علوم الحيا
+ ة – القاعة 4226
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:103101-2026-11-12-08:00-2105@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: تفاضل وتكامل (1) – القاعة 2105
+LOCATION:جامعة البترا – القاعة 2105
+DESCRIPTION:103101 · 27 طالب في القاعة · مع د. قاسم 
+ محمود عارف عبد الله
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: تفاضل وتكامل (1) – الق
+ اعة 2105
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: تفاضل وتكامل (1) –
+  القاعة 2105
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304301-2026-11-19-08:00-2201@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان مقررك: قواعد البيانات للأعما
+ ل الالكترونية – القاعة 2201
+LOCATION:جامعة البترا – القاعة 2201
+DESCRIPTION:304301 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: قواعد البيانات
+  للأعمال الالكترونية – القاعة 2201
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: قواعد البي
+ انات للأعمال الالكترونية – القاعة 2201
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304301-2026-11-19-08:00-2201@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان مقررك: قواعد البيانات للأعما
+ ل الالكترونية – القاعة 2201
+LOCATION:جامعة البترا – القاعة 2201
+DESCRIPTION:304301 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: قواعد البيانات
+  للأعمال الالكترونية – القاعة 2201
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: قواعد البي
+ انات للأعمال الالكترونية – القاعة 2201
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:312110-2026-11-26-08:00-7318@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: رياضيات للعلوم الإدارية - E - 
+ – القاعة 7318
+LOCATION:جامعة البترا – القاعة 7318
+DESCRIPTION:312110 · 2 طالب في القاعة · مع د. فارس ا
+ مين مفلح ابو حشيش
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: رياضيات للعلوم الإدا
+ رية - E - – القاعة 7318
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: رياضيات للعلوم ا
+ لإدارية - E - – القاعة 7318
+END:VALARM
+END:VEVENT
+END:VCALENDAR

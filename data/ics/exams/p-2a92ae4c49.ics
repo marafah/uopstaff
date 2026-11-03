@@ -1,0 +1,272 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. علا محمد كامل علي ال
+ دباغ
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:9200102-2026-11-03-08:00-L21B@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261103T080000
+DTEND;TZID=Asia/Amman:20261103T160000
+SUMMARY:مراقبة: التنمية والبيئة – القاعة L21B
+LOCATION:جامعة البترا – القاعة L21B
+DESCRIPTION:9200102 · 15 طالب في القاعة · مع د. عبد ا
+ لكريم علي جبر الدبيسي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: التنمية والبيئة – ال
+ قاعة L21B
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: التنمية والبيئة 
+ – القاعة L21B
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ِA-1001421-2026-11-05-08:00-8101@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: الاستعاضات السنية الثابتة ( 
+ تيجان وجسور ) - عملي (1)* – القاعة 8101
+LOCATION:جامعة البترا – القاعة 8101
+DESCRIPTION:ِA-1001421 · 20 طالب في القاعة · مع د.امن
+ ه طه محمد سالم
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الاستعاضات السنية ال
+ ثابتة ( تيجان وجسور ) - عملي (1)* – القاعة 810
+ 1
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الاستعاضات السني
+ ة الثابتة ( تيجان وجسور ) - عملي (1)* – القا
+ عة 8101
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:503170-2026-11-08-08:00-6206@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:مراقبة: علوم الحياة – القاعة 6206
+LOCATION:جامعة البترا – القاعة 6206
+DESCRIPTION:503170 · 15 طالب في القاعة · مع د. عالية
+  ياسين فالح الحنيطي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: علوم الحياة – القاعة
+  6206
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: علوم الحياة – ال
+ قاعة 6206
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001431-2026-11-10-08:00-6206@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261110T080000
+DTEND;TZID=Asia/Amman:20261110T160000
+SUMMARY:مراقبة: أمراض وجراحة اللثة - نظري ( 1 ) 
+ * – القاعة 6206
+LOCATION:جامعة البترا – القاعة 6206
+DESCRIPTION:A-1001431 · 15 طالب في القاعة · مع د. فات
+ ن محمود ابو صلاح
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: أمراض وجراحة اللثة - 
+ نظري ( 1 ) * – القاعة 6206
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: أمراض وجراحة الل
+ ثة - نظري ( 1 ) * – القاعة 6206
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:803311-2026-11-12-08:00-06105@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: مناهج البحث الإعلامي – القا
+ عة 06105
+LOCATION:جامعة البترا – القاعة 06105
+DESCRIPTION:803311 · 15 طالب في القاعة · مع د. عبير 
+ حسن سالم القيسي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مناهج البحث الإعلامي
+  – القاعة 06105
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مناهج البحث الإع
+ لامي – القاعة 06105
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:501214-2026-11-15-08:00-2103 هندسة@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261115T080000
+DTEND;TZID=Asia/Amman:20261115T160000
+SUMMARY:مراقبة: مختبر كيمياء عضوية صيدلانية 
+ – القاعة 2103 هندسة
+LOCATION:جامعة البترا – القاعة 2103 هندسة
+DESCRIPTION:501214 · 15 طالب في القاعة · مع د. تغريد
+  توفيق داود أبو حمدان
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مختبر كيمياء عضوية ص
+ يدلانية – القاعة 2103 هندسة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مختبر كيمياء عضو
+ ية صيدلانية – القاعة 2103 هندسة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:203208-2026-11-17-08:00-3404@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:مراقبة: التصميم والفنون الجرافيكية 
+ – القاعة 3404
+LOCATION:جامعة البترا – القاعة 3404
+DESCRIPTION:203208 · 4 طالب في القاعة · مع د. سلام ع
+ مر عيسى أبو عرقوب
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: التصميم والفنون الجر
+ افيكية – القاعة 3404
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: التصميم والفنون 
+ الجرافيكية – القاعة 3404
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309404-2026-11-19-08:00-4313@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: ادارة علاقات الزبائن الرقمي
+ ة – القاعة 4313
+LOCATION:جامعة البترا – القاعة 4313
+DESCRIPTION:309404 · 15 طالب في القاعة · مع د. عبد ا
+ لكريم شعبان ابراهيم آغا
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: ادارة علاقات الزبائن
+  الرقمية – القاعة 4313
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: ادارة علاقات الز
+ بائن الرقمية – القاعة 4313
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400123-2026-11-24-08:00-7328@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261124T080000
+DTEND;TZID=Asia/Amman:20261124T160000
+SUMMARY:مراقبة: مهارات الاتصال والتواصل بال
+ لغة الانجليزية (1) – القاعة 7328
+LOCATION:جامعة البترا – القاعة 7328
+DESCRIPTION:9400123 · 15 طالب في القاعة · مع د. مرام 
+ فؤاد محمد ابو النادي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مهارات الاتصال والتو
+ اصل باللغة الانجليزية (1) – القاعة 7328
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مهارات الاتصال و
+ التواصل باللغة الانجليزية (1) – القاعة 732
+ 8
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400110-2026-11-29-08:00-L37B@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261129T080000
+DTEND;TZID=Asia/Amman:20261129T160000
+SUMMARY:مراقبة: العلوم العسكرية – القاعة L37B
+LOCATION:جامعة البترا – القاعة L37B
+DESCRIPTION:9400110 · 15 طالب في القاعة · مع د. محمد 
+ حسن بخيت قواقزة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: العلوم العسكرية – ال
+ قاعة L37B
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: العلوم العسكرية 
+ – القاعة L37B
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9700102-2026-12-01-08:00-L21B@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261201T080000
+DTEND;TZID=Asia/Amman:20261201T160000
+SUMMARY:مراقبة: حقوق الانسان – القاعة L21B
+LOCATION:جامعة البترا – القاعة L21B
+DESCRIPTION:9700102 · 15 طالب في القاعة · مع د. محمد 
+ حسن بخيت قواقزة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: حقوق الانسان – القاع
+ ة L21B
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: حقوق الانسان – ا
+ لقاعة L21B
+END:VALARM
+END:VEVENT
+END:VCALENDAR

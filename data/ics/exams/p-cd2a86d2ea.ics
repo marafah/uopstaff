@@ -1,0 +1,314 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – أ.د. نهى هاني محمد صالح
+  الخليلي
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:9401099-2026-11-02-08:00-B24247@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261102T080000
+DTEND;TZID=Asia/Amman:20261102T160000
+SUMMARY:مراقبة: لغة عربية -استدراكية – القاع
+ ة B24247
+LOCATION:جامعة البترا – القاعة B24247
+DESCRIPTION:9401099 · 25 طالب في القاعة · مع أ.د. هنا
+ ء محمد هلال الحنيطي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: لغة عربية -استدراكية 
+ – القاعة B24247
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: لغة عربية -استدرا
+ كية – القاعة B24247
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:405109-2026-11-04-08:00-7218@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:مراقبة: مهارات التواصل بين الأشخاص 
+ – القاعة 7218
+LOCATION:جامعة البترا – القاعة 7218
+DESCRIPTION:405109 · 15 طالب في القاعة · مع أ.د. هنا
+ ء محمد هلال الحنيطي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مهارات التواصل بين ا
+ لأشخاص – القاعة 7218
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مهارات التواصل ب
+ ين الأشخاص – القاعة 7218
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:501510-2026-11-05-08:00-4107ب@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: اقتصاديات الدواء – القاعة 410
+ 7ب
+LOCATION:جامعة البترا – القاعة 4107ب
+DESCRIPTION:501510 · 15 طالب في القاعة · مع أ.د. هنا
+ ء محمد هلال الحنيطي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: اقتصاديات الدواء – ا
+ لقاعة 4107ب
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: اقتصاديات الدواء
+  – القاعة 4107ب
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:603480-2026-11-09-08:00-4310ب@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261109T080000
+DTEND;TZID=Asia/Amman:20261109T160000
+SUMMARY:امتحان مقررك: مشروع تخرج (1) – القاعة 
+ 4310ب
+LOCATION:جامعة البترا – القاعة 4310ب
+DESCRIPTION:603480 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: مشروع تخرج (1) –
+  القاعة 4310ب
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: مشروع تخرج 
+ (1) – القاعة 4310ب
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:603480-2026-11-09-08:00-4310ب@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261109T080000
+DTEND;TZID=Asia/Amman:20261109T160000
+SUMMARY:امتحان مقررك: مشروع تخرج (1) – القاعة 
+ 4310ب
+LOCATION:جامعة البترا – القاعة 4310ب
+DESCRIPTION:603480 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: مشروع تخرج (1) –
+  القاعة 4310ب
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: مشروع تخرج 
+ (1) – القاعة 4310ب
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:501512-2026-11-12-08:00-9115@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: مختبر الممارسة الصيدلانية (2)
+  – القاعة 9115
+LOCATION:جامعة البترا – القاعة 9115
+DESCRIPTION:501512 · 9 طالب في القاعة · مع أ.د.كنزا 
+ عبدالهادي حامد منصور
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مختبر الممارسة الصيد
+ لانية (2) – القاعة 9115
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مختبر الممارسة ا
+ لصيدلانية (2) – القاعة 9115
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:601315-2026-11-16-08:00-7328@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261116T080000
+DTEND;TZID=Asia/Amman:20261116T160000
+SUMMARY:مراقبة: برمجة الإنترنت – القاعة 7328
+LOCATION:جامعة البترا – القاعة 7328
+DESCRIPTION:601315 · 15 طالب في القاعة · مع أ.د. نضا
+ ل عادل محمد القنة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: برمجة الإنترنت – الق
+ اعة 7328
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: برمجة الإنترنت –
+  القاعة 7328
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:601222-2026-11-18-08:00-4310ب@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261118T080000
+DTEND;TZID=Asia/Amman:20261118T160000
+SUMMARY:مراقبة: تراكيب البيانات و الخوارزمي
+ ات – القاعة 4310ب
+LOCATION:جامعة البترا – القاعة 4310ب
+DESCRIPTION:601222 · 15 طالب في القاعة · مع أ.د. نضا
+ ل عادل محمد القنة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: تراكيب البيانات و ال
+ خوارزميات – القاعة 4310ب
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: تراكيب البيانات 
+ و الخوارزميات – القاعة 4310ب
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:411353-2026-11-19-08:00-06105@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: العلاقات العامة والتسويق ال
+ رياضي – القاعة 06105
+LOCATION:جامعة البترا – القاعة 06105
+DESCRIPTION:411353 · 15 طالب في القاعة · مع أ.د. نضا
+ ل عادل محمد القنة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: العلاقات العامة والت
+ سويق الرياضي – القاعة 06105
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: العلاقات العامة 
+ والتسويق الرياضي – القاعة 06105
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:601112-2026-11-25-08:00-4105@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:مراقبة: لغة برمجة (1) – القاعة 4105
+LOCATION:جامعة البترا – القاعة 4105
+DESCRIPTION:601112 · 15 طالب في القاعة · مع أ.د. نضا
+ ل عادل محمد القنة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: لغة برمجة (1) – القاعة
+  4105
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: لغة برمجة (1) – ال
+ قاعة 4105
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:701131-2026-11-26-08:00-06105@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: مبادئ القانون التجاري – الق
+ اعة 06105
+LOCATION:جامعة البترا – القاعة 06105
+DESCRIPTION:701131 · 15 طالب في القاعة · مع أ.د. عنب
+ ر ابراهيم شلاش محمد
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مبادئ القانون التجار
+ ي – القاعة 06105
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مبادئ القانون ال
+ تجاري – القاعة 06105
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9402099-2026-11-30-08:00-ورش ومشاغل@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261130T080000
+DTEND;TZID=Asia/Amman:20261130T160000
+SUMMARY:مراقبة: لغة انجليزية-استدراكية – ال
+ قاعة ورش ومشاغل
+LOCATION:جامعة البترا – القاعة ورش ومشاغل
+DESCRIPTION:9402099 · 15 طالب في القاعة · مع أ.د. هنا
+ ء محمد هلال الحنيطي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: لغة انجليزية-استدراك
+ ية – القاعة ورش ومشاغل
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: لغة انجليزية-است
+ دراكية – القاعة ورش ومشاغل
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001433-2026-12-02-08:00-L22B@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:مراقبة: طب الفم - نظري (1) * – القاعة L22B
+LOCATION:جامعة البترا – القاعة L22B
+DESCRIPTION:A-1001433 · 15 طالب في القاعة · مع أ.د. هن
+ اء محمد هلال الحنيطي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: طب الفم - نظري (1) * – ا
+ لقاعة L22B
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: طب الفم - نظري (1) * 
+ – القاعة L22B
+END:VALARM
+END:VEVENT
+END:VCALENDAR

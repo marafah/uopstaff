@@ -1,0 +1,293 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د.. شروق سميح اسماعيل ا
+ بو رجب التميمي
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:A-1001423-2026-11-04-08:00-A24247@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:مراقبة: الاستعاضات السنية المتحركة -
+  عملي ( 2 ) * – القاعة A24247
+LOCATION:جامعة البترا – القاعة A24247
+DESCRIPTION:A-1001423 · 20 طالب في القاعة · مع د.مجدي
+  عبدالله احمد الدهيسات
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الاستعاضات السنية ال
+ متحركة - عملي ( 2 ) * – القاعة A24247
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الاستعاضات السني
+ ة المتحركة - عملي ( 2 ) * – القاعة A24247
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ِA-1001421-2026-11-05-08:00-3210@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: الاستعاضات السنية الثابتة ( 
+ تيجان وجسور ) - عملي (1)* – القاعة 3210
+LOCATION:جامعة البترا – القاعة 3210
+DESCRIPTION:ِA-1001421 · 15 طالب في القاعة · مع د. نض
+ ال امين عبدالفتاح الصالحي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الاستعاضات السنية ال
+ ثابتة ( تيجان وجسور ) - عملي (1)* – القاعة 321
+ 0
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الاستعاضات السني
+ ة الثابتة ( تيجان وجسور ) - عملي (1)* – القا
+ عة 3210
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9601099-2026-11-09-08:00-4105@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261109T080000
+DTEND;TZID=Asia/Amman:20261109T160000
+SUMMARY:مراقبة: مهارات حاسوب-استدراكية – ال
+ قاعة 4105
+LOCATION:جامعة البترا – القاعة 4105
+DESCRIPTION:9601099 · 15 طالب في القاعة · مع د. نبيل 
+ احمد خليل علوش
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مهارات حاسوب-استدراك
+ ية – القاعة 4105
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مهارات حاسوب-است
+ دراكية – القاعة 4105
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9500101-2026-11-11-08:00-7218@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261111T080000
+DTEND;TZID=Asia/Amman:20261111T160000
+SUMMARY:مراقبة: الإسعافات الأولية – القاعة 7
+ 218
+LOCATION:جامعة البترا – القاعة 7218
+DESCRIPTION:9500101 · 12 طالب في القاعة · مع د. محي ا
+ لدين يحيى توفيق القطب
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الإسعافات الأولية – 
+ القاعة 7218
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الإسعافات الأولي
+ ة – القاعة 7218
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:501354-2026-11-12-08:00-4326@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: مختبر حسابات وتركيب الاشكال 
+ الصيدلانية – القاعة 4326
+LOCATION:جامعة البترا – القاعة 4326
+DESCRIPTION:501354 · 6 طالب في القاعة · مع م. بيردي 
+ خالد عبد الرزاق عوض
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مختبر حسابات وتركيب 
+ الاشكال الصيدلانية – القاعة 4326
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مختبر حسابات وتر
+ كيب الاشكال الصيدلانية – القاعة 4326
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:603102-2026-11-16-08:00-ورش ومشاغل@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261116T080000
+DTEND;TZID=Asia/Amman:20261116T160000
+SUMMARY:مراقبة: مقدمة لتصميم المواقع الالكت
+ رونية – القاعة ورش ومشاغل
+LOCATION:جامعة البترا – القاعة ورش ومشاغل
+DESCRIPTION:603102 · 15 طالب في القاعة · مع م. بيردي
+  خالد عبد الرزاق عوض
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مقدمة لتصميم المواقع
+  الالكترونية – القاعة ورش ومشاغل
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مقدمة لتصميم الم
+ واقع الالكترونية – القاعة ورش ومشاغل
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:501403-2026-11-19-08:00-7221@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: علم المناعة – القاعة 7221
+LOCATION:جامعة البترا – القاعة 7221
+DESCRIPTION:501403 · 20 طالب في القاعة · مع د.سهام م
+ حمد اسماعيل ابوجدايل
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: علم المناعة – القاعة
+  7221
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: علم المناعة – ال
+ قاعة 7221
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400100-2026-11-23-08:00-4105@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261123T080000
+DTEND;TZID=Asia/Amman:20261123T160000
+SUMMARY:مراقبة: التربية الوطنية – القاعة 4105
+LOCATION:جامعة البترا – القاعة 4105
+DESCRIPTION:9400100 · 15 طالب في القاعة · مع د. نبيل 
+ احمد خليل علوش
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: التربية الوطنية – ال
+ قاعة 4105
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: التربية الوطنية 
+ – القاعة 4105
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9500111-2026-11-25-08:00-06116@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:مراقبة: الغذاء والتغذية في حياتنا ( ل
+ غير طلبة التغذية ) – القاعة 06116
+LOCATION:جامعة البترا – القاعة 06116
+DESCRIPTION:9500111 · 15 طالب في القاعة · مع د. ليلى 
+ محمد خليل عاشور
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الغذاء والتغذية في ح
+ ياتنا ( لغير طلبة التغذية ) – القاعة 06116
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الغذاء والتغذية 
+ في حياتنا ( لغير طلبة التغذية ) – القاعة 0
+ 6116
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:202328-2026-11-26-08:00-4528@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان مقررك: اضاءة وصوتيات للتصميم 
+ الداخلي – القاعة 4528
+LOCATION:جامعة البترا – القاعة 4528
+DESCRIPTION:202328 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: اضاءة وصوتيات 
+ للتصميم الداخلي – القاعة 4528
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: اضاءة وصوت
+ يات للتصميم الداخلي – القاعة 4528
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:202328-2026-11-26-08:00-4528@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان مقررك: اضاءة وصوتيات للتصميم 
+ الداخلي – القاعة 4528
+LOCATION:جامعة البترا – القاعة 4528
+DESCRIPTION:202328 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: اضاءة وصوتيات 
+ للتصميم الداخلي – القاعة 4528
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: اضاءة وصوت
+ يات للتصميم الداخلي – القاعة 4528
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:203107-2026-12-02-08:00-06116@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:مراقبة: رسم حر – القاعة 06116
+LOCATION:جامعة البترا – القاعة 06116
+DESCRIPTION:203107 · 15 طالب في القاعة · مع د.مجدي ع
+ بدالله احمد الدهيسات
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: رسم حر – القاعة 06116
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: رسم حر – القاعة 06
+ 116
+END:VALARM
+END:VEVENT
+END:VCALENDAR

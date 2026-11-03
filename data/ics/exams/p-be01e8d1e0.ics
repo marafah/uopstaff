@@ -1,0 +1,110 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. ليث خلدون محمود الص
+ بابحه
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:411343-2026-11-05-08:00-L11A@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان مقررك: تربية بدنية معدلة – ال
+ قاعة L11A
+LOCATION:جامعة البترا – القاعة L11A
+DESCRIPTION:411343 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: تربية بدنية مع
+ دلة – القاعة L11A
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: تربية بدني
+ ة معدلة – القاعة L11A
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:411343-2026-11-05-08:00-L11A@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان مقررك: تربية بدنية معدلة – ال
+ قاعة L11A
+LOCATION:جامعة البترا – القاعة L11A
+DESCRIPTION:411343 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: تربية بدنية مع
+ دلة – القاعة L11A
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: تربية بدني
+ ة معدلة – القاعة L11A
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ِA-1001412-2026-11-12-08:00-2107@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: المعالجة التحفظية واللبية - 
+ عملي ( 2 ) * – القاعة 2107
+LOCATION:جامعة البترا – القاعة 2107
+DESCRIPTION:ِA-1001412 · 18 طالب في القاعة · مع د. مؤ
+ يد ديب احمد اسعيفان
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: المعالجة التحفظية وا
+ للبية - عملي ( 2 ) * – القاعة 2107
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: المعالجة التحفظي
+ ة واللبية - عملي ( 2 ) * – القاعة 2107
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001316-2026-11-19-08:00-9226@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: المعالجة اللبية -عملي ( 1 )* – 
+ القاعة 9226
+LOCATION:جامعة البترا – القاعة 9226
+DESCRIPTION:A-1001316 · 18 طالب في القاعة · مع د. فاط
+ مة يس عبدالمتجلى مليجي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: المعالجة اللبية -عمل
+ ي ( 1 )* – القاعة 9226
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: المعالجة اللبية -
+ عملي ( 1 )* – القاعة 9226
+END:VALARM
+END:VEVENT
+END:VCALENDAR

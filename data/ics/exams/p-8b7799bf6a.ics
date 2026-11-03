@@ -1,0 +1,294 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د.مجدي عبدالله احمد ال
+ دهيسات
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:A-1001423-2026-11-04-08:00-A24247@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:مراقبة: الاستعاضات السنية المتحركة -
+  عملي ( 2 ) * – القاعة A24247
+LOCATION:جامعة البترا – القاعة A24247
+DESCRIPTION:A-1001423 · 20 طالب في القاعة · مع د.. شرو
+ ق سميح اسماعيل ابو رجب التميمي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الاستعاضات السنية ال
+ متحركة - عملي ( 2 ) * – القاعة A24247
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الاستعاضات السني
+ ة المتحركة - عملي ( 2 ) * – القاعة A24247
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ِA-1001421-2026-11-05-08:00-3211@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: الاستعاضات السنية الثابتة ( 
+ تيجان وجسور ) - عملي (1)* – القاعة 3211
+LOCATION:جامعة البترا – القاعة 3211
+DESCRIPTION:ِA-1001421 · 8 طالب في القاعة · مع م. احم
+ د غازي محمود الشتيات
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الاستعاضات السنية ال
+ ثابتة ( تيجان وجسور ) - عملي (1)* – القاعة 321
+ 1
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الاستعاضات السني
+ ة الثابتة ( تيجان وجسور ) - عملي (1)* – القا
+ عة 3211
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9601099-2026-11-09-08:00-9002@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261109T080000
+DTEND;TZID=Asia/Amman:20261109T160000
+SUMMARY:مراقبة: مهارات حاسوب-استدراكية – ال
+ قاعة 9002
+LOCATION:جامعة البترا – القاعة 9002
+DESCRIPTION:9601099 · 15 طالب في القاعة · مع م. بيرد
+ ي خالد عبد الرزاق عوض
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مهارات حاسوب-استدراك
+ ية – القاعة 9002
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مهارات حاسوب-است
+ دراكية – القاعة 9002
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309101-2026-11-11-08:00-4105@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261111T080000
+DTEND;TZID=Asia/Amman:20261111T160000
+SUMMARY:مراقبة: مبادئ التسويق – القاعة 4105
+LOCATION:جامعة البترا – القاعة 4105
+DESCRIPTION:309101 · 15 طالب في القاعة · مع م. بيردي
+  خالد عبد الرزاق عوض
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مبادئ التسويق – القا
+ عة 4105
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مبادئ التسويق – 
+ القاعة 4105
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:405264-2026-11-12-08:00-06005@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان مقررك: التنشئة الاجتماعية لل
+ طفل – القاعة 06005
+LOCATION:جامعة البترا – القاعة 06005
+DESCRIPTION:405264 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: التنشئة الاجتم
+ اعية للطفل – القاعة 06005
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: التنشئة ال
+ اجتماعية للطفل – القاعة 06005
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:405264-2026-11-12-08:00-06005@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان مقررك: التنشئة الاجتماعية لل
+ طفل – القاعة 06005
+LOCATION:جامعة البترا – القاعة 06005
+DESCRIPTION:405264 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: التنشئة الاجتم
+ اعية للطفل – القاعة 06005
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: التنشئة ال
+ اجتماعية للطفل – القاعة 06005
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:601222-2026-11-18-08:00-9002@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261118T080000
+DTEND;TZID=Asia/Amman:20261118T160000
+SUMMARY:مراقبة: تراكيب البيانات و الخوارزمي
+ ات – القاعة 9002
+LOCATION:جامعة البترا – القاعة 9002
+DESCRIPTION:601222 · 15 طالب في القاعة · مع د. ناصر 
+ مصطفى حسن الجمل
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: تراكيب البيانات و ال
+ خوارزميات – القاعة 9002
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: تراكيب البيانات 
+ و الخوارزميات – القاعة 9002
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:202331-2026-11-19-08:00-3301@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: التصميم الداخلي (3) – القاعة 3
+ 301
+LOCATION:جامعة البترا – القاعة 3301
+DESCRIPTION:202331 · 15 طالب في القاعة · مع د. ناصر 
+ مصطفى حسن الجمل
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: التصميم الداخلي (3) – 
+ القاعة 3301
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: التصميم الداخلي (
+ 3) – القاعة 3301
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400100-2026-11-23-08:00-9001@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261123T080000
+DTEND;TZID=Asia/Amman:20261123T160000
+SUMMARY:مراقبة: التربية الوطنية – القاعة 9001
+LOCATION:جامعة البترا – القاعة 9001
+DESCRIPTION:9400100 · 15 طالب في القاعة · مع د. ناصر 
+ مصطفى حسن الجمل
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: التربية الوطنية – ال
+ قاعة 9001
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: التربية الوطنية 
+ – القاعة 9001
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:406101-2026-11-26-08:00-B24247@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان مقررك: مبادئ التربية ( اجباري 
+ لطلبة قسم العلوم التربوية ) – القاعة B24247
+LOCATION:جامعة البترا – القاعة B24247
+DESCRIPTION:406101 · 25 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: مبادئ التربية (
+  اجباري لطلبة قسم العلوم التربوية ) – ال
+ قاعة B24247
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: مبادئ التر
+ بية ( اجباري لطلبة قسم العلوم التربوية ) 
+ – القاعة B24247
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:406101-2026-11-26-08:00-B24247@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان مقررك: مبادئ التربية ( اجباري 
+ لطلبة قسم العلوم التربوية ) – القاعة B24247
+LOCATION:جامعة البترا – القاعة B24247
+DESCRIPTION:406101 · 25 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: مبادئ التربية (
+  اجباري لطلبة قسم العلوم التربوية ) – ال
+ قاعة B24247
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: مبادئ التر
+ بية ( اجباري لطلبة قسم العلوم التربوية ) 
+ – القاعة B24247
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:203107-2026-12-02-08:00-06116@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:مراقبة: رسم حر – القاعة 06116
+LOCATION:جامعة البترا – القاعة 06116
+DESCRIPTION:203107 · 15 طالب في القاعة · مع د.. شروق 
+ سميح اسماعيل ابو رجب التميمي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: رسم حر – القاعة 06116
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: رسم حر – القاعة 06
+ 116
+END:VALARM
+END:VEVENT
+END:VCALENDAR

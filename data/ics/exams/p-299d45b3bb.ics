@@ -1,0 +1,294 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – أ.د. فيصل أسعد فريد أبو
+ الرب
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:9200102-2026-11-03-08:00-A24247@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261103T080000
+DTEND;TZID=Asia/Amman:20261103T160000
+SUMMARY:مراقبة: التنمية والبيئة – القاعة A2424
+ 7
+LOCATION:جامعة البترا – القاعة A24247
+DESCRIPTION:9200102 · 25 طالب في القاعة · مع أ.د. محم
+ ود جمال جميل السلخي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: التنمية والبيئة – ال
+ قاعة A24247
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: التنمية والبيئة 
+ – القاعة A24247
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001313-2026-11-05-08:00-7420@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: المعالجة التحفظية - نظري ( 1 ) *
+  – القاعة 7420
+LOCATION:جامعة البترا – القاعة 7420
+DESCRIPTION:A-1001313 · 23 طالب في القاعة · مع أ.د. عن
+ بر ابراهيم شلاش محمد
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: المعالجة التحفظية - ن
+ ظري ( 1 ) * – القاعة 7420
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: المعالجة التحفظي
+ ة - نظري ( 1 ) * – القاعة 7420
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:503170-2026-11-08-08:00-L36B@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:مراقبة: علوم الحياة – القاعة L36B
+LOCATION:جامعة البترا – القاعة L36B
+DESCRIPTION:503170 · 15 طالب في القاعة · مع أ.د. عنب
+ ر ابراهيم شلاش محمد
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: علوم الحياة – القاعة
+  L36B
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: علوم الحياة – ال
+ قاعة L36B
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:302110-2026-11-10-08:00-2301@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261110T080000
+DTEND;TZID=Asia/Amman:20261110T160000
+SUMMARY:مراقبة: رياضيات للعلوم الإدارية – ا
+ لقاعة 2301
+LOCATION:جامعة البترا – القاعة 2301
+DESCRIPTION:302110 · 15 طالب في القاعة · مع أ.د. صاي
+ ل مفلح عبدالرحيم المومني
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: رياضيات للعلوم الإدا
+ رية – القاعة 2301
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: رياضيات للعلوم ا
+ لإدارية – القاعة 2301
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:606376-2026-11-12-08:00-06116@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: تحليل البيانات الضخمة – الق
+ اعة 06116
+LOCATION:جامعة البترا – القاعة 06116
+DESCRIPTION:606376 · 15 طالب في القاعة · مع أ.د. صاي
+ ل مفلح عبدالرحيم المومني
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: تحليل البيانات الضخم
+ ة – القاعة 06116
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: تحليل البيانات ا
+ لضخمة – القاعة 06116
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:501214-2026-11-15-08:00-3404@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261115T080000
+DTEND;TZID=Asia/Amman:20261115T160000
+SUMMARY:مراقبة: مختبر كيمياء عضوية صيدلانية 
+ – القاعة 3404
+LOCATION:جامعة البترا – القاعة 3404
+DESCRIPTION:501214 · 15 طالب في القاعة · مع أ.د. محم
+ ود احمد محمد سعيد السلمان
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مختبر كيمياء عضوية ص
+ يدلانية – القاعة 3404
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مختبر كيمياء عضو
+ ية صيدلانية – القاعة 3404
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:203208-2026-11-17-08:00-6206@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:مراقبة: التصميم والفنون الجرافيكية 
+ – القاعة 6206
+LOCATION:جامعة البترا – القاعة 6206
+DESCRIPTION:203208 · 15 طالب في القاعة · مع م. هاشم 
+ محمد نصر الله ابو محفوظ
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: التصميم والفنون الجر
+ افيكية – القاعة 6206
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: التصميم والفنون 
+ الجرافيكية – القاعة 6206
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:503440-2026-11-19-08:00-3210@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: التغذية السريرية والاضطرابا
+ ت والإيضية – القاعة 3210
+LOCATION:جامعة البترا – القاعة 3210
+DESCRIPTION:503440 · 15 طالب في القاعة · مع أ.د.وائل
+  موسى محمد هادي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: التغذية السريرية وال
+ اضطرابات والإيضية – القاعة 3210
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: التغذية السريرية
+  والاضطرابات والإيضية – القاعة 3210
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400123-2026-11-24-08:00-L21A@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261124T080000
+DTEND;TZID=Asia/Amman:20261124T160000
+SUMMARY:مراقبة: مهارات الاتصال والتواصل بال
+ لغة الانجليزية (1) – القاعة L21A
+LOCATION:جامعة البترا – القاعة L21A
+DESCRIPTION:9400123 · 15 طالب في القاعة · مع أ.د. محم
+ ود جمال جميل السلخي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مهارات الاتصال والتو
+ اصل باللغة الانجليزية (1) – القاعة L21A
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مهارات الاتصال و
+ التواصل باللغة الانجليزية (1) – القاعة L21
+ A
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:606170-2026-11-26-08:00-9230@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: أساسيات علم البيانات – القا
+ عة 9230
+LOCATION:جامعة البترا – القاعة 9230
+DESCRIPTION:606170 · 20 طالب في القاعة · مع أ.د. محم
+ ود جمال جميل السلخي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: أساسيات علم البيانات
+  – القاعة 9230
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: أساسيات علم البي
+ انات – القاعة 9230
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400110-2026-11-29-08:00-7427@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261129T080000
+DTEND;TZID=Asia/Amman:20261129T160000
+SUMMARY:مراقبة: العلوم العسكرية – القاعة 7427
+LOCATION:جامعة البترا – القاعة 7427
+DESCRIPTION:9400110 · 15 طالب في القاعة · مع أ.د. محم
+ ود احمد محمد سعيد السلمان
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: العلوم العسكرية – ال
+ قاعة 7427
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: العلوم العسكرية 
+ – القاعة 7427
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9700102-2026-12-01-08:00-7328@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261201T080000
+DTEND;TZID=Asia/Amman:20261201T160000
+SUMMARY:مراقبة: حقوق الانسان – القاعة 7328
+LOCATION:جامعة البترا – القاعة 7328
+DESCRIPTION:9700102 · 15 طالب في القاعة · مع م. هاشم 
+ محمد نصر الله ابو محفوظ
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: حقوق الانسان – القاع
+ ة 7328
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: حقوق الانسان – ا
+ لقاعة 7328
+END:VALARM
+END:VEVENT
+END:VCALENDAR

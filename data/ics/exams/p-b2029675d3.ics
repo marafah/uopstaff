@@ -1,0 +1,156 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د.أنس غسان جدوع كنعان
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:601432-2026-11-05-08:00-4220@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: نظم التشغيل – القاعة 4220
+LOCATION:جامعة البترا – القاعة 4220
+DESCRIPTION:601432 · 25 طالب في القاعة · مع د. ياسمي
+ ن محمد حمدي عبد العزيز السقا
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: نظم التشغيل – القاعة
+  4220
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: نظم التشغيل – ال
+ قاعة 4220
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304404-2026-11-12-08:00-L12A@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان مقررك: مشروع تخرج أو تدريب مي
+ داني – القاعة L12A
+LOCATION:جامعة البترا – القاعة L12A
+DESCRIPTION:304404 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: مشروع تخرج أو ت
+ دريب ميداني – القاعة L12A
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: مشروع تخرج 
+ أو تدريب ميداني – القاعة L12A
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304404-2026-11-12-08:00-L12A@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان مقررك: مشروع تخرج أو تدريب مي
+ داني – القاعة L12A
+LOCATION:جامعة البترا – القاعة L12A
+DESCRIPTION:304404 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: مشروع تخرج أو ت
+ دريب ميداني – القاعة L12A
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: مشروع تخرج 
+ أو تدريب ميداني – القاعة L12A
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001411-2026-11-19-08:00-9117@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: المعالجة التحفظية واللبية - 
+ نظري (2) * – القاعة 9117
+LOCATION:جامعة البترا – القاعة 9117
+DESCRIPTION:A-1001411 · 25 طالب في القاعة · مع د. ياس
+ مين محمد حمدي عبد العزيز السقا
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: المعالجة التحفظية وا
+ للبية - نظري (2) * – القاعة 9117
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: المعالجة التحفظي
+ ة واللبية - نظري (2) * – القاعة 9117
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307406-2026-11-26-08:00-7325@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان مقررك: موضوعات خاصة في ذكاء ا
+ لاعمال و تحليل البيانات – القاعة 7325
+LOCATION:جامعة البترا – القاعة 7325
+DESCRIPTION:307406 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: موضوعات خاصة ف
+ ي ذكاء الاعمال و تحليل البيانات – القاع
+ ة 7325
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: موضوعات خا
+ صة في ذكاء الاعمال و تحليل البيانات – ال
+ قاعة 7325
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307406-2026-11-26-08:00-7325@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان مقررك: موضوعات خاصة في ذكاء ا
+ لاعمال و تحليل البيانات – القاعة 7325
+LOCATION:جامعة البترا – القاعة 7325
+DESCRIPTION:307406 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: موضوعات خاصة ف
+ ي ذكاء الاعمال و تحليل البيانات – القاع
+ ة 7325
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: موضوعات خا
+ صة في ذكاء الاعمال و تحليل البيانات – ال
+ قاعة 7325
+END:VALARM
+END:VEVENT
+END:VCALENDAR

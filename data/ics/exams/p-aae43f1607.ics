@@ -1,0 +1,110 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. لينا محمد احمد احمد
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:A-1001423-2026-11-04-08:00-8116@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:مراقبة: الاستعاضات السنية المتحركة -
+  عملي ( 2 ) * – القاعة 8116
+LOCATION:جامعة البترا – القاعة 8116
+DESCRIPTION:A-1001423 · 20 طالب في القاعة · مع د. مال
+ ك احمد سالم السعود
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الاستعاضات السنية ال
+ متحركة - عملي ( 2 ) * – القاعة 8116
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الاستعاضات السني
+ ة المتحركة - عملي ( 2 ) * – القاعة 8116
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:503101-2026-11-18-08:00-9426@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261118T080000
+DTEND;TZID=Asia/Amman:20261118T160000
+SUMMARY:مراقبة: علوم الحياة (1) – القاعة 9426
+LOCATION:جامعة البترا – القاعة 9426
+DESCRIPTION:503101 · 35 طالب في القاعة · مع د. منال 
+ شوكت يوسف اللبدي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: علوم الحياة (1) – القا
+ عة 9426
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: علوم الحياة (1) – 
+ القاعة 9426
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9500111-2026-11-25-08:00-3502@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:مراقبة: الغذاء والتغذية في حياتنا ( ل
+ غير طلبة التغذية ) – القاعة 3502
+LOCATION:جامعة البترا – القاعة 3502
+DESCRIPTION:9500111 · 30 طالب في القاعة · مع د. منال 
+ شوكت يوسف اللبدي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الغذاء والتغذية في ح
+ ياتنا ( لغير طلبة التغذية ) – القاعة 3502
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الغذاء والتغذية 
+ في حياتنا ( لغير طلبة التغذية ) – القاعة 3
+ 502
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309314-2026-12-02-08:00-3502@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:مراقبة: التسويق الرقمي – القاعة 3502
+LOCATION:جامعة البترا – القاعة 3502
+DESCRIPTION:309314 · 30 طالب في القاعة · مع د. منال 
+ شوكت يوسف اللبدي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: التسويق الرقمي – الق
+ اعة 3502
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: التسويق الرقمي –
+  القاعة 3502
+END:VALARM
+END:VEVENT
+END:VCALENDAR

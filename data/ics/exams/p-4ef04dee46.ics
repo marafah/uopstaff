@@ -1,0 +1,112 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – م.ميس توفيق محمود كريش
+ ان
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:503171-2026-11-05-08:00-8116@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان مقررك: مختبر علوم الحياة – ال
+ قاعة 8116
+LOCATION:جامعة البترا – القاعة 8116
+DESCRIPTION:503171 · 23 طالب في القاعة · مع د. لين ع
+ بد القادر أسعد أسعد
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: مختبر علوم الح
+ ياة – القاعة 8116
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: مختبر علوم 
+ الحياة – القاعة 8116
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001212-2026-11-12-08:00-7320@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: علم وظائف الأعضاء – القاعة 73
+ 20
+LOCATION:جامعة البترا – القاعة 7320
+DESCRIPTION:1001212 · 12 طالب في القاعة · مع م.وسن ح
+ داد
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: علم وظائف الأعضاء – 
+ القاعة 7320
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: علم وظائف الأعضا
+ ء – القاعة 7320
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:313101-2026-11-19-08:00-1101@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: مبادىء المحاسبة (1) - ُE - – الق
+ اعة 1101
+LOCATION:جامعة البترا – القاعة 1101
+DESCRIPTION:313101 · 25 طالب في القاعة · مع د. سامي 
+ محمد محمود الوقاد
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مبادىء المحاسبة (1) - ُ
+ E - – القاعة 1101
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مبادىء المحاسبة (
+ 1) - ُE - – القاعة 1101
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304315-2026-11-26-08:00-8206@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: التجارة والدفع الالكتروني –
+  القاعة 8206
+LOCATION:جامعة البترا – القاعة 8206
+DESCRIPTION:304315 · 21 طالب في القاعة · مع هيئه تد
+ ريسيه
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: التجارة والدفع الالك
+ تروني – القاعة 8206
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: التجارة والدفع ا
+ لالكتروني – القاعة 8206
+END:VALARM
+END:VEVENT
+END:VCALENDAR

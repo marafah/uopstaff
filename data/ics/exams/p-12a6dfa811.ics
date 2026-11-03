@@ -1,0 +1,110 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. رشا عادل احمد اليعق
+ وب
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:304101-2026-11-05-08:00-8108@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: مقدمة في الأعمال الالكتروني
+ ة – القاعة 8108
+LOCATION:جامعة البترا – القاعة 8108
+DESCRIPTION:304101 · 30 طالب في القاعة · مع د. رامز 
+ عبد المنعم محمد ابراهيم برهومة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مقدمة في الأعمال الا
+ لكترونية – القاعة 8108
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مقدمة في الأعمال 
+ الالكترونية – القاعة 8108
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400107-2026-11-12-08:00-A24023@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: القيادة والمسؤولية المجتمعي
+ ة – القاعة A24023
+LOCATION:جامعة البترا – القاعة A24023
+DESCRIPTION:9400107 · 1 طالب في القاعة · مع د. رفيق 
+ عبدالله رفيق الخضر
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: القيادة والمسؤولية ا
+ لمجتمعية – القاعة A24023
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: القيادة والمسؤول
+ ية المجتمعية – القاعة A24023
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:802450-2026-11-26-08:00-7427@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان مقررك: العلاقات العامة الدول
+ ية – القاعة 7427
+LOCATION:جامعة البترا – القاعة 7427
+DESCRIPTION:802450 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: العلاقات العام
+ ة الدولية – القاعة 7427
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: العلاقات ا
+ لعامة الدولية – القاعة 7427
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:802450-2026-11-26-08:00-7427@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان مقررك: العلاقات العامة الدول
+ ية – القاعة 7427
+LOCATION:جامعة البترا – القاعة 7427
+DESCRIPTION:802450 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: العلاقات العام
+ ة الدولية – القاعة 7427
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: العلاقات ا
+ لعامة الدولية – القاعة 7427
+END:VALARM
+END:VEVENT
+END:VCALENDAR

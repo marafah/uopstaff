@@ -1,0 +1,133 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. مي يعقوب أديب النشا
+ شيبي
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:601281-2026-11-05-08:00-8B-8141@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: قواعد البيانات (1) – القاعة 8B-
+ 8141
+LOCATION:جامعة البترا – القاعة 8B-8141
+DESCRIPTION:601281 · 25 طالب في القاعة · مع د. موسى 
+ جهاد شاهر الشياب
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: قواعد البيانات (1) – ا
+ لقاعة 8B-8141
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: قواعد البيانات (1)
+  – القاعة 8B-8141
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:606417-2026-11-12-08:00-7105@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان مقررك: برمجة الروبوتات – الق
+ اعة 7105
+LOCATION:جامعة البترا – القاعة 7105
+DESCRIPTION:606417 · 25 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: برمجة الروبوتا
+ ت – القاعة 7105
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: برمجة الرو
+ بوتات – القاعة 7105
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:606417-2026-11-12-08:00-7105@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان مقررك: برمجة الروبوتات – الق
+ اعة 7105
+LOCATION:جامعة البترا – القاعة 7105
+DESCRIPTION:606417 · 25 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: برمجة الروبوتا
+ ت – القاعة 7105
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: برمجة الرو
+ بوتات – القاعة 7105
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:702151-2026-11-19-08:00-7319@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: النظم السياسية والقانون الد
+ ستوري – القاعة 7319
+LOCATION:جامعة البترا – القاعة 7319
+DESCRIPTION:702151 · 6 طالب في القاعة · مع د. موسى ج
+ هاد شاهر الشياب
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: النظم السياسية والقا
+ نون الدستوري – القاعة 7319
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: النظم السياسية و
+ القانون الدستوري – القاعة 7319
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001422-2026-11-26-08:00-8208@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: الاستعاضات السنية المتحركة -
+  نظري (2) – القاعة 8208
+LOCATION:جامعة البترا – القاعة 8208
+DESCRIPTION:A-1001422 · 25 طالب في القاعة · مع د. ممد
+ وح عبد اللطيف رشيد المواهرة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الاستعاضات السنية ال
+ متحركة - نظري (2) – القاعة 8208
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الاستعاضات السني
+ ة المتحركة - نظري (2) – القاعة 8208
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,89 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – أد. عمر امين يونس الحا
+ ج
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:9400108-2026-11-05-08:00-9324@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: المهارات الحياتية – القاعة 9
+ 324
+LOCATION:جامعة البترا – القاعة 9324
+DESCRIPTION:9400108 · 35 طالب في القاعة · مع أ.د.هشا
+ م يوسف ديب المطوبسي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: المهارات الحياتية – 
+ القاعة 9324
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: المهارات الحياتي
+ ة – القاعة 9324
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400113-2026-11-19-08:00-06113@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: مهارات الاتصال والتواصل بال
+ لغة العربية (1) – القاعة 06113
+LOCATION:جامعة البترا – القاعة 06113
+DESCRIPTION:9400113 · 45 طالب في القاعة · مع أ.د. ناص
+ ر محمد ياسر نمر دكيدك
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مهارات الاتصال والتو
+ اصل باللغة العربية (1) – القاعة 06113
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مهارات الاتصال و
+ التواصل باللغة العربية (1) – القاعة 06113
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9300105-2026-11-26-08:00-06227@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: الريادة والابتكار – القاعة 0
+ 6227
+LOCATION:جامعة البترا – القاعة 06227
+DESCRIPTION:9300105 · 40 طالب في القاعة · مع د. احمد 
+ محمد امين سالم العثامنه
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الريادة والابتكار – 
+ القاعة 06227
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الريادة والابتكا
+ ر – القاعة 06227
+END:VALARM
+END:VEVENT
+END:VCALENDAR

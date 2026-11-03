@@ -1,0 +1,203 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. أحمد ضاحي أبو جبل اب
+ راهيم
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:9401099-2026-11-02-08:00-A24245@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261102T080000
+DTEND;TZID=Asia/Amman:20261102T160000
+SUMMARY:مراقبة: لغة عربية -استدراكية – القاع
+ ة A24245
+LOCATION:جامعة البترا – القاعة A24245
+DESCRIPTION:9401099 · 25 طالب في القاعة · مع أ.د.كنز
+ ا عبدالهادي حامد منصور
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: لغة عربية -استدراكية 
+ – القاعة A24245
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: لغة عربية -استدرا
+ كية – القاعة A24245
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001312-2026-11-05-08:00-06310@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: علم الادوية لطب الأسنان ( 1 ) 
+ – القاعة 06310
+LOCATION:جامعة البترا – القاعة 06310
+DESCRIPTION:1001312 · 20 طالب في القاعة · مع د. أحمد 
+ حسام حسني النبوت
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: علم الادوية لطب الأس
+ نان ( 1 ) – القاعة 06310
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: علم الادوية لطب ا
+ لأسنان ( 1 ) – القاعة 06310
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9601099-2026-11-09-08:00-1102@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261109T080000
+DTEND;TZID=Asia/Amman:20261109T160000
+SUMMARY:مراقبة: مهارات حاسوب-استدراكية – ال
+ قاعة 1102
+LOCATION:جامعة البترا – القاعة 1102
+DESCRIPTION:9601099 · 25 طالب في القاعة · مع أ.د.أما
+ ني سليمان داود علي عبدالله
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مهارات حاسوب-استدراك
+ ية – القاعة 1102
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مهارات حاسوب-است
+ دراكية – القاعة 1102
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:202333-2026-11-12-08:00-7104@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: نسيج ومفروشات – القاعة 7104
+LOCATION:جامعة البترا – القاعة 7104
+DESCRIPTION:202333 · 21 طالب في القاعة · مع د. أحمد 
+ حسام حسني النبوت
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: نسيج ومفروشات – القا
+ عة 7104
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: نسيج ومفروشات – 
+ القاعة 7104
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001214-2026-11-19-08:00-06308@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: علم أنسجة الفم والأسنان – ال
+ قاعة 06308
+LOCATION:جامعة البترا – القاعة 06308
+DESCRIPTION:1001214 · 23 طالب في القاعة · مع م. هبه ج
+ ودت موسى المحيسن
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: علم أنسجة الفم والأس
+ نان – القاعة 06308
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: علم أنسجة الفم وا
+ لأسنان – القاعة 06308
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400100-2026-11-23-08:00-A24247@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261123T080000
+DTEND;TZID=Asia/Amman:20261123T160000
+SUMMARY:مراقبة: التربية الوطنية – القاعة A2424
+ 7
+LOCATION:جامعة البترا – القاعة A24247
+DESCRIPTION:9400100 · 25 طالب في القاعة · مع د. خليل 
+ بدر علي البطاينة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: التربية الوطنية – ال
+ قاعة A24247
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: التربية الوطنية 
+ – القاعة A24247
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:501303-2026-11-26-08:00-7105@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: كيمياء النواتج الطبيعية وال
+ عقاقير (2) – القاعة 7105
+LOCATION:جامعة البترا – القاعة 7105
+DESCRIPTION:501303 · 25 طالب في القاعة · مع د. يوسف 
+ عيسى موسى مجدلاوي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: كيمياء النواتج الطبي
+ عية والعقاقير (2) – القاعة 7105
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: كيمياء النواتج ا
+ لطبيعية والعقاقير (2) – القاعة 7105
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9402099-2026-11-30-08:00-3502@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261130T080000
+DTEND;TZID=Asia/Amman:20261130T160000
+SUMMARY:مراقبة: لغة انجليزية-استدراكية – ال
+ قاعة 3502
+LOCATION:جامعة البترا – القاعة 3502
+DESCRIPTION:9402099 · 30 طالب في القاعة · مع د. خليل 
+ بدر علي البطاينة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: لغة انجليزية-استدراك
+ ية – القاعة 3502
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: لغة انجليزية-است
+ دراكية – القاعة 3502
+END:VALARM
+END:VEVENT
+END:VCALENDAR

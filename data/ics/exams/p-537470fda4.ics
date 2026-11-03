@@ -1,0 +1,132 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. محمد منصور خرويع ال
+ عثمان
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:601105-2026-11-05-08:00-8B-8143@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: أساسيات تكنولوجيا المعلومات
+  – القاعة 8B-8143
+LOCATION:جامعة البترا – القاعة 8B-8143
+DESCRIPTION:601105 · 4 طالب في القاعة · مع د. محمد م
+ صطفى محمد العبادلة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: أساسيات تكنولوجيا ال
+ معلومات – القاعة 8B-8143
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: أساسيات تكنولوجي
+ ا المعلومات – القاعة 8B-8143
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301101-2026-11-12-08:00-8107@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: مبادئ الإدارة – القاعة 8107
+LOCATION:جامعة البترا – القاعة 8107
+DESCRIPTION:301101 · 25 طالب في القاعة · مع د. محمد 
+ ناجي سلامة القضاه
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مبادئ الإدارة – القا
+ عة 8107
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مبادئ الإدارة – 
+ القاعة 8107
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:605340-2026-11-19-08:00-L12A@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان مقررك: بروتوكولات أمن المعلو
+ مات – القاعة L12A
+LOCATION:جامعة البترا – القاعة L12A
+DESCRIPTION:605340 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: بروتوكولات أمن
+  المعلومات – القاعة L12A
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: بروتوكولات
+  أمن المعلومات – القاعة L12A
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:605340-2026-11-19-08:00-L12A@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان مقررك: بروتوكولات أمن المعلو
+ مات – القاعة L12A
+LOCATION:جامعة البترا – القاعة L12A
+DESCRIPTION:605340 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: بروتوكولات أمن
+  المعلومات – القاعة L12A
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: بروتوكولات
+  أمن المعلومات – القاعة L12A
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:605400-2026-11-26-08:00-06101@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان مقررك: تدريب ميداني – القاعة 
+ 06101
+LOCATION:جامعة البترا – القاعة 06101
+DESCRIPTION:605400 · 9 طالب في القاعة · مع د. علي يو
+ نس عبد الرحمن المقوسي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: تدريب ميداني –
+  القاعة 06101
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: تدريب ميدا
+ ني – القاعة 06101
+END:VALARM
+END:VEVENT
+END:VCALENDAR

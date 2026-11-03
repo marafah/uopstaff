@@ -1,0 +1,202 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. أحمد علي محمد حسين ج
+ ودة
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:9400108-2026-11-05-08:00-06115@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: المهارات الحياتية – القاعة 0
+ 6115
+LOCATION:جامعة البترا – القاعة 06115
+DESCRIPTION:9400108 · 35 طالب في القاعة · مع د. آيه ط
+ لال عبد الله زيد الكيلاني
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: المهارات الحياتية – 
+ القاعة 06115
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: المهارات الحياتي
+ ة – القاعة 06115
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301221-2026-11-08-08:00-A24246@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:مراقبة: تشريعات تجارية (1) – القاعة A24
+ 246
+LOCATION:جامعة البترا – القاعة A24246
+DESCRIPTION:301221 · 25 طالب في القاعة · مع ا.د. عبد 
+ العزيز احمد عارف الشرباتي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: تشريعات تجارية (1) – ا
+ لقاعة A24246
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: تشريعات تجارية (1)
+  – القاعة A24246
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001321-2026-11-12-08:00-06308@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: الاستعاضات السنية المتحركة -
+  نظري ( 1 ) * – القاعة 06308
+LOCATION:جامعة البترا – القاعة 06308
+DESCRIPTION:A-1001321 · 25 طالب في القاعة · مع حمزة ع
+ ارف مصطفى زايد
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الاستعاضات السنية ال
+ متحركة - نظري ( 1 ) * – القاعة 06308
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الاستعاضات السني
+ ة المتحركة - نظري ( 1 ) * – القاعة 06308
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:104103-2026-11-15-08:00-A24246@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261115T080000
+DTEND;TZID=Asia/Amman:20261115T160000
+SUMMARY:مراقبة: فيزياء عامة للعلوم الطبية – 
+ القاعة A24246
+LOCATION:جامعة البترا – القاعة A24246
+DESCRIPTION:104103 · 25 طالب في القاعة · مع ا.د. عبد 
+ العزيز احمد عارف الشرباتي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: فيزياء عامة للعلوم ا
+ لطبية – القاعة A24246
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: فيزياء عامة للعل
+ وم الطبية – القاعة A24246
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:405108-2026-11-19-08:00-8201@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: تعليم التفكير – القاعة 8201
+LOCATION:جامعة البترا – القاعة 8201
+DESCRIPTION:405108 · 25 طالب في القاعة · مع د. ابراه
+ يم جمال الحسين ابراهيم عبد الحكم
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: تعليم التفكير – القا
+ عة 8201
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: تعليم التفكير – 
+ القاعة 8201
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9100101-2026-11-22-08:00-A24245@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261122T080000
+DTEND;TZID=Asia/Amman:20261122T160000
+SUMMARY:مراقبة: العلم والحياة – القاعة A24245
+LOCATION:جامعة البترا – القاعة A24245
+DESCRIPTION:9100101 · 25 طالب في القاعة · مع د. هبه ف
+ تحي امين السيد
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: العلم والحياة – القا
+ عة A24245
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: العلم والحياة – 
+ القاعة A24245
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001314-2026-11-26-08:00-A24222@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان مقررك: المعالجة التحفظية - عم
+ لي ( 1 ) * – القاعة A24222
+LOCATION:جامعة البترا – القاعة A24222
+DESCRIPTION:A-1001314 · 25 طالب في القاعة · مع أ.د. مح
+ مد عوني سليمان الكايد
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: المعالجة التحف
+ ظية - عملي ( 1 ) * – القاعة A24222
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: المعالجة ا
+ لتحفظية - عملي ( 1 ) * – القاعة A24222
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400110-2026-11-29-08:00-A24245@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261129T080000
+DTEND;TZID=Asia/Amman:20261129T160000
+SUMMARY:مراقبة: العلوم العسكرية – القاعة A2424
+ 5
+LOCATION:جامعة البترا – القاعة A24245
+DESCRIPTION:9400110 · 25 طالب في القاعة · مع د. هبه ف
+ تحي امين السيد
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: العلوم العسكرية – ال
+ قاعة A24245
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: العلوم العسكرية 
+ – القاعة A24245
+END:VALARM
+END:VEVENT
+END:VCALENDAR

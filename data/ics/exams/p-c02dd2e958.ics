@@ -1,0 +1,243 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د.سهام محمد اسماعيل اب
+ وجدايل
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:402201-2026-11-03-08:00-7328@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261103T080000
+DTEND;TZID=Asia/Amman:20261103T160000
+SUMMARY:مراقبة: مهارات الاتصال لتكنولوجيا ا
+ لمعلومات – القاعة 7328
+LOCATION:جامعة البترا – القاعة 7328
+DESCRIPTION:402201 · 15 طالب في القاعة · مع م. احمد 
+ غازي محمود الشتيات
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مهارات الاتصال لتكنو
+ لوجيا المعلومات – القاعة 7328
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مهارات الاتصال ل
+ تكنولوجيا المعلومات – القاعة 7328
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:503320-2026-11-05-08:00-7328@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان مقررك: التغذية العلاجية (1) – 
+ القاعة 7328
+LOCATION:جامعة البترا – القاعة 7328
+DESCRIPTION:503320 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: التغذية العلاج
+ ية (1) – القاعة 7328
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: التغذية ال
+ علاجية (1) – القاعة 7328
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:503320-2026-11-05-08:00-7328@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان مقررك: التغذية العلاجية (1) – 
+ القاعة 7328
+LOCATION:جامعة البترا – القاعة 7328
+DESCRIPTION:503320 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: التغذية العلاج
+ ية (1) – القاعة 7328
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: التغذية ال
+ علاجية (1) – القاعة 7328
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:503423-2026-11-12-08:00-4420@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان مقررك: التغذية خلال مراحل الح
+ ياة – القاعة 4420
+LOCATION:جامعة البترا – القاعة 4420
+DESCRIPTION:503423 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: التغذية خلال م
+ راحل الحياة – القاعة 4420
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: التغذية خل
+ ال مراحل الحياة – القاعة 4420
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:503423-2026-11-12-08:00-4420@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان مقررك: التغذية خلال مراحل الح
+ ياة – القاعة 4420
+LOCATION:جامعة البترا – القاعة 4420
+DESCRIPTION:503423 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: التغذية خلال م
+ راحل الحياة – القاعة 4420
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: التغذية خل
+ ال مراحل الحياة – القاعة 4420
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001331-2026-11-17-08:00-L21A@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:مراقبة: أمراض الفم ( 1 ) – القاعة L21A
+LOCATION:جامعة البترا – القاعة L21A
+DESCRIPTION:1001331 · 15 طالب في القاعة · مع د. نهيل 
+ محمد رجب الجابري
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: أمراض الفم ( 1 ) – القا
+ عة L21A
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: أمراض الفم ( 1 ) – 
+ القاعة L21A
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:501403-2026-11-19-08:00-7221@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: علم المناعة – القاعة 7221
+LOCATION:جامعة البترا – القاعة 7221
+DESCRIPTION:501403 · 20 طالب في القاعة · مع د.. شروق 
+ سميح اسماعيل ابو رجب التميمي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: علم المناعة – القاعة
+  7221
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: علم المناعة – ال
+ قاعة 7221
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400123-2026-11-24-08:00-06202@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261124T080000
+DTEND;TZID=Asia/Amman:20261124T160000
+SUMMARY:مراقبة: مهارات الاتصال والتواصل بال
+ لغة الانجليزية (1) – القاعة 06202
+LOCATION:جامعة البترا – القاعة 06202
+DESCRIPTION:9400123 · 15 طالب في القاعة · مع د. نهيل 
+ محمد رجب الجابري
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مهارات الاتصال والتو
+ اصل باللغة الانجليزية (1) – القاعة 06202
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مهارات الاتصال و
+ التواصل باللغة الانجليزية (1) – القاعة 062
+ 02
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:501452-2026-11-26-08:00-8116@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: علم الأدوية ( 3 ) – القاعة 8116
+LOCATION:جامعة البترا – القاعة 8116
+DESCRIPTION:501452 · 24 طالب في القاعة · مع م. اية ا
+ حمد ربحي علي سليم
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: علم الأدوية ( 3 ) – الق
+ اعة 8116
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: علم الأدوية ( 3 ) –
+  القاعة 8116
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9700102-2026-12-01-08:00-7219@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261201T080000
+DTEND;TZID=Asia/Amman:20261201T160000
+SUMMARY:مراقبة: حقوق الانسان – القاعة 7219
+LOCATION:جامعة البترا – القاعة 7219
+DESCRIPTION:9700102 · 15 طالب في القاعة · مع د. نهيل 
+ محمد رجب الجابري
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: حقوق الانسان – القاع
+ ة 7219
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: حقوق الانسان – ا
+ لقاعة 7219
+END:VALARM
+END:VEVENT
+END:VCALENDAR

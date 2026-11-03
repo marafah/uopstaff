@@ -1,0 +1,133 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. فارس امين مفلح ابو ح
+ شيش
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:601105-2026-11-05-08:00-7107@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان مقررك: أساسيات تكنولوجيا الم
+ علومات – القاعة 7107
+LOCATION:جامعة البترا – القاعة 7107
+DESCRIPTION:601105 · 25 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: أساسيات تكنولو
+ جيا المعلومات – القاعة 7107
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: أساسيات تك
+ نولوجيا المعلومات – القاعة 7107
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:601105-2026-11-05-08:00-7107@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان مقررك: أساسيات تكنولوجيا الم
+ علومات – القاعة 7107
+LOCATION:جامعة البترا – القاعة 7107
+DESCRIPTION:601105 · 25 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: أساسيات تكنولو
+ جيا المعلومات – القاعة 7107
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: أساسيات تك
+ نولوجيا المعلومات – القاعة 7107
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ِA-1001412-2026-11-12-08:00-9217@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: المعالجة التحفظية واللبية - 
+ عملي ( 2 ) * – القاعة 9217
+LOCATION:جامعة البترا – القاعة 9217
+DESCRIPTION:ِA-1001412 · 20 طالب في القاعة · مع د. فا
+ طمة يس عبدالمتجلى مليجي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: المعالجة التحفظية وا
+ للبية - عملي ( 2 ) * – القاعة 9217
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: المعالجة التحفظي
+ ة واللبية - عملي ( 2 ) * – القاعة 9217
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001316-2026-11-19-08:00-9216@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: المعالجة اللبية -عملي ( 1 )* – 
+ القاعة 9216
+LOCATION:جامعة البترا – القاعة 9216
+DESCRIPTION:A-1001316 · 20 طالب في القاعة · مع د. عدي 
+ محمد محمود منصور
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: المعالجة اللبية -عمل
+ ي ( 1 )* – القاعة 9216
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: المعالجة اللبية -
+ عملي ( 1 )* – القاعة 9216
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:312110-2026-11-26-08:00-7318@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: رياضيات للعلوم الإدارية - E - 
+ – القاعة 7318
+LOCATION:جامعة البترا – القاعة 7318
+DESCRIPTION:312110 · 2 طالب في القاعة · مع د. فايز م
+ حمد سعيد حامد المومني
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: رياضيات للعلوم الإدا
+ رية - E - – القاعة 7318
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: رياضيات للعلوم ا
+ لإدارية - E - – القاعة 7318
+END:VALARM
+END:VEVENT
+END:VCALENDAR

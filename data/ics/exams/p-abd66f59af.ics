@@ -1,0 +1,132 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. محمد عماد مصطفى عرف
+ ة
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:601105-2026-11-05-08:00-B24245@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: أساسيات تكنولوجيا المعلومات
+  – القاعة B24245
+LOCATION:جامعة البترا – القاعة B24245
+DESCRIPTION:601105 · 25 طالب في القاعة · مع د. محمد 
+ علي عبيد الخالدي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: أساسيات تكنولوجيا ال
+ معلومات – القاعة B24245
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: أساسيات تكنولوجي
+ ا المعلومات – القاعة B24245
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301101-2026-11-12-08:00-7110@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: مبادئ الإدارة – القاعة 7110
+LOCATION:جامعة البترا – القاعة 7110
+DESCRIPTION:301101 · 25 طالب في القاعة · مع د. محمد 
+ مصطفى محمد العبادلة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مبادئ الإدارة – القا
+ عة 7110
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مبادئ الإدارة – 
+ القاعة 7110
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:101108-2026-11-19-08:00-A24018@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: مختبر كيمياء عامة – القاعة A2
+ 4018
+LOCATION:جامعة البترا – القاعة A24018
+DESCRIPTION:101108 · 26 طالب في القاعة · مع د. محمد 
+ مصطفى محمد العبادلة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مختبر كيمياء عامة – 
+ القاعة A24018
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مختبر كيمياء عام
+ ة – القاعة A24018
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:606475-2026-11-26-08:00-2409م@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان مقررك: استكشاف البيانات واست
+ عراضها – القاعة 2409م
+LOCATION:جامعة البترا – القاعة 2409م
+DESCRIPTION:606475 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: استكشاف البيان
+ ات واستعراضها – القاعة 2409م
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: استكشاف ال
+ بيانات واستعراضها – القاعة 2409م
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:606475-2026-11-26-08:00-2409م@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان مقررك: استكشاف البيانات واست
+ عراضها – القاعة 2409م
+LOCATION:جامعة البترا – القاعة 2409م
+DESCRIPTION:606475 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: استكشاف البيان
+ ات واستعراضها – القاعة 2409م
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: استكشاف ال
+ بيانات واستعراضها – القاعة 2409م
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,316 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. فاتن محمود ابو صلاح
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:606360-2026-11-02-08:00-7328@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261102T080000
+DTEND;TZID=Asia/Amman:20261102T160000
+SUMMARY:مراقبة: الذكاء الاصطناعي – القاعة 732
+ 8
+LOCATION:جامعة البترا – القاعة 7328
+DESCRIPTION:606360 · 15 طالب في القاعة · مع د. قاسم 
+ جميل علي الثبيتات
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الذكاء الاصطناعي – ا
+ لقاعة 7328
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الذكاء الاصطناعي
+  – القاعة 7328
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307303-2026-11-04-08:00-L36B@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:مراقبة: تشريعات و اخلاقيات التعامل م
+ ع البيانات والاعمال – القاعة L36B
+LOCATION:جامعة البترا – القاعة L36B
+DESCRIPTION:307303 · 15 طالب في القاعة · مع د. علي ي
+ ونس عبد الرحمن المقوسي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: تشريعات و اخلاقيات ا
+ لتعامل مع البيانات والاعمال – القاعة L36B
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: تشريعات و اخلاقي
+ ات التعامل مع البيانات والاعمال – القاع
+ ة L36B
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400108-2026-11-05-08:00-06002@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان مقررك: المهارات الحياتية – ا
+ لقاعة 06002
+LOCATION:جامعة البترا – القاعة 06002
+DESCRIPTION:9400108 · 55 طالب في القاعة · مع د. ابرا
+ هيم حسين محمد خليل
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: المهارات الحيا
+ تية – القاعة 06002
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: المهارات ا
+ لحياتية – القاعة 06002
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001431-2026-11-10-08:00-6206@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261110T080000
+DTEND;TZID=Asia/Amman:20261110T160000
+SUMMARY:مراقبة: أمراض وجراحة اللثة - نظري ( 1 ) 
+ * – القاعة 6206
+LOCATION:جامعة البترا – القاعة 6206
+DESCRIPTION:A-1001431 · 15 طالب في القاعة · مع د. علا 
+ محمد كامل علي الدباغ
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: أمراض وجراحة اللثة - 
+ نظري ( 1 ) * – القاعة 6206
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: أمراض وجراحة الل
+ ثة - نظري ( 1 ) * – القاعة 6206
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309101-2026-11-11-08:00-7328@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261111T080000
+DTEND;TZID=Asia/Amman:20261111T160000
+SUMMARY:مراقبة: مبادئ التسويق – القاعة 7328
+LOCATION:جامعة البترا – القاعة 7328
+DESCRIPTION:309101 · 15 طالب في القاعة · مع د. عبد ا
+ لكريم شعبان ابراهيم آغا
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مبادئ التسويق – القا
+ عة 7328
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مبادئ التسويق – 
+ القاعة 7328
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400107-2026-11-12-08:00-06002@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان مقررك: القيادة والمسؤولية ال
+ مجتمعية – القاعة 06002
+LOCATION:جامعة البترا – القاعة 06002
+DESCRIPTION:9400107 · 55 طالب في القاعة · مع أ.د. هنا
+ ء محمد هلال الحنيطي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: القيادة والمسؤ
+ ولية المجتمعية – القاعة 06002
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: القيادة وا
+ لمسؤولية المجتمعية – القاعة 06002
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307301-2026-11-17-08:00-06005@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:مراقبة: برمجة ذكاء الاعمال – القاعة 
+ 06005
+LOCATION:جامعة البترا – القاعة 06005
+DESCRIPTION:307301 · 15 طالب في القاعة · مع د. علي ي
+ ونس عبد الرحمن المقوسي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: برمجة ذكاء الاعمال –
+  القاعة 06005
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: برمجة ذكاء الاعم
+ ال – القاعة 06005
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:302101-2026-11-18-08:00-4528@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261118T080000
+DTEND;TZID=Asia/Amman:20261118T160000
+SUMMARY:مراقبة: مبادئ الإقتصاد الجزئي – الق
+ اعة 4528
+LOCATION:جامعة البترا – القاعة 4528
+DESCRIPTION:302101 · 15 طالب في القاعة · مع د. قاسم 
+ جميل علي الثبيتات
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مبادئ الإقتصاد الجزئ
+ ي – القاعة 4528
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مبادئ الإقتصاد ا
+ لجزئي – القاعة 4528
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:411212-2026-11-19-08:00-7218@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: مناهج التربية الرياضية – ال
+ قاعة 7218
+LOCATION:جامعة البترا – القاعة 7218
+DESCRIPTION:411212 · 15 طالب في القاعة · مع د. علي ي
+ ونس عبد الرحمن المقوسي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مناهج التربية الرياض
+ ية – القاعة 7218
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مناهج التربية ال
+ رياضية – القاعة 7218
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:601112-2026-11-25-08:00-L37B@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:مراقبة: لغة برمجة (1) – القاعة L37B
+LOCATION:جامعة البترا – القاعة L37B
+DESCRIPTION:601112 · 15 طالب في القاعة · مع د. علي ي
+ ونس عبد الرحمن المقوسي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: لغة برمجة (1) – القاعة
+  L37B
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: لغة برمجة (1) – ال
+ قاعة L37B
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:701418-2026-11-26-08:00-4421@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: القانون الدولي الخاص – القا
+ عة 4421
+LOCATION:جامعة البترا – القاعة 4421
+DESCRIPTION:701418 · 8 طالب في القاعة · مع د. قاسم ج
+ ميل علي الثبيتات
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: القانون الدولي الخاص
+  – القاعة 4421
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: القانون الدولي ا
+ لخاص – القاعة 4421
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:202103-2026-11-30-08:00-9001@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261130T080000
+DTEND;TZID=Asia/Amman:20261130T160000
+SUMMARY:مراقبة: أساسيات التصميم – القاعة 9001
+LOCATION:جامعة البترا – القاعة 9001
+DESCRIPTION:202103 · 15 طالب في القاعة · مع د. علي ي
+ ونس عبد الرحمن المقوسي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: أساسيات التصميم – ال
+ قاعة 9001
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: أساسيات التصميم 
+ – القاعة 9001
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:502200-2026-12-02-08:00-9001@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:مراقبة: الإسعافات الأولية لطب الأسن
+ ان – القاعة 9001
+LOCATION:جامعة البترا – القاعة 9001
+DESCRIPTION:502200 · 15 طالب في القاعة · مع د. علي ي
+ ونس عبد الرحمن المقوسي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الإسعافات الأولية لط
+ ب الأسنان – القاعة 9001
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الإسعافات الأولي
+ ة لطب الأسنان – القاعة 9001
+END:VALARM
+END:VEVENT
+END:VCALENDAR

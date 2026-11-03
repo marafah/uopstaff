@@ -1,0 +1,315 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – أ.د. عنبر ابراهيم شلاش 
+ محمد
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:9401099-2026-11-02-08:00-3502@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261102T080000
+DTEND;TZID=Asia/Amman:20261102T160000
+SUMMARY:مراقبة: لغة عربية -استدراكية – القاع
+ ة 3502
+LOCATION:جامعة البترا – القاعة 3502
+DESCRIPTION:9401099 · 30 طالب في القاعة · مع أ.د. علي
+  محمود أبو غنيمة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: لغة عربية -استدراكية 
+ – القاعة 3502
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: لغة عربية -استدرا
+ كية – القاعة 3502
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001313-2026-11-05-08:00-7420@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: المعالجة التحفظية - نظري ( 1 ) *
+  – القاعة 7420
+LOCATION:جامعة البترا – القاعة 7420
+DESCRIPTION:A-1001313 · 23 طالب في القاعة · مع أ.د. في
+ صل أسعد فريد أبوالرب
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: المعالجة التحفظية - ن
+ ظري ( 1 ) * – القاعة 7420
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: المعالجة التحفظي
+ ة - نظري ( 1 ) * – القاعة 7420
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:503170-2026-11-08-08:00-L36B@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:مراقبة: علوم الحياة – القاعة L36B
+LOCATION:جامعة البترا – القاعة L36B
+DESCRIPTION:503170 · 15 طالب في القاعة · مع أ.د. فيص
+ ل أسعد فريد أبوالرب
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: علوم الحياة – القاعة
+  L36B
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: علوم الحياة – ال
+ قاعة L36B
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:603480-2026-11-09-08:00-7328@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261109T080000
+DTEND;TZID=Asia/Amman:20261109T160000
+SUMMARY:مراقبة: مشروع تخرج (1) – القاعة 7328
+LOCATION:جامعة البترا – القاعة 7328
+DESCRIPTION:603480 · 15 طالب في القاعة · مع أ.د. علي 
+ محمود أبو غنيمة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مشروع تخرج (1) – القاع
+ ة 7328
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مشروع تخرج (1) – ا
+ لقاعة 7328
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309101-2026-11-11-08:00-L22B@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261111T080000
+DTEND;TZID=Asia/Amman:20261111T160000
+SUMMARY:مراقبة: مبادئ التسويق – القاعة L22B
+LOCATION:جامعة البترا – القاعة L22B
+DESCRIPTION:309101 · 15 طالب في القاعة · مع أ.د. علي 
+ محمود أبو غنيمة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مبادئ التسويق – القا
+ عة L22B
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مبادئ التسويق – 
+ القاعة L22B
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:501512-2026-11-12-08:00-9004@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: مختبر الممارسة الصيدلانية (2)
+  – القاعة 9004
+LOCATION:جامعة البترا – القاعة 9004
+DESCRIPTION:501512 · 10 طالب في القاعة · مع أ.د. نضا
+ ل عادل محمد القنة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مختبر الممارسة الصيد
+ لانية (2) – القاعة 9004
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مختبر الممارسة ا
+ لصيدلانية (2) – القاعة 9004
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:603102-2026-11-16-08:00-L36B@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261116T080000
+DTEND;TZID=Asia/Amman:20261116T160000
+SUMMARY:مراقبة: مقدمة لتصميم المواقع الالكت
+ رونية – القاعة L36B
+LOCATION:جامعة البترا – القاعة L36B
+DESCRIPTION:603102 · 9 طالب في القاعة · مع أ.د. محمو
+ د احمد محمد سعيد السلمان
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مقدمة لتصميم المواقع
+  الالكترونية – القاعة L36B
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مقدمة لتصميم الم
+ واقع الالكترونية – القاعة L36B
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:601222-2026-11-18-08:00-L33A@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261118T080000
+DTEND;TZID=Asia/Amman:20261118T160000
+SUMMARY:مراقبة: تراكيب البيانات و الخوارزمي
+ ات – القاعة L33A
+LOCATION:جامعة البترا – القاعة L33A
+DESCRIPTION:601222 · 15 طالب في القاعة · مع أ.د. محم
+ ود احمد محمد سعيد السلمان
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: تراكيب البيانات و ال
+ خوارزميات – القاعة L33A
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: تراكيب البيانات 
+ و الخوارزميات – القاعة L33A
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:501356-2026-11-19-08:00-4107ب@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: أدوية بدون وصفة طبية – القاع
+ ة 4107ب
+LOCATION:جامعة البترا – القاعة 4107ب
+DESCRIPTION:501356 · 14 طالب في القاعة · مع م. ميساء
+  محمد جعفر علي الحنبلي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: أدوية بدون وصفة طبية 
+ – القاعة 4107ب
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: أدوية بدون وصفة ط
+ بية – القاعة 4107ب
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9500111-2026-11-25-08:00-L21B@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:مراقبة: الغذاء والتغذية في حياتنا ( ل
+ غير طلبة التغذية ) – القاعة L21B
+LOCATION:جامعة البترا – القاعة L21B
+DESCRIPTION:9500111 · 1 طالب في القاعة · مع أ.د. محم
+ ود احمد محمد سعيد السلمان
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الغذاء والتغذية في ح
+ ياتنا ( لغير طلبة التغذية ) – القاعة L21B
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الغذاء والتغذية 
+ في حياتنا ( لغير طلبة التغذية ) – القاعة L
+ 21B
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:701131-2026-11-26-08:00-06105@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: مبادئ القانون التجاري – الق
+ اعة 06105
+LOCATION:جامعة البترا – القاعة 06105
+DESCRIPTION:701131 · 15 طالب في القاعة · مع أ.د. نهى 
+ هاني محمد صالح الخليلي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مبادئ القانون التجار
+ ي – القاعة 06105
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مبادئ القانون ال
+ تجاري – القاعة 06105
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9402099-2026-11-30-08:00-9002@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261130T080000
+DTEND;TZID=Asia/Amman:20261130T160000
+SUMMARY:مراقبة: لغة انجليزية-استدراكية – ال
+ قاعة 9002
+LOCATION:جامعة البترا – القاعة 9002
+DESCRIPTION:9402099 · 15 طالب في القاعة · مع أ.د. محم
+ ود احمد محمد سعيد السلمان
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: لغة انجليزية-استدراك
+ ية – القاعة 9002
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: لغة انجليزية-است
+ دراكية – القاعة 9002
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:203107-2026-12-02-08:00-9002@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:مراقبة: رسم حر – القاعة 9002
+LOCATION:جامعة البترا – القاعة 9002
+DESCRIPTION:203107 · 1 طالب في القاعة · مع أ.د. نضال
+  عادل محمد القنة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: رسم حر – القاعة 9002
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: رسم حر – القاعة 90
+ 02
+END:VALARM
+END:VEVENT
+END:VCALENDAR

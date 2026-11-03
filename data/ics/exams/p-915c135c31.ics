@@ -1,0 +1,156 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – أ.د. اياد مازن عمر المل
+ اح
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:9601099-2026-11-09-08:00-3502@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261109T080000
+DTEND;TZID=Asia/Amman:20261109T160000
+SUMMARY:مراقبة: مهارات حاسوب-استدراكية – ال
+ قاعة 3502
+LOCATION:جامعة البترا – القاعة 3502
+DESCRIPTION:9601099 · 30 طالب في القاعة · مع د. أمان 
+ عليان سلام نويران
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مهارات حاسوب-استدراك
+ ية – القاعة 3502
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مهارات حاسوب-است
+ دراكية – القاعة 3502
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400107-2026-11-12-08:00-06115@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: القيادة والمسؤولية المجتمعي
+ ة – القاعة 06115
+LOCATION:جامعة البترا – القاعة 06115
+DESCRIPTION:9400107 · 35 طالب في القاعة · مع أ.د. بسا
+ م عادل يوسف حداد
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: القيادة والمسؤولية ا
+ لمجتمعية – القاعة 06115
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: القيادة والمسؤول
+ ية المجتمعية – القاعة 06115
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9600104-2026-11-16-08:00-3502@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261116T080000
+DTEND;TZID=Asia/Amman:20261116T160000
+SUMMARY:مراقبة: الثقافة الرقمية – القاعة 3502
+LOCATION:جامعة البترا – القاعة 3502
+DESCRIPTION:9600104 · 30 طالب في القاعة · مع د. يزن ش
+ اهر محمد المومني
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الثقافة الرقمية – ال
+ قاعة 3502
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الثقافة الرقمية 
+ – القاعة 3502
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:313101-2026-11-19-08:00-3403@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: مبادىء المحاسبة (1) - ُE - – الق
+ اعة 3403
+LOCATION:جامعة البترا – القاعة 3403
+DESCRIPTION:313101 · 25 طالب في القاعة · مع هيئه تد
+ ريسيه
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مبادىء المحاسبة (1) - ُ
+ E - – القاعة 3403
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مبادىء المحاسبة (
+ 1) - ُE - – القاعة 3403
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400100-2026-11-23-08:00-1101@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261123T080000
+DTEND;TZID=Asia/Amman:20261123T160000
+SUMMARY:مراقبة: التربية الوطنية – القاعة 1101
+LOCATION:جامعة البترا – القاعة 1101
+DESCRIPTION:9400100 · 25 طالب في القاعة · مع د. يزن ش
+ اهر محمد المومني
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: التربية الوطنية – ال
+ قاعة 1101
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: التربية الوطنية 
+ – القاعة 1101
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9402099-2026-11-30-08:00-9426@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261130T080000
+DTEND;TZID=Asia/Amman:20261130T160000
+SUMMARY:مراقبة: لغة انجليزية-استدراكية – ال
+ قاعة 9426
+LOCATION:جامعة البترا – القاعة 9426
+DESCRIPTION:9402099 · 35 طالب في القاعة · مع م.جمال 
+ الدين السيد محمد عبد القادر
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: لغة انجليزية-استدراك
+ ية – القاعة 9426
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: لغة انجليزية-است
+ دراكية – القاعة 9426
+END:VALARM
+END:VEVENT
+END:VCALENDAR

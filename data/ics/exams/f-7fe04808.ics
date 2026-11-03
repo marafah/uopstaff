@@ -1,0 +1,4329 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:امتحانات العلوم الادارية والمالي
+ ة – جامعة البترا
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:304413-2026-11-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261102T080000
+DTEND;TZID=Asia/Amman:20261102T160000
+SUMMARY:امتحان 304413 تكنولوجيا الوسائط المتعد
+ دة
+LOCATION:
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 61 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304413 تكنولوجيا الوسائ
+ ط المتعددة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304413 تكنولوجيا الو
+ سائط المتعددة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311333-2026-11-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261102T080000
+DTEND;TZID=Asia/Amman:20261102T160000
+SUMMARY:امتحان 311333 إدارة وتخطيط المشاريع - E -
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 60
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311333 إدارة وتخطيط المش
+ اريع - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311333 إدارة وتخطيط 
+ المشاريع - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307203-2026-11-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261102T080000
+DTEND;TZID=Asia/Amman:20261102T160000
+SUMMARY:امتحان 307203 اداره و تصميم جداول البيا
+ نات للاعمال الذكيه VBA
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 59 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307203 اداره و تصميم جدا
+ ول البيانات للاعمال الذكيه VBA
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307203 اداره و تصميم 
+ جداول البيانات للاعمال الذكيه VBA
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304208-2026-11-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261102T080000
+DTEND;TZID=Asia/Amman:20261102T160000
+SUMMARY:امتحان 304208 برمجة تطبيقات الأعمال ال
+ الكترونية
+LOCATION:
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 47 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304208 برمجة تطبيقات الأ
+ عمال الالكترونية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304208 برمجة تطبيقات
+  الأعمال الالكترونية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309498-2026-11-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261102T080000
+DTEND;TZID=Asia/Amman:20261102T160000
+SUMMARY:امتحان 309498 تدريب ميداني
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 33 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309498 تدريب ميداني
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309498 تدريب ميداني
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307498-2026-11-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261102T080000
+DTEND;TZID=Asia/Amman:20261102T160000
+SUMMARY:امتحان 307498 مشروع تخرج/ تدريب ميداني
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 28 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307498 مشروع تخرج/ تدريب 
+ ميداني
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307498 مشروع تخرج/ تد
+ ريب ميداني
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301331-2026-11-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261102T080000
+DTEND;TZID=Asia/Amman:20261102T160000
+SUMMARY:امتحان 301331 السلوك التنظيمي
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 20
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301331 السلوك التنظيمي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301331 السلوك التنظي
+ مي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309207-2026-11-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261102T080000
+DTEND;TZID=Asia/Amman:20261102T160000
+SUMMARY:امتحان 309207 العلاقات العامة
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 19 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309207 العلاقات العامة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309207 العلاقات العا
+ مة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:302215-2026-11-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261102T080000
+DTEND;TZID=Asia/Amman:20261102T160000
+SUMMARY:امتحان 302215 إدارة الاستثمار
+LOCATION:
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 14 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 302215 إدارة الاستثمار
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 302215 إدارة الاستثم
+ ار
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303201-2026-11-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261102T080000
+DTEND;TZID=Asia/Amman:20261102T160000
+SUMMARY:امتحان 303201 محاسبة الشركات ( اشخاص وا
+ موال )
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 12 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303201 محاسبة الشركات ( ا
+ شخاص واموال )
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303201 محاسبة الشركا
+ ت ( اشخاص واموال )
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307302-2026-11-03-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261103T080000
+DTEND;TZID=Asia/Amman:20261103T160000
+SUMMARY:امتحان 307302 الذكاء الاصطناعي و تعلم ا
+ لالة في الاعمال
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 60 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307302 الذكاء الاصطناعي 
+ و تعلم الالة في الاعمال
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307302 الذكاء الاصطن
+ اعي و تعلم الالة في الاعمال
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:318101-2026-11-03-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261103T080000
+DTEND;TZID=Asia/Amman:20261103T160000
+SUMMARY:امتحان 318101 نظم وتطبقات الحاسوب الاد
+ ارية والماليةE
+LOCATION:
+DESCRIPTION:الامتحان الأول · التكنولوجيا الما
+ لية · 48 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 318101 نظم وتطبقات الحاس
+ وب الادارية والماليةE
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 318101 نظم وتطبقات ا
+ لحاسوب الادارية والماليةE
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304305-2026-11-03-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261103T080000
+DTEND;TZID=Asia/Amman:20261103T160000
+SUMMARY:امتحان 304305 أمن نظم مواقع الشبكة المع
+ لوماتية
+LOCATION:
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 39 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304305 أمن نظم مواقع الش
+ بكة المعلوماتية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304305 أمن نظم مواقع 
+ الشبكة المعلوماتية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309311-2026-11-03-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261103T080000
+DTEND;TZID=Asia/Amman:20261103T160000
+SUMMARY:امتحان 309311 سلوك المستهلك الرقمي
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 29 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309311 سلوك المستهلك الر
+ قمي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309311 سلوك المستهلك
+  الرقمي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301332-2026-11-03-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261103T080000
+DTEND;TZID=Asia/Amman:20261103T160000
+SUMMARY:امتحان 301332 بحوث العمليات في الإدارة 
+ (1)
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 15
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301332 بحوث العمليات في 
+ الإدارة (1)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301332 بحوث العمليات
+  في الإدارة (1)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303425-2026-11-03-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261103T080000
+DTEND;TZID=Asia/Amman:20261103T160000
+SUMMARY:امتحان 303425 معايير التدقيق الدولية
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 13 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303425 معايير التدقيق ال
+ دولية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303425 معايير التدقي
+ ق الدولية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307303-2026-11-04-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:امتحان 307303 تشريعات و اخلاقيات التعا
+ مل مع البيانات والاعمال
+LOCATION:L36B / 7328 / 9001 / 1104
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 60 طالب · القاعات: L36B / 7328 / 9
+ 001 / 1104
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307303 تشريعات و اخلاقيا
+ ت التعامل مع البيانات والاعمال
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307303 تشريعات و اخل
+ اقيات التعامل مع البيانات والاعمال
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:320213-2026-11-04-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:امتحان 320213 إدارة المشتريات
+LOCATION:4528
+DESCRIPTION:الامتحان الأول · إدارة سلاسل التو
+ ريد والعلوم اللوجستية · 60 طالب · القاعات
+ : 4528
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 320213 إدارة المشتريات
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 320213 إدارة المشتري
+ ات
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309319-2026-11-04-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:امتحان 309319 تصميم وأمن مواقع الإنترن
+ ت
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 50 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309319 تصميم وأمن مواقع 
+ الإنترنت
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309319 تصميم وأمن مو
+ اقع الإنترنت
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:308210-2026-11-04-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:امتحان 308210 أساسيات التكنولوجيا الما
+ لية
+LOCATION:
+DESCRIPTION:الامتحان الأول · التكنولوجيا الما
+ لية · 48 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 308210 أساسيات التكنولو
+ جيا المالية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 308210 أساسيات التكن
+ ولوجيا المالية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304203-2026-11-04-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:امتحان 304203 استراتيجيات الأعمال الال
+ كترونية
+LOCATION:
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 43 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304203 استراتيجيات الأع
+ مال الالكترونية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304203 استراتيجيات ا
+ لأعمال الالكترونية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301445-2026-11-04-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:امتحان 301445 إدارة التغيير
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 32
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301445 إدارة التغيير
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301445 إدارة التغيير
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301217-2026-11-04-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:امتحان 301217 المسؤولية الاجتماعية وأخ
+ لاقيات الأعمال
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 31
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301217 المسؤولية الاجتم
+ اعية وأخلاقيات الأعمال
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301217 المسؤولية الا
+ جتماعية وأخلاقيات الأعمال
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304414-2026-11-04-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:امتحان 304414 ادارة مشاريع الأعمال الا
+ لكترونية
+LOCATION:
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 28 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304414 ادارة مشاريع الأع
+ مال الالكترونية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304414 ادارة مشاريع 
+ الأعمال الالكترونية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:308499-2026-11-04-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:امتحان 308499 مهارات مهنية في التكنولو
+ جيا المالية
+LOCATION:
+DESCRIPTION:الامتحان الأول · التكنولوجيا الما
+ لية · 15 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 308499 مهارات مهنية في ا
+ لتكنولوجيا المالية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 308499 مهارات مهنية 
+ في التكنولوجيا المالية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:306721-2026-11-04-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:امتحان 306721 ادارة التسويق
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 12 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 306721 ادارة التسويق
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 306721 ادارة التسويق
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304101-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 304101 مقدمة في الأعمال الالكتر
+ ونية
+LOCATION:8B-8142 / 8405 / A24323 / A24023 / 8108 / 8109 / 9422 / 7419 (م
+ ختبر) / 7422 (مختبر) / 7424 (مختبر) / 7426 (مختبر)
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 305 طالب · القاعات: 8B-8142 / 8405
+  / A24323 / A24023 / 8108 / 8109 / 9422 / 7419 (مختبر) / 7422 (مخ
+ تبر) / 7424 (مختبر) / 7426 (مختبر)
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304101 مقدمة في الأعمال 
+ الالكترونية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304101 مقدمة في الأع
+ مال الالكترونية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301311-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 301311 إدارة الموارد البشرية
+LOCATION:7428 (مختبر) / 2105 (مختبر) / 2106 (مختبر) / 8401 
+ (مختبر) / 2101 (مختبر) / 2103 (مختبر) / 2104 (مختبر)
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 17
+ 9 طالب · القاعات: 7428 (مختبر) / 2105 (مختبر) / 210
+ 6 (مختبر) / 8401 (مختبر) / 2101 (مختبر) / 2103 (مختبر
+ ) / 2104 (مختبر)
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301311 إدارة الموارد الب
+ شرية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301311 إدارة الموارد
+  البشرية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:319101-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 319101 مبادىء التسويق - E -
+LOCATION:7319 / 7322 / 7324 / 9117 / 9219 / 7320
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 150 طالب · القاعات: 7319 / 7322 / 7324 / 9117 / 9219 / 7320
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 319101 مبادىء التسويق - E 
+ -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 319101 مبادىء التسوي
+ ق - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:320310-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 320310 إدارة الاستيراد والتصدير
+LOCATION:7325 / 9004 / 9115 / 2202
+DESCRIPTION:الامتحان الأول · إدارة سلاسل التو
+ ريد والعلوم اللوجستية · 60 طالب · القاعات
+ : 7325 / 9004 / 9115 / 2202
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 320310 إدارة الاستيراد و
+ التصدير
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 320310 إدارة الاستير
+ اد والتصدير
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311315-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 311315 القيادة والاشراف الإداري
+  E -
+LOCATION:L31B / L33A / 2210
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 39
+  طالب · القاعات: L31B / L33A / 2210
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311315 القيادة والاشراف 
+ الإداري E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311315 القيادة والاش
+ راف الإداري E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:313325-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 313325 النظرية المحاسبية - E-
+LOCATION:4310أ / L37B / L36B
+DESCRIPTION:الامتحان الأول · المحاسبة · 32 طالب
+  · القاعات: 4310أ / L37B / L36B
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 313325 النظرية المحاسبي
+ ة - E-
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 313325 النظرية المحا
+ سبية - E-
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303310-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 303310 نظم المعلومات المحاسبية
+LOCATION:6206 / 0-4217
+DESCRIPTION:الامتحان الأول · المحاسبة · 25 طالب
+  · القاعات: 6206 / 0-4217
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303310 نظم المعلومات الم
+ حاسبية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303310 نظم المعلومات
+  المحاسبية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309422-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 309422 بحوث التسويق
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 18 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309422 بحوث التسويق
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309422 بحوث التسويق
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:302100-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 302100 مبادئ الاقتصاد لطلبة الإ
+ علام
+LOCATION:
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 16 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 302100 مبادئ الاقتصاد لط
+ لبة الإعلام
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 302100 مبادئ الاقتصا
+ د لطلبة الإعلام
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301334-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 301334 تطبيقات الحاسوب في إدارة 
+ الأعمال
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 12
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301334 تطبيقات الحاسوب ف
+ ي إدارة الأعمال
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301334 تطبيقات الحاس
+ وب في إدارة الأعمال
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301711-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 301711 إدارة الموارد البشرية
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 8 
+ طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301711 إدارة الموارد الب
+ شرية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301711 إدارة الموارد
+  البشرية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:306729-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 306729 تحليلات التسويق الرقمية
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 6 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 306729 تحليلات التسويق ا
+ لرقمية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 306729 تحليلات التسو
+ يق الرقمية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301221-2026-11-08-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:امتحان 301221 تشريعات تجارية (1)
+LOCATION:15101 / A24245 / A24246 / A24117 (مختبر) / 7221 / 06202 / 44
+ 21 / 2301
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 18
+ 2 طالب · القاعات: 15101 / A24245 / A24246 / A24117 (مختب
+ ر) / 7221 / 06202 / 4421 / 2301
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301221 تشريعات تجارية (1)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301221 تشريعات تجاري
+ ة (1)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304412-2026-11-08-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:امتحان 304412 أدوات وتطبيقات الأعمال ا
+ لإلكترونية
+LOCATION:
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 73 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304412 أدوات وتطبيقات ال
+ أعمال الإلكترونية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304412 أدوات وتطبيقا
+ ت الأعمال الإلكترونية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307102-2026-11-08-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:امتحان 307102 التحليل الإحصائي الوصفي 
+ للأعمال
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 72 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307102 التحليل الإحصائي 
+ الوصفي للأعمال
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307102 التحليل الإحص
+ ائي الوصفي للأعمال
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:312101-2026-11-08-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:امتحان 312101 مبادىء الإقتصاد الجزئي - 
+ ُE -
+LOCATION:
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 59 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 312101 مبادىء الإقتصاد ا
+ لجزئي - ُE -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 312101 مبادىء الإقتص
+ اد الجزئي - ُE -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311372-2026-11-08-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:امتحان 311372 الإتصالات الإدارية - E -
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 38
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311372 الإتصالات الإدار
+ ية - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311372 الإتصالات الإ
+ دارية - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309426-2026-11-08-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:امتحان 309426 قضايا معاصرة في التسويق ا
+ لرقمي
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 27 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309426 قضايا معاصرة في ا
+ لتسويق الرقمي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309426 قضايا معاصرة 
+ في التسويق الرقمي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9301000-2026-11-08-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:امتحان 9301000 خدمة المجتمع المحلي ( ادا
+ رة الأعمال )
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 27
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 9301000 خدمة المجتمع الم
+ حلي ( ادارة الأعمال )
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 9301000 خدمة المجتمع 
+ المحلي ( ادارة الأعمال )
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9303000-2026-11-08-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:امتحان 9303000 خدمة المجتمع المحلي ( الم
+ حاسبة )
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 21 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 9303000 خدمة المجتمع الم
+ حلي ( المحاسبة )
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 9303000 خدمة المجتمع 
+ المحلي ( المحاسبة )
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9308000-2026-11-08-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:امتحان 9308000 خدمة المجتمع المحلي ( الت
+ كنولوجيا المالية )
+LOCATION:
+DESCRIPTION:الامتحان الأول · التكنولوجيا الما
+ لية · 14 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 9308000 خدمة المجتمع الم
+ حلي ( التكنولوجيا المالية )
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 9308000 خدمة المجتمع 
+ المحلي ( التكنولوجيا المالية )
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:302221-2026-11-08-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:امتحان 302221 نقود وبنوك
+LOCATION:
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 9 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 302221 نقود وبنوك
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 302221 نقود وبنوك
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:308101-2026-11-09-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261109T080000
+DTEND;TZID=Asia/Amman:20261109T160000
+SUMMARY:امتحان 308101 نظم وتطبيقات الحاسوب الا
+ دارية والمالية
+LOCATION:
+DESCRIPTION:الامتحان الأول · التكنولوجيا الما
+ لية · 134 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 308101 نظم وتطبيقات الحا
+ سوب الادارية والمالية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 308101 نظم وتطبيقات 
+ الحاسوب الادارية والمالية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307304-2026-11-09-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261109T080000
+DTEND;TZID=Asia/Amman:20261109T160000
+SUMMARY:امتحان 307304 ذكاء الاعمال و تنقيب البي
+ انات
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 71 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307304 ذكاء الاعمال و تن
+ قيب البيانات
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307304 ذكاء الاعمال 
+ و تنقيب البيانات
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304304-2026-11-09-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261109T080000
+DTEND;TZID=Asia/Amman:20261109T160000
+SUMMARY:امتحان 304304 نماذج وعمليات الأعمال ال
+ الكترونية
+LOCATION:
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 68 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304304 نماذج وعمليات الأ
+ عمال الالكترونية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304304 نماذج وعمليات
+  الأعمال الالكترونية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311215-2026-11-09-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261109T080000
+DTEND;TZID=Asia/Amman:20261109T160000
+SUMMARY:امتحان 311215 إدارة الجودة الشاملة - E -
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 44
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311215 إدارة الجودة الشا
+ ملة - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311215 إدارة الجودة 
+ الشاملة - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309318-2026-11-09-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261109T080000
+DTEND;TZID=Asia/Amman:20261109T160000
+SUMMARY:امتحان 309318 التسويق من خلال شبكات الت
+ واصل الاجتماعي
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 24 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309318 التسويق من خلال ش
+ بكات التواصل الاجتماعي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309318 التسويق من خل
+ ال شبكات التواصل الاجتماعي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:308420-2026-11-09-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261109T080000
+DTEND;TZID=Asia/Amman:20261109T160000
+SUMMARY:امتحان 308420 البلوكشين والتطبيقات الم
+ الية
+LOCATION:
+DESCRIPTION:الامتحان الأول · التكنولوجيا الما
+ لية · 23 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 308420 البلوكشين والتطب
+ يقات المالية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 308420 البلوكشين وال
+ تطبيقات المالية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:302110-2026-11-10-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261110T080000
+DTEND;TZID=Asia/Amman:20261110T160000
+SUMMARY:امتحان 302110 رياضيات للعلوم الإدارية
+LOCATION:4421 / L21B / L21A / 2301 / 9116 / 4430 / 7328 / 7427
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 120 طالب · القاعات: 4421 / L21B / L21A / 
+ 2301 / 9116 / 4430 / 7328 / 7427
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 302110 رياضيات للعلوم ال
+ إدارية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 302110 رياضيات للعلو
+ م الإدارية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307305-2026-11-10-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261110T080000
+DTEND;TZID=Asia/Amman:20261110T160000
+SUMMARY:امتحان 307305 تطبيقات الامن السبراني ف
+ ي الاعمال الذكيه
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 59 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307305 تطبيقات الامن الس
+ براني في الاعمال الذكيه
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307305 تطبيقات الامن
+  السبراني في الاعمال الذكيه
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311217-2026-11-10-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261110T080000
+DTEND;TZID=Asia/Amman:20261110T160000
+SUMMARY:امتحان 311217 المسؤولية الاجتماعية واخ
+ لاقيات الاعمال - ُE -
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 49
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311217 المسؤولية الاجتم
+ اعية واخلاقيات الاعمال - ُE -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311217 المسؤولية الا
+ جتماعية واخلاقيات الاعمال - ُE -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304499-2026-11-10-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261110T080000
+DTEND;TZID=Asia/Amman:20261110T160000
+SUMMARY:امتحان 304499 مهارات مهنية في الأعمال و
+ التجارة الالكترونية
+LOCATION:
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 29 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304499 مهارات مهنية في ا
+ لأعمال والتجارة الالكترونية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304499 مهارات مهنية 
+ في الأعمال والتجارة الالكترونية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309317-2026-11-10-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261110T080000
+DTEND;TZID=Asia/Amman:20261110T160000
+SUMMARY:امتحان 309317 التسويق باستخدام محركات 
+ البحث
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 25 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309317 التسويق باستخدام 
+ محركات البحث
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309317 التسويق باستخ
+ دام محركات البحث
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301333-2026-11-10-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261110T080000
+DTEND;TZID=Asia/Amman:20261110T160000
+SUMMARY:امتحان 301333 إدارة وتخطيط المشاريع
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 24
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301333 إدارة وتخطيط المش
+ اريع
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301333 إدارة وتخطيط 
+ المشاريع
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311423-2026-11-10-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261110T080000
+DTEND;TZID=Asia/Amman:20261110T160000
+SUMMARY:امتحان 311423 إدارة الأعمال الدولية - E -
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 14
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311423 إدارة الأعمال الد
+ ولية - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311423 إدارة الأعمال
+  الدولية - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303330-2026-11-10-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261110T080000
+DTEND;TZID=Asia/Amman:20261110T160000
+SUMMARY:امتحان 303330 تدقيق الحسابات
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 10 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303330 تدقيق الحسابات
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303330 تدقيق الحسابا
+ ت
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309101-2026-11-11-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261111T080000
+DTEND;TZID=Asia/Amman:20261111T160000
+SUMMARY:امتحان 309101 مبادئ التسويق
+LOCATION:L21B / 4105 / 9002 / ورش ومشاغل / L22B / L31B / L33A / 4
+ 310ب / L37B / L36B / 7328 / 9001
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 180 طالب · القاعات: L21B / 4105 / 9002 / ورش ومشاغل 
+ / L22B / L31B / L33A / 4310ب / L37B / L36B / 7328 / 9001
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309101 مبادئ التسويق
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309101 مبادئ التسويق
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304401-2026-11-11-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261111T080000
+DTEND;TZID=Asia/Amman:20261111T160000
+SUMMARY:امتحان 304401 الإدارة الالكترونية لسلس
+ لة التزويد
+LOCATION:1104 / 4528
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 125 طالب · القاعات: 1104 / 4528
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304401 الإدارة الالكترو
+ نية لسلسلة التزويد
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304401 الإدارة الالك
+ ترونية لسلسلة التزويد
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:320210-2026-11-11-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261111T080000
+DTEND;TZID=Asia/Amman:20261111T160000
+SUMMARY:امتحان 320210 مقدمة في اللوجستيات
+LOCATION:
+DESCRIPTION:الامتحان الأول · إدارة سلاسل التو
+ ريد والعلوم اللوجستية · 36 طالب · القاعات
+ : 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 320210 مقدمة في اللوجستي
+ ات
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 320210 مقدمة في اللو
+ جستيات
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309313-2026-11-11-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261111T080000
+DTEND;TZID=Asia/Amman:20261111T160000
+SUMMARY:امتحان 309313 ادارة المنتجات الجديدة
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 22 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309313 ادارة المنتجات ال
+ جديدة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309313 ادارة المنتجا
+ ت الجديدة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:302441-2026-11-11-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261111T080000
+DTEND;TZID=Asia/Amman:20261111T160000
+SUMMARY:امتحان 302441 إدارة محافظ الاستثمار
+LOCATION:
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 20 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 302441 إدارة محافظ الاست
+ ثمار
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 302441 إدارة محافظ ا
+ لاستثمار
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303499-2026-11-11-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261111T080000
+DTEND;TZID=Asia/Amman:20261111T160000
+SUMMARY:امتحان 303499 مهارات مهنية في المحاسبة
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 18 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303499 مهارات مهنية في ا
+ لمحاسبة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303499 مهارات مهنية 
+ في المحاسبة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301423-2026-11-11-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261111T080000
+DTEND;TZID=Asia/Amman:20261111T160000
+SUMMARY:امتحان 301423 إدارة الأعمال الدولية
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 16
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301423 إدارة الأعمال الد
+ ولية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301423 إدارة الأعمال
+  الدولية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:313220-2026-11-11-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261111T080000
+DTEND;TZID=Asia/Amman:20261111T160000
+SUMMARY:امتحان 313220 المحاسبة المتوسطة (2) - ُE -
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 10 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 313220 المحاسبة المتوسط
+ ة (2) - ُE -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 313220 المحاسبة المت
+ وسطة (2) - ُE -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301101-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 301101 مبادئ الإدارة
+LOCATION:2104 (مختبر) / A24018 (مختبر) / 7110 / 8107 / 7107 / 71
+ 09 / A24117 (مختبر) / 9216
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 18
+ 4 طالب · القاعات: 2104 (مختبر) / A24018 (مختبر) / 7
+ 110 / 8107 / 7107 / 7109 / A24117 (مختبر) / 9216
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301101 مبادئ الإدارة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301101 مبادئ الإدارة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304311-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 304311 إدارة شبكات التواصل الاج
+ تماعي والعلاقة الالكترونية مع الزبائن
+LOCATION:7215 / B24245 / 8B-8143 / 1101 / 3403 / 8206 / A24222 / ِA24123
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 180 طالب · القاعات: 7215 / B24245 
+ / 8B-8143 / 1101 / 3403 / 8206 / A24222 / ِA24123
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304311 إدارة شبكات التوا
+ صل الاجتماعي والعلاقة الالكترونية مع ال
+ زبائن
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304311 إدارة شبكات ا
+ لتواصل الاجتماعي والعلاقة الالكترونية 
+ مع الزبائن
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303101-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 303101 مبادئ المحاسبة (1)
+LOCATION:8B-8141 / 8B-8145 / 7317 / 7318 / 7319
+DESCRIPTION:الامتحان الأول · المحاسبة · 118 طال
+ ب · القاعات: 8B-8141 / 8B-8145 / 7317 / 7318 / 7319
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303101 مبادئ المحاسبة (1)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303101 مبادئ المحاسب
+ ة (1)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309309-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 309309 ادارة المبيعات
+LOCATION:9416 / 6304 / 8101 / 9420
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 61 طالب · القاعات: 9416 / 6304 / 8101 / 9420
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309309 ادارة المبيعات
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309309 ادارة المبيعا
+ ت
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:320212-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 320212 إدارة المخازن
+LOCATION:L11A / L34A / L21B
+DESCRIPTION:الامتحان الأول · إدارة سلاسل التو
+ ريد والعلوم اللوجستية · 45 طالب · القاعات
+ : L11A / L34A / L21B
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 320212 إدارة المخازن
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 320212 إدارة المخازن
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311447-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 311447 الريادة وإدارة الأعمال ا
+ لصغيرة - E -
+LOCATION:7418 / 9002 / 2409م
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 35
+  طالب · القاعات: 7418 / 9002 / 2409م
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311447 الريادة وإدارة ال
+ أعمال الصغيرة - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311447 الريادة وإدار
+ ة الأعمال الصغيرة - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:313210-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 313210 محاسبة التكاليف (1) - E -
+LOCATION:L33A / 2210
+DESCRIPTION:الامتحان الأول · المحاسبة · 28 طالب
+  · القاعات: L33A / 2210
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 313210 محاسبة التكاليف (1
+ ) - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 313210 محاسبة التكال
+ يف (1) - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:308400-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 308400 التحليل المالي
+LOCATION:2201 / 3311
+DESCRIPTION:الامتحان الأول · التكنولوجيا الما
+ لية · 27 طالب · القاعات: 2201 / 3311
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 308400 التحليل المالي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 308400 التحليل المال
+ ي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304404-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 304404 مشروع تخرج أو تدريب ميدان
+ ي
+LOCATION:L12A / 6206
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 25 طالب · القاعات: L12A / 6206
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304404 مشروع تخرج أو تدر
+ يب ميداني
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304404 مشروع تخرج أو 
+ تدريب ميداني
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304102-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 304102 مقدمة في تطبيقات الحاسوب 
+ للأعمال
+LOCATION:0-4217 / 06317
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 24 طالب · القاعات: 0-4217 / 06317
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304102 مقدمة في تطبيقات 
+ الحاسوب للأعمال
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304102 مقدمة في تطبي
+ قات الحاسوب للأعمال
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:313420-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 313420 معايير المحاسبة الدولية -
+  ُE -
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 9 طالب 
+ · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 313420 معايير المحاسبة ا
+ لدولية - ُE -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 313420 معايير المحاس
+ بة الدولية - ُE -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301721-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 301721 منهجية البحث العلمي
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 7 
+ طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301721 منهجية البحث العل
+ مي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301721 منهجية البحث 
+ العلمي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9302000-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 9302000 خدمة المجتمع المحلي ( الع
+ لوم المالية والمصرفية )
+LOCATION:
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 1 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 9302000 خدمة المجتمع الم
+ حلي ( العلوم المالية والمصرفية )
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 9302000 خدمة المجتمع 
+ المحلي ( العلوم المالية والمصرفية )
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307101-2026-11-15-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261115T080000
+DTEND;TZID=Asia/Amman:20261115T160000
+SUMMARY:امتحان 307101 مقدمة في ذكاء الأعمال
+LOCATION:2301 / 9116 / L37B / L36B / 4430 / 7427 / 06108 / 6206
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 118 طالب · القاعات: 2301 / 9116 / 
+ L37B / L36B / 4430 / 7427 / 06108 / 6206
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307101 مقدمة في ذكاء الأ
+ عمال
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307101 مقدمة في ذكاء 
+ الأعمال
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304100-2026-11-15-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261115T080000
+DTEND;TZID=Asia/Amman:20261115T160000
+SUMMARY:امتحان 304100 أساسيات تكنولوجيا المعلو
+ مات-إدارية
+LOCATION:
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 49 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304100 أساسيات تكنولوجي
+ ا المعلومات-إدارية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304100 أساسيات تكنول
+ وجيا المعلومات-إدارية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303102-2026-11-15-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261115T080000
+DTEND;TZID=Asia/Amman:20261115T160000
+SUMMARY:امتحان 303102 مبادئ المحاسبة (2)
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 33 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303102 مبادئ المحاسبة (2)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303102 مبادئ المحاسب
+ ة (2)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303335-2026-11-15-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261115T080000
+DTEND;TZID=Asia/Amman:20261115T160000
+SUMMARY:امتحان 303335 محاسبة اسلامية
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 29 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303335 محاسبة اسلامية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303335 محاسبة اسلامي
+ ة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:308350-2026-11-15-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261115T080000
+DTEND;TZID=Asia/Amman:20261115T160000
+SUMMARY:امتحان 308350 التشريعات المالية التقني
+ ة
+LOCATION:
+DESCRIPTION:الامتحان الأول · التكنولوجيا الما
+ لية · 24 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 308350 التشريعات المالي
+ ة التقنية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 308350 التشريعات الم
+ الية التقنية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:313102-2026-11-15-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261115T080000
+DTEND;TZID=Asia/Amman:20261115T160000
+SUMMARY:امتحان 313102 مبادئ المحاسبة (2) - E -
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 22 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 313102 مبادئ المحاسبة (2) 
+ - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 313102 مبادئ المحاسب
+ ة (2) - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301401-2026-11-15-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261115T080000
+DTEND;TZID=Asia/Amman:20261115T160000
+SUMMARY:امتحان 301401 الإدارة الاستراتيجية
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 19
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301401 الإدارة الاسترات
+ يجية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301401 الإدارة الاست
+ راتيجية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307204-2026-11-16-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261116T080000
+DTEND;TZID=Asia/Amman:20261116T160000
+SUMMARY:امتحان 307204 مقدمه في قواعد بيانات الا
+ عمال
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 66 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307204 مقدمه في قواعد بي
+ انات الاعمال
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307204 مقدمه في قواع
+ د بيانات الاعمال
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304405-2026-11-16-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261116T080000
+DTEND;TZID=Asia/Amman:20261116T160000
+SUMMARY:امتحان 304405 القضايا القانونية والأخل
+ اقية في الأعمال الالكترونية
+LOCATION:
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 62 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304405 القضايا القانوني
+ ة والأخلاقية في الأعمال الالكترونية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304405 القضايا القان
+ ونية والأخلاقية في الأعمال الالكترونية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307402-2026-11-16-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261116T080000
+DTEND;TZID=Asia/Amman:20261116T160000
+SUMMARY:امتحان 307402 ادارة و تحليل بيانات الاع
+ مال التنبؤية وعرضها
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 51 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307402 ادارة و تحليل بيا
+ نات الاعمال التنبؤية وعرضها
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307402 ادارة و تحليل 
+ بيانات الاعمال التنبؤية وعرضها
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311214-2026-11-16-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261116T080000
+DTEND;TZID=Asia/Amman:20261116T160000
+SUMMARY:امتحان 311214 إدارة سلسلة التوريد - E -
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 48
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311214 إدارة سلسلة التور
+ يد - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311214 إدارة سلسلة ا
+ لتوريد - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304201-2026-11-16-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261116T080000
+DTEND;TZID=Asia/Amman:20261116T160000
+SUMMARY:امتحان 304201 تقنيات الأعمال الالكترون
+ ية
+LOCATION:
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 46 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304201 تقنيات الأعمال ال
+ الكترونية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304201 تقنيات الأعما
+ ل الالكترونية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301212-2026-11-16-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261116T080000
+DTEND;TZID=Asia/Amman:20261116T160000
+SUMMARY:امتحان 301212 ادارة العمليات والانتاج
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 38
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301212 ادارة العمليات وا
+ لانتاج
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301212 ادارة العمليا
+ ت والانتاج
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:308301-2026-11-16-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261116T080000
+DTEND;TZID=Asia/Amman:20261116T160000
+SUMMARY:امتحان 308301 إدارة المصارف
+LOCATION:
+DESCRIPTION:الامتحان الأول · التكنولوجيا الما
+ لية · 36 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 308301 إدارة المصارف
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 308301 إدارة المصارف
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:313205-2026-11-16-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261116T080000
+DTEND;TZID=Asia/Amman:20261116T160000
+SUMMARY:امتحان 313205 محاسبة المنشآت المالية - 
+ ُE -
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 14 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 313205 محاسبة المنشآت ال
+ مالية - ُE -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 313205 محاسبة المنشآ
+ ت المالية - ُE -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307301-2026-11-17-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:امتحان 307301 برمجة ذكاء الاعمال
+LOCATION:06005 / 2103 هندسة
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 60 طالب · القاعات: 06005 / 2103 ه
+ ندسة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307301 برمجة ذكاء الاعما
+ ل
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307301 برمجة ذكاء ال
+ اعمال
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311103-2026-11-17-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:امتحان 311103 مقدمة في مناهج البحث العل
+ مي - E -
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 60
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311103 مقدمة في مناهج ال
+ بحث العلمي - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311103 مقدمة في مناه
+ ج البحث العلمي - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309201-2026-11-17-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:امتحان 309201 ادارة التسويق
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 59 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309201 ادارة التسويق
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309201 ادارة التسويق
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9307000-2026-11-17-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:امتحان 9307000 خدمة المجتمع المحلي ( ذكا
+ ءالأعمال وتحليل البيانات )
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 59 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 9307000 خدمة المجتمع الم
+ حلي ( ذكاءالأعمال وتحليل البيانات )
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 9307000 خدمة المجتمع 
+ المحلي ( ذكاءالأعمال وتحليل البيانات )
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:302102-2026-11-17-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:امتحان 302102 مبادئ الاقتصادالكلي
+LOCATION:
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 32 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 302102 مبادئ الاقتصادال
+ كلي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 302102 مبادئ الاقتصا
+ دالكلي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9304000-2026-11-17-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:امتحان 9304000 خدمة المجتمع المحلي ( الا
+ عمال والتجارة الالكترونية )
+LOCATION:
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 29 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 9304000 خدمة المجتمع الم
+ حلي ( الاعمال والتجارة الالكترونية )
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 9304000 خدمة المجتمع 
+ المحلي ( الاعمال والتجارة الالكترونية )
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9309000-2026-11-17-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:امتحان 9309000 خدمة المجتمع المحلي ( الت
+ سويق الرقمي )
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 29 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 9309000 خدمة المجتمع الم
+ حلي ( التسويق الرقمي )
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 9309000 خدمة المجتمع 
+ المحلي ( التسويق الرقمي )
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:308322-2026-11-17-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:امتحان 308322 إدارة المخاطر والمشتقات 
+ المالية
+LOCATION:
+DESCRIPTION:الامتحان الأول · التكنولوجيا الما
+ لية · 28 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 308322 إدارة المخاطر وال
+ مشتقات المالية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 308322 إدارة المخاطر
+  والمشتقات المالية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309499-2026-11-17-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:امتحان 309499 مهارات مهنية في التسويق ا
+ لرقمي
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 18 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309499 مهارات مهنية في ا
+ لتسويق الرقمي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309499 مهارات مهنية 
+ في التسويق الرقمي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:302101-2026-11-18-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261118T080000
+DTEND;TZID=Asia/Amman:20261118T160000
+SUMMARY:امتحان 302101 مبادئ الإقتصاد الجزئي
+LOCATION:9001 / 1104 / 4528
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 120 طالب · القاعات: 9001 / 1104 / 4528
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 302101 مبادئ الإقتصاد ال
+ جزئي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 302101 مبادئ الإقتصا
+ د الجزئي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:312111-2026-11-18-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261118T080000
+DTEND;TZID=Asia/Amman:20261118T160000
+SUMMARY:امتحان 312111 مبادئ الإحصاء - ُE -
+LOCATION:
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 116 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 312111 مبادئ الإحصاء - ُE 
+ -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 312111 مبادئ الإحصاء
+  - ُE -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309323-2026-11-18-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261118T080000
+DTEND;TZID=Asia/Amman:20261118T160000
+SUMMARY:امتحان 309323 ادارة العلامات التجارية
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 42 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309323 ادارة العلامات ال
+ تجارية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309323 ادارة العلاما
+ ت التجارية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307307-2026-11-18-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261118T080000
+DTEND;TZID=Asia/Amman:20261118T160000
+SUMMARY:امتحان 307307 نماذج واساليب ذكاء الاعم
+ ال
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 37 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307307 نماذج واساليب ذكا
+ ء الاعمال
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307307 نماذج واساليب
+  ذكاء الاعمال
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304407-2026-11-18-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261118T080000
+DTEND;TZID=Asia/Amman:20261118T160000
+SUMMARY:امتحان 304407 موضوعات متقدمة في الأعما
+ ل الالكترونية
+LOCATION:
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 27 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304407 موضوعات متقدمة في
+  الأعمال الالكترونية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304407 موضوعات متقدم
+ ة في الأعمال الالكترونية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:308355-2026-11-18-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261118T080000
+DTEND;TZID=Asia/Amman:20261118T160000
+SUMMARY:امتحان 308355 تطبيقات علم البيانات في ا
+ لمالية
+LOCATION:
+DESCRIPTION:الامتحان الأول · التكنولوجيا الما
+ لية · 19 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 308355 تطبيقات علم البيا
+ نات في المالية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 308355 تطبيقات علم ا
+ لبيانات في المالية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301498-2026-11-18-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261118T080000
+DTEND;TZID=Asia/Amman:20261118T160000
+SUMMARY:امتحان 301498 مشروع تخرج/ تدريب ميداني
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 14
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301498 مشروع تخرج/ تدريب 
+ ميداني
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301498 مشروع تخرج/ تد
+ ريب ميداني
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303315-2026-11-18-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261118T080000
+DTEND;TZID=Asia/Amman:20261118T160000
+SUMMARY:امتحان 303315 المحاسبة الحكومية
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 12 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303315 المحاسبة الحكومي
+ ة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303315 المحاسبة الحك
+ ومية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:306730-2026-11-18-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261118T080000
+DTEND;TZID=Asia/Amman:20261118T160000
+SUMMARY:امتحان 306730 سلوك المستهلك الرقمي
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 5 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 306730 سلوك المستهلك الر
+ قمي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 306730 سلوك المستهلك
+  الرقمي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:302111-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 302111 مبادئ الإحصاء
+LOCATION:7419 (مختبر) / 7422 (مختبر) / 7424 (مختبر) / 7426 
+ (مختبر) / 7428 (مختبر) / 8401 (مختبر) / 7109 / 7215 / B242
+ 45
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 226 طالب · القاعات: 7419 (مختبر) / 7
+ 422 (مختبر) / 7424 (مختبر) / 7426 (مختبر) / 7428 (مختب
+ ر) / 8401 (مختبر) / 7109 / 7215 / B24245
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 302111 مبادئ الإحصاء
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 302111 مبادئ الإحصاء
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:313101-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 313101 مبادىء المحاسبة (1) - ُE -
+LOCATION:8B-8143 / 1101 / 3403 / 8206 / A24222
+DESCRIPTION:الامتحان الأول · المحاسبة · 116 طال
+ ب · القاعات: 8B-8143 / 1101 / 3403 / 8206 / A24222
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 313101 مبادىء المحاسبة (1
+ ) - ُE -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 313101 مبادىء المحاس
+ بة (1) - ُE -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307401-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 307401 البيانات الضخمه ومستودعا
+ ت البيانات
+LOCATION:1102 / 7105 / 8221 / 06319
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 80 طالب · القاعات: 1102 / 7105 / 8
+ 221 / 06319
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307401 البيانات الضخمه و
+ مستودعات البيانات
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307401 البيانات الضخ
+ مه ومستودعات البيانات
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309211-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 309211 الاتصالات التسويقية المت
+ كاملة الرقمية
+LOCATION:2107 / 9230 / 06310
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 60 طالب · القاعات: 2107 / 9230 / 06310
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309211 الاتصالات التسوي
+ قية المتكاملة الرقمية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309211 الاتصالات الت
+ سويقية المتكاملة الرقمية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304403-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 304403 تطوير نظم الأعمال الالكت
+ رونية
+LOCATION:6304 / 8101 / 9420
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 57 طالب · القاعات: 6304 / 8101 / 9
+ 420
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304403 تطوير نظم الأعمال
+  الالكترونية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304403 تطوير نظم الأ
+ عمال الالكترونية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309404-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 309404 ادارة علاقات الزبائن الر
+ قمية
+LOCATION:06101 / 3303 / 4313 / 9003
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 49 طالب · القاعات: 06101 / 3303 / 4313 / 9003
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309404 ادارة علاقات الزب
+ ائن الرقمية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309404 ادارة علاقات 
+ الزبائن الرقمية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304200-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 304200 نظم المعلومات الادارية و
+ المالية
+LOCATION:L32A / L11A / L34A
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 38 طالب · القاعات: L32A / L11A / L
+ 34A
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304200 نظم المعلومات الا
+ دارية والمالية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304200 نظم المعلومات
+  الادارية والمالية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301319-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 301319 الإدارة العامة
+LOCATION:4330 / 7418 / 9002
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 31
+  طالب · القاعات: 4330 / 7418 / 9002
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301319 الإدارة العامة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301319 الإدارة العام
+ ة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:302422-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 302422 الاسواق المالية والنقدية
+LOCATION:L36A / L37A
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 29 طالب · القاعات: L36A / L37A
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 302422 الاسواق المالية و
+ النقدية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 302422 الاسواق المال
+ ية والنقدية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304301-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 304301 قواعد البيانات للأعمال ا
+ لالكترونية
+LOCATION:2201 / 3311
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 24 طالب · القاعات: 2201 / 3311
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304301 قواعد البيانات لل
+ أعمال الالكترونية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304301 قواعد البيانا
+ ت للأعمال الالكترونية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303325-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 303325 النظرية المحاسبية
+LOCATION:2209 / 4528
+DESCRIPTION:الامتحان الأول · المحاسبة · 19 طالب
+  · القاعات: 2209 / 4528
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303325 النظرية المحاسبي
+ ة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303325 النظرية المحا
+ سبية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:306728-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 306728 شبكات التواصل الاجتماعي 
+ والاتصالات التسويقية
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 15 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 306728 شبكات التواصل الا
+ جتماعي والاتصالات التسويقية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 306728 شبكات التواصل
+  الاجتماعي والاتصالات التسويقية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:313425-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 313425 معايير التدقيق الدولية - 
+ ُE -
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 15 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 313425 معايير التدقيق ال
+ دولية - ُE -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 313425 معايير التدقي
+ ق الدولية - ُE -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311498-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 311498 مشروع تخرج/ تدريب ميداني -
+  E -
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 14
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311498 مشروع تخرج/ تدريب 
+ ميداني - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311498 مشروع تخرج/ تد
+ ريب ميداني - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301714-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 301714 نظرية المنظمة
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 5 
+ طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301714 نظرية المنظمة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301714 نظرية المنظمة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307403-2026-11-22-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261122T080000
+DTEND;TZID=Asia/Amman:20261122T160000
+SUMMARY:امتحان 307403 إدارة مشاريع ذكاء الاعما
+ ل
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 65 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307403 إدارة مشاريع ذكاء
+  الاعمال
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307403 إدارة مشاريع 
+ ذكاء الاعمال
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307201-2026-11-22-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261122T080000
+DTEND;TZID=Asia/Amman:20261122T160000
+SUMMARY:امتحان 307201 اداره بيانات الاعمال و تح
+ ليلاتها
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 64 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307201 اداره بيانات الاع
+ مال و تحليلاتها
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307201 اداره بيانات 
+ الاعمال و تحليلاتها
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309321-2026-11-22-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261122T080000
+DTEND;TZID=Asia/Amman:20261122T160000
+SUMMARY:امتحان 309321 التسويق الاجتماعي وغير ا
+ لربحي
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 58 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309321 التسويق الاجتماع
+ ي وغير الربحي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309321 التسويق الاجت
+ ماعي وغير الربحي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311212-2026-11-22-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261122T080000
+DTEND;TZID=Asia/Amman:20261122T160000
+SUMMARY:امتحان 311212 ادارة العمليات والانتاج -
+  E -
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 41
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311212 ادارة العمليات وا
+ لانتاج - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311212 ادارة العمليا
+ ت والانتاج - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303301-2026-11-22-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261122T080000
+DTEND;TZID=Asia/Amman:20261122T160000
+SUMMARY:امتحان 303301 المحاسبة الإدارية
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 15 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303301 المحاسبة الإداري
+ ة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303301 المحاسبة الإد
+ ارية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301372-2026-11-23-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261123T080000
+DTEND;TZID=Asia/Amman:20261123T160000
+SUMMARY:امتحان 301372 الإتصالات الإدارية
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 18
+ 1 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301372 الإتصالات الإدار
+ ية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301372 الإتصالات الإ
+ دارية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309312-2026-11-23-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261123T080000
+DTEND;TZID=Asia/Amman:20261123T160000
+SUMMARY:امتحان 309312 الأساليب الكمية في التسو
+ يق
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 57 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309312 الأساليب الكمية ف
+ ي التسويق
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309312 الأساليب الكم
+ ية في التسويق
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307306-2026-11-24-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261124T080000
+DTEND;TZID=Asia/Amman:20261124T160000
+SUMMARY:امتحان 307306 نظم مساندة القرارات لذكا
+ ء الاعمال
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 55 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307306 نظم مساندة القرار
+ ات لذكاء الاعمال
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307306 نظم مساندة ال
+ قرارات لذكاء الاعمال
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:302213-2026-11-24-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261124T080000
+DTEND;TZID=Asia/Amman:20261124T160000
+SUMMARY:امتحان 302213 الإدارة المالية
+LOCATION:
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 53 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 302213 الإدارة المالية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 302213 الإدارة المال
+ ية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309310-2026-11-24-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261124T080000
+DTEND;TZID=Asia/Amman:20261124T160000
+SUMMARY:امتحان 309310 تسويق الخدمات المالية
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 53 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309310 تسويق الخدمات الم
+ الية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309310 تسويق الخدمات
+  المالية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304402-2026-11-24-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261124T080000
+DTEND;TZID=Asia/Amman:20261124T160000
+SUMMARY:امتحان 304402 أنظمة الأعمال الذكية
+LOCATION:
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 39 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304402 أنظمة الأعمال الذ
+ كية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304402 أنظمة الأعمال
+  الذكية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307202-2026-11-25-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:امتحان 307202 أساسيات البرمجة لذكاء ال
+ اعمال
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 55 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307202 أساسيات البرمجة ل
+ ذكاء الاعمال
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307202 أساسيات البرم
+ جة لذكاء الاعمال
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304411-2026-11-25-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:امتحان 304411 الريادة وبناء خطة عمل الم
+ شروع
+LOCATION:
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 46 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304411 الريادة وبناء خطة
+  عمل المشروع
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304411 الريادة وبناء
+  خطة عمل المشروع
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301213-2026-11-25-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:امتحان 301213 نظرية المنظمة
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 42
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301213 نظرية المنظمة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301213 نظرية المنظمة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303415-2026-11-25-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:امتحان 303415 المحاسبة الضريبية
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 41 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303415 المحاسبة الضريبي
+ ة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303415 المحاسبة الضر
+ يبية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309428-2026-11-25-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:امتحان 309428 التسويق لمؤسسات الأعمال
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 38 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309428 التسويق لمؤسسات ا
+ لأعمال
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309428 التسويق لمؤسس
+ ات الأعمال
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307499-2026-11-25-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:امتحان 307499 مهارات مهنية في ذكاء الأع
+ مال وتحليل البيانات
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 36 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307499 مهارات مهنية في ذ
+ كاء الأعمال وتحليل البيانات
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307499 مهارات مهنية 
+ في ذكاء الأعمال وتحليل البيانات
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:308220-2026-11-25-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:امتحان 308220 الخدمات المالية والمصرفي
+ ة الالكترونية
+LOCATION:
+DESCRIPTION:الامتحان الأول · التكنولوجيا الما
+ لية · 25 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 308220 الخدمات المالية و
+ المصرفية الالكترونية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 308220 الخدمات المال
+ ية والمصرفية الالكترونية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:308498-2026-11-25-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:امتحان 308498 مشروع تخرج/ تدريب ميداني
+LOCATION:
+DESCRIPTION:الامتحان الأول · التكنولوجيا الما
+ لية · 20 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 308498 مشروع تخرج/ تدريب 
+ ميداني
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 308498 مشروع تخرج/ تد
+ ريب ميداني
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303220-2026-11-25-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:امتحان 303220 المحاسبة المتوسطة (2)
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 15 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303220 المحاسبة المتوسط
+ ة (2)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303220 المحاسبة المت
+ وسطة (2)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:313218-2026-11-25-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:امتحان 313218 المحاسبة المتوسطة (1) - E -
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 15 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 313218 المحاسبة المتوسط
+ ة (1) - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 313218 المحاسبة المت
+ وسطة (1) - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:313410-2026-11-25-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:امتحان 313410 المحاسبة المتقدمة - ُE -
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 13 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 313410 المحاسبة المتقدم
+ ة - ُE -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 313410 المحاسبة المت
+ قدمة - ُE -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301103-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 301103 مقدمة في مناهج البحث العل
+ مي
+LOCATION:8405 / A24323 / A24023 / 8108 / 8109 / 9422 / 7419 (مختبر) /
+  7422 (مختبر)
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 22
+ 5 طالب · القاعات: 8405 / A24323 / A24023 / 8108 / 8109 / 9422
+  / 7419 (مختبر) / 7422 (مختبر)
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301103 مقدمة في مناهج ال
+ بحث العلمي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301103 مقدمة في مناه
+ ج البحث العلمي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311101-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 311101 مبادىء الإدارة - ُE -
+LOCATION:2104 (مختبر) / A24018 (مختبر) / 7110 / 8107 / 7107 / 71
+ 09 / 7215
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 17
+ 5 طالب · القاعات: 2104 (مختبر) / A24018 (مختبر) / 7
+ 110 / 8107 / 7107 / 7109 / 7215
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311101 مبادىء الإدارة - ُ
+ E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311101 مبادىء الإدار
+ ة - ُE -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304315-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 304315 التجارة والدفع الالكترون
+ ي
+LOCATION:B24245 / 8B-8143 / 1101 / 3403 / 8206
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 121 طالب · القاعات: B24245 / 8B-81
+ 43 / 1101 / 3403 / 8206
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304315 التجارة والدفع ال
+ الكتروني
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304315 التجارة والدف
+ ع الالكتروني
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:312110-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 312110 رياضيات للعلوم الإدارية -
+  E -
+LOCATION:ِA24123 / 8B-8141 / 8B-8145 / 7317 / 7318
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 102 طالب · القاعات: ِA24123 / 8B-8141 / 
+ 8B-8145 / 7317 / 7318
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 312110 رياضيات للعلوم ال
+ إدارية - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 312110 رياضيات للعلو
+ م الإدارية - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309204-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 309204 تسويق الخدمات
+LOCATION:3302 / 06106 / 9416 / 6304
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 61 طالب · القاعات: 3302 / 06106 / 9416 / 6304
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309204 تسويق الخدمات
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309204 تسويق الخدمات
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309420-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 309420 استراتيجيات التسويق الرق
+ مي
+LOCATION:8101 / 9420 / 06116 / 8B-8144
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 57 طالب · القاعات: 8101 / 9420 / 06116 / 8B-8144
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309420 استراتيجيات التس
+ ويق الرقمي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309420 استراتيجيات ا
+ لتسويق الرقمي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307406-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 307406 موضوعات خاصة في ذكاء الاع
+ مال و تحليل البيانات
+LOCATION:7218 / 7325 / 9004 / 9115
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 52 طالب · القاعات: 7218 / 7325 / 9
+ 004 / 9115
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307406 موضوعات خاصة في ذ
+ كاء الاعمال و تحليل البيانات
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307406 موضوعات خاصة 
+ في ذكاء الاعمال و تحليل البيانات
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311311-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 311311 إدارة الموارد البشرية - E -
+LOCATION:4210 / 4317 / 4328
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 41
+  طالب · القاعات: 4210 / 4317 / 4328
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311311 إدارة الموارد الب
+ شرية - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311311 إدارة الموارد
+  البشرية - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:302414-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 302414 الادارة المالية للشركات 
+ المساهمة
+LOCATION:L37A / 4121 / 7417
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 37 طالب · القاعات: L37A / 4121 / 7417
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 302414 الادارة المالية ل
+ لشركات المساهمة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 302414 الادارة المال
+ ية للشركات المساهمة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301448-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 301448 قضايا معاصرة في الإدارة
+LOCATION:4310أ / L37B
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 29
+  طالب · القاعات: 4310أ / L37B
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301448 قضايا معاصرة في ا
+ لإدارة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301448 قضايا معاصرة 
+ في الإدارة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:313315-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 313315 المحاسبة الحكومية - E -
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 23 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 313315 المحاسبة الحكومي
+ ة - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 313315 المحاسبة الحك
+ ومية - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303405-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 303405 تطبيقات محاسبية باستخدام
+  الحاسوب
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 22 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303405 تطبيقات محاسبية ب
+ استخدام الحاسوب
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303405 تطبيقات محاسب
+ ية باستخدام الحاسوب
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303305-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 303305 تحليل القوائم المالية
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 11 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303305 تحليل القوائم الم
+ الية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303305 تحليل القوائم
+  المالية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:302411-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 302411 دراسة الجدوى وتقييم المش
+ روعات
+LOCATION:
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 6 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 302411 دراسة الجدوى وتقي
+ يم المشروعات
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 302411 دراسة الجدوى 
+ وتقييم المشروعات
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:306720-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 306720 التسويق الرقمي
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 5 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 306720 التسويق الرقمي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 306720 التسويق الرقم
+ ي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303724-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 303724 المحاسبة والتمويل
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 4 طالب 
+ · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303724 المحاسبة والتموي
+ ل
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303724 المحاسبة والت
+ مويل
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311331-2026-11-29-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261129T080000
+DTEND;TZID=Asia/Amman:20261129T160000
+SUMMARY:امتحان 311331 السلوك التنظيمي - E -
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 13
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311331 السلوك التنظيمي - 
+ E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311331 السلوك التنظي
+ مي - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303498-2026-11-30-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261130T080000
+DTEND;TZID=Asia/Amman:20261130T160000
+SUMMARY:امتحان 303498 مشروع تخرج/ تدريب ميداني
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 32 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303498 مشروع تخرج/ تدريب 
+ ميداني
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303498 مشروع تخرج/ تد
+ ريب ميداني
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:308425-2026-11-30-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261130T080000
+DTEND;TZID=Asia/Amman:20261130T160000
+SUMMARY:امتحان 308425 نماذج الأعمال والابتكار 
+ في التكنولوجيا المالية
+LOCATION:
+DESCRIPTION:الامتحان الأول · التكنولوجيا الما
+ لية · 29 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 308425 نماذج الأعمال وال
+ ابتكار في التكنولوجيا المالية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 308425 نماذج الأعمال
+  والابتكار في التكنولوجيا المالية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:320311-2026-11-30-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261130T080000
+DTEND;TZID=Asia/Amman:20261130T160000
+SUMMARY:امتحان 320311 بحوث العمليات في الادارة 
+ اللوجستية
+LOCATION:
+DESCRIPTION:الامتحان الأول · إدارة سلاسل التو
+ ريد والعلوم اللوجستية · 28 طالب · القاعات
+ : 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 320311 بحوث العمليات في 
+ الادارة اللوجستية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 320311 بحوث العمليات
+  في الادارة اللوجستية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:302303-2026-11-30-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261130T080000
+DTEND;TZID=Asia/Amman:20261130T160000
+SUMMARY:امتحان 302303 ادارة التامين
+LOCATION:
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 27 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 302303 ادارة التامين
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 302303 ادارة التامين
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303210-2026-11-30-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261130T080000
+DTEND;TZID=Asia/Amman:20261130T160000
+SUMMARY:امتحان 303210 محاسبة التكاليف ( 1 )
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 5 طالب 
+ · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 303210 محاسبة التكاليف ( 
+ 1 )
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 303210 محاسبة التكال
+ يف ( 1 )
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307710-2026-11-30-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261130T080000
+DTEND;TZID=Asia/Amman:20261130T160000
+SUMMARY:امتحان 307710 أسس وتقنيات ذكاء الأعمال
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 5 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307710 أسس وتقنيات ذكاء 
+ الأعمال
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307710 أسس وتقنيات ذ
+ كاء الأعمال
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307205-2026-12-01-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261201T080000
+DTEND;TZID=Asia/Amman:20261201T160000
+SUMMARY:امتحان 307205 استراتيجيات الاعمال و تخ
+ طيط موارد المؤسسات
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 86 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307205 استراتيجيات الاع
+ مال و تخطيط موارد المؤسسات
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307205 استراتيجيات ا
+ لاعمال و تخطيط موارد المؤسسات
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309421-2026-12-01-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261201T080000
+DTEND;TZID=Asia/Amman:20261201T160000
+SUMMARY:امتحان 309421 التسويق الدولي
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 54 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309421 التسويق الدولي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309421 التسويق الدول
+ ي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309223-2026-12-01-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261201T080000
+DTEND;TZID=Asia/Amman:20261201T160000
+SUMMARY:امتحان 309223 التسويق السياحي
+LOCATION:
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 40 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309223 التسويق السياحي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309223 التسويق السيا
+ حي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311213-2026-12-01-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261201T080000
+DTEND;TZID=Asia/Amman:20261201T160000
+SUMMARY:امتحان 311213 نظرية المنظمة - E -
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 33
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311213 نظرية المنظمة - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311213 نظرية المنظمة
+  - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301447-2026-12-01-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261201T080000
+DTEND;TZID=Asia/Amman:20261201T160000
+SUMMARY:امتحان 301447 الريادة وإدارة الأعمال ا
+ لصغيرة
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 28
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301447 الريادة وإدارة ال
+ أعمال الصغيرة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301447 الريادة وإدار
+ ة الأعمال الصغيرة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311448-2026-12-01-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261201T080000
+DTEND;TZID=Asia/Amman:20261201T160000
+SUMMARY:امتحان 311448 قضايا معاصرة في الإدارة - 
+ E -
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 24
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311448 قضايا معاصرة في ا
+ لإدارة - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311448 قضايا معاصرة 
+ في الإدارة - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:313330-2026-12-01-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261201T080000
+DTEND;TZID=Asia/Amman:20261201T160000
+SUMMARY:امتحان 313330 تدقيق الحسابات - ُE -
+LOCATION:
+DESCRIPTION:الامتحان الأول · المحاسبة · 20 طالب
+  · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 313330 تدقيق الحسابات - ُ
+ E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 313330 تدقيق الحسابا
+ ت - ُE -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304314-2026-12-01-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261201T080000
+DTEND;TZID=Asia/Amman:20261201T160000
+SUMMARY:امتحان 304314 تصميم وتطوير مواقع الانت
+ رنت
+LOCATION:
+DESCRIPTION:الامتحان الأول · الأعمال والتجارة
+  الالكترونية · 17 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 304314 تصميم وتطوير مواق
+ ع الانترنت
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 304314 تصميم وتطوير 
+ مواقع الانترنت
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301215-2026-12-01-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261201T080000
+DTEND;TZID=Asia/Amman:20261201T160000
+SUMMARY:امتحان 301215 إدارة الجودة الشاملة
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 7 
+ طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301215 إدارة الجودة الشا
+ ملة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301215 إدارة الجودة 
+ الشاملة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309314-2026-12-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:امتحان 309314 التسويق الرقمي
+LOCATION:9426 / 3502 / A24323 / 1101 / A24247 / 1102 / B24246
+DESCRIPTION:الامتحان الأول · التسويق الرقمي · 
+ 180 طالب · القاعات: 9426 / 3502 / A24323 / 1101 / A24247 / 11
+ 02 / B24246
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 309314 التسويق الرقمي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 309314 التسويق الرقم
+ ي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:312102-2026-12-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:امتحان 312102 مبادىء الإقتصاد الكلي - ُE
+  -
+LOCATION:
+DESCRIPTION:الامتحان الأول · العلوم المالية و
+ المصرفية · 51 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 312102 مبادىء الإقتصاد ا
+ لكلي - ُE -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 312102 مبادىء الإقتص
+ اد الكلي - ُE -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:320211-2026-12-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:امتحان 320211 إدارة النقل والتوزيع
+LOCATION:
+DESCRIPTION:الامتحان الأول · إدارة سلاسل التو
+ ريد والعلوم اللوجستية · 46 طالب · القاعات
+ : 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 320211 إدارة النقل والتو
+ زيع
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 320211 إدارة النقل و
+ التوزيع
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:311401-2026-12-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:امتحان 311401 الإدارة الاستراتيجية - E -
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 42
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 311401 الإدارة الاسترات
+ يجية - E -
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 311401 الإدارة الاست
+ راتيجية - E -
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301214-2026-12-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:امتحان 301214 إدارة سلسلة التوريد
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 37
+  طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301214 إدارة سلسلة التور
+ يد
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301214 إدارة سلسلة ا
+ لتوريد
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:307712-2026-12-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:امتحان 307712 التحليل الاحصائي التطبيق
+ ي
+LOCATION:
+DESCRIPTION:الامتحان الأول · ذكاء الأعمال وتح
+ ليل البيانات · 3 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 307712 التحليل الاحصائي 
+ التطبيقي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 307712 التحليل الاحص
+ ائي التطبيقي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301712-2026-12-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:امتحان 301712 الإدارة الاستراتيجية
+LOCATION:
+DESCRIPTION:الامتحان الأول · ادارة الأعمال · 2 
+ طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 301712 الإدارة الاسترات
+ يجية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 301712 الإدارة الاست
+ راتيجية
+END:VALARM
+END:VEVENT
+END:VCALENDAR

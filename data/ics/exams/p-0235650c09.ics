@@ -1,0 +1,135 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. ياسر محمد احمد همشر
+ ي
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:601432-2026-11-05-08:00-06308@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: نظم التشغيل – القاعة 06308
+LOCATION:جامعة البترا – القاعة 06308
+DESCRIPTION:601432 · 25 طالب في القاعة · مع د. وسام 
+ محمد توفيق الخضور
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: نظم التشغيل – القاعة
+  06308
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: نظم التشغيل – ال
+ قاعة 06308
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304311-2026-11-12-08:00-3403@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: إدارة شبكات التواصل الاجتما
+ عي والعلاقة الالكترونية مع الزبائن – ال
+ قاعة 3403
+LOCATION:جامعة البترا – القاعة 3403
+DESCRIPTION:304311 · 25 طالب في القاعة · مع د.امنه ط
+ ه محمد سالم
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: إدارة شبكات التواصل 
+ الاجتماعي والعلاقة الالكترونية مع الزب
+ ائن – القاعة 3403
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: إدارة شبكات التو
+ اصل الاجتماعي والعلاقة الالكترونية مع ا
+ لزبائن – القاعة 3403
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303325-2026-11-19-08:00-2209@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان مقررك: النظرية المحاسبية – ا
+ لقاعة 2209
+LOCATION:جامعة البترا – القاعة 2209
+DESCRIPTION:303325 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: النظرية المحاس
+ بية – القاعة 2209
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: النظرية ال
+ محاسبية – القاعة 2209
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:303325-2026-11-19-08:00-2209@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان مقررك: النظرية المحاسبية – ا
+ لقاعة 2209
+LOCATION:جامعة البترا – القاعة 2209
+DESCRIPTION:303325 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: النظرية المحاس
+ بية – القاعة 2209
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: النظرية ال
+ محاسبية – القاعة 2209
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001215-2026-11-26-08:00-7104@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: علم أنسجة الفم والأسنان – ال
+ قاعة 7104
+LOCATION:جامعة البترا – القاعة 7104
+DESCRIPTION:1001215 · 21 طالب في القاعة · مع د. هاني 
+ عبد الجواد محمد الكايد
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: علم أنسجة الفم والأس
+ نان – القاعة 7104
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: علم أنسجة الفم وا
+ لأسنان – القاعة 7104
+END:VALARM
+END:VEVENT
+END:VCALENDAR

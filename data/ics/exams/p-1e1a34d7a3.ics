@@ -1,0 +1,112 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – أ.د.هشام يوسف ديب المط
+ وبسي
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:9400108-2026-11-05-08:00-9324@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: المهارات الحياتية – القاعة 9
+ 324
+LOCATION:جامعة البترا – القاعة 9324
+DESCRIPTION:9400108 · 35 طالب في القاعة · مع أد. عمر 
+ امين يونس الحاج
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: المهارات الحياتية – 
+ القاعة 9324
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: المهارات الحياتي
+ ة – القاعة 9324
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400107-2026-11-12-08:00-9321@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: القيادة والمسؤولية المجتمعي
+ ة – القاعة 9321
+LOCATION:جامعة البترا – القاعة 9321
+DESCRIPTION:9400107 · 35 طالب في القاعة · مع د. آيه ط
+ لال عبد الله زيد الكيلاني
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: القيادة والمسؤولية ا
+ لمجتمعية – القاعة 9321
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: القيادة والمسؤول
+ ية المجتمعية – القاعة 9321
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400113-2026-11-19-08:00-9319@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: مهارات الاتصال والتواصل بال
+ لغة العربية (1) – القاعة 9319
+LOCATION:جامعة البترا – القاعة 9319
+DESCRIPTION:9400113 · 35 طالب في القاعة · مع د. آيه ط
+ لال عبد الله زيد الكيلاني
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مهارات الاتصال والتو
+ اصل باللغة العربية (1) – القاعة 9319
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مهارات الاتصال و
+ التواصل باللغة العربية (1) – القاعة 9319
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9300105-2026-11-26-08:00-3309@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: الريادة والابتكار – القاعة 3
+ 309
+LOCATION:جامعة البترا – القاعة 3309
+DESCRIPTION:9300105 · 35 طالب في القاعة · مع د. أحمد 
+ محمد كامل الشيخ
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الريادة والابتكار – 
+ القاعة 3309
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الريادة والابتكا
+ ر – القاعة 3309
+END:VALARM
+END:VEVENT
+END:VCALENDAR

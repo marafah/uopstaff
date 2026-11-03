@@ -1,0 +1,154 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – م. فاتن يوسف زيدان الن
+ شاش
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:202334-2026-11-05-08:00-4215@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان مقررك: تصميم الأثاث (1) – القا
+ عة 4215
+LOCATION:جامعة البترا – القاعة 4215
+DESCRIPTION:202334 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: تصميم الأثاث (1)
+  – القاعة 4215
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: تصميم الأث
+ اث (1) – القاعة 4215
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:202334-2026-11-05-08:00-4215@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان مقررك: تصميم الأثاث (1) – القا
+ عة 4215
+LOCATION:جامعة البترا – القاعة 4215
+DESCRIPTION:202334 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: تصميم الأثاث (1)
+  – القاعة 4215
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: تصميم الأث
+ اث (1) – القاعة 4215
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:202333-2026-11-12-08:00-06104@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان مقررك: نسيج ومفروشات – القاع
+ ة 06104
+LOCATION:جامعة البترا – القاعة 06104
+DESCRIPTION:202333 · 24 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: نسيج ومفروشات 
+ – القاعة 06104
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: نسيج ومفرو
+ شات – القاعة 06104
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:202333-2026-11-12-08:00-06104@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان مقررك: نسيج ومفروشات – القاع
+ ة 06104
+LOCATION:جامعة البترا – القاعة 06104
+DESCRIPTION:202333 · 24 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: نسيج ومفروشات 
+ – القاعة 06104
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: نسيج ومفرو
+ شات – القاعة 06104
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:403602-2026-11-19-08:00-A24247@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: لغة انجليزية استدراكية (2) - ل
+ طلبة الماجستير – القاعة A24247
+LOCATION:جامعة البترا – القاعة A24247
+DESCRIPTION:403602 · 25 طالب في القاعة · مع د. هدير 
+ اسماعيل عبدالحميد مرزه
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: لغة انجليزية استدراك
+ ية (2) - لطلبة الماجستير – القاعة A24247
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: لغة انجليزية است
+ دراكية (2) - لطلبة الماجستير – القاعة A24247
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:202214-2026-11-26-08:00-4315@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان مقررك: أساليب الإظهار والإخر
+ اج – القاعة 4315
+LOCATION:جامعة البترا – القاعة 4315
+DESCRIPTION:202214 · 15 طالب في القاعة · مع م. منى م
+ نير قايد طاهر
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: أساليب الإظهار
+  والإخراج – القاعة 4315
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: أساليب الإ
+ ظهار والإخراج – القاعة 4315
+END:VALARM
+END:VEVENT
+END:VCALENDAR

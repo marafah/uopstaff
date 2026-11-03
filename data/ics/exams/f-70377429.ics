@@ -1,0 +1,1531 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:امتحانات طب الأسنان – جامعة البت
+ را
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:A-1001441-2026-11-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261102T080000
+DTEND;TZID=Asia/Amman:20261102T160000
+SUMMARY:امتحان A-1001441 تقويم الأسنان - نظري ( 1 ) 
+ *
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 98 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان A-1001441 تقويم الأسنان - 
+ نظري ( 1 ) *
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان A-1001441 تقويم الأسن
+ ان - نظري ( 1 ) *
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001218-2026-11-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261102T080000
+DTEND;TZID=Asia/Amman:20261102T160000
+SUMMARY:امتحان 1001218 الكيمياء الحيوية - نظري (1
+ )
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 90 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001218 الكيمياء الحيوية
+  - نظري (1)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001218 الكيمياء الح
+ يوية - نظري (1)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001434-2026-11-03-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261103T080000
+DTEND;TZID=Asia/Amman:20261103T160000
+SUMMARY:امتحان A-1001434 أمراض الفم وتشخيصها - عم
+ لي *
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 98 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان A-1001434 أمراض الفم وتشخ
+ يصها - عملي *
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان A-1001434 أمراض الفم و
+ تشخيصها - عملي *
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001216-2026-11-03-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261103T080000
+DTEND;TZID=Asia/Amman:20261103T160000
+SUMMARY:امتحان 1001216 تشريح الأسنان الوصفي
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 97 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001216 تشريح الأسنان ال
+ وصفي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001216 تشريح الأسنا
+ ن الوصفي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001423-2026-11-04-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:امتحان A-1001423 الاستعاضات السنية المت
+ حركة - عملي ( 2 ) *
+LOCATION:7221 / 8116 (مختبر) / 1101 / A24247 / 1102
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 98 طالب · القاعات: 7221 / 8116 (مختبر) / 1101 / A2
+ 4247 / 1102
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان A-1001423 الاستعاضات السن
+ ية المتحركة - عملي ( 2 ) *
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان A-1001423 الاستعاضات 
+ السنية المتحركة - عملي ( 2 ) *
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001217-2026-11-04-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:امتحان 1001217 تشريح الأسنان الوصفي
+LOCATION:B24246 / 3502 / A24323 / 9426
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 96 طالب · القاعات: B24246 / 3502 / A24323 / 9426
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001217 تشريح الأسنان ال
+ وصفي
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001217 تشريح الأسنا
+ ن الوصفي
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002117-2026-11-04-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261104T080000
+DTEND;TZID=Asia/Amman:20261104T160000
+SUMMARY:امتحان 1002117 السلامة المهنية وصيانة ا
+ لأجهزة في تكنولوجيا صناعة الأسنان
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 3 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002117 السلامة المهنية 
+ وصيانة الأجهزة في تكنولوجيا صناعة الأسن
+ ان
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002117 السلامة المه
+ نية وصيانة الأجهزة في تكنولوجيا صناعة ا
+ لأسنان
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001322-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان A-1001322 الاستعاضات السنية المت
+ حركة - عملي ( 1 ) *
+LOCATION:7105 / 8221 / 06319 / 7221 / 9217
+DESCRIPTION:الامتحان الأول · المعالجة الترميم
+ ية والعلوم الطبية الأساسية · 108 طالب · ال
+ قاعات: 7105 / 8221 / 06319 / 7221 / 9217
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان A-1001322 الاستعاضات السن
+ ية المتحركة - عملي ( 1 ) *
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان A-1001322 الاستعاضات 
+ السنية المتحركة - عملي ( 1 ) *
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001313-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان A-1001313 المعالجة التحفظية - نظر
+ ي ( 1 ) *
+LOCATION:B24246 / 9317 / A24246 / 2102 (مختبر) / 7420 (مختبر)
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 104 طالب · القاعات: B24246 / 9317 / A24246 / 2102 (مخ
+ تبر) / 7420 (مختبر)
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان A-1001313 المعالجة التحفظ
+ ية - نظري ( 1 ) *
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان A-1001313 المعالجة ال
+ تحفظية - نظري ( 1 ) *
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001312-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 1001312 علم الادوية لطب الأسنان (
+  1 )
+LOCATION:2107 / 9230 / 06310 / 3302 / 06106 / 9416
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 102 طالب · القاعات: 2107 / 9230 / 06310 / 3302 / 06106 
+ / 9416
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001312 علم الادوية لطب ا
+ لأسنان ( 1 )
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001312 علم الادوية ل
+ طب الأسنان ( 1 )
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ِA-1001421-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان ِA-1001421 الاستعاضات السنية الث
+ ابتة ( تيجان وجسور ) - عملي (1)*
+LOCATION:6304 / 8101 / 9420 / 06312 / 3210 / 3211
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 98 طالب · القاعات: 6304 / 8101 / 9420 / 06312 / 3210 / 
+ 3211
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان ِA-1001421 الاستعاضات الس
+ نية الثابتة ( تيجان وجسور ) - عملي (1)*
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان ِA-1001421 الاستعاضات
+  السنية الثابتة ( تيجان وجسور ) - عملي (1)*
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002111-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 1002111 مقدمة إلى مصطلحات طب الأ
+ سنان
+LOCATION:4530 / L21A / 2301
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 43 طالب · القاعات: 4530 / L21A / 2301
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002111 مقدمة إلى مصطلحا
+ ت طب الأسنان
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002111 مقدمة إلى مصط
+ لحات طب الأسنان
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002262-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 1002262 مختبر تشريح الرأس والعنق
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 16 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002262 مختبر تشريح الرأ
+ س والعنق
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002262 مختبر تشريح ا
+ لرأس والعنق
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002222-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 1002222 مختبر التعويضات السنية ا
+ لكاملة المتحركة (1)
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 13 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002222 مختبر التعويضات 
+ السنية الكاملة المتحركة (1)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002222 مختبر التعوي
+ ضات السنية الكاملة المتحركة (1)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002327-2026-11-05-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان 1002327 التعويضات السنية الكامل
+ ة المتحركة - نظري (2)
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 1 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002327 التعويضات السنية
+  الكاملة المتحركة - نظري (2)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002327 التعويضات ال
+ سنية الكاملة المتحركة - نظري (2)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002221-2026-11-08-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:امتحان 1002221 التعويضات السنية الكامل
+ ة المتحركة نظري (1)
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 17 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002221 التعويضات السنية
+  الكاملة المتحركة نظري (1)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002221 التعويضات ال
+ سنية الكاملة المتحركة نظري (1)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:10012117-2026-11-08-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:امتحان 10012117 طب المجتمع
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 2 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 10012117 طب المجتمع
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 10012117 طب المجتمع
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001115-2026-11-09-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261109T080000
+DTEND;TZID=Asia/Amman:20261109T160000
+SUMMARY:امتحان 1001115 علم الوراثة
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 3 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001115 علم الوراثة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001115 علم الوراثة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001431-2026-11-10-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261110T080000
+DTEND;TZID=Asia/Amman:20261110T160000
+SUMMARY:امتحان A-1001431 أمراض وجراحة اللثة - نظر
+ ي ( 1 ) *
+LOCATION:06108 / 6206 / 0-4217 / 3404 / 06005 / 2103 هندسة
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 98 طالب · القاعات: 06108 / 6206 / 0-4217 / 3404 / 06005
+  / 2103 هندسة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان A-1001431 أمراض وجراحة ال
+ لثة - نظري ( 1 ) *
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان A-1001431 أمراض وجراح
+ ة اللثة - نظري ( 1 ) *
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002245-2026-11-10-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261110T080000
+DTEND;TZID=Asia/Amman:20261110T160000
+SUMMARY:امتحان 1002245 مختبر تقويم الأسنان (1)
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 1 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002245 مختبر تقويم الأس
+ نان (1)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002245 مختبر تقويم ا
+ لأسنان (1)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001442-2026-11-11-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261111T080000
+DTEND;TZID=Asia/Amman:20261111T160000
+SUMMARY:امتحان A-1001442 تقويم الأسنان - عملي ( 1 ) 
+ *
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 98 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان A-1001442 تقويم الأسنان - 
+ عملي ( 1 ) *
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان A-1001442 تقويم الأسن
+ ان - عملي ( 1 ) *
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001211-2026-11-11-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261111T080000
+DTEND;TZID=Asia/Amman:20261111T160000
+SUMMARY:امتحان 1001211 التشريح وعلم الأجنة ( 2 ) ( 
+ الرأس والعنق )
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 95 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001211 التشريح وعلم الأ
+ جنة ( 2 ) ( الرأس والعنق )
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001211 التشريح وعلم 
+ الأجنة ( 2 ) ( الرأس والعنق )
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002271-2026-11-11-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261111T080000
+DTEND;TZID=Asia/Amman:20261111T160000
+SUMMARY:امتحان 1002271 التعويضات السنية المتحر
+ كة - تطبيقي (1)*
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 1 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002271 التعويضات السنية
+  المتحركة - تطبيقي (1)*
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002271 التعويضات ال
+ سنية المتحركة - تطبيقي (1)*
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001212-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 1001212 علم وظائف الأعضاء
+LOCATION:7322 / 7324 / 9117 / 9219 / 7320
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 112 طالب · القاعات: 7322 / 7324 / 9117 / 9219 / 7320
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001212 علم وظائف الأعضا
+ ء
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001212 علم وظائف الأ
+ عضاء
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001321-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان A-1001321 الاستعاضات السنية المت
+ حركة - نظري ( 1 ) *
+LOCATION:8208 / 9122 / 06308 / 4220 / 8201
+DESCRIPTION:الامتحان الأول · المعالجة الترميم
+ ية والعلوم الطبية الأساسية · 107 طالب · ال
+ قاعات: 8208 / 9122 / 06308 / 4220 / 8201
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان A-1001321 الاستعاضات السن
+ ية المتحركة - نظري ( 1 ) *
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان A-1001321 الاستعاضات 
+ السنية المتحركة - نظري ( 1 ) *
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ِA-1001412-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان ِA-1001412 المعالجة التحفظية وال
+ لبية - عملي ( 2 ) *
+LOCATION:9226 / 06319 / 7221 / 9217 / 2107
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 98 طالب · القاعات: 9226 / 06319 / 7221 / 9217 / 2107
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان ِA-1001412 المعالجة التحف
+ ظية واللبية - عملي ( 2 ) *
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان ِA-1001412 المعالجة ا
+ لتحفظية واللبية - عملي ( 2 ) *
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001413-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 1001413 مشروع بحث
+LOCATION:8207 / 9320 / 9230 / 06312 / 3210
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 97 طالب · القاعات: 8207 / 9320 / 9230 / 06312 / 3210
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001413 مشروع بحث
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001413 مشروع بحث
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002220-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 1002220 المواد الحيوية في المجال
+ ات السنية والوجه والفكين
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 13 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002220 المواد الحيوية ف
+ ي المجالات السنية والوجه والفكين
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002220 المواد الحيو
+ ية في المجالات السنية والوجه والفكين
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002358-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 1002358 تقنيات التصوير الرقمي لل
+ فم و الاسنان
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 9 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002358 تقنيات التصوير ا
+ لرقمي للفم و الاسنان
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002358 تقنيات التصو
+ ير الرقمي للفم و الاسنان
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002232-2026-11-12-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان 1002232 مختبر التعويضات السنية ا
+ لثابتة (1)
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 4 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002232 مختبر التعويضات 
+ السنية الثابتة (1)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002232 مختبر التعوي
+ ضات السنية الثابتة (1)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002219-2026-11-15-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261115T080000
+DTEND;TZID=Asia/Amman:20261115T160000
+SUMMARY:امتحان 1002219 مختبر المواد الحيوية في 
+ المجالات السنية والوجه والفكين
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 20 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002219 مختبر المواد الح
+ يوية في المجالات السنية والوجه والفكين
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002219 مختبر المواد 
+ الحيوية في المجالات السنية والوجه والفك
+ ين
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:10012115-2026-11-15-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261115T080000
+DTEND;TZID=Asia/Amman:20261115T160000
+SUMMARY:امتحان 10012115 علم الأحياء الدقيقة
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 4 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 10012115 علم الأحياء الدق
+ يقة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 10012115 علم الأحياء 
+ الدقيقة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001317-2026-11-16-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261116T080000
+DTEND;TZID=Asia/Amman:20261116T160000
+SUMMARY:امتحان 1001317 المواد السنية ( 2 )
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 106 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001317 المواد السنية ( 2 )
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001317 المواد السني
+ ة ( 2 )
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001331-2026-11-17-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:امتحان 1001331 أمراض الفم ( 1 )
+LOCATION:06202 / 4421 / L21B / L21A / 2301 / 9116 / 4430
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 100 طالب · القاعات: 06202 / 4421 / L21B / L21A / 2301 /
+  9116 / 4430
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001331 أمراض الفم ( 1 )
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001331 أمراض الفم ( 1 
+ )
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002118-2026-11-17-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:امتحان 1002118 السلامة المهنية وصيانة ا
+ لأجهزة في تكنولوجيا صناعة الأسنان
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 42 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002118 السلامة المهنية 
+ وصيانة الأجهزة في تكنولوجيا صناعة الأسن
+ ان
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002118 السلامة المه
+ نية وصيانة الأجهزة في تكنولوجيا صناعة ا
+ لأسنان
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:10012113-2026-11-17-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:امتحان 10012113 علم الأمراض (1)
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 1 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 10012113 علم الأمراض (1)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 10012113 علم الأمراض (
+ 1)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:10012114-2026-11-18-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261118T080000
+DTEND;TZID=Asia/Amman:20261118T160000
+SUMMARY:امتحان 10012114 علم الأحياء الدقيقة
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 1 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 10012114 علم الأحياء الدق
+ يقة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 10012114 علم الأحياء 
+ الدقيقة
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002328-2026-11-18-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261118T080000
+DTEND;TZID=Asia/Amman:20261118T160000
+SUMMARY:امتحان 1002328 مختبر التعويضات السنية ا
+ لكاملة المتحركة (2)
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 1 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002328 مختبر التعويضات 
+ السنية الكاملة المتحركة (2)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002328 مختبر التعوي
+ ضات السنية الكاملة المتحركة (2)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001316-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان A-1001316 المعالجة اللبية -عملي ( 1
+  )*
+LOCATION:ِA24123 / 4217 (مختبر) / 7104 (مختبر) / 9216 / 9226
+DESCRIPTION:الامتحان الأول · المعالجة الترميم
+ ية والعلوم الطبية الأساسية · 107 طالب · ال
+ قاعات: ِA24123 / 4217 (مختبر) / 7104 (مختبر) / 9216 / 922
+ 6
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان A-1001316 المعالجة اللبية
+  -عملي ( 1 )*
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان A-1001316 المعالجة ال
+ لبية -عملي ( 1 )*
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001411-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان A-1001411 المعالجة التحفظية والل
+ بية - نظري (2) *
+LOCATION:7322 / 7324 / 9117 / 9219
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 98 طالب · القاعات: 7322 / 7324 / 9117 / 9219
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان A-1001411 المعالجة التحفظ
+ ية واللبية - نظري (2) *
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان A-1001411 المعالجة ال
+ تحفظية واللبية - نظري (2) *
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001214-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 1001214 علم أنسجة الفم والأسنان
+LOCATION:7320 / 8208 / 9122 / 06308
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 96 طالب · القاعات: 7320 / 8208 / 9122 / 06308
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001214 علم أنسجة الفم وا
+ لأسنان
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001214 علم أنسجة الف
+ م والأسنان
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002261-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 1002261 تشريح الرأس والعنق
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 17 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002261 تشريح الرأس والع
+ نق
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002261 تشريح الرأس و
+ العنق
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002218-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 1002218 المواد الحيوية في المجال
+ ات السنية والوجه والفكين
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 7 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002218 المواد الحيوية ف
+ ي المجالات السنية والوجه والفكين
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002218 المواد الحيو
+ ية في المجالات السنية والوجه والفكين
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002233-2026-11-19-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان 1002233 التعويضات السنية الثابت
+ ة - نظري (1)
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 3 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002233 التعويضات السنية
+  الثابتة - نظري (1)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002233 التعويضات ال
+ سنية الثابتة - نظري (1)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001436-2026-11-22-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261122T080000
+DTEND;TZID=Asia/Amman:20261122T160000
+SUMMARY:امتحان A-1001436 جراحة الفم - عملي ( 1 ) *
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 98 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان A-1001436 جراحة الفم - عمل
+ ي ( 1 ) *
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان A-1001436 جراحة الفم - 
+ عملي ( 1 ) *
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001112-2026-11-24-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261124T080000
+DTEND;TZID=Asia/Amman:20261124T160000
+SUMMARY:امتحان 1001112 علم الخلية والبيولوجيا ا
+ لجزيئية
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 7 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001112 علم الخلية والبي
+ ولوجيا الجزيئية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001112 علم الخلية وا
+ لبيولوجيا الجزيئية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002227-2026-11-24-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261124T080000
+DTEND;TZID=Asia/Amman:20261124T160000
+SUMMARY:امتحان 1002227 مختبر التعويضات السنية ا
+ لكاملة المتحركة (1)
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 3 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002227 مختبر التعويضات 
+ السنية الكاملة المتحركة (1)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002227 مختبر التعوي
+ ضات السنية الكاملة المتحركة (1)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002333-2026-11-24-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261124T080000
+DTEND;TZID=Asia/Amman:20261124T160000
+SUMMARY:امتحان 1002333 التعويضات السنية الثابت
+ ة - نظري (2)
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 1 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002333 التعويضات السنية
+  الثابتة - نظري (2)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002333 التعويضات ال
+ سنية الثابتة - نظري (2)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001315-2026-11-25-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:امتحان 1001315 المعالجة اللبية - نظري ( 1 
+ )
+LOCATION:1104 / 4528
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 107 طالب · القاعات: 1104 / 4528
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001315 المعالجة اللبية -
+  نظري ( 1 )
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001315 المعالجة الل
+ بية - نظري ( 1 )
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001432-2026-11-25-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261125T080000
+DTEND;TZID=Asia/Amman:20261125T160000
+SUMMARY:امتحان A-1001432 أمراض وجراحة اللثة - عمل
+ ي ( 1 ) *
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 98 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان A-1001432 أمراض وجراحة ال
+ لثة - عملي ( 1 ) *
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان A-1001432 أمراض وجراح
+ ة اللثة - عملي ( 1 ) *
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001314-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان A-1001314 المعالجة التحفظية - عمل
+ ي ( 1 ) *
+LOCATION:A24222 / 4217 (مختبر) / A24117 (مختبر) / 4226 / 9216
+DESCRIPTION:الامتحان الأول · المعالجة الترميم
+ ية والعلوم الطبية الأساسية · 106 طالب · ال
+ قاعات: A24222 / 4217 (مختبر) / A24117 (مختبر) / 4226 / 921
+ 6
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان A-1001314 المعالجة التحفظ
+ ية - عملي ( 1 ) *
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان A-1001314 المعالجة ال
+ تحفظية - عملي ( 1 ) *
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001437-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 1001437 الأمراض الباطنية لطلبة ط
+ ب الأسنان
+LOCATION:7319 / 7322 / 7324 / 9117
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 98 طالب · القاعات: 7319 / 7322 / 7324 / 9117
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001437 الأمراض الباطنية
+  لطلبة طب الأسنان
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001437 الأمراض البا
+ طنية لطلبة طب الأسنان
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001422-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان A-1001422 الاستعاضات السنية المت
+ حركة - نظري (2)
+LOCATION:9219 / 7320 / 8208 / 9122
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 98 طالب · القاعات: 9219 / 7320 / 8208 / 9122
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان A-1001422 الاستعاضات السن
+ ية المتحركة - نظري (2)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان A-1001422 الاستعاضات 
+ السنية المتحركة - نظري (2)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001215-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 1001215 علم أنسجة الفم والأسنان
+LOCATION:06308 / 7104 (مختبر) / 9226 / 06319 / 06312
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 96 طالب · القاعات: 06308 / 7104 (مختبر) / 9226 / 0
+ 6319 / 06312
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001215 علم أنسجة الفم وا
+ لأسنان
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001215 علم أنسجة الف
+ م والأسنان
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002355-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 1002355 التقنيات الرقمية و الذكا
+ ء الاصطناعي في الطباعة ثلاثية الابعاد ا
+ لطبية
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 2 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002355 التقنيات الرقمية
+  و الذكاء الاصطناعي في الطباعة ثلاثية ال
+ ابعاد الطبية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002355 التقنيات الر
+ قمية و الذكاء الاصطناعي في الطباعة ثلاث
+ ية الابعاد الطبية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002334-2026-11-26-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان 1002334 مختبر التعويضات السنية ا
+ لثابتة (2)
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 1 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002334 مختبر التعويضات 
+ السنية الثابتة (2)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002334 مختبر التعوي
+ ضات السنية الثابتة (2)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002231-2026-11-29-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261129T080000
+DTEND;TZID=Asia/Amman:20261129T160000
+SUMMARY:امتحان 1002231 التعويضات السنية الثابت
+ ة - نظري (1)
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 1 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002231 التعويضات السنية
+  الثابتة - نظري (1)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002231 التعويضات ال
+ سنية الثابتة - نظري (1)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001435-2026-11-30-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261130T080000
+DTEND;TZID=Asia/Amman:20261130T160000
+SUMMARY:امتحان A-1001435 جراحة الفم - نظري ( 1 ) *
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 98 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان A-1001435 جراحة الفم - نظر
+ ي ( 1 ) *
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان A-1001435 جراحة الفم - 
+ نظري ( 1 ) *
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001213-2026-11-30-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261130T080000
+DTEND;TZID=Asia/Amman:20261130T160000
+SUMMARY:امتحان 1001213 علم وظائف الأعضاء
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 90 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001213 علم وظائف الأعضا
+ ء
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001213 علم وظائف الأ
+ عضاء
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001311-2026-12-01-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261201T080000
+DTEND;TZID=Asia/Amman:20261201T160000
+SUMMARY:امتحان 1001311 علم الأمراض ( 2 )
+LOCATION:
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 102 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1001311 علم الأمراض ( 2 )
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1001311 علم الأمراض ( 
+ 2 )
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002241-2026-12-01-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261201T080000
+DTEND;TZID=Asia/Amman:20261201T160000
+SUMMARY:امتحان 1002241 تقويم الأسنان - نظري (1)
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 1 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002241 تقويم الأسنان - ن
+ ظري (1)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002241 تقويم الأسنا
+ ن - نظري (1)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:10023210-2026-12-01-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261201T080000
+DTEND;TZID=Asia/Amman:20261201T160000
+SUMMARY:امتحان 10023210 مختبر التعويضات السنية 
+ الجزئية المتحركة (2)
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 1 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 10023210 مختبر التعويضات 
+ السنية الجزئية المتحركة (2)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 10023210 مختبر التعوي
+ ضات السنية الجزئية المتحركة (2)
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001433-2026-12-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:امتحان A-1001433 طب الفم - نظري (1) *
+LOCATION:ورش ومشاغل / L22B / L31B / L33A / 4310ب / L37B / L36B
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 98 طالب · القاعات: ورش ومشاغل / L22B / L31B / 
+ L33A / 4310ب / L37B / L36B
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان A-1001433 طب الفم - نظري (1) 
+ *
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان A-1001433 طب الفم - نظر
+ ي (1) *
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:502200-2026-12-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:امتحان 502200 الإسعافات الأولية لطب ال
+ أسنان
+LOCATION:7328 / 9001 / 1104 / 4528
+DESCRIPTION:الامتحان الأول · طب وجراحة الأسنا
+ ن · 94 طالب · القاعات: 7328 / 9001 / 1104 / 4528
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 502200 الإسعافات الأولي
+ ة لطب الأسنان
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 502200 الإسعافات الأ
+ ولية لطب الأسنان
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002356-2026-12-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:امتحان 1002356 مختبر التقنيات الرقمية و
+  الذكاء الاصطناعي في الطباعة ثلاثية الا
+ بعاد الطبية
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 2 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002356 مختبر التقنيات ا
+ لرقمية و الذكاء الاصطناعي في الطباعة ثل
+ اثية الابعاد الطبية
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002356 مختبر التقني
+ ات الرقمية و الذكاء الاصطناعي في الطباع
+ ة ثلاثية الابعاد الطبية
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1002329-2026-12-02-08:00@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261202T080000
+DTEND;TZID=Asia/Amman:20261202T160000
+SUMMARY:امتحان 1002329 التعويضات السنية الجزئي
+ ة المتحركة - نظري (2)
+LOCATION:
+DESCRIPTION:الامتحان الأول · تكنولوجيا صناعة 
+ الأسنان · 1 طالب · القاعات: 
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان 1002329 التعويضات السنية
+  الجزئية المتحركة - نظري (2)
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان 1002329 التعويضات ال
+ سنية الجزئية المتحركة - نظري (2)
+END:VALARM
+END:VEVENT
+END:VCALENDAR

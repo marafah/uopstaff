@@ -1,0 +1,132 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. محمد مزيد فاضل الجن
+ يدي
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:320310-2026-11-05-08:00-7325@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان مقررك: إدارة الاستيراد والتص
+ دير – القاعة 7325
+LOCATION:جامعة البترا – القاعة 7325
+DESCRIPTION:320310 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: إدارة الاستيرا
+ د والتصدير – القاعة 7325
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: إدارة الاس
+ تيراد والتصدير – القاعة 7325
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:320310-2026-11-05-08:00-7325@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان مقررك: إدارة الاستيراد والتص
+ دير – القاعة 7325
+LOCATION:جامعة البترا – القاعة 7325
+DESCRIPTION:320310 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: إدارة الاستيرا
+ د والتصدير – القاعة 7325
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: إدارة الاس
+ تيراد والتصدير – القاعة 7325
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001413-2026-11-12-08:00-9230@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: مشروع بحث – القاعة 9230
+LOCATION:جامعة البترا – القاعة 9230
+DESCRIPTION:1001413 · 20 طالب في القاعة · مع د. معتص
+ م خالد محمود حيف
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مشروع بحث – القاعة 923
+ 0
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مشروع بحث – القا
+ عة 9230
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:702151-2026-11-19-08:00-7318@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: النظم السياسية والقانون الد
+ ستوري – القاعة 7318
+LOCATION:جامعة البترا – القاعة 7318
+DESCRIPTION:702151 · 25 طالب في القاعة · مع د. محمد 
+ طه احمد صالح
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: النظم السياسية والقا
+ نون الدستوري – القاعة 7318
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: النظم السياسية و
+ القانون الدستوري – القاعة 7318
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001422-2026-11-26-08:00-7320@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: الاستعاضات السنية المتحركة -
+  نظري (2) – القاعة 7320
+LOCATION:جامعة البترا – القاعة 7320
+DESCRIPTION:A-1001422 · 25 طالب في القاعة · مع د. محم
+ د عطاالله محمد العودات
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الاستعاضات السنية ال
+ متحركة - نظري (2) – القاعة 7320
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الاستعاضات السني
+ ة المتحركة - نظري (2) – القاعة 7320
+END:VALARM
+END:VEVENT
+END:VCALENDAR

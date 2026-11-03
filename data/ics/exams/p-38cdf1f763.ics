@@ -1,0 +1,271 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – م. عرين محجوب خليفة ال
+ زعبي
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:402201-2026-11-03-08:00-0-4217@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261103T080000
+DTEND;TZID=Asia/Amman:20261103T160000
+SUMMARY:مراقبة: مهارات الاتصال لتكنولوجيا ا
+ لمعلومات – القاعة 0-4217
+LOCATION:جامعة البترا – القاعة 0-4217
+DESCRIPTION:402201 · 15 طالب في القاعة · مع م. عبد ا
+ لله محمود محمد فلاح
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مهارات الاتصال لتكنو
+ لوجيا المعلومات – القاعة 0-4217
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مهارات الاتصال ل
+ تكنولوجيا المعلومات – القاعة 0-4217
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:501459-2026-11-05-08:00-06221@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: العلاج بالنواتج الطبيعية – 
+ القاعة 06221
+LOCATION:جامعة البترا – القاعة 06221
+DESCRIPTION:501459 · 8 طالب في القاعة · مع م. عبد ال
+ له محمود محمد فلاح
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: العلاج بالنواتج الطب
+ يعية – القاعة 06221
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: العلاج بالنواتج 
+ الطبيعية – القاعة 06221
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301221-2026-11-08-08:00-15101@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:امتحان مقررك: تشريعات تجارية (1) – ال
+ قاعة 15101
+LOCATION:جامعة البترا – القاعة 15101
+DESCRIPTION:301221 · 55 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: تشريعات تجارية
+  (1) – القاعة 15101
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: تشريعات تج
+ ارية (1) – القاعة 15101
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:301221-2026-11-08-08:00-15101@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:امتحان مقررك: تشريعات تجارية (1) – ال
+ قاعة 15101
+LOCATION:جامعة البترا – القاعة 15101
+DESCRIPTION:301221 · 55 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: تشريعات تجارية
+  (1) – القاعة 15101
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: تشريعات تج
+ ارية (1) – القاعة 15101
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:501512-2026-11-12-08:00-7325@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: مختبر الممارسة الصيدلانية (2)
+  – القاعة 7325
+LOCATION:جامعة البترا – القاعة 7325
+DESCRIPTION:501512 · 10 طالب في القاعة · مع م. ليلى 
+ بشار احمد الكلوب
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مختبر الممارسة الصيد
+ لانية (2) – القاعة 7325
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مختبر الممارسة ا
+ لصيدلانية (2) – القاعة 7325
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:203208-2026-11-17-08:00-7328@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:مراقبة: التصميم والفنون الجرافيكية 
+ – القاعة 7328
+LOCATION:جامعة البترا – القاعة 7328
+DESCRIPTION:203208 · 15 طالب في القاعة · مع م. ليالي
+  رماح خالد كيلاني
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: التصميم والفنون الجر
+ افيكية – القاعة 7328
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: التصميم والفنون 
+ الجرافيكية – القاعة 7328
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309211-2026-11-19-08:00-06310@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: الاتصالات التسويقية المتكام
+ لة الرقمية – القاعة 06310
+LOCATION:جامعة البترا – القاعة 06310
+DESCRIPTION:309211 · 20 طالب في القاعة · مع م. عبد ا
+ لله محمود محمد فلاح
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: الاتصالات التسويقية 
+ المتكاملة الرقمية – القاعة 06310
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: الاتصالات التسوي
+ قية المتكاملة الرقمية – القاعة 06310
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9100101-2026-11-22-08:00-0-4217@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261122T080000
+DTEND;TZID=Asia/Amman:20261122T160000
+SUMMARY:مراقبة: العلم والحياة – القاعة 0-4217
+LOCATION:جامعة البترا – القاعة 0-4217
+DESCRIPTION:9100101 · 15 طالب في القاعة · مع م. عبد ا
+ لله محمود محمد فلاح
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: العلم والحياة – القا
+ عة 0-4217
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: العلم والحياة – 
+ القاعة 0-4217
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400123-2026-11-24-08:00-0-4217@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261124T080000
+DTEND;TZID=Asia/Amman:20261124T160000
+SUMMARY:مراقبة: مهارات الاتصال والتواصل بال
+ لغة الانجليزية (1) – القاعة 0-4217
+LOCATION:جامعة البترا – القاعة 0-4217
+DESCRIPTION:9400123 · 15 طالب في القاعة · مع م. عبد ا
+ لله محمود محمد فلاح
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مهارات الاتصال والتو
+ اصل باللغة الانجليزية (1) – القاعة 0-4217
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مهارات الاتصال و
+ التواصل باللغة الانجليزية (1) – القاعة 0-4
+ 217
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309420-2026-11-26-08:00-8B-8144@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: استراتيجيات التسويق الرقمي 
+ – القاعة 8B-8144
+LOCATION:جامعة البترا – القاعة 8B-8144
+DESCRIPTION:309420 · 2 طالب في القاعة · مع م. عبد ال
+ له محمود محمد فلاح
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: استراتيجيات التسويق 
+ الرقمي – القاعة 8B-8144
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: استراتيجيات التس
+ ويق الرقمي – القاعة 8B-8144
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400110-2026-11-29-08:00-2103 هندسة@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261129T080000
+DTEND;TZID=Asia/Amman:20261129T160000
+SUMMARY:مراقبة: العلوم العسكرية – القاعة 2103 
+ هندسة
+LOCATION:جامعة البترا – القاعة 2103 هندسة
+DESCRIPTION:9400110 · 15 طالب في القاعة · مع م. عامر 
+ عبدالرحيم ابراهيم السكارنة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: العلوم العسكرية – ال
+ قاعة 2103 هندسة
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: العلوم العسكرية 
+ – القاعة 2103 هندسة
+END:VALARM
+END:VEVENT
+END:VCALENDAR

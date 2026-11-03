@@ -1,0 +1,66 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. سامر احمد جميل العق
+ يلي
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:103101-2026-11-12-08:00-8109@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان مقررك: تفاضل وتكامل (1) – القا
+ عة 8109
+LOCATION:جامعة البترا – القاعة 8109
+DESCRIPTION:103101 · 30 طالب في القاعة · مع م. ملاك 
+ أنور عبد الزاهي جبر
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: تفاضل وتكامل (1)
+  – القاعة 8109
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: تفاضل وتكا
+ مل (1) – القاعة 8109
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400113-2026-11-19-08:00-9124@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: مهارات الاتصال والتواصل بال
+ لغة العربية (1) – القاعة 9124
+LOCATION:جامعة البترا – القاعة 9124
+DESCRIPTION:9400113 · 35 طالب في القاعة · مع د. سميح 
+ احمد محمد مقدادي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مهارات الاتصال والتو
+ اصل باللغة العربية (1) – القاعة 9124
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مهارات الاتصال و
+ التواصل باللغة العربية (1) – القاعة 9124
+END:VALARM
+END:VEVENT
+END:VCALENDAR

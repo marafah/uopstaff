@@ -1,0 +1,290 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. مرام فؤاد محمد ابو ا
+ لنادي
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:9200102-2026-11-03-08:00-2301@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261103T080000
+DTEND;TZID=Asia/Amman:20261103T160000
+SUMMARY:مراقبة: التنمية والبيئة – القاعة 2301
+LOCATION:جامعة البترا – القاعة 2301
+DESCRIPTION:9200102 · 15 طالب في القاعة · مع د. محمو
+ د احمد ميزار عبد العزيز
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: التنمية والبيئة – ال
+ قاعة 2301
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: التنمية والبيئة 
+ – القاعة 2301
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400108-2026-11-05-08:00-06001@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:امتحان مقررك: المهارات الحياتية – ا
+ لقاعة 06001
+LOCATION:جامعة البترا – القاعة 06001
+DESCRIPTION:9400108 · 55 طالب في القاعة · مع د. فاطم
+ ة سليم حماد الطراونة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: المهارات الحيا
+ تية – القاعة 06001
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: المهارات ا
+ لحياتية – القاعة 06001
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:503170-2026-11-08-08:00-0-4217@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261108T080000
+DTEND;TZID=Asia/Amman:20261108T160000
+SUMMARY:مراقبة: علوم الحياة – القاعة 0-4217
+LOCATION:جامعة البترا – القاعة 0-4217
+DESCRIPTION:503170 · 15 طالب في القاعة · مع د. محمد 
+ حسن اسماعيل أبو عرقوب
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: علوم الحياة – القاعة
+  0-4217
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: علوم الحياة – ال
+ قاعة 0-4217
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:A-1001431-2026-11-10-08:00-06005@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261110T080000
+DTEND;TZID=Asia/Amman:20261110T160000
+SUMMARY:مراقبة: أمراض وجراحة اللثة - نظري ( 1 ) 
+ * – القاعة 06005
+LOCATION:جامعة البترا – القاعة 06005
+DESCRIPTION:A-1001431 · 15 طالب في القاعة · مع د. منى 
+ الاحمدي عبد الحميد المليجي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: أمراض وجراحة اللثة - 
+ نظري ( 1 ) * – القاعة 06005
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: أمراض وجراحة الل
+ ثة - نظري ( 1 ) * – القاعة 06005
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400107-2026-11-12-08:00-06001@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:امتحان مقررك: القيادة والمسؤولية ال
+ مجتمعية – القاعة 06001
+LOCATION:جامعة البترا – القاعة 06001
+DESCRIPTION:9400107 · 55 طالب في القاعة · مع د. فاطم
+ ة سليم حماد الطراونة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: القيادة والمسؤ
+ ولية المجتمعية – القاعة 06001
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: القيادة وا
+ لمسؤولية المجتمعية – القاعة 06001
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:1001331-2026-11-17-08:00-L21B@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261117T080000
+DTEND;TZID=Asia/Amman:20261117T160000
+SUMMARY:مراقبة: أمراض الفم ( 1 ) – القاعة L21B
+LOCATION:جامعة البترا – القاعة L21B
+DESCRIPTION:1001331 · 15 طالب في القاعة · مع د. نضال 
+ امين عبدالفتاح الصالحي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: أمراض الفم ( 1 ) – القا
+ عة L21B
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: أمراض الفم ( 1 ) – 
+ القاعة L21B
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:406412-2026-11-19-08:00-4210@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان مقررك: الإدارة الصفية – القا
+ عة 4210
+LOCATION:جامعة البترا – القاعة 4210
+DESCRIPTION:406412 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: الإدارة الصفية
+  – القاعة 4210
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: الإدارة ال
+ صفية – القاعة 4210
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:406412-2026-11-19-08:00-4210@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:امتحان مقررك: الإدارة الصفية – القا
+ عة 4210
+LOCATION:جامعة البترا – القاعة 4210
+DESCRIPTION:406412 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: الإدارة الصفية
+  – القاعة 4210
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: الإدارة ال
+ صفية – القاعة 4210
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400123-2026-11-24-08:00-7328@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261124T080000
+DTEND;TZID=Asia/Amman:20261124T160000
+SUMMARY:مراقبة: مهارات الاتصال والتواصل بال
+ لغة الانجليزية (1) – القاعة 7328
+LOCATION:جامعة البترا – القاعة 7328
+DESCRIPTION:9400123 · 15 طالب في القاعة · مع د. علا م
+ حمد كامل علي الدباغ
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مهارات الاتصال والتو
+ اصل باللغة الانجليزية (1) – القاعة 7328
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مهارات الاتصال و
+ التواصل باللغة الانجليزية (1) – القاعة 732
+ 8
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:309204-2026-11-26-08:00-6304@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:مراقبة: تسويق الخدمات – القاعة 6304
+LOCATION:جامعة البترا – القاعة 6304
+DESCRIPTION:309204 · 1 طالب في القاعة · مع د. عبير ح
+ سن سالم القيسي
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: تسويق الخدمات – القا
+ عة 6304
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: تسويق الخدمات – 
+ القاعة 6304
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9400110-2026-11-29-08:00-0-4217@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261129T080000
+DTEND;TZID=Asia/Amman:20261129T160000
+SUMMARY:مراقبة: العلوم العسكرية – القاعة 0-421
+ 7
+LOCATION:جامعة البترا – القاعة 0-4217
+DESCRIPTION:9400110 · 15 طالب في القاعة · مع د. محمد 
+ حسن اسماعيل أبو عرقوب
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: العلوم العسكرية – ال
+ قاعة 0-4217
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: العلوم العسكرية 
+ – القاعة 0-4217
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:9700102-2026-12-01-08:00-3404@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261201T080000
+DTEND;TZID=Asia/Amman:20261201T160000
+SUMMARY:مراقبة: حقوق الانسان – القاعة 3404
+LOCATION:جامعة البترا – القاعة 3404
+DESCRIPTION:9700102 · 2 طالب في القاعة · مع د. محمد 
+ حسن اسماعيل أبو عرقوب
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: حقوق الانسان – القاع
+ ة 3404
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: حقوق الانسان – ا
+ لقاعة 3404
+END:VALARM
+END:VEVENT
+END:VCALENDAR

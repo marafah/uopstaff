@@ -1,0 +1,134 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//uopstaff//exams//AR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:مراقباتي – د. هناء محمد عبد داود
+X-WR-TIMEZONE:Asia/Amman
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Asia/Amman
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:+0300
+TZOFFSETTO:+0300
+TZNAME:+03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:601432-2026-11-05-08:00-9122@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261105T080000
+DTEND;TZID=Asia/Amman:20261105T160000
+SUMMARY:مراقبة: نظم التشغيل – القاعة 9122
+LOCATION:جامعة البترا – القاعة 9122
+DESCRIPTION:601432 · 25 طالب في القاعة · مع د. هنادي
+  عدي شاكر الشاكر
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: نظم التشغيل – القاعة
+  9122
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: نظم التشغيل – ال
+ قاعة 9122
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:304311-2026-11-12-08:00-8B-8143@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261112T080000
+DTEND;TZID=Asia/Amman:20261112T160000
+SUMMARY:مراقبة: إدارة شبكات التواصل الاجتما
+ عي والعلاقة الالكترونية مع الزبائن – ال
+ قاعة 8B-8143
+LOCATION:جامعة البترا – القاعة 8B-8143
+DESCRIPTION:304311 · 25 طالب في القاعة · مع د. هناء 
+ عبد الرحمن محمد الصعوب
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: إدارة شبكات التواصل 
+ الاجتماعي والعلاقة الالكترونية مع الزب
+ ائن – القاعة 8B-8143
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: إدارة شبكات التو
+ اصل الاجتماعي والعلاقة الالكترونية مع ا
+ لزبائن – القاعة 8B-8143
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:101108-2026-11-19-08:00-7107@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261119T080000
+DTEND;TZID=Asia/Amman:20261119T160000
+SUMMARY:مراقبة: مختبر كيمياء عامة – القاعة 71
+ 07
+LOCATION:جامعة البترا – القاعة 7107
+DESCRIPTION:101108 · 24 طالب في القاعة · مع د. هبة ح
+ سني محمود الخرابشة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: مراقبة: مختبر كيمياء عامة – 
+ القاعة 7107
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: مراقبة: مختبر كيمياء عام
+ ة – القاعة 7107
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:411373-2026-11-26-08:00-L33A@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان مقررك: حركات الايقاع – القاع
+ ة L33A
+LOCATION:جامعة البترا – القاعة L33A
+DESCRIPTION:411373 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: حركات الايقاع 
+ – القاعة L33A
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: حركات الاي
+ قاع – القاعة L33A
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:411373-2026-11-26-08:00-L33A@uopstaff-exams
+DTSTAMP:20261103T142337Z
+DTSTART;TZID=Asia/Amman:20261126T080000
+DTEND;TZID=Asia/Amman:20261126T160000
+SUMMARY:امتحان مقررك: حركات الايقاع – القاع
+ ة L33A
+LOCATION:جامعة البترا – القاعة L33A
+DESCRIPTION:411373 · 15 طالب في القاعة
+BEGIN:VALARM
+TRIGGER:-PT18H
+ACTION:DISPLAY
+DESCRIPTION:غداً: امتحان مقررك: حركات الايقاع 
+ – القاعة L33A
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT1H
+ACTION:DISPLAY
+DESCRIPTION:بعد ساعة: امتحان مقررك: حركات الاي
+ قاع – القاعة L33A
+END:VALARM
+END:VEVENT
+END:VCALENDAR
