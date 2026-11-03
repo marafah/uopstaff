@@ -882,27 +882,41 @@
   }
   // the approved timetable as one public file (data/exam_schedule.json): read by «امتحاناتي» and the building screens
   // ---------- publishing to the site (students' «امتحاناتي», building screens, calendar subscriptions) ----------
-  // One click: the timetable is written to data/exam_schedule.json in the site's repository through the GitHub API, with a
-  // token the committee adds once on this device (a fine-grained token for this repository only, Contents: read and write).
-  const GH = { api: 'https://api.github.com/repos/marafah/uopstaff/contents/data/exam_schedule.json', repo: 'https://github.com/marafah/uopstaff' };
-  const TOKEN_KEY = 'ex-gh-token';
-  const ghToken = () => { try { return localStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; } };
-  const gh = (method, body) => fetch(GH.api + (method === 'GET' ? '?ref=main&t=' + Date.now() : ''), { method, cache: 'no-store',
-    headers: { Authorization: 'Bearer ' + ghToken(), Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }, body: body ? JSON.stringify(body) : undefined });
-  const b64 = t => btoa(unescape(encodeURIComponent(t)));
+  // No keys and no files: the page opens GitHub — where the committee member is already signed in — on a new file in
+  // data/exams/inbox/ holding the timetable (copied to the clipboard), the member presses «Commit changes», and the
+  // workflow exam-publish.yml writes data/exam_schedule.json at once (scripts/exam_inbox.py). Unpublishing is the same
+  // with a short file. Only accounts that can write to the repository can commit, so only they can publish.
+  const REPO = 'https://github.com/marafah/uopstaff';
+  const MAGIC = 'UOPEXAMS1:';
+  const stamp = () => new Date().toISOString().slice(0, 19).replace(/[-:]/g, '').replace('T', '-');
+  const newFile = (kind, value) => `${REPO}/new/main?filename=${encodeURIComponent(`data/exams/inbox/${stamp()}-${kind}.txt`)}${value ? '&value=' + encodeURIComponent(value) : ''}`;
   let LIVE = null;   // what the site shows now (read from the published file)
-  function liveCheck() { fetch('data/exam_schedule.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null).then(x => { LIVE = x && x.exams && x.exams.length ? x : false; if (tab === 'out') render(); }); }
+  let WATCH = null;  // waiting for a publish/unpublish to appear on the site
+  function liveCheck() { return fetch('data/exam_schedule.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null).then(x => { LIVE = x && x.exams && x.exams.length ? x : false; if (tab === 'out' && !document.querySelector('#pgModal.show')) render(); return LIVE; }); }
   function pubDoc() {
     const { out } = seating(), exams = [];
     for (let s = 0; s < NS; s++) (out[s] || []).forEach(x => { const d = DAYS[dayOf(s)], p = S.periods[s % P];
       exams.push({ code: x.c.code, name: x.c.name, dept: x.c.dept, fac: x.c.fac, date: d.iso, from: p[0], to: p[1], students: x.c.students, ins: x.c.ins,
         rooms: x.rooms.map(r => ({ room: r.room, lab: r.t === LAB, n: r.n, secs: (r.parts || []).map(q => q.s).filter(Boolean).filter((v, i, a) => a.indexOf(v) === i), proc: r.proc })) }); });
-    return { title: title(), type: TYPES[S.type].name, term: TT.term || '', faculties: S.facs.length ? S.facs : ['كل الكليات'], approved: S.approved || null,
-      published: new Date().toISOString(), periods: S.periods, days: DAYS.map(d => d.iso), exams };
+    const now = new Date().toISOString();
+    return { id: now, title: title(), type: TYPES[S.type].name, term: TT.term || '', faculties: S.facs.length ? S.facs : ['كل الكليات'], approved: S.approved || null,
+      published: now, periods: S.periods, days: DAYS.map(d => d.iso), exams };
   }
   const sig = doc => { const t = JSON.stringify(doc.exams); let h = 0; for (let i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0; return h.toString(36); };
+  async function pack(doc) {   // gzip + base64: the whole university's timetable fits the clipboard and the GitHub editor easily
+    const gz = await new Response(new Blob([JSON.stringify(doc)]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer();
+    const b = new Uint8Array(gz); let s = '';
+    for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
+    return MAGIC + btoa(s);
+  }
+  function copyText(t) {
+    const ta = document.createElement('textarea'); ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
+    document.body.appendChild(ta); ta.select(); let ok = false; try { ok = document.execCommand('copy'); } catch (e) { /* */ } ta.remove();
+    if (!ok && navigator.clipboard) navigator.clipboard.writeText(t).catch(() => {});
+    return ok;
+  }
   function pubPanel() {
-    const L = LIVE, mine = S.pub, changed = mine && C.some(c => c.s >= 0) && sig(pubDoc()) !== mine.sig;
+    const L = LIVE, mine = S.pub, changed = L && mine && C.some(c => c.s >= 0) && sig(pubDoc()) !== mine.sig;
     const st = L === null ? '<span class="bdg"><span class="spinner-border spinner-border-sm"></span> يتحقق من الموقع…</span>'
       : L ? `<span class="bdg green"><i class="bi bi-broadcast"></i> منشور الآن: ${esc(L.title)} · ${L.exams.length} امتحاناً · ${U.ago ? U.ago(L.published) : L.published.slice(0, 10)}</span>`
       : '<span class="bdg"><i class="bi bi-eye-slash"></i> لا جدول منشوراً على الموقع</span>';
@@ -910,57 +924,50 @@
       ${changed ? '<span class="bdg amber"><i class="bi bi-arrow-repeat"></i> عدّلت الجدول بعد آخر نشر</span>' : ''}
       <span class="sp"></span>
       <button class="btn btn-ex" id="ex-publish"><i class="bi bi-cloud-arrow-up-fill"></i> ${L ? 'تحديث النشر' : 'نشر الآن'}</button>
-      ${L ? '<button class="btn btn-outline-danger" id="ex-unpub"><i class="bi bi-cloud-slash"></i> إيقاف النشر</button>' : ''}
-      <button class="btn btn-sm btn-link" id="ex-ghset"><i class="bi bi-key"></i> ${ghToken() ? 'ربط GitHub مفعّل' : 'ربط النشر (مرة واحدة)'}</button></div>`;
+      ${L ? '<button class="btn btn-outline-danger" id="ex-unpub"><i class="bi bi-cloud-slash"></i> إيقاف النشر</button>' : ''}</div>`;
   }
-  function connectDlg(then) {
-    U.modal('<i class="bi bi-key-fill"></i> ربط النشر بموقع بوصلة البترا (مرة واحدة على هذا الجهاز)', `
-      <p>لينشر الجدول بضغطة واحدة يحتاج هذا الجهاز «مفتاح نشر» من GitHub يسمح بالكتابة في مستودع الموقع فقط. يُنشأ مرة واحدة ويبقى على هذا الجهاز.</p>
-      <ol class="small"><li>افتح <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">إنشاء مفتاح جديد على GitHub</a> (حساب صاحب المستودع أو عضو فيه).</li>
-        <li><b>Repository access</b>: Only select repositories ← <b>marafah/uopstaff</b>.</li><li><b>Permissions</b> ← Repository permissions ← <b>Contents: Read and write</b>.</li>
-        <li>اختر مدة صلاحية (مثلاً سنة)، ثم <b>Generate token</b> وانسخه والصقه هنا.</li></ol>
-      <input type="password" class="form-control" id="ex-tok" placeholder="github_pat_…" autocomplete="off" value="">
-      <div class="d-flex flex-wrap gap-2 mt-2"><button class="btn btn-ex" id="ex-toksave"><i class="bi bi-check2-circle"></i> تحقق واحفظ</button>${ghToken() ? '<button class="btn btn-outline-danger" id="ex-tokdel">إزالة المفتاح من هذا الجهاز</button>' : ''}</div>
-      <div id="ex-tokmsg" class="small mt-2"></div>
-      <p class="small text-muted mt-2 mb-0"><i class="bi bi-shield-lock"></i> المفتاح يُحفظ في متصفح هذا الجهاز فقط ولا يُرسل إلا إلى GitHub. لا تستخدمه على جهاز مشترك.</p>`);
-    const m = document.getElementById('pgModalB');
-    m.onclick = e => {
-      const t = e.target.closest('button'); if (!t) return;
-      if (t.id === 'ex-tokdel') { try { localStorage.removeItem(TOKEN_KEY); } catch (x) { /* */ } m.querySelector('#ex-tokmsg').textContent = 'أُزيل المفتاح.'; render(); return; }
-      if (t.id !== 'ex-toksave') return;
-      const v = m.querySelector('#ex-tok').value.trim(), msg = m.querySelector('#ex-tokmsg');
-      if (!v) { msg.textContent = 'الصق المفتاح أولاً.'; return; }
-      msg.innerHTML = '<span class="spinner-border spinner-border-sm"></span> يتحقق…';
-      fetch('https://api.github.com/repos/marafah/uopstaff', { headers: { Authorization: 'Bearer ' + v, Accept: 'application/vnd.github+json' } }).then(r => r.json().then(j => [r, j])).then(([r, j]) => {
-        if (!r.ok) throw new Error(r.status === 401 ? 'المفتاح غير صحيح أو منتهي.' : 'لا يصل المفتاح إلى المستودع.');
-        if (j.permissions && !j.permissions.push) throw new Error('المفتاح لا يملك صلاحية الكتابة (Contents: Read and write).');
-        try { localStorage.setItem(TOKEN_KEY, v); } catch (x) { throw new Error('تعذّر الحفظ في هذا المتصفح.'); }
-        msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle-fill"></i> تم الربط.</span>'; render(); if (then) setTimeout(then, 400);
-      }).catch(x => { msg.innerHTML = `<span class="text-danger"><i class="bi bi-x-circle-fill"></i> ${esc(x.message)}</span>`; });
+  // the dialog follows the site until the change shows (GitHub saves → the site updates in about a minute)
+  function watch(test, el, okHtml) {
+    clearInterval(WATCH); const t0 = Date.now();
+    WATCH = setInterval(() => liveCheck().then(L => {
+      const box = document.getElementById(el); if (!box) { clearInterval(WATCH); return; }
+      if (test(L)) { clearInterval(WATCH); box.className = 'ex-pubst ok'; box.innerHTML = okHtml; render(); return; }
+      const m = Math.floor((Date.now() - t0) / 60000);
+      if (m >= 6) box.innerHTML = '<i class="bi bi-hourglass-split"></i> لم يظهر بعد. تأكّد أنك ضغطت <b>Commit changes</b> في صفحة GitHub، ثم انتظر قليلاً.';
+    }), 10000);
+  }
+  async function publish() {
+    if (!C.some(c => c.s >= 0)) return alert('ولّد الجدول أولاً.');
+    if (!S.approved && !confirm('هذه النسخة مسودة (غير معتمدة). نشرها على الشاشات وصفحة الطلبة الآن؟')) return;
+    const doc = pubDoc(); let txt;
+    try { txt = await pack(doc); } catch (e) { return alert('هذا المتصفح لا يدعم النشر المباشر. استخدم Chrome أو Edge حديثاً.'); }
+    U.modal('<i class="bi bi-cloud-arrow-up-fill"></i> نشر الجدول على الشاشات', `
+      <p class="mb-2">النشر يتم بحسابك على GitHub (المسجّل عليه في هذا المتصفح) — لا مفاتيح ولا ملفات:</p>
+      <ol class="ex-pubsteps"><li>اضغط الزر أدناه: يُنسخ الجدول وتُفتح صفحة GitHub.</li><li>اضغط داخل مربع الكتابة الفارغ ثم <kbd>Ctrl</kbd>+<kbd>V</kbd>.</li><li>اضغط <b>Commit changes</b> (مرتين: في الأعلى ثم في النافذة).</li></ol>
+      <button class="btn btn-ex btn-lg w-100" id="ex-gopub"><i class="bi bi-clipboard-check"></i> انسخ الجدول وافتح GitHub</button>
+      <div id="ex-pubst" class="ex-pubst"><i class="bi bi-info-circle"></i> ${esc(doc.title)} · ${doc.exams.length} امتحاناً.</div>`);
+    document.getElementById('ex-gopub').onclick = () => {
+      copyText(txt);
+      window.open(newFile('publish'), '_blank', 'noopener');
+      S.pub = { at: doc.published, sig: sig(doc), title: doc.title, n: doc.exams.length }; save();
+      const box = document.getElementById('ex-pubst'); box.className = 'ex-pubst wait';
+      box.innerHTML = '<span class="spinner-border spinner-border-sm"></span> نُسخ الجدول. الصقه في GitHub واضغط Commit changes — ستظهر هنا علامة النجاح تلقائياً.';
+      watch(L => L && L.id === doc.id, 'ex-pubst', `<i class="bi bi-check-circle-fill"></i> <b>نُشر الجدول.</b> يظهر على شاشات المباني خلال 3 دقائق.
+        <div class="d-flex flex-wrap gap-2 mt-2"><a class="btn btn-sm btn-outline-primary" href="screen.html?b=exams" target="_blank"><i class="bi bi-display"></i> شاشة الامتحانات</a><a class="btn btn-sm btn-outline-primary" href="myexams.html" target="_blank"><i class="bi bi-phone"></i> «امتحاناتي»</a></div>`);
     };
   }
-  function publish() {
-    if (!C.some(c => c.s >= 0)) return alert('ولّد الجدول أولاً.');
-    if (!ghToken()) return connectDlg(publish);
-    const doc = pubDoc();
-    if (!S.approved && !confirm('هذه النسخة مسودة (غير معتمدة). نشرها على الشاشات وصفحة الطلبة الآن؟')) return;
-    U.modal('<i class="bi bi-cloud-arrow-up-fill"></i> نشر الجدول', '<div class="text-center p-3"><div class="spinner-border text-danger"></div><p class="mt-2 mb-0">يُنشر الجدول…</p></div>');
-    gh('GET').then(r => r.ok ? r.json() : null).then(cur => gh('PUT', { message: `Exam timetable published: ${doc.title} (${doc.exams.length} exams)`, content: b64(JSON.stringify(doc)), branch: 'main', ...(cur ? { sha: cur.sha } : {}) }))
-      .then(r => r.json().then(j => [r, j])).then(([r, j]) => {
-        if (!r.ok) throw new Error(j.message || r.status);
-        S.pub = { at: doc.published, sig: sig(doc), title: doc.title, n: doc.exams.length }; save(); LIVE = doc;
-        U.modal('<i class="bi bi-check-circle-fill text-success"></i> نُشر الجدول', `<p class="fs-5">نُشر <b>${esc(doc.title)}</b> (${doc.exams.length} امتحاناً).</p>
-          <ul><li>يظهر على <b>شاشات المباني</b> وصفحة <b>«امتحاناتي»</b> خلال 1–3 دقائق (وقت تحديث الموقع).</li><li>تقاويم التذكير للمراقبين والكليات تتحدّث خلال ساعة.</li><li>أي تعديل لاحق: اضغط «تحديث النشر» من جديد.</li></ul>
-          <div class="d-flex flex-wrap gap-2"><a class="btn btn-outline-primary" href="screen.html?b=exams" target="_blank"><i class="bi bi-display"></i> شاشة الامتحانات</a><a class="btn btn-outline-primary" href="myexams.html" target="_blank"><i class="bi bi-phone"></i> «امتحاناتي»</a></div>`);
-        render();
-      }).catch(e => U.modal('<i class="bi bi-x-octagon-fill text-danger"></i> تعذّر النشر', `<p>${esc(String(e.message || e))}</p><p class="small">تحقّق من المفتاح («ربط النشر») أو من الاتصال. يمكنك بدلاً من ذلك تنزيل الملف ورفعه يدوياً:</p><button class="btn btn-outline-secondary" onclick="this.dispatchEvent(new CustomEvent('exdl',{bubbles:true}))">تنزيل exam_schedule.json</button>`));
-  }
-  // take the timetable off the screens and the students' page (the file is removed; calendars empty within the hour)
+  // take the timetable off the screens and the students' page
   function unpublish(after) {
-    if (!ghToken()) return connectDlg(() => unpublish(after));
-    return gh('GET').then(r => r.ok ? r.json() : null).then(cur => cur ? gh('DELETE', { message: 'Exam timetable unpublished', sha: cur.sha, branch: 'main' }).then(r => { if (!r.ok) throw new Error(r.status); }) : null)
-      .then(() => { S.pub = null; save(); LIVE = false; render(); if (after) after(); else U.modal('<i class="bi bi-cloud-slash"></i> أُوقف النشر', '<p>أُزيل الجدول من شاشات المباني وصفحة «امتحاناتي». يختفي خلال 1–3 دقائق، وتُفرَّغ تقاويم التذكير خلال ساعة.</p>'); })
-      .catch(e => alert('تعذّر إيقاف النشر: ' + (e.message || e)));
+    U.modal('<i class="bi bi-cloud-slash"></i> إزالة الجدول من الشاشات', `
+      <p class="mb-2">تُفتح صفحة GitHub وفيها طلب الإزالة جاهزاً؛ اضغط <b>Commit changes</b> (مرتين) فقط.</p>
+      <button class="btn btn-danger btn-lg w-100" id="ex-gounpub"><i class="bi bi-box-arrow-up-left"></i> افتح GitHub لإزالة الجدول</button>
+      <div id="ex-unst" class="ex-pubst"><i class="bi bi-info-circle"></i> بعد الإزالة تعود الشاشات إلى عرض المحاضرات تلقائياً.</div>`);
+    document.getElementById('ex-gounpub').onclick = () => {
+      window.open(newFile('unpublish', 'إزالة جدول الامتحانات من الشاشات'), '_blank', 'noopener');
+      S.pub = null; save(); if (after) after();
+      const box = document.getElementById('ex-unst'); if (box) { box.className = 'ex-pubst wait'; box.innerHTML = '<span class="spinner-border spinner-border-sm"></span> بانتظار Commit changes في GitHub…'; }
+      watch(L => L === false, 'ex-unst', '<i class="bi bi-check-circle-fill"></i> <b>أُزيل الجدول.</b> تعود الشاشات إلى المحاضرات خلال 3 دقائق.');
+    };
   }
   function doCSV() {
     const q = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`, lines = [];
@@ -1348,7 +1355,6 @@
       const t = e.target;
       if (t.dataset.f === 'q' || t.dataset.f === 'cq' || t.dataset.f === 'pq') { F()[t.dataset.f] = t.value; clearTimeout(tmr); tmr = setTimeout(() => { save(); render(); }, 250); }
     });
-    document.addEventListener('exdl', () => U.download('exam_schedule.json', JSON.stringify(pubDoc()), 'application/json'));
     app.addEventListener('click', e => {
       const t = e.target.closest('button,[data-c],.ex-cell,[data-tab],[data-go],th[data-sort]'); if (!t) return;
       if (t.id === 'ex-setdone') { S.setupDone = true; save(); tab = 'grid'; render(); if (!C.some(c => c.s >= 0) && C.length) busy(() => solve(false)); window.scrollTo(0, 0); return; }
@@ -1372,7 +1378,7 @@
           <button class="btn btn-outline-secondary" data-bs-dismiss="modal">إلغاء</button></div>`);
         document.getElementById('pgModalB').onclick = e => { const b = e.target.closest('[data-clr]'); if (!b) return;
           bootstrap.Modal.getInstance(document.getElementById('pgModal')).hide();
-          if (b.dataset.clr === 'both') unpublish(wipe); else wipe(); };
+          if (b.dataset.clr === 'both') setTimeout(() => unpublish(wipe), 350); else wipe(); };
         return; }
       if (t.id === 'ex-undo') { const u = undo.pop(); if (u) { Object.assign(S, JSON.parse(u)); rebuild(); } return; }
       if (t.id === 'ex-print') return doPrint();
@@ -1386,8 +1392,7 @@
       if (t.id === 'ex-psheets') return printProctors();
       if (t.id === 'ex-prep') return procReport();
       if (t.id === 'ex-publish') return publish();
-      if (t.id === 'ex-unpub') { if (confirm('إيقاف نشر الجدول؟ سيُزال من شاشات المباني وصفحة «امتحاناتي».')) unpublish(); return; }
-      if (t.id === 'ex-ghset') return connectDlg();
+      if (t.id === 'ex-unpub') { unpublish(); return; }
       if (t.dataset.go != null) { tab = 'grid'; S.gview = 'matrix'; sel = +t.dataset.go; render(); const el = app.querySelector(`.ex-card[data-c="${sel}"]`); if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
       if (t.dataset.c != null && tab === 'grid') {
         const i = +t.dataset.c, cell = t.closest('.ex-cell');
@@ -1628,6 +1633,10 @@
   .ex-prow.ex-nowin { grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr); background: #fdf1f1; border: 1px solid #f3c9c9; border-radius: 10px; padding: .45rem .55rem; margin-bottom: .6rem; } .ex-prow.ex-nowin .bdg { grid-column: auto; } .ex-nowin small { grid-column: 3 / -1; color: #7a2a2a; } .ex-prow.ex-nowin { grid-template-columns: auto minmax(0, 10rem) 1fr; } .ex-chk.lock { cursor: not-allowed; opacity: .9; }
   .ex-pub { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; background: linear-gradient(90deg, #f1f7fb, #fff); border: 1px solid #bcd3e3; border-inline-start: 5px solid #0b4a66; border-radius: 12px; padding: .6rem .8rem; margin-bottom: .6rem; }
   .ex-pub .t { font-weight: 800; color: #0b4a66; margin-inline-end: .4rem; } .ex-pub .sp { flex: 1; }
+  .ex-pubsteps { padding-inline-start: 1.3rem; margin-bottom: .8rem; } .ex-pubsteps li { margin-bottom: .25rem; }
+  .ex-pubsteps kbd { background: #eef2f6; color: #222; border: 1px solid #c9d3dd; padding: 0 .35rem; font-size: .85em; }
+  .ex-pubst { margin-top: .8rem; padding: .6rem .8rem; border-radius: 10px; background: #f4f6f8; color: #445; font-size: .92rem; }
+  .ex-pubst.wait { background: #fff8e6; color: #6a4b00; border: 1px solid #f0d58c; } .ex-pubst.ok { background: #e9f7ef; color: #135d32; border: 1px solid #a8dcbc; }
   .ex-srcs.two { grid-template-columns: 1fr 1fr; }
   .ex-pool2 { border: 1px solid #ecd3e0; background: #fdf8fb; border-radius: 14px; padding: .75rem .8rem; margin-top: .8rem; }
   .ex-pool2 .h { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; } .ex-pool2 .h .t { font-weight: 800; color: #9d174d; font-size: 1.08rem; margin-inline-end: .3rem; }
