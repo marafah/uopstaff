@@ -1,13 +1,22 @@
 name: Publish the exam timetable
 
-# The «جدول الامتحانات» page opens GitHub on a new file in data/exams/inbox/ (publish or unpublish); committing it runs
-# this at once: the timetable goes to data/exam_schedule.json (or is removed) and the calendar subscriptions follow.
+# Started by the «جدول الامتحانات» page after the committee's password (scripts/exam_inbox.py explains the requests):
+# the timetable goes to data/exam_schedule.json (or is removed) and the calendar subscriptions follow at once.
 
 on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "publish / unpublish / setkey"
+        required: true
+        type: string
+      data:
+        description: "sent by the exams page"
+        required: false
+        type: string
   push:
     branches: [main]
     paths: ["data/exams/inbox/**"]
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -24,15 +33,27 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - run: python scripts/exam_inbox.py
+      - name: Apply the request
+        env:
+          EXAM_ACTION: ${{ inputs.action }}
+          EXAM_DATA: ${{ inputs.data }}
+        run: python scripts/exam_inbox.py
       - run: python scripts/exam_ics.py
       - name: Commit
+        # the request reaches the shell only as a variable, never as script text
+        env:
+          EXAM_ACTION: ${{ inputs.action }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A data
           if ! git diff --cached --quiet; then
-            if [ -f data/exam_schedule.json ]; then git commit -q -m "Exam timetable published"; else git commit -q -m "Exam timetable unpublished"; fi
+            case "$EXAM_ACTION" in
+              setkey) msg="Exam publishing set up" ;;
+              unpublish) msg="Exam timetable unpublished" ;;
+              *) if [ -f data/exam_schedule.json ]; then msg="Exam timetable published"; else msg="Exam timetable unpublished"; fi ;;
+            esac
+            git commit -q -m "$msg"
             git pull --rebase --autostash -q origin main || true
             git push
           fi
