@@ -49,6 +49,9 @@ jobs:
       - name: Instructor pages, calendar subscriptions, seat history
         continue-on-error: true
         run: python scripts/build_extras.py
+      - name: Exam timetable calendar subscriptions (per proctor, per faculty, whole university)
+        continue-on-error: true
+        run: python scripts/exam_ics.py
       - name: What changed since the last run («ما الجديد؟»)
         continue-on-error: true
         run: python scripts/build_changes.py
