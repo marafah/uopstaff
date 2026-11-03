@@ -543,6 +543,17 @@
             <button class="btn btn-sm btn-link" data-exd="${esc(d)}">${n ? 'إعفاء الكل' : 'إعادة الكل'}</button></header>
           <div class="ls">${list.map(p => `<button class="pr${p.off ? ' off' : ''}" data-exm="${esc(p.n)}" title="${esc(p.n)}${p.off ? ' — معفى' : ''}"><i class="bi ${p.off ? 'bi-slash-circle' : 'bi-check-circle-fill'}"></i><span class="nm">${esc(U.shortName(p.n))}</span><span class="k">${p.extra ? 'إضافي' : p.k}</span></button>`).join('')}</div></section>`; }).join('')}</div></div>`;
   }
+  // the add/swap lists are filled only when opened (thousands of rooms × hundreds of names would slow the page)
+  let PV = null;
+  function fillProcSel(el) {
+    if (!PV || el.dataset.filled) return; el.dataset.filled = '1';
+    const s = +el.dataset.ps, key = el.dataset.pfadd || el.dataset.pfswap, cur = curProc(key), b = PV.busyAt(s), cnt = PV.cnt;
+    const opts = PV.names.filter(n => !cur.includes(n)).sort((a, c) => (b.has(a) - b.has(c)) || cnt(a) - cnt(c) || U.shortName(a).localeCompare(U.shortName(c), 'ar'));
+    el.insertAdjacentHTML('beforeend', el.dataset.pfadd
+      ? opts.map(n => `<option value="${esc(n)}" ${b.has(n) ? 'disabled' : ''}>${esc(U.shortName(n))} — ${cnt(n)} مراقبة${b.has(n) ? ' (مشغول في هذا الوقت)' : ''}</option>`).join('')
+      : opts.filter(n => !b.has(n)).map(n => `<option value="${esc(n)}">${esc(U.shortName(n))} — ${cnt(n)}</option>`).join(''));
+  }
+  ['focusin', 'mousedown', 'touchstart'].forEach(ev => document.addEventListener(ev, e => { const el = e.target.closest && e.target.closest('select[data-ps]'); if (el) fillProcSel(el); }, true));
   // after generation: every exam room's proctors, editable; each name shows how many duties the person has
   function procView(st) {
     const { out, load } = st.seat, ex = new Set((S.noProc || '').split(/\n/).map(x => x.trim()).filter(Boolean));
@@ -553,20 +564,24 @@
     const busyAt = s => { const b = new Set(); (out[s] || []).forEach(x => x.rooms.forEach(r => r.proc.forEach(n => b.add(n)))); (BUSYI[s] || []).forEach(n => b.add(n)); return b; };
     const tone = n => cnt(n) > avg + 1.5 ? 'hi' : cnt(n) < avg - 1.5 ? 'lo' : '';
     const top = names.slice().sort((a, b) => cnt(b) - cnt(a) || U.shortName(a).localeCompare(U.shortName(b), 'ar'));
+    PV = { names, cnt, busyAt };
     return `<div class="ex-pv-sum"><span class="bdg"><i class="bi bi-door-open"></i> ${rows.length} جلسة امتحان</span><span class="bdg"><i class="bi bi-person-check"></i> ${rows.reduce((a, o) => a + o.r.proc.length, 0)} مراقبة</span>
         <span class="bdg"><i class="bi bi-people"></i> ${names.filter(n => cnt(n)).length} من ${names.length} مراقباً مشاركاً</span><span class="bdg"><i class="bi bi-bar-chart"></i> المتوسط ${avg.toFixed(1)} · الأعلى ${mx}</span>
         <span class="bdg amber"><i class="bi bi-hand-index"></i> ${Object.keys(S.procFix || {}).length} قاعة عُدّلت يدوياً</span>${Object.keys(S.procFix || {}).length ? '<button class="btn btn-sm btn-link text-danger" data-pfall>إلغاء كل التعديلات اليدوية</button>' : ''}</div>
-      <details class="ex-pv-load" open><summary><i class="bi bi-person-lines-fill"></i> عدد المراقبات لكل مراقب</summary><div>${top.map(n => `<span class="ex-ld ${tone(n)}" title="${esc(n)}">${esc(U.shortName(n))}<b>${cnt(n)}</b></span>`).join('')}</div></details>
+      <details class="ex-pv-load" open><summary><span class="t"><i class="bi bi-person-lines-fill"></i> عدد المراقبات لكل مراقب <i class="bi bi-chevron-down ch"></i></span>
+        <span class="lg"><span class="hi">أعلى من المتوسط</span><span class="mid">ضمن المتوسط</span><span class="lo">أقل من المتوسط</span></span></summary>
+        <div class="ex-ldg">${[...new Set(top.map(cnt))].map(k => { const list = top.filter(n => cnt(n) === k), t = !k ? 'zero' : k > avg + 1.5 ? 'hi' : k < avg - 1.5 ? 'lo' : 'mid';
+          return `<div class="ex-ldrow ${t}"><div class="ex-ldk"><div><b>${k}</b> <small>${k === 1 ? 'مراقبة' : k === 2 ? 'مراقبتان' : k >= 3 && k <= 10 ? 'مراقبات' : 'مراقبة'}</small></div><span>${list.length} ${list.length === 1 ? 'مراقب' : 'مراقبين'}</span></div>
+            <div class="ex-ldnames">${list.map(n => `<span class="ex-ldn" title="${esc(n)}">${esc(U.shortName(n))}</span>`).join('')}</div></div>`; }).join('')}</div></details>
       <div class="table-responsive ex-tbl"><table class="table align-middle ex-pv"><thead><tr><th>اليوم والوقت</th><th>المقرر</th><th>القاعة</th><th>المراقبون (عدد مراقبات كلٍّ منهم)</th><th>إضافة / تغيير</th></tr></thead><tbody>
-      ${rows.map(({ s, x, r }, k) => { const key = x.c.code + '|' + r.room, b = busyAt(s), si = slotInfo(s), nd = k && rows[k - 1].s !== s;
-        const opts = names.filter(n => !r.proc.includes(n)).sort((a, c) => (b.has(a) - b.has(c)) || cnt(a) - cnt(c) || U.shortName(a).localeCompare(U.shortName(c), 'ar'));
+      ${rows.map(({ s, x, r }, k) => { const key = x.c.code + '|' + r.room, si = slotInfo(s), nd = k && rows[k - 1].s !== s;
         return `<tr class="${nd ? 'nd' : ''}${r.fixed ? ' fx' : ''}"><td><b>${esc(si.d.wd)} ${+si.d.iso.slice(8)}/${+si.d.iso.slice(5, 7)}</b><small dir="ltr" class="d-block">${si.time}</small></td>
           <td><span class="ex-code" style="--c:${x.c.col[0]};--b:${x.c.col[1]}">${esc(x.c.code)}</span> ${esc(x.c.name)}<small class="d-block text-muted">${esc(x.c.dept)}</small></td>
           <td><b>${esc(r.room)}</b>${r.t === LAB ? ' <i class="bi bi-pc-display" title="مختبر"></i>' : ''}<small class="d-block">${r.n} طالب</small></td>
           <td><div class="ex-chips">${r.proc.map(n => `<span class="ex-pp ${x.c.ins.includes(n) ? 'own' : ''}" title="${esc(n)}"><i class="bi bi-person-fill"></i> ${esc(U.shortName(n))} <b class="c">${cnt(n)}</b><button data-pfrm="${esc(key)}|${esc(n)}" aria-label="إزالة"><i class="bi bi-x"></i></button></span>`).join('') || '<span class="text-danger small"><i class="bi bi-exclamation-triangle-fill"></i> بلا مراقب</span>'}</div>
             ${r.fixed ? `<button class="btn btn-sm btn-link p-0" data-pfauto="${esc(key)}"><i class="bi bi-arrow-counterclockwise"></i> تلقائي</button>` : ''}</td>
-          <td><select class="form-select form-select-sm ex-pfsel" data-pfadd="${esc(key)}"><option value="">+ مراقب…</option>${opts.map(n => `<option value="${esc(n)}" ${b.has(n) ? 'disabled' : ''}>${esc(U.shortName(n))} — ${cnt(n)} مراقبة${b.has(n) ? ' (مشغول في هذا الوقت)' : ''}</option>`).join('')}</select>
-            ${r.proc.length ? `<select class="form-select form-select-sm ex-pfsel mt-1" data-pfswap="${esc(key)}"><option value="">⇄ استبدال ${esc(U.shortName(r.proc[0]))} بـ…</option>${opts.filter(n => !b.has(n)).map(n => `<option value="${esc(n)}">${esc(U.shortName(n))} — ${cnt(n)}</option>`).join('')}</select>` : ''}</td></tr>`; }).join('')}</tbody></table></div>
+          <td><select class="form-select form-select-sm ex-pfsel" data-pfadd="${esc(key)}" data-ps="${s}"><option value="">+ مراقب…</option></select>
+            ${r.proc.length ? `<select class="form-select form-select-sm ex-pfsel mt-1" data-pfswap="${esc(key)}" data-ps="${s}"><option value="">⇄ استبدال ${esc(U.shortName(r.proc[0]))} بـ…</option></select>` : ''}</td></tr>`; }).join('')}</tbody></table></div>
       <small class="text-muted">الأسماء الخضراء: مدرّس المقرر. الرقم بجانب كل اسم عدد مراقباته في الدورة كلها. القاعة التي تعدّل مراقبيها يدوياً تبقى كما اخترت حتى بعد «تحسين» الجدول، ما دام الامتحان في القاعة نفسها.</small>`;
   }
   const curProc = key => { const [code, room] = key.split('|'), { out } = seating(); for (const xs of Object.values(out)) for (const x of xs) if (x.c.code === code) { const r = x.rooms.find(o => o.room === room); if (r) return r.proc.slice(); } return []; };
@@ -900,17 +915,23 @@
   }
   // the approved timetable as one public file (data/exam_schedule.json): read by «امتحاناتي» and the building screens
   // ---------- publishing to the site (students' «امتحاناتي», building screens, calendar subscriptions) ----------
-  // No keys and no files: the page opens GitHub — where the committee member is already signed in — on a new file in
-  // data/exams/inbox/ holding the timetable (copied to the clipboard), the member presses «Commit changes», and the
-  // workflow exam-publish.yml writes data/exam_schedule.json at once (scripts/exam_inbox.py). Unpublishing is the same
-  // with a short file. Only accounts that can write to the repository can commit, so only they can publish.
-  const REPO = 'https://github.com/marafah/uopstaff';
-  const MAGIC = 'UOPEXAMS1:';
-  const stamp = () => new Date().toISOString().slice(0, 19).replace(/[-:]/g, '').replace('T', '-');
-  const newFile = (kind, value) => `${REPO}/new/main?filename=${encodeURIComponent(`data/exams/inbox/${stamp()}-${kind}.txt`)}${value ? '&value=' + encodeURIComponent(value) : ''}`;
+  // The committee publishes with the sign-in username and password only. Behind it: a GitHub key that can only start
+  // the workflow «Publish the exam timetable» (fine-grained, this repository, Actions: read and write — it cannot change
+  // any file itself). The site owner sets it up once; it is kept in data/exams/key.json encrypted with the password
+  // (AES-GCM, key from PBKDF2), so any device can publish after the password, and no device keeps anything.
+  // The workflow (exam-publish.yml → scripts/exam_inbox.py) writes data/exam_schedule.json or removes it.
+  const REPO_API = 'https://api.github.com/repos/marafah/uopstaff';
+  const WF = REPO_API + '/actions/workflows/exam-publish.yml/dispatches';
+  const MAGIC = 'UOPEXAMS2:', MAXIN = 64000;
   let LIVE = null;   // what the site shows now (read from the published file)
-  let WATCH = null;  // waiting for a publish/unpublish to appear on the site
-  function liveCheck() { return fetch('data/exam_schedule.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null).then(x => { LIVE = x && x.exams && x.exams.length ? x : false; if (tab === 'out' && !document.querySelector('#pgModal.show')) render(); return LIVE; }); }
+  let KEYF = null;   // the encrypted publishing key on the site (null = checking, false = not set up)
+  let WATCH = null;
+  const noCache = u => fetch(u + '?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : null).catch(() => null);
+  function liveCheck() {
+    return Promise.all([noCache('data/exam_schedule.json'), noCache('data/exams/key.json')]).then(([x, k]) => {
+      LIVE = x && x.exams && x.exams.length ? x : false; KEYF = k && k.ct ? k : false;
+      if (tab === 'out' && !document.querySelector('#pgModal.show')) render(); return LIVE; });
+  }
   function pubDoc() {
     const { out } = seating(), exams = [];
     for (let s = 0; s < NS; s++) (out[s] || []).forEach(x => { const d = DAYS[dayOf(s)], p = S.periods[s % P];
@@ -921,18 +942,36 @@
       published: now, periods: S.periods, days: DAYS.map(d => d.iso), exams };
   }
   const sig = doc => { const t = JSON.stringify(doc.exams); let h = 0; for (let i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0; return h.toString(36); };
-  async function pack(doc) {   // gzip + base64: the whole university's timetable fits the clipboard and the GitHub editor easily
-    const gz = await new Response(new Blob([JSON.stringify(doc)]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer();
-    const b = new Uint8Array(gz); let s = '';
-    for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
-    return MAGIC + btoa(s);
+  const b64u8 = b => { let s = ''; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); return btoa(s); };
+  const u8b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  // indexed + gzip: the whole university's timetable (≈940 exams) is ≈48 KB, inside GitHub's 65 KB limit for one request
+  async function pack(doc) {
+    const ix = () => { const a = [], m = new Map(); return { a, i: v => { v = v == null ? '' : v; if (!m.has(v)) { m.set(v, a.length); a.push(v); } return m.get(v); } }; };
+    const P_ = ix(), R_ = ix(), D_ = ix(), F_ = ix(), from = doc.periods.map(p => p[0]);
+    const E = doc.exams.map(e => [e.code, e.name, D_.i(e.dept), F_.i(e.fac), (e.ins || []).map(P_.i), doc.days.indexOf(e.date), from.indexOf(e.from), e.students,
+      e.rooms.map(r => [R_.i(r.room), r.lab ? 1 : 0, r.n, r.secs, (r.proc || []).map(P_.i)])]);
+    const H = { ...doc }; delete H.exams;
+    const gz = await new Response(new Blob([JSON.stringify({ H, P: P_.a, R: R_.a, D: D_.a, F: F_.a, E })]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer();
+    return MAGIC + b64u8(new Uint8Array(gz));
   }
-  function copyText(t) {
-    const ta = document.createElement('textarea'); ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
-    document.body.appendChild(ta); ta.select(); let ok = false; try { ok = document.execCommand('copy'); } catch (e) { /* */ } ta.remove();
-    if (!ok && navigator.clipboard) navigator.clipboard.writeText(t).catch(() => {});
-    return ok;
+  async function aesKey(u, p, salt) {
+    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode('uopstaff-exams-publish|' + u.trim() + '|' + p), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 310000, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
   }
+  async function seal(tok, u, p) {
+    const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await aesKey(u, p, salt), new TextEncoder().encode(tok));
+    return { v: 1, salt: b64u8(salt), iv: b64u8(iv), ct: b64u8(new Uint8Array(ct)), at: new Date().toISOString() };
+  }
+  async function unseal(k, u, p) {
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: u8b64(k.iv) }, await aesKey(u, p, u8b64(k.salt)), u8b64(k.ct));
+    return new TextDecoder().decode(pt);
+  }
+  const dispatch = (tok, action, data) => fetch(WF, { method: 'POST', headers: { Authorization: 'Bearer ' + tok, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' },
+    body: JSON.stringify({ ref: 'main', inputs: { action, data: data || '' } }) }).then(r => { if (r.status === 204) return true;
+      throw new Error(r.status === 401 ? 'expired' : r.status === 403 || r.status === 404 ? 'denied' : 'http ' + r.status); });
+  const keyErr = e => e.message === 'expired' ? 'مفتاح النشر منتهي الصلاحية أو أُلغي. يحتاج صاحب الموقع إلى «إعداد النشر» من جديد (دقيقتان).'
+    : e.message === 'denied' ? 'مفتاح النشر لا يملك صلاحية تشغيل النشر. يحتاج صاحب الموقع إلى «إعداد النشر» من جديد.' : 'تعذّر الاتصال بـ GitHub. تأكد من الإنترنت وحاول مرة أخرى.';
   function pubPanel() {
     const L = LIVE, mine = S.pub, changed = L && mine && C.some(c => c.s >= 0) && sig(pubDoc()) !== mine.sig;
     const st = L === null ? '<span class="bdg"><span class="spinner-border spinner-border-sm"></span> يتحقق من الموقع…</span>'
@@ -940,18 +979,19 @@
       : '<span class="bdg"><i class="bi bi-eye-slash"></i> لا جدول منشوراً على الموقع</span>';
     return `<div class="ex-pub"><div class="t"><i class="bi bi-display"></i> النشر على شاشات المباني وصفحة «امتحاناتي»</div>${st}
       ${changed ? '<span class="bdg amber"><i class="bi bi-arrow-repeat"></i> عدّلت الجدول بعد آخر نشر</span>' : ''}
+      ${KEYF === false ? '<span class="bdg amber"><i class="bi bi-gear"></i> النشر غير مُعدّ بعد</span>' : ''}
       <span class="sp"></span>
       <button class="btn btn-ex" id="ex-publish"><i class="bi bi-cloud-arrow-up-fill"></i> ${L ? 'تحديث النشر' : 'نشر الآن'}</button>
-      ${L ? '<button class="btn btn-outline-danger" id="ex-unpub"><i class="bi bi-cloud-slash"></i> إيقاف النشر</button>' : ''}</div>`;
+      ${L ? '<button class="btn btn-outline-danger" id="ex-unpub"><i class="bi bi-cloud-slash"></i> إيقاف النشر</button>' : ''}
+      <button class="btn btn-sm btn-link" id="ex-pubset"><i class="bi bi-gear"></i> ${KEYF ? 'إعداد النشر' : 'إعداد النشر (مرة واحدة)'}</button></div>`;
   }
-  // the dialog follows the site until the change shows (GitHub saves → the site updates in about a minute)
+  // the dialog follows the site until the change shows (the workflow takes ≈30 s, the site ≈1 min more)
   function watch(test, el, okHtml) {
     clearInterval(WATCH); const t0 = Date.now();
     WATCH = setInterval(() => liveCheck().then(L => {
       const box = document.getElementById(el); if (!box) { clearInterval(WATCH); return; }
       if (test(L)) { clearInterval(WATCH); box.className = 'ex-pubst ok'; box.innerHTML = okHtml; render(); return; }
-      const m = Math.floor((Date.now() - t0) / 60000);
-      if (m >= 6) box.innerHTML = '<i class="bi bi-hourglass-split"></i> لم يظهر بعد. تأكّد أنك ضغطت <b>Commit changes</b> في صفحة GitHub، ثم انتظر قليلاً.';
+      if (Date.now() - t0 > 6 * 60000) { clearInterval(WATCH); box.className = 'ex-pubst'; box.innerHTML = '<i class="bi bi-hourglass-split"></i> يأخذ وقتاً أطول من المعتاد. سيظهر تلقائياً عند اكتماله؛ يمكنك إغلاق هذه النافذة.'; }
     }), 10000);
   }
   // nothing reaches the screens without the committee's approval: the same username and password as the sign-in
@@ -960,50 +1000,81 @@
       <p class="mb-2">${info}</p>
       <div class="row g-2"><div class="col-sm-6"><label class="form-label small mb-1">اسم المستخدم</label><input name="u" class="form-control" autocomplete="username" required></div>
       <div class="col-sm-6"><label class="form-label small mb-1">كلمة المرور</label><input name="p" type="password" class="form-control" autocomplete="current-password" required></div></div>
-      <div class="text-danger small mt-2" id="ex-aperr" hidden><i class="bi bi-exclamation-triangle-fill"></i> اسم المستخدم أو كلمة المرور غير صحيحة</div>
+      <div class="text-danger small mt-2" id="ex-aperr" hidden></div>
       <button class="btn btn-ex w-100 mt-3" type="submit"><i class="bi bi-check2-circle"></i> أوافق على ${what}</button></form>`);
-    const f = document.getElementById('ex-apf'); setTimeout(() => f.u.focus(), 300);
-    f.onsubmit = async e => { e.preventDefault();
-      if (await sha('uopstaff-research|' + f.u.value.trim() + '|' + f.p.value) !== GATE) { document.getElementById('ex-aperr').hidden = false; f.p.value = ''; f.p.focus(); return; }
-      then(); };
+    const f = document.getElementById('ex-apf'), err = document.getElementById('ex-aperr'); setTimeout(() => f.u.focus(), 300);
+    const fail = m => { err.hidden = false; err.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> ' + m; f.querySelector('[type=submit]').disabled = false; };
+    f.onsubmit = async e => { e.preventDefault(); err.hidden = true;
+      if (await sha('uopstaff-research|' + f.u.value.trim() + '|' + f.p.value) !== GATE) { fail('اسم المستخدم أو كلمة المرور غير صحيحة'); f.p.value = ''; f.p.focus(); return; }
+      f.querySelector('[type=submit]').disabled = true; then(f.u.value, f.p.value, fail); };
   }
-  async function publish() {
+  async function keyFor(u, p) {
+    await liveCheck();
+    if (!KEYF) throw new Error('nokey');
+    try { return await unseal(KEYF, u, p); } catch (e) { throw new Error('nokey'); }
+  }
+  const noKeyHtml = '<div class="alert alert-warning mb-0"><i class="bi bi-gear"></i> النشر لم يُعدّ بعد على هذا الموقع (أو تغيّرت كلمة المرور منذ إعداده). يحتاج صاحب الموقع إلى «إعداد النشر» مرة واحدة — دقيقتان فقط.<div class="mt-2"><button class="btn btn-sm btn-ex" data-gosetup>إعداد النشر الآن</button></div></div>';
+  function progress(title, msg) {
+    U.modal(title, `<div id="ex-pubst" class="ex-pubst wait"><span class="spinner-border spinner-border-sm"></span> ${msg}</div>`);
+    document.getElementById('pgModalB').onclick = e => { if (e.target.closest('[data-gosetup]')) setupDlg(); };
+  }
+  function publish() {
     if (!C.some(c => c.s >= 0)) return alert('ولّد الجدول أولاً.');
     const doc0 = pubDoc();
-    return approve('النشر', `سيُنشر <b>${esc(doc0.title)}</b> (${doc0.exams.length} امتحاناً) على شاشات المباني وصفحة «امتحاناتي».${S.approved ? ` النسخة المعتمدة: ${esc(S.approved)}.` : ' <span class="text-danger">هذه النسخة مسودة غير معتمدة</span> (يمكنك اعتمادها من «الحفظ والاعتماد» أولاً).'}`, () => publishNow());
-  }
-  async function publishNow() {
-    const doc = pubDoc(); let txt;
-    try { txt = await pack(doc); } catch (e) { return alert('هذا المتصفح لا يدعم النشر المباشر. استخدم Chrome أو Edge حديثاً.'); }
-    U.modal('<i class="bi bi-cloud-arrow-up-fill"></i> نشر الجدول على الشاشات', `
-      <p class="mb-2">النشر يتم بحسابك على GitHub (المسجّل عليه في هذا المتصفح) — لا مفاتيح ولا ملفات:</p>
-      <ol class="ex-pubsteps"><li>اضغط الزر أدناه: يُنسخ الجدول وتُفتح صفحة GitHub.</li><li>اضغط داخل مربع الكتابة الفارغ ثم <kbd>Ctrl</kbd>+<kbd>V</kbd>.</li><li>اضغط <b>Commit changes</b> (مرتين: في الأعلى ثم في النافذة).</li></ol>
-      <button class="btn btn-ex btn-lg w-100" id="ex-gopub"><i class="bi bi-clipboard-check"></i> انسخ الجدول وافتح GitHub</button>
-      <div id="ex-pubst" class="ex-pubst"><i class="bi bi-info-circle"></i> ${esc(doc.title)} · ${doc.exams.length} امتحاناً.</div>`);
-    document.getElementById('ex-gopub').onclick = () => {
-      copyText(txt);
-      window.open(newFile('publish'), '_blank', 'noopener');
-      S.pub = { at: doc.published, sig: sig(doc), title: doc.title, n: doc.exams.length }; save();
-      const box = document.getElementById('ex-pubst'); box.className = 'ex-pubst wait';
-      box.innerHTML = '<span class="spinner-border spinner-border-sm"></span> نُسخ الجدول. الصقه في GitHub واضغط Commit changes — ستظهر هنا علامة النجاح تلقائياً.';
-      watch(L => L && L.id === doc.id, 'ex-pubst', `<i class="bi bi-check-circle-fill"></i> <b>نُشر الجدول.</b> يظهر على شاشات المباني خلال 3 دقائق.
-        <div class="d-flex flex-wrap gap-2 mt-2"><a class="btn btn-sm btn-outline-primary" href="screen.html?b=exams" target="_blank"><i class="bi bi-display"></i> شاشة الامتحانات</a><a class="btn btn-sm btn-outline-primary" href="myexams.html" target="_blank"><i class="bi bi-phone"></i> «امتحاناتي»</a></div>`);
-    };
+    approve('النشر', `سيُنشر <b>${esc(doc0.title)}</b> (${doc0.exams.length} امتحاناً) على شاشات المباني وصفحة «امتحاناتي».${S.approved ? ` النسخة المعتمدة: ${esc(S.approved)}.` : ' <span class="text-danger">هذه النسخة مسودة غير معتمدة</span> (يمكنك اعتمادها من «الحفظ والاعتماد» أولاً).'}`, async (u, p, fail) => {
+      const doc = pubDoc(); let tok, data;
+      try { tok = await keyFor(u, p); } catch (e) { const b = document.getElementById('pgModalB'); b.innerHTML = noKeyHtml; b.onclick = ev => { if (ev.target.closest('[data-gosetup]')) setupDlg(); }; return; }
+      try { data = await pack(doc); } catch (e) { return fail('هذا المتصفح لا يدعم النشر. استخدم Chrome أو Edge حديثاً.'); }
+      if (data.length > MAXIN) return fail(`الجدول كبير جداً لنشره دفعة واحدة (${Math.round(data.length / 1000)} ألف حرف). انشر كل مجموعة كليات على حدة.`);
+      progress('<i class="bi bi-cloud-arrow-up-fill"></i> نشر الجدول', 'يُنشر الجدول… (دقيقة إلى دقيقتين)');
+      dispatch(tok, 'publish', data).then(() => {
+        S.pub = { at: doc.published, sig: sig(doc), title: doc.title, n: doc.exams.length };
+        watch(L => L && L.id === doc.id, 'ex-pubst', `<i class="bi bi-check-circle-fill"></i> <b>نُشر الجدول</b> (${doc.exams.length} امتحاناً). يظهر على شاشات المباني خلال 3 دقائق.
+          <div class="d-flex flex-wrap gap-2 mt-2"><a class="btn btn-sm btn-outline-primary" href="screen.html?b=exams" target="_blank"><i class="bi bi-display"></i> شاشة الامتحانات</a><a class="btn btn-sm btn-outline-primary" href="myexams.html" target="_blank"><i class="bi bi-phone"></i> «امتحاناتي»</a></div>`);
+      }).catch(e => { const b = document.getElementById('ex-pubst'); if (b) { b.className = 'ex-pubst'; b.innerHTML = '<i class="bi bi-x-octagon-fill text-danger"></i> ' + keyErr(e) + (e.message === 'expired' || e.message === 'denied' ? '<div class="mt-2"><button class="btn btn-sm btn-ex" data-gosetup>إعداد النشر</button></div>' : ''); } });
+    });
   }
   // take the timetable off the screens and the students' page
   function unpublish(after) {
-    approve('إزالة الجدول من الشاشات', 'سيُزال الجدول المنشور من شاشات المباني وصفحة «امتحاناتي»، وتعود الشاشات إلى عرض المحاضرات.', () => unpublishNow(after));
+    approve('إزالة الجدول من الشاشات', 'سيُزال الجدول المنشور من شاشات المباني وصفحة «امتحاناتي»، وتعود الشاشات إلى عرض المحاضرات.', async (u, p) => {
+      let tok;
+      try { tok = await keyFor(u, p); } catch (e) { const b = document.getElementById('pgModalB'); b.innerHTML = noKeyHtml; b.onclick = ev => { if (ev.target.closest('[data-gosetup]')) setupDlg(); }; return; }
+      progress('<i class="bi bi-cloud-slash"></i> إزالة الجدول', 'يُزال الجدول من الشاشات…');
+      dispatch(tok, 'unpublish').then(() => { S.pub = null; if (after) after();
+        watch(L => L === false, 'ex-pubst', '<i class="bi bi-check-circle-fill"></i> <b>أُزيل الجدول.</b> تعود الشاشات إلى المحاضرات خلال 3 دقائق.');
+      }).catch(e => { const b = document.getElementById('ex-pubst'); if (b) { b.className = 'ex-pubst'; b.innerHTML = '<i class="bi bi-x-octagon-fill text-danger"></i> ' + keyErr(e); } });
+    });
   }
-  function unpublishNow(after) {
-    U.modal('<i class="bi bi-cloud-slash"></i> إزالة الجدول من الشاشات', `
-      <p class="mb-2">تُفتح صفحة GitHub وفيها طلب الإزالة جاهزاً؛ اضغط <b>Commit changes</b> (مرتين) فقط.</p>
-      <button class="btn btn-danger btn-lg w-100" id="ex-gounpub"><i class="bi bi-box-arrow-up-left"></i> افتح GitHub لإزالة الجدول</button>
-      <div id="ex-unst" class="ex-pubst"><i class="bi bi-info-circle"></i> بعد الإزالة تعود الشاشات إلى عرض المحاضرات تلقائياً.</div>`);
-    document.getElementById('ex-gounpub').onclick = () => {
-      window.open(newFile('unpublish', 'إزالة جدول الامتحانات من الشاشات'), '_blank', 'noopener');
-      S.pub = null; save(); if (after) after();
-      const box = document.getElementById('ex-unst'); if (box) { box.className = 'ex-pubst wait'; box.innerHTML = '<span class="spinner-border spinner-border-sm"></span> بانتظار Commit changes في GitHub…'; }
-      watch(L => L === false, 'ex-unst', '<i class="bi bi-check-circle-fill"></i> <b>أُزيل الجدول.</b> تعود الشاشات إلى المحاضرات خلال 3 دقائق.');
+  // one time, by the site owner: create the key on GitHub, paste it here; it is stored on the site encrypted with the password
+  function setupDlg() {
+    const NEWTOK = 'https://github.com/settings/personal-access-tokens/new?name=' + encodeURIComponent('نشر جدول الامتحانات') + '&description=' + encodeURIComponent('Exams page: start the Publish the exam timetable workflow only') + '&expires_in=366&target_name=marafah&actions=write';
+    U.modal('<i class="bi bi-gear-fill"></i> إعداد النشر — مرة واحدة لصاحب الموقع', `<form id="ex-suf" autocomplete="off">
+      <p class="mb-2">بعد هذا الإعداد ينشر أي عضو في اللجنة، من أي جهاز، بكلمة المرور فقط.</p>
+      <ol class="ex-pubsteps">
+        <li><a href="${NEWTOK}" target="_blank" rel="noopener"><b>افتح صفحة إنشاء المفتاح على GitHub</b> <i class="bi bi-box-arrow-up-left"></i></a> (بحساب marafah).</li>
+        <li>في <b>Repository access</b> اختر <b>Only select repositories</b> ثم <b>marafah/uopstaff</b>.</li>
+        <li>في <b>Permissions</b> اضغط <b>Add permissions</b> واختر <b>Actions</b>، واجعلها <b>Read and write</b>. (لا تختر غيرها.)</li>
+        <li>اضغط <b>Generate token</b> ثم <b>Copy</b>، والصق المفتاح هنا:</li></ol>
+      <input name="t" class="form-control mb-2" placeholder="github_pat_…" autocomplete="off" spellcheck="false" required>
+      <div class="row g-2"><div class="col-sm-6"><label class="form-label small mb-1">اسم المستخدم (نفس الدخول)</label><input name="u" class="form-control" autocomplete="username" required></div>
+      <div class="col-sm-6"><label class="form-label small mb-1">كلمة المرور (نفس الدخول)</label><input name="p" type="password" class="form-control" autocomplete="current-password" required></div></div>
+      <div id="ex-sust" class="small mt-2" hidden></div>
+      <button class="btn btn-ex w-100 mt-3" type="submit"><i class="bi bi-check2-circle"></i> حفظ الإعداد</button>
+      <p class="small text-muted mt-2 mb-0"><i class="bi bi-shield-lock"></i> المفتاح يُحفظ على الموقع مشفّراً بكلمة المرور، ولا يُحفظ على هذا الجهاز. يستطيع فقط تشغيل النشر، ولا يعدّل أي ملف في الموقع.</p></form>`);
+    const f = document.getElementById('ex-suf'), st = document.getElementById('ex-sust'), btn = f.querySelector('[type=submit]');
+    const say = (cls, m) => { st.hidden = false; st.className = 'small mt-2 ' + cls; st.innerHTML = m; };
+    f.onsubmit = async e => { e.preventDefault();
+      const tok = f.t.value.trim(), u = f.u.value, p = f.p.value;
+      if (await sha('uopstaff-research|' + u.trim() + '|' + p) !== GATE) return say('text-danger', '<i class="bi bi-exclamation-triangle-fill"></i> اسم المستخدم أو كلمة المرور غير صحيحة');
+      if (!/^(github_pat_|ghp_)\w{20,}$/.test(tok)) return say('text-danger', '<i class="bi bi-exclamation-triangle-fill"></i> هذا لا يبدو مفتاح GitHub. انسخه كاملاً (يبدأ بـ github_pat_).');
+      btn.disabled = true; say('text-muted', '<span class="spinner-border spinner-border-sm"></span> يحفظ الإعداد…');
+      try { const k = await seal(tok, u, p); await dispatch(tok, 'setkey', JSON.stringify(k));
+        say('text-muted', '<span class="spinner-border spinner-border-sm"></span> تم. يتأكد من وصول الإعداد إلى الموقع (دقيقة تقريباً)…');
+        const t0 = Date.now(), ct = k.ct;
+        const poll = setInterval(() => liveCheck().then(() => { if (!document.getElementById('ex-sust')) return clearInterval(poll);
+          if (KEYF && KEYF.ct === ct) { clearInterval(poll); say('text-success', '<i class="bi bi-check-circle-fill"></i> <b>اكتمل الإعداد.</b> يمكن الآن النشر بكلمة المرور من أي جهاز.'); render(); }
+          else if (Date.now() - t0 > 5 * 60000) { clearInterval(poll); say('text-warning', 'يأخذ وقتاً أطول من المعتاد؛ جرّب النشر بعد دقائق.'); } }), 8000);
+      } catch (x) { btn.disabled = false; say('text-danger', '<i class="bi bi-x-octagon-fill"></i> ' + (x.message === 'denied' ? 'المفتاح لا يملك صلاحية Actions: Read and write على marafah/uopstaff. أنشئه من جديد بالخطوات أعلاه.' : x.message === 'expired' ? 'المفتاح غير صحيح. انسخه كاملاً من GitHub.' : keyErr(x))); }
     };
   }
   function doCSV() {
@@ -1431,6 +1502,7 @@
       if (t.id === 'ex-prep') return procReport();
       if (t.id === 'ex-publish') return publish();
       if (t.id === 'ex-unpub') { unpublish(); return; }
+      if (t.id === 'ex-pubset') return setupDlg();
       if (t.dataset.go != null) { tab = 'grid'; S.gview = 'matrix'; sel = +t.dataset.go; render(); const el = app.querySelector(`.ex-card[data-c="${sel}"]`); if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
       if (t.dataset.c != null && tab === 'grid') {
         const i = +t.dataset.c, cell = t.closest('.ex-cell');
@@ -1696,7 +1768,20 @@
   .ex-pool2 .pr.off { color: #9aa6ac; } .ex-pool2 .pr.off .nm { text-decoration: line-through; } .ex-pool2 .pr.off i { color: #b42318; }
   [data-theme=dark] .ex-pool2, [data-theme=dark] .ex-pool2 .dc, [data-theme=dark] .ex-pool2 .pr { background: #13232a; border-color: #2c4048; color: #e8eef0; } [data-theme=dark] .ex-pool2 .dc header { background: #1b2e35; } [data-theme=dark] .ex-pool2 .dc header b { color: #e8eef0; }
   .ex-pv-sum { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-bottom: .5rem; }
-  .ex-pv-load { border: 1px solid #e2e8ec; border-radius: 12px; padding: .45rem .65rem; margin-bottom: .6rem; background: #fff; } .ex-pv-load summary { font-weight: 800; cursor: pointer; } .ex-pv-load > div { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .45rem; max-height: 11rem; overflow: auto; }
+  .ex-pv-load { border: 1px solid #e2e8ec; border-radius: 14px; padding: .6rem .75rem; margin-bottom: .7rem; background: #fff; }
+  .ex-pv-load summary { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; cursor: pointer; list-style: none; } .ex-pv-load summary::-webkit-details-marker { display: none; }
+  .ex-pv-load summary .t { font-weight: 800; color: #0b4a66; } .ex-pv-load summary .ch { display: inline-block; font-size: .8em; margin-inline-start: .3rem; transition: transform .2s; }
+  .ex-pv-load[open] summary .ch { transform: rotate(180deg); }
+  .ex-pv-load .lg { display: flex; flex-wrap: wrap; gap: .8rem; margin-inline-start: auto; font-size: .8rem; color: #5b6770; }
+  .ex-pv-load .lg span::before { content: ''; display: inline-block; width: .7rem; height: .7rem; border-radius: 3px; margin-inline-end: .3rem; vertical-align: -1px; background: var(--t); }
+  .ex-pv-load .lg .hi, .ex-ldrow.hi { --t: #b42318; --tb: #fdecea; } .ex-pv-load .lg .mid, .ex-ldrow.mid { --t: #0b4a66; --tb: #e8f1f6; } .ex-pv-load .lg .lo, .ex-ldrow.lo { --t: #9a6b00; --tb: #fff4d6; } .ex-ldrow.zero { --t: #6c757d; --tb: #f1f3f5; }
+  .ex-ldg { display: flex; flex-direction: column; gap: .45rem; margin-top: .65rem; max-height: 24rem; overflow-y: auto; padding-inline-end: .2rem; }
+  .ex-ldrow { display: grid; grid-template-columns: 7.2rem minmax(0, 1fr); gap: .6rem; align-items: start; border: 1px solid #e8edf1; border-inline-start: 4px solid var(--t); border-radius: 10px; padding: .45rem; background: #fbfcfd; }
+  .ex-ldk { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--tb); color: var(--t); border-radius: 8px; padding: .2rem .3rem; text-align: center; line-height: 1.2; min-height: 2.15rem; }
+  .ex-ldk b { font-size: 1.15rem; font-variant-numeric: tabular-nums; } .ex-ldk small { font-weight: 700; font-size: .78rem; } .ex-ldk span { font-size: .7rem; opacity: .85; }
+  .ex-ldnames { display: grid; grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr)); gap: .3rem .45rem; align-content: start; }
+  .ex-ldn { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .87rem; line-height: 1.5; padding: .2rem .55rem; border-radius: 7px; background: #fff; border: 1px solid #edf1f4; }
+  @media (max-width: 576px) { .ex-ldrow { grid-template-columns: 1fr; } .ex-ldk { flex-direction: row; gap: .6rem; } #ex-savebar small { display: none; } .ex-ldnames { grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); } }
   .ex-ld { border: 1px solid #dde3e7; border-radius: 8px; padding: .1rem .2rem .1rem .5rem; font-size: .85rem; background: #f7f9fa; } .ex-ld b { display: inline-block; min-width: 1.5rem; text-align: center; background: #0b4a66; color: #fff; border-radius: 6px; margin-inline-start: .35rem; }
   .ex-ld.hi b { background: #b42318; } .ex-ld.lo b { background: #15803d; }
   .ex-pv td { vertical-align: top; } .ex-pv tr.fx td { background: #fffaf0 !important; } .ex-pv .ex-pp { position: relative; } .ex-pv .ex-pp.own { background: #e7f6ec; border-color: #86c99b; } .ex-pv .ex-pp b.c { background: #0b4a66; color: #fff; border-radius: 5px; padding: 0 .3rem; font-size: .75rem; margin-inline-start: .2rem; }
