@@ -95,7 +95,11 @@
     paint();
     setInterval(paint, 60000);
     setInterval(() => { page++; paint(true); }, 12000);
-    setInterval(() => U.getJSON('data/exam_schedule.json', true).then(x => { if (x && x.exams) { EX = x; paint(); } }).catch(() => {}), 15 * 60000);
+    // the committee publishes, updates or withdraws the timetable from «جدول الامتحانات»: checked every 3 minutes
+    setInterval(() => fetch('data/exam_schedule.json?t=' + Date.now(), { cache: 'no-store' }).then(r => {
+      if (r.status === 404) return location.reload();   // withdrawn: back to the lectures
+      return r.ok ? r.json().then(x => { if (x && x.exams && x.exams.length) { EX = x; paint(); } else location.reload(); }) : null;
+    }).catch(() => {}), 3 * 60000);
     setTimeout(() => location.reload(), 6 * 3600 * 1000);
   };
 })();

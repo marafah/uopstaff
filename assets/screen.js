@@ -111,6 +111,9 @@
     setInterval(() => Promise.all([U.getJSON('data/timetable.json', true), U.getJSON('data/calendar.json', true)])
       .then(([t, c]) => { TT = t; S = t.sections; CAL = c; paint(); }).catch(() => {}), 15 * 60000);
     setTimeout(() => location.reload(), 6 * 3600 * 1000);
+    // a timetable published today switches this screen to the exams within minutes (unless ?mode=lectures)
+    if (P.get('mode') !== 'lectures') setInterval(() => fetch('data/exam_schedule.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : null)
+      .then(x => { if (x && x.exams && window.UOP_EXAM_DAY(x, U.amman(P.get('at')).iso)) location.reload(); }).catch(() => {}), 3 * 60000);
   }
   function paint(flip) {
     const now = U.amman(P.get('at')), T = teaching(now);
