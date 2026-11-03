@@ -932,19 +932,43 @@
       <div class="ax">${[7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18].map(h => `<i style="right:${X(h * 60)}">${h}</i>`).join('')}</div>
       <div class="lgd"><span><i class="d win"></i> وقت الامتحانات المسموح</span><span><i class="d p"></i> فترة امتحان</span><span><i class="d g"></i> استراحة</span></div></div>`;
   }
+  function calKpis() {
+    if (!DAYS.length) return '<div class="alert alert-warning mt-3">لا توجد أيام امتحانات: راجع التاريخين وأيام التعطيل.</div>';
+    const a = DAYS[0].iso, z = DAYS[DAYS.length - 1].iso, span = Math.round((Date.parse(z) - Date.parse(a)) / 864e5) + 1, hol = (S.hol.match(/\d{4}-\d{2}-\d{2}/g) || []).filter(h => h >= a && h <= z).length;
+    return `<div class="ex-kpis">
+      <div class="k ex"><i class="bi bi-calendar-check-fill"></i><b>${DAYS.length}</b><span>يوم امتحانات</span></div>
+      <div class="k"><i class="bi bi-flag-fill"></i><b>${esc(DAYS[0].wd)} ${+a.slice(8)}/${+a.slice(5, 7)}</b><span>أول يوم</span></div>
+      <div class="k"><i class="bi bi-flag-checkered"></i><b>${esc(DAYS[DAYS.length - 1].wd)} ${+z.slice(8)}/${+z.slice(5, 7)}</b><span>آخر يوم</span></div>
+      <div class="k"><i class="bi bi-calendar-range"></i><b>${span}</b><span>يوماً من البداية للنهاية</span></div>
+      <div class="k hol"><i class="bi bi-calendar-x-fill"></i><b>${span - DAYS.length}</b><span>يوم بلا امتحانات${hol ? ` (منها ${hol} عطلة)` : ''}</span></div>
+      <div class="lg"><span><i class="d ex"></i> امتحانات</span><span><i class="d off"></i> بلا امتحانات</span><span><i class="d hol"></i> عطلة</span></div></div>`;
+  }
+  // the exam days one by one, week by week (with how many exams each has once the timetable is generated)
+  function daysList() {
+    if (!DAYS.length) return '';
+    let wk = null;
+    return `<div class="ex-dlist"><h6><i class="bi bi-list-ol"></i> أيام الامتحانات</h6><ol>${DAYS.map((d, i) => {
+      const w = Math.floor((Date.parse(d.iso) - Date.parse(DAYS[0].iso)) / 864e5 / 7 + ((new Date(DAYS[0].iso).getUTCDay() + 1) % 7) / 7), head = w !== wk ? `<li class="wk">الأسبوع ${w + 1}</li>` : ''; wk = w;
+      const n = C.filter(c => c.s >= 0 && dayOf(c.s) === i).length;
+      return `${head}<li><span class="no">${i + 1}</span><span class="wd">${esc(d.wd)}</span><span class="dt">${+d.iso.slice(8)}/${+d.iso.slice(5, 7)}/${d.iso.slice(0, 4)}</span>${n ? `<span class="ct">${n} امتحان</span>` : `<span class="ct mut">${P} فترات</span>`}<button class="btn btn-sm btn-link" data-tgl="${d.iso}" title="تعيين هذا اليوم عطلة"><i class="bi bi-calendar-x"></i></button></li>`; }).join('')}</ol></div>`;
+  }
   function monthsView() {
     if (!DAYS.length) return '';
     const hol = new Set(S.hol.match(/\d{4}-\d{2}-\d{2}/g) || []), ex = new Map(DAYS.map((d, i) => [d.iso, i + 1]));
     const first = new Date(S.start + 'T12:00:00Z'), last = new Date(DAYS[DAYS.length - 1].iso + 'T12:00:00Z'), out = [];
     for (let m = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth(), 1, 12)); m <= last; m.setUTCMonth(m.getUTCMonth() + 1)) {
       const y = m.getUTCFullYear(), mo = m.getUTCMonth(), n = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate(), lead = (new Date(Date.UTC(y, mo, 1)).getUTCDay() + 1) % 7;   // weeks start on Saturday
-      const cells = Array.from({ length: lead }, () => '<span></span>');
+      const cells = Array.from({ length: lead }, () => ({ h: '<span></span>' }));
       for (let d = 1; d <= n; d++) {
         const iso = `${y}-${String(mo + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`, wd = new Date(iso + 'T12:00:00Z').getUTCDay(), inR = iso >= S.start && iso <= DAYS[DAYS.length - 1].iso;
         const cls = ex.has(iso) ? 'ex' : hol.has(iso) ? 'hol' : inR && (wd === 5 || S.off.includes(wd)) ? 'off' : inR ? 'off' : 'out';
-        cells.push(`<button class="${cls}" ${inR && wd !== 5 && !S.off.includes(wd) ? `data-tgl="${iso}" title="${hol.has(iso) ? 'إلغاء العطلة' : 'تعيين عطلة'}"` : 'disabled'}><b>${d}</b>${ex.has(iso) ? `<small>${ex.get(iso)}</small>` : hol.has(iso) ? '<small>عطلة</small>' : ''}</button>`);
+        cells.push({ iso, h: `<button class="${cls}${iso === U.amman().iso ? ' today' : ''}" ${inR && wd !== 5 && !S.off.includes(wd) ? `data-tgl="${iso}" title="${hol.has(iso) ? 'إلغاء العطلة' : 'تعيين عطلة'}"` : 'disabled'}><b>${d}</b>${ex.has(iso) ? `<small>${ex.get(iso)}</small>` : hol.has(iso) ? '<small>عطلة</small>' : ''}</button>` });
       }
-      out.push(`<div class="ex-month"><h6>${new Date(Date.UTC(y, mo, 15)).toLocaleDateString('ar-JO-u-nu-latn', { month: 'long', year: 'numeric' })}</h6><div class="g">${['س', 'ح', 'ن', 'ث', 'ر', 'خ', 'ج'].map(x => `<i>${x}</i>`).join('')}${cells.join('')}</div></div>`);
+      // only the weeks of the exam period (the rest of the month is left out)
+      const wk = []; for (let k = 0; k < cells.length; k += 7) wk.push(cells.slice(k, k + 7));
+      const keep = wk.filter(w => w.some(x => x.iso && x.iso >= S.start && x.iso <= DAYS[DAYS.length - 1].iso)).flat().map(x => x.h);
+      if (!keep.length) continue;
+      out.push(`<div class="ex-month"><h6>${new Date(Date.UTC(y, mo, 15)).toLocaleDateString('ar-JO-u-nu-latn', { month: 'long', year: 'numeric' })}</h6><div class="g">${['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'].map(x => `<i>${x}</i>`).join('')}${keep.join('')}</div></div>`);
     }
     return `<div class="ex-months">${out.join('')}</div>`;
   }
@@ -973,20 +997,19 @@
         <small>جدول واحد لعدة كليات يمنع تعارض المواد المشتركة (متطلبات الجامعة والمواد الخدمية).</small></div>`)}
     ${bx(2, 'bi-calendar-range-fill', '#0b4a66', 'التقويم', 'أيام الامتحانات والعطل', `
       <div class="ex-cal3">
-        <section><h6><i class="bi bi-1-circle-fill"></i> مدة الامتحانات</h6>
-          <label class="ex-fld"><span>أول يوم امتحان</span><input type="date" class="form-control" data-k="start" value="${S.start}"></label>
-          <label class="ex-fld"><span>آخر يوم امتحان</span><input type="date" class="form-control" data-k="end" value="${S.end || ''}" min="${S.start}"></label>
-          ${S.end ? '<small>تُحسب الأيام من المدى بين التاريخين. <button class="btn btn-sm btn-link p-0" data-noend>تحديد عدد الأيام بدلاً من ذلك</button></small>' : num('days', 'أو عدد أيام الامتحانات', 1, 40)}</section>
+        <section class="dur"><h6><i class="bi bi-1-circle-fill"></i> مدة الامتحانات</h6>
+          <div class="g3"><label class="ex-fld"><span>أول يوم امتحان</span><input type="date" class="form-control" data-k="start" value="${S.start}"></label>
+            <label class="ex-fld"><span>آخر يوم امتحان</span><input type="date" class="form-control" data-k="end" value="${S.end || ''}" min="${S.start}"></label>
+            ${S.end ? '<div class="ex-fld"><span>عدد الأيام</span><div class="calc">' + DAYS.length + ' <small>محسوب من التاريخين</small></div><button class="btn btn-sm btn-link p-0" data-noend>تحديد العدد يدوياً</button></div>' : num('days', 'أو عدد الأيام', 1, 40)}</div></section>
         <section><h6><i class="bi bi-2-circle-fill"></i> أيام الأسبوع بلا امتحانات</h6>
-          <div class="ex-wk">${[6, 0, 1, 2, 3, 4, 5].map(i => i === 5 ? `<label class="ex-chk on lock" title="عطلة رسمية"><input type="checkbox" checked disabled> ${WD[i]} <small>عطلة</small></label>` : `<label class="ex-chk${S.off.includes(i) ? ' on' : ''}"><input type="checkbox" data-off="${i}" ${S.off.includes(i) ? 'checked' : ''}> ${WD[i]}</label>`).join('')}</div>
+          <div class="ex-wk">${[6, 0, 1, 2, 3, 4, 5].map(i => i === 5 ? `<label class="ex-chk on lock" title="عطلة رسمية"><input type="checkbox" checked disabled> ${WD[i]}</label>` : `<label class="ex-chk${S.off.includes(i) ? ' on' : ''}"><input type="checkbox" data-off="${i}" ${S.off.includes(i) ? 'checked' : ''}> ${WD[i]}</label>`).join('')}</div>
           <small>الجمعة عطلة دائماً؛ السبت حسب قرار الجامعة.</small></section>
         <section><h6><i class="bi bi-3-circle-fill"></i> العطل الرسمية</h6>
           <div class="ex-add"><input type="date" class="form-control" id="ex-holin"><button class="btn btn-outline-primary" data-addhol><i class="bi bi-plus-lg"></i> إضافة</button></div>
-          <div class="ex-chipset mt-1">${(S.hol.match(/\d{4}-\d{2}-\d{2}/g) || []).map(h => `<span class="ex-tagx">${dLong(h)}<button data-delhol="${h}" aria-label="حذف"><i class="bi bi-x"></i></button></span>`).join('') || '<small>لا عطل. يمكنك أيضاً الضغط على أي يوم في التقويم أدناه.</small>'}</div></section>
+          <div class="ex-chipset mt-1">${(S.hol.match(/\d{4}-\d{2}-\d{2}/g) || []).map(h => `<span class="ex-tagx">${dLong(h)}<button data-delhol="${h}" aria-label="حذف"><i class="bi bi-x"></i></button></span>`).join('') || '<small>لا عطل. أو اضغط أي يوم في التقويم.</small>'}</div></section>
       </div>
-      <div class="ex-calsum"><span class="bdg blue"><i class="bi bi-calendar-check"></i> ${DAYS.length} يوم امتحانات</span>${DAYS.length ? `<span>من <b>${esc(DAYS[0].label)}</b> إلى <b>${esc(DAYS[DAYS.length - 1].label)}</b></span>` : ''}
-        <span class="lg"><i class="d ex"></i> يوم امتحانات <i class="d off"></i> بلا امتحانات <i class="d hol"></i> عطلة</span></div>
-      ${monthsView()}`)}
+      ${calKpis()}
+      <div class="ex-calbody">${monthsView()}${daysList()}</div>`)}
     ${bx(3, 'bi-clock-fill', '#0f766e', 'الفترات اليومية', 'مواعيد الامتحانات في اليوم', `
       <div class="ex-what"><div class="q"><i class="bi bi-question-circle-fill"></i> ما هي «الفترة»؟</div>
         <p>الفترة <b>موعد امتحان ثابت يتكرر في كل يوم</b>، مثل 9:00–11:00. يأخذ كل امتحان فترة واحدة في يوم واحد، وكل الامتحانات التي تقع في الفترة نفسها تُعقد معاً في قاعات مختلفة.
@@ -1541,17 +1564,33 @@
   .ex-ld.hi b { background: #b42318; } .ex-ld.lo b { background: #15803d; }
   .ex-pv td { vertical-align: top; } .ex-pv tr.fx td { background: #fffaf0 !important; } .ex-pv .ex-pp { position: relative; } .ex-pv .ex-pp.own { background: #e7f6ec; border-color: #86c99b; } .ex-pv .ex-pp b.c { background: #0b4a66; color: #fff; border-radius: 5px; padding: 0 .3rem; font-size: .75rem; margin-inline-start: .2rem; }
   .ex-pv .ex-pp button { border: 0; background: none; color: #b42318; padding: 0 0 0 .1rem; } .ex-pfsel { min-width: 13rem; }
-  .ex-cal3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; } .ex-cal3 section { border: 1px solid #e2e8ec; border-radius: 12px; padding: .6rem .7rem; background: #fbfcfd; }
-  .ex-cal3 h6 { font-weight: 800; color: #0b4a66; margin: 0 0 .45rem; } .ex-cal3 small { color: #6b7a82; } .ex-wk { display: flex; flex-wrap: wrap; gap: .3rem; }
-  .ex-calsum { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin: .75rem 0 .5rem; } .ex-calsum .lg { margin-inline-start: auto; color: #4a5a62; font-size: .88rem; display: flex; gap: .6rem; align-items: center; }
-  .d { display: inline-block; width: .9rem; height: .9rem; border-radius: 4px; vertical-align: -2px; } .d.ex { background: #901d23; } .d.off { background: #e5e8eb; } .d.hol { background: repeating-linear-gradient(135deg, #f87171 0 3px, #fee2e2 3px 6px); }
-  .ex-months { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: .8rem; }
-  .ex-month { border: 1px solid #e2e8ec; border-radius: 12px; padding: .5rem .6rem; background: #fff; } .ex-month h6 { text-align: center; font-weight: 800; margin: 0 0 .35rem; color: #091b22; }
-  .ex-month .g { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; } .ex-month .g > i { text-align: center; font-style: normal; font-weight: 800; color: #6b7a82; font-size: .8rem; }
-  .ex-month .g button { border: 0; border-radius: 7px; min-height: 2.35rem; background: #f7f8fa; color: #9aa6ac; padding: 0; line-height: 1.05; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .ex-month .g button b { font-size: .9rem; } .ex-month .g button small { font-size: .6rem; } .ex-month .g button.ex { background: #901d23; color: #fff; } .ex-month .g button.ex small { color: #fde2e3; }
-  .ex-month .g button.off { background: #e5e8eb; color: #6b7a82; } .ex-month .g button.hol { background: repeating-linear-gradient(135deg, #fecaca 0 5px, #fee2e2 5px 10px); color: #b42318; } .ex-month .g button.out { background: transparent; color: #c4ccd1; }
-  .ex-month .g button[data-tgl]:hover { outline: 2px solid #b7791f; }
+  .ex-cal3 { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.25fr) minmax(0, 1fr); gap: .75rem; align-items: stretch; }
+  .ex-cal3 section { border: 1px solid #e2e8ec; border-radius: 12px; padding: .65rem .75rem; background: #fbfcfd; display: flex; flex-direction: column; gap: .35rem; }
+  .ex-cal3 h6 { font-weight: 800; color: #0b4a66; margin: 0 0 .2rem; } .ex-cal3 small { color: #6b7a82; } .ex-cal3 .ex-fld { margin: 0; }
+  .ex-cal3 .g3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; align-items: start; }
+  .ex-cal3 .calc { border: 1px solid #c9d8e3; background: #eef5fa; border-radius: 8px; padding: .38rem .6rem; font-weight: 800; font-size: 1.1rem; color: #0b4a66; } .ex-cal3 .calc small { font-size: .72rem; font-weight: 600; }
+  .ex-wk { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .3rem; } .ex-wk .ex-chk { justify-content: center; }
+  .ex-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) auto; gap: .6rem; margin: .8rem 0; align-items: stretch; }
+  .ex-kpis .k { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: .55rem; align-items: center; background: #fff; border: 1px solid #e2e8ec; border-top: 3px solid #0b4a66; border-radius: 12px; padding: .5rem .7rem; }
+  .ex-kpis .k i { grid-row: span 2; font-size: 1.45rem; color: #0b4a66; } .ex-kpis .k b { font-size: 1.15rem; color: #091b22; line-height: 1.2; } .ex-kpis .k span { font-size: .8rem; color: #6b7a82; }
+  .ex-kpis .k.ex { border-top-color: #901d23; } .ex-kpis .k.ex i, .ex-kpis .k.ex b { color: #901d23; } .ex-kpis .k.hol { border-top-color: #b7791f; } .ex-kpis .k.hol i { color: #b7791f; }
+  .ex-kpis .lg { display: flex; flex-direction: column; justify-content: center; gap: .25rem; font-size: .82rem; color: #4a5a62; padding-inline-start: .3rem; } .ex-kpis .lg span { white-space: nowrap; }
+  .d { display: inline-block; width: .9rem; height: .9rem; border-radius: 4px; vertical-align: -2px; margin-inline-end: .25rem; } .d.ex { background: #901d23; } .d.off { background: #e5e8eb; } .d.hol { background: repeating-linear-gradient(135deg, #f87171 0 3px, #fee2e2 3px 6px); }
+  .ex-calbody { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 22rem); gap: .8rem; align-items: start; }
+  .ex-months { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: .8rem; }
+  .ex-month { border: 1px solid #e2e8ec; border-radius: 14px; padding: .65rem .75rem; background: #fff; } .ex-month h6 { text-align: center; font-weight: 800; font-size: 1.1rem; margin: 0 0 .5rem; color: #091b22; }
+  .ex-month .g { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; } .ex-month .g > i { text-align: center; font-style: normal; font-weight: 800; color: #4a5a62; font-size: .8rem; padding-bottom: .2rem; border-bottom: 2px solid #eef2f4; }
+  .ex-month .g button { border: 0; border-radius: 9px; min-height: 3.3rem; background: #f7f8fa; color: #9aa6ac; padding: .2rem; line-height: 1.1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .1rem; }
+  .ex-month .g button b { font-size: 1.05rem; } .ex-month .g button small { font-size: .66rem; } .ex-month .g button.ex { background: #901d23; color: #fff; box-shadow: 0 2px 5px rgba(144,29,35,.25); } .ex-month .g button.ex small { color: #fde2e3; background: rgba(255,255,255,.15); border-radius: 999px; padding: 0 .4rem; }
+  .ex-month .g button.off { background: #e9ecef; color: #6b7a82; } .ex-month .g button.hol { background: repeating-linear-gradient(135deg, #fecaca 0 5px, #fee2e2 5px 10px); color: #b42318; } .ex-month .g button.out { background: transparent; color: #c4ccd1; }
+  .ex-month .g button.today { outline: 2px solid #0b4a66; outline-offset: 1px; } .ex-month .g button[data-tgl]:hover { outline: 2px solid #b7791f; }
+  .ex-dlist { border: 1px solid #e2e8ec; border-radius: 14px; background: #fff; padding: .6rem .7rem; max-height: 30rem; overflow: auto; } .ex-dlist h6 { font-weight: 800; color: #091b22; margin: 0 0 .4rem; }
+  .ex-dlist ol { list-style: none; margin: 0; padding: 0; } .ex-dlist li { display: grid; grid-template-columns: 1.9rem 4.6rem 1fr auto auto; align-items: center; gap: .45rem; padding: .32rem .2rem; border-bottom: 1px solid #f1f3f5; font-size: .92rem; }
+  .ex-dlist li.wk { display: block; border: 0; font-size: .78rem; font-weight: 800; color: #0b4a66; padding: .5rem .2rem .15rem; }
+  .ex-dlist .no { background: #901d23; color: #fff; border-radius: 7px; text-align: center; font-weight: 800; font-size: .82rem; } .ex-dlist .wd { font-weight: 800; } .ex-dlist .dt { color: #4a5a62; font-variant-numeric: tabular-nums; }
+  .ex-dlist .ct { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0 .5rem; font-size: .78rem; font-weight: 700; white-space: nowrap; } .ex-dlist .ct.mut { background: #f1f3f5; color: #6b7a82; } .ex-dlist .btn { color: #b42318; padding: 0 .2rem; }
+  @media (max-width: 1200px) { .ex-cal3 { grid-template-columns: 1fr 1fr; } .ex-cal3 .dur { grid-column: 1 / -1; } .ex-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } .ex-kpis .lg { grid-column: 1 / -1; flex-direction: row; gap: 1rem; } .ex-calbody { grid-template-columns: 1fr; } }
+  @media (max-width: 700px) { .ex-cal3, .ex-cal3 .g3 { grid-template-columns: 1fr; } .ex-kpis { grid-template-columns: 1fr 1fr; } .ex-months { grid-template-columns: 1fr; } .ex-month .g button { min-height: 2.6rem; } .ex-month .g > i { font-size: .62rem; } }
   .ex-what { border: 1px solid #b6e0da; background: #f1fbf9; border-radius: 12px; padding: .65rem .8rem; margin-bottom: .8rem; } .ex-what .q { font-weight: 800; color: #0f766e; font-size: 1.05rem; } .ex-what p { margin: .25rem 0 .5rem; color: #1f3b38; }
   .ex-what ul { margin: .5rem 0 0; padding-inline-start: 1.1rem; color: #35524e; font-size: .9rem; }
   .ex-cap { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; } .ex-cap span { background: #fff; border: 1px solid #b6e0da; border-radius: 8px; padding: .15rem .55rem; } .ex-cap span.t { background: #0f766e; color: #fff; border-color: #0f766e; } .ex-cap i { font-style: normal; color: #0f766e; font-weight: 800; } .ex-cap .avg { background: transparent; border: 0; color: #35524e; }
