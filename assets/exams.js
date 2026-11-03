@@ -103,6 +103,9 @@
       c.students += s.registered || 0; c.secs++; if (s.instructor) c.ins.add(s.instructor);
       if (s.registered) c.sl.push({ s: s.section, n: s.registered, ins: s.instructor || '' });
     });
+    // a registration report gives the real number of students per course and per section (it replaces the timetable's counts)
+    if (S.regN && S.src !== 'plans') Object.values(m).forEach(c => { const n = S.regN[c.code]; if (!n) return; c.students = n; c.fromReg = true;
+      const sec = S.regSec && S.regSec[c.code]; if (sec) { const old = Object.fromEntries(c.sl.map(x => [String(x.s), x.ins])); c.sl = Object.entries(sec).map(([k, v]) => ({ s: k, n: v, ins: old[k] || '' })); } });
     C = Object.values(m).filter(c => !S.excl[c.code]).sort((a, b) => a.code.localeCompare(b.code));
     C.forEach((c, i) => { c.i = i; c.lv = level(c); c.ins = [...c.ins]; });
     BY = Object.fromEntries(C.map(c => [c.code, c]));
@@ -727,8 +730,8 @@
     ${bx(5, 'bi-people-fill', '#6d28d9', 'بيانات الطلبة', 'من يجلس مع من؟', `
       <div class="ex-srcs">${[['plans', 'bi-diagram-3-fill', 'الخطط الدراسية', 'تقدير حسب التخصص والسنة'], ['reg', 'bi-file-earmark-spreadsheet-fill', 'كشف التسجيل', 'دقيق لكل طالب'], ['both', 'bi-intersect', 'الاثنان معاً', 'الأدق والأشمل']]
         .map(([k, ic, t, d]) => `<label class="ex-type${S.src === k ? ' on' : ''}"><input type="radio" name="src" data-src="${k}" ${S.src === k ? 'checked' : ''}><i class="bi ${ic}"></i><b>${t}</b><small>${d}</small></label>`).join('')}</div>
-      <label class="ex-fld"><span>رفع كشف التسجيل (Excel أو CSV): عمود رقم الطالب وعمود رمز المادة</span><input type="file" class="form-control" id="ex-reg" accept=".csv,.xlsx,.xls"></label>
-      <div class="ex-rule ${S.reg ? 'ok' : ''}">${S.reg ? `<i class="bi bi-check-circle-fill"></i> ${esc(S.regInfo)} <button class="btn btn-sm btn-link text-danger" data-clrreg>حذف الكشف</button>` : '<i class="bi bi-lock-fill"></i> لا يُحفظ رقم أي طالب: تُحفظ فقط مجموعات المواد وعدد طلبتها، على هذا الجهاز وحده.'}</div>`)}
+      <label class="ex-fld"><span>رفع كشف التسجيل: تقرير «كشف تسجيل الطلبة» من نظام التسجيل كما هو (.xls)، لقسم أو كلية أو الجامعة كلها؛ أو أي ملف Excel / CSV فيه رقم الطالب ورمز المادة</span><input type="file" class="form-control" id="ex-reg" accept=".csv,.xlsx,.xls,.htm,.html"></label><div id="ex-regmsg" class="small text-muted"></div>
+      <div class="ex-rule ${S.reg ? 'ok' : ''}">${S.reg ? `<i class="bi bi-check-circle-fill"></i> ${esc(S.regInfo)}${S.regN ? ` · <b>${C.filter(c => c.fromReg).length}</b> من ${C.length} مقرراً في نطاق الجدول أعدادها من الكشف${C.some(c => !c.fromReg) ? ' (البقية من الجدول الدراسي)' : ''}` : ''} <button class="btn btn-sm btn-link text-danger" data-clrreg>حذف الكشف</button>` : '<i class="bi bi-lock-fill"></i> لا يُحفظ رقم أي طالب: تُحفظ فقط مجموعات المواد وعدد طلبتها، على هذا الجهاز وحده.'}</div>`)}
     ${bx(6, 'bi-door-open-fill', '#15803d', 'القاعات', `${on.length} قاعة مفعّلة · ${capTotal} مقعد في الفترة`, `
       <div class="ex-acts mb-2"><button class="btn btn-sm btn-outline-primary" data-addr><i class="bi bi-plus-lg"></i> قاعة</button><button class="btn btn-sm btn-outline-secondary" data-allr="1">تفعيل الكل</button><button class="btn btn-sm btn-outline-secondary" data-allr="0">تعطيل الكل</button>
         <button class="btn btn-sm btn-outline-secondary" data-scaler="1.1">السعة +10%</button><button class="btn btn-sm btn-outline-secondary" data-scaler="0.9">السعة −10%</button><button class="btn btn-sm btn-link" data-resetr>إعادة الاقتراح</button></div>
@@ -796,22 +799,56 @@
     setTimeout(() => { fn(); render(); }, 40);
   }
   const rebuild = () => { save(); build(); render(); };
+  // the registration report: «كشف تسجيل الطلبة» from the registration system (an HTML page saved as .xls, one block per student),
+  // or any Excel / CSV sheet with a student-number column and a course-code column; it may cover a department, a faculty or the whole university
+  function parseReport(text, known) {
+    const toks = text.replace(/&nbsp;/g, ' ').split(/<[^>]+>/).map(x => x.trim()).filter(Boolean);
+    const by = {}, sec = {}, fac = {}, isNum = x => /^\d+$/.test(x);
+    let stu = null;
+    const val = i => { let j = i + 1; while (j < toks.length && toks[j] === ':') j++; return toks[j] || ''; };
+    for (let i = 0; i < toks.length; i++) {
+      const x = toks[i];
+      if (x === 'رقم الطالب') { stu = val(i); continue; }
+      if (stu && /^الكل[ـ]*ية$/.test(x)) { fac[stu] = val(i); continue; }
+      if (stu && /^\d{6,7}$/.test(x) && known.has(x) && x !== stu) {
+        (by[stu] = by[stu] || new Set()).add(x);
+        const h = toks[i + 2], sn = toks[i + 3], act = toks[i + 4];
+        if (isNum(h || '') && isNum(sn || '') && act === 'نظري') { const k = x; (sec[k] = sec[k] || {})[String(+sn)] = ((sec[k] || {})[String(+sn)] || 0) + 1; }
+      }
+    }
+    return { by, sec, fac };
+  }
+  function decode(buf) { try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (e) { return new TextDecoder('windows-1256').decode(buf); } }
   function readReg(file) {
-    const csv = /\.(csv|txt)$/i.test(file.name);
-    (csv ? file.text().then(x => x.replace(/^\ufeff/, '').split(/\r?\n/).map(l => l.split(/[,;\t]/).map(v => v.replace(/^"|"$/g, ''))))
-      : loadXLSX().then(() => file.arrayBuffer()).then(buf => { const wb = XLSX.read(buf, { type: 'array' }); return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false }); })).then(rows => {
-      const known = new Set(TT.sections.map(s => s.code)), w = Math.max(...rows.slice(0, 50).map(r => r.length));
-      let codeCol = -1, best = 0;
-      for (let j = 0; j < w; j++) { const n = rows.slice(0, 300).filter(r => known.has(String(r[j] || '').trim())).length; if (n > best) { best = n; codeCol = j; } }
-      if (codeCol < 0) throw new Error('لم أجد عموداً فيه رموز مواد معروفة.');
-      const stuCol = codeCol === 0 ? 1 : 0, by = {};
-      rows.forEach(r => { const st = String(r[stuCol] || '').trim(), c = String(r[codeCol] || '').trim(); if (st && known.has(c)) (by[st] = by[st] || new Set()).add(c); });
-      const agg = {}; Object.values(by).forEach(set => { if (set.size < 2) return; const k = [...set].sort().join(','); agg[k] = (agg[k] || 0) + 1; });
-      S.reg = Object.entries(agg).map(([k, n]) => ({ c: k.split(','), w: n }));
-      S.regInfo = `كشف ${file.name}: ${Object.keys(by).length} طالب، ${S.reg.length} مجموعة مواد مختلفة`;
+    const known = new Set(TT.sections.map(s => s.code)), note = $(APP).querySelector('#ex-regmsg');
+    if (note) note.innerHTML = '<div class="spinner-border spinner-border-sm"></div> يقرأ الكشف… (قد يستغرق الكشف الكامل للجامعة بضع ثوانٍ)';
+    file.arrayBuffer().then(buf => {
+      const head = new TextDecoder('latin1').decode(buf.slice(0, 2000)).toLowerCase();
+      if (head.includes('<html') || head.includes('<table')) return parseReport(decode(buf), known);
+      const rowsP = /\.(csv|txt)$/i.test(file.name) ? Promise.resolve(decode(buf).replace(/^﻿/, '').split(/\r?\n/).map(l => l.split(/[,;\t]/).map(v => v.replace(/^"|"$/g, ''))))
+        : loadXLSX().then(() => { const wb = XLSX.read(buf, { type: 'array' }); return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false }); });
+      return rowsP.then(rows => {
+        const w = Math.max(...rows.slice(0, 50).map(r => r.length)); let codeCol = -1, best = 0;
+        for (let j = 0; j < w; j++) { const n = rows.slice(0, 300).filter(r => known.has(String(r[j] || '').trim())).length; if (n > best) { best = n; codeCol = j; } }
+        if (codeCol < 0) throw new Error('لم أجد عموداً فيه رموز مواد معروفة.');
+        let stuCol = -1; best = 0;
+        for (let j = 0; j < w; j++) { if (j === codeCol) continue; const n = rows.slice(0, 300).filter(r => /^\d{6,10}$/.test(String(r[j] || '').trim())).length; if (n > best) { best = n; stuCol = j; } }
+        if (stuCol < 0) stuCol = codeCol === 0 ? 1 : 0;
+        const by = {}; rows.forEach(r => { const st = String(r[stuCol] || '').trim(), c = String(r[codeCol] || '').trim(); if (st && known.has(c)) (by[st] = by[st] || new Set()).add(c); });
+        return { by, sec: {}, fac: {} };
+      });
+    }).then(({ by, sec, fac }) => {
+      const studs = Object.keys(by); if (!studs.length) throw new Error('لم أجد طلبة ومقررات معروفة في الملف.');
+      const agg = {}, n = {}; let pairs = 0;
+      studs.forEach(st => { const set = by[st]; pairs += set.size; set.forEach(c => { n[c] = (n[c] || 0) + 1; }); if (set.size < 2) return; const k = [...set].sort().join(','); agg[k] = (agg[k] || 0) + 1; });
+      S.reg = Object.entries(agg).map(([k, w]) => ({ c: k.split(','), w })); S.regN = n; S.regSec = sec;
+      const fc = {}; Object.values(fac).forEach(f => { fc[f] = (fc[f] || 0) + 1; });
+      const facs = Object.entries(fc).sort((a, b) => b[1] - a[1]);
+      S.regInfo = `${file.name}: ${studs.length.toLocaleString('ar')} طالباً، ${pairs.toLocaleString('ar')} تسجيلاً في ${Object.keys(n).length} مقرراً` + (facs.length ? ` · ${facs.length === 1 ? 'كلية ' + facs[0][0] : facs.length + ' كليات'}` : '');
+      S.regAt = new Date().toISOString().slice(0, 10);
       if (S.src === 'plans') S.src = 'both';
       rebuild();
-    }).catch(e => alert('تعذّرت قراءة الكشف: ' + (e.message || e)));
+    }).catch(e => { if (note) note.textContent = ''; alert('تعذّرت قراءة الكشف: ' + (e.message || e)); });
   }
   function wire() {
     const app = $(APP);
@@ -865,7 +902,7 @@
       if (t.hasAttribute('data-bulkr')) { $('#ex-bulkr').value.split('\n').forEach(l => { const [n, c] = l.split(/[,،\t;]/).map(x => x.trim()); if (n) rooms().push({ n, c: Math.max(1, +c || 30), on: true }); }); rebuild(); return; }
       if (t.hasAttribute('data-resetr')) { S.rooms = null; rebuild(); return; }
       if (t.dataset.inclall != null) { const on = t.dataset.inclall === '1'; TT.sections.filter(s => inFac(s.faculty)).forEach(s => { if (on) delete S.excl[s.code]; else S.excl[s.code] = 1; }); rebuild(); return; }
-      if (t.hasAttribute('data-clrreg')) { S.reg = null; S.regInfo = ''; S.src = 'plans'; rebuild(); return; }
+      if (t.hasAttribute('data-clrreg')) { S.reg = null; S.regN = null; S.regSec = null; S.regInfo = ''; S.src = 'plans'; rebuild(); return; }
       if (t.id === 'ex-dsave') { const n = ($('#ex-dname').value || '').trim() || `نسخة ${S.drafts.length + 1}`; S.drafts.unshift({ name: n, at: new Date().toLocaleString('ar-JO'), n: C.length, slot: { ...S.slot }, pins: { ...S.pins } }); save(); render(); return; }
       if (t.dataset.dload != null) { const d = S.drafts[+t.dataset.dload]; push(); S.slot = { ...d.slot }; S.pins = { ...d.pins }; tab = 'grid'; rebuild(); return; }
       if (t.dataset.dapp != null) { const d = S.drafts[+t.dataset.dapp]; S.approved = S.approved === d.name ? null : d.name; S.slot = { ...d.slot }; S.pins = { ...d.pins }; rebuild(); return; }
