@@ -7,7 +7,7 @@
   const U = window.UOP, { $, esc, toMin, toTime, live } = U;
   const P = new URLSearchParams(location.search);
   const B = (P.get('b') || '').replace(/^مينى\s/, 'مبنى ');  // links made before the portal's spelling slip was corrected
-  let TT, S, IDX, CAL, page = 0;
+  let TT, S, IDX, CAL, EX = null, page = 0;
   const PER = { run: 5, soon: 6, free: 15 };  // items per page; measured from the screen after the first paint
   const SOON = 90;  // minutes ahead shown as "starting soon"
   const SITE = location.origin + location.pathname.replace(/[^/]*$/, '');
@@ -66,13 +66,17 @@
         return `<div class="scr-b" style="border-top-color:#b7791f"><b><i class="bi ${ic}"></i> ${t}</b><small>${d}</small>
           <div class="d-flex gap-2 mt-2"><a class="btn btn-sm btn-maroon" href="${url}"><i class="bi bi-display"></i> افتح الشاشة</a>
             <button type="button" class="btn btn-sm btn-outline-secondary" data-copy="${esc(SITE + url)}"><i class="bi bi-link-45deg"></i> نسخ الرابط</button></div></div>`; }).join('')}</div>
+      ${EX ? `<h6 class="fw-bold mb-2"><i class="bi bi-clipboard-check"></i> شاشات الامتحانات <small class="text-muted fw-normal">· ${esc(EX.title || '')}</small></h6>
+      <div class="scr-pick mb-4"><div class="scr-b" style="border-top-color:#b7791f"><b><i class="bi bi-clipboard-check"></i> كل امتحانات الجامعة</b><small>الامتحانات الجارية الآن ولاحقاً اليوم والأيام القادمة في كل المباني، مع QR لصفحة «امتحاناتي». شاشة كل مبنى تتحوّل وحدها إلى الامتحانات في أيامها.</small>
+        <div class="d-flex gap-2 mt-2"><a class="btn btn-sm btn-maroon" href="screen.html?b=exams"><i class="bi bi-display"></i> افتح الشاشة</a>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-copy="${esc(SITE + 'screen.html?b=exams')}"><i class="bi bi-link-45deg"></i> نسخ الرابط</button></div></div></div>` : ''}
       <h6 class="fw-bold mb-2"><i class="bi bi-building"></i> شاشات المباني</h6>
       <div class="scr-pick">${blds.map(b => {
         const cs = classes(b), rooms = new Set(cs.map(s => clean(s.room))).size;
         const today = cs.reduce((a, s) => a + s.meetings.filter(m => inRoom(m) && m.day === now.day).length, 0);
         const url = `screen.html?b=${encodeURIComponent(b)}`;
         return `<div class="scr-b"><b><i class="bi bi-building"></i> ${esc(b)}</b><small>${rooms} قاعة · ${today} محاضرة اليوم</small>
-          <div class="d-flex gap-2 mt-2"><a class="btn btn-sm btn-maroon" href="${url}"><i class="bi bi-display"></i> افتح الشاشة</a>
+          <div class="d-flex flex-wrap gap-2 mt-2"><a class="btn btn-sm btn-maroon" href="${url}"><i class="bi bi-display"></i> افتح الشاشة</a>${EX ? `<a class="btn btn-sm btn-outline-warning" href="${url}&mode=exams" title="يعرض الامتحانات دائماً"><i class="bi bi-clipboard-check"></i> الامتحانات</a><a class="btn btn-sm btn-outline-secondary" href="${url}&mode=lectures" title="يعرض المحاضرات دائماً، حتى في أيام الامتحانات"><i class="bi bi-easel"></i> المحاضرات فقط</a>` : ''}
             <button type="button" class="btn btn-sm btn-outline-secondary" data-copy="${esc(SITE + url)}"><i class="bi bi-link-45deg"></i> نسخ الرابط</button></div></div>`;
       }).join('')}</div>`;
     document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => navigator.clipboard.writeText(b.dataset.copy).then(() => { b.innerHTML = '<i class="bi bi-check2"></i> تم النسخ'; })));
@@ -170,13 +174,17 @@
   }
 
   // ---------------------------------------------------------------- start
-  Promise.all([U.getJSON('data/timetable.json'), U.getJSON('data/instructors.json'), U.getJSON('data/calendar.json')]).then(([tt, idx, cal]) => {
-    TT = tt; S = tt.sections; IDX = idx; CAL = cal;
+  Promise.all([U.getJSON('data/timetable.json'), U.getJSON('data/instructors.json'), U.getJSON('data/calendar.json'), U.getJSON('data/exam_schedule.json').catch(() => null)]).then(([tt, idx, cal, ex]) => {
+    TT = tt; S = tt.sections; IDX = idx; CAL = cal; EX = ex && ex.exams && ex.exams.length ? ex : null;
     U.setDays(tt.days);
     $('#foot-count').textContent = `${tt.term}`;
     U.updatedLine(tt.updated, 'للشاشات في مداخل المباني');
     if (B === 'registration' && window.UOP_REG) { window.UOP_REG({ tt, cal }); return; }   // Admissions and Registration hall (screen-reg.js)
     if (window.UOP_UNITS && window.UOP_UNITS[B]) { window.UOP_UNIT(B, { tt, cal }); return; }  // finance, library (screen-units.js)
-    if (B === 'others' || (B && S.some(s => s.building === B))) screen(); else chooser();
+    // exam mode (screen-exams.js): ?b=exams for every building, ?mode=exams for one building; on exam days by itself (?mode=lectures keeps the lectures)
+    const isBld = B === 'others' || (B && S.some(s => s.building === B)), mode = P.get('mode');
+    if (EX && window.UOP_EXSCREEN && (B === 'exams' || (isBld && (mode === 'exams' || (mode !== 'lectures' && window.UOP_EXAM_DAY(EX, U.amman(P.get('at')).iso))))))
+      { window.UOP_EXSCREEN({ B, TT, EX, P, inB, bIcon }); return; }
+    if (isBld) screen(); else chooser();
   }).catch(e => { $('#scr-app').innerHTML = `<div class="alert alert-danger mt-3">تعذّر التحميل (${esc(e.message)}).</div>`; });
 })();

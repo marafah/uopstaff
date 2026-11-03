@@ -53,7 +53,7 @@
   const today = () => new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10);
   function fresh(type) {
     const t = TYPES[type || 'final'];
-    return { type: type || 'final', start: today(), days: t.days, off: [5, 6], hol: '', lastEnd: '16:00', periods: t.periods.map(p => p.slice()), maxDay: 2, perProc: 30, minProc: 1, maxDuty: 0, maxDutyDay: 2, busy: type === 'mid1' || type === 'mid2' || type === 'midterm', b2b: true, near: true, insClash: true, early: true, depth: 'normal', noProc: '', label: '', gview: 'matrix', setupDone: false,
+    return { type: type || 'final', start: today(), days: t.days, off: [5, 6], hol: '', end: '', firstStart: '08:00', lastEnd: '16:00', dayWin: {}, periods: t.periods.map(p => p.slice()), maxDay: 2, perProc: 30, minProc: 1, maxDuty: 0, maxDutyDay: 2, busy: type === 'mid1' || type === 'mid2' || type === 'midterm', b2b: true, near: true, insClash: true, early: true, depth: 'normal', noProc: '', label: '', gview: 'matrix', setupDone: false,
       faculty: 'تكنولوجيا المعلومات', facs: ['تكنولوجيا المعلومات'], flt: {}, practical: false, grad: true, src: 'plans', rooms: null, excl: {}, pins: {}, slot: {}, reg: null, regInfo: '', extraProc: '', drafts: [], approved: null };
   }
   let S;
@@ -62,15 +62,20 @@
   const OLDMID = '09:00-10:30,11:00-12:30,13:00-14:30,15:00-16:30';
   const migrate = () => { if (!Array.isArray(S.facs)) S.facs = S.faculty ? [S.faculty] : []; if (!S.flt) S.flt = {}; if (!Array.isArray(S.off)) S.off = [5, 6];
     if (!S.off.includes(5)) S.off.push(5);   // Friday is the official weekly holiday
+    if (S.firstStart == null) S.firstStart = '08:00'; if (!S.dayWin) S.dayWin = {}; if (S.end == null) S.end = '';
     if (S.lastEnd == null) { S.lastEnd = '16:00'; delete S.noFrom; delete S.noTo;
       if (S.type === 'midterm' && S.periods.map(p => p.join('-')).join(',') === OLDMID) { S.periods = TYPES.midterm.periods.map(p => p.slice()); S.slot = {}; S.pins = {}; } } };
   // a period that ends after the latest allowed time (a user setting, 16:00 by default)
-  const late = p => !!S.lastEnd && U.toMin(p[1]) > U.toMin(S.lastEnd);
+  const late = p => (!!S.lastEnd && U.toMin(p[1]) > U.toMin(S.lastEnd)) || (!!S.firstStart && U.toMin(p[0]) < U.toMin(S.firstStart));
+  // the hours allowed on a weekday: the general window, narrowed by that day's own window (e.g. Thursday until 13:00)
+  const winOf = wd => { const w = (S.dayWin || {})[wd] || {}; return [w.from || S.firstStart || '00:00', w.to || S.lastEnd || '23:59']; };
+  const outWin = (wd, p) => { const [a, b] = winOf(wd); return U.toMin(p[0]) < U.toMin(a) || U.toMin(p[1]) > U.toMin(b); };
   migrate();
   const inFac = f => !S.facs.length || S.facs.includes(f);
   const facLabel = () => !S.facs.length ? 'كل الكليات' : S.facs.length === 1 ? S.facs[0] : S.facs.length + ' كليات';
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage full / blocked */ } };
   let repCache = [], repFilter = '';
+  let REGMEM = null;   // the registration report's names: read when uploaded, never saved
   let TT, PLANS, tab = new URLSearchParams(location.search).get('tab') || (S.setupDone ? 'grid' : 'set'), sel = null, outView = 'all', undo = [];
 
   // ---------- model ----------
@@ -88,10 +93,10 @@
   function examDays() {
     const hol = new Set((S.hol.match(/\d{4}-\d{2}-\d{2}/g) || []));
     const out = []; const d = new Date(S.start + 'T12:00:00Z');
-    for (let guard = 0; out.length < S.days && guard < 120; guard++, d.setUTCDate(d.getUTCDate() + 1)) {
-      const iso = d.toISOString().slice(0, 10);
+    for (let guard = 0; (S.end ? true : out.length < S.days) && guard < 120; guard++, d.setUTCDate(d.getUTCDate() + 1)) {
+      const iso = d.toISOString().slice(0, 10); if (S.end && iso > S.end) break;
       if (d.getUTCDay() === 5 || S.off.includes(d.getUTCDay()) || hol.has(iso)) continue;
-      out.push({ iso, dl: U.JS_DAY[d.getUTCDay()], wd: WD[d.getUTCDay()], label: `${WD[d.getUTCDay()]} ${+iso.slice(8)}/${+iso.slice(5, 7)}` });
+      out.push({ iso, n: d.getUTCDay(), dl: U.JS_DAY[d.getUTCDay()], wd: WD[d.getUTCDay()], label: `${WD[d.getUTCDay()]} ${+iso.slice(8)}/${+iso.slice(5, 7)}` });
     }
     return out;
   }
@@ -152,24 +157,41 @@
         if (x.instructor) (busyI[s] = busyI[s] || new Set()).add(x.instructor);
       }
     }));
-    AV = []; CAP = []; BUSYI = busyI;
-    for (let s = 0; s < NS; s++) { AV[s] = rooms().filter(r => r.on && !(busyR[s] && busyR[s].has(r.n))); CAP[s] = AV[s].reduce((a, r) => a + r.c, 0); }
+    AV = []; CAP = []; BUSYI = busyI; BLK = [];
+    for (let s = 0; s < NS; s++) BLK[s] = outWin(DAYS[dayOf(s)].n, S.periods[s % P]);
+    for (let s = 0; s < NS; s++) { AV[s] = rooms().filter(r => r.on && !(busyR[s] && busyR[s].has(r.n))); CAP[s] = AV[s].reduce((a, r) => a + r.c, 0); CAPL[s] = AV[s].filter(r => r.t === LAB).reduce((a, r) => a + r.c, 0); }
   }
   // rooms: by default the rooms the faculty teaches in, with an exam capacity of half the largest class seen there
+  // rooms: by default the rooms the faculty teaches in. A hall's exam capacity is ~60% of the largest class seen there (an empty
+  // seat between students); a lab's is the largest lab section seen there (one student per computer)
+  const LAB = 'مختبر', HALL = 'قاعة';
+  function roomKinds() { const k = {}; TT.sections.forEach(s => { if (!s.room || s.room === '0') return; const o = k[s.room] = k[s.room] || { t: 0, l: 0, mt: 0, ml: 0 };
+    if (s.activity === 'عملي') { o.l++; o.ml = Math.max(o.ml, s.registered || 0); } else { o.t++; o.mt = Math.max(o.mt, s.registered || 0); } }); return k; }
+  let KINDS = null; const kindOf = n => { KINDS = KINDS || roomKinds(); const o = KINDS[n]; return o && o.l > 0 ? LAB : HALL; };   // a room that hosts any lab section is a lab (computer labs also host lectures)
+  function labRooms(have) {
+    KINDS = KINDS || roomKinds(); const m = {};
+    TT.sections.filter(s => inFac(s.faculty) && s.room && s.room !== '0' && s.activity === 'عملي').forEach(s => { m[s.room] = Math.max(m[s.room] || 0, s.registered || 0); });
+    return Object.entries(m).filter(([n, c]) => c >= 8 && !have.has(n) && kindOf(n) === LAB).sort((a, b) => b[1] - a[1]).slice(0, S.facs.length === 1 ? 16 : 200).map(([n, c]) => ({ n, c: Math.max(10, c), on: true, t: LAB }));
+  }
   function rooms() {
     if (!S.rooms) {
       const m = {};
       TT.sections.filter(s => inFac(s.faculty) && s.room && s.room !== '0' && s.activity === 'نظري').forEach(s => { m[s.room] = Math.max(m[s.room] || 0, s.registered || 0); });
-      S.rooms = Object.entries(m).filter(([, n]) => n >= 10).sort((a, b) => b[1] - a[1]).slice(0, S.facs.length === 1 ? 24 : 400)
-        .map(([n, c]) => ({ n, c: Math.max(15, Math.round(c * 0.6 / 5) * 5), on: true }));
+      S.rooms = Object.entries(m).filter(([n, c]) => c >= 10 && kindOf(n) === HALL).sort((a, b) => b[1] - a[1]).slice(0, S.facs.length === 1 ? 24 : 400)
+        .map(([n, c]) => ({ n, c: Math.max(15, Math.round(c * 0.6 / 5) * 5), on: true, t: HALL }));
+      S.rooms = S.rooms.concat(labRooms(new Set(S.rooms.map(r => r.n))));
     }
+    S.rooms.forEach(r => { if (!r.t) r.t = kindOf(r.n); });
     return S.rooms;
   }
-  let capTotal = 0, AV = [], CAP = [], BUSYI = {}, COLBY = 'dept';
+  // what the exams coordinator asked for each course: room type, number of rooms, proctors, notes
+  const REQ = c => (S.req || {})[c.code] || {};
+  const needLab = c => REQ(c).type === LAB;
+  let capTotal = 0, AV = [], CAP = [], CAPL = [], BUSYI = {}, BLK = [], COLBY = 'dept';
   const capOf = s => CAP[s] == null ? capTotal : CAP[s];
 
   // ---------- cost ----------
-  const W = { clash: 1000, softClash: 60, overDay: 45, sameDay: 4, backToBack: 12, ins: 150, seat: 80, spread: 0.08, early: 0.0005 };
+  const W = { blocked: 20000, clash: 1000, softClash: 60, overDay: 45, sameDay: 4, backToBack: 12, ins: 150, seat: 80, spread: 0.08, early: 0.0005 };
   const dayOf = s => Math.floor(s / P);
   function groupCost(g, sl) {
     const per = {}, day = {};
@@ -186,7 +208,9 @@
     return cost * g.w;
   }
   const seatF = (s, n) => { if (s < 0) return 0; const cap = capOf(s); return Math.max(0, n - cap) * W.seat + (cap ? n * n / cap * W.spread : n * W.spread); };
-  let WORK = null, SEAT = [];
+  let WORK = null, SEAT = [], SEATL = [];
+  const labF = (s, n) => s < 0 || !n ? 0 : Math.max(0, n - (CAPL[s] || 0)) * W.seat;
+  const labAt = (s, sl) => { if (s < 0) return 0; if (sl === WORK) return SEATL[s]; let n = 0; for (const c of C) if (sl[c.i] === s && needLab(c)) n += c.students; return n; };
   const seatsAt = (s, sl) => { if (s < 0) return 0; if (sl === WORK) return SEAT[s]; let n = 0; for (const c of C) if (sl[c.i] === s) n += c.students; return n; };
   const seatCost = (s, sl) => seatF(s, seatsAt(s, sl));
   function insCost(i, sl) {
@@ -198,12 +222,13 @@
   function local(i, sl) {
     let cost = 0;
     C[i].g.forEach(g => { cost += groupCost(G[g], sl); });
-    return cost + insCost(i, sl) * 2 + (sl[i] >= 0 && S.early !== false ? C[i].students * dayOf(sl[i]) * W.early : 0);
+    return cost + (sl[i] >= 0 && BLK[sl[i]] ? W.blocked : 0) + insCost(i, sl) * 2 + (sl[i] >= 0 && S.early !== false ? C[i].students * dayOf(sl[i]) * W.early : 0);
   }
   function delta(i, to, sl) {
     const from = sl[i]; if (from === to) return 0;
     const n = C[i].students, a = seatsAt(from, sl), b = seatsAt(to, sl);
-    const seatD = seatF(from, a - n) + seatF(to, b + n) - seatF(from, a) - seatF(to, b);
+    let seatD = seatF(from, a - n) + seatF(to, b + n) - seatF(from, a) - seatF(to, b);
+    if (needLab(C[i])) { const la = labAt(from, sl), lb = labAt(to, sl); seatD += labF(from, la - n) + labF(to, lb + n) - labF(from, la) - labF(to, lb); }
     const before = local(i, sl);
     sl[i] = to;
     const after = local(i, sl);
@@ -213,16 +238,16 @@
   function total(sl) {
     let cost = 0;
     G.forEach(g => { cost += groupCost(g, sl); });
-    for (let s = 0; s < NS; s++) cost += seatCost(s, sl);
-    C.forEach(c => { cost += insCost(c.i, sl) + (sl[c.i] >= 0 && S.early !== false ? c.students * dayOf(sl[c.i]) * W.early : 0); });
+    for (let s = 0; s < NS; s++) cost += seatCost(s, sl) + labF(s, labAt(s, sl));
+    C.forEach(c => { cost += (sl[c.i] >= 0 && BLK[sl[c.i]] ? W.blocked : 0) + insCost(c.i, sl) + (sl[c.i] >= 0 && S.early !== false ? c.students * dayOf(sl[c.i]) * W.early : 0); });
     return cost;
   }
 
   // ---------- solver ----------
   function solve(keep) {
     const sl = C.map(c => c.pin != null ? c.pin : keep && c.s >= 0 ? c.s : -1);
-    WORK = sl; SEAT = new Array(NS).fill(0); C.forEach(c => { if (sl[c.i] >= 0) SEAT[sl[c.i]] += c.students; });
-    const set = (i, s) => { if (sl[i] >= 0) SEAT[sl[i]] -= C[i].students; sl[i] = s; if (s >= 0) SEAT[s] += C[i].students; };
+    WORK = sl; SEAT = new Array(NS).fill(0); SEATL = new Array(NS).fill(0); C.forEach(c => { if (sl[c.i] >= 0) { SEAT[sl[c.i]] += c.students; if (needLab(c)) SEATL[sl[c.i]] += c.students; } });
+    const set = (i, s) => { const L = needLab(C[i]); if (sl[i] >= 0) { SEAT[sl[i]] -= C[i].students; if (L) SEATL[sl[i]] -= C[i].students; } sl[i] = s; if (s >= 0) { SEAT[s] += C[i].students; if (L) SEATL[s] += C[i].students; } };
     const free = C.filter(c => c.pin == null);
     const weight = c => c.g.reduce((a, g) => a + (G[g].hard ? G[g].w * G[g].c.length : 0), 0) * 10 + c.students;
     free.filter(c => sl[c.i] < 0).sort((a, b) => weight(b) - weight(a)).forEach(c => {
@@ -255,7 +280,7 @@
 
   // ---------- rooms & proctors ----------
   function seating() {
-    const out = {}, load = {}, unseated = [], short = [], dayLoad = {};
+    const out = {}, load = {}, unseated = [], short = [], dayLoad = {}, roomReq = [];
     const exempt = new Set((S.noProc || '').split(/\n/).map(x => x.trim()).filter(Boolean));
     const isEx = n => exempt.has(n) || exempt.has(U.shortName(n));
     const pool = [...new Set(Object.keys(INS).concat(S.extraProc.split(/\n/).map(x => x.trim()).filter(Boolean)))].filter(n => !isEx(n));
@@ -268,11 +293,14 @@
       out[s] = list.map(c => {
         // each section goes whole into the smallest free room it fits (or the room its course already uses, if there is
         // space), so a section stays together with its own instructor; only a section larger than every room is split
-        const got = [], parts = c.sl.length ? c.sl.slice().sort((a, b) => b.n - a.n) : [{ s: '', n: c.students, ins: '' }];
+        const got = [], parts = c.sl.length ? c.sl.slice().sort((a, b) => b.n - a.n) : [{ s: '', n: c.students, ins: '' }], q = REQ(c);
         let left = 0;
-        const put = (r, x, k) => { r.n += k; r.free -= k; r.secs.push(x.s ? x.s + (k < x.n ? ` (${k} من ${x.n})` : '') : ''); if (x.ins && !r.ins.includes(x.ins)) r.ins.push(x.ins); };
-        const open = cap => { const k = cap == null ? 0 : freeR.reduce((b, r, j) => r.c >= cap && (b < 0 || r.c < freeR[b].c) ? j : b, -1); if (k < 0 || !freeR.length) return null;
-          const r = freeR.splice(k, 1)[0], o = { room: r.n, n: 0, cap: r.c, free: r.c, proc: [], secs: [], ins: [] }; got.push(o); return o; };
+        const fits = r => !q.type || r.t === q.type;
+        const put = (r, x, k) => { r.n += k; r.free -= k; r.parts.push({ s: x.s, k }); r.secs.push(x.s ? x.s + (k < x.n ? ` (${k} من ${x.n})` : '') : ''); if (x.ins && !r.ins.includes(x.ins)) r.ins.push(x.ins); };
+        const open = (cap, lim) => { const k = freeR.reduce((b, r, j) => fits(r) && (cap == null ? b < 0 : r.c >= cap && (b < 0 || r.c < freeR[b].c)) ? j : b, -1); if (k < 0) return null;
+          const r = freeR.splice(k, 1)[0], o = { room: r.n, t: r.t, n: 0, cap: r.c, free: Math.min(r.c, lim || r.c), proc: [], secs: [], parts: [], ins: [] }; got.push(o); return o; };
+        // the coordinator asked for N rooms: spread the students evenly over N rooms of the asked type (e.g. 80 students → 4 × 20)
+        if (q.rooms > 1) { const per = Math.ceil(c.students / q.rooms); for (let k = 0; k < q.rooms; k++) if (!open(per, per) && !open(null, per)) break; }
         parts.forEach(x => {
           let rest = x.n;
           const share = got.filter(o => o.free >= rest).sort((a, b) => a.free - b.free)[0] || open(rest);
@@ -282,15 +310,16 @@
         });
         got.forEach(o => { o.secs = o.secs.filter(Boolean); });
         if (left > 0) unseated.push({ c, n: left, s });
+        if (q.rooms > 1 && got.length < q.rooms) roomReq.push({ c, s, want: q.rooms, got: got.length, type: q.type || 'قاعة أو مختبر' });
         return { c, rooms: got, left };
       });
       // proctors: the course's own instructors first, then whoever has proctored least
       // (an instructor whose own exam is now is kept for it; one teaching a lecture now is not available)
       const ownNow = new Set(); out[s].forEach(x => x.c.ins.forEach(n => { if (!busy.has(n) && !isEx(n)) ownNow.add(n); }));
       out[s].forEach(x => {
-        const used = new Set();
+        const used = new Set(), want = REQ(x.c).proc || 0;
         x.rooms.forEach(r => {
-          const need = Math.max(S.minProc || 1, Math.ceil(r.n / S.perProc));
+          const need = Math.max(S.minProc || 1, Math.ceil(r.n / S.perProc), want ? Math.ceil(want / Math.max(1, x.rooms.length)) : 0);
           const mine = (r.ins || []).concat(x.c.ins).filter(n => ownNow.has(n) && !used.has(n));
           while (r.proc.length < need) {
             let n = mine.shift();
@@ -303,7 +332,7 @@
         });
       });
     }
-    return { out, load, unseated, short };
+    return { out, load, unseated, short, roomReq };
   }
 
   // ---------- checks ----------
@@ -320,13 +349,14 @@
       const per = {}; ix.forEach(i => { if (sl[i] >= 0) (per[sl[i]] = per[sl[i]] || []).push(i); });
       Object.values(per).filter(v => v.length > 1).forEach(v => list.push({ k: 'ins', cs: v, txt: `${U.shortName(n)}: امتحانان لمقرريه في الفترة نفسها (${v.map(i => C[i].code).join('، ')})` }));
     });
+    C.forEach(c => { if (c.s >= 0 && BLK[c.s]) list.push({ k: 'blk', cs: [c.i], txt: `${c.code} في ${slotLabel(c.s)}: خارج وقت الامتحانات لهذا اليوم` }); });
     return list;
   }
   // every problem as one detailed, de-duplicated row: severity, type, when, which exams, who is affected, why, and a fix
   const KIND = {
     clash: ['حرج', 'تعارض طالب', 'bi-x-octagon-fill'], unseated: ['حرج', 'نقص مقاعد', 'bi-door-closed-fill'], ins: ['مرتفع', 'تعارض مدرّس', 'bi-person-x-fill'],
     short: ['مرتفع', 'نقص مراقبين', 'bi-person-dash-fill'], day: ['متوسط', 'ضغط يومي', 'bi-calendar-x-fill'], b2b: ['منخفض', 'امتحانان متتاليان', 'bi-arrow-left-right'],
-    soft: ['منخفض', 'تعارض محتمل', 'bi-question-circle-fill'] };
+    soft: ['منخفض', 'تعارض محتمل', 'bi-question-circle-fill'], blk: ['حرج', 'خارج وقت الامتحانات', 'bi-slash-circle-fill'], room: ['مرتفع', 'نوع القاعة', 'bi-pc-display'] };
   const SEV = { 'حرج': 0, 'مرتفع': 1, 'متوسط': 2, 'منخفض': 3 };
   function bestFix(cs) {
     const sl = SL(); let best = null;
@@ -343,17 +373,19 @@
     const slotOf = cs => [...new Set(cs.map(i => C[i].s))].map(slotLabel).join(' / ');
     const est = cs => Math.min(...cs.map(i => C[i].students));
     st.is.forEach(x => {
-      const exact = x.g && x.g.kind === 'students', n = x.k === 'ins' ? 0 : exact ? x.g.w : est(x.cs);
+      const exact = x.g && x.g.kind === 'students', n = x.k === 'ins' ? 0 : x.k === 'blk' ? C[x.cs[0]].students : exact ? x.g.w : est(x.cs);
       const who = x.k === 'ins' ? U.shortName(x.txt.split(':')[0]) : x.g ? (exact ? 'طلبة من كشف التسجيل' : x.g.name) : '';
       const why = {
         clash: 'امتحانان أو أكثر في الفترة نفسها لطلبة يدرسون المقررات معاً — لا يمكن للطالب حضورهما.',
         soft: 'المقرران من سنتين متتاليتين في التخصص نفسه؛ قد يجمعهما بعض الطلبة المتأخرين أو المتقدمين.',
         day: `أكثر من ${S.maxDay} امتحان في اليوم نفسه للفئة نفسها من الطلبة.`,
         b2b: 'امتحانان في فترتين متتاليتين من اليوم نفسه بلا استراحة.',
-        ins: 'المدرّس نفسه يدرّس المقررين وامتحاناهما في الوقت نفسه؛ لا يستطيع الحضور في القاعتين.' }[x.k];
+        ins: 'المدرّس نفسه يدرّس المقررين وامتحاناهما في الوقت نفسه؛ لا يستطيع الحضور في القاعتين.',
+        blk: 'الفترة خارج وقت الامتحانات المحدد لهذا اليوم في «الإعداد ← الفترات اليومية».' }[x.k];
       add(x.k, x.cs, x.k === 'day' || x.k === 'b2b' ? x.txt.replace(/^.*يوم /, '') : slotOf(x.cs), who, n, exact, why);
     });
     st.seat.unseated.forEach(u => add('unseated', [u.c.i], slotLabel(u.s), '', u.n, true, `لا تتسع القاعات المتاحة في هذه الفترة لكل الطلبة (${u.n} طالب بلا مقعد).`));
+    (st.seat.roomReq || []).forEach(u => add('room', [u.c.i], slotLabel(u.s), REQ(u.c).coord || '', u.c.students, true, `طُلب ${u.want} من نوع «${u.type}» ولم يتوفر في هذه الفترة إلا ${u.got}؛ انقل الامتحان إلى فترة فيها ${u.type === LAB ? 'مختبرات' : 'قاعات'} أكثر أو أضفها في «القاعات».`));
     st.seat.short.forEach(u => add('short', [u.c.i], slotLabel(u.s), 'القاعة ' + u.room, u.miss, true, `ينقص ${u.miss} مراقب في القاعة ${u.room}: كل المتاحين مشغولون أو بلغوا حدّ المراقبات.`));
     return Object.values(rows).map(r => ({ ...r, sev: KIND[r.k][0], fix: r.k === 'short' ? null : bestFix(r.cs) }))
       .sort((a, b) => SEV[a.sev] - SEV[b.sev] || a.when.localeCompare(b.when));
@@ -460,7 +492,8 @@
     return `${moveHint()}<div class="ex-grid-wrap"><table class="ex-grid"><thead><tr><th class="corner">اليوم</th>${S.periods.map((p, k) => `<th><span class="pn">الفترة ${k + 1}</span><small dir="ltr">${p[0]} – ${p[1]}</small></th>`).join('')}</tr></thead><tbody>
       ${DAYS.map((d, di) => `<tr><th class="day"><b>${esc(d.wd)}</b><small>${+d.iso.slice(8)}/${+d.iso.slice(5, 7)}</small></th>${S.periods.map((p, k) => {
         const s = di * P + k, all = C.filter(c => c.s === s), list = all.filter(match), seats = all.reduce((a, c) => a + c.students, 0), cap = capOf(s);
-        return `<td class="ex-cell ${cls(heat[s])}" data-s="${s}"><div class="cap ${seats > cap ? 'over' : seats > cap * 0.85 ? 'hi' : ''}" title="مقاعد مستخدمة / متاحة"><i class="bi bi-person-workspace"></i> ${seats}/${cap}${all.length ? ` · ${all.length} امتحان` : ''}</div>
+        if (BLK[s] && !all.length) return `<td class="ex-cell blk" data-s="${s}"><div class="blkt"><i class="bi bi-slash-circle"></i> خارج أوقات الامتحانات</div></td>`;
+        return `<td class="ex-cell ${cls(heat[s])}${BLK[s] ? ' blk' : ''}" data-s="${s}">${BLK[s] ? '<div class="blkt bad"><i class="bi bi-exclamation-octagon-fill"></i> خارج أوقات الامتحانات</div>' : ''}<div class="cap ${seats > cap ? 'over' : seats > cap * 0.85 ? 'hi' : ''}" title="مقاعد مستخدمة / متاحة"><i class="bi bi-person-workspace"></i> ${seats}/${cap}${all.length ? ` · ${all.length} امتحان` : ''}</div>
           ${list.map(c => card(c, PROB.has(c.i))).join('')}${all.length > list.length ? `<div class="more">+${all.length - list.length} خارج التصفية</div>` : ''}</td>`;
       }).join('')}</tr>`).join('')}</tbody></table></div>`;
   }
@@ -543,7 +576,7 @@
     rows.sort((a, b) => a.s - b.s || a.c.code.localeCompare(b.c.code));
     const d = r => DAYS[dayOf(r.s)], tm = r => `${S.periods[r.s % P][0]}–${S.periods[r.s % P][1]}`;
     const base = r => [d(r).wd, d(r).iso, tm(r), r.c.code, r.c.name];
-    const rm = r => r.rooms.map(x => `${x.room}: ${x.n} طالب${x.secs && x.secs.length && r.c.sl.length > 1 ? ' – شعبة ' + x.secs.join(' و') : ''}`).join(' ؛ ') + (r.left ? ` ؛ ${r.left} بلا قاعة` : '');
+    const rm = r => r.rooms.map(x => `${x.room}${x.t === LAB ? ' (مختبر)' : ''}: ${x.n} طالب${x.secs && x.secs.length && r.c.sl.length > 1 ? ' – شعبة ' + x.secs.join(' و') : ''}`).join(' ؛ ') + (r.left ? ` ؛ ${r.left} بلا قاعة` : '');
     const pr = r => [...new Set(r.rooms.flatMap(x => x.proc))].map(U.shortName).join('، ');
     const H = ['اليوم', 'التاريخ', 'الوقت', 'الرمز', 'المقرر'];
     const sec = (title, columns, list) => ({ title, columns, rows: list });
@@ -588,6 +621,13 @@
     return `<div class="ex-outbar"><div class="ex-views">${Object.entries(OUT).map(([k, t]) => `<button class="ex-vbtn${outView === k ? ' on' : ''}" data-ov="${k}"><i class="bi ${OUTIC[k]}"></i> ${t}</button>`).join('')}</div>
       <div class="ex-acts"><button class="btn btn-ex" id="ex-print"><i class="bi bi-printer-fill"></i> طباعة / PDF</button><button class="btn btn-success" id="ex-xlsx"><i class="bi bi-file-earmark-excel-fill"></i> Excel</button>
       <button class="btn btn-outline-secondary" id="ex-csv"><i class="bi bi-filetype-csv"></i> CSV</button></div></div>
+      <div class="ex-docs"><b><i class="bi bi-folder2-open"></i> كشوف ومستندات</b>
+        <button class="btn btn-outline-primary" id="ex-plists"><i class="bi bi-people-fill"></i> قوائم الطلبة لكل قاعة <small>QR</small></button>
+        <button class="btn btn-outline-primary" id="ex-psheets"><i class="bi bi-person-badge-fill"></i> كشف كل مراقب <small>QR</small></button>
+        <button class="btn btn-outline-primary" id="ex-prep"><i class="bi bi-clipboard-data-fill"></i> تقرير المراقبات</button>
+        <button class="btn btn-ex" id="ex-publish"><i class="bi bi-cloud-arrow-up-fill"></i> نشر الجدول للطلبة والشاشات</button>
+        <input type="file" id="ex-reg2" accept=".xls,.xlsx,.csv,.htm,.html" hidden>
+        <small class="text-muted">تأخذ التصفية الحالية (الكلية والقسم والبحث). ${REGMEM ? `أسماء الطلبة من ${esc(REGMEM.file)} (في هذه الصفحة فقط).` : 'قوائم الطلبة تحتاج كشف التسجيل؛ سيُطلب رفعه ولا يُحفظ.'}</small></div>
       ${filterBar()}
       <p class="ex-note"><i class="bi bi-info-circle-fill"></i> ${secs.length > 1 ? `${secs.length} جدولاً` : 'جدول واحد'} · ${n} صفاً — الطباعة والتصدير يأخذان العرض والتصفية الحاليين؛ في Excel كل جدول في ورقة.</p>
       ${secs.map(s => `${s.title ? `<h5 class="ex-h"><i class="bi ${OUTIC[outView]}"></i> ${esc(s.title)} <span class="ex-n">${s.rows.length}</span></h5>` : ''}<div class="table-responsive ex-tbl"><table class="table table-striped align-middle"><thead><tr>${s.columns.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead>
@@ -667,6 +707,123 @@
       XLSX.writeFile(wb, `${title()}_${OUT[outView]}.xlsx`.replace(/\s+/g, '_'));
     }).catch(e => { console.error(e); alert('تعذّر تحميل مكتبة Excel؛ تحقق من الاتصال.'); });
   }
+  // ---------- documents: student lists, proctor sheets, proctor report, publishing ----------
+  let WANT = null;
+  const SITE = location.origin + location.pathname.replace(/[^/]*$/, '');
+  const qrSvg = (url, cell) => { try { const q = window.qrcode(0, 'M'); q.addData(url); q.make(); return q.createSvgTag({ cellSize: cell || 3, margin: 0, scalable: true }); } catch (e) { return ''; } };
+  const dLong = iso => { const d = new Date(iso + 'T12:00:00Z'); return `${WD[d.getUTCDay()]} ${+iso.slice(8)}/${+iso.slice(5, 7)}/${iso.slice(0, 4)}`; };
+  const slotInfo = s => { const d = DAYS[dayOf(s)], p = S.periods[s % P]; return { d, p, date: dLong(d.iso), time: `${p[0]} – ${p[1]}` }; };
+  // printable A4 documents, each sheet on its own page, with the university header and a QR code
+  function printDocs(sheets, docTitle, orient) {
+    const css = `@page { size: A4 ${orient || 'portrait'}; margin: 11mm 11mm 13mm; }
+      * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; } body { margin: 0; font-family: Tajawal, 'Segoe UI', Tahoma, sans-serif; color: #1c2b31; font-size: 10.5pt; direction: rtl; }
+      .sh { break-after: page; } .sh:last-child { break-after: auto; }
+      .hd { display: flex; align-items: center; gap: 12px; border-bottom: 3px solid #901d23; padding-bottom: 8px; } .hd img { height: 52px; } .hd .t { flex: 1; } .hd small { color: #6b7a82; font-size: 8.5pt; display: block; }
+      .hd h1 { margin: 2px 0 0; font-size: 16pt; color: #091b22; } .hd h2 { margin: 2px 0 0; font-size: 10.5pt; color: #901d23; }
+      .qr { text-align: center; } .qr svg { width: 78px; height: 78px; display: block; margin: auto; } .qr span { display: block; font-size: 7pt; color: #901d23; font-weight: 700; margin-top: 2px; }
+      .info { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0; } .info div { border: 1px solid #e3dccb; border-top: 3px solid #091b22; border-radius: 7px; padding: 5px 8px; }
+      .info span { display: block; font-size: 8pt; color: #6b7a82; } .info b { font-size: 11pt; color: #091b22; } .info .w2 { grid-column: span 2; } .info .w4 { grid-column: span 4; }
+      table { width: 100%; border-collapse: collapse; } thead { display: table-header-group; } th { background: #091b22; color: #fff; font-size: 9pt; padding: 5px; border: 1px solid #091b22; }
+      td { border: 1px solid #d9dfe3; padding: 4px 6px; font-size: 9.5pt; height: 22px; } tbody tr:nth-child(even) td { background: #f7f9fa; } tr { break-inside: avoid; }
+      td.n { text-align: center; width: 30px; color: #6b7a82; } td.id { direction: ltr; text-align: center; font-variant-numeric: tabular-nums; width: 90px; } td.sg { width: 110px; } td.c { text-align: center; }
+      .band td { background: #f6e7e8 !important; color: #901d23; font-weight: 800; }
+      .sig { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; } .sig div { border-top: 1px dashed #9aa6ac; padding-top: 4px; font-size: 8.5pt; color: #4a5a62; text-align: center; }
+      .tot { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; } .tot span { background: #f6f3ec; border: 1px solid #e3dccb; border-radius: 999px; padding: 2px 10px; font-size: 8.5pt; }
+      .ft { margin-top: 8px; font-size: 7.5pt; color: #7a868c; display: flex; justify-content: space-between; }`;
+    const logo = SITE + 'assets/logo-print.png';
+    const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${esc(docTitle)}</title><style>${css}</style></head><body>${sheets.map(x => `<section class="sh">
+      <div class="hd"><img src="${logo}" alt=""><div class="t"><small>جامعة البترا · لجنة الامتحانات · ${esc(TT.term || '')}</small><h1>${esc(x.title)}</h1><h2>${esc(x.sub || '')}</h2></div>${x.qr ? `<div class="qr">${qrSvg(x.qr)}<span>${esc(x.qrLabel || 'امسح للتفاصيل')}</span></div>` : ''}</div>
+      ${x.info ? `<div class="info">${x.info.map(([l, v, w]) => `<div class="${w || ''}"><span>${esc(l)}</span><b>${esc(v)}</b></div>`).join('')}</div>` : ''}
+      ${x.body}<div class="ft"><span>${esc(title())} · ${S.approved ? 'معتمدة: ' + esc(S.approved) : 'مسودة'}</span><span>بوصلة البترا · أُعدّ ${new Date().toLocaleDateString('ar-JO-u-nu-latn')}</span></div></section>`).join('')}</body></html>`;
+    const f = document.createElement('iframe'); f.style.cssText = 'position:fixed;width:0;height:0;border:0;left:-9999px'; document.body.appendChild(f);
+    f.contentDocument.open(); f.contentDocument.write(html); f.contentDocument.close();
+    const go = () => { f.contentWindow.focus(); f.contentWindow.print(); setTimeout(() => f.remove(), 60000); };
+    const img = f.contentDocument.querySelector('img'); if (img && !img.complete) { img.onload = go; img.onerror = go; } else setTimeout(go, 200);
+  }
+  // who sits in which room: each room's share of each section, in name order
+  function roomStudents(c, rooms) {
+    const mine = (REGMEM && REGMEM.mine[c.code]) || {}, who = (REGMEM && REGMEM.who) || {};
+    const pool = {}; Object.entries(mine).forEach(([id, sec]) => (pool[sec] = pool[sec] || []).push(id));
+    const byName = (a, b) => (who[a] && who[a].name || '').localeCompare(who[b] && who[b].name || '', 'ar') || a.localeCompare(b);
+    Object.values(pool).forEach(v => v.sort(byName));
+    const anyLeft = () => Object.keys(pool).find(k => pool[k].length);
+    const res = rooms.map(r => { const ids = [];
+      (r.parts && r.parts.length ? r.parts : [{ s: '', k: r.n }]).forEach(x => { let k = x.k; const key = String(x.s || '');
+        while (k > 0) { const from = pool[key] && pool[key].length ? key : anyLeft(); if (from == null) break; ids.push(pool[from].shift()); k--; } });
+      return ids; });
+    const rest = Object.values(pool).flat(); if (rest.length && res.length) res[res.length - 1].push(...rest.sort(byName));
+    return res.map(ids => ids.map(id => ({ id, name: (who[id] && who[id].name) || '', major: (who[id] && who[id].major) || '', sec: mine[id] || '' })));
+  }
+  function printLists() {
+    if (!REGMEM) return alert('ارفع كشف التسجيل أولاً لطباعة قوائم الطلبة.');
+    const { out } = seating(), sheets = [];
+    for (let s = 0; s < NS; s++) (out[s] || []).filter(x => match(x.c)).sort((a, b) => a.c.code.localeCompare(b.c.code)).forEach(x => {
+      const lists = roomStudents(x.c, x.rooms), si = slotInfo(s);
+      x.rooms.forEach((r, k) => { const st = lists[k] || [];
+        sheets.push({ title: `كشف حضور امتحان: ${x.c.name}`, sub: `${TYPES[S.type].name} · ${x.c.dept}`, qr: SITE + 'myexams.html?c=' + encodeURIComponent(x.c.code), qrLabel: 'تفاصيل الامتحان للطلبة',
+          info: [['رمز المادة', x.c.code], ['التاريخ', si.date], ['الوقت', si.time], ['القاعة', r.room + (r.t === LAB ? ' (مختبر)' : '')], ['الشعب', r.secs.join('، ') || '—', 'w2'], ['عدد الطلبة في القاعة', `${st.length || r.n}`], ['القاعة ' + (k + 1) + ' من', String(x.rooms.length)],
+            ['المراقبون', r.proc.map(U.shortName).join('، ') || '—', 'w4']],
+          body: st.length ? `<table><thead><tr><th>#</th><th>رقم الطالب</th><th>اسم الطالب</th><th>التخصص</th><th>الشعبة</th><th>التوقيع</th><th>ملاحظات</th></tr></thead><tbody>${st.map((u, i) => `<tr><td class="n">${i + 1}</td><td class="id">${esc(u.id)}</td><td>${esc(u.name)}</td><td>${esc(u.major.replace(/\s*\/\s*البكالوريوس$/, ''))}</td><td class="c">${esc(u.sec)}</td><td class="sg"></td><td></td></tr>`).join('')}</tbody></table>
+            <div class="tot"><span>الحاضرون: ______</span><span>الغائبون: ______</span><span>المجموع: ${st.length}</span></div>
+            <div class="sig">${(r.proc.length ? r.proc : ['', '']).map(n => `<div>المراقب: ${esc(U.shortName(n))}<br>التوقيع</div>`).join('')}<div>منسق الامتحان<br>التوقيع</div></div>`
+            : '<p style="color:#8f1f1f">لا أسماء لهذا المقرر في كشف التسجيل المرفوع.</p>' });
+      });
+    });
+    if (!sheets.length) return alert('لا امتحانات مجدولة ضمن التصفية الحالية.');
+    printDocs(sheets, 'قوائم الطلبة – ' + title());
+  }
+  // proctors: each person's duties (their own course's exam, or proctoring), with the person's department
+  function duties() {
+    const { out, load } = seating(), by = {};
+    const deptOf = n => { const ix = INS[n] || []; const m = {}; ix.forEach(i => { m[C[i].dept] = (m[C[i].dept] || 0) + 1; }); const top = Object.entries(m).sort((a, b) => b[1] - a[1])[0]; return top ? top[0] : 'مراقب إضافي'; };
+    const facOf = n => { const ix = INS[n] || []; return ix.length ? C[ix[0]].fac : ''; };
+    for (let s = 0; s < NS; s++) (out[s] || []).forEach(x => x.rooms.forEach(r => r.proc.forEach(n => {
+      (by[n] = by[n] || { n, dept: deptOf(n), fac: facOf(n), list: [] }).list.push({ s, c: x.c, room: r.room + (r.t === LAB ? ' (مختبر)' : ''), n: r.n, own: x.c.ins.includes(n), with: r.proc.filter(o => o !== n) });
+    })));
+    const f = F();
+    return Object.values(by).filter(p => (!f.fac || p.fac === f.fac) && (!f.dept || p.dept === f.dept) && (!f.q || U.norm(p.n).includes(U.norm(f.q)) || p.list.some(d => match(d.c))))
+      .sort((a, b) => a.dept.localeCompare(b.dept, 'ar') || U.shortName(a.n).localeCompare(U.shortName(b.n), 'ar'));
+  }
+  function printProctors() {
+    const ps = duties(); if (!ps.length) return alert('لا مراقبين ضمن التصفية الحالية.');
+    printDocs(ps.map(p => { const L = p.list.sort((a, b) => a.s - b.s), days = new Set(L.map(d => dayOf(d.s))).size;
+      return { title: `كشف المراقبة: ${U.shortName(p.n)}`, sub: `${p.dept}${p.fac ? ' · ' + p.fac : ''}`, qr: SITE + 'myexams.html?ins=' + encodeURIComponent(p.n), qrLabel: 'مراقباتي على الهاتف',
+        info: [['عدد المهام', String(L.length)], ['امتحانات مقرراته', String(L.filter(d => d.own).length)], ['مراقبات أخرى', String(L.filter(d => !d.own).length)], ['عدد الأيام', String(days)]],
+        body: `<table><thead><tr><th>#</th><th>اليوم والتاريخ</th><th>الوقت</th><th>المقرر</th><th>القاعة</th><th>الطلبة</th><th>المهمة</th><th>مع</th></tr></thead><tbody>${L.map((d, i) => { const si = slotInfo(d.s);
+          return `<tr><td class="n">${i + 1}</td><td>${esc(si.date)}</td><td class="c" dir="ltr">${esc(si.time)}</td><td><b>${esc(d.c.code)}</b> ${esc(d.c.name)}</td><td class="c"><b>${esc(d.room)}</b></td><td class="c">${d.n}</td><td class="c">${d.own ? 'امتحان مقرره' : 'مراقبة'}</td><td>${esc(d.with.map(U.shortName).join('، '))}</td></tr>`; }).join('')}</tbody></table>
+          <div class="tot"><span>يُرجى الحضور إلى القاعة قبل موعد الامتحان بـ15 دقيقة واستلام الكشوف من المنسق.</span></div>
+          <div class="sig"><div>المراقب<br>التوقيع</div><div>رئيس القسم</div><div>لجنة الامتحانات</div></div>` }; }), 'كشوف المراقبين – ' + title(), 'landscape');
+  }
+  function procReport() {
+    const ps = duties(); if (!ps.length) return alert('لا مراقبين ضمن التصفية الحالية.');
+    const n = ps.map(p => p.list.length), avg = n.reduce((a, b) => a + b, 0) / n.length;
+    const byDept = {}; ps.forEach(p => { const o = byDept[p.dept] = byDept[p.dept] || { ppl: 0, d: 0 }; o.ppl++; o.d += p.list.length; });
+    window.printReport({ title: 'تقرير المراقبات – ' + title(), subtitle: TT.term, orientation: 'portrait', qr: false,
+      filters: [['الكلية', F().fac || 'الكل'], ['القسم', F().dept || 'الكل'], ['الحالة', S.approved ? 'معتمدة: ' + S.approved : 'مسودة']],
+      stats: [['مراقباً', ps.length], ['مهمة مراقبة', n.reduce((a, b) => a + b, 0)], ['المتوسط للشخص', avg.toFixed(1)], ['الأعلى', Math.max(...n)], ['الأقل', Math.min(...n)]],
+      sections: [{ title: 'حسب القسم', columns: ['القسم', 'المراقبون', 'المهام', 'المتوسط'], rows: Object.entries(byDept).sort((a, b) => a[0].localeCompare(b[0], 'ar')).map(([d, o]) => [d, o.ppl, o.d, (o.d / o.ppl).toFixed(1)]) },
+        { title: 'حسب المراقب', columns: ['المراقب', 'القسم', 'المهام', 'امتحانات مقرراته', 'مراقبات أخرى', 'الأيام', 'أكثر يوم'], rows: ps.map(p => { const per = {}; p.list.forEach(d => { const k = dayOf(d.s); per[k] = (per[k] || 0) + 1; });
+          return [U.shortName(p.n), p.dept, p.list.length, p.list.filter(d => d.own).length, p.list.filter(d => !d.own).length, Object.keys(per).length, Math.max(...Object.values(per))]; }) }],
+      note: 'العدالة: كلما اقترب «الأعلى» من «الأقل» كان التوزيع أعدل. يمكن تحديد حد للمراقبات في «الإعداد ← المراقبون».' });
+  }
+  // the approved timetable as one public file (data/exam_schedule.json): read by «امتحاناتي» and the building screens
+  function publish() {
+    const { out } = seating(), exams = [];
+    for (let s = 0; s < NS; s++) (out[s] || []).forEach(x => { const d = DAYS[dayOf(s)], p = S.periods[s % P];
+      exams.push({ code: x.c.code, name: x.c.name, dept: x.c.dept, fac: x.c.fac, date: d.iso, from: p[0], to: p[1], students: x.c.students, ins: x.c.ins,
+        rooms: x.rooms.map(r => ({ room: r.room, lab: r.t === LAB, n: r.n, secs: (r.parts || []).map(q => q.s).filter(Boolean).filter((v, i, a) => a.indexOf(v) === i), proc: r.proc })) }); });
+    if (!exams.length) return alert('ولّد الجدول أولاً.');
+    const doc = { title: title(), type: TYPES[S.type].name, term: TT.term || '', faculties: S.facs.length ? S.facs : ['كل الكليات'], approved: S.approved || null,
+      published: new Date().toISOString(), periods: S.periods, days: DAYS.map(d => d.iso), exams };
+    U.download('exam_schedule.json', JSON.stringify(doc), 'application/json');
+    U.modal('<i class="bi bi-cloud-arrow-up-fill"></i> نشر الجدول للطلبة والشاشات', `
+      ${S.approved ? '' : '<div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill"></i> هذه النسخة <b>مسودة</b>؛ يُفضّل اعتمادها من «الحفظ والاعتماد» قبل النشر.</div>'}
+      <p>نُزّل الملف <b>exam_schedule.json</b> (${exams.length} امتحاناً، بلا أسماء طلبة). لنشره:</p>
+      <ol><li>افتح مجلد <b>data</b> في مستودع الموقع على GitHub.</li><li>اسحب الملف إلى الصفحة ثم اضغط <b>Commit changes</b>.</li><li>بعد دقائق يظهر في صفحة <b>«امتحاناتي»</b> للطلبة وعلى <b>شاشات المباني</b>.</li></ol>
+      <div class="d-flex flex-wrap gap-2"><a class="btn btn-ex" href="https://github.com/marafah/uopstaff/upload/main/data" target="_blank" rel="noopener"><i class="bi bi-github"></i> فتح صفحة الرفع</a>
+      <a class="btn btn-outline-primary" href="myexams.html" target="_blank"><i class="bi bi-phone"></i> صفحة «امتحاناتي»</a><a class="btn btn-outline-primary" href="screen.html" target="_blank"><i class="bi bi-display"></i> شاشات المباني</a></div>
+      <p class="small text-muted mt-2">يُنشر في الملف: المقرر والموعد والقاعات والشعب والمراقبون. لا يُنشر أي رقم أو اسم طالب.</p>`);
+  }
   function doCSV() {
     const q = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`, lines = [];
     outData().forEach(s => { if (s.title) lines.push(q(s.title)); lines.push(s.columns.map(q).join(',')); s.rows.forEach(r => lines.push(r.map(q).join(','))); lines.push(''); });
@@ -711,17 +868,25 @@
         ${facs.map(x => `<label class="ex-chk${S.facs.includes(x) ? ' on' : ''}"><input type="checkbox" data-fac="${esc(x)}" ${S.facs.includes(x) ? 'checked' : ''}> ${esc(x)}</label>`).join('')}</div>
         <small>جدول واحد لعدة كليات يمنع تعارض المواد المشتركة (متطلبات الجامعة والمواد الخدمية).</small></div>`)}
     ${bx(2, 'bi-calendar-range-fill', '#0b4a66', 'التقويم', 'أيام الامتحانات والعطل', `
-      <div class="row2">${`<label class="ex-fld"><span>أول يوم امتحان</span><input type="date" class="form-control" data-k="start" value="${S.start}"></label>`}${num('days', 'عدد أيام الامتحانات', 1, 40)}</div>
+      <div class="row2"><label class="ex-fld"><span>أول يوم امتحان</span><input type="date" class="form-control" data-k="start" value="${S.start}"></label>
+        <label class="ex-fld"><span>آخر يوم امتحان <small>(اختياري)</small></span><input type="date" class="form-control" data-k="end" value="${S.end || ''}" min="${S.start}"><small>${S.end ? 'تُحسب الأيام من المدى بين التاريخين' : 'اتركه فارغاً لتحديد عدد الأيام'}</small></label></div>
+      ${S.end ? '' : `<div class="row2">${num('days', 'عدد أيام الامتحانات', 1, 40)}<span></span></div>`}
       <div class="ex-fld"><span>أيام الأسبوع بلا امتحانات</span><div class="ex-chipset">${WD.map((w, i) => i === 5 ? `<label class="ex-chk on lock" title="عطلة رسمية"><input type="checkbox" checked disabled> ${w} <small>عطلة رسمية</small></label>` : `<label class="ex-chk${S.off.includes(i) ? ' on' : ''}"><input type="checkbox" data-off="${i}" ${S.off.includes(i) ? 'checked' : ''}> ${w}</label>`).join('')}</div></div>
       <div class="ex-fld"><span>العطل الرسمية</span><div class="ex-add"><input type="date" class="form-control" id="ex-holin"><button class="btn btn-outline-primary" data-addhol><i class="bi bi-plus-lg"></i> إضافة عطلة</button></div>
         <div class="ex-chipset">${(S.hol.match(/\d{4}-\d{2}-\d{2}/g) || []).map(h => `<span class="ex-tagx">${h}<button data-delhol="${h}" aria-label="حذف"><i class="bi bi-x"></i></button></span>`).join('') || '<small>لا عطل.</small>'}</div></div>
       <div class="ex-fld"><span>أيام الامتحانات الناتجة <b class="bdg blue">${DAYS.length}</b></span><div class="ex-days">${DAYS.map(d => `<span>${esc(d.label)}</span>`).join('')}</div></div>`)}
     ${bx(3, 'bi-clock-fill', '#0f766e', 'الفترات اليومية', 'مواعيد الامتحانات في اليوم', `
-      <div class="ex-prow ex-nowin"><span class="bdg red"><i class="bi bi-moon-stars-fill"></i> آخر وقت</span><input type="time" class="form-control" data-k="lastEnd" value="${S.lastEnd || ''}"><small>لا تنتهي أي فترة امتحان بعد هذا الوقت (اتركه فارغاً لإلغاء القيد)</small></div>
-      ${S.periods.some(late) ? `<div class="alert alert-danger py-2 d-flex flex-wrap align-items-center gap-2"><i class="bi bi-exclamation-octagon-fill"></i> فترة أو أكثر تنتهي بعد ${S.lastEnd}.<button class="btn btn-sm btn-danger" data-fixno>حذف الفترات المتأخرة</button></div>` : ''}
+      <div class="ex-win"><div class="ex-win-h"><i class="bi bi-clock-history"></i> وقت الامتحانات اليومي</div>
+        <div class="ex-win-g"><label><span>تبدأ الامتحانات من</span><input type="time" class="form-control" data-k="firstStart" value="${S.firstStart || ''}"></label>
+          <label><span>وتنتهي قبل</span><input type="time" class="form-control" data-k="lastEnd" value="${S.lastEnd || ''}"></label></div>
+        <details ${Object.keys(S.dayWin || {}).length ? 'open' : ''}><summary>وقت مختلف لبعض الأيام (مثلاً الخميس حتى 13:00)</summary>
+          <div class="ex-win-d">${[0, 1, 2, 3, 4, 6].filter(i => !S.off.includes(i)).map(i => { const w = (S.dayWin || {})[i] || {};
+            return `<div class="r${w.from || w.to ? ' on' : ''}"><b>${WD[i]}</b><input type="time" class="form-control" data-dw="${i}" data-e="from" value="${w.from || ''}" title="من"><span>–</span><input type="time" class="form-control" data-dw="${i}" data-e="to" value="${w.to || ''}" title="إلى">${w.from || w.to ? `<button class="btn btn-sm btn-link" data-dwclr="${i}">مسح</button>` : '<small>كالعام</small>'}</div>`; }).join('')}</div></details>
+        <small class="d-block mt-1">فترة لا تقع داخل وقت اليوم تُعطَّل في ذلك اليوم فقط، ولا يضع النظام فيها امتحاناً.</small></div>
+      ${S.periods.some(late) ? `<div class="alert alert-danger py-2 d-flex flex-wrap align-items-center gap-2"><i class="bi bi-exclamation-octagon-fill"></i> فترة أو أكثر خارج وقت الامتحانات (${S.firstStart || '—'}–${S.lastEnd || '—'}).<button class="btn btn-sm btn-danger" data-fixno>حذف الفترات الخارجة</button></div>` : ''}
       <div class="ex-presets">${PRESETS.map(([t], k) => `<button class="btn btn-sm btn-outline-secondary" data-preset="${k}"><i class="bi bi-lightning-charge"></i> ${t}</button>`).join('')}</div>
       ${S.periods.map((p, k) => `<div class="ex-prow"><span class="bdg teal">الفترة ${k + 1}</span><input type="time" class="form-control" data-p="${k}" data-e="0" value="${p[0]}"><span>إلى</span><input type="time" class="form-control" data-p="${k}" data-e="1" value="${p[1]}">
-        <span class="bdg ${mins(p[0], p[1]) > 0 && !late(p) ? '' : 'red'}">${mins(p[0], p[1]) <= 0 ? 'وقت غير صحيح' : late(p) ? 'بعد ' + S.lastEnd : U.dur(mins(p[0], p[1]))}</span><button class="btn btn-sm btn-outline-danger" data-delp="${k}" ${P < 2 ? 'disabled' : ''} aria-label="حذف"><i class="bi bi-trash"></i></button></div>`).join('')}
+        <span class="bdg ${mins(p[0], p[1]) > 0 && !late(p) ? '' : 'red'}">${mins(p[0], p[1]) <= 0 ? 'وقت غير صحيح' : late(p) ? 'خارج وقت الامتحانات' : U.dur(mins(p[0], p[1]))}</span><button class="btn btn-sm btn-outline-danger" data-delp="${k}" ${P < 2 ? 'disabled' : ''} aria-label="حذف"><i class="bi bi-trash"></i></button></div>`).join('')}
       <button class="btn btn-outline-primary" data-addp><i class="bi bi-plus-lg"></i> إضافة فترة</button>`)}
     ${bx(4, 'bi-rulers', '#9a5b00', 'قواعد الجدولة', 'ما يمنعه النظام وما يحاول تجنّبه', `
       <div class="ex-rule hard"><i class="bi bi-shield-fill-check"></i> دائماً: لا يجتمع امتحانان لطالب في الفترة نفسها، ولا يتجاوز عدد الطلبة مقاعد القاعات.</div>
@@ -734,10 +899,12 @@
       <div class="ex-rule ${S.reg ? 'ok' : ''}">${S.reg ? `<i class="bi bi-check-circle-fill"></i> ${esc(S.regInfo)}${S.regN ? ` · <b>${C.filter(c => c.fromReg).length}</b> من ${C.length} مقرراً في نطاق الجدول أعدادها من الكشف${C.some(c => !c.fromReg) ? ' (البقية من الجدول الدراسي)' : ''}` : ''} <button class="btn btn-sm btn-link text-danger" data-clrreg>حذف الكشف</button>` : '<i class="bi bi-lock-fill"></i> لا يُحفظ رقم أي طالب: تُحفظ فقط مجموعات المواد وعدد طلبتها، على هذا الجهاز وحده.'}</div>`)}
     ${bx(6, 'bi-door-open-fill', '#15803d', 'القاعات', `${on.length} قاعة مفعّلة · ${capTotal} مقعد في الفترة`, `
       <div class="ex-acts mb-2"><button class="btn btn-sm btn-outline-primary" data-addr><i class="bi bi-plus-lg"></i> قاعة</button><button class="btn btn-sm btn-outline-secondary" data-allr="1">تفعيل الكل</button><button class="btn btn-sm btn-outline-secondary" data-allr="0">تعطيل الكل</button>
-        <button class="btn btn-sm btn-outline-secondary" data-scaler="1.1">السعة +10%</button><button class="btn btn-sm btn-outline-secondary" data-scaler="0.9">السعة −10%</button><button class="btn btn-sm btn-link" data-resetr>إعادة الاقتراح</button></div>
-      <div class="ex-rooms"><table class="table table-sm align-middle"><thead><tr><th>مفعّلة</th><th>القاعة</th><th>السعة الامتحانية</th><th></th></tr></thead><tbody>
-        ${R.map((r, k) => `<tr class="${r.on ? '' : 'off'}"><td><input type="checkbox" class="form-check-input" data-ron="${k}" ${r.on ? 'checked' : ''}></td><td><input class="form-control form-control-sm" data-rn="${k}" value="${esc(r.n)}"></td><td><input type="number" class="form-control form-control-sm" data-rc="${k}" value="${r.c}" min="1"></td><td><button class="btn btn-sm btn-outline-danger" data-delr="${k}" aria-label="حذف"><i class="bi bi-trash"></i></button></td></tr>`).join('')}</tbody></table></div>
-      <label class="ex-fld"><span>إضافة قاعات دفعة واحدة (سطر لكل قاعة: الاسم، السعة)</span><textarea class="form-control" rows="2" id="ex-bulkr" placeholder="B101, 40&#10;مختبر 3, 25"></textarea><button class="btn btn-sm btn-outline-primary mt-1" data-bulkr>إضافة</button></label>
+        <button class="btn btn-sm btn-outline-secondary" data-scaler="1.1">السعة +10%</button><button class="btn btn-sm btn-outline-secondary" data-scaler="0.9">السعة −10%</button><button class="btn btn-sm btn-outline-success" data-addlabs><i class="bi bi-pc-display"></i> إضافة مختبرات الكلية</button><button class="btn btn-sm btn-link" data-resetr>إعادة الاقتراح</button></div>
+      <div class="ex-chipset mb-2"><span class="bdg"><i class="bi bi-easel2"></i> ${on.filter(r => r.t !== LAB).length} قاعة · ${on.filter(r => r.t !== LAB).reduce((a, r) => a + r.c, 0)} مقعد</span><span class="bdg teal"><i class="bi bi-pc-display"></i> ${on.filter(r => r.t === LAB).length} مختبر · ${on.filter(r => r.t === LAB).reduce((a, r) => a + r.c, 0)} جهاز</span></div>
+      <div class="ex-rooms"><table class="table table-sm align-middle"><thead><tr><th>مفعّلة</th><th>القاعة</th><th>النوع</th><th>السعة الامتحانية</th><th></th></tr></thead><tbody>
+        ${R.map((r, k) => `<tr class="${r.on ? '' : 'off'}"><td><input type="checkbox" class="form-check-input" data-ron="${k}" ${r.on ? 'checked' : ''}></td><td><input class="form-control form-control-sm" data-rn="${k}" value="${esc(r.n)}"></td>
+          <td><select class="form-select form-select-sm ex-rt ${r.t === LAB ? 'lab' : ''}" data-rt="${k}"><option ${r.t !== LAB ? 'selected' : ''}>${HALL}</option><option ${r.t === LAB ? 'selected' : ''}>${LAB}</option></select></td><td><input type="number" class="form-control form-control-sm" data-rc="${k}" value="${r.c}" min="1"></td><td><button class="btn btn-sm btn-outline-danger" data-delr="${k}" aria-label="حذف"><i class="bi bi-trash"></i></button></td></tr>`).join('')}</tbody></table></div>
+      <label class="ex-fld"><span>إضافة قاعات دفعة واحدة (سطر لكل قاعة: الاسم، السعة)</span><textarea class="form-control" rows="2" id="ex-bulkr" placeholder="B101, 40&#10;مختبر 3, 25, مختبر"></textarea><button class="btn btn-sm btn-outline-primary mt-1" data-bulkr>إضافة</button></label>
       <small class="text-muted">السعة المقترحة ≈ 60% من أكبر شعبة دُرّست في القاعة (مقعد فارغ بين الطلبة).</small>`)}
     ${bx(7, 'bi-person-badge-fill', '#be185d', 'المراقبون', 'العدد والحدود والاستثناءات', `
       <div class="row2">${num('perProc', 'عدد الطلبة لكل مراقب', 10, 80)}${num('minProc', 'أقل عدد مراقبين في القاعة', 1, 5, '', 1)}</div>
@@ -746,11 +913,18 @@
       <label class="ex-fld"><span>معفَون من المراقبة (اسم في كل سطر، مثل العميد ورؤساء الأقسام)</span><textarea class="form-control" rows="2" data-k="noProc">${esc(S.noProc || '')}</textarea></label>
       <div class="ex-rule"><i class="bi bi-info-circle-fill"></i> مدرّس الشعبة يراقب قاعة شعبته أولاً، ثم يُوزَّع الباقون بالعدل حسب أقل عدد مراقبات.</div>`)}
     ${bx(8, 'bi-list-check', '#1d4ed8', 'المقررات', `${all.length - Object.keys(S.excl).filter(k => all.some(c => c.code === k)).length} من ${all.length} مقرراً لها امتحان`, `
+      <div class="ex-reqbar"><label class="btn btn-outline-primary mb-0"><i class="bi bi-file-earmark-arrow-up"></i> رفع قائمة متطلبات المقررات<input type="file" id="ex-req" accept=".xlsx,.xls,.csv" hidden></label>
+        <span class="small text-muted">ملف Excel بأعمدة: رمز المادة، المنسق، قاعة / مختبر، عدد القاعات أو المختبرات، ملاحظات (كالقائمة التي تُرسل لمنسق الامتحانات).</span>
+        ${Object.keys(S.req || {}).length ? `<span class="bdg green"><i class="bi bi-check2-circle"></i> ${Object.keys(S.req).length} مقرراً لها متطلبات</span><button class="btn btn-sm btn-link text-danger" data-clrreq>مسح المتطلبات</button>` : ''}</div>
       <div class="ex-add"><input class="form-control" data-f="cq" placeholder="ابحث في المقررات…" value="${esc(f.cq || '')}"><button class="btn btn-sm btn-outline-secondary" data-inclall="1">تضمين الكل</button><button class="btn btn-sm btn-outline-secondary" data-inclall="0">استبعاد الكل</button></div>
-      <div class="ex-rooms tall"><table class="table table-sm align-middle"><thead><tr><th>امتحان</th><th>الرمز</th><th>المقرر</th><th>القسم</th><th>الطلبة</th><th>الشعب</th><th>موعد ثابت</th></tr></thead><tbody>
+      <div class="ex-rooms tall"><table class="table table-sm align-middle"><thead><tr><th>امتحان</th><th>الرمز</th><th>المقرر</th><th>القسم</th><th>الطلبة</th><th>الشعب</th><th>نوع القاعة</th><th title="0 = حسب عدد الطلبة">عدد القاعات</th><th>مراقبون</th><th>ملاحظات المنسق</th><th>موعد ثابت</th></tr></thead><tbody>
         ${shown.map(c => `<tr class="${S.excl[c.code] ? 'off' : ''}"><td><input type="checkbox" class="form-check-input" data-incl="${esc(c.code)}" ${S.excl[c.code] ? '' : 'checked'}></td><td><b>${esc(c.code)}</b></td><td>${esc(c.name)}</td><td class="small">${esc(c.dept)}</td><td>${c.n}</td><td>${c.k}</td>
+          ${(q => `<td><select class="form-select form-select-sm ex-rt ${q.type === LAB ? 'lab' : q.type ? 'hall' : ''}" data-qt="${esc(c.code)}"><option value="">أي قاعة</option><option ${q.type === HALL ? 'selected' : ''}>${HALL}</option><option ${q.type === LAB ? 'selected' : ''}>${LAB}</option></select></td>
+          <td><input type="number" min="0" max="20" class="form-control form-control-sm ex-qn" data-qn="${esc(c.code)}" value="${q.rooms || ''}" placeholder="تلقائي"></td>
+          <td><input type="number" min="0" max="20" class="form-control form-control-sm ex-qn" data-qp="${esc(c.code)}" value="${q.proc || ''}" placeholder="تلقائي"></td>
+          <td><input class="form-control form-control-sm ex-qnote" data-qx="${esc(c.code)}" value="${esc(q.note || '')}" placeholder="${q.coord ? esc(q.coord) : ''}"></td>`)((S.req || {})[c.code] || {})}
           <td><select class="form-select form-select-sm" data-pinc="${esc(c.code)}" ${S.excl[c.code] ? 'disabled' : ''}><option value="">تلقائي</option>${slots.map(([s, l]) => `<option value="${s}" ${S.pins[c.code] === s ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></td></tr>`).join('')}</tbody></table></div>
-      <small class="text-muted">أزل علامة المقرر الذي لا امتحان له (مشروع، تدريب…). «موعد ثابت» يثبّت المقرر في موعد لا يغيّره التوليد.</small>`, true)}
+      <small class="text-muted">أزل علامة المقرر الذي لا امتحان له (مشروع، تدريب…). «نوع القاعة» و«عدد القاعات» كما يطلبها المدرّس أو المنسق: مثلاً 80 طالباً في 4 مختبرات = 20 في كل مختبر. «موعد ثابت» يثبّت المقرر في موعد لا يغيّره التوليد.</small>`, true)}
     </div>`;
     const sum = [`${TYPES[S.type].name} · ${facLabel()}`, `${nDays(DAYS.length)} من ${DAYS[0] ? DAYS[0].label : '—'}`, `${P} فترات يومياً`, `حتى ${S.maxDay} امتحان/يوم`,
       S.reg && S.src !== 'plans' ? 'كشف التسجيل' : 'الخطط الدراسية', `${on.length} قاعة · ${capTotal} مقعد`, `طالب/مراقب: ${S.perProc}`, `${C.length} من ${all.length} مقرراً`];
@@ -803,20 +977,23 @@
   // or any Excel / CSV sheet with a student-number column and a course-code column; it may cover a department, a faculty or the whole university
   function parseReport(text, known) {
     const toks = text.replace(/&nbsp;/g, ' ').split(/<[^>]+>/).map(x => x.trim()).filter(Boolean);
-    const by = {}, sec = {}, fac = {}, isNum = x => /^\d+$/.test(x);
+    const by = {}, sec = {}, fac = {}, who = {}, mine = {}, isNum = x => /^\d+$/.test(x);
     let stu = null;
     const val = i => { let j = i + 1; while (j < toks.length && toks[j] === ':') j++; return toks[j] || ''; };
     for (let i = 0; i < toks.length; i++) {
       const x = toks[i];
-      if (x === 'رقم الطالب') { stu = val(i); continue; }
+      if (x === 'إسم الطالب' || x === 'اسم الطالب') { const nm = val(i); let j = i + 1; while (j < toks.length && toks[j] !== 'رقم الطالب' && j < i + 6) j++; who[toks[j] === 'رقم الطالب' ? val(j) : '?'] = { name: nm }; continue; }
+      if (x === 'رقم الطالب') { stu = val(i); who[stu] = who[stu] || { name: '' }; continue; }
+      if (stu && /^التخص[ـ]*ص$/.test(x)) { who[stu].major = val(i); continue; }
       if (stu && /^الكل[ـ]*ية$/.test(x)) { fac[stu] = val(i); continue; }
       if (stu && /^\d{6,7}$/.test(x) && known.has(x) && x !== stu) {
         (by[stu] = by[stu] || new Set()).add(x);
         const h = toks[i + 2], sn = toks[i + 3], act = toks[i + 4];
-        if (isNum(h || '') && isNum(sn || '') && act === 'نظري') { const k = x; (sec[k] = sec[k] || {})[String(+sn)] = ((sec[k] || {})[String(+sn)] || 0) + 1; }
+        if (isNum(h || '') && isNum(sn || '') && act === 'نظري') { const k = x; (sec[k] = sec[k] || {})[String(+sn)] = ((sec[k] || {})[String(+sn)] || 0) + 1; ((mine[k] = mine[k] || {})[stu] = String(+sn)); }
+        else if (!(mine[x] && mine[x][stu])) (mine[x] = mine[x] || {})[stu] = '';
       }
     }
-    return { by, sec, fac };
+    return { by, sec, fac, who, mine };
   }
   function decode(buf) { try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (e) { return new TextDecoder('windows-1256').decode(buf); } }
   function readReg(file) {
@@ -835,9 +1012,10 @@
         for (let j = 0; j < w; j++) { if (j === codeCol) continue; const n = rows.slice(0, 300).filter(r => /^\d{6,10}$/.test(String(r[j] || '').trim())).length; if (n > best) { best = n; stuCol = j; } }
         if (stuCol < 0) stuCol = codeCol === 0 ? 1 : 0;
         const by = {}; rows.forEach(r => { const st = String(r[stuCol] || '').trim(), c = String(r[codeCol] || '').trim(); if (st && known.has(c)) (by[st] = by[st] || new Set()).add(c); });
-        return { by, sec: {}, fac: {} };
+        return { by, sec: {}, fac: {}, who: Object.fromEntries(Object.keys(by).map(k => [k, { name: '' }])), mine: Object.fromEntries([...new Set(Object.values(by).flatMap(x => [...x]))].map(c => [c, Object.fromEntries(Object.keys(by).filter(k => by[k].has(c)).map(k => [k, '']))])) };
       });
-    }).then(({ by, sec, fac }) => {
+    }).then(({ by, sec, fac, who, mine }) => {
+      REGMEM = who && mine && Object.keys(who).length ? { who, mine, file: file.name } : null;   // names stay in this page's memory only
       const studs = Object.keys(by); if (!studs.length) throw new Error('لم أجد طلبة ومقررات معروفة في الملف.');
       const agg = {}, n = {}; let pairs = 0;
       studs.forEach(st => { const set = by[st]; pairs += set.size; set.forEach(c => { n[c] = (n[c] || 0) + 1; }); if (set.size < 2) return; const k = [...set].sort().join(','); agg[k] = (agg[k] || 0) + 1; });
@@ -846,9 +1024,31 @@
       const facs = Object.entries(fc).sort((a, b) => b[1] - a[1]);
       S.regInfo = `${file.name}: ${studs.length.toLocaleString('ar')} طالباً، ${pairs.toLocaleString('ar')} تسجيلاً في ${Object.keys(n).length} مقرراً` + (facs.length ? ` · ${facs.length === 1 ? 'كلية ' + facs[0][0] : facs.length + ' كليات'}` : '');
       S.regAt = new Date().toISOString().slice(0, 10);
+      if (WANT === 'lists') { WANT = null; setTimeout(printLists, 300); }
       if (S.src === 'plans') S.src = 'both';
       rebuild();
     }).catch(e => { if (note) note.textContent = ''; alert('تعذّرت قراءة الكشف: ' + (e.message || e)); });
+  }
+  // the coordinator's list (one row per course): رمز المادة | اسم المادة | المنسق | قاعة / مختبر | عدد القاعات او المختبرات | ملاحظات
+  function readReq(file) {
+    file.arrayBuffer().then(buf => /\.(csv|txt)$/i.test(file.name) ? decode(buf).replace(/^﻿/, '').split(/\r?\n/).map(l => l.split(/[,;\t]/).map(v => v.replace(/^"|"$/g, '')))
+      : loadXLSX().then(() => { const wb = XLSX.read(buf, { type: 'array' }); return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false, defval: '' }); })).then(rows => {
+      const hi = rows.findIndex(r => r.some(v => /رمز/.test(String(v)))); if (hi < 0) throw new Error('لم أجد صف العناوين (عمود «رمز المادة»).');
+      const H = rows[hi].map(v => String(v || '').replace(/\s+/g, ' ').trim()), col = re => H.findIndex(h => re.test(h));
+      const jc = col(/رمز/), jo = col(/منسق|مدرس/), jt = col(/قاعة\s*\/\s*مختبر|نوع/), jn = col(/عدد/), jx = col(/ملاحظ/);
+      const req = S.req = S.req || {}; let n = 0;
+      rows.slice(hi + 1).forEach(r => {
+        const code = String(r[jc] || '').trim(); if (!/^\d{5,8}$/.test(code)) return;
+        const tt = String(jt >= 0 ? r[jt] : ''), nn = String(jn >= 0 ? r[jn] : ''), note = String(jx >= 0 ? r[jx] : '').trim();
+        const q = req[code] = req[code] || {};
+        q.type = /مختبر|محوسب/.test(tt + ' ' + note) ? LAB : /قاع|ورق/.test(tt + ' ' + note) ? HALL : q.type || '';
+        const m = nn.match(/\d+/); q.rooms = m ? +m[0] : /مختبرين|قاعتين/.test(nn + tt) ? 2 : 0;
+        const pm = note.match(/(\d+)\s*مراقب|مراقب\S*\s*(\d+)|زملاء\D*(\d+)/); if (pm) q.proc = +(pm[1] || pm[2] || pm[3]);
+        if (jo >= 0 && r[jo]) q.coord = String(r[jo]).trim(); q.note = note; n++;
+      });
+      if (!n) throw new Error('لا توجد صفوف برموز مواد.');
+      alert(`قُرئت متطلبات ${n} مقرراً من ${file.name}.`); rebuild();
+    }).catch(e => alert('تعذّرت قراءة الملف: ' + (e.message || e)));
   }
   function wire() {
     const app = $(APP);
@@ -869,6 +1069,7 @@
       if (t.hasAttribute('data-fclear')) { const cq = F().cq; S.flt = { cq }; save(); render(); return; }
       if (t.id === 'ex-solve') { push(); busy(() => solve(false)); return; }
       if (t.id === 'ex-improve') { push(); busy(() => solve(true)); return; }
+      if (t.dataset.dwclr != null) { delete S.dayWin[t.dataset.dwclr]; rebuild(); return; }
       if (t.id === 'ex-clear') { const np = Object.keys(S.pins).length;
         if (!confirm('حذف الجدول المولَّد؟ ستعود كل الامتحانات غير مجدولة' + (np ? ` (ومعها ${np} امتحاناً مثبّتاً)` : '') + '. يمكنك التراجع عن الحذف بزر «تراجع».')) return;
         push(); S.slot = {}; S.pins = {}; S.approved = null; rebuild(); return; }
@@ -880,6 +1081,10 @@
       if (t.id === 'ex-rprint' || t.id === 'ex-rxlsx') return repExport(t.id === 'ex-rxlsx');
       if (t.id === 'ex-xlsx') return doXLSX();
       if (t.id === 'ex-csv') return doCSV();
+      if (t.id === 'ex-plists') { if (!REGMEM) { WANT = 'lists'; $('#ex-reg2').click(); } else printLists(); return; }
+      if (t.id === 'ex-psheets') return printProctors();
+      if (t.id === 'ex-prep') return procReport();
+      if (t.id === 'ex-publish') return publish();
       if (t.dataset.go != null) { tab = 'grid'; S.gview = 'matrix'; sel = +t.dataset.go; render(); const el = app.querySelector(`.ex-card[data-c="${sel}"]`); if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
       if (t.dataset.c != null && tab === 'grid') {
         const i = +t.dataset.c, cell = t.closest('.ex-cell');
@@ -899,9 +1104,11 @@
       if (t.dataset.delr != null) { rooms().splice(+t.dataset.delr, 1); rebuild(); return; }
       if (t.dataset.allr != null) { rooms().forEach(r => { r.on = t.dataset.allr === '1'; }); rebuild(); return; }
       if (t.dataset.scaler) { rooms().forEach(r => { r.c = Math.max(1, Math.round(r.c * +t.dataset.scaler)); }); rebuild(); return; }
-      if (t.hasAttribute('data-bulkr')) { $('#ex-bulkr').value.split('\n').forEach(l => { const [n, c] = l.split(/[,،\t;]/).map(x => x.trim()); if (n) rooms().push({ n, c: Math.max(1, +c || 30), on: true }); }); rebuild(); return; }
+      if (t.hasAttribute('data-bulkr')) { $('#ex-bulkr').value.split('\n').forEach(l => { const [n, c] = l.split(/[,،\t;]/).map(x => x.trim()); if (n) rooms().push({ n, c: Math.max(1, +c || 30), on: true, t: /مختبر|lab/i.test(l) ? LAB : HALL }); }); rebuild(); return; }
       if (t.hasAttribute('data-resetr')) { S.rooms = null; rebuild(); return; }
+      if (t.hasAttribute('data-addlabs')) { const add = labRooms(new Set(rooms().map(r => r.n))); if (!add.length) alert('كل مختبرات الكلية موجودة في القائمة.'); else { S.rooms = rooms().concat(add); rebuild(); } return; }
       if (t.dataset.inclall != null) { const on = t.dataset.inclall === '1'; TT.sections.filter(s => inFac(s.faculty)).forEach(s => { if (on) delete S.excl[s.code]; else S.excl[s.code] = 1; }); rebuild(); return; }
+      if (t.hasAttribute('data-clrreq')) { if (confirm('مسح متطلبات كل المقررات؟')) { S.req = {}; rebuild(); } return; }
       if (t.hasAttribute('data-clrreg')) { S.reg = null; S.regN = null; S.regSec = null; S.regInfo = ''; S.src = 'plans'; rebuild(); return; }
       if (t.id === 'ex-dsave') { const n = ($('#ex-dname').value || '').trim() || `نسخة ${S.drafts.length + 1}`; S.drafts.unshift({ name: n, at: new Date().toLocaleString('ar-JO'), n: C.length, slot: { ...S.slot }, pins: { ...S.pins } }); save(); render(); return; }
       if (t.dataset.dload != null) { const d = S.drafts[+t.dataset.dload]; push(); S.slot = { ...d.slot }; S.pins = { ...d.pins }; tab = 'grid'; rebuild(); return; }
@@ -920,13 +1127,21 @@
       if (t.dataset.pinc) { const v = t.value; if (v === '') delete S.pins[t.dataset.pinc]; else { S.pins[t.dataset.pinc] = +v; S.slot[t.dataset.pinc] = +v; } rebuild(); return; }
       if (k) { S[k] = t.type === 'checkbox' ? t.checked : t.type === 'number' ? Math.max(+t.min || 0, +t.value || 0) : t.value; rebuild(); return; }
       if (t.dataset.off != null) { const i = +t.dataset.off; S.off = t.checked ? S.off.concat(i) : S.off.filter(x => x !== i); rebuild(); return; }
+      if (t.dataset.dw != null) { const w = S.dayWin[t.dataset.dw] = S.dayWin[t.dataset.dw] || {}; w[t.dataset.e] = t.value; if (!w.from && !w.to) delete S.dayWin[t.dataset.dw]; rebuild(); return; }
       if (t.dataset.p != null) { S.periods[+t.dataset.p][+t.dataset.e] = t.value; rebuild(); return; }
       if (t.dataset.src) { S.src = t.dataset.src; rebuild(); return; }
       if (t.dataset.ron != null) { rooms()[+t.dataset.ron].on = t.checked; rebuild(); return; }
       if (t.dataset.rn != null) { rooms()[+t.dataset.rn].n = t.value.trim(); rebuild(); return; }
+      if (t.dataset.qt != null || t.dataset.qn != null || t.dataset.qp != null || t.dataset.qx != null) {
+        const code = t.dataset.qt ?? t.dataset.qn ?? t.dataset.qp ?? t.dataset.qx, q = (S.req = S.req || {})[code] = (S.req || {})[code] || {};
+        if (t.dataset.qt != null) q.type = t.value; else if (t.dataset.qn != null) q.rooms = Math.max(0, +t.value || 0); else if (t.dataset.qp != null) q.proc = Math.max(0, +t.value || 0); else q.note = t.value.trim();
+        if (!q.type && !q.rooms && !q.proc && !q.note && !q.coord) delete S.req[code]; rebuild(); return; }
+      if (t.dataset.rt != null) { rooms()[+t.dataset.rt].t = t.value; rebuild(); return; }
       if (t.dataset.rc != null) { rooms()[+t.dataset.rc].c = Math.max(1, +t.value || 1); rebuild(); return; }
       if (t.dataset.incl) { if (t.checked) delete S.excl[t.dataset.incl]; else S.excl[t.dataset.incl] = 1; rebuild(); return; }
       if (t.id === 'ex-reg' && t.files[0]) { readReg(t.files[0]); return; }
+      if (t.id === 'ex-reg2' && t.files[0]) { readReg(t.files[0]); t.value = ''; return; }
+      if (t.id === 'ex-req' && t.files[0]) { readReq(t.files[0]); t.value = ''; return; }
       if (t.id === 'ex-import' && t.files[0]) { t.files[0].text().then(x => { const o = JSON.parse(x); if (!o.type || !o.periods) throw 0; S = o; migrate(); tab = 'grid'; rebuild(); }).catch(() => alert('الملف ليس خطة امتحانات صالحة.')); }
     });
     // drag and drop (mouse); touch uses tap-then-tap
@@ -1093,7 +1308,17 @@
   .ex-days { display: flex; flex-wrap: wrap; gap: .3rem; } .ex-days span { background: #eef4f8; color: #0b4a66; border-radius: 8px; padding: .1rem .5rem; font-size: .85rem; font-weight: 600; }
   .ex-presets { display: flex; flex-wrap: wrap; gap: .35rem; }
   .ex-prow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr) auto; gap: .4rem; align-items: center; } .ex-prow .form-control { min-width: 0; padding-inline: .4rem; } .ex-prow .bdg:not(.teal) { grid-column: 2 / 5; justify-self: start; } .ex-prow > .btn { grid-row: 1; grid-column: 5; }
-  .ex-prow.ex-nowin { grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr); background: #fdf1f1; border: 1px solid #f3c9c9; border-radius: 10px; padding: .45rem .55rem; margin-bottom: .6rem; } .ex-prow.ex-nowin .bdg { grid-column: auto; } .ex-nowin small { grid-column: 3 / -1; color: #7a2a2a; } .ex-prow.ex-nowin { grid-template-columns: auto minmax(0, 10rem) 1fr; } .ex-chk.lock { cursor: not-allowed; opacity: .9; } .ex-chk.lock small { font-size: .75rem; opacity: .85; }
+  .ex-prow.ex-nowin { grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr); background: #fdf1f1; border: 1px solid #f3c9c9; border-radius: 10px; padding: .45rem .55rem; margin-bottom: .6rem; } .ex-prow.ex-nowin .bdg { grid-column: auto; } .ex-nowin small { grid-column: 3 / -1; color: #7a2a2a; } .ex-prow.ex-nowin { grid-template-columns: auto minmax(0, 10rem) 1fr; } .ex-chk.lock { cursor: not-allowed; opacity: .9; }
+  .ex-docs { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; background: #fbf7ef; border: 1px solid #ecdcbc; border-radius: 12px; padding: .55rem .7rem; margin-bottom: .6rem; }
+  .ex-docs > b { color: #7a4b00; margin-inline-end: .3rem; } .ex-docs small { flex-basis: 100%; } .ex-docs .btn small { font-size: .7rem; background: #fff3; border: 1px solid currentColor; border-radius: 4px; padding: 0 .25rem; margin-inline-start: .2rem; }
+  .ex-reqbar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; background: #f2f6fb; border: 1px dashed #9db4d0; border-radius: 10px; padding: .5rem .65rem; margin-bottom: .6rem; }
+  .ex-rt { min-width: 6.5rem; } .ex-rt.lab { background-color: #e6f6f4; border-color: #0f766e; color: #0f766e; font-weight: 700; } .ex-rt.hall { background-color: #eef2ff; border-color: #4f46e5; color: #3730a3; font-weight: 700; }
+  .ex-qn { width: 4.6rem; } .ex-qnote { min-width: 9rem; }
+  .ex-win { border: 1px solid #f3c9c9; background: #fdf6f6; border-radius: 12px; padding: .6rem .75rem; margin-bottom: .7rem; } .ex-win-h { font-weight: 800; color: #901d23; margin-bottom: .4rem; }
+  .ex-win-g { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; } .ex-win-g label span { display: block; font-size: .9rem; font-weight: 700; margin-bottom: .15rem; }
+  .ex-win details { margin-top: .5rem; } .ex-win summary { cursor: pointer; font-weight: 700; color: #0b4a66; }
+  .ex-win-d { display: grid; gap: .3rem; margin-top: .4rem; } .ex-win-d .r { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) auto minmax(0, 1fr) 4rem; gap: .35rem; align-items: center; } .ex-win-d .r.on b { color: #901d23; } .ex-win-d small { color: #6b7a82; }
+  .ex-cell.blk { background: repeating-linear-gradient(135deg, #f4f5f7 0 8px, #eceef1 8px 16px) !important; } .blkt { font-size: .8rem; color: #6b7a82; text-align: center; padding: .4rem 0; } .blkt.bad { color: #b42318; font-weight: 700; } .ex-chk.lock small { font-size: .75rem; opacity: .85; }
   .ex-sw { display: grid; grid-template-columns: auto 1fr; gap: .6rem; align-items: center; margin: 0; cursor: pointer; } .ex-sw input { display: none; }
   .ex-sw .tg { width: 44px; height: 24px; border-radius: 999px; background: #cbd5da; position: relative; transition: .2s; } .ex-sw .tg::after { content: ''; position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
   .ex-sw input:checked + .tg { background: #15803d; } .ex-sw input:checked + .tg::after { right: 23px; } .ex-sw b { display: block; font-size: .95rem; } .ex-sw small { display: block; color: #5b6b72; font-size: .84rem; }
