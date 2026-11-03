@@ -43,9 +43,9 @@
   // ---------- state ----------
   const KEY = 'ex-plan-v1';
   const TYPES = {
-    final: { name: 'الامتحانات النهائية', periods: [['09:00', '11:00'], ['11:30', '13:30'], ['14:00', '16:00']], days: 12 },
+    final: { name: 'الامتحانات النهائية', periods: [['08:00', '10:00'], ['10:30', '12:30'], ['13:00', '15:00']], days: 12 },
     mid1: { name: 'الامتحان الأول', periods: [['09:00', '10:00'], ['10:30', '11:30'], ['12:00', '13:00'], ['13:30', '14:30']], days: 6 },
-    midterm: { name: 'امتحان منتصف الفصل', periods: [['09:00', '10:30'], ['11:00', '12:30'], ['13:00', '14:30'], ['15:00', '16:30']], days: 6 },
+    midterm: { name: 'امتحان منتصف الفصل', periods: [['08:00', '09:30'], ['09:45', '11:15'], ['11:30', '13:00'], ['13:15', '14:45']], days: 6 },
     mid2: { name: 'الامتحان الثاني', periods: [['09:00', '10:00'], ['10:30', '11:30'], ['12:00', '13:00'], ['13:30', '14:30']], days: 6 },
     makeup: { name: 'الامتحانات التكميلية / المؤجلة', periods: [['10:00', '12:00'], ['12:30', '14:30']], days: 3 },
   };
@@ -53,13 +53,17 @@
   const today = () => new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10);
   function fresh(type) {
     const t = TYPES[type || 'final'];
-    return { type: type || 'final', start: today(), days: t.days, off: [5, 6], hol: '', periods: t.periods.map(p => p.slice()), maxDay: 2, perProc: 30, minProc: 1, maxDuty: 0, maxDutyDay: 2, busy: type === 'mid1' || type === 'mid2' || type === 'midterm', b2b: true, near: true, insClash: true, early: true, depth: 'normal', noProc: '', label: '', gview: 'matrix', setupDone: false,
+    return { type: type || 'final', start: today(), days: t.days, off: [5, 6], hol: '', noFrom: '15:00', noTo: '16:00', periods: t.periods.map(p => p.slice()), maxDay: 2, perProc: 30, minProc: 1, maxDuty: 0, maxDutyDay: 2, busy: type === 'mid1' || type === 'mid2' || type === 'midterm', b2b: true, near: true, insClash: true, early: true, depth: 'normal', noProc: '', label: '', gview: 'matrix', setupDone: false,
       faculty: 'تكنولوجيا المعلومات', facs: ['تكنولوجيا المعلومات'], flt: {}, practical: false, grad: true, src: 'plans', rooms: null, excl: {}, pins: {}, slot: {}, reg: null, regInfo: '', extraProc: '', drafts: [], approved: null };
   }
   let S;
   try { S = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { S = null; }
   if (!S || !S.type) S = fresh();
-  const migrate = () => { if (!Array.isArray(S.facs)) S.facs = S.faculty ? [S.faculty] : []; if (!S.flt) S.flt = {}; };
+  const OLDP = { final: '09:00-11:00,11:30-13:30,14:00-16:00', midterm: '09:00-10:30,11:00-12:30,13:00-14:30,15:00-16:30' };
+  const migrate = () => { if (!Array.isArray(S.facs)) S.facs = S.faculty ? [S.faculty] : []; if (!S.flt) S.flt = {}; if (!Array.isArray(S.off)) S.off = [5, 6];
+    if (S.noFrom == null) { S.noFrom = '15:00'; S.noTo = '16:00'; if (OLDP[S.type] && S.periods.map(p => p.join('-')).join(',') === OLDP[S.type]) { S.periods = TYPES[S.type].periods.map(p => p.slice()); S.slot = {}; S.pins = {}; } } };
+  // a period that overlaps the hour with no exams (default 15:00–16:00)
+  const inNo = p => S.noFrom && S.noTo && U.toMin(p[0]) < U.toMin(S.noTo) && U.toMin(p[1]) > U.toMin(S.noFrom);
   migrate();
   const inFac = f => !S.facs.length || S.facs.includes(f);
   const facLabel = () => !S.facs.length ? 'كل الكليات' : S.facs.length === 1 ? S.facs[0] : S.facs.length + ' كليات';
@@ -631,8 +635,8 @@
   const sw = (k, label, help) => `<label class="ex-sw"><input type="checkbox" data-k="${k}" ${(['b2b', 'near', 'insClash', 'early'].includes(k) ? S[k] !== false : !!S[k]) ? 'checked' : ''}><span class="tg"></span><span><b>${label}</b>${help ? `<small>${help}</small>` : ''}</span></label>`;
   const num = (k, label, min, max, help, def) => `<label class="ex-fld"><span>${label}</span><input type="number" class="form-control" data-k="${k}" min="${min}" max="${max}" value="${S[k] ?? def}">${help ? `<small>${help}</small>` : ''}</label>`;
   const box = (n, ic, color, t, sub, body, wide) => `<section class="ex-box${wide ? ' wide' : ''}" style="--a:${color}"><header><span class="bn">${n}</span><i class="bi ${ic}"></i><div><h4>${t}</h4><small>${sub}</small></div></header><div class="bb">${body}</div></section>`;
-  const PRESETS = [['3 فترات × ساعتان', [['09:00', '11:00'], ['11:30', '13:30'], ['14:00', '16:00']]], ['4 فترات × ساعة', [['09:00', '10:00'], ['10:30', '11:30'], ['12:00', '13:00'], ['13:30', '14:30']]],
-    ['فترتان × ساعتان', [['10:00', '12:00'], ['12:30', '14:30']]], ['4 فترات × ساعة ونصف', [['08:30', '10:00'], ['10:30', '12:00'], ['12:30', '14:00'], ['14:30', '16:00']]]];
+  const PRESETS = [['3 فترات × ساعتان', [['08:00', '10:00'], ['10:30', '12:30'], ['13:00', '15:00']]], ['4 فترات × ساعة', [['09:00', '10:00'], ['10:30', '11:30'], ['12:00', '13:00'], ['13:30', '14:30']]],
+    ['فترتان × ساعتان', [['10:00', '12:00'], ['12:30', '14:30']]], ['4 فترات × ساعة ونصف', [['08:00', '09:30'], ['09:45', '11:15'], ['11:30', '13:00'], ['13:15', '14:45']]]];
   const mins = (a, b) => U.toMin(b) - U.toMin(a);
   function setView() {
     const facs = [...new Set(TT.sections.map(s => s.faculty))].sort();
@@ -658,9 +662,11 @@
         <div class="ex-chipset">${(S.hol.match(/\d{4}-\d{2}-\d{2}/g) || []).map(h => `<span class="ex-tagx">${h}<button data-delhol="${h}" aria-label="حذف"><i class="bi bi-x"></i></button></span>`).join('') || '<small>لا عطل.</small>'}</div></div>
       <div class="ex-fld"><span>أيام الامتحانات الناتجة <b class="bdg blue">${DAYS.length}</b></span><div class="ex-days">${DAYS.map(d => `<span>${esc(d.label)}</span>`).join('')}</div></div>`)}
     ${bx(3, 'bi-clock-fill', '#0f766e', 'الفترات اليومية', 'مواعيد الامتحانات في اليوم', `
+      <div class="ex-prow ex-nowin"><span class="bdg red"><i class="bi bi-slash-circle"></i> بلا امتحانات</span><input type="time" class="form-control" data-k="noFrom" value="${S.noFrom || ''}"><span>إلى</span><input type="time" class="form-control" data-k="noTo" value="${S.noTo || ''}"><small>لا تُعقد امتحانات في هذا الوقت (اتركه فارغاً للإلغاء)</small></div>
+      ${S.periods.some(inNo) ? `<div class="alert alert-danger py-2 d-flex flex-wrap align-items-center gap-2"><i class="bi bi-exclamation-octagon-fill"></i> فترة أو أكثر تقع في وقت «بلا امتحانات» (${S.noFrom}–${S.noTo}).<button class="btn btn-sm btn-danger" data-fixno>نقلها بعد ${S.noTo}</button></div>` : ''}
       <div class="ex-presets">${PRESETS.map(([t], k) => `<button class="btn btn-sm btn-outline-secondary" data-preset="${k}"><i class="bi bi-lightning-charge"></i> ${t}</button>`).join('')}</div>
       ${S.periods.map((p, k) => `<div class="ex-prow"><span class="bdg teal">الفترة ${k + 1}</span><input type="time" class="form-control" data-p="${k}" data-e="0" value="${p[0]}"><span>إلى</span><input type="time" class="form-control" data-p="${k}" data-e="1" value="${p[1]}">
-        <span class="bdg ${mins(p[0], p[1]) > 0 ? '' : 'red'}">${mins(p[0], p[1]) > 0 ? U.dur(mins(p[0], p[1])) : 'وقت غير صحيح'}</span><button class="btn btn-sm btn-outline-danger" data-delp="${k}" ${P < 2 ? 'disabled' : ''} aria-label="حذف"><i class="bi bi-trash"></i></button></div>`).join('')}
+        <span class="bdg ${mins(p[0], p[1]) > 0 && !inNo(p) ? '' : 'red'}">${mins(p[0], p[1]) <= 0 ? 'وقت غير صحيح' : inNo(p) ? 'في وقت بلا امتحانات' : U.dur(mins(p[0], p[1]))}</span><button class="btn btn-sm btn-outline-danger" data-delp="${k}" ${P < 2 ? 'disabled' : ''} aria-label="حذف"><i class="bi bi-trash"></i></button></div>`).join('')}
       <button class="btn btn-outline-primary" data-addp><i class="bi bi-plus-lg"></i> إضافة فترة</button>`)}
     ${bx(4, 'bi-rulers', '#9a5b00', 'قواعد الجدولة', 'ما يمنعه النظام وما يحاول تجنّبه', `
       <div class="ex-rule hard"><i class="bi bi-shield-fill-check"></i> دائماً: لا يجتمع امتحانان لطالب في الفترة نفسها، ولا يتجاوز عدد الطلبة مقاعد القاعات.</div>
@@ -791,7 +797,8 @@
       if (t.classList.contains('ex-cell') && sel != null) { move(sel, +t.dataset.s); return; }
       if (t.dataset.pin != null) { const c = C[+t.dataset.pin]; push(); if (c.pin != null) { c.pin = null; delete S.pins[c.code]; } else { c.pin = c.s; S.pins[c.code] = c.s; } save(); render(); return; }
       if (t.hasAttribute('data-unsel')) { sel = null; render(); return; }
-      if (t.hasAttribute('data-addp')) { const l = S.periods[P - 1] || ['09:00', '11:00'], m = U.toMin(l[1]) + 30, d = P ? mins(l[0], l[1]) : 120; S.periods.push([U.toTime(m), U.toTime(m + d)]); rebuild(); return; }
+      if (t.hasAttribute('data-addp')) { const l = S.periods[P - 1] || ['09:00', '11:00'], d = P ? mins(l[0], l[1]) : 120; let m = U.toMin(l[1]) + 30; if (inNo([U.toTime(m), U.toTime(m + d)])) m = U.toMin(S.noTo); S.periods.push([U.toTime(m), U.toTime(m + d)]); rebuild(); return; }
+      if (t.hasAttribute('data-fixno')) { const e = U.toMin(S.noTo); let m = e; S.periods = S.periods.map(p => { if (!inNo(p)) return p; const d = mins(p[0], p[1]), q = [U.toTime(m), U.toTime(m + d)]; m += d + 30; return q; }).sort((a, b) => U.toMin(a[0]) - U.toMin(b[0])); S.slot = {}; S.pins = {}; rebuild(); return; }
       if (t.dataset.delp != null) { S.periods.splice(+t.dataset.delp, 1); S.slot = {}; S.pins = {}; rebuild(); return; }
       if (t.dataset.preset != null) { S.periods = PRESETS[+t.dataset.preset][1].map(p => p.slice()); S.slot = {}; S.pins = {}; rebuild(); return; }
       if (t.hasAttribute('data-addhol')) { const v = $('#ex-holin').value; if (v && !S.hol.includes(v)) { S.hol = (S.hol + '\n' + v).trim(); rebuild(); } return; }
@@ -994,6 +1001,7 @@
   .ex-days { display: flex; flex-wrap: wrap; gap: .3rem; } .ex-days span { background: #eef4f8; color: #0b4a66; border-radius: 8px; padding: .1rem .5rem; font-size: .85rem; font-weight: 600; }
   .ex-presets { display: flex; flex-wrap: wrap; gap: .35rem; }
   .ex-prow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr) auto; gap: .4rem; align-items: center; } .ex-prow .form-control { min-width: 0; padding-inline: .4rem; } .ex-prow .bdg:not(.teal) { grid-column: 2 / 5; justify-self: start; } .ex-prow > .btn { grid-row: 1; grid-column: 5; }
+  .ex-prow.ex-nowin { grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr); background: #fdf1f1; border: 1px solid #f3c9c9; border-radius: 10px; padding: .45rem .55rem; margin-bottom: .6rem; } .ex-prow.ex-nowin .bdg { grid-column: auto; } .ex-nowin small { grid-column: 1 / -1; color: #7a2a2a; }
   .ex-sw { display: grid; grid-template-columns: auto 1fr; gap: .6rem; align-items: center; margin: 0; cursor: pointer; } .ex-sw input { display: none; }
   .ex-sw .tg { width: 44px; height: 24px; border-radius: 999px; background: #cbd5da; position: relative; transition: .2s; } .ex-sw .tg::after { content: ''; position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
   .ex-sw input:checked + .tg { background: #15803d; } .ex-sw input:checked + .tg::after { right: 23px; } .ex-sw b { display: block; font-size: .95rem; } .ex-sw small { display: block; color: #5b6b72; font-size: .84rem; }
