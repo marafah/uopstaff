@@ -819,7 +819,7 @@
     U.modal('<i class="bi bi-cloud-arrow-up-fill"></i> نشر الجدول للطلبة والشاشات', `
       ${S.approved ? '' : '<div class="alert alert-warning"><i class="bi bi-exclamation-triangle-fill"></i> هذه النسخة <b>مسودة</b>؛ يُفضّل اعتمادها من «الحفظ والاعتماد» قبل النشر.</div>'}
       <p>نُزّل الملف <b>exam_schedule.json</b> (${exams.length} امتحاناً، بلا أسماء طلبة). لنشره:</p>
-      <ol><li>افتح مجلد <b>data</b> في مستودع الموقع على GitHub.</li><li>اسحب الملف إلى الصفحة ثم اضغط <b>Commit changes</b>.</li><li>بعد دقائق يظهر في صفحة <b>«امتحاناتي»</b> للطلبة وعلى <b>شاشات المباني</b>.</li></ol>
+      <ol><li>افتح مجلد <b>data</b> في مستودع الموقع على GitHub.</li><li>اسحب الملف إلى الصفحة ثم اضغط <b>Commit changes</b>.</li><li>بعد دقائق يظهر في صفحة <b>«امتحاناتي»</b> للطلبة وعلى <b>شاشات المباني</b>، وخلال ساعة تُبنى <b>تقاويم بتذكير تلقائي</b> لكل مراقب ولكل كلية (للمدرسين والفنيين) تتحدّث وحدها عند أي تعديل.</li></ol>
       <div class="d-flex flex-wrap gap-2"><a class="btn btn-ex" href="https://github.com/marafah/uopstaff/upload/main/data" target="_blank" rel="noopener"><i class="bi bi-github"></i> فتح صفحة الرفع</a>
       <a class="btn btn-outline-primary" href="myexams.html" target="_blank"><i class="bi bi-phone"></i> صفحة «امتحاناتي»</a><a class="btn btn-outline-primary" href="screen.html" target="_blank"><i class="bi bi-display"></i> شاشات المباني</a></div>
       <p class="small text-muted mt-2">يُنشر في الملف: المقرر والموعد والقاعات والشعب والمراقبون. لا يُنشر أي رقم أو اسم طالب.</p>`);
