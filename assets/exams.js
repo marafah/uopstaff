@@ -507,10 +507,18 @@
     return by;
   }
   function poolView() {
-    const by = pool(), all = Object.values(by).flat(), on = all.filter(p => !p.off).length;
-    return `<div class="ex-pool2"><div class="h"><b><i class="bi bi-people-fill"></i> المراقبون المتاحون: ${on}</b><span>${all.length - on ? `${all.length - on} معفَون · ` : ''}اضغط اسماً لإعفائه أو إعادته</span></div>
-      ${Object.entries(by).sort((a, b) => a[0].localeCompare(b[0], 'ar')).map(([d, ps]) => `<div class="dp"><span class="dn">${esc(d)} <small>${ps.filter(p => !p.off).length}</small></span>
-        ${ps.sort((a, b) => U.shortName(a.n).localeCompare(U.shortName(b.n), 'ar')).map(p => `<button class="ex-pp2${p.off ? ' off' : ''}" data-exm="${esc(p.n)}" title="${p.off ? 'معفى: اضغط للإعادة' : 'اضغط للإعفاء'}">${esc(U.shortName(p.n))}${p.k ? `<small>${p.k} مقرر</small>` : ''}</button>`).join('')}</div>`).join('')}</div>`;
+    const by = pool(), all = Object.values(by).flat(), on = all.filter(p => !p.off).length, q = U.norm(F().pq || '');
+    const deps = Object.entries(by).sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], 'ar'));
+    return `<div class="ex-pool2"><div class="h"><div class="t"><i class="bi bi-people-fill"></i> المراقبون المتاحون</div>
+        <span class="bdg green"><i class="bi bi-person-check-fill"></i> ${on} متاح</span>${all.length - on ? `<span class="bdg">${all.length - on} معفى</span>` : ''}<span class="bdg">${deps.length} أقسام</span>
+        <input class="form-control form-control-sm" data-f="pq" placeholder="ابحث عن اسم…" value="${esc(F().pq || '')}"></div>
+      <p class="hint"><i class="bi bi-hand-index"></i> الضغط على الاسم يعفيه من المراقبة أو يعيده. الرقم = عدد المقررات التي يدرّسها في هذه الدورة.</p>
+      <div class="grid">${deps.map(([d, ps]) => { const list = ps.filter(p => !q || U.norm(p.n).includes(q)).sort((a, b) => U.shortName(a.n).localeCompare(U.shortName(b.n), 'ar'));
+        if (!list.length) return '';
+        const n = ps.filter(p => !p.off).length;
+        return `<section class="dc"><header><b>${esc(d)}</b><span class="n" title="متاح من مجموع القسم">${n} من ${ps.length}</span>
+            <button class="btn btn-sm btn-link" data-exd="${esc(d)}">${n ? 'إعفاء الكل' : 'إعادة الكل'}</button></header>
+          <div class="ls">${list.map(p => `<button class="pr${p.off ? ' off' : ''}" data-exm="${esc(p.n)}" title="${esc(p.n)}${p.off ? ' — معفى' : ''}"><i class="bi ${p.off ? 'bi-slash-circle' : 'bi-check-circle-fill'}"></i><span class="nm">${esc(U.shortName(p.n))}</span><span class="k">${p.extra ? 'إضافي' : p.k}</span></button>`).join('')}</div></section>`; }).join('')}</div></div>`;
   }
   // after generation: every exam room's proctors, editable; each name shows how many duties the person has
   function procView(st) {
@@ -1244,7 +1252,7 @@
     let tmr;
     app.addEventListener('input', e => {
       const t = e.target;
-      if (t.dataset.f === 'q' || t.dataset.f === 'cq') { F()[t.dataset.f] = t.value; clearTimeout(tmr); tmr = setTimeout(() => { save(); render(); }, 250); }
+      if (t.dataset.f === 'q' || t.dataset.f === 'cq' || t.dataset.f === 'pq') { F()[t.dataset.f] = t.value; clearTimeout(tmr); tmr = setTimeout(() => { save(); render(); }, 250); }
     });
     app.addEventListener('click', e => {
       const t = e.target.closest('button,[data-c],.ex-cell,[data-tab],[data-go],th[data-sort]'); if (!t) return;
@@ -1300,6 +1308,8 @@
       if (t.hasAttribute('data-addlabs')) { const add = labRooms(new Set(rooms().map(r => r.n))); if (!add.length) alert('كل مختبرات الكلية موجودة في القائمة.'); else { S.rooms = rooms().concat(add); rebuild(); } return; }
       if (t.dataset.inclall != null) { const on = t.dataset.inclall === '1'; TT.sections.filter(s => inFac(s.faculty)).forEach(s => { if (on) delete S.excl[s.code]; else S.excl[s.code] = 1; }); rebuild(); return; }
       if (t.dataset.tpl) return downloadTemplate(t.dataset.tpl);
+      if (t.dataset.exd) { const ps = pool()[t.dataset.exd] || [], L = (S.noProc || '').split(/\n/).map(x => x.trim()).filter(Boolean), anyOn = ps.some(p => !p.off);
+        ps.forEach(p => { const i = L.indexOf(p.n); if (anyOn && i < 0) L.push(p.n); if (!anyOn && i >= 0) L.splice(i, 1); }); S.noProc = L.join('\n'); rebuild(); return; }
       if (t.dataset.exm) { const n = t.dataset.exm, L = (S.noProc || '').split(/\n/).map(x => x.trim()).filter(Boolean), i = L.indexOf(n); i >= 0 ? L.splice(i, 1) : L.push(n); S.noProc = L.join('\n'); rebuild(); return; }
       if (t.dataset.pfrm) { const [code, room, n] = t.dataset.pfrm.split('|'), key = code + '|' + room, cur = curProc(key); S.procFix[key] = cur.filter(x => x !== n); save(); render(); return; }
       if (t.dataset.pfauto) { delete S.procFix[t.dataset.pfauto]; save(); render(); return; }
@@ -1316,7 +1326,7 @@
     });
     app.addEventListener('change', e => {
       const t = e.target, k = t.dataset.k;
-      if (t.dataset.f && t.dataset.f !== 'q' && t.dataset.f !== 'cq') { F()[t.dataset.f] = t.type === 'checkbox' ? t.checked : t.value; if (t.dataset.f === 'fac') F().dept = ''; save(); render(); return; }
+      if (t.dataset.f && t.dataset.f !== 'q' && t.dataset.f !== 'cq' && t.dataset.f !== 'pq') { F()[t.dataset.f] = t.type === 'checkbox' ? t.checked : t.value; if (t.dataset.f === 'fac') F().dept = ''; save(); render(); return; }
       if (t.dataset.mv != null) { move(+t.dataset.mv, +t.value); return; }
       if (t.dataset.ty) { const d = S.drafts, f = fresh(t.dataset.ty); Object.assign(S, { type: t.dataset.ty, periods: f.periods, days: f.days, busy: f.busy, slot: {}, pins: {}, approved: null }); S.drafts = d; rebuild(); return; }
       if (t.hasAttribute('data-facall')) { S.facs = t.checked ? [] : ['تكنولوجيا المعلومات']; S.rooms = null; S.slot = {}; S.pins = {}; S.flt = {}; rebuild(); return; }
@@ -1511,9 +1521,20 @@
   .ex-prow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr) auto; gap: .4rem; align-items: center; } .ex-prow .form-control { min-width: 0; padding-inline: .4rem; } .ex-prow .bdg:not(.teal) { grid-column: 2 / 5; justify-self: start; } .ex-prow > .btn { grid-row: 1; grid-column: 5; }
   .ex-prow.ex-nowin { grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr); background: #fdf1f1; border: 1px solid #f3c9c9; border-radius: 10px; padding: .45rem .55rem; margin-bottom: .6rem; } .ex-prow.ex-nowin .bdg { grid-column: auto; } .ex-nowin small { grid-column: 3 / -1; color: #7a2a2a; } .ex-prow.ex-nowin { grid-template-columns: auto minmax(0, 10rem) 1fr; } .ex-chk.lock { cursor: not-allowed; opacity: .9; }
   .ex-srcs.two { grid-template-columns: 1fr 1fr; }
-  .ex-pool2 { border: 1px solid #f0c6dc; background: #fdf6fa; border-radius: 12px; padding: .6rem .7rem; margin-top: .7rem; } .ex-pool2 .h { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .4rem; } .ex-pool2 .h b { color: #9d174d; } .ex-pool2 .h span { color: #6b7a82; font-size: .88rem; }
-  .ex-pool2 .dp { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; padding: .3rem 0; border-top: 1px dashed #f0c6dc; } .ex-pool2 .dn { font-weight: 800; color: #091b22; min-width: 10rem; } .ex-pool2 .dn small { color: #9d174d; }
-  .ex-pp2 { border: 1px solid #e2c4d4; background: #fff; border-radius: 999px; padding: .1rem .6rem; font-size: .88rem; } .ex-pp2 small { color: #6b7a82; margin-inline-start: .3rem; font-size: .72rem; } .ex-pp2.off { text-decoration: line-through; opacity: .5; background: #f4f4f4; }
+  .ex-pool2 { border: 1px solid #ecd3e0; background: #fdf8fb; border-radius: 14px; padding: .75rem .8rem; margin-top: .8rem; }
+  .ex-pool2 .h { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; } .ex-pool2 .h .t { font-weight: 800; color: #9d174d; font-size: 1.08rem; margin-inline-end: .3rem; }
+  .ex-pool2 .h input { max-width: 15rem; margin-inline-start: auto; } .ex-pool2 .hint { color: #6b7a82; font-size: .86rem; margin: .4rem 0 .6rem; }
+  .ex-pool2 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: .7rem; align-items: start; }
+  .ex-pool2 .dc { background: #fff; border: 1px solid #e8d6e0; border-top: 4px solid #be185d; border-radius: 12px; overflow: hidden; }
+  .ex-pool2 .dc header { display: flex; align-items: center; gap: .5rem; padding: .5rem .7rem; background: #fbf1f6; border-bottom: 1px solid #f0dde7; }
+  .ex-pool2 .dc header b { flex: 1; color: #091b22; font-size: 1rem; } .ex-pool2 .dc header .n { background: #be185d; color: #fff; border-radius: 999px; padding: 0 .55rem; font-weight: 800; font-size: .85rem; } .ex-pool2 .dc header .n small { opacity: .8; font-weight: 600; }
+  .ex-pool2 .dc header .btn { padding: 0; font-size: .8rem; }
+  .ex-pool2 .ls { display: grid; grid-template-columns: 1fr; max-height: 20rem; overflow: auto; }
+  .ex-pool2 .pr { display: grid; grid-template-columns: 1.3rem minmax(0, 1fr) 2.6rem; align-items: center; gap: .45rem; width: 100%; border: 0; border-bottom: 1px solid #f3edf0; background: #fff; padding: .38rem .7rem; text-align: start; font-size: .93rem; color: #1c2b31; }
+  .ex-pool2 .pr:nth-child(even) { background: #fcfafb; } .ex-pool2 .pr:hover { background: #fdeef5; } .ex-pool2 .pr i { color: #15803d; }
+  .ex-pool2 .pr .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ex-pool2 .pr .k { justify-self: end; min-width: 2rem; text-align: center; background: #eef2f4; color: #4a5a62; border-radius: 6px; font-size: .78rem; font-weight: 700; padding: .05rem .3rem; }
+  .ex-pool2 .pr.off { color: #9aa6ac; } .ex-pool2 .pr.off .nm { text-decoration: line-through; } .ex-pool2 .pr.off i { color: #b42318; }
+  [data-theme=dark] .ex-pool2, [data-theme=dark] .ex-pool2 .dc, [data-theme=dark] .ex-pool2 .pr { background: #13232a; border-color: #2c4048; color: #e8eef0; } [data-theme=dark] .ex-pool2 .dc header { background: #1b2e35; } [data-theme=dark] .ex-pool2 .dc header b { color: #e8eef0; }
   .ex-pv-sum { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-bottom: .5rem; }
   .ex-pv-load { border: 1px solid #e2e8ec; border-radius: 12px; padding: .45rem .65rem; margin-bottom: .6rem; background: #fff; } .ex-pv-load summary { font-weight: 800; cursor: pointer; } .ex-pv-load > div { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .45rem; max-height: 11rem; overflow: auto; }
   .ex-ld { border: 1px solid #dde3e7; border-radius: 8px; padding: .1rem .2rem .1rem .5rem; font-size: .85rem; background: #f7f9fa; } .ex-ld b { display: inline-block; min-width: 1.5rem; text-align: center; background: #0b4a66; color: #fff; border-radius: 6px; margin-inline-start: .35rem; }
