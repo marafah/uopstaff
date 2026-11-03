@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-02T18:28:15Z",
+"updated": "2026-11-03T09:39:49Z",
 "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
 "revision": "Rev.E",
 "revision_date": "2023-12-20",
@@ -1294,6 +1294,17 @@
 "email": "whadi@uop.edu.jo",
 "photo": "assets/photos/3707c9ba54a0e9da.jpg",
 "faculty": 1
+},
+{
+"id": "A:610073006800740061007900790061007400400075006F0070002E006500640075002E006A006F00",
+"name": "م. احمد غازي محمود الشتيات",
+"job": "مساعد مدير مركز التعلم الإلكتروني",
+"role": "مدير",
+"type": "academic",
+"ext": "7777",
+"email": "ashtayyat@uop.edu.jo",
+"photo": "assets/photos/8a54e3feb4213cba.jpg",
+"faculty": 5
 }
 ]
 },
