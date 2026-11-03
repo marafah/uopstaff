@@ -43,9 +43,9 @@
   // ---------- state ----------
   const KEY = 'ex-plan-v1';
   const TYPES = {
-    final: { name: 'الامتحانات النهائية', periods: [['08:00', '10:00'], ['10:30', '12:30'], ['13:00', '15:00']], days: 12 },
+    final: { name: 'الامتحانات النهائية', periods: [['09:00', '11:00'], ['11:30', '13:30'], ['14:00', '16:00']], days: 12 },
     mid1: { name: 'الامتحان الأول', periods: [['09:00', '10:00'], ['10:30', '11:30'], ['12:00', '13:00'], ['13:30', '14:30']], days: 6 },
-    midterm: { name: 'امتحان منتصف الفصل', periods: [['08:00', '09:30'], ['09:45', '11:15'], ['11:30', '13:00'], ['13:15', '14:45']], days: 6 },
+    midterm: { name: 'امتحان منتصف الفصل', periods: [['08:30', '10:00'], ['10:30', '12:00'], ['12:30', '14:00'], ['14:30', '16:00']], days: 6 },
     mid2: { name: 'الامتحان الثاني', periods: [['09:00', '10:00'], ['10:30', '11:30'], ['12:00', '13:00'], ['13:30', '14:30']], days: 6 },
     makeup: { name: 'الامتحانات التكميلية / المؤجلة', periods: [['10:00', '12:00'], ['12:30', '14:30']], days: 3 },
   };
@@ -53,17 +53,19 @@
   const today = () => new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10);
   function fresh(type) {
     const t = TYPES[type || 'final'];
-    return { type: type || 'final', start: today(), days: t.days, off: [5, 6], hol: '', noFrom: '15:00', noTo: '16:00', periods: t.periods.map(p => p.slice()), maxDay: 2, perProc: 30, minProc: 1, maxDuty: 0, maxDutyDay: 2, busy: type === 'mid1' || type === 'mid2' || type === 'midterm', b2b: true, near: true, insClash: true, early: true, depth: 'normal', noProc: '', label: '', gview: 'matrix', setupDone: false,
+    return { type: type || 'final', start: today(), days: t.days, off: [5, 6], hol: '', lastEnd: '16:00', periods: t.periods.map(p => p.slice()), maxDay: 2, perProc: 30, minProc: 1, maxDuty: 0, maxDutyDay: 2, busy: type === 'mid1' || type === 'mid2' || type === 'midterm', b2b: true, near: true, insClash: true, early: true, depth: 'normal', noProc: '', label: '', gview: 'matrix', setupDone: false,
       faculty: 'تكنولوجيا المعلومات', facs: ['تكنولوجيا المعلومات'], flt: {}, practical: false, grad: true, src: 'plans', rooms: null, excl: {}, pins: {}, slot: {}, reg: null, regInfo: '', extraProc: '', drafts: [], approved: null };
   }
   let S;
   try { S = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { S = null; }
   if (!S || !S.type) S = fresh();
-  const OLDP = { final: '09:00-11:00,11:30-13:30,14:00-16:00', midterm: '09:00-10:30,11:00-12:30,13:00-14:30,15:00-16:30' };
+  const OLDMID = '09:00-10:30,11:00-12:30,13:00-14:30,15:00-16:30';
   const migrate = () => { if (!Array.isArray(S.facs)) S.facs = S.faculty ? [S.faculty] : []; if (!S.flt) S.flt = {}; if (!Array.isArray(S.off)) S.off = [5, 6];
-    if (S.noFrom == null) { S.noFrom = '15:00'; S.noTo = '16:00'; if (OLDP[S.type] && S.periods.map(p => p.join('-')).join(',') === OLDP[S.type]) { S.periods = TYPES[S.type].periods.map(p => p.slice()); S.slot = {}; S.pins = {}; } } };
-  // a period that overlaps the hour with no exams (default 15:00–16:00)
-  const inNo = p => S.noFrom && S.noTo && U.toMin(p[0]) < U.toMin(S.noTo) && U.toMin(p[1]) > U.toMin(S.noFrom);
+    if (!S.off.includes(5)) S.off.push(5);   // Friday is the official weekly holiday
+    if (S.lastEnd == null) { S.lastEnd = '16:00'; delete S.noFrom; delete S.noTo;
+      if (S.type === 'midterm' && S.periods.map(p => p.join('-')).join(',') === OLDMID) { S.periods = TYPES.midterm.periods.map(p => p.slice()); S.slot = {}; S.pins = {}; } } };
+  // a period that ends after the latest allowed time (a user setting, 16:00 by default)
+  const late = p => !!S.lastEnd && U.toMin(p[1]) > U.toMin(S.lastEnd);
   migrate();
   const inFac = f => !S.facs.length || S.facs.includes(f);
   const facLabel = () => !S.facs.length ? 'كل الكليات' : S.facs.length === 1 ? S.facs[0] : S.facs.length + ' كليات';
@@ -88,7 +90,7 @@
     const out = []; const d = new Date(S.start + 'T12:00:00Z');
     for (let guard = 0; out.length < S.days && guard < 120; guard++, d.setUTCDate(d.getUTCDate() + 1)) {
       const iso = d.toISOString().slice(0, 10);
-      if (S.off.includes(d.getUTCDay()) || hol.has(iso)) continue;
+      if (d.getUTCDay() === 5 || S.off.includes(d.getUTCDay()) || hol.has(iso)) continue;
       out.push({ iso, dl: U.JS_DAY[d.getUTCDay()], wd: WD[d.getUTCDay()], label: `${WD[d.getUTCDay()]} ${+iso.slice(8)}/${+iso.slice(5, 7)}` });
     }
     return out;
@@ -427,7 +429,7 @@
   function gridView(st) {
     if (!DAYS.length) return '<div class="ex-empty warn"><i class="bi bi-calendar-x"></i> لا توجد أيام امتحانات: راجع تاريخ البداية وعدد الأيام في «الإعداد».<br><button class="btn btn-ex mt-2" data-tab="set">فتح الإعداد</button></div>';
     if (!st.placed) return `<div class="ex-start"><i class="bi bi-magic"></i><h3>الخطوة 2: ولّد الجدول</h3><p>سيوزّع النظام ${C.length} امتحاناً على ${nDays(DAYS.length)} و${P} فترات يومياً، مع منع التعارض ومراعاة القاعات والقواعد التي اخترتها.</p>
-      <button class="btn btn-ex btn-lg" id="ex-solve"><i class="bi bi-magic"></i> ولّد الجدول الآن</button><button class="btn btn-link" data-tab="set">تعديل الإعداد أولاً</button></div>`;
+      <button class="btn btn-ex btn-lg" id="ex-solve"><i class="bi bi-magic"></i> ولّد الجدول الآن</button><button class="btn btn-link" data-tab="set">تعديل الإعداد أولاً</button>${undo.length ? '<button class="btn btn-outline-secondary" id="ex-undo"><i class="bi bi-arrow-counterclockwise"></i> تراجع عن الحذف</button>' : ''}</div>`;
     const v = S.gview || 'matrix';
     PROB = new Set(st.is.flatMap(x => x.cs).concat(st.seat.unseated.map(u => u.c.i), st.seat.short.map(u => u.c.i)));
     const keys = [...new Set(C.map(c => c[COLBY]))].sort();
@@ -435,7 +437,8 @@
         <div class="ex-views">${GV.map(([k, ic, t]) => `<button class="ex-vbtn${v === k ? ' on' : ''}" data-gv="${k}"><i class="bi ${ic}"></i> ${t}</button>`).join('')}</div>
         <div class="ex-acts"><button class="btn btn-ex" id="ex-solve" title="توليد جدول جديد من البداية (المثبّت يبقى)"><i class="bi bi-magic"></i> توليد من جديد</button>
           <button class="btn btn-outline-primary" id="ex-improve" title="تحسين الجدول الحالي دون البدء من جديد"><i class="bi bi-stars"></i> تحسين</button>
-          <button class="btn btn-outline-secondary" id="ex-undo" ${undo.length ? '' : 'disabled'} title="تراجع عن آخر تعديل"><i class="bi bi-arrow-counterclockwise"></i> تراجع</button></div></div>
+          <button class="btn btn-outline-secondary" id="ex-undo" ${undo.length ? '' : 'disabled'} title="تراجع عن آخر تعديل"><i class="bi bi-arrow-counterclockwise"></i> تراجع</button>
+          <button class="btn btn-outline-danger" id="ex-clear" title="حذف التوزيع المولَّد والبدء من جدول فارغ"><i class="bi bi-trash3"></i> حذف الجدول</button></div></div>
       ${filterBar(v === 'cohort' || v === 'dept' ? `<label class="ex-switch"><input type="checkbox" data-f="names" ${F().names ? 'checked' : ''}><span></span> إظهار أسماء المقررات</label>` : '')}
       ${v === 'matrix' ? matrixView(st) : v === 'days' ? daysView(st) : v === 'list' ? listView(st) : v === 'cohort' ? cohortView(st) : deptView(st)}
       ${C.some(c => c.s < 0) ? `<h5 class="ex-h"><i class="bi bi-inbox"></i> غير مجدولة</h5><div class="ex-pool ex-cell" data-s="-1">${C.filter(c => c.s < 0).map(c => card(c)).join('')}</div>` : ''}`;
@@ -596,21 +599,70 @@
       sections: outData(), note: 'أُعدّ الجدول بأداة «جدول الامتحانات» في بوصلة البترا؛ القاعات والمراقبون مقترحة وتُعتمد من لجنة الامتحانات.', qr: false });
   }
   const loadXLSX = () => window.XLSX ? Promise.resolve() : new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js'; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
+  // Excel: a cover/matrix sheet (days × periods) and one sheet per table, laid out like an official timetable
   function doXLSX() {
     loadXLSX().then(() => {
-      const wb = XLSX.utils.book_new(), used = {};
-      outData().forEach((s, i) => {
-        const aoa = [[title()], [OUT[outView] + (s.title ? ' · ' + s.title : '')], [], s.columns].concat(s.rows);
-        const ws = XLSX.utils.aoa_to_sheet(aoa); ws['!views'] = [{ RTL: true }];
-        ws['!cols'] = s.columns.map((h, j) => ({ wch: Math.min(50, Math.max(h.length + 2, ...s.rows.slice(0, 300).map(r => String(r[j] ?? '').length + 2))) }));
-        const hs = { font: { bold: true, color: { rgb: 'FFFFFF' } }, fill: { fgColor: { rgb: '901D23' } }, alignment: { horizontal: 'center', vertical: 'center', wrapText: true } };
-        s.columns.forEach((h, j) => { const a = XLSX.utils.encode_cell({ r: 3, c: j }); if (ws[a]) ws[a].s = hs; });
-        if (ws.A1) ws.A1.s = { font: { bold: true, sz: 14, color: { rgb: '091B22' } } };
-        let name = (s.title || OUT[outView]).replace(/[\\/?*[\]:]/g, ' ').slice(0, 28) || 'Sheet' + i; while (used[name]) name = name.slice(0, 26) + i; used[name] = 1;
-        XLSX.utils.book_append_sheet(wb, ws, name);
+      const wb = XLSX.utils.book_new(), used = {}, E = XLSX.utils.encode_cell;
+      const B = { style: 'thin', color: { rgb: 'C9D2D8' } }, BOX = { top: B, bottom: B, left: B, right: B };
+      const ST = {
+        title: { font: { bold: true, sz: 16, color: { rgb: 'FFFFFF' } }, fill: { fgColor: { rgb: '901D23' } }, alignment: { horizontal: 'center', vertical: 'center' } },
+        sub: { font: { bold: true, sz: 11, color: { rgb: 'FFFFFF' } }, fill: { fgColor: { rgb: '091B22' } }, alignment: { horizontal: 'center', vertical: 'center', wrapText: true } },
+        info: { font: { sz: 10, color: { rgb: '4A5A62' } }, alignment: { horizontal: 'center', vertical: 'center' } },
+        head: { font: { bold: true, sz: 11, color: { rgb: 'FFFFFF' } }, fill: { fgColor: { rgb: '0B4A66' } }, alignment: { horizontal: 'center', vertical: 'center', wrapText: true }, border: BOX },
+        band: { font: { bold: true, sz: 12, color: { rgb: '901D23' } }, fill: { fgColor: { rgb: 'F6E7E8' } }, alignment: { horizontal: 'right', vertical: 'center' }, border: BOX },
+        day: { font: { bold: true, sz: 11, color: { rgb: '091B22' } }, fill: { fgColor: { rgb: 'EEF2F4' } }, alignment: { horizontal: 'center', vertical: 'center', wrapText: true }, border: BOX },
+        note: { font: { italic: true, sz: 9, color: { rgb: '6B7A82' } }, alignment: { horizontal: 'right', wrapText: true } } };
+      const cell = (zebra, center, bold) => ({ font: { sz: 10.5, bold: !!bold, color: { rgb: '1C2B31' } }, fill: { fgColor: { rgb: zebra ? 'F7F9FA' : 'FFFFFF' } },
+        alignment: { horizontal: center ? 'center' : 'right', vertical: 'center', wrapText: true }, border: BOX });
+      const W = { 'اليوم': 11, 'التاريخ': 12, 'الوقت': 13, 'الرمز': 11, 'المقرر': 38, 'القسم': 24, 'الطلبة': 9, 'الطلبة في القاعة': 10, 'الشعب': 12, 'القاعات': 34, 'القاعة': 20, 'المراقبون': 34, 'المدرسون': 30, 'المهمة': 13 };
+      const CENTER = new Set(['اليوم', 'التاريخ', 'الوقت', 'الرمز', 'الطلبة', 'الطلبة في القاعة', 'الشعب', 'المهمة']);
+      const span = DAYS.length ? `${DAYS[0].label} – ${DAYS[DAYS.length - 1].label}` : '';
+      const info = `${TT.term || ''} · ${span} · ${S.approved ? 'معتمدة: ' + S.approved : 'مسودة'} · أُعدّ في ${new Date().toLocaleDateString('ar-JO')}`;
+      const sheetName = t => { let n = String(t).replace(/[\\/?*[\]:]/g, ' ').slice(0, 28) || 'ورقة'; let k = 2; const b0 = n; while (used[n]) n = b0.slice(0, 25) + ' ' + k++; used[n] = 1; return n; };
+      const header = (ws, aoa, ncol, sub) => { aoa.push([title()], [sub], [info], []); ws.merges.push(...[0, 1, 2].map(r => ({ s: { r, c: 0 }, e: { r, c: ncol - 1 } }))); ws.rows.push({ hpt: 30 }, { hpt: 22 }, { hpt: 18 }, { hpt: 6 }); };
+      const finish = (ws, aoa, styles, cols, name) => {
+        const sh = XLSX.utils.aoa_to_sheet(aoa); sh['!merges'] = ws.merges; sh['!rows'] = ws.rows; sh['!cols'] = cols; sh['!views'] = [{ RTL: true }];
+        sh['!margins'] = { left: 0.3, right: 0.3, top: 0.4, bottom: 0.4, header: 0.2, footer: 0.2 };
+        Object.entries(styles).forEach(([a, st]) => { if (!sh[a]) sh[a] = { t: 's', v: '' }; sh[a].s = st; });
+        ['A1', 'A2', 'A3'].forEach((a, i) => { if (sh[a]) sh[a].s = [ST.title, ST.sub, ST.info][i]; });
+        XLSX.utils.book_append_sheet(wb, sh, sheetName(name));
+      };
+      // 1) the timetable at a glance: one row per day, one column per period
+      { const { out } = seating(), aoa = [], ws = { merges: [], rows: [] }, styles = {}, nc = P + 1;
+        header(ws, aoa, nc, 'الجدول العام: الأيام × الفترات');
+        aoa.push(['اليوم'].concat(S.periods.map((p, k) => `الفترة ${k + 1}\n${p[0]} – ${p[1]}`))); ws.rows.push({ hpt: 34 });
+        for (let j = 0; j < nc; j++) styles[E({ r: 4, c: j })] = ST.head;
+        DAYS.forEach((d, di) => {
+          const r = aoa.length, cells = S.periods.map((p, k) => (out[di * P + k] || []).filter(x => match(x.c)).sort((a, b) => a.c.code.localeCompare(b.c.code))
+            .map(x => `${x.c.code}  ${x.c.name}  (${x.c.students})`));
+          aoa.push([`${d.wd}\n${+d.iso.slice(8)}/${+d.iso.slice(5, 7)}/${d.iso.slice(0, 4)}`].concat(cells.map(c => c.join('\n'))));
+          ws.rows.push({ hpt: Math.max(36, 15 * Math.max(1, ...cells.map(c => c.length)) + 6) });
+          styles[E({ r, c: 0 })] = ST.day; for (let k = 0; k < P; k++) styles[E({ r, c: k + 1 })] = cell(di % 2, false);
+        });
+        aoa.push([], ['الرقم بين القوسين عدد الطلبة. القاعات والمراقبون في الأوراق التالية.']); ws.merges.push({ s: { r: aoa.length - 1, c: 0 }, e: { r: aoa.length - 1, c: nc - 1 } }); styles[E({ r: aoa.length - 1, c: 0 })] = ST.note;
+        finish(ws, aoa, styles, [{ wch: 13 }].concat(S.periods.map(() => ({ wch: P > 3 ? 40 : 52 }))), 'الجدول العام'); }
+      // 2) the current output view: one sheet per table, a coloured band for each new day
+      outData().forEach(sec => {
+        const cols = sec.columns, nc = cols.length, aoa = [], ws = { merges: [], rows: [] }, styles = {}, jd = cols.indexOf('التاريخ'), jw = cols.indexOf('اليوم');
+        header(ws, aoa, nc, OUT[outView] + (sec.title ? ' · ' + sec.title : ''));
+        aoa.push(cols.slice()); ws.rows.push({ hpt: 26 }); cols.forEach((h, j) => { styles[E({ r: 4, c: j })] = ST.head; });
+        let last = null, z = 0;
+        sec.rows.forEach(row => {
+          const dk = jd >= 0 ? row[jd] : null;
+          if (dk && dk !== last && outView !== 'day') { const r = aoa.length; aoa.push([`${jw >= 0 ? row[jw] + ' ' : ''}${+dk.slice(8)}/${+dk.slice(5, 7)}/${dk.slice(0, 4)}`]); ws.merges.push({ s: { r, c: 0 }, e: { r, c: nc - 1 } }); ws.rows.push({ hpt: 20 });
+            for (let j = 0; j < nc; j++) styles[E({ r, c: j })] = ST.band; z = 0; }
+          last = dk;
+          const r = aoa.length, vals = row.map((v, j) => cols[j] === 'القاعات' ? String(v ?? '').split(/\s*؛\s*/).join('\n') : cols[j] === 'المراقبون' || cols[j] === 'المدرسون' ? String(v ?? '').split(/\s*،\s*/).join('\n') : v);
+          aoa.push(vals); const lines = Math.max(1, ...vals.map(v => String(v ?? '').split('\n').length)); ws.rows.push({ hpt: Math.max(20, 14 * lines + 4) });
+          cols.forEach((h, j) => { styles[E({ r, c: j })] = cell(z % 2, CENTER.has(h), h === 'الرمز' || h === 'المقرر'); }); z++;
+        });
+        if (!sec.rows.length) { aoa.push(['لا شيء']); }
+        aoa.push([], ['أُعدّ الجدول بأداة «جدول الامتحانات» في بوصلة البترا؛ القاعات والمراقبون مقترحة وتُعتمد من لجنة الامتحانات.']);
+        ws.merges.push({ s: { r: aoa.length - 1, c: 0 }, e: { r: aoa.length - 1, c: nc - 1 } }); styles[E({ r: aoa.length - 1, c: 0 })] = ST.note;
+        finish(ws, aoa, styles, cols.map(h => ({ wch: W[h] || 16 })), sec.title || OUT[outView]);
       });
       XLSX.writeFile(wb, `${title()}_${OUT[outView]}.xlsx`.replace(/\s+/g, '_'));
-    }).catch(() => alert('تعذّر تحميل مكتبة Excel؛ تحقق من الاتصال.'));
+    }).catch(e => { console.error(e); alert('تعذّر تحميل مكتبة Excel؛ تحقق من الاتصال.'); });
   }
   function doCSV() {
     const q = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`, lines = [];
@@ -635,8 +687,8 @@
   const sw = (k, label, help) => `<label class="ex-sw"><input type="checkbox" data-k="${k}" ${(['b2b', 'near', 'insClash', 'early'].includes(k) ? S[k] !== false : !!S[k]) ? 'checked' : ''}><span class="tg"></span><span><b>${label}</b>${help ? `<small>${help}</small>` : ''}</span></label>`;
   const num = (k, label, min, max, help, def) => `<label class="ex-fld"><span>${label}</span><input type="number" class="form-control" data-k="${k}" min="${min}" max="${max}" value="${S[k] ?? def}">${help ? `<small>${help}</small>` : ''}</label>`;
   const box = (n, ic, color, t, sub, body, wide) => `<section class="ex-box${wide ? ' wide' : ''}" style="--a:${color}"><header><span class="bn">${n}</span><i class="bi ${ic}"></i><div><h4>${t}</h4><small>${sub}</small></div></header><div class="bb">${body}</div></section>`;
-  const PRESETS = [['3 فترات × ساعتان', [['08:00', '10:00'], ['10:30', '12:30'], ['13:00', '15:00']]], ['4 فترات × ساعة', [['09:00', '10:00'], ['10:30', '11:30'], ['12:00', '13:00'], ['13:30', '14:30']]],
-    ['فترتان × ساعتان', [['10:00', '12:00'], ['12:30', '14:30']]], ['4 فترات × ساعة ونصف', [['08:00', '09:30'], ['09:45', '11:15'], ['11:30', '13:00'], ['13:15', '14:45']]]];
+  const PRESETS = [['3 فترات × ساعتان', [['09:00', '11:00'], ['11:30', '13:30'], ['14:00', '16:00']]], ['4 فترات × ساعة', [['09:00', '10:00'], ['10:30', '11:30'], ['12:00', '13:00'], ['13:30', '14:30']]],
+    ['فترتان × ساعتان', [['10:00', '12:00'], ['12:30', '14:30']]], ['4 فترات × ساعة ونصف', [['08:30', '10:00'], ['10:30', '12:00'], ['12:30', '14:00'], ['14:30', '16:00']]]];
   const mins = (a, b) => U.toMin(b) - U.toMin(a);
   function setView() {
     const facs = [...new Set(TT.sections.map(s => s.faculty))].sort();
@@ -657,16 +709,16 @@
         <small>جدول واحد لعدة كليات يمنع تعارض المواد المشتركة (متطلبات الجامعة والمواد الخدمية).</small></div>`)}
     ${bx(2, 'bi-calendar-range-fill', '#0b4a66', 'التقويم', 'أيام الامتحانات والعطل', `
       <div class="row2">${`<label class="ex-fld"><span>أول يوم امتحان</span><input type="date" class="form-control" data-k="start" value="${S.start}"></label>`}${num('days', 'عدد أيام الامتحانات', 1, 40)}</div>
-      <div class="ex-fld"><span>أيام الأسبوع بلا امتحانات</span><div class="ex-chipset">${WD.map((w, i) => `<label class="ex-chk${S.off.includes(i) ? ' on' : ''}"><input type="checkbox" data-off="${i}" ${S.off.includes(i) ? 'checked' : ''}> ${w}</label>`).join('')}</div></div>
+      <div class="ex-fld"><span>أيام الأسبوع بلا امتحانات</span><div class="ex-chipset">${WD.map((w, i) => i === 5 ? `<label class="ex-chk on lock" title="عطلة رسمية"><input type="checkbox" checked disabled> ${w} <small>عطلة رسمية</small></label>` : `<label class="ex-chk${S.off.includes(i) ? ' on' : ''}"><input type="checkbox" data-off="${i}" ${S.off.includes(i) ? 'checked' : ''}> ${w}</label>`).join('')}</div></div>
       <div class="ex-fld"><span>العطل الرسمية</span><div class="ex-add"><input type="date" class="form-control" id="ex-holin"><button class="btn btn-outline-primary" data-addhol><i class="bi bi-plus-lg"></i> إضافة عطلة</button></div>
         <div class="ex-chipset">${(S.hol.match(/\d{4}-\d{2}-\d{2}/g) || []).map(h => `<span class="ex-tagx">${h}<button data-delhol="${h}" aria-label="حذف"><i class="bi bi-x"></i></button></span>`).join('') || '<small>لا عطل.</small>'}</div></div>
       <div class="ex-fld"><span>أيام الامتحانات الناتجة <b class="bdg blue">${DAYS.length}</b></span><div class="ex-days">${DAYS.map(d => `<span>${esc(d.label)}</span>`).join('')}</div></div>`)}
     ${bx(3, 'bi-clock-fill', '#0f766e', 'الفترات اليومية', 'مواعيد الامتحانات في اليوم', `
-      <div class="ex-prow ex-nowin"><span class="bdg red"><i class="bi bi-slash-circle"></i> بلا امتحانات</span><input type="time" class="form-control" data-k="noFrom" value="${S.noFrom || ''}"><span>إلى</span><input type="time" class="form-control" data-k="noTo" value="${S.noTo || ''}"><small>لا تُعقد امتحانات في هذا الوقت (اتركه فارغاً للإلغاء)</small></div>
-      ${S.periods.some(inNo) ? `<div class="alert alert-danger py-2 d-flex flex-wrap align-items-center gap-2"><i class="bi bi-exclamation-octagon-fill"></i> فترة أو أكثر تقع في وقت «بلا امتحانات» (${S.noFrom}–${S.noTo}).<button class="btn btn-sm btn-danger" data-fixno>نقلها بعد ${S.noTo}</button></div>` : ''}
+      <div class="ex-prow ex-nowin"><span class="bdg red"><i class="bi bi-moon-stars-fill"></i> آخر وقت</span><input type="time" class="form-control" data-k="lastEnd" value="${S.lastEnd || ''}"><small>لا تنتهي أي فترة امتحان بعد هذا الوقت (اتركه فارغاً لإلغاء القيد)</small></div>
+      ${S.periods.some(late) ? `<div class="alert alert-danger py-2 d-flex flex-wrap align-items-center gap-2"><i class="bi bi-exclamation-octagon-fill"></i> فترة أو أكثر تنتهي بعد ${S.lastEnd}.<button class="btn btn-sm btn-danger" data-fixno>حذف الفترات المتأخرة</button></div>` : ''}
       <div class="ex-presets">${PRESETS.map(([t], k) => `<button class="btn btn-sm btn-outline-secondary" data-preset="${k}"><i class="bi bi-lightning-charge"></i> ${t}</button>`).join('')}</div>
       ${S.periods.map((p, k) => `<div class="ex-prow"><span class="bdg teal">الفترة ${k + 1}</span><input type="time" class="form-control" data-p="${k}" data-e="0" value="${p[0]}"><span>إلى</span><input type="time" class="form-control" data-p="${k}" data-e="1" value="${p[1]}">
-        <span class="bdg ${mins(p[0], p[1]) > 0 && !inNo(p) ? '' : 'red'}">${mins(p[0], p[1]) <= 0 ? 'وقت غير صحيح' : inNo(p) ? 'في وقت بلا امتحانات' : U.dur(mins(p[0], p[1]))}</span><button class="btn btn-sm btn-outline-danger" data-delp="${k}" ${P < 2 ? 'disabled' : ''} aria-label="حذف"><i class="bi bi-trash"></i></button></div>`).join('')}
+        <span class="bdg ${mins(p[0], p[1]) > 0 && !late(p) ? '' : 'red'}">${mins(p[0], p[1]) <= 0 ? 'وقت غير صحيح' : late(p) ? 'بعد ' + S.lastEnd : U.dur(mins(p[0], p[1]))}</span><button class="btn btn-sm btn-outline-danger" data-delp="${k}" ${P < 2 ? 'disabled' : ''} aria-label="حذف"><i class="bi bi-trash"></i></button></div>`).join('')}
       <button class="btn btn-outline-primary" data-addp><i class="bi bi-plus-lg"></i> إضافة فترة</button>`)}
     ${bx(4, 'bi-rulers', '#9a5b00', 'قواعد الجدولة', 'ما يمنعه النظام وما يحاول تجنّبه', `
       <div class="ex-rule hard"><i class="bi bi-shield-fill-check"></i> دائماً: لا يجتمع امتحانان لطالب في الفترة نفسها، ولا يتجاوز عدد الطلبة مقاعد القاعات.</div>
@@ -780,6 +832,9 @@
       if (t.hasAttribute('data-fclear')) { const cq = F().cq; S.flt = { cq }; save(); render(); return; }
       if (t.id === 'ex-solve') { push(); busy(() => solve(false)); return; }
       if (t.id === 'ex-improve') { push(); busy(() => solve(true)); return; }
+      if (t.id === 'ex-clear') { const np = Object.keys(S.pins).length;
+        if (!confirm('حذف الجدول المولَّد؟ ستعود كل الامتحانات غير مجدولة' + (np ? ` (ومعها ${np} امتحاناً مثبّتاً)` : '') + '. يمكنك التراجع عن الحذف بزر «تراجع».')) return;
+        push(); S.slot = {}; S.pins = {}; S.approved = null; rebuild(); return; }
       if (t.id === 'ex-undo') { const u = undo.pop(); if (u) { Object.assign(S, JSON.parse(u)); rebuild(); } return; }
       if (t.id === 'ex-print') return doPrint();
       if (t.dataset.rf != null) { repFilter = t.dataset.rf; render(); return; }
@@ -797,8 +852,8 @@
       if (t.classList.contains('ex-cell') && sel != null) { move(sel, +t.dataset.s); return; }
       if (t.dataset.pin != null) { const c = C[+t.dataset.pin]; push(); if (c.pin != null) { c.pin = null; delete S.pins[c.code]; } else { c.pin = c.s; S.pins[c.code] = c.s; } save(); render(); return; }
       if (t.hasAttribute('data-unsel')) { sel = null; render(); return; }
-      if (t.hasAttribute('data-addp')) { const l = S.periods[P - 1] || ['09:00', '11:00'], d = P ? mins(l[0], l[1]) : 120; let m = U.toMin(l[1]) + 30; if (inNo([U.toTime(m), U.toTime(m + d)])) m = U.toMin(S.noTo); S.periods.push([U.toTime(m), U.toTime(m + d)]); rebuild(); return; }
-      if (t.hasAttribute('data-fixno')) { const e = U.toMin(S.noTo); let m = e; S.periods = S.periods.map(p => { if (!inNo(p)) return p; const d = mins(p[0], p[1]), q = [U.toTime(m), U.toTime(m + d)]; m += d + 30; return q; }).sort((a, b) => U.toMin(a[0]) - U.toMin(b[0])); S.slot = {}; S.pins = {}; rebuild(); return; }
+      if (t.hasAttribute('data-addp')) { const l = S.periods[P - 1] || ['09:00', '11:00'], d = P ? mins(l[0], l[1]) : 120; const m = U.toMin(l[1]) + 30, q = [U.toTime(m), U.toTime(m + d)]; if (late(q)) { alert(`لا يتسع اليوم لفترة أخرى قبل ${S.lastEnd}. قصّر الفترات أو غيّر «آخر وقت».`); return; } S.periods.push(q); rebuild(); return; }
+      if (t.hasAttribute('data-fixno')) { const k = S.periods.filter(p => !late(p)); if (!k.length) { alert('كل الفترات متأخرة: عدّل أوقاتها.'); return; } S.periods = k; S.slot = {}; S.pins = {}; rebuild(); return; }
       if (t.dataset.delp != null) { S.periods.splice(+t.dataset.delp, 1); S.slot = {}; S.pins = {}; rebuild(); return; }
       if (t.dataset.preset != null) { S.periods = PRESETS[+t.dataset.preset][1].map(p => p.slice()); S.slot = {}; S.pins = {}; rebuild(); return; }
       if (t.hasAttribute('data-addhol')) { const v = $('#ex-holin').value; if (v && !S.hol.includes(v)) { S.hol = (S.hol + '\n' + v).trim(); rebuild(); } return; }
@@ -1001,7 +1056,7 @@
   .ex-days { display: flex; flex-wrap: wrap; gap: .3rem; } .ex-days span { background: #eef4f8; color: #0b4a66; border-radius: 8px; padding: .1rem .5rem; font-size: .85rem; font-weight: 600; }
   .ex-presets { display: flex; flex-wrap: wrap; gap: .35rem; }
   .ex-prow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr) auto; gap: .4rem; align-items: center; } .ex-prow .form-control { min-width: 0; padding-inline: .4rem; } .ex-prow .bdg:not(.teal) { grid-column: 2 / 5; justify-self: start; } .ex-prow > .btn { grid-row: 1; grid-column: 5; }
-  .ex-prow.ex-nowin { grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr); background: #fdf1f1; border: 1px solid #f3c9c9; border-radius: 10px; padding: .45rem .55rem; margin-bottom: .6rem; } .ex-prow.ex-nowin .bdg { grid-column: auto; } .ex-nowin small { grid-column: 1 / -1; color: #7a2a2a; }
+  .ex-prow.ex-nowin { grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr); background: #fdf1f1; border: 1px solid #f3c9c9; border-radius: 10px; padding: .45rem .55rem; margin-bottom: .6rem; } .ex-prow.ex-nowin .bdg { grid-column: auto; } .ex-nowin small { grid-column: 3 / -1; color: #7a2a2a; } .ex-prow.ex-nowin { grid-template-columns: auto minmax(0, 10rem) 1fr; } .ex-chk.lock { cursor: not-allowed; opacity: .9; } .ex-chk.lock small { font-size: .75rem; opacity: .85; }
   .ex-sw { display: grid; grid-template-columns: auto 1fr; gap: .6rem; align-items: center; margin: 0; cursor: pointer; } .ex-sw input { display: none; }
   .ex-sw .tg { width: 44px; height: 24px; border-radius: 999px; background: #cbd5da; position: relative; transition: .2s; } .ex-sw .tg::after { content: ''; position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
   .ex-sw input:checked + .tg { background: #15803d; } .ex-sw input:checked + .tg::after { right: 23px; } .ex-sw b { display: block; font-size: .95rem; } .ex-sw small { display: block; color: #5b6b72; font-size: .84rem; }
