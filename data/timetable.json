@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-03T09:44:53Z",
-"checked": "2026-11-03T09:44:53Z",
+"updated": "2026-11-03T18:02:10Z",
+"checked": "2026-11-03T18:02:10Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -6533,7 +6533,7 @@
 "department": "هندسة العمارة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 21,
+"registered": 22,
 "capacity": 20,
 "meetings": [
 {
@@ -6774,7 +6774,7 @@
 "department": "هندسة العمارة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 13,
+"registered": 15,
 "capacity": 20,
 "meetings": [
 {
@@ -6804,14 +6804,14 @@
 "time": "[ 12:30_16:00 ] ن وجاهي ر وجاهي",
 "room": "4426",
 "section": "1",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "د. خالد كمال الياس طرزي",
 "building": "مبنى كلية العمارة والتصميم",
 "faculty": "العمارة و التصميم",
 "department": "هندسة العمارة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 13,
+"registered": 12,
 "capacity": 13,
 "meetings": [
 {
@@ -6866,14 +6866,14 @@
 "time": "[ 11:00_13:00 ] ح وجاهي ث وجاهي[ 12:30_13:30 ] خ غير متزامن",
 "room": "2409م",
 "section": "1",
-"status": "مفتوحة",
+"status": "مغلقة",
 "instructor": "م. نداء محمد جواد اسماعيل المحتسب",
 "building": "مبنى كلية الهندسة",
 "faculty": "العمارة و التصميم",
 "department": "هندسة العمارة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 22,
+"registered": 23,
 "capacity": 23,
 "meetings": [
 {
@@ -7108,7 +7108,7 @@
 "department": "هندسة العمارة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 12,
+"registered": 13,
 "capacity": 20,
 "meetings": [
 {
@@ -7237,14 +7237,14 @@
 "time": "[ 12:30_16:00 ] ن وجاهي ر وجاهي",
 "room": "4425",
 "section": "2",
-"status": "مفتوحة",
+"status": "مغلقة",
 "instructor": "م. سمير موسى جريس العمارين",
 "building": "مبنى كلية العمارة والتصميم",
 "faculty": "العمارة و التصميم",
 "department": "هندسة العمارة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 14,
+"registered": 15,
 "capacity": 15,
 "meetings": [
 {
@@ -15447,7 +15447,7 @@
 "department": "الأعمال والتجارة الالكترونية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 25,
+"registered": 26,
 "capacity": 50,
 "meetings": [
 {
@@ -15669,7 +15669,7 @@
 "department": "الأعمال والتجارة الالكترونية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 62,
+"registered": 63,
 "capacity": 55,
 "meetings": [
 {
@@ -19646,7 +19646,7 @@
 "department": "ادارة الأعمال",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 33,
+"registered": 34,
 "capacity": 40,
 "meetings": [
 {
@@ -19683,7 +19683,7 @@
 "department": "ادارة الأعمال",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 48,
+"registered": 49,
 "capacity": 55,
 "meetings": [
 {
@@ -19794,7 +19794,7 @@
 "department": "ادارة الأعمال",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 41,
+"registered": 42,
 "capacity": 50,
 "meetings": [
 {
@@ -20319,7 +20319,7 @@
 "department": "العلوم المالية والمصرفية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 59,
+"registered": 60,
 "capacity": 55,
 "meetings": [
 {
@@ -21073,7 +21073,7 @@
 "department": "التسويق الرقمي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 33,
+"registered": 34,
 "capacity": 50,
 "meetings": [
 {
@@ -22088,7 +22088,7 @@
 "department": "اللغة الانجليزية وآدابها",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 24,
+"registered": 23,
 "capacity": 30,
 "meetings": [
 {
@@ -24761,7 +24761,7 @@
 "department": "العلوم التربويه / معلم الصف",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 26,
+"registered": 27,
 "capacity": 30,
 "meetings": [
 {
@@ -24860,7 +24860,7 @@
 "department": "العلوم التربويه / معلم الصف",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 24,
+"registered": 25,
 "capacity": 30,
 "meetings": [
 {
@@ -24959,7 +24959,7 @@
 "department": "العلوم التربويه / معلم الصف",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 33,
+"registered": 34,
 "capacity": 30,
 "meetings": [
 {
@@ -37481,7 +37481,7 @@
 "name": "هندسة البرمجيات",
 "activity": "نظري",
 "time": "[ 11:00_12:30 ] ن وجاهي ر وجاهي",
-"room": "7318",
+"room": "7109",
 "section": "2",
 "status": "مفتوحة",
 "instructor": "د. علاء محمد اسعد ابو سماحة",
@@ -45654,7 +45654,7 @@
 "department": "الهندسة المدنية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 22,
+"registered": 23,
 "capacity": 18,
 "meetings": [
 {
@@ -48055,7 +48055,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 87,
+"registered": 88,
 "capacity": 85,
 "meetings": [
 {
@@ -48086,7 +48086,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 87,
+"registered": 88,
 "capacity": 85,
 "meetings": [
 {
@@ -48724,7 +48724,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 91,
+"registered": 92,
 "capacity": 90,
 "meetings": [
 {
@@ -49124,14 +49124,14 @@
 "time": "[ 13:00_14:00 ] ح وجاهي ث وجاهي خ غير متزامن",
 "room": "06001",
 "section": "4",
-"status": "مفتوحة",
+"status": "مغلقة",
 "instructor": "م. امينا عزام رشاد الاسير",
 "building": "مبنى كلية الآداب والعلوم",
 "faculty": "الآداب والعلوم",
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 89,
+"registered": 90,
 "capacity": 90,
 "meetings": [
 {
@@ -49686,7 +49686,7 @@
 "department": "اللغة الانجليزية وآدابها",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 81,
+"registered": 82,
 "capacity": 85,
 "meetings": [
 {
@@ -50463,7 +50463,7 @@
 "department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 50,
+"registered": 49,
 "capacity": 45,
 "meetings": [
 {

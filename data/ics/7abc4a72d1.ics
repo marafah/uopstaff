@@ -105,7 +105,7 @@ DTSTART;TZID=Asia/Amman:20261019T110000
 DTEND;TZID=Asia/Amman:20261019T123000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:603392 هندسة البرمجيات – ش2
-LOCATION:7318 – مبنى كلية تكنولوجيا المعلومات
+LOCATION:7109 – مبنى كلية تكنولوجيا المعلومات
 DESCRIPTION:نظري · وجاهي · هندسة البرمجيات – ت
  كنولوجيا المعلومات
 END:VEVENT
