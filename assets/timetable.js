@@ -347,6 +347,7 @@
     .ti-top b { color: #901d23; font-size: .78rem; }
     .ti-sec { background: #091b22; color: #fff; border-radius: 20px; padding: 0 .4rem; font-size: .64rem; font-weight: 700; }
     .ti-lab { color: #0a7f98; margin-inline-start: auto; }
+    .ti-usual { font-weight: 600; opacity: .9; font-size: .72em; }
     .ti-own { color: #2b4cb3; font-size: .62rem; font-weight: 700; white-space: nowrap; }
     .ti-days { background: #fff3cd; color: #7a5a00; border-radius: 20px; padding: 0 .4rem; font-size: .62rem; font-weight: 700; white-space: nowrap; }
     .ti-print { display: inline-flex; align-items: center; gap: .35rem; } .ti-print label { font-weight: 700; white-space: nowrap; } .ti-print select { width: auto; max-width: 21rem; }
@@ -358,19 +359,30 @@
     @media print { .ti-wrap { max-height: none; } .ti-table thead th, .ti-inst { position: static; } }`;
   // on paper every section is one compact line (code, section, room; the name below when shown), so a department fits a page
   const TI_PRINT = `
-    .raw .ti-table { table-layout: auto; }
-    .raw .ti-table thead th { padding: 3px 2px !important; font-size: 8pt !important; white-space: nowrap; }
-    .raw .ti-table .ti-patg { font-size: 9.5pt !important; }
-    .raw .ti-table td { padding: 1px !important; }
-    .raw .ti-table .ti-inst { min-width: 0 !important; width: 9rem; min-width: 9rem !important; max-width: 9rem; white-space: normal; font-size: 8pt !important; line-height: 1.2; padding: 2px 5px !important; }
-    .raw .ti-table .ti-inst small { font-size: 6.5pt !important; }
-    .raw .ti-table .ti-chip { display: flex; flex-flow: row wrap; align-items: baseline; gap: 0 3px; padding: 1px 3px !important; margin: 1px 0 !important; border-radius: 4px; border-inline-start-width: 3px; font-size: 7.5pt !important; line-height: 1.25 !important; }
+    .raw .ti-table, .raw .ti-table * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .raw .ti-table { table-layout: auto; border-collapse: collapse !important; }
+    .raw .ti-table th, .raw .ti-table td { border: 1px solid #777 !important; box-shadow: none !important; }
+    .raw .ti-table thead th, .raw .ti-table .ti-corner { background: #e6e6e6 !important; color: #000 !important; font-size: 9pt !important; font-weight: 800; padding: 3px 2px !important; white-space: nowrap; }
+    .raw .ti-table .ti-patg { background: #cfcfcf !important; font-size: 12pt !important; } .raw .ti-table .ti-usual { font-size: 9.5pt; font-weight: 700; }
+    .raw .ti-table .ti-patg i, .raw .ti-table .ti-corner i { display: none; }
+    .raw .ti-table td { padding: 1px !important; background: #fff !important; }
+    .raw .ti-table tbody tr:nth-child(even) td { background: #fff !important; }
+    .raw .ti-table .ti-gap { border-right: 2.5px solid #000 !important; }
+    .raw .ti-table .ti-inst { background: #f2f2f2 !important; color: #000 !important; width: 9.5rem; min-width: 9.5rem !important; max-width: 9.5rem; white-space: normal; font-size: 9.5pt !important; line-height: 1.2; padding: 2px 5px !important; }
+    .raw .ti-table .ti-inst a { color: #000 !important; } .raw .ti-table .ti-inst small { font-size: 8pt !important; color: #222 !important; }
+    .raw .ti-table .ti-chip { display: flex; flex-flow: row wrap; align-items: baseline; gap: 1px 4px; background: #fff !important; background-image: none !important; color: #000 !important;
+      border: 1px solid #555 !important; border-inline-start: 3.5px solid #000 !important; border-radius: 3px; padding: 1px 3px !important; margin: 1px 0 !important; font-size: 8.5pt !important; line-height: 1.2 !important; break-inside: avoid; }
     .raw .ti-table .ti-top { display: contents; }
-    .raw .ti-table .ti-top > * { white-space: nowrap; } .raw .ti-table .ti-top b { font-size: 8pt !important; }
-    .raw .ti-table .ti-sec, .raw .ti-table .ti-days, .raw .ti-table .ti-own { font-size: 6.5pt !important; padding: 0 3px; }
-    .raw .ti-table .ti-days, .raw .ti-table .ti-own { font-size: 0 !important; } .raw .ti-table .ti-days::after { content: attr(data-s); font-size: 6.5pt; } .raw .ti-table .ti-own::after { content: attr(data-e); font-size: 6.5pt; }
-    .raw .ti-table .ti-room { order: 5; font-size: 7pt !important; white-space: nowrap; } .raw .ti-table .ti-room i, .raw .ti-table .ti-lab { display: none !important; }
-    .raw .ti-table .ti-name { order: 9; flex-basis: 100%; font-size: 7pt !important; font-weight: 700; line-height: 1.2; white-space: normal; }
+    .raw .ti-table .ti-top > * { white-space: nowrap; }
+    .raw .ti-table .ti-top b { font-size: 9.5pt !important; color: #000 !important; }
+    .raw .ti-table .ti-sec { background: #fff !important; color: #000 !important; border: 1px solid #000; border-radius: 3px; font-size: 8pt !important; font-weight: 800; padding: 0 2px; line-height: 1.1; }
+    .raw .ti-table .ti-days, .raw .ti-table .ti-own { font-size: 0 !important; background: none !important; padding: 0; }
+    .raw .ti-table .ti-days::after { content: attr(data-s); font-size: 8pt; font-weight: 800; color: #000; border: 1px dashed #000; border-radius: 3px; padding: 0 3px; }
+    .raw .ti-table .ti-own::after { content: attr(data-e); font-size: 8pt; font-weight: 800; color: #000; }
+    .raw .ti-table .ti-room { order: 5; font-size: 8.5pt !important; color: #000 !important; white-space: nowrap; } .raw .ti-table .ti-room i, .raw .ti-table .ti-lab { display: none !important; }
+    .raw .ti-table .ti-name { order: 9; flex-basis: 100%; font-size: 8.5pt !important; font-weight: 700; color: #000 !important; line-height: 1.2; white-space: normal; }
+    .raw .ti-table .ti-chip.m-online::after, .raw .ti-table .ti-chip.m-blend::after, .raw .ti-table .ti-chip.lab::before { order: 6; font-size: 7.5pt; font-weight: 800; color: #000; border: 1px solid #000; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+    .raw .ti-table .ti-chip.m-online::after { content: 'إلكتروني'; } .raw .ti-table .ti-chip.m-blend::after { content: 'مدمج'; } .raw .ti-table .ti-chip.lab::before { content: 'عملي'; order: 7; border-style: dotted; }
     .raw .ti-key { columns: 6 11rem; column-gap: 14px; margin-top: 6px; padding-top: 4px; border-top: 1px solid #ddd; font-size: 7.5pt; line-height: 1.35; }
     .raw .ti-key h4 { column-span: all; font-size: 8.5pt; font-weight: 800; color: #901d23; margin: 0 0 3px; }
     .raw .ti-key div { break-inside: avoid; } .raw .ti-key b { display: inline-block; min-width: 3.6em; direction: ltr; text-align: right; color: #091b22; }
@@ -384,8 +396,8 @@
     .raw .tl-t { color: #901d23; font-size: 7pt; } .raw .tl-s { font-size: 6.5pt; color: #fff; background: #091b22; border-radius: 6px; padding: 0 3px; }
     .raw .tl-d { font-size: 6.5pt; color: #7a5a00; background: #fff3cd; border-radius: 6px; padding: 0 3px; } .raw .tl-r { color: #5c6b72; font-size: 7pt; }
     .raw .tl-note { font-size: 7pt; color: #555; margin-top: 4px; } .raw .tl-note .tl-e { margin: 0 4px; }
-    .raw .ti-part + .ti-part { break-before: page; } .raw .ti-part .part-h { font-size: 11pt; margin-bottom: 4px; }
-    .raw .ti-table:not(.named) .ti-time { min-width: 0 !important; }`;
+    .raw .ti-part + .ti-part { break-before: page; } .raw .ti-part .part-h { font-size: 13pt; font-weight: 800; color: #000; margin-bottom: 4px; }
+    .raw .ti-part .part-h i { display: none; }`;
   if (!document.getElementById('ti-css')) { const el = document.createElement('style'); el.id = 'ti-css'; el.textContent = TI_CSS; document.head.appendChild(el); }
 
   // ------------------------------------------------------------------ instructors' timetable (a report)
@@ -422,6 +434,9 @@
       Object.values(g).forEach(x => items.push({ s, t: x.t, mode: x.mode, pat: x.pat, days: [...new Set(x.days)].sort((a, b) => WEEK.indexOf(a) - WEEK.indexOf(b)).join('') }));
     });
     const pats = GROUPS.map(g => g[0]).filter(p => items.some(x => x.pat === p));
+    // the days most sections of a group meet on (e.g. Sunday and Tuesday): said once in the heading, marked only when different
+    const usualDays = Object.fromEntries(pats.map(p => { const n = {}; items.filter(x => x.pat === p).forEach(x => { n[x.days] = (n[x.days] || 0) + 1; });
+      return [p, Object.keys(n).sort((a, b) => n[b] - n[a])[0]]; }));
     // one column per start time in each group (09:00–10:00 and 09:00–10:30 share the 09:00 column); a section whose
     // length differs from the column's usual one shows its own time
     items.forEach(x => { x.st = x.t.split('–')[0]; });
@@ -436,14 +451,14 @@
     const short = n => n.replace(/\s*-\s*(نظري|عملي)\s*$/, '');
     const chip = x => `<a href="#" class="ti-chip ${(MODE[x.mode] || {}).cls || ''} ${x.s.activity === 'عملي' ? 'lab' : ''}" data-open="${S.indexOf(x.s)}"
         title="${esc(`${x.s.code} ${x.s.name} – شعبة ${x.s.section}\n${PAT_NAME(x.days)} ${x.t} · ${x.mode}\nالقاعة ${x.s.room} · ${x.s.building}\n${x.s.registered}/${x.s.capacity} مسجّل`)}">
-        <span class="ti-top"><b dir="ltr">${esc(x.s.code)}</b><span class="ti-sec">ش${esc(x.s.section)}</span>${usual[x.pat + x.st] !== x.t ? `<bdi dir="ltr" class="ti-own" data-e="–${esc(x.t.split('–')[1])}">${esc(x.t)}</bdi>` : ''}${x.days !== x.pat ? `<span class="ti-days" data-s="${esc(x.days.split('').join('،'))}">${esc(x.days.split('').map(d => DAYS[d]).join('، '))}</span>` : ''}${x.s.activity === 'عملي' ? '<i class="bi bi-pc-display ti-lab" title="عملي"></i>' : ''}</span>
+        <span class="ti-top"><b dir="ltr">${esc(x.s.code)}</b><span class="ti-sec">ش${esc(x.s.section)}</span>${usual[x.pat + x.st] !== x.t ? `<bdi dir="ltr" class="ti-own" data-e="حتى ${esc(x.t.split('–')[1])}">${esc(x.t)}</bdi>` : ''} ${x.days !== usualDays[x.pat] ? `<span class="ti-days" data-s="${esc(x.days.split('').join('،'))}">${esc(x.days.split('').map(d => DAYS[d]).join('، '))}</span>` : ''}${x.s.activity === 'عملي' ? '<i class="bi bi-pc-display ti-lab" title="عملي"></i>' : ''}</span>
         ${names ? `<span class="ti-name">${esc(short(x.s.name))}</span>` : ''}
         <span class="ti-room"><i class="bi bi-geo-alt"></i>${x.s.room === '0' ? 'افتراضية' : esc(x.s.room)}</span></a>`;
     const tone = Object.fromEntries(GROUPS.map(g => [g[0], g[2]]));
     const gname = Object.fromEntries(GROUPS.map(g => [g[0], g[1]]));
     const head1 = `<tr><th class="ti-corner" rowspan="2"><i class="bi bi-person-badge"></i> المدرس</th>${pats.map(p => {
         const n = cols.filter(c => c.p === p).length;
-        return `<th class="ti-pat ti-patg" data-g="${p}" colspan="${n}" style="--pt:${tone[p]}"><span class="ti-patl"><i class="bi bi-calendar3-week"></i> ${esc(gname[p])}</span></th>`;
+        return `<th class="ti-pat ti-patg" data-g="${p}" colspan="${n}" style="--pt:${tone[p]}"><span class="ti-patl"><i class="bi bi-calendar3-week"></i> ${esc(gname[p])}${usualDays[p] !== p ? ` <small class="ti-usual">· الشعب بلا علامة أيام تلتقي: ${esc(PAT_NAME(usualDays[p]))}</small>` : ''}</span></th>`;
       }).join('')}</tr>`;
     const head2 = `<tr>${cols.map((c, i) => `<th data-g="${c.p}" class="ti-time ${i && cols[i - 1].p !== c.p ? 'ti-gap' : ''}" style="--pt:${tone[c.p]}"><bdi dir="ltr">${esc(c.t)}</bdi></th>`).join('')}</tr>`;
     // two different sections on a shared day at the same time = a clash
@@ -458,7 +473,7 @@
     const lay = tiLay();
     return `<div class="card ti-card"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center small ti-bar">
         <span class="ti-title"><i class="bi bi-person-lines-fill"></i> جدول المدرسين التفصيلي</span>
-        <span class="text-muted">${shownI.length} مدرساً · كل خانة: رمز المقرر، الشعبة${names ? '، الاسم' : ''} والقاعة · اليوم مكتوب عند الشعبة التي لا تلتقي في كل أيام المجموعة</span>
+        <span class="text-muted">${shownI.length} مدرساً · كل خانة: رمز المقرر، الشعبة${names ? '، الاسم' : ''} والقاعة · الأيام مكتوبة عند الشعبة التي تختلف أيامها عن المعتاد في مجموعتها</span>
         <div class="form-check form-switch m-0 ms-auto"><input class="form-check-input" type="checkbox" id="ti-names" ${names ? 'checked' : ''}><label class="form-check-label fw-bold" for="ti-names">اسم المقرر</label></div>
         <span class="ti-print"><label for="ti-lay"><i class="bi bi-printer"></i> تخطيط الطباعة</label><select class="form-select form-select-sm" id="ti-lay">${Object.entries(TI_LAY).map(([k, v]) => `<option value="${k}" ${k === lay ? 'selected' : ''}>${v[3]}</option>`).join('')}</select>
           <button class="btn btn-sm btn-uop" id="ti-printbtn"><i class="bi bi-printer-fill"></i> طباعة</button></span>
@@ -1400,7 +1415,7 @@
     const filters = [...FK, 'seats'].filter(k => st[k]).map(k => [k === 'seats' ? 'المقاعد' : F.find(f => f[0] === k)[1], k === 'seats' ? 'متاحة فقط' : label(k, st[k])]);
     if (st.q) filters.unshift(['بحث', st.q]);
     const base = { title: 'الجدول الدراسي', source: 'المصدر: بوابة الجامعة (edugate)', filters, orientation: 'landscape' };
-    if (st.view === 'inst') { const [paper, orient, how] = TI_LAY[tiLay()]; Object.assign(base, { paper, orientation: orient, fit: how === 'one' || how === 'list', fitParts: how === 'groups', minZoom: 0.8, noSplit: how === 'pages' }); }
+    if (st.view === 'inst') { const [paper, orient, how] = TI_LAY[tiLay()]; Object.assign(base, { paper, orientation: orient, fit: how === 'one' || how === 'list', fitParts: how === 'groups', minZoom: 0.95, noSplit: how === 'pages' }); }
     if (shown) {  // a matrix: printed exactly as displayed (same colours, chips and layout)
       const legend = document.querySelector('#tt-results .fr-legend, #tt-results .mx-days + div .ms-auto');
       return printReport(Object.assign(base, { subtitle: `${DATA.term} – ${shown.title}`,
