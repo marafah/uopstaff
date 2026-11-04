@@ -344,7 +344,9 @@
     .ti-chip.m-async { background: #fdf8ec; border-color: #efe2bd; border-inline-start-color: #b8892b; }
     .ti-chip.m-blend { background: #f6f1fb; border-color: #e3d6f1; border-inline-start-color: #6a2fb0; }
     .ti-chip.lab { background-image: repeating-linear-gradient(135deg, transparent 0 6px, rgba(10,162,192,.06) 6px 12px); }
-    .ti-top { display: flex; align-items: center; gap: .3rem; }
+    .ti-top { display: flex; align-items: center; justify-content: space-between; gap: .3rem; }
+    .ti-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .1rem .3rem; } .ti-meta:empty { display: none; }
+    .ti-tags { display: inline-flex; flex-wrap: wrap; gap: .2rem; margin-inline-start: auto; } .ti-tags:empty { display: none; }
     .ti-top b { color: #901d23; font-size: .78rem; }
     .ti-sec { background: #091b22; color: #fff; border-radius: 20px; padding: 0 .4rem; font-size: .64rem; font-weight: 700; }
     .ti-lab { color: #0a7f98; margin-inline-start: auto; }
@@ -379,7 +381,7 @@
     .ti-reg { color: #5c6b72; font-size: .66rem; display: inline-flex; gap: .2rem; align-items: center; }
     .ti-usual { font-weight: 600; opacity: .9; font-size: .72em; }
     .ti-own { color: #2b4cb3; font-size: .62rem; font-weight: 700; white-space: nowrap; }
-    .ti-days { background: #fff3cd; color: #7a5a00; border-radius: 20px; padding: 0 .4rem; font-size: .62rem; font-weight: 700; white-space: nowrap; }
+    .ti-days { background: #091b22; color: #fff; border-radius: 4px; padding: 0 .35rem; font-size: .62rem; font-weight: 700; white-space: nowrap; }
     .ti-print { display: inline-flex; align-items: center; gap: .35rem; } .ti-print label { font-weight: 700; white-space: nowrap; } .ti-print select { width: auto; max-width: 21rem; }
     .ti-name { font-weight: 700; font-size: .72rem; color: #24323a; }
     .ti-room { color: #5c6b72; font-size: .66rem; display: inline-flex; gap: .2rem; align-items: center; }
@@ -396,24 +398,26 @@
     .raw .ti-table .ti-time .t1, .raw .ti-table .ti-time .t2 { display: block; line-height: 1.15; } .raw .ti-table .ti-time .t2 { font-weight: 600; font-size: .92em; }
     .raw .ti-table .ti-patg { background: #cfcfcf !important; font-size: 12pt !important; } .raw .ti-table .ti-usual { font-size: 9.5pt; font-weight: 700; }
     .raw .ti-table .ti-patg i, .raw .ti-table .ti-corner i { display: none; }
-    .raw .ti-table td { padding: 1px !important; background: #fff !important; }
+    .raw .ti-table td { padding: 2px !important; background: #fff !important; vertical-align: top; }
     .raw .ti-table tbody tr:nth-child(even) td { background: #fff !important; }
     .raw .ti-table .ti-gap { border-right: 2.5px solid #000 !important; }
     .raw .ti-table .ti-inst { background: #f2f2f2 !important; color: #000 !important; width: 11rem; min-width: 11rem !important; max-width: 11rem; white-space: normal; font-size: 9pt !important; line-height: 1.2; padding: 2px 5px !important; }
     .raw .ti-table .ti-inst a { color: #000 !important; } .raw .ti-table .ti-inst small { font-size: 8pt !important; color: #222 !important; }
-    .raw .ti-table .ti-chip { display: flex; flex-flow: row wrap; align-items: baseline; gap: 1px 4px; background: #fff !important; background-image: none !important; color: #000 !important;
-      border: 1px solid #555 !important; border-inline-start: 3.5px solid #000 !important; border-radius: 3px; padding: 1px 3px !important; margin: 1px 0 !important; font-size: 8.5pt !important; line-height: 1.2 !important; break-inside: avoid; }
-    .raw .ti-table .ti-top { display: contents; }
-    .raw .ti-table .ti-top > * { white-space: nowrap; }
-    .raw .ti-table .ti-top b { font-size: 9.5pt !important; color: #000 !important; }
-    .raw .ti-table .ti-sec { background: #fff !important; color: #000 !important; border: 1px solid #000; border-radius: 3px; font-size: 8pt !important; font-weight: 800; padding: 0 2px; line-height: 1.1; }
-    .raw .ti-table .ti-days, .raw .ti-table .ti-own { font-size: 0 !important; background: none !important; padding: 0; }
-    .raw .ti-table .ti-days::after { content: attr(data-s); font-size: 8pt; font-weight: 800; color: #000; border: 1px dashed #000; border-radius: 3px; padding: 0 3px; }
-    .raw .ti-table .ti-own::after { content: attr(data-e); font-size: 8pt; font-weight: 800; color: #000; }
-    .raw .ti-table .ti-room { order: 5; font-size: 8.5pt !important; color: #000 !important; white-space: nowrap; } .raw .ti-table .ti-room i, .raw .ti-table .ti-lab { display: none !important; }
-    .raw .ti-table .ti-name { order: 9; flex-basis: 100%; font-size: 8.5pt !important; font-weight: 700; color: #000 !important; line-height: 1.2; white-space: normal; }
-    .raw .ti-table .ti-mode { font-size: 7.5pt !important; font-weight: 800; color: #000 !important; border: 1px solid #000; border-radius: 3px; padding: 0 3px; }
-    .raw .ti-table .ti-reg { order: 6; font-size: 8.5pt !important; color: #000 !important; white-space: nowrap; } .raw .ti-table .ti-reg i { display: none; }
+    .raw .ti-table .ti-chip { display: flex !important; flex-direction: column; gap: 1px; width: 100%; max-width: none !important; background: #fff !important; background-image: none !important; color: #000 !important;
+      border: 0 !important; border-inline-start: 3px solid #000 !important; border-radius: 0; padding: 1px 4px !important; margin: 0 !important; font-size: 8.5pt !important; line-height: 1.2 !important; break-inside: avoid; }
+    .raw .ti-table .ti-chip + .ti-chip { margin-top: 3px !important; box-shadow: 0 -2px 0 #fff, 0 -3px 0 #888 !important; }
+    .raw .ti-table .ti-top { display: flex; align-items: baseline; justify-content: space-between; gap: 3px; white-space: nowrap; }
+    .raw .ti-table .ti-top b { font-size: 9.5pt !important; color: #000 !important; letter-spacing: .2px; }
+    .raw .ti-table .ti-sec { background: #fff !important; color: #000 !important; border: 1px solid #000; border-radius: 3px; font-size: 7.5pt !important; font-weight: 800; padding: 0 3px; line-height: 1.15; }
+    .raw .ti-table .ti-name { font-size: 8.5pt !important; font-weight: 700; color: #000 !important; line-height: 1.2; white-space: normal; }
+    .raw .ti-table .ti-meta { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 0 3px; }
+    .raw .ti-table .ti-room { font-size: 8pt !important; color: #000 !important; white-space: nowrap; } .raw .ti-table .ti-room i, .raw .ti-table .ti-reg i, .raw .ti-table .ti-lab { display: none !important; }
+    .raw .ti-table .ti-tags { display: inline-flex; flex-wrap: wrap; gap: 2px; margin-inline-start: auto; }
+    .raw .ti-table .ti-days { font-size: 7.5pt !important; font-weight: 800; color: #000 !important; background: #fff !important; border: 1.5px solid #000; border-radius: 3px; padding: 0 3px; white-space: nowrap; }
+    .raw .ti-table .ti-own { font-size: 0 !important; background: none !important; padding: 0; white-space: nowrap; }
+    .raw .ti-table .ti-own::after { content: attr(data-e); font-size: 7.5pt; font-weight: 800; color: #000; }
+    .raw .ti-table .ti-mode { font-size: 7pt !important; font-weight: 800; color: #000 !important; border: 1px solid #000; border-radius: 3px; padding: 0 2px; white-space: nowrap; }
+    .raw .ti-table .ti-reg { font-size: 7.5pt !important; color: #000 !important; white-space: nowrap; } .raw .ti-table .ti-reg::after { content: ' ط'; }
     .raw .ti-key { columns: 6 11rem; column-gap: 14px; margin-top: 6px; padding-top: 4px; border-top: 1px solid #ddd; font-size: 7.5pt; line-height: 1.35; }
     .raw .ti-key h4 { column-span: all; font-size: 8.5pt; font-weight: 800; color: #901d23; margin: 0 0 3px; }
     .raw .ti-key div { break-inside: avoid; } .raw .ti-key b { display: inline-block; min-width: 3.6em; direction: ltr; text-align: right; color: #091b22; }
@@ -440,7 +444,9 @@
   const GROUPS = [['حثخ', 'الأحد · الثلاثاء · الخميس', '#901d23'], ['نر', 'الاثنين · الأربعاء', '#1f6f78']];
   const PAT_NAME = ds => ds.split('').map(d => DAYS[d]).join(' · ');
   // what each cell shows; kept in the link (cell=code,name,…) so a shared or printed view looks the same
-  const TI_FIELDS = [['code', 'رمز المقرر'], ['name', 'اسم المقرر'], ['sec', 'الشعبة'], ['room', 'القاعة'], ['days', 'الأيام (إن اختلفت)'], ['time', 'الوقت (إن اختلف)'], ['type', 'نوع التدريس'], ['reg', 'عدد الطلبة']];
+  const DAY_W = { 'ح': 'أحد', 'ن': 'اثنين', 'ث': 'ثلاثاء', 'ر': 'أربعاء', 'خ': 'خميس', 'س': 'سبت', 'ج': 'جمعة' };
+  const dayWords = ds => ds.split('').map(d => DAY_W[d] || d).join(' · ');
+  const TI_FIELDS = [['code', 'رمز المقرر'], ['name', 'اسم المقرر'], ['sec', 'الشعبة'], ['room', 'القاعة'], ['days', 'الأيام'], ['time', 'الوقت (إن اختلف)'], ['type', 'نوع التدريس'], ['reg', 'عدد الطلبة']];
   const TI_DEF = ['code', 'name', 'sec', 'room', 'days', 'time', 'type'];
   const tiFields = st => { const v = st.cell ? st.cell.split(',').filter(k => TI_FIELDS.some(f => f[0] === k)) : TI_DEF.filter(k => !(k === 'name' && st.names === '0')); return v.length ? v : ['code']; };
   function instView(list, st) {
@@ -482,16 +488,16 @@
     const kind = x => [x.mode !== 'وجاهي' ? (x.mode.includes('كامل') ? 'إلكتروني' : x.mode) : '', x.s.activity === 'عملي' ? 'عملي' : ''].filter(Boolean);
     const chip = x => { const own = usual[x.pat + x.st] !== x.t, odd = x.days !== usualDays[x.pat], room = x.s.room === '0' ? 'افتراضية' : x.s.room;
       return `<a href="#" class="ti-chip ${(MODE[x.mode] || {}).cls || ''} ${x.s.activity === 'عملي' ? 'lab' : ''}" data-open="${S.indexOf(x.s)}"
-        data-code="${esc(x.s.code)}" data-name="${esc(short(x.s.name))}" data-sec="${esc(x.s.section)}" data-room="${esc(room)}" data-days="${odd ? esc(x.days.split('').join('،')) : ''}" data-end="${own ? esc(x.t.split('–')[1]) : ''}" data-t="${esc(x.t)}" data-kind="${esc(kind(x).join(' · '))}" data-reg="${x.s.registered}"
+        data-code="${esc(x.s.code)}" data-name="${esc(short(x.s.name))}" data-sec="${esc(x.s.section)}" data-room="${esc(room)}" data-days="${esc(dayWords(x.days))}" data-end="${own ? esc(x.t.split('–')[1]) : ''}" data-t="${esc(x.t)}" data-kind="${esc(kind(x).join(' · '))}" data-reg="${x.s.registered}"
         title="${esc(`${x.s.code} ${x.s.name} – شعبة ${x.s.section}\n${PAT_NAME(x.days)} ${x.t} · ${x.mode}\nالقاعة ${x.s.room} · ${x.s.building}\n${x.s.registered}/${x.s.capacity} مسجّل`)}">
-        <span class="ti-top">${on('code') ? `<b dir="ltr">${esc(x.s.code)}</b>` : ''}${on('sec') ? `<span class="ti-sec">ش${esc(x.s.section)}</span>` : ''}${on('time') && own ? `<bdi dir="ltr" class="ti-own" data-e="حتى ${esc(x.t.split('–')[1])}">${esc(x.t)}</bdi>` : ''}${on('days') && odd ? `<span class="ti-days" data-s="${esc(x.days.split('').join('،'))}">${esc(x.days.split('').map(d => DAYS[d]).join('، '))}</span>` : ''}${on('type') ? kind(x).map(k => `<span class="ti-mode">${esc(k)}</span>`).join('') : ''}</span>
+        <span class="ti-top">${on('code') ? `<b dir="ltr">${esc(x.s.code)}</b>` : ''}${on('sec') ? `<span class="ti-sec">ش${esc(x.s.section)}</span>` : ''}</span>
         ${names ? `<span class="ti-name">${esc(short(x.s.name))}</span>` : ''}
-        ${on('room') ? `<span class="ti-room"><i class="bi bi-geo-alt"></i>${esc(room)}</span>` : ''}${on('reg') ? `<span class="ti-reg"><i class="bi bi-people"></i>${x.s.registered} طالب</span>` : ''}</a>`; };
+        <span class="ti-meta">${on('days') ? `<span class="ti-days">${esc(dayWords(x.days))}</span>` : ''}${on('room') ? `<span class="ti-room"><i class="bi bi-geo-alt"></i>${esc(room)}</span>` : ''}<span class="ti-tags">${on('time') && own ? `<bdi dir="ltr" class="ti-own" data-e="حتى ${esc(x.t.split('–')[1])}">${esc(x.t)}</bdi>` : ''}${on('type') ? kind(x).map(k => `<span class="ti-mode">${esc(k)}</span>`).join('') : ''}${on('reg') ? `<span class="ti-reg"><i class="bi bi-people"></i>${x.s.registered}</span>` : ''}</span></span></a>`; };
     const tone = Object.fromEntries(GROUPS.map(g => [g[0], g[2]]));
     const gname = Object.fromEntries(GROUPS.map(g => [g[0], g[1]]));
     const head1 = `<tr><th class="ti-corner" rowspan="2"><i class="bi bi-person-badge"></i> المدرس</th>${pats.map(p => {
         const n = cols.filter(c => c.p === p).length;
-        return `<th class="ti-pat ti-patg" data-g="${p}" colspan="${n}" style="--pt:${tone[p]}"><span class="ti-patl"><i class="bi bi-calendar3-week"></i> ${esc(gname[p])}${usualDays[p] !== p ? ` <small class="ti-usual">· الشعب بلا علامة أيام تلتقي: ${esc(PAT_NAME(usualDays[p]))}</small>` : ''}</span></th>`;
+        return `<th class="ti-pat ti-patg" data-g="${p}" colspan="${n}" style="--pt:${tone[p]}"><span class="ti-patl"><i class="bi bi-calendar3-week"></i> ${esc(gname[p])}</span></th>`;
       }).join('')}</tr>`;
     const head2 = `<tr>${cols.map((c, i) => `<th data-g="${c.p}" class="ti-time ${i && cols[i - 1].p !== c.p ? 'ti-gap' : ''}" style="--pt:${tone[c.p]}"><bdi dir="ltr"><span class="t1">${esc(c.t.split('–')[0])}</span><span class="t2">–${esc(c.t.split('–')[1])}</span></bdi></th>`).join('')}</tr>`;
     // two different sections on a shared day at the same time = a clash
@@ -505,7 +511,7 @@
     });
     return `<div class="card ti-card"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center small ti-bar">
         <span class="ti-title"><i class="bi bi-person-lines-fill"></i> جدول المدرسين التفصيلي</span>
-        <span class="text-muted">${shownI.length} مدرساً · الأيام مكتوبة عند الشعبة التي تختلف أيامها عن المعتاد في مجموعتها</span>
+        <span class="text-muted">${shownI.length} مدرساً · أيام كل شعبة مكتوبة داخل خانتها</span>
         <div class="ms-auto d-flex flex-wrap gap-2 align-items-center">
           <div class="dropdown"><button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"><i class="bi bi-ui-checks-grid"></i> محتوى الخانة <span class="badge text-bg-secondary">${F_.length}</span></button>
             <div class="dropdown-menu dropdown-menu-end p-2 ti-fmenu">${TI_FIELDS.map(([k, l]) => `<label class="dropdown-item ti-fopt"><input class="form-check-input" type="checkbox" data-tif="${k}" ${on(k) ? 'checked' : ''}> ${l}</label>`).join('')}</div></div>
@@ -1422,7 +1428,7 @@
     const days = 'ح الأحد · ن الاثنين · ث الثلاثاء · ر الأربعاء · خ الخميس';
     if (on('name') && on('code')) t.classList.add('keyed');
     return `<div class="part ti-part"><table class="tl-table"><thead><tr><th class="tl-c">المدرس</th>${groups.map(g => `<th>${esc(g[1])}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>
-      <div class="tl-note">كل شعبة تبدأ بوقتها. حروف الأيام عند الشعبة التي تختلف أيامها عن المعتاد: ${days}.</div>${tiKey(t)}</div>`;
+      <div class="tl-note">كل شعبة تبدأ بوقتها ثم أيامها.</div>${tiKey(t)}</div>`;
   }
   // ------------------------------------------------------------------ printing the instructors' timetable
   // A print window: paper and orientation, one page (scaled to fill it, columns as narrow as reads best) or several pages
@@ -1434,7 +1440,7 @@
   const tpSave = P => { try { localStorage.setItem(TP_KEY, JSON.stringify(P)); } catch (e) { /* per viewer only */ } };
   const TI_COLOR = `
     .raw .ti-table thead th, .raw .ti-table .ti-corner { background: #091b22 !important; color: #fff !important; } .raw .ti-table .ti-patg { background: #901d23 !important; }
-    .raw .ti-table .ti-chip { background: #f4faf6 !important; border-color: #b9d6c2 !important; border-inline-start-color: #1d7a3e !important; }
+    .raw .ti-table .ti-chip { background: #f4faf6 !important; border-inline-start-color: #1d7a3e !important; }
     .raw .ti-table .ti-chip.m-online { background: #f1f4fd !important; border-inline-start-color: #2b4cb3 !important; } .raw .ti-table .ti-chip.m-blend { background: #f6f1fb !important; border-inline-start-color: #6a2fb0 !important; }
     .raw .ti-table .ti-top b { color: #901d23 !important; } .raw .ti-table .ti-sec { background: #091b22 !important; color: #fff !important; }`;
   const TP_HIDE = { code: '.ti-top b', name: '.ti-name', sec: '.ti-sec', room: '.ti-room', days: '.ti-days', time: '.ti-own', type: '.ti-mode', reg: '.ti-reg' };
@@ -1445,8 +1451,7 @@
     .raw .fitmode .ti-table .ti-inst { font-size: 8.5pt !important; line-height: 1.15; padding: 1px 4px !important; } .raw .fitmode .ti-table .ti-inst small { display: inline; margin-inline-start: 4px; }
     .raw .fitmode .ti-table .ti-chip { line-height: 1.12 !important; padding: 1px 2px !important; }
     .raw .fitmode .ti-table td { overflow: hidden; }
-    .raw .fitmode .ti-table .ti-top > *, .raw .fitmode .ti-table .ti-room, .raw .fitmode .ti-table .ti-reg { white-space: normal; }
-    .raw .fitmode .ti-table .ti-chip { display: inline-flex; vertical-align: top; max-width: 100%; margin: 1px !important; }
+    .raw .fitmode .ti-table .ti-top { flex-wrap: wrap; } .raw .fitmode .ti-table .ti-room { white-space: normal; }
     .raw .fitmode .ti-table .ti-name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .raw .fitmode .ti-table thead th { white-space: normal; }`;
   function tpOptions(P, list, st) {
