@@ -1,7 +1,8 @@
 /* Print reports: a clean A4 document built from the data (not a print of the screen).
    printReport({ title, subtitle, filters: [[label, value]], stats: [[label, value]], sections: [{ title?, columns, rows, widths? }],
                  orientation: 'landscape' | 'portrait', paper: 'A4' | 'A3', note, fit, fitParts })
-   (fitParts: each .part of o.raw on its own page, scaled to fit it but not below minZoom) builds it (fit: scaled to one page) in a hidden frame and opens the print dialog
+   (fitParts: each .part of o.raw on its own page, scaled to fit it but not below minZoom; fitMax: one-page fit may enlarge up to it;
+   compact: a one-line header; hideFilters; frame + noPrint: draw a preview; returns a promise of { zoom, pages }) builds it (fit: scaled to one page) in a hidden frame and opens the print dialog
    (where "Save as PDF" saves it as a file). */
 window.printReport = (function () {
   'use strict';
@@ -26,6 +27,10 @@ window.printReport = (function () {
   header.rh .meta { text-align: left; font-size: 8.5pt; color: #555; line-height: 1.6; }
   header.rh .qr { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px; border: 1px solid #e3dccb; border-radius: 8px; }
   header.rh .qr svg { width: 66px; height: 66px; display: block; } header.rh .qr span { font-size: 6.5pt; color: #901d23; font-weight: 700; white-space: nowrap; }
+  body.compact header.rh { gap: 10px; padding-bottom: 5px; border-bottom-width: 2px; } body.compact header.rh img { height: 30px; }
+  body.compact header.rh .t small { display: none; } body.compact header.rh .t h1 { font-size: 12pt; display: inline; } body.compact header.rh .t h2 { font-size: 10pt; display: inline; margin-inline-start: 8px; }
+  body.compact header.rh .meta { font-size: 7.5pt; line-height: 1.3; } body.compact header.rh .qr svg { width: 40px; height: 40px; } body.compact header.rh .qr span { display: none; }
+  body.compact .filters { margin-top: 5px; } body.compact .filters span { font-size: 7.5pt; padding: 1px 8px; }
   .filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
   .filters span { background: #f6f3ec; border: 1px solid #e3dccb; border-radius: 999px; padding: 2px 10px; font-size: 8.5pt; }
   .filters b { color: #901d23; font-weight: 700; }
@@ -170,31 +175,43 @@ window.printReport = (function () {
     out.forEach(d => wrap.parentNode.insertBefore(d, wrap));
     wrap.remove();
   }
+  // the largest scale at which el fits w × h: a narrower layout wraps more and grows taller, a wider one is shorter
+  // but must shrink more, so a few widths are tried and the best one kept (with the zoom applied)
+  function bestFit(el, w, h, max) {
+    let best = { z: 0, k: 1 };
+    [1, 1.15, 1.3, 1.5, 1.75, 2, 2.4, 2.9, 3.5].forEach(k => {
+      el.style.zoom = ''; el.style.width = Math.round(w * k) + 'px';
+      const z = Math.min(max, w / el.scrollWidth, h / el.scrollHeight);
+      if (z > best.z + 0.002) best = { z, k };
+    });
+    el.style.width = Math.round(w * best.k) + 'px'; el.style.zoom = best.z.toFixed(3);
+    return best.z;
+  }
   return function printReport(o) {
     // a hidden frame, not a pop-up window: nothing for a pop-up blocker to stop, and only the report is printed
-    let frame = document.getElementById('report-frame');
-    if (frame) frame.remove();
-    frame = document.createElement('iframe');
-    frame.id = 'report-frame';
-    frame.setAttribute('aria-hidden', 'true');
+    // o.frame: draw into that frame (a preview) instead; o.noPrint: do not open the print dialog. The returned promise gives
+    // { zoom } (the scale the content was printed at) and { pages } (an estimate)
+    let frame = o.frame || document.getElementById('report-frame');
+    if (frame && !o.frame) frame.remove();
+    if (!o.frame) { frame = document.createElement('iframe'); frame.id = 'report-frame'; frame.setAttribute('aria-hidden', 'true'); }
     // the paper in CSS px (96 per inch): A4 297 × 210 mm, A3 420 × 297 mm; the printable width is the paper minus 24 mm of margins
     const PX = 96 / 25.4, paper = o.paper === 'A3' ? 'A3' : 'A4', [mmL, mmS] = paper === 'A3' ? [420, 297] : [297, 210];
     const landscape = (o.orientation || 'landscape') === 'landscape', pageW = (landscape ? mmL : mmS) * PX, pageH = (landscape ? mmS : mmL) * PX;
     const printable = Math.round(pageW - 24 * PX);
-    frame.style.cssText = `position:fixed;left:-10000px;top:0;width:${printable}px;height:900px;border:0;visibility:hidden`;
-    document.body.appendChild(frame);
+    if (o.frame) { frame.style.width = printable + 'px'; frame.style.height = Math.round(pageH - 24 * PX) + 'px'; }
+    else { frame.style.cssText = `position:fixed;left:-10000px;top:0;width:${printable}px;height:900px;border:0;visibility:hidden`; document.body.appendChild(frame); }
     const w = frame.contentWindow;
     const orient = o.orientation || 'landscape';
     const logo = new URL('assets/logo.png', location.href).href;
     const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${esc(o.title)}</title>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap">
       ${(o.css || []).map(h => `<link rel="stylesheet" href="${new URL(h, location.href).href}">`).join('')}
-      <style>${CSS.replace('__PAPER__', paper).replace('__ORIENT__', orient).replace('__MARGIN__', o.fit ? '0' : '14mm 12mm 16mm')}${o.raw ? RAW_CSS : ''}</style></head><body class="${o.fit ? 'fit' : ''}">
+      <style>${CSS.replace('__PAPER__', paper).replace('__ORIENT__', orient).replace('__MARGIN__', o.fit ? '0' : '14mm 12mm 16mm')}${o.raw ? RAW_CSS : ''}</style></head><body class="${o.fit ? 'fit' : ''} ${o.compact ? 'compact' : ''}">
       <div class="page">
         <header class="rh"><img src="${logo}" alt="">
           <div class="t"><small>بوصلة البترا · جامعة البترا</small><h1>${esc(o.title)}</h1>${o.subtitle ? `<h2>${esc(o.subtitle)}</h2>` : ''}</div>
           <div class="meta">تاريخ التقرير: ${now()}<br>${o.source ? esc(o.source) : ''}</div>${qr(o)}</header>
-        ${o.filters && o.filters.length ? `<div class="filters">${o.filters.map(([k, v]) => `<span>${esc(k)}: <b>${esc(v)}</b></span>`).join('')}</div>` : ''}
+        ${o.filters && o.filters.length && !o.hideFilters ? `<div class="filters">${o.filters.map(([k, v]) => `<span>${esc(k)}: <b>${esc(v)}</b></span>`).join('')}</div>` : ''}
         ${o.stats && o.stats.length ? `<div class="stats">${o.stats.map(([k, v]) => `<div><b>${esc(v)}</b><span>${esc(k)}</span></div>`).join('')}</div>` : ''}
         ${(o.sections || []).map(table).join('')}
         ${o.raw ? `<div class="raw">${o.raw}</div>` : ''}
@@ -212,17 +229,20 @@ window.printReport = (function () {
         // o.fit: everything on one page — the whole report is scaled to the printable width and height
         const page = w.document.querySelector('.page');
         const height = pageH - 38 - 64;  // the paper minus the top margin and the footer zone, in CSS px
-        const scale = Math.min(1, printable / page.scrollWidth, height / page.scrollHeight);
-        if (scale < 1) page.style.zoom = scale.toFixed(3);
+        const scale = o.fitSearch ? bestFit(page, printable, height, o.fitMax || 1) : Math.min(o.fitMax || 1, printable / page.scrollWidth, height / page.scrollHeight);
+        if (!o.fitSearch && scale !== 1) page.style.zoom = scale.toFixed(3);
+        info.zoom = scale; info.pages = 1;
       } else if (o.fitParts && raw) {
         // o.fitParts: every .part on a page of its own, scaled to fit it (the first page also holds the report header)
         const parts = [...raw.querySelectorAll('.part')], full = pageH - 14 * PX - 16 * PX - 8;
         parts.forEach((p, i) => {
           const avail = i ? full : full - (p.getBoundingClientRect().top - w.document.body.getBoundingClientRect().top) + 14 * PX;
           // never smaller than o.minZoom: a part too tall for that continues on the next page (its header repeated)
-          const scale = Math.min(1, printable / p.scrollWidth, Math.max(o.minZoom || 0, avail / p.scrollHeight));
-          if (scale < 1) p.style.zoom = scale.toFixed(3);
+          const scale = o.fitSearch ? bestFit(p, printable, avail, o.fitMax || 1) : Math.min(1, printable / p.scrollWidth, Math.max(o.minZoom || 0, avail / p.scrollHeight));
+          if (!o.fitSearch && scale < 1) p.style.zoom = scale.toFixed(3);
+          info.zoom = Math.min(info.zoom, scale); info.pages += o.fitSearch ? 1 : Math.max(1, Math.ceil(p.scrollHeight * scale / Math.max(1, i ? full : avail)));
         });
+        if (!parts.length) info.pages = 1;
       } else if (raw) {
         // a wide matrix is split into parts that each fit the page at a readable size (the first column repeated in
         // every part), instead of shrinking the whole table until it can no longer be read
@@ -231,8 +251,12 @@ window.printReport = (function () {
         raw.querySelectorAll('.part').forEach(p => { if (p.scrollWidth > printable) p.style.zoom = Math.max(0.6, printable / p.scrollWidth).toFixed(3); });
         if (!raw.querySelector('.part') && raw.scrollWidth > printable) raw.style.zoom = (printable / raw.scrollWidth).toFixed(3);
       }
-      try { w.focus(); w.print(); } catch (e) { /* printing not available */ }
+      if (!o.noPrint) try { w.focus(); w.print(); } catch (e) { /* printing not available */ }
+      done(info);
     };
-    if (w.document.fonts && w.document.fonts.ready) w.document.fonts.ready.then(() => setTimeout(go, 300)); else setTimeout(go, 800);
+    const info = { zoom: 1, pages: 0 }; let done;
+    const out = new Promise(r => { done = r; });
+    if (w.document.fonts && w.document.fonts.ready) w.document.fonts.ready.then(() => setTimeout(go, o.noPrint ? 120 : 300)); else setTimeout(go, 800);
+    return out;
   };
 })();

@@ -348,6 +348,30 @@
     .ti-top b { color: #901d23; font-size: .78rem; }
     .ti-sec { background: #091b22; color: #fff; border-radius: 20px; padding: 0 .4rem; font-size: .64rem; font-weight: 700; }
     .ti-lab { color: #0a7f98; margin-inline-start: auto; }
+    .ti-fmenu { min-width: 15rem; } .ti-fopt { display: flex; gap: .5rem; align-items: center; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    body.tp-open { overflow: hidden; }
+    .tp-ov { position: fixed; inset: 0; z-index: 2000; background: rgba(9,27,34,.55); display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .tp-box { background: #fff; border-radius: 16px; width: min(1320px, 100%); height: min(860px, 100%); display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.35); overflow: hidden; }
+    .tp-h { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .8rem 1.1rem; border-bottom: 1px solid #ece6da; }
+    .tp-h b { font-size: 1.1rem; color: #091b22; } .tp-h b i { color: #901d23; } .tp-h small { display: block; color: #6b777c; }
+    .tp-main { flex: 1; display: grid; grid-template-columns: 340px minmax(0, 1fr); min-height: 0; }
+    .tp-set { overflow-y: auto; padding: .9rem 1rem; border-inline-end: 1px solid #ece6da; background: #fbf9f5; }
+    .tp-set section { margin-bottom: 1rem; } .tp-set h6 { font-weight: 800; font-size: .82rem; color: #901d23; margin: 0 0 .45rem; letter-spacing: .2px; }
+    .tp-seg { display: flex; flex-wrap: wrap; gap: 0; border: 1px solid #d5cdbd; border-radius: 10px; overflow: hidden; margin-bottom: .45rem; background: #fff; }
+    .tp-seg button { flex: 1 1 auto; border: 0; border-inline-start: 1px solid #e6dfd0; background: #fff; padding: .42rem .55rem; font-size: .82rem; font-weight: 700; color: #3c474c; }
+    .tp-seg button:first-child { border-inline-start: 0; } .tp-seg button.on { background: #091b22; color: #fff; } .tp-seg button:not(.on):hover { background: #f3efe6; }
+    .tp-hint { font-size: .74rem; color: #6b777c; margin: 0; }
+    .tp-fields { display: grid; grid-template-columns: 1fr 1fr; gap: .3rem; }
+    .tp-f, .tp-chk { display: flex; align-items: center; gap: .4rem; font-size: .82rem; font-weight: 600; background: #fff; border: 1px solid #e6dfd0; border-radius: 8px; padding: .3rem .5rem; cursor: pointer; margin: 0; }
+    .tp-chk { margin-bottom: .3rem; } .tp-f:has(input:checked) { border-color: #091b22; background: #eef3f5; }
+    .tp-prev { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: #e9e6df; }
+    .tp-gauge { display: flex; gap: .5rem; align-items: flex-start; padding: .55rem .9rem; font-size: .84rem; background: #fff; border-bottom: 1px solid #ddd6c8; }
+    .tp-gauge.ok { color: #135d32; } .tp-gauge.mid { color: #7a5a00; } .tp-gauge.low { color: #9b1c1c; } .tp-gauge i { font-size: 1.05rem; margin-top: 1px; }
+    .tp-stage { flex: 1; min-height: 0; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .tp-paper { position: absolute; top: 50%; left: 50%; margin-left: calc(var(--pw, 0px) / -2); margin-top: calc(var(--ph, 0px) / -2); transform-origin: top left; background: #fff; box-shadow: 0 6px 24px rgba(0,0,0,.25); padding: 12mm; }
+    .tp-paper iframe { border: 0; display: block; background: #fff; pointer-events: none; }
+    .tp-f2 { display: flex; align-items: center; gap: .6rem; padding: .7rem 1.1rem; border-top: 1px solid #ece6da; } .tp-f2 .sp { flex: 1; } .tp-f2 small { color: #6b777c; }
+    @media (max-width: 860px) { .tp-main { grid-template-columns: 1fr; grid-template-rows: auto 300px; } .tp-set { border-inline-end: 0; border-bottom: 1px solid #ece6da; max-height: 48vh; } }
     .ti-fields { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; } .ti-fields > b { margin-inline-end: .2rem; }
     .ti-fld { border: 1px solid #d5cdbd; background: #fff; color: #4a565c; border-radius: 20px; padding: .15rem .6rem; font-size: .78rem; font-weight: 700; }
     .ti-fld.on { background: #091b22; border-color: #091b22; color: #fff; } .ti-fld:hover { border-color: #901d23; }
@@ -369,12 +393,13 @@
     .raw .ti-table { table-layout: auto; border-collapse: collapse !important; }
     .raw .ti-table th, .raw .ti-table td { border: 1px solid #777 !important; box-shadow: none !important; }
     .raw .ti-table thead th, .raw .ti-table .ti-corner { background: #e6e6e6 !important; color: #000 !important; font-size: 9pt !important; font-weight: 800; padding: 3px 2px !important; white-space: nowrap; }
+    .raw .ti-table .ti-time .t1, .raw .ti-table .ti-time .t2 { display: block; line-height: 1.15; } .raw .ti-table .ti-time .t2 { font-weight: 600; font-size: .92em; }
     .raw .ti-table .ti-patg { background: #cfcfcf !important; font-size: 12pt !important; } .raw .ti-table .ti-usual { font-size: 9.5pt; font-weight: 700; }
     .raw .ti-table .ti-patg i, .raw .ti-table .ti-corner i { display: none; }
     .raw .ti-table td { padding: 1px !important; background: #fff !important; }
     .raw .ti-table tbody tr:nth-child(even) td { background: #fff !important; }
     .raw .ti-table .ti-gap { border-right: 2.5px solid #000 !important; }
-    .raw .ti-table .ti-inst { background: #f2f2f2 !important; color: #000 !important; width: 9.5rem; min-width: 9.5rem !important; max-width: 9.5rem; white-space: normal; font-size: 9.5pt !important; line-height: 1.2; padding: 2px 5px !important; }
+    .raw .ti-table .ti-inst { background: #f2f2f2 !important; color: #000 !important; width: 11rem; min-width: 11rem !important; max-width: 11rem; white-space: normal; font-size: 9pt !important; line-height: 1.2; padding: 2px 5px !important; }
     .raw .ti-table .ti-inst a { color: #000 !important; } .raw .ti-table .ti-inst small { font-size: 8pt !important; color: #222 !important; }
     .raw .ti-table .ti-chip { display: flex; flex-flow: row wrap; align-items: baseline; gap: 1px 4px; background: #fff !important; background-image: none !important; color: #000 !important;
       border: 1px solid #555 !important; border-inline-start: 3.5px solid #000 !important; border-radius: 3px; padding: 1px 3px !important; margin: 1px 0 !important; font-size: 8.5pt !important; line-height: 1.2 !important; break-inside: avoid; }
@@ -414,10 +439,6 @@
   // A section listed twice by the portal (same course, section, activity, time and room) shows once.
   const GROUPS = [['حثخ', 'الأحد · الثلاثاء · الخميس', '#901d23'], ['نر', 'الاثنين · الأربعاء', '#1f6f78']];
   const PAT_NAME = ds => ds.split('').map(d => DAYS[d]).join(' · ');
-  // print layouts: [paper, orientation, how, label]; how = 'groups' (one page per day group) or 'one' (all on one page)
-  const TI_LAY = { a3g: ['A3', 'landscape', 'groups', 'A3 أفقي – جدول بالأوقات (الأوضح)'], a4g: ['A4', 'landscape', 'groups', 'A4 أفقي – جدول بالأوقات (خط أصغر)'],
-    a4list: ['A4', 'landscape', 'list', 'A4 أفقي – قائمة مختصرة بلا أعمدة أوقات'], a3list: ['A3', 'landscape', 'list', 'A3 أفقي – قائمة مختصرة بلا أعمدة أوقات'] };
-  const tiLay = () => { try { const v = localStorage.getItem('ti-lay-2'); return TI_LAY[v] ? v : 'a3g'; } catch (e) { return 'a3g'; } };
   // what each cell shows; kept in the link (cell=code,name,…) so a shared or printed view looks the same
   const TI_FIELDS = [['code', 'رمز المقرر'], ['name', 'اسم المقرر'], ['sec', 'الشعبة'], ['room', 'القاعة'], ['days', 'الأيام (إن اختلفت)'], ['time', 'الوقت (إن اختلف)'], ['type', 'نوع التدريس'], ['reg', 'عدد الطلبة']];
   const TI_DEF = ['code', 'name', 'sec', 'room', 'days', 'time', 'type'];
@@ -472,7 +493,7 @@
         const n = cols.filter(c => c.p === p).length;
         return `<th class="ti-pat ti-patg" data-g="${p}" colspan="${n}" style="--pt:${tone[p]}"><span class="ti-patl"><i class="bi bi-calendar3-week"></i> ${esc(gname[p])}${usualDays[p] !== p ? ` <small class="ti-usual">· الشعب بلا علامة أيام تلتقي: ${esc(PAT_NAME(usualDays[p]))}</small>` : ''}</span></th>`;
       }).join('')}</tr>`;
-    const head2 = `<tr>${cols.map((c, i) => `<th data-g="${c.p}" class="ti-time ${i && cols[i - 1].p !== c.p ? 'ti-gap' : ''}" style="--pt:${tone[c.p]}"><bdi dir="ltr">${esc(c.t)}</bdi></th>`).join('')}</tr>`;
+    const head2 = `<tr>${cols.map((c, i) => `<th data-g="${c.p}" class="ti-time ${i && cols[i - 1].p !== c.p ? 'ti-gap' : ''}" style="--pt:${tone[c.p]}"><bdi dir="ltr"><span class="t1">${esc(c.t.split('–')[0])}</span><span class="t2">–${esc(c.t.split('–')[1])}</span></bdi></th>`).join('')}</tr>`;
     // two different sections on a shared day at the same time = a clash
     const clashOf = xs => xs.some((x, i) => xs.slice(i + 1).some(y => (x.s.code !== y.s.code || x.s.section !== y.s.section) && [...x.days].some(d => y.days.includes(d))));
     const rows = shownI.map(i => {
@@ -482,13 +503,13 @@
         return `<td data-g="${c.p}" class="${j && cols[j - 1].p !== c.p ? 'ti-gap' : ''} ${xs.length ? 'busy' : ''} ${clashOf(xs) ? 'ti-clash' : ''}">${xs.map(chip).join('')}</td>`;
       }).join('')}</tr>`;
     });
-    const lay = tiLay();
     return `<div class="card ti-card"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center small ti-bar">
         <span class="ti-title"><i class="bi bi-person-lines-fill"></i> جدول المدرسين التفصيلي</span>
         <span class="text-muted">${shownI.length} مدرساً · الأيام مكتوبة عند الشعبة التي تختلف أيامها عن المعتاد في مجموعتها</span>
-        <span class="ti-fields w-100"><b><i class="bi bi-ui-checks"></i> محتوى الخانة (على الشاشة وفي الطباعة):</b>${TI_FIELDS.map(([k, l]) => `<button type="button" class="ti-fld${on(k) ? ' on' : ''}" data-tif="${k}" aria-pressed="${on(k)}"><i class="bi ${on(k) ? 'bi-check-square-fill' : 'bi-square'}"></i> ${l}</button>`).join('')}</span>
-        <span class="ti-print"><label for="ti-lay"><i class="bi bi-printer"></i> تخطيط الطباعة</label><select class="form-select form-select-sm" id="ti-lay">${Object.entries(TI_LAY).map(([k, v]) => `<option value="${k}" ${k === lay ? 'selected' : ''}>${v[3]}</option>`).join('')}</select>
-          <button class="btn btn-sm btn-uop" id="ti-printbtn"><i class="bi bi-printer-fill"></i> طباعة</button></span>
+        <div class="ms-auto d-flex flex-wrap gap-2 align-items-center">
+          <div class="dropdown"><button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"><i class="bi bi-ui-checks-grid"></i> محتوى الخانة <span class="badge text-bg-secondary">${F_.length}</span></button>
+            <div class="dropdown-menu dropdown-menu-end p-2 ti-fmenu">${TI_FIELDS.map(([k, l]) => `<label class="dropdown-item ti-fopt"><input class="form-check-input" type="checkbox" data-tif="${k}" ${on(k) ? 'checked' : ''}> ${l}</label>`).join('')}</div></div>
+          <button class="btn btn-sm btn-maroon" id="ti-printbtn"><i class="bi bi-printer-fill"></i> طباعة / PDF</button></div>
         <span class="d-flex flex-wrap gap-2 w-100">${Object.entries(MODE).filter(([k]) => k !== 'غير متزامن').map(([k, v]) => `<span class="tt-chip ${v.cls} static"><i class="bi ${v.icon}"></i> ${k}</span>`).join('')}<span class="tt-chip static lab"><i class="bi bi-pc-display"></i> عملي</span></span></div>
       ${insts.length > LIMIT ? `<div class="alert alert-info small m-2 mb-0"><i class="bi bi-info-circle"></i> ${insts.length} مدرساً في النطاق؛ يُعرض أول ${LIMIT}. اختر كلية أو قسماً من التصفية لعرض مدرسيه فقط.</div>` : ''}
       ${!st.dept && !st.fac && !st.inst ? '<div class="alert alert-warning small m-2 mb-0"><i class="bi bi-funnel"></i> للحصول على جدول قسم كامل مثل جداول الأقسام: اختر <b>الكلية</b> ثم <b>القسم</b> من التصفية.</div>' : ''}
@@ -1325,15 +1346,13 @@
     document.querySelectorAll('[data-rows]').forEach(b => b.addEventListener('click', () => set({ rows: b.dataset.rows })));
     const nm = $('#tt-names');
     if (nm) nm.addEventListener('change', e => set({ names: e.target.checked ? '1' : '' }));
-    document.querySelectorAll('[data-tif]').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('[data-tif]').forEach(b => b.addEventListener('change', () => {
       const cur = tiFields(st), k = b.dataset.tif, next = cur.includes(k) ? cur.filter(x => x !== k) : TI_FIELDS.map(f => f[0]).filter(x => x === k || cur.includes(x));
-      if (!next.length) return;
+      if (!next.length) { b.checked = true; return; }
       set({ cell: next.join(',') === TI_DEF.join(',') ? '' : next.join(','), names: '' });
     }));
-    const tlay = $('#ti-lay');
-    if (tlay) tlay.addEventListener('change', e => { try { localStorage.setItem('ti-lay-2', e.target.value); } catch (x) { /* per viewer only */ } });
     const tpb = $('#ti-printbtn');
-    if (tpb) tpb.addEventListener('click', () => exportAs('print', list));
+    if (tpb) tpb.addEventListener('click', () => tiPrintDialog(list, st));
     document.querySelectorAll('[data-sort]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); set({ sort: a.dataset.sort }); }));
     const sort = $('#tt-sort');
     if (sort) sort.addEventListener('change', e => set({ sort: e.target.value }));
@@ -1405,6 +1424,106 @@
     return `<div class="part ti-part"><table class="tl-table"><thead><tr><th class="tl-c">المدرس</th>${groups.map(g => `<th>${esc(g[1])}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>
       <div class="tl-note">كل شعبة تبدأ بوقتها. حروف الأيام عند الشعبة التي تختلف أيامها عن المعتاد: ${days}.</div>${tiKey(t)}</div>`;
   }
+  // ------------------------------------------------------------------ printing the instructors' timetable
+  // A print window: paper and orientation, one page (scaled to fill it, columns as narrow as reads best) or several pages
+  // at a fixed readable size, the day groups, what each cell shows, font size, black-and-white, the page header; a live
+  // preview of the first page and a gauge of the printed text size. Settings are kept per browser.
+  const TP_KEY = 'ti-print-4';
+  const tpLoad = st => { let v = {}; try { v = JSON.parse(localStorage.getItem(TP_KEY) || '{}') || {}; } catch (e) { /* defaults */ }
+    return Object.assign({ paper: 'A3', orient: 'landscape', mode: 'pages', groups: 'split', font: 1, bw: true, full: false, qr: true, filters: true, counts: true }, v, { fields: v.fields && v.fields.length ? v.fields : tiFields(st) }); };
+  const tpSave = P => { try { localStorage.setItem(TP_KEY, JSON.stringify(P)); } catch (e) { /* per viewer only */ } };
+  const TI_COLOR = `
+    .raw .ti-table thead th, .raw .ti-table .ti-corner { background: #091b22 !important; color: #fff !important; } .raw .ti-table .ti-patg { background: #901d23 !important; }
+    .raw .ti-table .ti-chip { background: #f4faf6 !important; border-color: #b9d6c2 !important; border-inline-start-color: #1d7a3e !important; }
+    .raw .ti-table .ti-chip.m-online { background: #f1f4fd !important; border-inline-start-color: #2b4cb3 !important; } .raw .ti-table .ti-chip.m-blend { background: #f6f1fb !important; border-inline-start-color: #6a2fb0 !important; }
+    .raw .ti-table .ti-top b { color: #901d23 !important; } .raw .ti-table .ti-sec { background: #091b22 !important; color: #fff !important; }`;
+  const TP_HIDE = { code: '.ti-top b', name: '.ti-name', sec: '.ti-sec', room: '.ti-room', days: '.ti-days', time: '.ti-own', type: '.ti-mode', reg: '.ti-reg' };
+  // one page: equal narrow columns, everything in a cell may wrap, names at most two lines, sections side by side
+  const TP_FIT = `
+    .raw .fitmode .ti-table { table-layout: fixed; width: 100% !important; }
+    .raw .fitmode .ti-table .ti-corner, .raw .fitmode .ti-table .ti-inst { width: 12.5rem !important; min-width: 0 !important; max-width: none; }
+    .raw .fitmode .ti-table .ti-inst { font-size: 8.5pt !important; line-height: 1.15; padding: 1px 4px !important; } .raw .fitmode .ti-table .ti-inst small { display: inline; margin-inline-start: 4px; }
+    .raw .fitmode .ti-table .ti-chip { line-height: 1.12 !important; padding: 1px 2px !important; }
+    .raw .fitmode .ti-table td { overflow: hidden; }
+    .raw .fitmode .ti-table .ti-top > *, .raw .fitmode .ti-table .ti-room, .raw .fitmode .ti-table .ti-reg { white-space: normal; }
+    .raw .fitmode .ti-table .ti-chip { display: inline-flex; vertical-align: top; max-width: 100%; margin: 1px !important; }
+    .raw .fitmode .ti-table .ti-name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .raw .fitmode .ti-table thead th { white-space: normal; }`;
+  function tpOptions(P, list, st) {
+    const box = document.createElement('div');
+    box.innerHTML = instView(list, Object.assign({}, st, { cell: TI_FIELDS.map(f => f[0]).join(','), names: '' }));
+    const t = box.querySelector('.ti-table'); if (!t) return null;
+    t.dataset.fields = P.fields.join(',');
+    const hide = TI_FIELDS.map(f => f[0]).filter(k => !P.fields.includes(k)).map(k => `.raw .ti-table ${TP_HIDE[k]}`).concat(P.counts ? [] : ['.raw .ti-table .ti-inst small']);
+    const css = `<style>${TI_CSS}${TI_PRINT}${P.bw ? '' : TI_COLOR}${hide.length ? hide.join(', ') + ' { display: none !important; }' : ''}</style>`;
+    const only = P.groups === 'g1' ? 'حثخ' : P.groups === 'g2' ? 'نر' : '';
+    if (only) { t.querySelectorAll('[data-g]').forEach(el => { if (el.dataset.g !== only) el.remove(); }); t.querySelectorAll('.ti-gap').forEach(el => el.classList.remove('ti-gap')); t.querySelectorAll('tbody tr').forEach(tr => { if (!tr.querySelector('.ti-chip')) tr.remove(); }); }
+    const body = P.groups === 'split' ? tiParts(t) : `<div class="part ti-part">${t.outerHTML}</div>`;
+    const filters = [...FK, 'seats'].filter(k => st[k]).map(k => [k === 'seats' ? 'المقاعد' : F.find(f => f[0] === k)[1], k === 'seats' ? 'متاحة فقط' : label(k, st[k])]);
+    const one = P.mode === 'one';
+    return { title: 'الجدول الدراسي', subtitle: `${DATA.term} – جدول المدرسين التفصيلي`, source: 'المصدر: بوابة الجامعة (edugate)', filters,
+      paper: P.paper, orientation: P.orient, compact: !P.full, qr: P.qr ? undefined : false, hideFilters: !P.filters,
+      css: ['https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css', 'assets/app.css'],
+      fit: one && P.groups !== 'split', fitParts: !one || P.groups === 'split', fitSearch: one, fitMax: 1.6, minZoom: one ? 0 : 1, noSplit: true,
+      raw: css + `<style>${TP_FIT}</style><div class="${one ? 'fitmode' : ''}" style="zoom:${one ? 1 : P.font}">${body}</div>` };
+  }
+  function tiPrintDialog(list, st) {
+    const P = tpLoad(st);
+    document.getElementById('tp-ov')?.remove();
+    const seg = (k, opts) => `<div class="tp-seg" role="group">${opts.map(([v, l, ic]) => `<button type="button" data-k="${k}" data-v="${v}" class="${String(P[k]) === String(v) ? 'on' : ''}">${ic ? `<i class="bi ${ic}"></i> ` : ''}${l}</button>`).join('')}</div>`;
+    const chk = (k, l) => `<label class="tp-chk"><input type="checkbox" data-c="${k}" ${P[k] ? 'checked' : ''}> ${l}</label>`;
+    const ov = document.createElement('div'); ov.id = 'tp-ov'; ov.className = 'tp-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
+    ov.innerHTML = `<div class="tp-box"><header class="tp-h"><div><b><i class="bi bi-printer-fill"></i> طباعة جدول المدرسين</b><small>${new Set(list.map(s => s.instructor)).size} مدرساً · اختر الشكل وشاهد الصفحة قبل الطباعة</small></div><button type="button" class="btn-close" data-x aria-label="إغلاق"></button></header>
+      <div class="tp-main"><aside class="tp-set">
+        <section><h6>الورق</h6>${seg('paper', [['A3', 'A3'], ['A4', 'A4']])}${seg('orient', [['landscape', 'أفقي', 'bi-file-earmark-break'], ['portrait', 'عمودي', 'bi-file-earmark']])}</section>
+        <section><h6>التوزيع</h6>${seg('mode', [['one', 'صفحة واحدة', 'bi-fullscreen'], ['pages', 'عدة صفحات بخط ثابت', 'bi-files']])}
+          <p class="tp-hint" data-hint="mode"></p></section>
+        <section><h6>مجموعات الأيام</h6>${seg('groups', [['both', 'المجموعتان في جدول واحد'], ['split', 'كل مجموعة في صفحة'], ['g1', 'الأحد · الثلاثاء · الخميس'], ['g2', 'الاثنين · الأربعاء']])}</section>
+        <section><h6>محتوى الخلية</h6><div class="tp-fields">${TI_FIELDS.map(([k, l]) => `<label class="tp-f"><input type="checkbox" data-f="${k}" ${P.fields.includes(k) ? 'checked' : ''}> ${l}</label>`).join('')}</div></section>
+        <section data-sec="font"><h6>حجم الخط</h6>${seg('font', [[0.85, 'صغير'], [1, 'عادي'], [1.2, 'كبير'], [1.4, 'كبير جداً']])}</section>
+        <section><h6>تفاصيل الصفحة</h6>${chk('bw', 'أبيض وأسود (مناسب لكل الطابعات)')}${chk('counts', 'عدد الشعب تحت اسم المدرس')}${chk('filters', 'التصفية المختارة (الكلية، القسم…)')}${chk('qr', 'رمز QR للنسخة الحية')}${chk('full', 'ترويسة كاملة (أكبر)')}</section>
+      </aside>
+      <div class="tp-prev"><div class="tp-gauge" aria-live="polite"><span class="spinner-border spinner-border-sm"></span> يجهّز المعاينة…</div><div class="tp-stage"><div class="tp-paper"><iframe title="معاينة الطباعة" tabindex="-1"></iframe></div></div></div></div>
+      <footer class="tp-f2"><small><i class="bi bi-info-circle"></i> في نافذة الطباعة اختر الورق نفسه (<b data-pp>${P.paper}</b>) و«حفظ كـ PDF» إن أردت ملفاً.</small><span class="sp"></span><button type="button" class="btn btn-outline-secondary" data-x>إلغاء</button><button type="button" class="btn btn-maroon" data-go><i class="bi bi-printer-fill"></i> طباعة / حفظ PDF</button></footer></div>`;
+    document.body.appendChild(ov); document.body.classList.add('tp-open');
+    const fr = ov.querySelector('iframe'), paper = ov.querySelector('.tp-paper'), stage = ov.querySelector('.tp-stage'), gauge = ov.querySelector('.tp-gauge');
+    const close = () => { ov.remove(); document.body.classList.remove('tp-open'); document.removeEventListener('keydown', esc_); };
+    const esc_ = e => { if (e.key === 'Escape') close(); }; document.addEventListener('keydown', esc_);
+    let timer, run = 0;
+    const draw = () => {
+      tpSave(P); const me = ++run;
+      ov.querySelector('[data-pp]').textContent = P.paper;
+      ov.querySelector('[data-sec=font]').style.display = P.mode === 'one' ? 'none' : '';
+      ov.querySelector('[data-hint=mode]').textContent = P.mode === 'one' ? 'يملأ الجدول الصفحة كاملة: تضيق الأعمدة ويكبر الخط إلى أقصى حد ممكن.' : 'خط بحجم ثابت؛ تكمل الصفوف في صفحات تالية مع تكرار عناوين الساعات.';
+      const o = tpOptions(P, list, st); if (!o) return;
+      const PX = 96 / 25.4, [L, Sh] = P.paper === 'A3' ? [420, 297] : [297, 210], pw = (P.orient === 'landscape' ? L : Sh) * PX, ph = (P.orient === 'landscape' ? Sh : L) * PX;
+      paper.style.width = pw + 'px'; paper.style.height = ph + 'px';
+      const k = Math.min((stage.clientWidth - 24) / pw, (stage.clientHeight - 24) / ph); paper.style.transform = `scale(${k})`;
+      stage.style.setProperty('--pw', pw * k + 'px'); stage.style.setProperty('--ph', ph * k + 'px');
+      gauge.innerHTML = '<span class="spinner-border spinner-border-sm"></span> يجهّز المعاينة…';
+      printReport(Object.assign(o, { frame: fr, noPrint: true })).then(info => {
+        if (me !== run) return;
+        const z = info.zoom * (P.mode === 'one' ? 1 : P.font), pt = (8.5 * z).toFixed(1), lvl = pt >= 7.5 ? 'ok' : pt >= 6.5 ? 'mid' : 'low';
+        const tips = lvl === 'low' ? ` جرّب: ${[P.paper === 'A4' ? 'ورق A3' : '', P.mode === 'one' ? '«عدة صفحات بخط ثابت»' : '', P.groups === 'both' ? '«كل مجموعة في صفحة»' : '', P.fields.length > 4 ? 'إخفاء بعض محتوى الخلية' : '', 'أو تصفية قسم واحد'].filter(Boolean).join('، ')}.` : '';
+        gauge.className = 'tp-gauge ' + lvl;
+        gauge.innerHTML = `<i class="bi ${lvl === 'ok' ? 'bi-check-circle-fill' : lvl === 'mid' ? 'bi-exclamation-circle-fill' : 'bi-x-octagon-fill'}"></i><span><b>${lvl === 'ok' ? 'واضح ومقروء' : lvl === 'mid' ? 'مقروء لكنه صغير' : 'صغير جداً للطباعة'}</b> · خط المحتوى ≈ ${pt}pt · ${info.pages || 1} ${info.pages > 2 ? 'صفحات' : info.pages === 2 ? 'صفحتان' : 'صفحة'} ${P.paper}${tips}</span>`;
+      });
+    };
+    const later = () => { clearTimeout(timer); timer = setTimeout(draw, 250); };
+    ov.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.hasAttribute('data-x')) return close();
+      if (b.hasAttribute('data-go')) { const o = tpOptions(P, list, st); if (o) printReport(o); return; }
+      if (b.dataset.k) { P[b.dataset.k] = b.dataset.k === 'font' ? +b.dataset.v : b.dataset.v; b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); later(); }
+    });
+    ov.addEventListener('change', e => {
+      const t = e.target;
+      if (t.dataset.f) { const f = TI_FIELDS.map(x => x[0]).filter(k => k === t.dataset.f ? t.checked : P.fields.includes(k)); if (!f.length) { t.checked = true; return; } P.fields = f; later(); }
+      if (t.dataset.c) { P[t.dataset.c] = t.checked; later(); }
+    });
+    window.addEventListener('resize', later, { once: true });
+    setTimeout(draw, 30);
+  }
   // the instructors' table split by day group (each part printed on its own page, scaled to fit it)
   function tiParts(t) {
     return GROUPS.filter(g => t.querySelector(`[data-g="${g[0]}"]`)).map(g => {
@@ -1431,13 +1550,11 @@
     const filters = [...FK, 'seats'].filter(k => st[k]).map(k => [k === 'seats' ? 'المقاعد' : F.find(f => f[0] === k)[1], k === 'seats' ? 'متاحة فقط' : label(k, st[k])]);
     if (st.q) filters.unshift(['بحث', st.q]);
     const base = { title: 'الجدول الدراسي', source: 'المصدر: بوابة الجامعة (edugate)', filters, orientation: 'landscape' };
-    if (st.view === 'inst') { const [paper, orient, how] = TI_LAY[tiLay()]; Object.assign(base, { paper, orientation: orient, fit: how === 'one', fitParts: how === 'groups' || how === 'list', minZoom: 0.95, noSplit: how === 'pages' }); }
     if (shown) {  // a matrix: printed exactly as displayed (same colours, chips and layout)
       const legend = document.querySelector('#tt-results .fr-legend, #tt-results .mx-days + div .ms-auto');
       return printReport(Object.assign(base, { subtitle: `${DATA.term} – ${shown.title}`,
         css: ['https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css', 'assets/app.css'],
-        raw: (st.view === 'inst' ? `<style>${TI_CSS}${TI_PRINT}</style>` : '') + (legend ? `<div class="small mb-2">${legend.outerHTML}</div>` : '')
-          + (st.view !== 'inst' ? shown.table.outerHTML : TI_LAY[tiLay()][2] === 'list' ? tiList(shown.table) : TI_LAY[tiLay()][2] !== 'one' ? tiParts(shown.table) : shown.table.outerHTML) }));
+        raw: (legend ? `<div class="small mb-2">${legend.outerHTML}</div>` : '') + shown.table.outerHTML }));
     }
     const reg = list.reduce((a, s) => a + s.registered, 0), cap = list.reduce((a, s) => a + s.capacity, 0);
     const timeHtml = s => {
@@ -1466,6 +1583,7 @@
     }));
   }
   function exportAs(kind, list) {
+    if (kind === 'print' && readState().view === 'inst') return tiPrintDialog(list, readState());
     if (kind === 'print') return printTimetable(list);
     if (isBest(readState()) && (kind === 'xlsx' || kind === 'csv')) {
       const head = ['الفئة', 'اليوم', 'الوقت', 'المدة', 'يغيب'], rows = bestRows();
