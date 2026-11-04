@@ -386,16 +386,18 @@
     .raw .ti-key { columns: 6 11rem; column-gap: 14px; margin-top: 6px; padding-top: 4px; border-top: 1px solid #ddd; font-size: 7.5pt; line-height: 1.35; }
     .raw .ti-key h4 { column-span: all; font-size: 8.5pt; font-weight: 800; color: #901d23; margin: 0 0 3px; }
     .raw .ti-key div { break-inside: avoid; } .raw .ti-key b { display: inline-block; min-width: 3.6em; direction: ltr; text-align: right; color: #091b22; }
-    .raw .tl-table { width: 100% !important; border-collapse: collapse; font-size: 7.5pt !important; table-layout: fixed; }
-    .raw .tl-table th, .raw .tl-table td { border: 1px solid #d9d2c3; padding: 2px 4px !important; vertical-align: top; line-height: 1.35; }
-    .raw .tl-table thead th { background: var(--pt, #091b22) !important; color: #fff !important; font-size: 8.5pt !important; text-align: center; }
-    .raw .tl-table thead th.tl-c { width: 10.5rem; } .raw .tl-table tbody th { background: #f6f1e7 !important; font-size: 7.5pt !important; font-weight: 800; }
-    .raw .tl-table tbody tr:nth-child(even) td { background: #fcfaf6 !important; }
-    .raw .tl-e { display: inline-flex; align-items: baseline; gap: 2px; white-space: nowrap; margin: 0 0 0 7px; padding-inline-start: 3px; border-inline-start: 2.5px solid #1d7a3e; }
-    .raw .tl-e.m-online { border-color: #2b4cb3; } .raw .tl-e.m-blend { border-color: #6a2fb0; } .raw .tl-e.lab { background: #e9f6f9; }
-    .raw .tl-t { color: #901d23; font-size: 7pt; } .raw .tl-s { font-size: 6.5pt; color: #fff; background: #091b22; border-radius: 6px; padding: 0 3px; }
-    .raw .tl-d { font-size: 6.5pt; color: #7a5a00; background: #fff3cd; border-radius: 6px; padding: 0 3px; } .raw .tl-r { color: #5c6b72; font-size: 7pt; }
-    .raw .tl-note { font-size: 7pt; color: #555; margin-top: 4px; } .raw .tl-note .tl-e { margin: 0 4px; }
+    .raw .tl-table, .raw .tl-table * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .raw .tl-table { width: 100% !important; border-collapse: collapse; font-size: 9pt !important; table-layout: fixed; color: #000; }
+    .raw .tl-table th, .raw .tl-table td { border: 1px solid #777 !important; padding: 3px 5px !important; vertical-align: top; line-height: 1.45; background: #fff !important; }
+    .raw .tl-table thead th { background: #d9d9d9 !important; color: #000 !important; font-size: 11pt !important; font-weight: 800; text-align: center; }
+    .raw .tl-table thead th.tl-c { width: 10.5rem; } .raw .tl-table tbody th { background: #f2f2f2 !important; color: #000 !important; font-size: 9.5pt !important; font-weight: 800; }
+    .raw .tl-e { display: inline-flex; align-items: baseline; gap: 3px; white-space: nowrap; margin: 1px 0 1px 9px; padding-inline-start: 4px; border-inline-start: 3px solid #000; color: #000; }
+    .raw .tl-e.m-online::after { content: 'إلكتروني'; } .raw .tl-e.m-blend::after { content: 'مدمج'; } .raw .tl-e.lab::before { content: 'عملي'; order: 9; }
+    .raw .tl-e.m-online::after, .raw .tl-e.m-blend::after, .raw .tl-e.lab::before { font-size: 7.5pt; font-weight: 800; border: 1px solid #000; border-radius: 3px; padding: 0 3px; }
+    .raw .tl-e.lab::before { border-style: dotted; }
+    .raw .tl-t { font-size: 9pt; font-weight: 800; text-decoration: underline; } .raw .tl-s { font-size: 8pt; font-weight: 800; border: 1px solid #000; border-radius: 3px; padding: 0 2px; }
+    .raw .tl-d { font-size: 8pt; font-weight: 800; border: 1px dashed #000; border-radius: 3px; padding: 0 2px; } .raw .tl-r { font-size: 9pt; }
+    .raw .tl-note { font-size: 8.5pt; color: #000; margin-top: 5px; } .raw .tl-note .tl-e { margin: 0 4px; }
     .raw .ti-part + .ti-part { break-before: page; } .raw .ti-part .part-h { font-size: 13pt; font-weight: 800; color: #000; margin-bottom: 4px; }
     .raw .ti-part .part-h i { display: none; }`;
   if (!document.getElementById('ti-css')) { const el = document.createElement('style'); el.id = 'ti-css'; el.textContent = TI_CSS; document.head.appendChild(el); }
@@ -409,10 +411,9 @@
   const GROUPS = [['حثخ', 'الأحد · الثلاثاء · الخميس', '#901d23'], ['نر', 'الاثنين · الأربعاء', '#1f6f78']];
   const PAT_NAME = ds => ds.split('').map(d => DAYS[d]).join(' · ');
   // print layouts: [paper, orientation, how, label]; how = 'groups' (one page per day group) or 'one' (all on one page)
-  const TI_LAY = { a4g: ['A4', 'landscape', 'groups', 'A4 أفقي – كل مجموعة أيام في صفحتها (واضح)'], a3g: ['A3', 'landscape', 'groups', 'A3 أفقي – كل مجموعة أيام في صفحتها (أقل صفحات)'],
-    a3l: ['A3', 'landscape', 'one', 'A3 أفقي – صفحة واحدة'], a4l: ['A4', 'landscape', 'one', 'A4 أفقي – صفحة واحدة (خط صغير)'],
-    a4m: ['A4', 'landscape', 'pages', 'A4 أفقي – بخط كامل الحجم (عدة صفحات)'], a4list: ['A4', 'landscape', 'list', 'A4 أفقي – قائمة مختصرة بلا أعمدة أوقات'] };
-  const tiLay = () => { try { const v = localStorage.getItem('ti-lay-2'); return TI_LAY[v] ? v : 'a4g'; } catch (e) { return 'a4g'; } };
+  const TI_LAY = { a3g: ['A3', 'landscape', 'groups', 'A3 أفقي – جدول بالأوقات (الأوضح)'], a4g: ['A4', 'landscape', 'groups', 'A4 أفقي – جدول بالأوقات (خط أصغر)'],
+    a4list: ['A4', 'landscape', 'list', 'A4 أفقي – قائمة مختصرة بلا أعمدة أوقات'], a3list: ['A3', 'landscape', 'list', 'A3 أفقي – قائمة مختصرة بلا أعمدة أوقات'] };
+  const tiLay = () => { try { const v = localStorage.getItem('ti-lay-2'); return TI_LAY[v] ? v : 'a3g'; } catch (e) { return 'a3g'; } };
   function instView(list, st) {
     const insts = [...new Set(list.map(s => s.instructor))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ar'));
     if (!insts.length) return '<div class="card"><div class="card-body text-center text-muted py-5">لا يوجد مدرسون في نطاق التصفية.</div></div>';
@@ -1386,8 +1387,8 @@
       }).join('') : '').join('')}</td>`).join('')}</tr>`;
     }).filter(r => r.includes('tl-e'));
     const days = 'ح الأحد · ن الاثنين · ث الثلاثاء · ر الأربعاء · خ الخميس';
-    return `<table class="tl-table${t.classList.contains('named') ? ' named' : ''}"><thead><tr><th class="tl-c">المدرس</th>${groups.map(g => `<th style="--pt:${g[2]}">${esc(g[1])}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>
-      <div class="tl-note">كل شعبة: <b>الوقت</b> · رمز المقرر · الشعبة · القاعة. الحرف عند الشعبة التي لا تلتقي في كل أيام المجموعة: ${days}. اللون: <span class="tl-e">وجاهي</span> <span class="tl-e m-online">إلكتروني كامل</span> <span class="tl-e m-blend">مدمج</span> <span class="tl-e lab">عملي</span></div>${tiKey(t)}`;
+    return `<div class="part ti-part"><table class="tl-table${t.classList.contains('named') ? ' named' : ''}"><thead><tr><th class="tl-c">المدرس</th>${groups.map(g => `<th style="--pt:${g[2]}">${esc(g[1])}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>
+      <div class="tl-note">كل شعبة: <b>الوقت</b> · رمز المقرر · الشعبة · القاعة. الحرف عند الشعبة التي لا تلتقي في كل أيام المجموعة: ${days}. الشعب الإلكترونية والمدمجة والعملية مكتوب نوعها بجانبها.</div>${tiKey(t)}</div>`;
   }
   // the instructors' table split by day group (each part printed on its own page, scaled to fit it)
   function tiParts(t) {
@@ -1415,7 +1416,7 @@
     const filters = [...FK, 'seats'].filter(k => st[k]).map(k => [k === 'seats' ? 'المقاعد' : F.find(f => f[0] === k)[1], k === 'seats' ? 'متاحة فقط' : label(k, st[k])]);
     if (st.q) filters.unshift(['بحث', st.q]);
     const base = { title: 'الجدول الدراسي', source: 'المصدر: بوابة الجامعة (edugate)', filters, orientation: 'landscape' };
-    if (st.view === 'inst') { const [paper, orient, how] = TI_LAY[tiLay()]; Object.assign(base, { paper, orientation: orient, fit: how === 'one' || how === 'list', fitParts: how === 'groups', minZoom: 0.95, noSplit: how === 'pages' }); }
+    if (st.view === 'inst') { const [paper, orient, how] = TI_LAY[tiLay()]; Object.assign(base, { paper, orientation: orient, fit: how === 'one', fitParts: how === 'groups' || how === 'list', minZoom: 0.95, noSplit: how === 'pages' }); }
     if (shown) {  // a matrix: printed exactly as displayed (same colours, chips and layout)
       const legend = document.querySelector('#tt-results .fr-legend, #tt-results .mx-days + div .ms-auto');
       return printReport(Object.assign(base, { subtitle: `${DATA.term} – ${shown.title}`,
