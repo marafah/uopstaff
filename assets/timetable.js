@@ -364,12 +364,13 @@
     .raw .ti-table td { padding: 1px !important; }
     .raw .ti-table .ti-inst { min-width: 0 !important; width: 9rem; min-width: 9rem !important; max-width: 9rem; white-space: normal; font-size: 8pt !important; line-height: 1.2; padding: 2px 5px !important; }
     .raw .ti-table .ti-inst small { font-size: 6.5pt !important; }
-    .raw .ti-table .ti-chip { display: flex; flex-flow: row nowrap; align-items: baseline; gap: 0 3px; white-space: nowrap; padding: 1px 3px !important; margin: 1px 0 !important; border-radius: 4px; border-inline-start-width: 3px; font-size: 7.5pt !important; line-height: 1.25 !important; }
+    .raw .ti-table .ti-chip { display: flex; flex-flow: row wrap; align-items: baseline; gap: 0 3px; padding: 1px 3px !important; margin: 1px 0 !important; border-radius: 4px; border-inline-start-width: 3px; font-size: 7.5pt !important; line-height: 1.25 !important; }
     .raw .ti-table .ti-top { display: contents; }
-    .raw .ti-table .ti-top b { font-size: 8pt !important; }
+    .raw .ti-table .ti-top > * { white-space: nowrap; } .raw .ti-table .ti-top b { font-size: 8pt !important; }
     .raw .ti-table .ti-sec, .raw .ti-table .ti-days, .raw .ti-table .ti-own { font-size: 6.5pt !important; padding: 0 3px; }
     .raw .ti-table .ti-days, .raw .ti-table .ti-own { font-size: 0 !important; } .raw .ti-table .ti-days::after { content: attr(data-s); font-size: 6.5pt; } .raw .ti-table .ti-own::after { content: attr(data-e); font-size: 6.5pt; }
-    .raw .ti-table .ti-room { font-size: 7pt !important; } .raw .ti-table .ti-room i, .raw .ti-table .ti-lab, .raw .ti-table .ti-name { display: none !important; }
+    .raw .ti-table .ti-room { order: 5; font-size: 7pt !important; white-space: nowrap; } .raw .ti-table .ti-room i, .raw .ti-table .ti-lab { display: none !important; }
+    .raw .ti-table .ti-name { order: 9; flex-basis: 100%; font-size: 7pt !important; font-weight: 700; line-height: 1.2; white-space: normal; }
     .raw .ti-key { columns: 6 11rem; column-gap: 14px; margin-top: 6px; padding-top: 4px; border-top: 1px solid #ddd; font-size: 7.5pt; line-height: 1.35; }
     .raw .ti-key h4 { column-span: all; font-size: 8.5pt; font-weight: 800; color: #901d23; margin: 0 0 3px; }
     .raw .ti-key div { break-inside: avoid; } .raw .ti-key b { display: inline-block; min-width: 3.6em; direction: ltr; text-align: right; color: #091b22; }
@@ -384,7 +385,6 @@
     .raw .tl-d { font-size: 6.5pt; color: #7a5a00; background: #fff3cd; border-radius: 6px; padding: 0 3px; } .raw .tl-r { color: #5c6b72; font-size: 7pt; }
     .raw .tl-note { font-size: 7pt; color: #555; margin-top: 4px; } .raw .tl-note .tl-e { margin: 0 4px; }
     .raw .ti-part + .ti-part { break-before: page; } .raw .ti-part .part-h { font-size: 11pt; margin-bottom: 4px; }
-    .raw .ti-table .ti-name { font-size: 7pt !important; white-space: normal; }
     .raw .ti-table:not(.named) .ti-time { min-width: 0 !important; }`;
   if (!document.getElementById('ti-css')) { const el = document.createElement('style'); el.id = 'ti-css'; el.textContent = TI_CSS; document.head.appendChild(el); }
 
@@ -397,10 +397,10 @@
   const GROUPS = [['حثخ', 'الأحد · الثلاثاء · الخميس', '#901d23'], ['نر', 'الاثنين · الأربعاء', '#1f6f78']];
   const PAT_NAME = ds => ds.split('').map(d => DAYS[d]).join(' · ');
   // print layouts: [paper, orientation, how, label]; how = 'groups' (one page per day group) or 'one' (all on one page)
-  const TI_LAY = { a4list: ['A4', 'landscape', 'list', 'A4 أفقي – صفحة واحدة مختصرة (الأوضح)'], a3list: ['A3', 'landscape', 'list', 'A3 أفقي – صفحة واحدة مختصرة (خط أكبر)'],
-    a3g: ['A3', 'landscape', 'groups', 'A3 أفقي – جدول بالأوقات، صفحة لكل مجموعة أيام'], a3l: ['A3', 'landscape', 'one', 'A3 أفقي – جدول بالأوقات، صفحة واحدة'],
-    a4m: ['A4', 'landscape', 'pages', 'A4 أفقي – جدول بالأوقات بخط كامل الحجم (عدة صفحات)'] };
-  const tiLay = () => { try { const v = localStorage.getItem('ti-lay'); return TI_LAY[v] ? v : 'a4list'; } catch (e) { return 'a4list'; } };
+  const TI_LAY = { a4g: ['A4', 'landscape', 'groups', 'A4 أفقي – كل مجموعة أيام في صفحتها (واضح)'], a3g: ['A3', 'landscape', 'groups', 'A3 أفقي – كل مجموعة أيام في صفحتها (أقل صفحات)'],
+    a3l: ['A3', 'landscape', 'one', 'A3 أفقي – صفحة واحدة'], a4l: ['A4', 'landscape', 'one', 'A4 أفقي – صفحة واحدة (خط صغير)'],
+    a4m: ['A4', 'landscape', 'pages', 'A4 أفقي – بخط كامل الحجم (عدة صفحات)'], a4list: ['A4', 'landscape', 'list', 'A4 أفقي – قائمة مختصرة بلا أعمدة أوقات'] };
+  const tiLay = () => { try { const v = localStorage.getItem('ti-lay-2'); return TI_LAY[v] ? v : 'a4g'; } catch (e) { return 'a4g'; } };
   function instView(list, st) {
     const insts = [...new Set(list.map(s => s.instructor))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ar'));
     if (!insts.length) return '<div class="card"><div class="card-body text-center text-muted py-5">لا يوجد مدرسون في نطاق التصفية.</div></div>';
@@ -1301,7 +1301,7 @@
     const tin = $('#ti-names');
     if (tin) tin.addEventListener('change', e => set({ names: e.target.checked ? '' : '0' }));
     const tlay = $('#ti-lay');
-    if (tlay) tlay.addEventListener('change', e => { try { localStorage.setItem('ti-lay', e.target.value); } catch (x) { /* per viewer only */ } });
+    if (tlay) tlay.addEventListener('change', e => { try { localStorage.setItem('ti-lay-2', e.target.value); } catch (x) { /* per viewer only */ } });
     const tpb = $('#ti-printbtn');
     if (tpb) tpb.addEventListener('click', () => exportAs('print', list));
     document.querySelectorAll('[data-sort]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); set({ sort: a.dataset.sort }); }));
@@ -1381,7 +1381,7 @@
       c.querySelectorAll('[data-g]').forEach(el => { if (el.dataset.g !== g[0]) el.remove(); });
       c.querySelectorAll('.ti-gap').forEach(el => el.classList.remove('ti-gap'));
       c.querySelectorAll('tbody tr').forEach(tr => { if (!tr.querySelector('.ti-chip')) tr.remove(); });   // no teaching in this group
-      return `<div class="part ti-part"><div class="part-h"><i class="bi bi-calendar3-week"></i> ${esc(g[1])}</div>${c.outerHTML}${tiKey(c)}</div>`;
+      return `<div class="part ti-part"><div class="part-h"><i class="bi bi-calendar3-week"></i> ${esc(g[1])}</div>${c.outerHTML}</div>`;
     }).join('');
   }
   function printTimetable(list) {
@@ -1400,13 +1400,13 @@
     const filters = [...FK, 'seats'].filter(k => st[k]).map(k => [k === 'seats' ? 'المقاعد' : F.find(f => f[0] === k)[1], k === 'seats' ? 'متاحة فقط' : label(k, st[k])]);
     if (st.q) filters.unshift(['بحث', st.q]);
     const base = { title: 'الجدول الدراسي', source: 'المصدر: بوابة الجامعة (edugate)', filters, orientation: 'landscape' };
-    if (st.view === 'inst') { const [paper, orient, how] = TI_LAY[tiLay()]; Object.assign(base, { paper, orientation: orient, fit: how === 'one' || how === 'list', fitParts: how === 'groups', noSplit: how === 'pages' }); }
+    if (st.view === 'inst') { const [paper, orient, how] = TI_LAY[tiLay()]; Object.assign(base, { paper, orientation: orient, fit: how === 'one' || how === 'list', fitParts: how === 'groups', minZoom: 0.8, noSplit: how === 'pages' }); }
     if (shown) {  // a matrix: printed exactly as displayed (same colours, chips and layout)
       const legend = document.querySelector('#tt-results .fr-legend, #tt-results .mx-days + div .ms-auto');
       return printReport(Object.assign(base, { subtitle: `${DATA.term} – ${shown.title}`,
         css: ['https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css', 'assets/app.css'],
         raw: (st.view === 'inst' ? `<style>${TI_CSS}${TI_PRINT}</style>` : '') + (legend ? `<div class="small mb-2">${legend.outerHTML}</div>` : '')
-          + (st.view !== 'inst' ? shown.table.outerHTML : TI_LAY[tiLay()][2] === 'list' ? tiList(shown.table) : TI_LAY[tiLay()][2] !== 'one' ? tiParts(shown.table) : shown.table.outerHTML + tiKey(shown.table)) }));
+          + (st.view !== 'inst' ? shown.table.outerHTML : TI_LAY[tiLay()][2] === 'list' ? tiList(shown.table) : TI_LAY[tiLay()][2] !== 'one' ? tiParts(shown.table) : shown.table.outerHTML) }));
     }
     const reg = list.reduce((a, s) => a + s.registered, 0), cap = list.reduce((a, s) => a + s.capacity, 0);
     const timeHtml = s => {

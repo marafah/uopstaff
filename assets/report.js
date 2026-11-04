@@ -1,7 +1,7 @@
 /* Print reports: a clean A4 document built from the data (not a print of the screen).
    printReport({ title, subtitle, filters: [[label, value]], stats: [[label, value]], sections: [{ title?, columns, rows, widths? }],
                  orientation: 'landscape' | 'portrait', paper: 'A4' | 'A3', note, fit, fitParts })
-   (fitParts: each .part of o.raw on its own page, scaled to fit it) builds it (fit: scaled to one page) in a hidden frame and opens the print dialog
+   (fitParts: each .part of o.raw on its own page, scaled to fit it but not below minZoom) builds it (fit: scaled to one page) in a hidden frame and opens the print dialog
    (where "Save as PDF" saves it as a file). */
 window.printReport = (function () {
   'use strict';
@@ -219,7 +219,8 @@ window.printReport = (function () {
         const parts = [...raw.querySelectorAll('.part')], full = pageH - 14 * PX - 16 * PX - 8;
         parts.forEach((p, i) => {
           const avail = i ? full : full - (p.getBoundingClientRect().top - w.document.body.getBoundingClientRect().top) + 14 * PX;
-          const scale = Math.min(1, printable / p.scrollWidth, avail / p.scrollHeight);
+          // never smaller than o.minZoom: a part too tall for that continues on the next page (its header repeated)
+          const scale = Math.min(1, printable / p.scrollWidth, Math.max(o.minZoom || 0, avail / p.scrollHeight));
           if (scale < 1) p.style.zoom = scale.toFixed(3);
         });
       } else if (raw) {
