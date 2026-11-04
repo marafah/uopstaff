@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-04T06:32:31Z",
+"updated": "2026-11-04T15:30:43Z",
 "main_line": "+96265799555",
 "main_line_display": "06 5799555",
 "faculties": [
@@ -401,7 +401,7 @@
 "name": "الكادر الإداري – كلية الإعلام",
 "kind": "admin",
 "url": "https://mass.uop.edu.jo/Ar/Pages/AllAdministrativeStaff.aspx",
-"count": 5,
+"count": 6,
 "faculty": 11
 },
 {
@@ -4833,10 +4833,10 @@
 "ext": "8301",
 "office": "8301",
 "email": "hshaker@uop.edu.jo",
-"photo": "assets/photos/c7f8cc0b213333fc.jpg",
+"photo": "assets/photos/d85040206cc40bd8.jpg",
 "profile": "https://pharma.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=68007300680061006B0065007200400075006F0070002E006500640075002E006A006F00",
 "source": "academic_api",
-"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20251007.jpg"
+"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20251007.png"
 },
 {
 "id": "A:73006100620075006A00610064006100790069006C00400075006F0070002E006500640075002E006A006F00",
@@ -10823,6 +10823,28 @@
 "photo_src": ""
 },
 {
+"id": "S:mass:10",
+"type": "admin",
+"faculty": 11,
+"name": "محمد رائد ياسين دنديس",
+"name_en": "Mohammad Raed Yasin Dandis",
+"job": "مشرف أستوديو",
+"rank": "",
+"rank_order": 99,
+"role": "",
+"sort": 30,
+"department": "",
+"specialization": "",
+"qualification": "بكالوريوس إذاعة وتلفزيون – جامعة الزرقاء الأهلية",
+"ext": "3125",
+"office": "كلية الإعلام",
+"email": "mohammad.dandis@uop.edu.jo",
+"photo": "",
+"profile": "https://mass.uop.edu.jo/Ar/Pages/AllAdministrativeStaff.aspx",
+"source": "admin_mass",
+"photo_src": ""
+},
+{
 "id": "A:6E006900640061006C002E006800750073007300650069006E00400075006F0070002E006500640075002E006A006F00",
 "type": "academic",
 "faculty": 12,
@@ -11518,13 +11540,13 @@
 "department": "طب وجراحة الأسنان",
 "specialization": "",
 "qualification": "",
-"ext": "",
+"ext": "24002",
 "office": "",
 "email": "khaled.beshtawi@uop.edu.jo",
-"photo": "",
+"photo": "assets/photos/8ffb0f562739e1e6.jpg",
 "profile": "https://dentist.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6B00680061006C00650064002E0062006500730068007400610077006900400075006F0070002E006500640075002E006A006F00",
 "source": "academic_api",
-"photo_src": ""
+"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20252001.jpg"
 },
 {
 "id": "A:64007500610061002E00710075006500640061006E00400075006F0070002E006500640075002E006A006F00",

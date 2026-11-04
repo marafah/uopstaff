@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-04T06:38:22Z",
-"checked": "2026-11-04T06:38:22Z",
+"updated": "2026-11-04T15:35:37Z",
+"checked": "2026-11-04T15:35:37Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -2571,7 +2571,7 @@
 "department": "تكنولوجيا صناعة الأسنان",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 42,
+"registered": 41,
 "capacity": 40,
 "meetings": [
 {
@@ -3384,7 +3384,7 @@
 "department": "الكيمياء",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 59,
+"registered": 58,
 "capacity": 56,
 "meetings": [
 {
@@ -3606,7 +3606,7 @@
 "department": "الكيمياء",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 45,
+"registered": 46,
 "capacity": 44,
 "meetings": [
 {
@@ -3868,7 +3868,7 @@
 "department": "الكيمياء",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 39,
+"registered": 38,
 "capacity": 37,
 "meetings": [
 {
@@ -3993,7 +3993,7 @@
 "department": "الكيمياء",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 26,
+"registered": 27,
 "capacity": 25,
 "meetings": [
 {
@@ -4415,7 +4415,7 @@
 "department": "الكيمياء",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 24,
+"registered": 25,
 "capacity": 40,
 "meetings": [
 {
@@ -4514,7 +4514,7 @@
 "department": "الكيمياء",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 25,
+"registered": 24,
 "capacity": 22,
 "meetings": [
 {
@@ -5616,7 +5616,7 @@
 "department": "العلوم الأساسية / الرياضيات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 44,
+"registered": 45,
 "capacity": 41,
 "meetings": [
 {
@@ -5945,7 +5945,7 @@
 "department": "العلوم الأساسية / الرياضيات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 45,
+"registered": 46,
 "capacity": 42,
 "meetings": [
 {
@@ -13255,7 +13255,7 @@
 "department": "العلوم المالية والمصرفية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 32,
+"registered": 31,
 "capacity": 40,
 "meetings": [
 {
@@ -13822,14 +13822,14 @@
 "time": "[ 09:30_11:00 ] ن وجاهي ر وجاهي",
 "room": "9126",
 "section": "1",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "م. عامر عبدالرحيم ابراهيم السكارنة",
 "building": "مبنى كلية العلوم الإدارية",
 "faculty": "العلوم الادارية والمالية",
 "department": "المحاسبة",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 60,
+"registered": 59,
 "capacity": 60,
 "meetings": [
 {
@@ -13853,14 +13853,14 @@
 "time": "[ 09:30_11:00 ] ن وجاهي ر وجاهي",
 "room": "9126",
 "section": "1",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "م. عامر عبدالرحيم ابراهيم السكارنة",
 "building": "مبنى كلية العلوم الإدارية",
 "faculty": "العلوم الادارية والمالية",
 "department": "المحاسبة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 60,
+"registered": 59,
 "capacity": 60,
 "meetings": [
 {
@@ -13953,7 +13953,7 @@
 "department": "المحاسبة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 33,
+"registered": 34,
 "capacity": 50,
 "meetings": [
 {
@@ -14138,7 +14138,7 @@
 "department": "المحاسبة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 11,
+"registered": 10,
 "capacity": 40,
 "meetings": [
 {
@@ -14360,7 +14360,7 @@
 "department": "المحاسبة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 22,
+"registered": 21,
 "capacity": 20,
 "meetings": [
 {
@@ -20820,7 +20820,7 @@
 "department": "المحاسبة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 13,
+"registered": 14,
 "capacity": 40,
 "meetings": [
 {
@@ -22156,7 +22156,7 @@
 "department": "اللغة الانجليزية وآدابها",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 29,
+"registered": 28,
 "capacity": 30,
 "meetings": [
 {
@@ -22341,14 +22341,14 @@
 "time": "[ 09:30_11:00 ] ن وجاهي ر وجاهي",
 "room": "6304",
 "section": "1",
-"status": "مفتوحة",
+"status": "مغلقة",
 "instructor": "د.ديما محمد جهاد حافظ القطب",
 "building": "مبنى كلية الآداب والعلوم",
 "faculty": "الآداب والعلوم",
 "department": "اللغة الانجليزية وآدابها",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 29,
+"registered": 30,
 "capacity": 30,
 "meetings": [
 {
@@ -22410,7 +22410,7 @@
 "department": "اللغة الانجليزية وآدابها",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 28,
+"registered": 29,
 "capacity": 30,
 "meetings": [
 {
@@ -22656,14 +22656,14 @@
 "time": "[ 09:00_10:00 ] ح وجاهي ث وجاهي خ غير متزامن",
 "room": "06308",
 "section": "1",
-"status": "مفتوحة",
+"status": "مغلقة",
 "instructor": "د. محمد علي عبدالقادر الحيلواني",
 "building": "مبنى كلية الآداب والعلوم",
 "faculty": "الآداب والعلوم",
 "department": "اللغة الانجليزية وآدابها",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 19,
+"registered": 20,
 "capacity": 20,
 "meetings": [
 {
@@ -23127,7 +23127,7 @@
 "department": "اللغة الانجليزية /الترجمه",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 16,
+"registered": 17,
 "capacity": 20,
 "meetings": [
 {
@@ -23436,7 +23436,7 @@
 "department": "اللغة الانجليزية /الترجمه",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 44,
+"registered": 45,
 "capacity": 40,
 "meetings": [
 {
@@ -23461,7 +23461,7 @@
 "department": "اللغة الانجليزية /الترجمه",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 47,
+"registered": 48,
 "capacity": 40,
 "meetings": [
 {
@@ -23477,7 +23477,7 @@
 "name": "لغة انجليزية استدراكية (2) - لطلبة الماجستير",
 "activity": "نظري",
 "time": "[ 16:00_19:00 ] ر وجاهي",
-"room": "3209",
+"room": "3309",
 "section": "1",
 "status": "مغلقة",
 "instructor": "د. نور فيصل محمد الياسين",
@@ -23486,7 +23486,7 @@
 "department": "اللغة الانجليزية /الترجمه",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 44,
+"registered": 45,
 "capacity": 40,
 "meetings": [
 {
@@ -23511,7 +23511,7 @@
 "department": "اللغة الانجليزية /الترجمه",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 47,
+"registered": 48,
 "capacity": 40,
 "meetings": [
 {
@@ -23711,7 +23711,7 @@
 "department": "اللغة الانجليزية التطبيقية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 9,
+"registered": 10,
 "capacity": 25,
 "meetings": [
 {
@@ -31555,7 +31555,7 @@
 "department": "التغذية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 21,
+"registered": 20,
 "capacity": 22,
 "meetings": [
 {
@@ -31730,7 +31730,7 @@
 "department": "التغذية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 21,
+"registered": 22,
 "capacity": 21,
 "meetings": [
 {
@@ -35655,7 +35655,7 @@
 "department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 33,
+"registered": 34,
 "capacity": 40,
 "meetings": [
 {
@@ -36666,7 +36666,7 @@
 "department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 19,
+"registered": 20,
 "capacity": 40,
 "meetings": [
 {
@@ -36864,7 +36864,7 @@
 "department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 54,
+"registered": 55,
 "capacity": 50,
 "meetings": [
 {
@@ -37422,7 +37422,7 @@
 "department": "هندسة البرمجيات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 23,
+"registered": 25,
 "capacity": 40,
 "meetings": [
 {
@@ -40098,7 +40098,7 @@
 "department": "علم البيانات والذكاء الاصطناعي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 19,
+"registered": 20,
 "capacity": 26,
 "meetings": [
 {
@@ -40284,7 +40284,7 @@
 "department": "علم البيانات والذكاء الاصطناعي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 34,
+"registered": 35,
 "capacity": 40,
 "meetings": [
 {
@@ -42051,7 +42051,7 @@
 "department": "القانون الخاص",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 14,
+"registered": 15,
 "capacity": 20,
 "meetings": [
 {
@@ -46536,7 +46536,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 86,
+"registered": 87,
 "capacity": 85,
 "meetings": [
 {
@@ -46795,7 +46795,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 86,
+"registered": 85,
 "capacity": 85,
 "meetings": [
 {
@@ -48241,7 +48241,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 86,
+"registered": 87,
 "capacity": 85,
 "meetings": [
 {
@@ -48458,7 +48458,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 86,
+"registered": 85,
 "capacity": 85,
 "meetings": [
 {
@@ -48625,7 +48625,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 106,
+"registered": 107,
 "capacity": 77,
 "meetings": [
 {
@@ -48761,7 +48761,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 89,
+"registered": 90,
 "capacity": 84,
 "meetings": [
 {
@@ -49309,14 +49309,14 @@
 "time": "[ 11:00_12:00 ] ن وجاهي ر وجاهي س غير متزامن",
 "room": "06001",
 "section": "9",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "م. امينا عزام رشاد الاسير",
 "building": "مبنى كلية الآداب والعلوم",
 "faculty": "الآداب والعلوم",
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 90,
+"registered": 89,
 "capacity": 90,
 "meetings": [
 {
@@ -50093,7 +50093,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 89,
+"registered": 90,
 "capacity": 80,
 "meetings": [
 {
@@ -50907,7 +50907,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 88,
+"registered": 89,
 "capacity": 80,
 "meetings": [
 {
@@ -52542,7 +52542,7 @@
 "code": "A-1001441",
 "name": "تقويم الأسنان - نظري ( 1 ) *",
 "activity": "نظري",
-"time": "[ 10:00_11:00 ] ث غير متزامن",
+"time": "[ 10:00_11:00 ] ث وجاهي",
 "room": "B24245",
 "section": "1",
 "status": "مغلقة",
@@ -52559,7 +52559,7 @@
 "day": "ث",
 "start": "10:00",
 "end": "11:00",
-"mode": "غير متزامن"
+"mode": "وجاهي"
 }
 ]
 },
@@ -52567,7 +52567,7 @@
 "code": "A-1001441",
 "name": "تقويم الأسنان - نظري ( 1 ) *",
 "activity": "نظري",
-"time": "[ 10:00_11:00 ] ح غير متزامن",
+"time": "[ 10:00_11:00 ] ح وجاهي",
 "room": "A24245",
 "section": "2",
 "status": "مغلقة",
@@ -52584,7 +52584,7 @@
 "day": "ح",
 "start": "10:00",
 "end": "11:00",
-"mode": "غير متزامن"
+"mode": "وجاهي"
 }
 ]
 },
@@ -52592,7 +52592,7 @@
 "code": "A-1001441",
 "name": "تقويم الأسنان - نظري ( 1 ) *",
 "activity": "نظري",
-"time": "[ 11:00_12:00 ] ث غير متزامن",
+"time": "[ 11:00_12:00 ] ث وجاهي",
 "room": "0",
 "section": "3",
 "status": "مفتوحة",
@@ -52609,7 +52609,7 @@
 "day": "ث",
 "start": "11:00",
 "end": "12:00",
-"mode": "غير متزامن"
+"mode": "وجاهي"
 }
 ]
 },
