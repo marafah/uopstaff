@@ -1,6 +1,7 @@
 /* Print reports: a clean A4 document built from the data (not a print of the screen).
    printReport({ title, subtitle, filters: [[label, value]], stats: [[label, value]], sections: [{ title?, columns, rows, widths? }],
-                 orientation: 'landscape' | 'portrait', note, fit }) builds it (fit: scaled to one page) in a hidden frame and opens the print dialog
+                 orientation: 'landscape' | 'portrait', paper: 'A4' | 'A3', note, fit, fitParts })
+   (fitParts: each .part of o.raw on its own page, scaled to fit it) builds it (fit: scaled to one page) in a hidden frame and opens the print dialog
    (where "Save as PDF" saves it as a file). */
 window.printReport = (function () {
   'use strict';
@@ -8,7 +9,7 @@ window.printReport = (function () {
   const now = () => new Date().toLocaleString('ar-JO-u-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   const CSS = `
-  @page { size: A4 __ORIENT__; margin: __MARGIN__; }
+  @page { size: __PAPER__ __ORIENT__; margin: __MARGIN__; }
   /* multi-page reports: the footer and page numbers in the page margin of every page (a fixed footer would land on the
      next page's title); one-page reports (no margin) keep the footer line below */
   @page { @bottom-right { content: "صفحة غير رسمية تعرض البيانات المنشورة على الموقع الرسمي للجامعة؛ المرجع المعتمد هو الموقع الرسمي."; font: 7.5pt Tajawal, sans-serif; color: #777; }
@@ -176,7 +177,10 @@ window.printReport = (function () {
     frame = document.createElement('iframe');
     frame.id = 'report-frame';
     frame.setAttribute('aria-hidden', 'true');
-    const printable = (o.orientation || 'landscape') === 'landscape' ? 1032 : 703;  // A4 minus the page margins, in CSS px
+    // the paper in CSS px (96 per inch): A4 297 × 210 mm, A3 420 × 297 mm; the printable width is the paper minus 24 mm of margins
+    const PX = 96 / 25.4, paper = o.paper === 'A3' ? 'A3' : 'A4', [mmL, mmS] = paper === 'A3' ? [420, 297] : [297, 210];
+    const landscape = (o.orientation || 'landscape') === 'landscape', pageW = (landscape ? mmL : mmS) * PX, pageH = (landscape ? mmS : mmL) * PX;
+    const printable = Math.round(pageW - 24 * PX);
     frame.style.cssText = `position:fixed;left:-10000px;top:0;width:${printable}px;height:900px;border:0;visibility:hidden`;
     document.body.appendChild(frame);
     const w = frame.contentWindow;
@@ -185,7 +189,7 @@ window.printReport = (function () {
     const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${esc(o.title)}</title>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap">
       ${(o.css || []).map(h => `<link rel="stylesheet" href="${new URL(h, location.href).href}">`).join('')}
-      <style>${CSS.replace('__ORIENT__', orient).replace('__MARGIN__', o.fit ? '0' : '14mm 12mm 16mm')}${o.raw ? RAW_CSS : ''}</style></head><body class="${o.fit ? 'fit' : ''}">
+      <style>${CSS.replace('__PAPER__', paper).replace('__ORIENT__', orient).replace('__MARGIN__', o.fit ? '0' : '14mm 12mm 16mm')}${o.raw ? RAW_CSS : ''}</style></head><body class="${o.fit ? 'fit' : ''}">
       <div class="page">
         <header class="rh"><img src="${logo}" alt="">
           <div class="t"><small>بوصلة البترا · جامعة البترا</small><h1>${esc(o.title)}</h1>${o.subtitle ? `<h2>${esc(o.subtitle)}</h2>` : ''}</div>
@@ -207,14 +211,22 @@ window.printReport = (function () {
       if (o.fit) {
         // o.fit: everything on one page — the whole report is scaled to the printable width and height
         const page = w.document.querySelector('.page');
-        const height = (orient === 'landscape' ? 794 : 1123) - 38 - 64;  // A4 minus the top margin and the footer zone, in CSS px
+        const height = pageH - 38 - 64;  // the paper minus the top margin and the footer zone, in CSS px
         const scale = Math.min(1, printable / page.scrollWidth, height / page.scrollHeight);
         if (scale < 1) page.style.zoom = scale.toFixed(3);
+      } else if (o.fitParts && raw) {
+        // o.fitParts: every .part on a page of its own, scaled to fit it (the first page also holds the report header)
+        const parts = [...raw.querySelectorAll('.part')], full = pageH - 14 * PX - 16 * PX - 8;
+        parts.forEach((p, i) => {
+          const avail = i ? full : full - (p.getBoundingClientRect().top - w.document.body.getBoundingClientRect().top) + 14 * PX;
+          const scale = Math.min(1, printable / p.scrollWidth, avail / p.scrollHeight);
+          if (scale < 1) p.style.zoom = scale.toFixed(3);
+        });
       } else if (raw) {
         // a wide matrix is split into parts that each fit the page at a readable size (the first column repeated in
         // every part), instead of shrinking the whole table until it can no longer be read
         const t = raw.querySelector('table');
-        if (t && t.scrollWidth > printable) splitTable(w.document, raw, t, printable);
+        if (t && t.scrollWidth > printable && !o.noSplit) splitTable(w.document, raw, t, printable);
         raw.querySelectorAll('.part').forEach(p => { if (p.scrollWidth > printable) p.style.zoom = Math.max(0.6, printable / p.scrollWidth).toFixed(3); });
         if (!raw.querySelector('.part') && raw.scrollWidth > printable) raw.style.zoom = (printable / raw.scrollWidth).toFixed(3);
       }

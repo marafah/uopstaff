@@ -347,20 +347,60 @@
     .ti-top b { color: #901d23; font-size: .78rem; }
     .ti-sec { background: #091b22; color: #fff; border-radius: 20px; padding: 0 .4rem; font-size: .64rem; font-weight: 700; }
     .ti-lab { color: #0a7f98; margin-inline-start: auto; }
+    .ti-own { color: #2b4cb3; font-size: .62rem; font-weight: 700; white-space: nowrap; }
+    .ti-days { background: #fff3cd; color: #7a5a00; border-radius: 20px; padding: 0 .4rem; font-size: .62rem; font-weight: 700; white-space: nowrap; }
+    .ti-print { display: inline-flex; align-items: center; gap: .35rem; } .ti-print label { font-weight: 700; white-space: nowrap; } .ti-print select { width: auto; max-width: 21rem; }
     .ti-name { font-weight: 700; font-size: .72rem; color: #24323a; }
     .ti-room { color: #5c6b72; font-size: .66rem; display: inline-flex; gap: .2rem; align-items: center; }
     .ti-table .ti-hrs { text-align: center; vertical-align: middle !important; background: #f6f1e7 !important; min-width: 64px; }
     .ti-hrs b { display: block; font-size: 1.05rem; color: #901d23; } .ti-hrs small { color: #7a8a90; }
     .ti-table:not(.named) .ti-time { min-width: 86px; }
     @media print { .ti-wrap { max-height: none; } .ti-table thead th, .ti-inst { position: static; } }`;
+  // on paper every section is one compact line (code, section, room; the name below when shown), so a department fits a page
+  const TI_PRINT = `
+    .raw .ti-table { table-layout: auto; }
+    .raw .ti-table thead th { padding: 3px 2px !important; font-size: 8pt !important; white-space: nowrap; }
+    .raw .ti-table .ti-patg { font-size: 9.5pt !important; }
+    .raw .ti-table td { padding: 1px !important; }
+    .raw .ti-table .ti-inst { min-width: 0 !important; width: 9rem; min-width: 9rem !important; max-width: 9rem; white-space: normal; font-size: 8pt !important; line-height: 1.2; padding: 2px 5px !important; }
+    .raw .ti-table .ti-inst small { font-size: 6.5pt !important; }
+    .raw .ti-table .ti-chip { display: flex; flex-flow: row nowrap; align-items: baseline; gap: 0 3px; white-space: nowrap; padding: 1px 3px !important; margin: 1px 0 !important; border-radius: 4px; border-inline-start-width: 3px; font-size: 7.5pt !important; line-height: 1.25 !important; }
+    .raw .ti-table .ti-top { display: contents; }
+    .raw .ti-table .ti-top b { font-size: 8pt !important; }
+    .raw .ti-table .ti-sec, .raw .ti-table .ti-days, .raw .ti-table .ti-own { font-size: 6.5pt !important; padding: 0 3px; }
+    .raw .ti-table .ti-days, .raw .ti-table .ti-own { font-size: 0 !important; } .raw .ti-table .ti-days::after { content: attr(data-s); font-size: 6.5pt; } .raw .ti-table .ti-own::after { content: attr(data-e); font-size: 6.5pt; }
+    .raw .ti-table .ti-room { font-size: 7pt !important; } .raw .ti-table .ti-room i, .raw .ti-table .ti-lab, .raw .ti-table .ti-name { display: none !important; }
+    .raw .ti-key { columns: 6 11rem; column-gap: 14px; margin-top: 6px; padding-top: 4px; border-top: 1px solid #ddd; font-size: 7.5pt; line-height: 1.35; }
+    .raw .ti-key h4 { column-span: all; font-size: 8.5pt; font-weight: 800; color: #901d23; margin: 0 0 3px; }
+    .raw .ti-key div { break-inside: avoid; } .raw .ti-key b { display: inline-block; min-width: 3.6em; direction: ltr; text-align: right; color: #091b22; }
+    .raw .tl-table { width: 100% !important; border-collapse: collapse; font-size: 7.5pt !important; table-layout: fixed; }
+    .raw .tl-table th, .raw .tl-table td { border: 1px solid #d9d2c3; padding: 2px 4px !important; vertical-align: top; line-height: 1.35; }
+    .raw .tl-table thead th { background: var(--pt, #091b22) !important; color: #fff !important; font-size: 8.5pt !important; text-align: center; }
+    .raw .tl-table thead th.tl-c { width: 10.5rem; } .raw .tl-table tbody th { background: #f6f1e7 !important; font-size: 7.5pt !important; font-weight: 800; }
+    .raw .tl-table tbody tr:nth-child(even) td { background: #fcfaf6 !important; }
+    .raw .tl-e { display: inline-flex; align-items: baseline; gap: 2px; white-space: nowrap; margin: 0 0 0 7px; padding-inline-start: 3px; border-inline-start: 2.5px solid #1d7a3e; }
+    .raw .tl-e.m-online { border-color: #2b4cb3; } .raw .tl-e.m-blend { border-color: #6a2fb0; } .raw .tl-e.lab { background: #e9f6f9; }
+    .raw .tl-t { color: #901d23; font-size: 7pt; } .raw .tl-s { font-size: 6.5pt; color: #fff; background: #091b22; border-radius: 6px; padding: 0 3px; }
+    .raw .tl-d { font-size: 6.5pt; color: #7a5a00; background: #fff3cd; border-radius: 6px; padding: 0 3px; } .raw .tl-r { color: #5c6b72; font-size: 7pt; }
+    .raw .tl-note { font-size: 7pt; color: #555; margin-top: 4px; } .raw .tl-note .tl-e { margin: 0 4px; }
+    .raw .ti-part + .ti-part { break-before: page; } .raw .ti-part .part-h { font-size: 11pt; margin-bottom: 4px; }
+    .raw .ti-table .ti-name { font-size: 7pt !important; white-space: normal; }
+    .raw .ti-table:not(.named) .ti-time { min-width: 0 !important; }`;
   if (!document.getElementById('ti-css')) { const el = document.createElement('style'); el.id = 'ti-css'; el.textContent = TI_CSS; document.head.appendChild(el); }
 
   // ------------------------------------------------------------------ instructors' timetable (a report)
-  // One row per instructor, one column per time slot, the columns grouped by day pattern
-  // (Sun·Tue·Thu, Mon·Wed, …) as in the departments' own timetable sheets. Instructors come from the filters;
-  // each one's sections come from the whole timetable (other departments too). A section listed twice by the portal
-  // (same course, section, activity, time and room) shows once.
+  // One row per instructor, one column per time, in the university's two day groups: Sunday · Tuesday · Thursday and
+  // Monday · Wednesday (as in the departments' own timetable sheets). A section meeting on only some days of its group
+  // (e.g. Tuesday only) sits in its group's column with those days marked. Saturday and asynchronous meetings are left
+  // out. Instructors come from the filters; each one's sections come from the whole timetable (other departments too).
+  // A section listed twice by the portal (same course, section, activity, time and room) shows once.
+  const GROUPS = [['حثخ', 'الأحد · الثلاثاء · الخميس', '#901d23'], ['نر', 'الاثنين · الأربعاء', '#1f6f78']];
   const PAT_NAME = ds => ds.split('').map(d => DAYS[d]).join(' · ');
+  // print layouts: [paper, orientation, how, label]; how = 'groups' (one page per day group) or 'one' (all on one page)
+  const TI_LAY = { a4list: ['A4', 'landscape', 'list', 'A4 أفقي – صفحة واحدة مختصرة (الأوضح)'], a3list: ['A3', 'landscape', 'list', 'A3 أفقي – صفحة واحدة مختصرة (خط أكبر)'],
+    a3g: ['A3', 'landscape', 'groups', 'A3 أفقي – جدول بالأوقات، صفحة لكل مجموعة أيام'], a3l: ['A3', 'landscape', 'one', 'A3 أفقي – جدول بالأوقات، صفحة واحدة'],
+    a4m: ['A4', 'landscape', 'pages', 'A4 أفقي – جدول بالأوقات بخط كامل الحجم (عدة صفحات)'] };
+  const tiLay = () => { try { const v = localStorage.getItem('ti-lay'); return TI_LAY[v] ? v : 'a4list'; } catch (e) { return 'a4list'; } };
   function instView(list, st) {
     const insts = [...new Set(list.map(s => s.instructor))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ar'));
     if (!insts.length) return '<div class="card"><div class="card-body text-center text-muted py-5">لا يوجد مدرسون في نطاق التصفية.</div></div>';
@@ -369,61 +409,60 @@
       const k = [s.instructor, s.code, s.section, s.activity, s.time, s.room].join('|');
       return seen.has(k) ? false : (seen.add(k), true);
     });
-    // a section's meetings with the same time and mode make one pattern (e.g. Sun+Tue+Thu 09:00–10:00)
-    const items = [], async = {};
+    // a section's meetings at the same time and mode, inside one day group, make one item
+    const items = [];
     secs.forEach(s => {
       const g = {};
       s.meetings.forEach(m => {
-        if (m.mode === 'غير متزامن' || !m.start) { (async[s.instructor] ||= []).push(s); return; }
-        const k = m.start + '–' + m.end + '|' + m.mode;
-        (g[k] ||= { t: m.start + '–' + m.end, mode: m.mode, days: [] }).days.push(m.day);
+        if (m.mode === 'غير متزامن' || !m.start) return;
+        const grp = GROUPS.find(x => x[0].includes(m.day)); if (!grp) return;   // Saturday (and any other day) is not shown
+        const k = grp[0] + '|' + m.start + '–' + m.end + '|' + m.mode;
+        (g[k] ||= { pat: grp[0], t: m.start + '–' + m.end, mode: m.mode, days: [] }).days.push(m.day);
       });
-      Object.values(g).forEach(x => items.push({ s, t: x.t, mode: x.mode, pat: x.days.sort((a, b) => WEEK.indexOf(a) - WEEK.indexOf(b)).join('') }));
+      Object.values(g).forEach(x => items.push({ s, t: x.t, mode: x.mode, pat: x.pat, days: [...new Set(x.days)].sort((a, b) => WEEK.indexOf(a) - WEEK.indexOf(b)).join('') }));
     });
-    // patterns by how often they are used; times in order inside each
-    const patN = {};
-    items.forEach(x => { patN[x.pat] = (patN[x.pat] || 0) + 1; });
-    const pats = Object.keys(patN).sort((a, b) => patN[b] - patN[a] || WEEK.indexOf(a[0]) - WEEK.indexOf(b[0]));
-    const cols = pats.flatMap(p => [...new Set(items.filter(x => x.pat === p).map(x => x.t))].sort().map(t => ({ p, t })));
+    const pats = GROUPS.map(g => g[0]).filter(p => items.some(x => x.pat === p));
+    // one column per start time in each group (09:00–10:00 and 09:00–10:30 share the 09:00 column); a section whose
+    // length differs from the column's usual one shows its own time
+    items.forEach(x => { x.st = x.t.split('–')[0]; });
+    const cols = pats.flatMap(p => [...new Set(items.filter(x => x.pat === p).map(x => x.st))].sort().map(st0 => {
+      const n = {}; items.filter(x => x.pat === p && x.st === st0).forEach(x => { n[x.t] = (n[x.t] || 0) + 1; });
+      return { p, st: st0, t: Object.keys(n).sort((a, b) => n[b] - n[a])[0] };
+    }));
+    const usual = Object.fromEntries(cols.map(c => [c.p + c.st, c.t]));
     const cell = {};
-    items.forEach(x => { (cell[x.s.instructor + '\u0000' + x.pat + '\u0000' + x.t] ||= []).push(x); });
+    items.forEach(x => { (cell[x.s.instructor + '\u0000' + x.pat + '\u0000' + x.st] ||= []).push(x); });
     const names = st.names !== '0';
     const short = n => n.replace(/\s*-\s*(نظري|عملي)\s*$/, '');
     const chip = x => `<a href="#" class="ti-chip ${(MODE[x.mode] || {}).cls || ''} ${x.s.activity === 'عملي' ? 'lab' : ''}" data-open="${S.indexOf(x.s)}"
-        title="${esc(`${x.s.code} ${x.s.name} – شعبة ${x.s.section}\n${PAT_NAME(x.pat)} ${x.t} · ${x.mode}\nالقاعة ${x.s.room} · ${x.s.building}\n${x.s.registered}/${x.s.capacity} مسجّل`)}">
-        <span class="ti-top"><b dir="ltr">${esc(x.s.code)}</b><span class="ti-sec">ش${esc(x.s.section)}</span>${x.s.activity === 'عملي' ? '<i class="bi bi-pc-display ti-lab" title="عملي"></i>' : ''}</span>
+        title="${esc(`${x.s.code} ${x.s.name} – شعبة ${x.s.section}\n${PAT_NAME(x.days)} ${x.t} · ${x.mode}\nالقاعة ${x.s.room} · ${x.s.building}\n${x.s.registered}/${x.s.capacity} مسجّل`)}">
+        <span class="ti-top"><b dir="ltr">${esc(x.s.code)}</b><span class="ti-sec">ش${esc(x.s.section)}</span>${usual[x.pat + x.st] !== x.t ? `<bdi dir="ltr" class="ti-own" data-e="–${esc(x.t.split('–')[1])}">${esc(x.t)}</bdi>` : ''}${x.days !== x.pat ? `<span class="ti-days" data-s="${esc(x.days.split('').join('،'))}">${esc(x.days.split('').map(d => DAYS[d]).join('، '))}</span>` : ''}${x.s.activity === 'عملي' ? '<i class="bi bi-pc-display ti-lab" title="عملي"></i>' : ''}</span>
         ${names ? `<span class="ti-name">${esc(short(x.s.name))}</span>` : ''}
         <span class="ti-room"><i class="bi bi-geo-alt"></i>${x.s.room === '0' ? 'افتراضية' : esc(x.s.room)}</span></a>`;
-    const hoursOf = i => {  // weekly teaching hours (meetings with a time), counted once per slot
-      const slots = new Set();
-      items.filter(x => x.s.instructor === i).forEach(x => x.pat.split('').forEach(d => {
-        const [a, b] = x.t.split('–').map(toMin);
-        for (let t = a; t < b; t += 30) slots.add(d + t);
-      }));
-      return slots.size / 2;
-    };
-    const tone = ['#901d23', '#1f6f78', '#6a2fb0', '#b8892b', '#2b5ea7', '#1d7a3e', '#c0392b'];
-    const patTone = Object.fromEntries(pats.map((p, i) => [p, tone[i % tone.length]]));
-    const anyAsync = shownI.some(i => async[i]);
+    const tone = Object.fromEntries(GROUPS.map(g => [g[0], g[2]]));
+    const gname = Object.fromEntries(GROUPS.map(g => [g[0], g[1]]));
     const head1 = `<tr><th class="ti-corner" rowspan="2"><i class="bi bi-person-badge"></i> المدرس</th>${pats.map(p => {
         const n = cols.filter(c => c.p === p).length;
-        return `<th class="ti-pat ti-patg" colspan="${n}" style="--pt:${patTone[p]}"><span class="ti-patl"><i class="bi bi-calendar3-week"></i> ${esc(PAT_NAME(p))} <small>${n} ${n > 2 ? 'أوقات' : n === 2 ? 'وقتان' : 'وقت'}</small></span></th>`;
-      }).join('')}${anyAsync ? '<th class="ti-pat" rowspan="2" style="--pt:#8a6d1f"><i class="bi bi-hourglass-split"></i> غير متزامن</th>' : ''}<th class="ti-pat ti-sum" rowspan="2"><i class="bi bi-clock-history"></i> الساعات</th></tr>`;
-    const head2 = `<tr>${cols.map((c, i) => `<th class="ti-time ${i && cols[i - 1].p !== c.p ? 'ti-gap' : ''}" style="--pt:${patTone[c.p]}"><bdi dir="ltr">${esc(c.t)}</bdi></th>`).join('')}</tr>`;
+        return `<th class="ti-pat ti-patg" data-g="${p}" colspan="${n}" style="--pt:${tone[p]}"><span class="ti-patl"><i class="bi bi-calendar3-week"></i> ${esc(gname[p])}</span></th>`;
+      }).join('')}</tr>`;
+    const head2 = `<tr>${cols.map((c, i) => `<th data-g="${c.p}" class="ti-time ${i && cols[i - 1].p !== c.p ? 'ti-gap' : ''}" style="--pt:${tone[c.p]}"><bdi dir="ltr">${esc(c.t)}</bdi></th>`).join('')}</tr>`;
+    // two different sections on a shared day at the same time = a clash
+    const clashOf = xs => xs.some((x, i) => xs.slice(i + 1).some(y => (x.s.code !== y.s.code || x.s.section !== y.s.section) && [...x.days].some(d => y.days.includes(d))));
     const rows = shownI.map(i => {
-      const h = hoursOf(i), nSec = new Set(secs.filter(s => s.instructor === i).map(s => s.code + '/' + s.section + '/' + s.activity)).size;
+      const nSec = new Set(secs.filter(s => s.instructor === i).map(s => s.code + '/' + s.section + '/' + s.activity)).size;
       return `<tr><th class="ti-inst"><a href="#" data-pick="inst" data-v="${esc(i)}">${esc(i)}</a><small>${nSec} شعبة</small></th>${cols.map((c, j) => {
-        const xs = cell[i + '\u0000' + c.p + '\u0000' + c.t] || [];
-        const clash = new Set(xs.map(x => x.s.code)).size > 1;
-        return `<td class="${j && cols[j - 1].p !== c.p ? 'ti-gap' : ''} ${xs.length ? 'busy' : ''} ${clash ? 'ti-clash' : ''}">${xs.map(chip).join('')}</td>`;
-      }).join('')}${anyAsync ? `<td>${(async[i] || []).filter((s, k, a) => a.indexOf(s) === k).map(s => chip({ s, mode: 'غير متزامن', pat: '', t: '' })).join('')}</td>` : ''}
-        <td class="ti-hrs"><b>${h % 1 ? h.toFixed(1) : h}</b><small>ساعة</small></td></tr>`;
+        const xs = cell[i + '\u0000' + c.p + '\u0000' + c.st] || [];
+        return `<td data-g="${c.p}" class="${j && cols[j - 1].p !== c.p ? 'ti-gap' : ''} ${xs.length ? 'busy' : ''} ${clashOf(xs) ? 'ti-clash' : ''}">${xs.map(chip).join('')}</td>`;
+      }).join('')}</tr>`;
     });
+    const lay = tiLay();
     return `<div class="card ti-card"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center small ti-bar">
         <span class="ti-title"><i class="bi bi-person-lines-fill"></i> جدول المدرسين التفصيلي</span>
-        <span class="text-muted">${shownI.length} مدرساً · كل خانة: رمز المقرر، الشعبة${names ? '، الاسم' : ''} والقاعة · الأعمدة مجمّعة حسب نمط الأيام</span>
+        <span class="text-muted">${shownI.length} مدرساً · كل خانة: رمز المقرر، الشعبة${names ? '، الاسم' : ''} والقاعة · اليوم مكتوب عند الشعبة التي لا تلتقي في كل أيام المجموعة</span>
         <div class="form-check form-switch m-0 ms-auto"><input class="form-check-input" type="checkbox" id="ti-names" ${names ? 'checked' : ''}><label class="form-check-label fw-bold" for="ti-names">اسم المقرر</label></div>
-        <span class="d-flex flex-wrap gap-2">${Object.entries(MODE).map(([k, v]) => `<span class="tt-chip ${v.cls} static"><i class="bi ${v.icon}"></i> ${k}</span>`).join('')}<span class="tt-chip static lab"><i class="bi bi-pc-display"></i> عملي</span></span></div>
+        <span class="ti-print"><label for="ti-lay"><i class="bi bi-printer"></i> تخطيط الطباعة</label><select class="form-select form-select-sm" id="ti-lay">${Object.entries(TI_LAY).map(([k, v]) => `<option value="${k}" ${k === lay ? 'selected' : ''}>${v[3]}</option>`).join('')}</select>
+          <button class="btn btn-sm btn-uop" id="ti-printbtn"><i class="bi bi-printer-fill"></i> طباعة</button></span>
+        <span class="d-flex flex-wrap gap-2 w-100">${Object.entries(MODE).filter(([k]) => k !== 'غير متزامن').map(([k, v]) => `<span class="tt-chip ${v.cls} static"><i class="bi ${v.icon}"></i> ${k}</span>`).join('')}<span class="tt-chip static lab"><i class="bi bi-pc-display"></i> عملي</span></span></div>
       ${insts.length > LIMIT ? `<div class="alert alert-info small m-2 mb-0"><i class="bi bi-info-circle"></i> ${insts.length} مدرساً في النطاق؛ يُعرض أول ${LIMIT}. اختر كلية أو قسماً من التصفية لعرض مدرسيه فقط.</div>` : ''}
       ${!st.dept && !st.fac && !st.inst ? '<div class="alert alert-warning small m-2 mb-0"><i class="bi bi-funnel"></i> للحصول على جدول قسم كامل مثل جداول الأقسام: اختر <b>الكلية</b> ثم <b>القسم</b> من التصفية.</div>' : ''}
       <div class="table-responsive ti-wrap"><table class="table table-bordered mb-0 ti-table ${names ? 'named' : ''}">
@@ -1261,6 +1300,10 @@
     if (nm) nm.addEventListener('change', e => set({ names: e.target.checked ? '1' : '' }));
     const tin = $('#ti-names');
     if (tin) tin.addEventListener('change', e => set({ names: e.target.checked ? '' : '0' }));
+    const tlay = $('#ti-lay');
+    if (tlay) tlay.addEventListener('change', e => { try { localStorage.setItem('ti-lay', e.target.value); } catch (x) { /* per viewer only */ } });
+    const tpb = $('#ti-printbtn');
+    if (tpb) tpb.addEventListener('click', () => exportAs('print', list));
     document.querySelectorAll('[data-sort]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); set({ sort: a.dataset.sort }); }));
     const sort = $('#tt-sort');
     if (sort) sort.addEventListener('change', e => set({ sort: e.target.value }));
@@ -1309,6 +1352,38 @@
     return b.tiers.flatMap(t => t.runs.map(r => [t.title, DAYS[r.d], `${toTime(r.a)}–${toTime(r.b)}`, dur(r.n), r.away.length ? r.away.join('، ') : 'لا أحد']));
   }
   const isBest = st => st.view === 'free' && (!st.ftab || st.ftab === 'best') && window.__frBest;
+  // on paper the cells carry course codes only; with «اسم المقرر» on, the names are listed once under the table
+  function tiKey(t) {
+    if (!t.classList.contains('named')) return '';
+    const m = new Map();
+    t.querySelectorAll('.ti-chip').forEach(a => { const c = a.querySelector('.ti-top b').textContent, n = a.querySelector('.ti-name'); if (n && !m.has(c)) m.set(c, n.textContent); });
+    return m.size ? `<div class="ti-key"><h4>المقررات</h4>${[...m].sort((x, y) => x[0].localeCompare(y[0])).map(([c, n]) => `<div><b>${esc(c)}</b> ${esc(n)}</div>`).join('')}</div>` : '';
+  }
+  // the compact paper form: one row per instructor, one cell per day group listing its sections in time order
+  function tiList(t) {
+    const heads = [...t.querySelectorAll('thead tr:nth-child(2) th')].map(th => th.textContent.trim().split('–')[0]);
+    const groups = GROUPS.filter(g => t.querySelector(`[data-g="${g[0]}"]`));
+    const rows = [...t.querySelectorAll('tbody tr')].map(tr => {
+      const name = tr.querySelector('.ti-inst a').textContent, tds = [...tr.querySelectorAll('td')];
+      return `<tr><th>${esc(name)}</th>${groups.map(g => `<td>${tds.map((td, j) => td.dataset.g === g[0] ? [...td.querySelectorAll('.ti-chip')].map(a => {
+        const own = a.querySelector('.ti-own'), days = a.querySelector('.ti-days'), room = a.querySelector('.ti-room').textContent.trim();
+        return `<span class="tl-e ${[...a.classList].filter(c => /^m-|^lab$/.test(c)).join(' ')}"><b class="tl-t" dir="ltr">${esc(own ? own.textContent : heads[j])}</b> <b dir="ltr">${esc(a.querySelector('.ti-top b').textContent)}</b><span class="tl-s">${esc(a.querySelector('.ti-sec').textContent)}</span>${days ? `<span class="tl-d">${esc(days.dataset.s)}</span>` : ''}<span class="tl-r">${esc(room)}</span></span>`;
+      }).join('') : '').join('')}</td>`).join('')}</tr>`;
+    }).filter(r => r.includes('tl-e'));
+    const days = 'ح الأحد · ن الاثنين · ث الثلاثاء · ر الأربعاء · خ الخميس';
+    return `<table class="tl-table${t.classList.contains('named') ? ' named' : ''}"><thead><tr><th class="tl-c">المدرس</th>${groups.map(g => `<th style="--pt:${g[2]}">${esc(g[1])}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>
+      <div class="tl-note">كل شعبة: <b>الوقت</b> · رمز المقرر · الشعبة · القاعة. الحرف عند الشعبة التي لا تلتقي في كل أيام المجموعة: ${days}. اللون: <span class="tl-e">وجاهي</span> <span class="tl-e m-online">إلكتروني كامل</span> <span class="tl-e m-blend">مدمج</span> <span class="tl-e lab">عملي</span></div>${tiKey(t)}`;
+  }
+  // the instructors' table split by day group (each part printed on its own page, scaled to fit it)
+  function tiParts(t) {
+    return GROUPS.filter(g => t.querySelector(`[data-g="${g[0]}"]`)).map(g => {
+      const c = t.cloneNode(true);
+      c.querySelectorAll('[data-g]').forEach(el => { if (el.dataset.g !== g[0]) el.remove(); });
+      c.querySelectorAll('.ti-gap').forEach(el => el.classList.remove('ti-gap'));
+      c.querySelectorAll('tbody tr').forEach(tr => { if (!tr.querySelector('.ti-chip')) tr.remove(); });   // no teaching in this group
+      return `<div class="part ti-part"><div class="part-h"><i class="bi bi-calendar3-week"></i> ${esc(g[1])}</div>${c.outerHTML}${tiKey(c)}</div>`;
+    }).join('');
+  }
   function printTimetable(list) {
     const st = readState();
     if (isBest(st)) {
@@ -1325,11 +1400,13 @@
     const filters = [...FK, 'seats'].filter(k => st[k]).map(k => [k === 'seats' ? 'المقاعد' : F.find(f => f[0] === k)[1], k === 'seats' ? 'متاحة فقط' : label(k, st[k])]);
     if (st.q) filters.unshift(['بحث', st.q]);
     const base = { title: 'الجدول الدراسي', source: 'المصدر: بوابة الجامعة (edugate)', filters, orientation: 'landscape' };
+    if (st.view === 'inst') { const [paper, orient, how] = TI_LAY[tiLay()]; Object.assign(base, { paper, orientation: orient, fit: how === 'one' || how === 'list', fitParts: how === 'groups', noSplit: how === 'pages' }); }
     if (shown) {  // a matrix: printed exactly as displayed (same colours, chips and layout)
       const legend = document.querySelector('#tt-results .fr-legend, #tt-results .mx-days + div .ms-auto');
       return printReport(Object.assign(base, { subtitle: `${DATA.term} – ${shown.title}`,
         css: ['https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css', 'assets/app.css'],
-        raw: (st.view === 'inst' ? `<style>${TI_CSS}</style>` : '') + (legend ? `<div class="small mb-2">${legend.outerHTML}</div>` : '') + shown.table.outerHTML }));
+        raw: (st.view === 'inst' ? `<style>${TI_CSS}${TI_PRINT}</style>` : '') + (legend ? `<div class="small mb-2">${legend.outerHTML}</div>` : '')
+          + (st.view !== 'inst' ? shown.table.outerHTML : TI_LAY[tiLay()][2] === 'list' ? tiList(shown.table) : TI_LAY[tiLay()][2] !== 'one' ? tiParts(shown.table) : shown.table.outerHTML + tiKey(shown.table)) }));
     }
     const reg = list.reduce((a, s) => a + s.registered, 0), cap = list.reduce((a, s) => a + s.capacity, 0);
     const timeHtml = s => {
