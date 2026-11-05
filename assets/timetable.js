@@ -1332,9 +1332,17 @@
     $('#tt-results').innerHTML = st.view === 'dash' ? dashView(list, st) : st.view === 'free' ? freeView(st) : st.view === 'mx' ? matrixView(list, st) : !list.length ? '<div class="card"><div class="card-body text-center text-muted py-5"><i class="bi bi-search fs-2 d-block mb-2"></i>لا توجد شعب تطابق التصفية الحالية.</div></div>'
       : st.view === 'cards' ? cardsView(list, st) : st.view === 'courses' ? coursesView(list, st) : st.view === 'grid' ? gridView(list, st) : st.view === 'inst' ? instView(list, st) : st.view === 'college' ? collegeView(list, st) : tableView(list, st);
     bind(list, st);
+    fitChips();
     if (focus) { const q = $('#tt-filters input[name=q]'); q.focus(); q.setSelectionRange(q.value.length, q.value.length); }
   }
 
+  // the filter chips in the toolbar: each one shown whole or not at all (the panel and the button's count still show them)
+  function fitChips() {
+    const box = document.querySelector('.tt-chips'); if (!box) return;
+    const cs = [...box.children]; cs.forEach(c => { c.hidden = false; });
+    for (let k = cs.length - 1; k >= 0 && box.scrollWidth > box.clientWidth + 1; k--) cs[k].hidden = true;
+  }
+  let chipT; window.addEventListener('resize', () => { clearTimeout(chipT); chipT = setTimeout(fitChips, 120); });
   function set(changes) {
     const st = Object.assign(readState(), changes);
     if ('fac' in changes) st.dept = '';
@@ -1585,7 +1593,7 @@
     @media (min-width: 992px) { #tt-layout.tt-wide > aside { display: none; } #tt-layout.tt-wide > section { flex: 0 0 100%; width: 100%; max-width: 100%; } }
     .tt-tbar .btn-group .btn { padding: .25rem .55rem; font-size: .8rem; white-space: nowrap; } .tt-tbar .dropdown > .btn { white-space: nowrap; }
     .tt-chips { display: inline-flex; gap: .3rem; min-width: 0; overflow: hidden; }
-    @media (min-width: 1200px) { .tt-tbar { flex-wrap: nowrap !important; } .tt-tbar > .ms-auto { flex: none; flex-wrap: nowrap !important; } .tt-tbar .btn-group { flex-wrap: nowrap !important; } .tt-chips { flex: 1 1 auto; } .tt-chips .filter-chip { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; } }
+    @media (min-width: 1200px) { .tt-tbar { flex-wrap: nowrap !important; } .tt-tbar > .ms-auto { flex: none; flex-wrap: nowrap !important; } .tt-tbar .btn-group { flex-wrap: nowrap !important; } .tt-chips { flex: 1 1 auto; } .tt-chips .filter-chip { white-space: nowrap; flex: none; } }
     @media (min-width: 1200px) and (max-width: 1599px) { .tt-tbar .btn-group .btn { padding: .25rem .4rem; font-size: .76rem; } .tt-tbar .btn-group .btn i { display: none; } }
     .tt-widebtn.btn-outline-secondary, .fc-widebtn { border-color: #d5cdbd; color: #3c474c; } .tt-widebtn:hover, .fc-widebtn:hover { background: #fbf0f0; color: #7a1a1f; border-color: #c98f92; }
     .fc-find { width: 15rem; }
