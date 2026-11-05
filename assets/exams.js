@@ -691,14 +691,16 @@
         return `<section class="ex-qrep"><div class="ex-rephead"><h6 class="m-0"><i class="bi bi-list-check"></i> الملاحظات <span class="ex-n ${st.clash ? 'bad' : ''}">${rep.length}</span></h6>
           <div class="ex-rtabs" role="tablist"><button class="${f ? '' : 'on'}" data-rf="">الكل <em>${rep.length}</em></button>${types.map(k => `<button class="${f === k ? 'on' : ''}" data-rf="${k}"><i class="bi ${KIND[k][2]}"></i> ${KIND[k][1]} <em>${rep.filter(r => r.k === k).length}</em></button>`).join('')}</div>
           <span class="ex-racts">${rep.some(r => r.fix) ? '<button class="btn btn-sm btn-ex" id="ex-fixall"><i class="bi bi-magic"></i> طبّق كل الحلول</button>' : ''}<button class="btn btn-sm btn-outline-secondary" id="ex-rprint" title="طباعة التقرير"><i class="bi bi-printer"></i></button><button class="btn btn-sm btn-outline-secondary" id="ex-rxlsx" title="Excel"><i class="bi bi-file-earmark-excel"></i></button></span></div>
-          <div class="ex-rep">${list.map((r, k) => `<article class="ex-ri sev${SEV[r.sev]}">
-            <header><span class="sev">${r.sev}</span><b><i class="bi ${KIND[r.k][2]}"></i> ${KIND[r.k][1]}</b><span class="when"><i class="bi bi-clock"></i> ${esc(r.when)}</span>
-              ${r.k !== 'ins' && r.n ? `<span class="aff"><i class="bi bi-people-fill"></i> ${r.exact ? r.n : 'حتى ' + r.n} طالب${r.exact ? '' : ' (تقدير)'}</span>` : ''}</header>
-            <ul class="cs">${r.cs.map(i => `<li style="--c:${C[i].col[0]}"><b>${esc(C[i].code)}</b> ${esc(C[i].name)} <small>· ${esc(C[i].dept)} · ${C[i].students} طالب · ${esc(C[i].ins.map(U.shortName).join('، ') || '—')}</small></li>`).join('')}</ul>
-            ${r.who.length ? `<div class="who"><i class="bi bi-diagram-3"></i> ${r.who.map(esc).join(' · ')}</div>` : ''}
-            <p class="why">${esc(r.why)}</p>
-            <footer>${r.fix ? `<span class="fix"><i class="bi bi-lightbulb-fill"></i> الحل المقترح: ${esc(fixTxt(r.fix))}</span><button class="btn btn-sm btn-ex" data-fix="${r.fix.i},${r.fix.s}">تطبيق</button>` : `<span class="fix muted">${r.k === 'short' ? 'أضف مراقبين أو ارفع حد المراقبات اليومي' : 'لا يوجد نقل يحسّن الوضع؛ زد الأيام أو الفترات أو القاعات'}</span>`}
-              <button class="btn btn-sm btn-link" data-go="${r.cs[0]}">عرض في الجدول</button></footer></article>`).join('')}</div></section>`; })()}
+          <div class="table-responsive ex-rtw"><table class="ex-rtbl"><thead><tr><th>الأولوية</th><th>الملاحظة</th><th>الموعد</th><th>المقررات</th><th>التفاصيل</th><th>الإجراء</th></tr></thead><tbody>
+          ${list.map(r => `<tr class="sev${SEV[r.sev]}">
+            <td><span class="ex-sevb sev${SEV[r.sev]}">${esc(r.sev)}</span></td>
+            <td class="ty"><i class="bi ${KIND[r.k][2]}"></i> ${KIND[r.k][1]}${r.k !== 'ins' && r.n ? `<small>${r.exact ? r.n : 'حتى ' + r.n} طالب${r.exact ? '' : ' (تقدير)'}</small>` : ''}</td>
+            <td class="wh">${esc(r.when)}</td>
+            <td class="cs">${r.cs.map(i => `<span class="ex-cchip" style="--c:${C[i].col[0]}" title="${esc(C[i].name + ' · ' + C[i].dept + ' · ' + (C[i].ins.map(U.shortName).join('، ') || '—'))}"><b dir="ltr">${esc(C[i].code)}</b> ${esc(C[i].name)} <small>${C[i].students}</small></span>`).join('')}</td>
+            <td class="why">${esc(r.why)}${r.who.length ? `<details><summary>${r.k === 'short' ? 'القاعات' : r.k === 'ins' ? 'المدرّس' : 'المجموعات'} (${r.who.length})</summary>${r.who.map(esc).join(' · ')}</details>` : ''}</td>
+            <td class="act">${r.fix ? `<button class="btn btn-sm btn-ex" data-fix="${r.fix.i},${r.fix.s}" title="${esc(fixTxt(r.fix))}"><i class="bi bi-magic"></i> تطبيق</button><small>${esc(fixTxt(r.fix))}</small>`
+              : `<small class="muted">${r.k === 'short' ? 'أضف مراقبين أو ارفع حد المراقبات اليومي' : 'لا يوجد نقل أفضل؛ زد الأيام أو الفترات أو القاعات'}</small>`}
+              <button class="btn btn-sm btn-link p-0" data-go="${r.cs[0]}"><i class="bi bi-box-arrow-up-left"></i> عرض في الجدول</button></td></tr>`).join('')}</tbody></table></div></section>`; })()}
       ${!st.is.length && !st.unseated ? '<div class="ex-empty"><i class="bi bi-patch-check-fill"></i> الجدول نظيف: لا تعارض ولا ضغط زائد ولا نقص مقاعد.</div>' : ''}`;
   }
   // ---------- outputs ----------
@@ -1779,6 +1781,22 @@
   .ex-rtabs em { font-style: normal; font-size: .72rem; background: #f1ede4; border-radius: 999px; padding: 0 .4rem; margin-inline-start: .15rem; } .ex-rtabs button.on em { background: #901d23; color: #fff; }
   .ex-racts { margin-inline-start: auto; display: inline-flex; gap: .3rem; }
   @media (max-width: 767.98px) { .ex-qrow { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ex-racts { margin-inline-start: 0; } }
+  .ex-rtw { border: 1px solid #ece6da; border-radius: 10px; }
+  .ex-rtbl { width: 100%; border-collapse: collapse; font-size: .83rem; }
+  .ex-rtbl th { background: #f6f1e7; color: #5b4a2f; font-weight: 800; font-size: .76rem; padding: .45rem .6rem; white-space: nowrap; border-bottom: 1px solid #e3dccd; text-align: start; position: sticky; top: 0; }
+  .ex-rtbl td { padding: .45rem .6rem; border-bottom: 1px solid #f0ebe0; vertical-align: top; }
+  .ex-rtbl tbody tr:last-child td { border-bottom: 0; } .ex-rtbl tbody tr:hover td { background: #fcfaf6; }
+  .ex-rtbl tr.sev0 td:first-child { box-shadow: inset 4px 0 0 #b42318; } .ex-rtbl tr.sev1 td:first-child { box-shadow: inset 4px 0 0 #d9480f; } .ex-rtbl tr.sev2 td:first-child { box-shadow: inset 4px 0 0 #d97706; } .ex-rtbl tr.sev3 td:first-child { box-shadow: inset 4px 0 0 #94a3b8; }
+  .ex-sevb { display: inline-block; font-size: .72rem; font-weight: 800; padding: .05rem .55rem; border-radius: 999px; white-space: nowrap; }
+  .ex-sevb.sev0 { background: #fde8e8; color: #b42318; } .ex-sevb.sev1 { background: #fff0e6; color: #c2410c; } .ex-sevb.sev2 { background: #fef6e0; color: #a16207; } .ex-sevb.sev3 { background: #eef2f6; color: #475569; }
+  .ex-rtbl .ty { font-weight: 800; color: #091b22; white-space: nowrap; } .ex-rtbl .ty i { color: #901d23; } .ex-rtbl .ty small { display: block; font-weight: 600; color: #6b777c; font-size: .72rem; }
+  .ex-rtbl .wh { white-space: nowrap; color: #3c474c; font-variant-numeric: tabular-nums; }
+  .ex-rtbl .cs { min-width: 14rem; } .ex-cchip { display: flex; align-items: baseline; gap: .3rem; border-inline-start: 3px solid var(--c); padding-inline-start: .4rem; margin: 1px 0; line-height: 1.35; }
+  .ex-cchip b { color: #091b22; } .ex-cchip small { color: #6b777c; margin-inline-start: auto; padding-inline-start: .3rem; }
+  .ex-rtbl .why { color: #2f3f46; min-width: 13rem; } .ex-rtbl .why details { margin-top: .2rem; font-size: .76rem; color: #0b4a66; } .ex-rtbl .why summary { cursor: pointer; font-weight: 700; }
+  .ex-rtbl .act { min-width: 10rem; } .ex-rtbl .act small { display: block; color: #15803d; font-weight: 700; font-size: .74rem; margin: .2rem 0; } .ex-rtbl .act small.muted { color: #6b777c; font-weight: 500; }
+  @media (max-width: 767.98px) { .ex-rtbl thead { display: none; } .ex-rtbl tr { display: grid; grid-template-columns: auto 1fr; gap: .2rem .5rem; padding: .5rem; border-bottom: 1px solid #ece6da; }
+    .ex-rtbl td { border: 0; padding: 0; } .ex-rtbl td.cs, .ex-rtbl td.why, .ex-rtbl td.act { grid-column: 1 / -1; min-width: 0; } .ex-rtbl tr td:first-child { box-shadow: none !important; } }
   .ex-qrep .ex-rep { gap: .45rem; } .ex-qrep .ex-ri { padding: .5rem .7rem; border-radius: 10px; border-inline-start-width: 4px; }
   .ex-qrep .ex-ri header { font-size: .88rem; gap: .25rem .7rem; } .ex-qrep .ex-ri .when, .ex-qrep .ex-ri .aff { font-size: .8rem; } .ex-qrep .ex-ri .sev { font-size: .7rem; }
   .ex-qrep .ex-ri .cs { margin: .3rem 0; } .ex-qrep .ex-ri .cs li { font-size: .84rem; } .ex-qrep .ex-ri .cs small { font-size: .76rem; }
