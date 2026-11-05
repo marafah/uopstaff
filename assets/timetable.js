@@ -1366,6 +1366,7 @@
       set({ ccell: next.join(',') === CC_DEF.join(',') ? '' : next.join(',') });
     }));
     document.querySelectorAll('[data-clay]').forEach(b => b.addEventListener('click', () => set({ clay: b.dataset.clay })));
+    document.querySelectorAll('.fc-cb input').forEach(b => b.addEventListener('change', () => b.closest('.fc-cb').classList.toggle('on', b.checked)));
     document.querySelectorAll('[data-ccd]').forEach(b => b.addEventListener('change', () => {
       const cur = ccDays(st), d = b.dataset.ccd, next = CC_DAYS.filter(x => x === d ? b.checked : cur.includes(x));
       if (!next.length) { b.checked = true; return; }
@@ -1513,38 +1514,43 @@
       return uniq;
     };
     const cell = (i, d) => dayList(i, d).map(x => entry(x, x.clash)).join('');
+    // only instructors who teach in the chosen days, hours and modes (the others are counted in a note)
+    const nLec = i => days.reduce((a, d) => a + (((byI[i] || {})[d] || []).length), 0);
+    const activeI = shownI.filter(i => nLec(i) > 0), idle = shownI.length - activeI.length;
     // «اليوم والساعة»: under every day one column per hour in which someone teaches that day (a lecture sits in the hour it starts in)
-    const hours = Object.fromEntries(days.map(d => { const h = [...new Set(shownI.flatMap(i => ((byI[i] || {})[d] || []).map(x => x.m.start.slice(0, 2))))].sort(); return [d, h.length ? h : ['—']]; }));
-    const rows = shownI.map(i => {
-      const n = days.reduce((a, d) => a + (((byI[i] || {})[d] || []).length), 0);
-      return `<tr data-q="${esc(norm(i))}"><th class="fc-i"><a href="#" data-pick="inst" data-v="${esc(i)}">${esc(i)}</a><small>${n} محاضرة أسبوعياً</small></th>${days.map(d => `<td data-d="${d}" class="${d === today ? 'fc-today' : ''}">${cell(i, d)}</td>`).join('')}</tr>`;
-    });
-    const daysTable = `<table class="table table-bordered mb-0 fc-table" data-fields="${F_.join(',')}"><thead><tr><th class="fc-corner"><i class="bi bi-person-badge"></i> المدرس</th>${days.map(d => `<th data-d="${d}" class="${d === today ? 'fc-today' : ''}">${DAY_FULL[d]}${d === today ? ' <small>(اليوم)</small>' : ''}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
-    const gridRows = shownI.map(i => {
-      const n = days.reduce((a, d) => a + (((byI[i] || {})[d] || []).length), 0);
-      return `<tr data-q="${esc(norm(i))}"><th class="fc-i"><a href="#" data-pick="inst" data-v="${esc(i)}">${esc(i)}</a><small>${n} محاضرة أسبوعياً</small></th>${days.map(d => { const L = dayList(i, d);
-        return hours[d].map((h, k) => `<td data-d="${d}" class="${k ? '' : 'fc-dg'} ${d === today ? 'fc-today' : ''}">${L.filter(x => x.m.start.slice(0, 2) === h).map(x => entry(x, x.clash)).join('')}</td>`).join(''); }).join('')}</tr>`;
-    });
-    const gridTable = `<table class="table table-bordered mb-0 fc-table fc-grid" data-fields="${F_.join(',')}"><thead><tr><th class="fc-corner" rowspan="2"><i class="bi bi-person-badge"></i> المدرس</th>${days.map(d => `<th data-d="${d}" colspan="${hours[d].length}" class="fc-day fc-dg ${d === today ? 'fc-today' : ''}">${DAY_FULL[d]}${d === today ? ' <small>(اليوم)</small>' : ''}</th>`).join('')}</tr>
+    const hours = Object.fromEntries(days.map(d => { const h = [...new Set(activeI.flatMap(i => ((byI[i] || {})[d] || []).map(x => x.m.start.slice(0, 2))))].sort(); return [d, h.length ? h : ['—']]; }));
+    const head = i => `<th class="fc-i"><a href="#" data-pick="inst" data-v="${esc(i)}">${esc(i)}</a><small>${nLec(i)} محاضرة</small></th>`;
+    const rows = activeI.map(i => `<tr data-q="${esc(norm(i))}">${head(i)}${days.map(d => `<td data-d="${d}" class="${d === today ? 'fc-today' : ''}">${cell(i, d)}</td>`).join('')}</tr>`);
+    const daysTable = `<table class="table table-bordered mb-0 fc-table" data-fields="${F_.join(',')}"><thead><tr><th class="fc-corner">المدرس</th>${days.map(d => `<th data-d="${d}" class="${d === today ? 'fc-today' : ''}">${DAY_FULL[d]}${d === today ? ' <small>اليوم</small>' : ''}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
+    const gridRows = activeI.map(i => `<tr data-q="${esc(norm(i))}">${head(i)}${days.map(d => { const L = dayList(i, d);
+      return hours[d].map((h, k) => `<td data-d="${d}" class="${k ? '' : 'fc-dg'} ${d === today ? 'fc-today' : ''}">${L.filter(x => x.m.start.slice(0, 2) === h).map(x => entry(x, x.clash)).join('')}</td>`).join(''); }).join('')}</tr>`);
+    const gridTable = `<table class="table table-bordered mb-0 fc-table fc-grid" data-fields="${F_.join(',')}"><thead><tr><th class="fc-corner" rowspan="2">المدرس</th>${days.map(d => `<th data-d="${d}" colspan="${hours[d].length}" class="fc-day fc-dg ${d === today ? 'fc-today' : ''}">${DAY_FULL[d]}${d === today ? ' <small>اليوم</small>' : ''}</th>`).join('')}</tr>
       <tr>${days.map(d => hours[d].map((h, k) => `<th data-d="${d}" class="fc-h ${k ? '' : 'fc-dg'}">${h === '—' ? 'لا محاضرات' : `<bdi dir="ltr">${h}:00</bdi>`}</th>`).join('')).join('')}</tr></thead><tbody>${gridRows.join('')}</tbody></table>`;
     const table = grid ? gridTable : daysTable;
     if (opt.tableOnly) return table;
-    return `<div class="card fc-card"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center small ti-bar">
-        <span class="ti-title"><i class="bi bi-building"></i> جدول الكلية</span>
-        <div class="tp-seg fc-lay" role="group" aria-label="شكل الجدول"><button type="button" data-clay="" class="${grid ? '' : 'on'}"><i class="bi bi-calendar-week"></i> حسب اليوم</button><button type="button" data-clay="grid" class="${grid ? 'on' : ''}"><i class="bi bi-grid-3x3"></i> اليوم والساعة</button></div>
-        <span class="text-muted">${shownI.length} مدرساً · ${grid ? 'أعمدة الأيام وتحت كل يوم ساعاته؛ يُكتب الوقت في الخانة إن لم يبدأ على رأس الساعة أو اختلف طوله' : 'كل خانة: محاضرات المدرس في ذلك اليوم مرتبة بالوقت'}${nAsync ? ` · ${nAsync} لقاءً غير متزامن بلا وقت لا يظهر` : ''}</span>
-        <div class="ms-auto d-flex flex-wrap gap-2 align-items-center">
+    const hh = h => String(h).padStart(2, '0') + ':00';
+    const range = fromH === 0 && toH === 24 ? 'كل الأوقات' : `من ${fromH ? hh(fromH) : 'البداية'} إلى ${toH < 24 ? hh(toH) : 'النهاية'}`;
+    const total = activeI.reduce((a, i) => a + nLec(i), 0);
+    const chip = (attr, k, l, on_) => `<label class="fc-cb${on_ ? ' on' : ''}"><input type="checkbox" ${attr}="${k}" ${on_ ? 'checked' : ''}><span>${l}</span></label>`;
+    const sel = (key, val, isTo) => `<select class="form-select form-select-sm" data-ccr="${key}" aria-label="${isTo ? 'إلى' : 'من'}">${isTo ? '' : `<option value="all" ${st[key] === 'all' ? 'selected' : ''}>البداية</option>`}${(isTo ? HOURS.slice(1) : HOURS).map(h => `<option value="${+h}" ${st[key] !== 'all' && +h === val ? 'selected' : ''}>${h}:00</option>`).join('')}${isTo ? `<option value="all" ${st[key] === 'all' ? 'selected' : ''}>النهاية</option>` : ''}</select>`;
+    const changed = st.cdays || st.cfrom || st.cto || st.ccell || st.cmode;
+    return `<div class="card fc-card">
+      <div class="fc-head">
+        <div class="fc-h1"><span class="fc-ico"><i class="bi bi-building"></i></span><div><h2>جدول الكلية</h2>
+          <small><b>${activeI.length}</b> مدرساً · <b>${total}</b> محاضرة · ${days.map(d => DAY_FULL[d]).join('، ')} · ${range}</small></div></div>
+        <div class="fc-tools">
+          <div class="tp-seg fc-lay" role="group" aria-label="شكل الجدول"><button type="button" data-clay="" class="${grid ? '' : 'on'}"><i class="bi bi-calendar-week"></i> حسب اليوم</button><button type="button" data-clay="grid" class="${grid ? 'on' : ''}"><i class="bi bi-grid-3x3"></i> اليوم والساعة</button></div>
           <div class="input-group input-group-sm fc-find"><span class="input-group-text"><i class="bi bi-search"></i></span><input type="search" class="form-control" id="fc-q" placeholder="ابحث عن مدرس…" aria-label="ابحث عن مدرس"></div>
-          <button class="btn btn-sm btn-maroon" id="fc-printbtn"><i class="bi bi-printer-fill"></i> طباعة / PDF</button></div></div>
-      <div class="fc-opts" role="group" aria-label="خيارات العرض">
-        <div class="fc-og"><span class="fc-ol"><i class="bi bi-ui-checks"></i> محتوى الخانة</span>${CC_FIELDS.map(([k, l]) => `<label class="fc-cb"><input type="checkbox" data-ccf="${k}" ${on(k) ? 'checked' : ''}> ${l}</label>`).join('')}<span class="fc-note">${grid ? 'الوقت في عمود الساعة' : 'الوقت يظهر دائماً'}</span></div>
-        <div class="fc-og"><span class="fc-ol"><i class="bi bi-calendar3"></i> الأيام</span>${CC_DAYS.map(d => `<label class="fc-cb"><input type="checkbox" data-ccd="${d}" ${pick.includes(d) ? 'checked' : ''}> ${DAY_FULL[d]}</label>`).join('')}</div>
-        <div class="fc-og"><span class="fc-ol"><i class="bi bi-clock"></i> الساعات</span><label class="fc-sel">من <select class="form-select form-select-sm" data-ccr="cfrom"><option value="all" ${st.cfrom === 'all' ? 'selected' : ''}>كل الأوقات</option>${HOURS.map(h => `<option value="${+h}" ${st.cfrom !== 'all' && +h === fromH ? 'selected' : ''}>${h}:00</option>`).join('')}</select></label>
-          <label class="fc-sel">إلى <select class="form-select form-select-sm" data-ccr="cto">${HOURS.slice(1).map(h => `<option value="${+h}" ${st.cto !== 'all' && +h === toH ? 'selected' : ''}>${h}:00</option>`).join('')}<option value="all" ${st.cto === 'all' ? 'selected' : ''}>كل الأوقات</option></select></label></div>
-        <div class="fc-og"><span class="fc-ol"><i class="bi bi-display"></i> نمط التدريس</span>${CC_MODES.map(([k, l]) => `<label class="fc-cb"><input type="checkbox" data-ccm="${k}" ${modes.includes(k) ? 'checked' : ''}> ${l}</label>`).join('')}
-          ${st.cdays || st.cfrom || st.cto || st.ccell || st.cmode ? '<button type="button" class="btn btn-sm btn-link" data-ccreset><i class="bi bi-arrow-counterclockwise"></i> إعادة الضبط</button>' : ''}
-          ${nOut ? `<span class="fc-note">${nOut} لقاءً خارج الأيام أو الساعات أو الأنماط المختارة</span>` : ''}</div>
+          <button class="btn btn-sm btn-maroon" id="fc-printbtn"><i class="bi bi-printer-fill"></i> طباعة / PDF</button></div>
       </div>
+      <div class="fc-opts" id="fc-opts">
+        <div class="fc-row"><span class="fc-ol">محتوى الخانة</span><div class="fc-ctl">${CC_FIELDS.map(([k, l]) => chip('data-ccf', k, l, on(k))).join('')}</div></div>
+        <div class="fc-row"><span class="fc-ol">الأيام</span><div class="fc-ctl">${CC_DAYS.map(d => chip('data-ccd', d, DAY_FULL[d], pick.includes(d))).join('')}</div></div>
+        <div class="fc-row"><span class="fc-ol">نمط التدريس</span><div class="fc-ctl">${CC_MODES.map(([k, l]) => chip('data-ccm', k, l, modes.includes(k))).join('')}</div></div>
+        <div class="fc-row"><span class="fc-ol">الساعات</span><div class="fc-ctl fc-hours"><span>من</span>${sel('cfrom', fromH, false)}<span>إلى</span>${sel('cto', toH, true)}
+          ${changed ? '<button type="button" class="btn btn-sm btn-link fc-reset" data-ccreset><i class="bi bi-arrow-counterclockwise"></i> الإعدادات الافتراضية</button>' : ''}</div></div>
+      </div>
+      ${idle || nOut || nAsync ? `<div class="fc-info"><i class="bi bi-info-circle"></i> ${[idle ? `${idle} مدرساً بلا محاضرات ضمن الاختيار مخفيّون` : '', nOut ? `${nOut} لقاءً خارج الأيام أو الساعات أو الأنماط المختارة` : '', nAsync ? `${nAsync} لقاءً غير متزامن بلا وقت` : ''].filter(Boolean).join(' · ')}${grid ? ' · يظهر الوقت داخل الخانة فقط إن لم يبدأ على رأس الساعة أو اختلف طوله' : ''}</div>` : ''}
       ${insts.length > LIMIT ? `<div class="alert alert-info small m-2 mb-0"><i class="bi bi-info-circle"></i> ${insts.length} مدرساً في النطاق؛ يُعرض أول ${LIMIT}. اختر كلية من التصفية.</div>` : ''}
       ${!st.dept && !st.fac && !st.inst ? '<div class="alert alert-warning small m-2 mb-0"><i class="bi bi-funnel"></i> اختر <b>الكلية</b> (أو القسم) من التصفية لعرض جدولها.</div>' : ''}
       <div class="fc-none alert alert-light small m-2 mb-0" hidden>لا يوجد مدرس بهذا الاسم في الجدول.</div>
@@ -1553,16 +1559,17 @@
   const FC_CSS = `
     .fc-wrap { max-height: 78vh; overflow: auto; }
     .fc-find { width: 15rem; }
-    .fc-table { font-size: .8rem; border-collapse: separate; border-spacing: 0; }
+    .fc-table { font-size: .78rem; border-collapse: separate; border-spacing: 0; margin: 0; }
     .fc-table thead th { position: sticky; top: 0; z-index: 3; background: #091b22 !important; color: #fff !important; text-align: center; font-weight: 800; padding: .5rem .4rem; white-space: nowrap; min-width: 150px; }
     .fc-table thead th.fc-today { background: #901d23 !important; } .fc-table thead th small { opacity: .85; font-weight: 600; }
     .fc-table .fc-corner { right: 0; z-index: 5 !important; min-width: 150px; }
     .fc-table .fc-i { position: sticky; right: 0; z-index: 2; background: #f6f1e7 !important; min-width: 150px; max-width: 200px; vertical-align: middle; font-weight: 800; box-shadow: -2px 0 0 #e8e1d3; }
-    .fc-i a { color: #091b22; text-decoration: none; } .fc-i a:hover { color: #901d23; } .fc-i small { display: block; font-weight: 500; color: #7a8a90; font-size: .68rem; }
-    .fc-table td { vertical-align: top; padding: 3px; background: #fff; } .fc-table tbody tr:nth-child(even) td { background: #fcfaf6; }
+    .fc-i a { color: #091b22; text-decoration: none; } .fc-i a:hover { color: #901d23; } .fc-i small { display: block; font-weight: 600; color: #8a6d1f; font-size: .66rem; }
+    .fc-table .fc-i { font-size: .76rem; line-height: 1.3; padding: .35rem .5rem; }
+    .fc-table td { vertical-align: top; padding: 2px; background: #fff; } .fc-table tbody tr:nth-child(even) td { background: #fcfaf6; }
     .fc-table td.fc-today { background: #fdf3f3 !important; }
     .fc-table tbody tr.fc-hit th, .fc-table tbody tr.fc-hit td { box-shadow: inset 0 2px 0 #e0a100, inset 0 -2px 0 #e0a100; }
-    .fc-e { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 .35rem; padding: 2px 6px; margin: 2px 0; border-radius: 6px; border: 1px solid #d9e4dc; border-inline-start: 4px solid #1d7a3e; background: #f4faf6; color: #12202a; text-decoration: none; line-height: 1.35; }
+    .fc-e { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 .3rem; padding: 2px 5px; margin: 2px 0; border-radius: 5px; font-size: .74rem; border: 1px solid #d9e4dc; border-inline-start: 4px solid #1d7a3e; background: #f4faf6; color: #12202a; text-decoration: none; line-height: 1.35; }
     .fc-e:hover { border-color: #901d23; } .fc-e.m-online { background: #f1f4fd; border-color: #d6def5; border-inline-start-color: #2b4cb3; } .fc-e.m-blend { background: #f6f1fb; border-color: #e3d6f1; border-inline-start-color: #6a2fb0; }
     .fc-e.clash { box-shadow: inset 0 0 0 2px #e0a100; }
     .fc-t { color: #091b22; font-size: .78rem; white-space: nowrap; } .fc-c { color: #901d23; white-space: nowrap; }
@@ -1570,18 +1577,28 @@
     .fc-n { font-weight: 700; color: #24323a; } .fc-r { color: #5c6b72; white-space: nowrap; } .fc-r::before { content: '\\F3E8'; font-family: bootstrap-icons; font-size: .7em; margin-inline-end: 2px; }
     .fc-k, .fc-x { border: 1px solid currentColor; border-radius: 4px; padding: 0 .3rem; font-size: .62rem; font-weight: 700; white-space: nowrap; } .fc-x { color: #9a6b00; background: #fff6d6; }
     .fc-g { color: #5c6b72; font-size: .7rem; white-space: nowrap; }
-    .fc-opts { display: flex; flex-wrap: wrap; gap: .45rem 1.4rem; padding: .55rem .9rem; border-top: 1px solid #ece6da; border-bottom: 1px solid #ece6da; background: #fbf9f5; font-size: .8rem; }
-    .fc-og { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .55rem; }
-    .fc-ol { font-weight: 800; color: #901d23; margin-inline-end: .1rem; }
-    .fc-cb { display: inline-flex; align-items: center; gap: .3rem; margin: 0; padding: .18rem .55rem; border: 1px solid #ddd5c5; border-radius: 8px; background: #fff; cursor: pointer; font-weight: 600; user-select: none; }
-    .fc-cb input { width: 1rem; height: 1rem; accent-color: #091b22; margin: 0; } .fc-cb:has(input:checked) { border-color: #091b22; background: #eef3f5; }
-    .fc-sel { display: inline-flex; align-items: center; gap: .3rem; margin: 0; font-weight: 600; } .fc-sel select { width: auto; padding-block: .15rem; }
-    .fc-note { color: #7a8a90; font-size: .74rem; }
+    .fc-card { overflow: hidden; }
+    .fc-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1rem; padding: .8rem 1rem; }
+    .fc-h1 { display: flex; align-items: center; gap: .65rem; } .fc-h1 h2 { margin: 0; font-size: 1.12rem; font-weight: 800; color: #091b22; }
+    .fc-h1 small { color: #6b777c; font-size: .78rem; } .fc-h1 small b { color: #091b22; }
+    .fc-ico { width: 2.3rem; height: 2.3rem; border-radius: 10px; display: grid; place-items: center; background: #901d23; color: #fff; font-size: 1.1rem; }
+    .fc-tools { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+    .fc-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem 1.6rem; padding: .65rem 1rem; background: #fbf9f5; border-block: 1px solid #ece6da; }
+    .fc-row { display: grid; grid-template-columns: 6.3rem minmax(0, 1fr); align-items: center; gap: .5rem; }
+    .fc-ol { font-size: .74rem; font-weight: 800; color: #6b4a1f; letter-spacing: .2px; }
+    .fc-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; }
+    .fc-cb { display: inline-flex; align-items: center; gap: .3rem; margin: 0; height: 1.75rem; padding: 0 .55rem; border: 1px solid #d8d0bf; border-radius: 6px; background: #fff; cursor: pointer; font-size: .76rem; font-weight: 600; color: #3c474c; user-select: none; transition: background .12s, border-color .12s; }
+    .fc-cb input { width: .9rem; height: .9rem; accent-color: #091b22; margin: 0; } .fc-cb.on { border-color: #091b22; background: #091b22; color: #fff; } .fc-cb.on input { accent-color: #fff; }
+    .fc-cb:hover { border-color: #901d23; }
+    .fc-hours span { font-size: .76rem; color: #6b777c; } .fc-hours select { width: 6.2rem; height: 1.75rem; padding: 0 .5rem; font-size: .76rem; }
+    .fc-reset { font-size: .74rem; padding: 0 .3rem; margin-inline-start: auto; }
+    .fc-info { padding: .4rem 1rem; font-size: .74rem; color: #6b777c; border-bottom: 1px solid #ece6da; }
+    @media (max-width: 992px) { .fc-opts { grid-template-columns: 1fr; } }
     .fc-lay { margin: 0; } .fc-lay button { padding: .25rem .6rem; font-size: .78rem; }
     .fc-grid thead tr:first-child th { top: 0; } .fc-grid thead tr:nth-child(2) th { top: 2.35rem; }
     .fc-grid thead th.fc-day { background: #901d23 !important; } .fc-grid thead th.fc-day.fc-today { background: #b8892b !important; }
-    .fc-grid thead th.fc-h { background: #f3e9e9 !important; color: #3a1416 !important; min-width: 118px; font-size: .74rem; padding: .3rem; }
-    .fc-grid td { min-width: 118px; } .fc-grid .fc-dg { border-right: 3px solid #091b22 !important; }
+    .fc-grid thead th.fc-h { background: #f3e9e9 !important; color: #3a1416 !important; min-width: 94px; font-size: .72rem; padding: .25rem; }
+    .fc-grid td { min-width: 94px; width: 94px; } .fc-grid .fc-dg { border-right: 3px solid #091b22 !important; }
     .fc-t2 { color: #2b4cb3; font-size: .68rem; }
     .fc-grid .fc-e { flex-flow: row wrap; gap: 0 .25rem; } .fc-grid .fc-n { order: 9; flex-basis: 100%; line-height: 1.25; } .fc-grid .fc-t2 { order: 8; }`;
   if (!document.getElementById('fc-css')) { const el = document.createElement('style'); el.id = 'fc-css'; el.textContent = FC_CSS; document.head.appendChild(el); }
@@ -1741,7 +1758,7 @@
     const filters = [...FK, 'seats'].filter(k => st[k]).map(k => [k === 'seats' ? 'المقاعد' : F.find(f => f[0] === k)[1], k === 'seats' ? 'متاحة فقط' : label(k, st[k])]);
     const hh = v => String(v).padStart(2, '0') + ':00';
     filters.push(['الأيام', CC_DAYS.filter(d => P.days.includes(d)).map(d => DAY_FULL[d]).join('، ')],
-      ['الساعات', P.from === 'all' && P.to === 'all' ? 'كل الأوقات' : `${P.from === 'all' ? 'البداية' : hh(P.from)} – ${P.to === 'all' ? 'النهاية' : hh(P.to)}`]);
+      ['الساعات', P.from === 'all' && P.to === 'all' ? 'كل الأوقات' : `من ${P.from === 'all' ? 'البداية' : hh(P.from)} إلى ${P.to === 'all' ? 'النهاية' : hh(P.to)}`]);
     if (P.modes.length < 3) filters.push(['نمط التدريس', CC_MODES.filter(m => P.modes.includes(m[0])).map(m => m[1]).join('، ')]);
     const one = P.mode === 'one', perDay = grid && P.dsplit === 'day';
     // one page per day: that day's hours only, and only the instructors who teach that day
