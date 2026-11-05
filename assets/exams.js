@@ -98,7 +98,7 @@
   let TT, PLANS, tab = new URLSearchParams(location.search).get('tab') || (S.setupDone ? 'grid' : 'set'), sel = null, outView = 'all', undo = [];
 
   // ---------- model ----------
-  let C = [], BY = {}, G = [], INS = {}, NS = 0, P = 0, DAYS = [];
+  let C = [], BY = {}, G = [], INS = {}, NS = 0, P = 0, DAYS = [], PARTS = {};
   const level = c => {
     if (c.degree === 'الماجستير') return 5;
     const d = String(c.code).replace(/\D/g, ''), l = /^[1-8]\d{5}$/.test(d) ? +d[3] : /^1001\d{3}$/.test(d) ? +d[4] : 0;
@@ -121,7 +121,8 @@
   }
   function build() {
     const MK = S.type === 'makeup' && S.mk && S.mk.n ? S.mk : null;   // make-up: only the courses (and students) of the uploaded list
-    const secs = merged(TT.sections.filter(s => (MK ? !!MK.n[s.code] : inFac(s.faculty)) && (MK || S.practical || s.activity === 'نظري') && (MK || S.grad || s.degree !== 'الماجستير')));
+    const ONLY = !MK && S.only && S.only.length ? new Set(S.only) : null;
+    const secs = merged(TT.sections.filter(s => (MK ? !!MK.n[s.code] : ONLY ? ONLY.has(s.code) : inFac(s.faculty)) && (MK || S.practical || s.activity === 'نظري') && (MK || S.grad || s.degree !== 'الماجستير')));
     const m = {};
     secs.forEach(s => {
       const c = m[s.code] || (m[s.code] = { code: s.code, name: s.name.replace(/\s*-\s*(نظري|عملي)$/, ''), dept: s.department, fac: s.faculty, degree: s.degree, students: 0, secs: 0, ins: new Set(), sl: [] });
@@ -136,7 +137,13 @@
     // a registration report gives the real number of students per course and per section (it replaces the timetable's counts)
     else if (S.regN && S.src !== 'plans') Object.values(m).forEach(c => { const n = S.regN[c.code]; if (!n) return; c.students = n; c.fromReg = true;
       const sec = S.regSec && S.regSec[c.code]; if (sec) { const old = Object.fromEntries(c.sl.map(x => [String(x.s), x.ins])); c.sl = Object.entries(sec).map(([k, v]) => ({ s: k, n: v, ins: old[k] || '' })); } });
-    C = Object.values(m).filter(c => !S.excl[c.code]).sort((a, b) => a.code.localeCompare(b.code));
+    PARTS = {};
+    if (!MK && S.parts) Object.entries(S.parts).forEach(([code, list]) => { const c = m[code]; if (!c || !Array.isArray(list) || list.length < 2) return;
+      delete m[code]; PARTS[code] = [];
+      list.forEach((secs, k) => { const set = new Set(secs.map(String)), sl = c.sl.filter(x => set.has(String(x.s))); if (!sl.length) return;
+        const pc = `${code}/${k + 1}`; PARTS[code].push(pc);
+        m[pc] = { ...c, code: pc, base: code, part: k + 1, parts: list.length, name: `${c.name} (${k + 1} من ${list.length})`, baseName: c.name, sl, students: sl.reduce((a, x) => a + x.n, 0), secs: sl.length, ins: new Set(sl.map(x => x.ins).filter(Boolean)) }; }); });
+    C = Object.values(m).filter(c => !S.excl[c.code] && !S.excl[c.base]).sort((a, b) => a.code.localeCompare(b.code));
     C.forEach((c, i) => { c.i = i; c.lv = level(c); c.ins = [...c.ins]; });
     BY = Object.fromEntries(C.map(c => [c.code, c]));
     DAYS = examDays(); P = S.periods.length; NS = DAYS.length * P;
@@ -151,7 +158,7 @@
     INS = {}; C.forEach(c => c.ins.forEach(n => (INS[n] = INS[n] || []).push(c.i)));
     // who sits together
     G = [];
-    const add = (name, codes, w, hard, kind) => { const ix = [...new Set(codes)].filter(k => BY[k]).map(k => BY[k].i); if (ix.length > 1) G.push({ name, c: ix, w, hard, kind }); };
+    const add = (name, codes, w, hard, kind) => { const ix = [...new Set(codes.flatMap(k => PARTS[k] || [k]))].filter(k => BY[k]).map(k => BY[k].i); if (ix.length > 1) G.push({ name, c: ix, w, hard, kind }); };
     if (MK) MK.reg.forEach(g => add(`${g.w} طالب (قائمة التكميلي)`, g.c, g.w, true, 'students'));
     else if (S.src !== 'reg' || !S.reg) {
       const inPlan = new Set();
@@ -867,7 +874,7 @@
     for (let s = 0; s < NS; s++) (out[s] || []).filter(x => match(x.c)).sort((a, b) => a.c.code.localeCompare(b.c.code)).forEach(x => {
       const lists = roomStudents(x.c, x.rooms), si = slotInfo(s);
       x.rooms.forEach((r, k) => { const st = lists[k] || [];
-        sheets.push({ title: `كشف حضور امتحان: ${x.c.name}`, sub: `${TYPES[S.type].name} · ${x.c.dept}`, qr: SITE + 'myexams.html?c=' + encodeURIComponent(x.c.code), qrLabel: 'تفاصيل الامتحان للطلبة',
+        sheets.push({ title: `كشف حضور امتحان: ${x.c.name}`, sub: `${TYPES[S.type].name} · ${x.c.dept}`, qr: SITE + 'myexams.html?c=' + encodeURIComponent(x.c.base || x.c.code), qrLabel: 'تفاصيل الامتحان للطلبة',
           info: [['رمز المادة', x.c.code], ['التاريخ', si.date], ['الوقت', si.time], ['القاعة', r.room + (r.t === LAB ? ' (مختبر)' : '')], ['الشعب', r.secs.join('، ') || '—', 'w2'], ['عدد الطلبة في القاعة', `${st.length || r.n}`], ['القاعة ' + (k + 1) + ' من', String(x.rooms.length)],
             ['المراقبون', r.proc.map(U.shortName).join('، ') || '—', 'w4']],
           body: st.length ? `<table><thead><tr><th>#</th><th>رقم الطالب</th><th>اسم الطالب</th><th>التخصص</th><th>الشعبة</th><th>التوقيع</th><th>ملاحظات</th></tr></thead><tbody>${st.map((u, i) => `<tr><td class="n">${i + 1}</td><td class="id">${esc(u.id)}</td><td>${esc(u.name)}</td><td>${esc(u.major.replace(/\s*\/\s*البكالوريوس$/, ''))}</td><td class="c">${esc(u.sec)}</td><td class="sg"></td><td></td></tr>`).join('')}</tbody></table>
@@ -935,7 +942,7 @@
   function pubDoc() {
     const { out } = seating(), exams = [];
     for (let s = 0; s < NS; s++) (out[s] || []).forEach(x => { const d = DAYS[dayOf(s)], p = S.periods[s % P];
-      exams.push({ code: x.c.code, name: x.c.name, dept: x.c.dept, fac: x.c.fac, date: d.iso, from: p[0], to: p[1], students: x.c.students, ins: x.c.ins,
+      exams.push({ code: x.c.base || x.c.code, name: x.c.baseName || x.c.name, dept: x.c.dept, fac: x.c.fac, date: d.iso, from: p[0], to: p[1], students: x.c.students, ins: x.c.ins,
         rooms: x.rooms.map(r => ({ room: r.room, lab: r.t === LAB, n: r.n, secs: (r.parts || []).map(q => q.s).filter(Boolean).filter((v, i, a) => a.indexOf(v) === i), proc: r.proc })) }); });
     const now = new Date().toISOString();
     return { id: now, title: title(), type: TYPES[S.type].name, term: TT.term || '', faculties: S.facs.length ? S.facs : ['كل الكليات'], approved: S.approved || null,
@@ -1284,12 +1291,15 @@
   }
 
   // ---------- render & events ----------
+  const onlyBar = () => S.only && S.only.length ? `<div class="alert alert-info small d-flex flex-wrap align-items-center gap-2 py-2 mb-2"><i class="bi bi-funnel-fill"></i>
+    <span>الخطة مقصورة على <b>${S.only.length}</b> مقرراً${S.label ? ` (${esc(S.label)})` : ''}، بصرف النظر عن الكلية${Object.keys(PARTS).length ? ` · ${Object.keys(PARTS).length} مقررات مقسومة شعبُها على أكثر من جلسة` : ''}.</span>
+    <button class="btn btn-sm btn-link ms-auto" data-noonly>إلغاء القصر</button></div>` : '';
   function render() {
     const st = stats();
     PROB = new Set(st.is.flatMap(x => x.cs).concat(st.seat.unseated.map(u => u.c.i), st.seat.short.map(u => u.c.i)));
     const body = tab === 'grid' ? gridView(st) : tab === 'check' ? checkView(st) : tab === 'out' ? outView_() : tab === 'set' ? setView() : draftsView();
     const y = window.scrollY, focus = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.f;
-    $(APP).innerHTML = head(st) + `<div class="ex-body">${body}</div>` + navBtns();
+    $(APP).innerHTML = head(st) + `<div class="ex-body">${onlyBar()}${body}</div>` + navBtns();
     if (focus) { const el = $(APP).querySelector(`[data-f="${focus}"]`); if (el && el.focus) { el.focus(); if (el.setSelectionRange) el.setSelectionRange(el.value.length, el.value.length); } }
     const sn = $(APP).querySelector('.ex-sn.on'), nav = sn && sn.parentElement;
     if (nav && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = sn.offsetLeft - (nav.clientWidth - sn.offsetWidth) / 2;
@@ -1535,6 +1545,7 @@
       if (t.hasAttribute('data-pfall')) { if (confirm('إلغاء كل التعديلات اليدوية على المراقبين؟')) { S.procFix = {}; save(); render(); } return; }
       if (t.hasAttribute('data-clrmk')) { if (confirm('حذف قائمة التكميلي؟')) { S.mk = null; S.slot = {}; S.pins = {}; rebuild(); } return; }
       if (t.hasAttribute('data-clrreq')) { if (confirm('مسح متطلبات كل المقررات؟')) { S.req = {}; rebuild(); } return; }
+      if (t.hasAttribute('data-noonly')) { S.only = null; S.parts = null; rebuild(); return; }
       if (t.hasAttribute('data-clrreg')) { S.reg = null; S.regN = null; S.regSec = null; S.regInfo = ''; S.src = 'plans'; rebuild(); return; }
       if (t.id === 'ex-dsave') { const n = ($('#ex-dname').value || '').trim() || `نسخة ${S.drafts.length + 1}`; S.drafts.unshift({ name: n, at: new Date().toLocaleString('ar-JO'), n: C.length, slot: { ...S.slot }, pins: { ...S.pins } }); store(); render(); return; }
       if (t.dataset.dload != null) { const d = S.drafts[+t.dataset.dload]; push(); S.slot = { ...d.slot }; S.pins = { ...d.pins }; tab = 'grid'; rebuild(); return; }
@@ -1860,9 +1871,14 @@
     U.updatedLine(tt.updated, tt.term);
     const q = $('#pg-q');
     if (q) q.addEventListener('input', () => { F().q = q.value; if (tab !== 'grid' && tab !== 'out') tab = 'grid'; clearTimeout(window.__exq); window.__exq = setTimeout(render, 250); });
-    build();
-    wire();
-    render();
-    READY = true;
+    const planName = new URLSearchParams(location.search).get('plan');
+    const go = () => { build(); wire(); render(); READY = true; };
+    if (planName && /^[\w-]+$/.test(planName)) U.getJSON(`data/exams/plans/${planName}.json`).then(o => {
+      if (!o || !o.type || !o.periods) throw new Error('bad plan');
+      const same = S && S.planId === o.planId;
+      if (HAS && !same && !confirm(`ستفتح «${o.label || 'خطة امتحانات'}» مكان الخطة المحفوظة على هذا الجهاز. لا يُستبدل المحفوظ إلا إذا ضغطت «حفظ». متابعة؟`)) { go(); return; }
+      if (!(same && HAS)) { S = o; migrate(); tab = 'grid'; }
+      go(); if (!(same && HAS)) { DIRTY = true; savebar(); }
+    }).catch(() => { go(); alert('تعذّر فتح الخطة من الرابط.'); }); else go();
   }).catch(e => { console.error(e); $(APP).innerHTML = '<div class="alert alert-warning">تعذّر تحميل البيانات. أعد المحاولة بعد قليل.</div>'; });
 })();
