@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-05T11:06:22Z",
-"checked": "2026-11-05T11:06:22Z",
+"updated": "2026-11-05T18:56:49Z",
+"checked": "2026-11-05T18:56:49Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -32252,7 +32252,7 @@
 "department": "التغذية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 5,
+"registered": 6,
 "capacity": 20,
 "meetings": [
 {
@@ -32283,7 +32283,7 @@
 "department": "التغذية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 5,
+"registered": 6,
 "capacity": 20,
 "meetings": [
 {
@@ -33028,7 +33028,7 @@
 "department": "التغذية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 6,
+"registered": 7,
 "capacity": 9,
 "meetings": [
 {
@@ -33090,7 +33090,7 @@
 "department": "التغذية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 35,
+"registered": 36,
 "capacity": 32,
 "meetings": [
 {
@@ -33251,7 +33251,7 @@
 "department": "التغذية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 50,
+"registered": 51,
 "capacity": 45,
 "meetings": [
 {
@@ -41396,7 +41396,7 @@
 "department": "القانون الخاص",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 32,
+"registered": 33,
 "capacity": 40,
 "meetings": [
 {
@@ -41637,7 +41637,7 @@
 "department": "القانون الخاص",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 24,
+"registered": 25,
 "capacity": 40,
 "meetings": [
 {
@@ -41915,7 +41915,7 @@
 "department": "القانون الخاص",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 58,
+"registered": 59,
 "capacity": 45,
 "meetings": [
 {
@@ -42250,7 +42250,7 @@
 "department": "القانون العام",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 32,
+"registered": 33,
 "capacity": 40,
 "meetings": [
 {
@@ -47054,7 +47054,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 87,
+"registered": 86,
 "capacity": 85,
 "meetings": [
 {
@@ -48872,7 +48872,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 90,
+"registered": 91,
 "capacity": 90,
 "meetings": [
 {
@@ -49538,7 +49538,7 @@
 "department": "اللغة العربية وآدابها",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 89,
+"registered": 90,
 "capacity": 85,
 "meetings": [
 {
@@ -50611,7 +50611,7 @@
 "department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 51,
+"registered": 52,
 "capacity": 40,
 "meetings": [
 {
