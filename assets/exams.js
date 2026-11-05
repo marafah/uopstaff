@@ -78,8 +78,23 @@
   let DIRTY = false, READY = false, HAS = false, SAVED_AT = 0;
   try { HAS = !!localStorage.getItem(KEY); } catch (e) { /* */ }
   const save = () => { if (READY) { DIRTY = true; savebar(); } };
+  // other plans kept on this device: when a plan opened from a link, a file or this list is saved, the plan saved before it
+  // is moved here (never lost); «فتح» swaps them
+  const LIB = 'ex-plans-lib';
+  let SWAPPED = false;
+  const libGet = () => { try { return JSON.parse(localStorage.getItem(LIB) || '[]') || []; } catch (e) { return []; } };
+  const libSet = l => { try { localStorage.setItem(LIB, JSON.stringify(l)); return true; } catch (e) { alert('تعذّر الحفظ: مساحة التخزين في هذا المتصفح ممتلئة.'); return false; } };
+  const planName = o => o.label || `${(TYPES[o.type] || {}).name || 'خطة امتحانات'}${o.facs && o.facs.length === 1 ? ' – ' + o.facs[0] : o.facs && !o.facs.length ? ' – كل الكليات' : ''}`;
+  const libEntry = (raw, o) => ({ name: planName(o), type: (TYPES[o.type] || {}).name || '', n: Object.keys(o.slot || {}).length, approved: o.approved || '', at: new Date().toISOString().slice(0, 16).replace('T', ' '), plan: raw });
+  function stash() {   // keep the plan now saved on this device in the list
+    let raw = null; try { raw = localStorage.getItem(KEY); } catch (e) { /* */ }
+    if (!raw) return true; let o; try { o = JSON.parse(raw); } catch (e) { return true; }
+    const l = libGet().filter(x => x.plan !== raw); l.unshift(libEntry(raw, o)); return libSet(l.slice(0, 12));
+  }
   function store() {
+    if (SWAPPED && !stash()) return;
     try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { alert('تعذّر الحفظ في هذا المتصفح (المساحة ممتلئة أو التخزين محظور).'); return; }
+    SWAPPED = false;
     DIRTY = false; HAS = true; SAVED_AT = Date.now(); savebar();
   }
   function savebar() {
@@ -1163,9 +1178,30 @@
     }
     return `<div class="ex-months">${out.join('')}</div>`;
   }
+  // every setting of the plan on one screen
+  function summaryBox() {
+    const bld = {}; TT.sections.forEach(x => { if (x.room && x.room !== '0' && x.building) bld[x.room] = x.building.replace(/^مبنى\s*/, ''); });
+    const on = rooms().filter(r => r.on), byB = {}; on.forEach(r => (byB[bld[r.n] || 'أخرى'] = byB[bld[r.n] || 'أخرى'] || []).push(r));
+    const dl = d => `${d.wd} ${+d.iso.slice(8)}/${+d.iso.slice(5, 7)}/${d.iso.slice(0, 4)}`;
+    const base = {}; C.forEach(c => { const k = c.base || c.code; (base[k] = base[k] || { name: c.baseName || c.name, n: 0, parts: [] }); base[k].n += c.students; if (c.base) base[k].parts.push(c); });
+    const rules = [S.busy ? 'مراعاة المحاضرات القائمة (القاعات والمدرسون المشغولون)' : '', S.insClash ? 'منع تعارض المدرّس' : '', S.b2b ? 'تجنّب امتحانين متتاليين للطالب' : '', S.maxDay ? `حتى ${S.maxDay} امتحانات للطالب في اليوم` : '',
+      S.procMode === 'ratio' ? `مراقب لكل ${S.perProc} طالباً` : 'مراقب لكل قاعة', S.maxDutyDay ? `حتى ${S.maxDutyDay} مراقبة للمدرّس في اليوم` : ''].filter(Boolean);
+    const row = (ic, t, v, sec) => `<div class="ex-sum-r"><i class="bi ${ic}"></i><b>${t}</b><div>${v}</div>${sec ? `<button type="button" class="btn btn-sm btn-link" data-st="${sec}">تعديل</button>` : ''}</div>`;
+    return `<details class="ex-sum" ${S.only && S.only.length ? 'open' : ''}><summary><i class="bi bi-card-checklist"></i> ملخص إعدادات الخطة <small>${esc(planName(S))}</small></summary>
+      ${S.note ? `<div class="ex-sum-note"><i class="bi bi-info-circle-fill"></i> ${esc(S.note)}</div>` : ''}
+      ${row('bi-journal-bookmark', 'الدورة', `${esc((TYPES[S.type] || {}).name || '')}${S.label ? ' · العنوان: ' + esc(S.label) : ''} · ${S.only && S.only.length ? `مقصورة على ${S.only.length} مقرراً` : esc(facLabel())}`, 1)}
+      ${row('bi-calendar3', 'الأيام', `${DAYS.length} ${DAYS.length > 2 && DAYS.length < 11 ? 'أيام' : 'يوماً'}: ${DAYS.map(dl).join('، ')}`, 2)}
+      ${row('bi-clock', 'الفترات', `${S.periods.length} فترات يومياً (${U.toMin(S.periods[0][1]) - U.toMin(S.periods[0][0])} دقيقة): ${S.periods.map((p, k) => `<span class="ex-sum-c">${k + 1}) <bdi dir="ltr">${p[0]}–${p[1]}</bdi></span>`).join(' ')}${S.firstStart || S.lastEnd ? ` · المسموح من <bdi dir="ltr">${S.firstStart || '—'}</bdi> إلى <bdi dir="ltr">${S.lastEnd || '—'}</bdi>` : ''}`, 3)}
+      ${row('bi-rulers', 'القواعد', rules.join(' · '), 4)}
+      ${row('bi-people', 'أعداد الطلبة', S.reg && S.src !== 'plans' ? esc(S.regInfo) : S.regN && S.src !== 'plans' ? esc(S.regInfo || 'من ملف مرفوع') : 'من الجدول الدراسي، والتعارض مقدّر من الخطط الدراسية', 5)}
+      ${row('bi-door-open', 'القاعات', `${on.length} ${on.some(r => r.t === LAB) && on.every(r => r.t === LAB) ? 'مختبراً' : 'قاعة'} · ${on.reduce((a, r) => a + r.c, 0)} مقعداً في الفترة<div class="ex-sum-b">${Object.entries(byB).map(([b, rs]) => `<div><b>${esc(b)}</b> (${rs.reduce((a, r) => a + r.c, 0)}): ${rs.map(r => `<span class="ex-sum-c">${esc(r.n)} <small>${r.c}</small></span>`).join(' ')}</div>`).join('')}</div>`, 6)}
+      ${row('bi-list-check', 'المقررات', `${Object.keys(base).length} مقرراً · ${C.length} امتحاناً · ${C.reduce((a, c) => a + c.students, 0).toLocaleString('en-US')} طالباً${Object.values(base).some(b => b.parts.length) ? `<div class="ex-sum-b"><div><b>مقسومة على أكثر من فترة:</b> ${Object.entries(base).filter(([, b]) => b.parts.length).map(([k, b]) => `<span class="ex-sum-c">${esc(k)} ${esc(b.name)} <small>${b.parts.map(c => c.students).join(' + ')}</small></span>`).join(' ')}</div></div>` : ''}`, 8)}
+    </details>`;
+  }
   function setView() {
     const facs = [...new Set(TT.sections.map(s => s.faculty))].sort();
-    const all = (() => { const m = {}; merged(TT.sections.filter(s => inFac(s.faculty) && (S.practical || s.activity === 'نظري') && (S.grad || s.degree !== 'الماجستير'))).forEach(s => {
+    const ONLY = S.only && S.only.length ? new Set(S.only) : null;
+    const all = (() => { const m = {}; merged(TT.sections.filter(s => (ONLY ? ONLY.has(s.code) : inFac(s.faculty)) && (S.practical || s.activity === 'نظري') && (S.grad || s.degree !== 'الماجستير'))).forEach(s => {
       const c = m[s.code] || (m[s.code] = { code: s.code, name: s.name.replace(/\s*-\s*(نظري|عملي)$/, ''), dept: s.department, fac: s.faculty, n: 0, k: 0 }); c.n += s.registered || 0; c.k++; }); return Object.values(m).sort((a, b) => a.code.localeCompare(b.code)); })();
     const f = F(), cq = U.norm((f.cq || '').trim());
     const shown = all.filter(c => (!cq || U.norm(c.code + ' ' + c.name + ' ' + c.dept).includes(cq)));
@@ -1267,9 +1303,9 @@
       <small class="text-muted">أزل علامة المقرر الذي لا امتحان له (مشروع، تدريب…). «نوع القاعة» و«عدد القاعات» كما يطلبها المدرّس أو المنسق: مثلاً 80 طالباً في 4 مختبرات = 20 في كل مختبر. «موعد ثابت» يثبّت المقرر في موعد لا يغيّره التوليد.</small>`, true)}
     </div>`;
     const sum = [`${TYPES[S.type].name} · ${facLabel()}`, `${nDays(DAYS.length)} من ${DAYS[0] ? DAYS[0].label : '—'}`, `${nPer(P)} يومياً`, `حتى ${S.maxDay} امتحان/يوم`,
-      S.reg && S.src !== 'plans' ? 'كشف التسجيل' : 'الخطط الدراسية', `${on.length} قاعة · ${capTotal} مقعد`, (S.procMode === 'ratio' ? `طالب/مراقب: ${S.perProc}` : 'مراقب لكل قاعة'), `${C.length} من ${all.length} مقرراً`];
+      S.reg && S.src !== 'plans' ? 'كشف التسجيل' : S.regN && S.src !== 'plans' ? 'أعداد من ملف' : 'الخطط الدراسية', `${on.length} قاعة · ${capTotal} مقعد`, (S.procMode === 'ratio' ? `طالب/مراقب: ${S.perProc}` : 'مراقب لكل قاعة'), `${C.length} من ${all.length} مقرراً`];
     const k = Math.min(parts.length - 1, Math.max(0, (S.setTab || 1) - 1)), [n, ic, color, ti, sub, bodyHtml] = parts[k];
-    return `<div class="ex-intro"><i class="bi bi-1-circle-fill"></i><div><b>الخطوة 1: الإعداد.</b> اختر قسماً من القائمة، أو تنقّل بزرّي «القسم التالي/السابق». الإعدادات كلها مقترحة مسبقاً ويمكن تركها كما هي، ثم اضغط <b>«التالي: التوليد والتعديل»</b>. كل تغيير يُحفظ تلقائياً.</div></div>
+    return `${summaryBox()}<div class="ex-intro"><i class="bi bi-1-circle-fill"></i><div><b>الخطوة 1: الإعداد.</b> اختر قسماً من القائمة، أو تنقّل بزرّي «القسم التالي/السابق». الإعدادات كلها مقترحة مسبقاً ويمكن تركها كما هي، ثم اضغط <b>«التالي: التوليد والتعديل»</b>. كل تغيير يُحفظ تلقائياً.</div></div>
       <div class="ex-setwrap"><nav class="ex-setnav" aria-label="أقسام الإعداد">${parts.map((p, x) => `<button class="ex-sn${x === k ? ' on' : ''}" data-st="${x + 1}" style="--a:${p[2]}"><span class="bn">${p[0]}</span><i class="bi ${p[1]}"></i><span class="tx"><b>${p[3]}</b><small>${esc(sum[x] || '')}</small></span></button>`).join('')}</nav>
       <div class="ex-setmain">${box(n, ic, color, ti, sub, bodyHtml, true)}
         <div class="ex-subnav">${k > 0 ? `<button class="btn btn-outline-secondary" data-st="${k}"><i class="bi bi-arrow-right"></i> ${parts[k - 1][3]}</button>` : '<span></span>'}
@@ -1287,7 +1323,20 @@
         <div class="ex-acts"><button class="btn btn-outline-primary" id="ex-export"><i class="bi bi-download"></i> تصدير ملف الخطة</button>
         <label class="btn btn-outline-primary mb-0"><i class="bi bi-upload"></i> استيراد ملف<input type="file" id="ex-import" accept=".json" hidden></label></div>
         <hr><div class="d-flex flex-wrap gap-2"><button class="btn btn-outline-danger" id="ex-reset"><i class="bi bi-trash"></i> بدء خطة جديدة</button>
-        ${HAS ? '<button class="btn btn-outline-secondary" id="ex-forget"><i class="bi bi-eraser"></i> مسح المحفوظ من هذا الجهاز</button>' : ''}</div>`)}</div>`;
+        ${HAS ? '<button class="btn btn-outline-secondary" id="ex-forget"><i class="bi bi-eraser"></i> مسح المحفوظ من هذا الجهاز</button>' : ''}</div>`)}
+      ${box(3, 'bi-collection-fill', '#0f766e', 'الخطط', 'كل خطط الامتحانات على هذا الجهاز، والخطط الجاهزة على الموقع', plansBox())}</div>`;
+  }
+  let SITEPLANS = null;
+  function plansBox() {
+    const lib = libGet(), cur = planName(S);
+    if (SITEPLANS === null) { SITEPLANS = []; U.getJSON('data/exams/plans/index.json').then(x => { SITEPLANS = Array.isArray(x) ? x : []; if (tab === 'drafts') render(); }).catch(() => {}); }
+    return `<h6 class="small fw-bold text-muted mb-1"><i class="bi bi-laptop"></i> على هذا الجهاز</h6><ul class="ex-drafts">
+      <li class="app"><i class="bi bi-check-circle-fill"></i><span><b>${esc(cur)}</b><small>مفتوحة الآن · ${C.length} امتحاناً${HAS && !SWAPPED ? ' · محفوظة' : ' · <b class="text-danger">غير محفوظة</b>'}</small></span></li>
+      ${lib.map((x, k) => `<li><i class="bi bi-file-earmark-text"></i><span><b>${esc(x.name)}</b><small>${esc(x.type)} · ${x.n} امتحاناً${x.approved ? ' · معتمدة: ' + esc(x.approved) : ''} · نُقلت إلى القائمة ${esc(x.at)}</small></span>
+        <span class="acts"><button class="btn btn-sm btn-outline-primary" data-libopen="${k}"><i class="bi bi-folder2-open"></i> فتح</button><button class="btn btn-sm btn-outline-danger" data-libdel="${k}" aria-label="حذف"><i class="bi bi-trash"></i></button></span></li>`).join('')}</ul>
+      ${lib.length ? '' : '<p class="small text-muted mb-2">عند حفظ خطة مفتوحة من رابط أو ملف تُنقل الخطة المحفوظة قبلها إلى هنا، فلا تضيع.</p>'}
+      ${SITEPLANS.length ? `<h6 class="small fw-bold text-muted mt-3 mb-1"><i class="bi bi-globe2"></i> خطط جاهزة على الموقع</h6><ul class="ex-drafts">${SITEPLANS.map(x => `<li><i class="bi bi-cloud-download"></i><span><b>${esc(x.label)}</b><small>${esc(x.note || '')}</small></span>
+        <span class="acts"><a class="btn btn-sm btn-outline-primary" href="?plan=${encodeURIComponent(x.name)}"><i class="bi bi-folder2-open"></i> فتح</a></span></li>`).join('')}</ul>` : ''}`;
   }
 
   // ---------- render & events ----------
@@ -1545,6 +1594,14 @@
       if (t.hasAttribute('data-pfall')) { if (confirm('إلغاء كل التعديلات اليدوية على المراقبين؟')) { S.procFix = {}; save(); render(); } return; }
       if (t.hasAttribute('data-clrmk')) { if (confirm('حذف قائمة التكميلي؟')) { S.mk = null; S.slot = {}; S.pins = {}; rebuild(); } return; }
       if (t.hasAttribute('data-clrreq')) { if (confirm('مسح متطلبات كل المقررات؟')) { S.req = {}; rebuild(); } return; }
+      if (t.dataset.libopen != null) { const lib = libGet(), x = lib[+t.dataset.libopen]; if (!x) return;
+        if (DIRTY && !confirm('في الخطة المفتوحة تغييرات غير محفوظة ستضيع. متابعة؟')) return;
+        let o; try { o = JSON.parse(x.plan); } catch (e) { alert('تعذّر فتح الخطة.'); return; }
+        lib.splice(+t.dataset.libopen, 1); if (!libSet(lib)) return;
+        if (HAS && !stash()) return;
+        try { localStorage.setItem(KEY, x.plan); } catch (e) { alert('تعذّر الفتح: مساحة التخزين ممتلئة.'); return; }
+        S = o; migrate(); SWAPPED = false; DIRTY = false; HAS = true; tab = 'grid'; build(); render(); savebar(); return; }
+      if (t.dataset.libdel != null) { const lib = libGet(), x = lib[+t.dataset.libdel]; if (x && confirm(`حذف «${x.name}» من هذا الجهاز نهائياً؟`)) { lib.splice(+t.dataset.libdel, 1); libSet(lib); render(); } return; }
       if (t.hasAttribute('data-noonly')) { S.only = null; S.parts = null; rebuild(); return; }
       if (t.hasAttribute('data-clrreg')) { S.reg = null; S.regN = null; S.regSec = null; S.regInfo = ''; S.src = 'plans'; rebuild(); return; }
       if (t.id === 'ex-dsave') { const n = ($('#ex-dname').value || '').trim() || `نسخة ${S.drafts.length + 1}`; S.drafts.unshift({ name: n, at: new Date().toLocaleString('ar-JO'), n: C.length, slot: { ...S.slot }, pins: { ...S.pins } }); store(); render(); return; }
@@ -1553,7 +1610,7 @@
       if (t.dataset.ddel != null) { if (confirm('حذف هذه النسخة؟')) { S.drafts.splice(+t.dataset.ddel, 1); store(); render(); } return; }
       if (t.id === 'ex-export') { U.download(`خطة_${title()}.json`.replace(/\s+/g, '_'), JSON.stringify(S), 'application/json'); return; }
       if (t.id === 'ex-forget') { if (confirm('مسح الخطة والنسخ المحفوظة من هذا الجهاز؟ (يبقى ما على الشاشة حتى تغلق الصفحة)')) { try { localStorage.removeItem(KEY); } catch (x) { /* */ } HAS = false; DIRTY = true; render(); savebar(); } return; }
-      if (t.id === 'ex-reset') { if (confirm('بدء خطة جديدة؟ ستُحذف الخطة الحالية (تبقى النسخ المحفوظة).')) { const d = S.drafts; S = fresh(S.type); S.drafts = d; migrate(); tab = 'set'; rebuild(); } }
+      if (t.id === 'ex-reset') { if (confirm('بدء خطة جديدة؟ ستُحذف الخطة الحالية (تبقى النسخ المحفوظة).')) { const d = S.drafts; S = fresh(S.type); S.drafts = d; migrate(); tab = 'set'; SWAPPED = true; rebuild(); } }
     });
     app.addEventListener('change', e => {
       const t = e.target, k = t.dataset.k;
@@ -1584,7 +1641,7 @@
       if (t.id === 'ex-mk' && t.files[0]) { readMk(t.files[0]); t.value = ''; return; }
       if (t.id === 'ex-reg2' && t.files[0]) { readReg(t.files[0]); t.value = ''; return; }
       if (t.id === 'ex-req' && t.files[0]) { readReq(t.files[0]); t.value = ''; return; }
-      if (t.id === 'ex-import' && t.files[0]) { t.files[0].text().then(x => { const o = JSON.parse(x); if (!o.type || !o.periods) throw 0; S = o; migrate(); tab = 'grid'; rebuild(); }).catch(() => alert('الملف ليس خطة امتحانات صالحة.')); }
+      if (t.id === 'ex-import' && t.files[0]) { t.files[0].text().then(x => { const o = JSON.parse(x); if (!o.type || !o.periods) throw 0; S = o; migrate(); tab = 'grid'; SWAPPED = true; rebuild(); }).catch(() => alert('الملف ليس خطة امتحانات صالحة.')); }
     });
     // drag and drop (mouse); touch uses tap-then-tap
     app.addEventListener('dragstart', e => { const c = e.target.closest('[data-c]'); if (!c) return; e.dataTransfer.setData('text/plain', c.dataset.c); e.dataTransfer.effectAllowed = 'move'; sel = +c.dataset.c; setTimeout(render, 0); });
@@ -1614,6 +1671,16 @@
   .ex-status { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .8rem; }
   .ex-pill { display: inline-flex; gap: .35rem; align-items: center; background: #eef3f6; color: #0b3a50; border-radius: 999px; padding: .28rem .75rem; font-size: .9rem; font-weight: 700; }
   .ex-pill.ok { background: #e4f5e9; color: #15803d; } .ex-pill.bad { background: #fde8e8; color: #b42318; }
+  .ex-sum { background: #fff; border: 1px solid #cfe3dc; border-radius: 14px; margin-bottom: .9rem; overflow: hidden; }
+  .ex-sum > summary { cursor: pointer; list-style: none; padding: .65rem 1rem; background: #effaf5; font-weight: 800; color: #0d4f3a; display: flex; align-items: center; gap: .5rem; }
+  .ex-sum > summary::-webkit-details-marker { display: none; } .ex-sum > summary small { font-weight: 600; color: #4b6b60; }
+  .ex-sum > summary::after { content: '\\F282'; font-family: bootstrap-icons; margin-inline-start: auto; transition: transform .15s; } .ex-sum[open] > summary::after { transform: rotate(180deg); }
+  .ex-sum-note { margin: .6rem 1rem 0; padding: .45rem .7rem; border-radius: 9px; background: #fff8e1; border: 1px solid #f1d48a; font-size: .86rem; color: #5c4400; }
+  .ex-sum-r { display: grid; grid-template-columns: 1.3rem 7.5rem minmax(0, 1fr) auto; gap: .5rem; align-items: start; padding: .5rem 1rem; border-top: 1px dashed #e3ece8; font-size: .88rem; }
+  .ex-sum-r:first-of-type { border-top: 0; } .ex-sum-r > i { color: #0f766e; margin-top: .15rem; } .ex-sum-r > b { color: #091b22; } .ex-sum-r .btn-link { padding: 0 .3rem; font-size: .8rem; }
+  .ex-sum-c { display: inline-block; border: 1px solid #d9e6e1; background: #f7fbf9; border-radius: 6px; padding: 0 .4rem; margin: 1px 0; font-size: .8rem; white-space: nowrap; } .ex-sum-c small { color: #6b777c; }
+  .ex-sum-b { margin-top: .25rem; display: flex; flex-direction: column; gap: .2rem; } .ex-sum-b b { font-size: .8rem; }
+  @media (max-width: 767.98px) { .ex-sum-r { grid-template-columns: 1.3rem minmax(0, 1fr) auto; } .ex-sum-r > div { grid-column: 2 / -1; } }
   .ex-intro { display: flex; gap: .7rem; align-items: flex-start; background: linear-gradient(90deg, #fff6f6, #fff); border: 1px solid #f1c9cc; border-radius: 14px; padding: .8rem 1rem; margin-bottom: .9rem; font-size: 1rem; }
   .ex-intro > i { font-size: 1.8rem; color: #901d23; line-height: 1; }
   .ex-nav { display: flex; justify-content: space-between; gap: .6rem; flex-wrap: wrap; margin: 1.4rem 0 .5rem; padding-top: 1rem; border-top: 2px dashed #e2e8ec; }
@@ -1877,7 +1944,7 @@
       if (!o || !o.type || !o.periods) throw new Error('bad plan');
       const same = S && S.planId === o.planId;
       if (HAS && !same && !confirm(`ستفتح «${o.label || 'خطة امتحانات'}» مكان الخطة المحفوظة على هذا الجهاز. لا يُستبدل المحفوظ إلا إذا ضغطت «حفظ». متابعة؟`)) { go(); return; }
-      if (!(same && HAS)) { S = o; migrate(); tab = 'grid'; }
+      if (!(same && HAS)) { S = o; migrate(); tab = 'grid'; SWAPPED = true; }
       go(); if (!(same && HAS)) { DIRTY = true; savebar(); }
     }).catch(() => { go(); alert('تعذّر فتح الخطة من الرابط.'); }); else go();
   }).catch(e => { console.error(e); $(APP).innerHTML = '<div class="alert alert-warning">تعذّر تحميل البيانات. أعد المحاولة بعد قليل.</div>'; });
