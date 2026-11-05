@@ -6,7 +6,7 @@
    The committee moves exams by drag and drop (or tap, then tap a cell; cells show how good each move is), pins
    them, and keeps drafts. Rooms are filled per period and proctors shared out fairly. Everything stays in this
    browser (drafts can be exported as a file for the committee); nothing is sent anywhere.
-   Behind the same sign-in as the research pages. */
+   Behind the research pages' sign-in, or an exams-only account (EX_USERS). */
 (function () {
   'use strict';
   const U = window.UOP, { $, esc } = U;
@@ -15,12 +15,14 @@
   // ---------- sign-in (same account as the research pages) ----------
   const GATE = 'e1ebfc7594699cb5f05115abec21192e43ccc20273593b6662d1d4e9e91d854b';
   const sha = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map(x => x.toString(16).padStart(2, '0')).join('');
-  const authed = () => { try { return localStorage.getItem('rs-auth') === GATE || sessionStorage.getItem('rs-auth') === GATE; } catch (e) { return false; } };
+  // accounts for this page only (exams committee): sha256('uopstaff-exams|' + user + '|' + password); they do not open the research pages
+  const EX_USERS = ['51b45402b30455c5641c82cd1ffe05c1907bfaae0a69b7b03900105796bdd985'];
+  const authed = () => { try { return [localStorage, sessionStorage].some(st => st.getItem('rs-auth') === GATE || EX_USERS.includes(st.getItem('ex-auth'))); } catch (e) { return false; } };
   const gate = new Promise(res => {
     if (authed()) { res(); return; }
     document.documentElement.classList.add('ex-locked');
     const d = document.createElement('div'); d.className = 'ex-gate'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');
-    d.innerHTML = `<form class="box" autocomplete="on"><div class="ic"><i class="bi bi-shield-lock-fill"></i></div><h2>جدول الامتحانات — دخول</h2><p>هذه الأداة للجنة الامتحانات. أدخل اسم المستخدم وكلمة المرور (حساب قسم البحث العلمي نفسه).</p>
+    d.innerHTML = `<form class="box" autocomplete="on"><div class="ic"><i class="bi bi-shield-lock-fill"></i></div><h2>جدول الامتحانات — دخول</h2><p>هذه الأداة للجنة الامتحانات. أدخل اسم المستخدم وكلمة المرور (حساب لجنة الامتحانات أو حساب البحث العلمي).</p>
       <label>اسم المستخدم<input name="u" class="form-control" autocomplete="username" required></label>
       <label>كلمة المرور<input name="p" type="password" class="form-control" autocomplete="current-password" required></label>
       <label class="rem"><input type="checkbox" name="r" checked> تذكّرني على هذا الجهاز</label>
@@ -32,8 +34,9 @@
       const f = d.querySelector('form'); f.u.focus();
       f.onsubmit = async e => {
         e.preventDefault();
-        if (await sha('uopstaff-research|' + f.u.value.trim() + '|' + f.p.value) !== GATE) { d.querySelector('.err').hidden = false; f.p.value = ''; f.p.focus(); return; }
-        try { (f.r.checked ? localStorage : sessionStorage).setItem('rs-auth', GATE); } catch (e2) { /* session only */ }
+        const u = f.u.value.trim(), main = await sha('uopstaff-research|' + u + '|' + f.p.value) === GATE, ex = EX_USERS.includes(await sha('uopstaff-exams|' + u + '|' + f.p.value));
+        if (!main && !ex) { d.querySelector('.err').hidden = false; f.p.value = ''; f.p.focus(); return; }
+        try { (f.r.checked ? localStorage : sessionStorage).setItem(main ? 'rs-auth' : 'ex-auth', main ? GATE : await sha('uopstaff-exams|' + u + '|' + f.p.value)); } catch (e2) { /* session only */ }
         d.remove(); document.documentElement.classList.remove('ex-locked'); res();
       };
     };
@@ -94,8 +97,7 @@
   function store() {
     if (SWAPPED && !stash()) return;
     try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { alert('تعذّر الحفظ في هذا المتصفح (المساحة ممتلئة أو التخزين محظور).'); return; }
-    SWAPPED = false;
-    DIRTY = false; HAS = true; SAVED_AT = Date.now(); savebar();
+    SWAPPED = false; DIRTY = false; HAS = true; SAVED_AT = Date.now(); savebar(); if (READY) render();
   }
   function savebar() {
     let b = document.getElementById('ex-savebar');
@@ -1326,13 +1328,39 @@
         ${HAS ? '<button class="btn btn-outline-secondary" id="ex-forget"><i class="bi bi-eraser"></i> مسح المحفوظ من هذا الجهاز</button>' : ''}</div>`)}
       ${box(3, 'bi-collection-fill', '#0f766e', 'الخطط', 'كل خطط الامتحانات على هذا الجهاز، والخطط الجاهزة على الموقع', plansBox())}</div>`;
   }
+  // leaving the open plan (to another one): its unsaved changes are saved first, or dropped, as the user says
+  function leaveCur(go) {
+    if (DIRTY) { if (confirm('في الخطة المفتوحة تغييرات غير محفوظة. اضغط «موافق» لحفظها قبل الانتقال، أو «إلغاء» للانتقال دون حفظها.')) store(); else DIRTY = false; }
+    if (HAS && !SWAPPED && !stash()) return;   // the saved plan goes to the list
+    go();
+  }
+  function openLib(k) {
+    const lib = libGet(), x = lib[k]; if (!x) return;
+    let o; try { o = JSON.parse(x.plan); } catch (e) { alert('تعذّر فتح الخطة.'); return; }
+    leaveCur(() => {
+      const l = libGet().filter(y => y.plan !== x.plan); if (!libSet(l)) return;
+      try { localStorage.setItem(KEY, x.plan); } catch (e) { alert('تعذّر الفتح: مساحة التخزين ممتلئة.'); return; }
+      S = o; migrate(); SWAPPED = false; DIRTY = false; HAS = true; tab = S.setupDone ? 'grid' : 'set'; build(); render(); savebar();
+    });
+  }
+  // the plans bar above every step: which plan is open, the others on this device, a new plan, a copy
+  function planBar() {
+    let cur = null; try { cur = localStorage.getItem(KEY); } catch (e) { /* */ }
+    const lib = libGet().map((x, k) => ({ ...x, k })).filter(x => x.plan !== cur);
+    return `<div class="ex-pbar"><i class="bi bi-collection-fill"></i><span class="ex-pbar-l">الخطة المفتوحة:</span>
+      <div class="dropdown"><button class="btn btn-sm ex-pbar-cur dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><b>${esc(planName(S))}</b><small>${esc((TYPES[S.type] || {}).name || '')} · ${C.length} امتحاناً${S.approved ? ' · معتمدة' : ''}${DIRTY || SWAPPED ? ' · غير محفوظة' : ''}</small></button>
+        <ul class="dropdown-menu ex-pbar-menu">${lib.length ? lib.map((x, k) => `<li><button class="dropdown-item" data-libopen="${x.k}"><i class="bi bi-file-earmark-text"></i> <span><b>${esc(x.name)}</b><small>${esc(x.type)} · ${x.n} امتحاناً${x.approved ? ' · معتمدة' : ''}</small></span></button></li>`).join('')
+          : '<li><span class="dropdown-item-text small text-muted">لا خطط أخرى على هذا الجهاز بعد</span></li>'}
+          ${(SITEPLANS || []).length ? '<li><hr class="dropdown-divider"></li><li><h6 class="dropdown-header">جاهزة على الموقع</h6></li>' + SITEPLANS.map(x => `<li><a class="dropdown-item" href="?plan=${encodeURIComponent(x.name)}"><i class="bi bi-cloud-download"></i> <span><b>${esc(x.label)}</b></span></a></li>`).join('') : ''}</ul></div>
+      <input class="form-control form-control-sm ex-pbar-name" data-k="label" value="${esc(S.label || '')}" placeholder="اسم الخطة" aria-label="اسم الخطة">
+      <span class="ms-auto d-flex gap-1"><button class="btn btn-sm btn-outline-primary" data-plannew><i class="bi bi-plus-lg"></i> خطة جديدة</button><button class="btn btn-sm btn-outline-secondary" data-plancopy><i class="bi bi-copy"></i> نسخة من هذه الخطة</button></span></div>`;
+  }
   let SITEPLANS = null;
   function plansBox() {
     const lib = libGet(), cur = planName(S);
-    if (SITEPLANS === null) { SITEPLANS = []; U.getJSON('data/exams/plans/index.json').then(x => { SITEPLANS = Array.isArray(x) ? x : []; if (tab === 'drafts') render(); }).catch(() => {}); }
     return `<h6 class="small fw-bold text-muted mb-1"><i class="bi bi-laptop"></i> على هذا الجهاز</h6><ul class="ex-drafts">
       <li class="app"><i class="bi bi-check-circle-fill"></i><span><b>${esc(cur)}</b><small>مفتوحة الآن · ${C.length} امتحاناً${HAS && !SWAPPED ? ' · محفوظة' : ' · <b class="text-danger">غير محفوظة</b>'}</small></span></li>
-      ${lib.map((x, k) => `<li><i class="bi bi-file-earmark-text"></i><span><b>${esc(x.name)}</b><small>${esc(x.type)} · ${x.n} امتحاناً${x.approved ? ' · معتمدة: ' + esc(x.approved) : ''} · نُقلت إلى القائمة ${esc(x.at)}</small></span>
+      ${lib.map((x, k) => x.plan === (() => { try { return localStorage.getItem(KEY); } catch (e) { return null; } })() ? '' : `<li><i class="bi bi-file-earmark-text"></i><span><b>${esc(x.name)}</b><small>${esc(x.type)} · ${x.n} امتحاناً${x.approved ? ' · معتمدة: ' + esc(x.approved) : ''} · نُقلت إلى القائمة ${esc(x.at)}</small></span>
         <span class="acts"><button class="btn btn-sm btn-outline-primary" data-libopen="${k}"><i class="bi bi-folder2-open"></i> فتح</button><button class="btn btn-sm btn-outline-danger" data-libdel="${k}" aria-label="حذف"><i class="bi bi-trash"></i></button></span></li>`).join('')}</ul>
       ${lib.length ? '' : '<p class="small text-muted mb-2">عند حفظ خطة مفتوحة من رابط أو ملف تُنقل الخطة المحفوظة قبلها إلى هنا، فلا تضيع.</p>'}
       ${SITEPLANS.length ? `<h6 class="small fw-bold text-muted mt-3 mb-1"><i class="bi bi-globe2"></i> خطط جاهزة على الموقع</h6><ul class="ex-drafts">${SITEPLANS.map(x => `<li><i class="bi bi-cloud-download"></i><span><b>${esc(x.label)}</b><small>${esc(x.note || '')}</small></span>
@@ -1348,7 +1376,8 @@
     PROB = new Set(st.is.flatMap(x => x.cs).concat(st.seat.unseated.map(u => u.c.i), st.seat.short.map(u => u.c.i)));
     const body = tab === 'grid' ? gridView(st) : tab === 'check' ? checkView(st) : tab === 'out' ? outView_() : tab === 'set' ? setView() : draftsView();
     const y = window.scrollY, focus = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.f;
-    $(APP).innerHTML = head(st) + `<div class="ex-body">${onlyBar()}${body}</div>` + navBtns();
+    if (SITEPLANS === null) { SITEPLANS = []; U.getJSON('data/exams/plans/index.json').then(x => { SITEPLANS = Array.isArray(x) ? x : []; render(); }).catch(() => {}); }
+    $(APP).innerHTML = planBar() + head(st) + `<div class="ex-body">${onlyBar()}${body}</div>` + navBtns();
     if (focus) { const el = $(APP).querySelector(`[data-f="${focus}"]`); if (el && el.focus) { el.focus(); if (el.setSelectionRange) el.setSelectionRange(el.value.length, el.value.length); } }
     const sn = $(APP).querySelector('.ex-sn.on'), nav = sn && sn.parentElement;
     if (nav && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = sn.offsetLeft - (nav.clientWidth - sn.offsetWidth) / 2;
@@ -1594,13 +1623,10 @@
       if (t.hasAttribute('data-pfall')) { if (confirm('إلغاء كل التعديلات اليدوية على المراقبين؟')) { S.procFix = {}; save(); render(); } return; }
       if (t.hasAttribute('data-clrmk')) { if (confirm('حذف قائمة التكميلي؟')) { S.mk = null; S.slot = {}; S.pins = {}; rebuild(); } return; }
       if (t.hasAttribute('data-clrreq')) { if (confirm('مسح متطلبات كل المقررات؟')) { S.req = {}; rebuild(); } return; }
-      if (t.dataset.libopen != null) { const lib = libGet(), x = lib[+t.dataset.libopen]; if (!x) return;
-        if (DIRTY && !confirm('في الخطة المفتوحة تغييرات غير محفوظة ستضيع. متابعة؟')) return;
-        let o; try { o = JSON.parse(x.plan); } catch (e) { alert('تعذّر فتح الخطة.'); return; }
-        lib.splice(+t.dataset.libopen, 1); if (!libSet(lib)) return;
-        if (HAS && !stash()) return;
-        try { localStorage.setItem(KEY, x.plan); } catch (e) { alert('تعذّر الفتح: مساحة التخزين ممتلئة.'); return; }
-        S = o; migrate(); SWAPPED = false; DIRTY = false; HAS = true; tab = 'grid'; build(); render(); savebar(); return; }
+      if (t.dataset.libopen != null) { openLib(+t.dataset.libopen); return; }
+      if (t.hasAttribute('data-plannew')) { leaveCur(() => { S = fresh('final'); S.drafts = []; S.label = 'خطة جديدة'; S.planId = 'p' + Date.now(); SWAPPED = true; tab = 'set'; S.setTab = 1; build(); render(); DIRTY = true; savebar(); }); return; }
+      if (t.hasAttribute('data-plancopy')) { const o = JSON.parse(JSON.stringify(S)); o.label = planName(S) + ' (نسخة)'; o.planId = 'p' + Date.now(); o.approved = null;
+        leaveCur(() => { S = o; migrate(); SWAPPED = true; build(); render(); DIRTY = true; savebar(); }); return; }
       if (t.dataset.libdel != null) { const lib = libGet(), x = lib[+t.dataset.libdel]; if (x && confirm(`حذف «${x.name}» من هذا الجهاز نهائياً؟`)) { lib.splice(+t.dataset.libdel, 1); libSet(lib); render(); } return; }
       if (t.hasAttribute('data-noonly')) { S.only = null; S.parts = null; rebuild(); return; }
       if (t.hasAttribute('data-clrreg')) { S.reg = null; S.regN = null; S.regSec = null; S.regInfo = ''; S.src = 'plans'; rebuild(); return; }
@@ -1671,6 +1697,12 @@
   .ex-status { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .8rem; }
   .ex-pill { display: inline-flex; gap: .35rem; align-items: center; background: #eef3f6; color: #0b3a50; border-radius: 999px; padding: .28rem .75rem; font-size: .9rem; font-weight: 700; }
   .ex-pill.ok { background: #e4f5e9; color: #15803d; } .ex-pill.bad { background: #fde8e8; color: #b42318; }
+  .ex-pbar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; background: #fff; border: 1px solid #e3dccd; border-radius: 12px; padding: .45rem .7rem; margin-bottom: .75rem; }
+  .ex-pbar > i { color: #0f766e; } .ex-pbar-l { font-size: .8rem; font-weight: 700; color: #5b6970; }
+  .ex-pbar-cur { display: inline-flex; align-items: center; gap: .5rem; border: 1px solid #b9ddd0; background: #effaf5; color: #0d4f3a; } .ex-pbar-cur small { color: #4b6b60; font-weight: 600; }
+  .ex-pbar-menu { min-width: 20rem; } .ex-pbar-menu .dropdown-item { display: flex; gap: .5rem; align-items: flex-start; white-space: normal; } .ex-pbar-menu small { display: block; color: #6b777c; }
+  .ex-pbar-name { max-width: 16rem; }
+  @media (max-width: 767.98px) { .ex-pbar-name { max-width: none; flex: 1 1 100%; } .ex-pbar .ms-auto { margin-inline-start: 0 !important; } }
   .ex-sum { background: #fff; border: 1px solid #cfe3dc; border-radius: 14px; margin-bottom: .9rem; overflow: hidden; }
   .ex-sum > summary { cursor: pointer; list-style: none; padding: .65rem 1rem; background: #effaf5; font-weight: 800; color: #0d4f3a; display: flex; align-items: center; gap: .5rem; }
   .ex-sum > summary::-webkit-details-marker { display: none; } .ex-sum > summary small { font-weight: 600; color: #4b6b60; }
