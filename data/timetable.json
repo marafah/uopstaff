@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-04T22:03:01Z",
-"checked": "2026-11-04T22:03:01Z",
+"updated": "2026-11-05T11:06:22Z",
+"checked": "2026-11-05T11:06:22Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -3285,7 +3285,7 @@
 "department": "الكيمياء",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 35,
+"registered": 36,
 "capacity": 40,
 "meetings": [
 {
@@ -3643,7 +3643,7 @@
 "department": "الكيمياء",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 31,
+"registered": 32,
 "capacity": 28,
 "meetings": [
 {
@@ -23436,7 +23436,7 @@
 "department": "اللغة الانجليزية /الترجمه",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 45,
+"registered": 46,
 "capacity": 40,
 "meetings": [
 {
@@ -23461,7 +23461,7 @@
 "department": "اللغة الانجليزية /الترجمه",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 48,
+"registered": 47,
 "capacity": 40,
 "meetings": [
 {
@@ -23486,7 +23486,7 @@
 "department": "اللغة الانجليزية /الترجمه",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 45,
+"registered": 46,
 "capacity": 40,
 "meetings": [
 {
@@ -23511,7 +23511,7 @@
 "department": "اللغة الانجليزية /الترجمه",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 48,
+"registered": 47,
 "capacity": 40,
 "meetings": [
 {
@@ -36666,7 +36666,7 @@
 "department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 20,
+"registered": 21,
 "capacity": 40,
 "meetings": [
 {
@@ -37682,7 +37682,7 @@
 "department": "هندسة البرمجيات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 30,
+"registered": 31,
 "capacity": 30,
 "meetings": [
 {
@@ -41260,7 +41260,7 @@
 "department": "القانون الخاص",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 26,
+"registered": 27,
 "capacity": 40,
 "meetings": [
 {
@@ -41328,7 +41328,7 @@
 "department": "القانون العام",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 42,
+"registered": 43,
 "capacity": 40,
 "meetings": [
 {
@@ -41532,7 +41532,7 @@
 "department": "القانون الخاص",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 24,
+"registered": 25,
 "capacity": 40,
 "meetings": [
 {
@@ -42188,7 +42188,7 @@
 "department": "القانون العام",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 54,
+"registered": 55,
 "capacity": 40,
 "meetings": [
 {
@@ -42250,7 +42250,7 @@
 "department": "القانون العام",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 30,
+"registered": 32,
 "capacity": 40,
 "meetings": [
 {
@@ -42596,7 +42596,7 @@
 "department": "القانون العام",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 18,
+"registered": 19,
 "capacity": 40,
 "meetings": [
 {
@@ -46536,7 +46536,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 87,
+"registered": 88,
 "capacity": 85,
 "meetings": [
 {
@@ -47777,7 +47777,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 83,
+"registered": 84,
 "capacity": 85,
 "meetings": [
 {
@@ -48241,7 +48241,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 87,
+"registered": 88,
 "capacity": 85,
 "meetings": [
 {
@@ -48656,7 +48656,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 139,
+"registered": 140,
 "capacity": 115,
 "meetings": [
 {
@@ -49871,7 +49871,7 @@
 "department": "العلوم التربوية / الطفولة المبكرة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 6,
+"registered": 5,
 "capacity": 20,
 "meetings": [
 {
@@ -50389,7 +50389,7 @@
 "department": "هندسة البرمجيات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 13,
+"registered": 14,
 "capacity": 20,
 "meetings": [
 {
@@ -50833,7 +50833,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 88,
+"registered": 89,
 "capacity": 85,
 "meetings": [
 {
