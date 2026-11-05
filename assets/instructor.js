@@ -286,19 +286,18 @@
 
   // ---------------------------------------------------------------- the instructor's page
   // display options of the week (kept in this browser only)
-  const VKEY = 'ins-view-1';
+  const VKEY = 'ins-view-2';
   const vLoad = () => { let v = {}; try { v = JSON.parse(localStorage.getItem(VKEY) || '{}') || {}; } catch (e) { /* defaults */ }
-    return Object.assign({ v: innerWidth < 768 ? 'cols' : 'mx', range: 'work', free: true, name: true, room: true, time: false }, v); };
+    return Object.assign({ v: innerWidth < 768 ? 'cols' : 'mx', range: 'auto', free: true, name: true, room: true, time: false }, v); };
   const vSave = P => { try { localStorage.setItem(VKEY, JSON.stringify(P)); } catch (e) { /* not kept */ } };
   const hrs = m => { const h = Math.round(m / 6) / 10; return (h % 1 ? h.toFixed(1) : String(h)); };
   // the hour range shown: the working day 08–16, or the whole day around every lecture
   function rangeOf(W, P) {
-    if (P.range !== 'all' || !W.items.length) return [FREE_FROM, FREE_TO];
+    if (P.range === 'work' || !W.items.length) return [FREE_FROM, FREE_TO];
     const a = Math.min(FREE_FROM, ...W.items.map(x => toMin(x.start))), b = Math.max(FREE_TO, ...W.items.map(x => toMin(x.end)));
     return [Math.floor(a / 60) * 60, Math.ceil(b / 60) * 60];
   }
-  const blockBody = (x, P) => `<b dir="ltr">${esc(x.title)}</b>${x.icon ? ` <i class="bi ${x.icon}"></i>` : ''}${P.name && x.line ? `<span>${esc(x.line)}</span>` : ''}
-    ${P.room || P.time ? `<small>${P.room && x.sub ? `<i class="bi bi-geo-alt"></i>${esc(x.sub)}` : ''}${P.room && x.sub && P.time ? ' · ' : ''}${P.time ? `<bdi dir="ltr">${x.start}–${x.end}</bdi>` : ''}</small>` : ''}`;
+  const blockBody = (x, P) => `<div class="ip-bt"><b dir="ltr">${esc(x.title)}</b>${x.icon ? ` <i class="bi ${x.icon}"></i>` : ''}${P.room || P.time ? `<small>${P.room && x.sub ? esc(x.sub === 'قاعة افتراضية' ? 'افتراضية' : x.sub) : ''}${P.room && x.sub && P.time ? ' · ' : ''}${P.time ? `<bdi dir="ltr">${x.start}–${x.end}</bdi>` : ''}</small>` : ''}</div>${P.name && x.line ? `<span>${esc(x.line)}</span>` : ''}`;
   // «مصفوفة الأسبوع»: a row per day, the hours across; lectures, office hours and the free gaps on one line
   function matrixView(W, P) {
     const [A, B] = rangeOf(W, P), span = B - A, pos = t => +(100 * (Math.max(A, Math.min(B, t)) - A) / span).toFixed(3);
@@ -351,33 +350,33 @@
   }
   const IP_CSS = `
     .ip-hero { overflow: hidden; }
-    .ip-hero-in { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1.5fr); gap: 0; }
+    .ip-hero-in { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 2fr) minmax(0, 1fr); gap: 0; }
     .ip-hero-in > div { padding: .9rem 1rem; min-width: 0; } .ip-hero-in > div + div { border-inline-start: 1px solid #ece6da; }
-    .ip-id { display: flex; gap: .85rem; align-items: center; }
-    .ip-id .ins-photo { width: 88px; height: 88px; box-shadow: 0 0 0 3px #fff, 0 3px 10px rgba(9,27,34,.16); }
+    .ip-id { display: flex; gap: .75rem; align-items: flex-start; }
+    .ip-id .ins-photo { width: 76px; height: 76px; box-shadow: 0 0 0 3px #fff, 0 3px 10px rgba(9,27,34,.16); }
     .ip-id h2 { font-size: 1.12rem; font-weight: 800; margin: 0; color: #091b22; } .ip-id .ins-en { text-align: start; }
     .ip-id .ins-unit { margin: .3rem 0 0; font-size: .86rem; } .ip-badges { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .3rem; }
-    .ip-ct { display: flex; flex-direction: column; gap: .35rem; justify-content: center; }
-    .ip-ct a, .ip-ct span.ip-c { display: flex; align-items: center; gap: .5rem; font-size: .84rem; color: #13222a; text-decoration: none; min-width: 0; }
+    .ip-ct { display: flex; flex-wrap: wrap; gap: .15rem .8rem; margin-top: .35rem; }
+    .ip-ct a, .ip-ct span.ip-c { display: flex; align-items: center; gap: .35rem; font-size: .78rem; color: #13222a; text-decoration: none; min-width: 0; }
     .ip-ct a:hover { color: #901d23; } .ip-ct i { color: #901d23; width: 1rem; text-align: center; } .ip-ct b { overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
     .ip-ct small { color: #6b777c; }
-    .ip-links { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .2rem; }
-    .ip-links a { font-size: .74rem !important; font-weight: 700; border: 1px solid #ddd5c5; border-radius: 6px; padding: .15rem .5rem; color: #091b22 !important; }
+    .ip-links { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .35rem; }
+    .ip-links a { text-decoration: none; font-size: .7rem !important; padding: .05rem .4rem !important; font-weight: 700; border: 1px solid #ddd5c5; border-radius: 6px; padding: .15rem .5rem; color: #091b22 !important; }
     .ip-links a:hover { border-color: #901d23; color: #901d23 !important; }
-    .ip-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .45rem; align-content: center; }
-    .ip-k { border: 1px solid #ece6da; border-radius: 10px; padding: .4rem .6rem; background: #fcfaf6; }
-    .ip-k b { display: block; font-size: 1.3rem; line-height: 1.1; color: #091b22; font-variant-numeric: tabular-nums; } .ip-k span { font-size: .72rem; color: #5b6970; font-weight: 600; }
+    .ip-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .35rem; align-content: center; }
+    .ip-k { border: 1px solid #ece6da; border-radius: 9px; padding: .2rem .5rem; background: #fcfaf6; display: flex; align-items: baseline; gap: .35rem; }
+    .ip-k b { font-size: 1.12rem; line-height: 1.25; color: #091b22; font-variant-numeric: tabular-nums; } .ip-k span { font-size: .68rem; color: #5b6970; font-weight: 600; line-height: 1.2; }
     .ip-k.free { background: #effaf2; border-color: #bfe5cb; } .ip-k.free b { color: #13622f; }
     .ip-now { display: flex; align-items: center; gap: .5rem; padding: .5rem 1rem; border-top: 1px solid #ece6da; background: #f6f8fa; font-size: .86rem; font-weight: 700; color: #13222a; }
     .ip-now.live { background: #e9f7ee; color: #0d4f25; } .ip-now.live i { color: #15803d; animation: insPulse 1.6s ease-in-out infinite; }
     .ip-now .ms-auto { font-weight: 500; color: #6b777c; font-size: .78rem; }
-    @media (max-width: 1199.98px) { .ip-hero-in { grid-template-columns: 1fr 1fr; } .ip-kpis { grid-column: 1 / -1; border-inline-start: 0 !important; border-top: 1px solid #ece6da; grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+    @media (max-width: 1199.98px) { .ip-hero-in { grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr); } .ip-kpis { grid-column: 1 / -1; border-inline-start: 0 !important; border-top: 1px solid #ece6da; grid-template-columns: repeat(6, minmax(0, 1fr)); padding: .45rem 1rem !important; } }
+    @media (max-width: 991.98px) { .ip-hero-in { grid-template-columns: 1fr; } .ip-hero-in > div + div { border-inline-start: 0 !important; border-top: 1px solid #ece6da; } .ip-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
     @media (max-width: 767.98px) { .ip-hero { display: flex; flex-direction: column; } .ip-hero-in { display: contents; } .ip-hero-in > div { padding: .65rem .75rem; }
-      .ip-id { order: 1; } .ip-live { order: 2; } .ip-kpis { order: 3; border-top: 1px solid #ece6da; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; } .ip-ct { order: 4; border-top: 1px solid #ece6da; }
+      .ip-id { order: 1; } .ip-live { order: 2; } .ip-kpis { order: 3; border-top: 1px solid #ece6da; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; }
       .ip-hero-in > div + div { border-inline-start: 0 !important; }
       .ip-id h2 { font-size: 1.02rem; } .ip-id .ins-unit { font-size: .8rem; }
-      .ip-k { padding: .3rem .45rem; } .ip-k b { font-size: 1.1rem; } .ip-k span { font-size: .66rem; display: block; line-height: 1.25; }
-      .ip-ct { flex-direction: row; flex-wrap: wrap; gap: .3rem .9rem; } .ip-ct a, .ip-ct span.ip-c { font-size: .8rem; } .ip-links { width: 100%; } }
+      .ip-k { padding: .3rem .45rem; display: block; } .ip-k b { display: block; font-size: 1.1rem; } .ip-k span { font-size: .66rem; display: block; line-height: 1.25; } }
     .ip-wk .card-header { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; padding: .5rem .9rem; }
     .ip-wk .card-header h5 { margin: 0; font-size: 1rem; font-weight: 800; color: #091b22; }
     .ip-tools { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .9rem; margin-inline-start: auto; }
@@ -399,21 +398,24 @@
     .ip-mh .ip-mt span:first-child { transform: none; } .ip-mh .ip-mt span:last-child { transform: translateX(100%); }
     .ip-mt { position: relative; min-width: 0; }
     .ip-mgrid .ip-mr { border-top: 1px solid #e6dfd0; } .ip-mgrid .ip-mr:last-child { border-bottom: 1px solid #e6dfd0; }
-    .ip-mgrid .ip-mt { height: calc(var(--lanes) * 60px + 6px);
+    .ip-mgrid .ip-mt { height: calc(var(--lanes) * 64px + 6px);
       background: repeating-linear-gradient(to left, transparent 0, transparent calc(100% / var(--cols) - 1px), #ebe5d8 calc(100% / var(--cols) - 1px), #ebe5d8 calc(100% / var(--cols))); }
     .ip-mgrid .ip-mr:nth-child(even) .ip-mt { background-color: #fcfaf6; }
     .ip-b, .ip-free { position: absolute; box-sizing: border-box; }
     .ip-b { padding: 3px 6px; margin: 0 2px; border: 1px solid var(--cc); border-inline-start-width: 4px; border-radius: 6px; background: var(--cbg); overflow: hidden; line-height: 1.25; font-size: .74rem; color: #13222a; }
-    .ip-b b { color: var(--cc); font-size: .78rem; white-space: nowrap; } .ip-b span { display: block; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ip-b small { display: block; color: #4b5a62; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .68rem; } .ip-b small i { font-size: .62rem; margin-inline-end: 2px; }
+    .ip-bt { display: flex; align-items: baseline; gap: .3rem; } .ip-bt small { margin-inline-start: auto; }
+    .ip-b { container-type: inline-size; } @container (max-width: 135px) { .ip-bt small { display: none; } .ip-b b { font-size: .72rem; } }
+    .ip-b b { color: var(--cc); font-size: .78rem; white-space: nowrap; } .ip-b span { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-weight: 700; font-size: .74rem; line-height: 1.2; }
+    .ip-b small { color: #4b5a62; white-space: nowrap; font-size: .68rem; font-weight: 700; }
     .ip-b.oh { border-style: dashed; }
     .ip-free { top: 4px; bottom: 4px; display: flex; align-items: center; justify-content: center; border: 1px dashed #4fae6d; border-radius: 6px; background: repeating-linear-gradient(135deg, #eef9f1 0 8px, #e2f4e7 8px 16px); color: #0d5c2a; overflow: hidden; font-style: normal; }
     .ip-free span { font-size: .72rem; font-weight: 700; white-space: nowrap; padding: 0 4px; font-variant-numeric: tabular-nums; } .ip-free b { font-weight: 800; }
+    .ip-free { container-type: inline-size; } @container (max-width: 125px) { .ip-free b { display: none; } .ip-free span { font-size: .66rem; } } @container (max-width: 80px) { .ip-free span { display: none; } }
     .ip-cols { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: .5rem; }
     .ip-col { border: 1px solid #ece6da; border-radius: 10px; padding: .4rem; background: #fcfaf6; min-width: 0; }
     .ip-col h6 { margin: -.4rem -.4rem .4rem; padding: .35rem .5rem; background: #091b22; color: #fff; border-radius: 9px 9px 0 0; font-size: .84rem; font-weight: 800; text-align: center; }
     .ip-ce { border: 1px solid var(--cc); border-inline-start-width: 4px; border-radius: 6px; background: var(--cbg); padding: 3px 6px; margin-bottom: 4px; font-size: .74rem; line-height: 1.3; }
-    .ip-ce em { display: block; font-style: normal; font-weight: 800; color: #091b22; font-size: .74rem; } .ip-ce b { color: var(--cc); } .ip-ce span { display: block; font-weight: 700; } .ip-ce small { display: block; color: #4b5a62; font-size: .68rem; }
+    .ip-ce em { display: block; font-style: normal; font-weight: 800; color: #091b22; font-size: .74rem; } .ip-ce b { color: var(--cc); } .ip-ce span { display: block; font-weight: 700; } .ip-ce small { color: #4b5a62; font-size: .68rem; margin-inline-start: auto; }
     .ip-ce.oh { border-style: dashed; }
     .ip-cf { border: 1px dashed #4fae6d; border-radius: 6px; background: #eef9f1; color: #0d5c2a; padding: 2px 6px; margin-bottom: 4px; font-size: .72rem; font-weight: 700; }
     .ip-cnone { color: #8a959a; font-size: .76rem; text-align: center; padding: .6rem 0; }
@@ -432,8 +434,10 @@
     .ip-facts dd a { color: #091b22; text-decoration: none; border-bottom: 1px dotted #901d23; } .ip-facts dd a:hover { color: #901d23; }
     .ip-meter { height: 6px; border-radius: 3px; background: #ece6da; overflow: hidden; margin-top: 3px; } .ip-meter i { display: block; height: 100%; background: #901d23; }
     .ip-secs .ins-table { font-size: .82rem; } .ip-secs .ins-table td, .ip-secs .ins-table th { padding: .35rem .5rem; }
-    .ip-live { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.15fr) minmax(0, 1fr); gap: .6rem; padding: .7rem .9rem; border-top: 1px solid #ece6da; background: #faf8f3; }
-    .ip-lv { background: #fff; border: 1px solid #e3dccd; border-radius: 12px; padding: .55rem .75rem; display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+    .ip-live { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .5rem; padding: .6rem .7rem !important; background: #faf8f3; }
+    .ip-lv { background: #fff; border: 1px solid #e3dccd; border-radius: 12px; padding: .45rem .7rem; display: flex; flex-direction: column; gap: .2rem; min-width: 0; }
+    .ip-lv-then { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem; font-size: .7rem; color: #6b777c; border-top: 1px dashed #e3dccd; padding-top: .25rem; }
+    .ip-lv-then em { font-style: normal; background: var(--cbg); border-inline-start: 3px solid var(--cc); border-radius: 4px; padding: 0 .35rem; color: #13222a; } .ip-lv-then em b { color: var(--cc); }
     .ip-lv.now, .ip-lv.next { border-inline-start: 5px solid var(--cc); }
     .ip-lv.now { background: linear-gradient(0deg, #fff, #fff), var(--cbg); box-shadow: 0 0 0 2px #cdebd6; border-color: #7cc694; border-inline-start-color: #15803d; }
     .ip-lv-h { display: flex; align-items: center; gap: .4rem; font-size: .74rem; font-weight: 800; color: #6b4a1f; text-transform: none; }
@@ -453,7 +457,6 @@
     .ip-lv-list bdi { font-weight: 800; color: #091b22; font-variant-numeric: tabular-nums; } .ip-lv-list b { color: var(--cc); }
     .ip-lv-list span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; } .ip-lv-list small { color: #5b6970; }
     .ip-lv-list p { margin: 0; color: #8a959a; font-size: .78rem; }
-    @media (max-width: 991.98px) { .ip-live { grid-template-columns: 1fr 1fr; } .ip-lv.day { grid-column: 1 / -1; } }
     @media (max-width: 575.98px) { .ip-live { grid-template-columns: 1fr; padding: .6rem; } }
     @media (max-width: 767.98px) { .ip-mx { overflow-x: auto; -webkit-overflow-scrolling: touch; } .ip-mx > * { min-width: 720px; } .ip-mx { --dw: 70px; }
       .ip-cols { grid-template-columns: 1fr; } .ip-wk .card-header { padding: .5rem; } .ip-tools { margin-inline-start: 0; gap: .35rem .5rem; } .ip-seg button { padding: .25rem .45rem; font-size: .72rem; }
@@ -510,10 +513,8 @@
         <div class="ip-lv-b">${what(x)}<div class="ip-lv-m">${room(x)}${mode(x)}</div></div><div class="ip-lv-f"><i class="bi bi-alarm"></i> ${cd}</div></div>`;
     } else nxt = `<div class="ip-lv idle"><div class="ip-lv-h"><i class="bi bi-skip-forward-circle"></i> المحاضرة التالية</div><div class="ip-lv-b"><b class="ip-lv-c">لا محاضرات قادمة</b><div class="ip-lv-n">${esc(R.note || 'ضمن فترة التدريس')}</div></div></div>`;
     const rest = (R.rest || []).filter(x => x !== R.next);
-    const day = `<div class="ip-lv day"><div class="ip-lv-h"><i class="bi bi-calendar-day"></i> بقية اليوم${U.DAYS[R.dToday] ? ` · ${esc(U.DAYS[R.dToday])}` : ''}</div>
-      <div class="ip-lv-list">${rest.length ? rest.map(x => `<div style="${x.style}"><bdi dir="ltr">${x.start}</bdi><b dir="ltr">${esc(x.s.code)}</b><span>${esc(x.s.name)}</span><small>${x.s.room === '0' ? 'افتراضية' : esc(x.s.room)}</small></div>`).join('')
-        : '<p>لا محاضرات أخرى اليوم.</p>'}</div></div>`;
-    return cur + nxt + day;
+    if (rest.length) nxt = nxt.replace(/<\/div>$/, `<div class="ip-lv-then"><span>ثم اليوم:</span>${rest.map(x => `<em style="${x.style}" title="${esc(x.s.name)}"><bdi dir="ltr">${x.start}</bdi> <b dir="ltr">${esc(x.s.code)}</b></em>`).join('')}</div></div>`);
+    return cur + nxt;
   }
   let liveTimer;
   function personView(I) {
@@ -549,12 +550,13 @@
           <div class="min-w-0"><h2>${esc(I.name)}</h2>${I.name_en ? `<div class="ins-en" dir="ltr">${esc(I.name_en)}</div>` : ''}
             <div class="ip-badges">${I.role ? `<span class="badge badge-lead"><i class="bi bi-star-fill"></i> ${esc(I.role)}</span>` : ''}${I.rank ? `<span class="badge text-bg-light border">${esc(I.rank)}</span>` : ''}
               ${I.corrected ? '<span class="badge badge-fix" title="بيانات مصحَّحة عن الموقع الرسمي (انظر دليل الموظفين)"><i class="bi bi-pencil-square"></i> مصحَّح</span>' : ''}</div>
-            <div class="ins-unit"><i class="bi bi-diagram-3"></i> ${esc(I.department || 'القسم غير معروف')}${I.faculty ? `<small>${esc(I.faculty)}</small>` : ''}</div></div></div>
-        <div class="ip-ct">${contact || '<span class="text-muted small">لا توجد بيانات تواصل في دليل الموظفين.</span>'}
+            <div class="ins-unit"><i class="bi bi-diagram-3"></i> ${esc(I.department || 'القسم غير معروف')}${I.faculty ? `<small>${esc(I.faculty)}</small>` : ''}</div>
+          <div class="ip-ct">${contact || '<span class="text-muted small">لا توجد بيانات تواصل في دليل الموظفين.</span>'}</div>
           <div class="ip-links no-print">
             ${I.directory_id ? `<a href="directory.html?q=${encodeURIComponent(U.shortName(I.name).split(' ').slice(0, 2).join(' '))}"><i class="bi bi-person-lines-fill"></i> دليل الموظفين</a>` : ''}
             ${I.profile ? `<a href="${esc(I.profile)}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i> الملف الرسمي</a>` : ''}
-            <a href="timetable.html?inst=${encodeURIComponent(I.name)}"><i class="bi bi-table"></i> الجدول الدراسي</a></div></div>
+            <a href="timetable.html?inst=${encodeURIComponent(I.name)}"><i class="bi bi-table"></i> الجدول الدراسي</a></div></div></div>
+        <div class="ip-live" id="ip-live" aria-live="polite">${liveHTML(W)}</div>
         <div class="ip-kpis">
           <div class="ip-k"><b>${W.secs.length}</b><span>شعبة</span></div>
           <div class="ip-k"><b>${W.courses.length}</b><span>مقرر</span></div>
@@ -562,14 +564,13 @@
           <div class="ip-k"><b>${W.students}</b><span>طالباً مسجلاً</span></div>
           <div class="ip-k free"><b>${hrs(F.freeMin)}</b><span title="بين 08:00 و16:00، فترات ساعة فأكثر">ساعة فراغ في الدوام</span></div>
           <div class="ip-k"><b>${F.campus.length}</b><span>${F.campus.length > 2 && F.campus.length < 11 ? 'أيام' : 'يوم'} في الحرم</span></div></div>
-      </div>
-      <div class="ip-live" id="ip-live" aria-live="polite">${liveHTML(W)}</div></section>
+      </div></section>
 
       <section class="card ip-wk mb-3"><div class="card-header">
         <h5><i class="bi bi-calendar-week"></i> الجدول الأسبوعي</h5>
         <div class="ip-tools no-print">
           ${seg('v', [['mx', 'مصفوفة الأسبوع والفراغ', 'bi-distribute-horizontal'], ['cols', 'الأيام كأعمدة', 'bi-layout-three-columns'], ['grid', 'الشبكة الزمنية', 'bi-calendar3']])}
-          ${P.v !== 'grid' ? `<span class="ip-tl">الساعات</span>${seg('range', [['work', '08–16'], ['all', 'اليوم كاملاً']])}` : ''}
+          ${P.v !== 'grid' ? `<span class="ip-tl">الساعات</span>${seg('range', [['auto', 'تلقائي'], ['work', 'الدوام 08–16']])}` : ''}
           ${P.v !== 'grid' ? `<span class="ip-tl">الخانة</span>${cb('name', 'اسم المقرر')}${cb('room', 'القاعة')}${P.v === 'mx' ? cb('time', 'الوقت') : ''}${cb('free', 'الفراغ')}` : ''}
         </div></div>
         <div class="ip-legend">${W.courses.map(c => { const s = W.secs.find(x => x.code === c), [col, bg] = W.color(c);
