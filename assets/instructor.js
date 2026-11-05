@@ -328,7 +328,7 @@
   function weekBody(W, P) {
     if (!W.items.length) return '<p class="text-muted mb-0">لا لقاءات بوقت ثابت هذا الفصل.</p>';
     if (P.v === 'cols') return columnsView(W, P);
-    if (P.v === 'grid') return U.weekGrid(W.items, { days: W.days, px: 56, cls: 'wk-ins', compact: true });
+    if (P.v === 'grid') return `<div class="ip-gscroll">${U.weekGrid(W.items, { days: W.days, px: innerWidth < 768 ? 84 : 74, cls: 'wk-ins', compact: true })}</div>`;
     return matrixView(W, P);
   }
   // numbers and facts drawn from the week
@@ -420,6 +420,14 @@
     .ip-cf { border: 1px dashed #4fae6d; border-radius: 6px; background: #eef9f1; color: #0d5c2a; padding: 2px 6px; margin-bottom: 4px; font-size: .72rem; font-weight: 700; }
     .ip-cnone { color: #8a959a; font-size: .76rem; text-align: center; padding: .6rem 0; }
     @media (max-width: 991.98px) { .ip-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .ip-wk .wk-ins .wk-ev { display: block; line-height: 1.22; padding: 3px 7px; }
+    .ip-wk .wk-ins .wk-ev b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ip-wk .wk-ins .wk-ev .wk-l2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; white-space: normal; overflow: hidden; font-size: .74rem; margin: 1px 0; }
+    .ip-wk .wk-ins .wk-ev span:not(.wk-l2) { display: inline; font-size: .68rem; font-weight: 700; color: #4b5a62; }
+    .ip-wk .wk-ins .wk-ev small { display: inline; float: left; font-size: .66rem; line-height: 1.5; }
+    .ip-wk .wk-head b { font-size: .88rem; }
+    @media (max-width: 767.98px) { .ip-gscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; } .ip-gscroll .wk { min-width: 700px; --wk-hours: 46px; }
+      .ip-wk .wk-ins .wk-ev .wk-l2 { display: -webkit-box; } .ip-wk .wk-ins .wk-ev span:not(.wk-l2), .ip-wk .wk-ins .wk-ev small { display: inline; } .ip-wk .wk-ins .wk-ev { padding: 3px 6px; } .ip-wk .wk-head b { font-size: .82rem; } }
     .ip-wkey { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin-top: .55rem; font-size: .72rem; color: #5b6970; }
     .ip-wkey span { display: inline-flex; align-items: center; gap: .3rem; }
     .ip-sw { display: inline-block; width: 18px; height: 11px; border-radius: 3px; border: 1px solid #901d23; background: #fbecec; } .ip-sw.f { border: 1px dashed #4fae6d; background: #e2f4e7; } .ip-sw.o { border: 1px dashed #15803d; background: #e7f6ec; }
