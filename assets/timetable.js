@@ -36,7 +36,7 @@
   function readState() {
     const p = new URLSearchParams(location.search);
     const st = { q: p.get('q') || '', view: p.get('view') || 'table', sort: p.get('sort') || 'code', page: +(p.get('page') || 1),
-      rows: p.get('rows') || 'time', seats: p.get('seats') || '', names: p.get('names') || '', cell: p.get('cell') || '', ccell: p.get('ccell') || '', clay: p.get('clay') || '', cdays: p.get('cdays') || '', cfrom: p.get('cfrom') || '', cto: p.get('cto') || '', cmode: p.get('cmode') || '',
+      rows: p.get('rows') || 'time', seats: p.get('seats') || '', names: p.get('names') || '', cell: p.get('cell') || '', ccell: p.get('ccell') || '', clay: p.get('clay') || '', cdays: p.get('cdays') || '', cfrom: p.get('cfrom') || '', cto: p.get('cto') || '', cmode: p.get('cmode') || '', cgrp: p.get('cgrp') || '',
       // free-time view: chosen instructors, working window, Saturday, asynchronous meetings
       ppl: p.has('ppl') ? p.get('ppl').split('|').filter(Boolean) : null, ftab: p.get('ftab') || 'best', from: p.get('from') || '08:00', to: p.get('to') || '16:00',
       sat: p.get('sat') || '', async: p.get('async') || '',
@@ -54,6 +54,7 @@
     if (st.cell) p.set('cell', st.cell);
     if (st.ccell) p.set('ccell', st.ccell);
     if (st.clay) p.set('clay', st.clay);
+    if (st.cgrp) p.set('cgrp', st.cgrp);
     ['cdays', 'cfrom', 'cto', 'cmode'].forEach(k => { if (st[k]) p.set(k, st[k]); });
     if (st.page > 1) p.set('page', st.page);
     if (st.ppl) p.set('ppl', st.ppl.join('|'));
@@ -1366,6 +1367,7 @@
       set({ ccell: next.join(',') === CC_DEF.join(',') ? '' : next.join(',') });
     }));
     document.querySelectorAll('[data-clay]').forEach(b => b.addEventListener('click', () => set({ clay: b.dataset.clay })));
+    document.querySelectorAll('[data-cgrp]').forEach(b => b.addEventListener('click', () => set({ cgrp: b.dataset.cgrp })));
     document.querySelectorAll('.fc-cb input').forEach(b => b.addEventListener('change', () => b.closest('.fc-cb').classList.toggle('on', b.checked)));
     document.querySelectorAll('[data-ccd]').forEach(b => b.addEventListener('change', () => {
       const cur = ccDays(st), d = b.dataset.ccd, next = CC_DAYS.filter(x => x === d ? b.checked : cur.includes(x));
@@ -1379,7 +1381,7 @@
       set({ cmode: next.join('') === 'vbe' ? '' : next.join('') });
     }));
     const ccr = document.querySelector('[data-ccreset]');
-    if (ccr) ccr.addEventListener('click', () => set({ cdays: '', cfrom: '', cto: '', ccell: '', cmode: '' }));
+    if (ccr) ccr.addEventListener('click', () => set({ cdays: '', cfrom: '', cto: '', ccell: '', cmode: '', cgrp: '' }));
     const fpb = $('#fc-printbtn');
     if (fpb) fpb.addEventListener('click', () => ccPrintDialog(list, st));
     const fq = $('#fc-q');
@@ -1467,6 +1469,7 @@
   // timetable (other departments too); asynchronous meetings have no time and are not shown.
   const CC_FIELDS = [['code', 'رمز المقرر'], ['name', 'اسم المقرر'], ['sec', 'الشعبة'], ['room', 'القاعة'], ['type', 'نوع التدريس'], ['reg', 'عدد الطلبة']];
   const CC_DEF = ['code', 'name', 'sec', 'room', 'type'];
+  const CC_SHORT = { code: 'الرمز', name: 'اسم المقرر', sec: 'الشعبة', room: 'القاعة', type: 'النوع', reg: 'الطلبة' };
   const ccFields = st => { const v = st.ccell ? st.ccell.split(',').filter(k => CC_FIELDS.some(f => f[0] === k)) : CC_DEF; return v.length ? v : ['code']; };
   const CC_DAYS = ['ح', 'ن', 'ث', 'ر', 'خ', 'س'];
   const ccDays = st => { const v = (st.cdays || 'حنثرخ').split('').filter(d => CC_DAYS.includes(d)); return v.length ? CC_DAYS.filter(d => v.includes(d)) : ['ح', 'ن', 'ث', 'ر', 'خ']; };
@@ -1497,35 +1500,46 @@
       ((byI[s.instructor] ||= {})[m.day] ||= []).push({ s, m });
     }));
     const days = CC_DAYS.filter(d => pick.includes(d));
+    // the columns: one per day, or the two usual day groups (الأحد·الثلاثاء·الخميس / الاثنين·الأربعاء) with Saturday on its own
+    const grouped = (opt.group != null ? opt.group : st.cgrp) === 'g';
+    const col = ds => ({ k: ds.join(''), ds, l: ds.map(d => DAY_FULL[d]).join(' · ') });
+    const cols = grouped ? [...GROUPS.map(g => days.filter(d => g[0].includes(d))).filter(ds => ds.length).map(col), ...days.filter(d => !GROUPS.some(g => g[0].includes(d))).map(d => col([d]))] : days.map(d => col([d]));
     const today = ['ح', 'ن', 'ث', 'ر', 'خ', 'ج', 'س'][new Date().getDay()];
+    const isToday = c => c.ds.includes(today);
     const kind = x => [x.m.mode !== 'وجاهي' ? (x.m.mode.includes('كامل') ? 'إلكتروني' : x.m.mode) : '', x.s.activity === 'عملي' ? 'عملي' : ''].filter(Boolean);
     const grid = (opt.layout || st.clay) === 'grid';
     const hm = t => +t.slice(0, 2) * 60 + +t.slice(3);
     const offHour = x => x.m.start.slice(3) !== '00' || hm(x.m.end) - hm(x.m.start) !== 60;
-    const entry = (x, clash) => {
-      const room = x.s.room === '0' ? 'افتراضية' : x.s.room;
-      return `<a href="#" class="fc-e ${(MODE[x.m.mode] || {}).cls || ''}${clash ? ' clash' : ''}" data-open="${S.indexOf(x.s)}" title="${esc(`${x.s.code} ${x.s.name} – شعبة ${x.s.section}\n${DAY_FULL[x.m.day] || ''} ${x.m.start}–${x.m.end} · ${x.m.mode}\nالقاعة ${x.s.room} · ${x.s.building}\n${x.s.registered}/${x.s.capacity} مسجّل`)}">
-        ${!grid || offHour(x) ? `<b class="fc-t${grid ? ' fc-t2' : ''}" dir="ltr">${esc(x.m.start)}–${esc(x.m.end)}</b>` : ''}${on('code') ? `<b class="fc-c" dir="ltr">${esc(x.s.code)}</b>` : ''}${on('sec') ? `<span class="fc-s">ش${esc(x.s.section)}</span>` : ''}${on('name') ? `<span class="fc-n">${esc(short(x.s.name))}</span>` : ''}${on('room') ? `<span class="fc-r">${esc(room)}</span>` : ''}${on('type') ? kind(x).map(k => `<span class="fc-k">${esc(k)}</span>`).join('') : ''}${on('reg') ? `<span class="fc-g">${x.s.registered} ط</span>` : ''}${clash ? '<span class="fc-x">تعارض</span>' : ''}</a>`;
+    const dShort = d => DAY_FULL[d].replace(/^ال/, '');
+    const entry = (x, c) => {
+      const room = x.s.room === '0' ? 'افتراضية' : x.s.room, part = c.ds.length > 1 && x.ds.length < c.ds.length;
+      return `<a href="#" class="fc-e ${(MODE[x.m.mode] || {}).cls || ''}${x.clash ? ' clash' : ''}" data-open="${S.indexOf(x.s)}" title="${esc(`${x.s.code} ${x.s.name} – شعبة ${x.s.section}\n${x.ds.map(d => DAY_FULL[d]).join('، ')} ${x.m.start}–${x.m.end} · ${x.m.mode}\nالقاعة ${x.s.room} · ${x.s.building}\n${x.s.registered}/${x.s.capacity} مسجّل`)}">
+        ${!grid || offHour(x) ? `<b class="fc-t${grid ? ' fc-t2' : ''}" dir="ltr">${esc(x.m.start)}–${esc(x.m.end)}</b>` : ''}${part ? `<span class="fc-dd">${x.ds.map(dShort).join(' · ')} فقط</span>` : ''}${on('code') ? `<b class="fc-c" dir="ltr">${esc(x.s.code)}</b>` : ''}${on('sec') ? `<span class="fc-s">ش${esc(x.s.section)}</span>` : ''}${on('name') ? `<span class="fc-n">${esc(short(x.s.name))}</span>` : ''}${on('room') ? `<span class="fc-r">${esc(room)}</span>` : ''}${on('type') ? kind(x).map(k => `<span class="fc-k">${esc(k)}</span>`).join('') : ''}${on('reg') ? `<span class="fc-g">${x.s.registered} ط</span>` : ''}${x.clash ? '<span class="fc-x">تعارض</span>' : ''}</a>`;
     };
-    const dayList = (i, d) => {
-      const xs = ((byI[i] || {})[d] || []).slice().sort((a, b) => a.m.start.localeCompare(b.m.start) || a.s.code.localeCompare(b.s.code));
-      const uniq = xs.filter((x, k) => xs.findIndex(y => y.s === x.s && y.m.start === x.m.start) === k);
-      uniq.forEach((x, k) => { x.clash = uniq.some((y, j) => j !== k && y.s.code !== x.s.code && y.m.start < x.m.end && x.m.start < y.m.end); });
-      return uniq;
+    // a column's lectures in time order; the same section at the same time on several of the column's days is one entry
+    const colList = (i, c) => {
+      const m = new Map();
+      c.ds.forEach(d => ((byI[i] || {})[d] || []).forEach(x => { const k = [x.s.code, x.s.section, x.s.activity, x.m.start, x.m.end].join('|'), y = m.get(k);
+        if (y) { if (!y.ds.includes(d)) y.ds.push(d); } else m.set(k, { s: x.s, m: x.m, ds: [d] }); }));
+      const xs = [...m.values()].sort((a, b) => a.m.start.localeCompare(b.m.start) || a.s.code.localeCompare(b.s.code));
+      xs.forEach(x => { x.ds.sort((a, b) => CC_DAYS.indexOf(a) - CC_DAYS.indexOf(b));
+        x.clash = xs.some(y => y !== x && y.s.code !== x.s.code && y.ds.some(d => x.ds.includes(d)) && y.m.start < x.m.end && x.m.start < y.m.end); });
+      return xs;
     };
-    const cell = (i, d) => dayList(i, d).map(x => entry(x, x.clash)).join('');
+    const LS = Object.fromEntries(shownI.map(i => [i, Object.fromEntries(cols.map(c => [c.k, colList(i, c)]))]));
     // only instructors who teach in the chosen days, hours and modes (the others are counted in a note)
-    const nLec = i => days.reduce((a, d) => a + (((byI[i] || {})[d] || []).length), 0);
+    const nLec = i => cols.reduce((a, c) => a + LS[i][c.k].length, 0);
     const activeI = shownI.filter(i => nLec(i) > 0), idle = shownI.length - activeI.length;
-    // «اليوم والساعة»: under every day one column per hour in which someone teaches that day (a lecture sits in the hour it starts in)
-    const hours = Object.fromEntries(days.map(d => { const h = [...new Set(activeI.flatMap(i => ((byI[i] || {})[d] || []).map(x => x.m.start.slice(0, 2))))].sort(); return [d, h.length ? h : ['—']]; }));
+    // «اليوم والساعة»: under every column one column per hour in which someone teaches (a lecture sits in the hour it starts in)
+    const hours = Object.fromEntries(cols.map(c => { const h = [...new Set(activeI.flatMap(i => LS[i][c.k].map(x => x.m.start.slice(0, 2))))].sort(); return [c.k, h.length ? h : ['—']]; }));
     const head = i => `<th class="fc-i"><a href="#" data-pick="inst" data-v="${esc(i)}">${esc(i)}</a><small>${nLec(i)} محاضرة</small></th>`;
-    const rows = activeI.map(i => `<tr data-q="${esc(norm(i))}">${head(i)}${days.map(d => `<td data-d="${d}" class="${d === today ? 'fc-today' : ''}">${cell(i, d)}</td>`).join('')}</tr>`);
-    const daysTable = `<table class="table table-bordered mb-0 fc-table" data-fields="${F_.join(',')}"><thead><tr><th class="fc-corner">المدرس</th>${days.map(d => `<th data-d="${d}" class="${d === today ? 'fc-today' : ''}">${DAY_FULL[d]}${d === today ? ' <small>اليوم</small>' : ''}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
-    const gridRows = activeI.map(i => `<tr data-q="${esc(norm(i))}">${head(i)}${days.map(d => { const L = dayList(i, d);
-      return hours[d].map((h, k) => `<td data-d="${d}" class="${k ? '' : 'fc-dg'} ${d === today ? 'fc-today' : ''}">${L.filter(x => x.m.start.slice(0, 2) === h).map(x => entry(x, x.clash)).join('')}</td>`).join(''); }).join('')}</tr>`);
-    const gridTable = `<table class="table table-bordered mb-0 fc-table fc-grid" data-fields="${F_.join(',')}"><thead><tr><th class="fc-corner" rowspan="2">المدرس</th>${days.map(d => `<th data-d="${d}" colspan="${hours[d].length}" class="fc-day fc-dg ${d === today ? 'fc-today' : ''}">${DAY_FULL[d]}${d === today ? ' <small>اليوم</small>' : ''}</th>`).join('')}</tr>
-      <tr>${days.map(d => hours[d].map((h, k) => `<th data-d="${d}" class="fc-h ${k ? '' : 'fc-dg'}">${h === '—' ? 'لا محاضرات' : `<bdi dir="ltr">${h}:00</bdi>`}</th>`).join('')).join('')}</tr></thead><tbody>${gridRows.join('')}</tbody></table>`;
+    const thDay = (c, extra = '') => `<th data-d="${c.k}" data-l="${esc(c.l)}" ${extra} class="${grid ? 'fc-day fc-dg ' : ''}${grouped && c.ds.length > 1 ? 'fc-gh ' : ''}${isToday(c) ? 'fc-today' : ''}">${esc(c.l)}${isToday(c) ? ` <small>${c.ds.length > 1 ? `(اليوم ${DAY_FULL[today]})` : 'اليوم'}</small>` : ''}</th>`;
+    const rows = activeI.map(i => `<tr data-q="${esc(norm(i))}">${head(i)}${cols.map(c => `<td data-d="${c.k}" class="${isToday(c) ? 'fc-today' : ''}">${LS[i][c.k].map(x => entry(x, c)).join('')}</td>`).join('')}</tr>`);
+    const daysTable = `<table class="table table-bordered mb-0 fc-table${grouped ? ' fc-grouped' : ''}" data-fields="${F_.join(',')}"><thead><tr><th class="fc-corner">المدرس</th>${cols.map(c => thDay(c)).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
+    const gridRows = activeI.map(i => `<tr data-q="${esc(norm(i))}">${head(i)}${cols.map(c => { const L = LS[i][c.k];
+      return hours[c.k].map((h, k) => `<td data-d="${c.k}" class="${k ? '' : 'fc-dg'} ${isToday(c) ? 'fc-today' : ''}">${L.filter(x => x.m.start.slice(0, 2) === h).map(x => entry(x, c)).join('')}</td>`).join(''); }).join('')}</tr>`);
+    const gridTable = `<table class="table table-bordered mb-0 fc-table fc-grid${grouped ? ' fc-grouped' : ''}" data-fields="${F_.join(',')}"><thead><tr><th class="fc-corner" rowspan="2">المدرس</th>${cols.map(c => thDay(c, `colspan="${hours[c.k].length}"`)).join('')}</tr>
+      <tr>${cols.map(c => hours[c.k].map((h, k) => `<th data-d="${c.k}" class="fc-h ${k ? '' : 'fc-dg'}">${h === '—' ? 'لا محاضرات' : `<bdi dir="ltr">${h}:00</bdi>`}</th>`).join('')).join('')}</tr></thead><tbody>${gridRows.join('')}</tbody></table>`;
     const table = grid ? gridTable : daysTable;
     if (opt.tableOnly) return table;
     const hh = h => String(h).padStart(2, '0') + ':00';
@@ -1533,22 +1547,22 @@
     const total = activeI.reduce((a, i) => a + nLec(i), 0);
     const chip = (attr, k, l, on_) => `<label class="fc-cb${on_ ? ' on' : ''}"><input type="checkbox" ${attr}="${k}" ${on_ ? 'checked' : ''}><span>${l}</span></label>`;
     const sel = (key, val, isTo) => `<select class="form-select form-select-sm" data-ccr="${key}" aria-label="${isTo ? 'إلى' : 'من'}">${isTo ? '' : `<option value="all" ${st[key] === 'all' ? 'selected' : ''}>البداية</option>`}${(isTo ? HOURS.slice(1) : HOURS).map(h => `<option value="${+h}" ${st[key] !== 'all' && +h === val ? 'selected' : ''}>${h}:00</option>`).join('')}${isTo ? `<option value="all" ${st[key] === 'all' ? 'selected' : ''}>النهاية</option>` : ''}</select>`;
-    const changed = st.cdays || st.cfrom || st.cto || st.ccell || st.cmode;
-    const note = [idle ? `${idle} مدرساً بلا محاضرات ضمن الاختيار مخفيّون` : '', nOut ? `${nOut} لقاءً خارج الأيام أو الساعات أو الأنماط المختارة` : '', nAsync ? `${nAsync} لقاءً غير متزامن بلا وقت` : '', grid ? 'يظهر الوقت داخل الخانة فقط إن لم يبدأ على رأس الساعة أو اختلف طوله' : ''].filter(Boolean).join(' · ');
+    const changed = st.cdays || st.cfrom || st.cto || st.ccell || st.cmode || st.cgrp;
+    const note = [idle ? `${idle} مدرساً بلا محاضرات ضمن الاختيار مخفيّون` : '', nOut ? `${nOut} لقاءً خارج الأيام أو الساعات أو الأنماط المختارة` : '', nAsync ? `${nAsync} لقاءً غير متزامن بلا وقت` : '', grid ? 'يظهر الوقت داخل الخانة فقط إن لم يبدأ على رأس الساعة أو اختلف طوله' : '', grouped ? 'المحاضرة المتكررة في أيام المجموعة تظهر مرة واحدة، وإن لم تكن في كل أيامها كُتبت أيامها داخل الخانة' : ''].filter(Boolean).join(' · ');
     return `<div class="card fc-card">
       <div class="fc-head">
         <div class="fc-h1"><span class="fc-ico"><i class="bi bi-building"></i></span><div><h2>جدول الكلية</h2>
-          <small><b>${activeI.length}</b> مدرساً · <b>${total}</b> محاضرة · ${days.map(d => DAY_FULL[d]).join('، ')} · ${range}${note ? ` <i class="bi bi-info-circle fc-note" tabindex="0" title="${esc(note)}" aria-label="${esc(note)}"></i>` : ''}</small></div></div>
+          <small><b>${activeI.length}</b> مدرساً · <b>${total}</b> محاضرة · ${grouped ? cols.map(c => c.l).join(' | ') : days.map(d => DAY_FULL[d]).join('، ')} · ${range}${note ? ` <i class="bi bi-info-circle fc-note" tabindex="0" title="${esc(note)}" aria-label="${esc(note)}"></i>` : ''}</small></div></div>
         <div class="fc-tools">
           <div class="tp-seg fc-lay" role="group" aria-label="شكل الجدول"><button type="button" data-clay="" class="${grid ? '' : 'on'}"><i class="bi bi-calendar-week"></i> حسب اليوم</button><button type="button" data-clay="grid" class="${grid ? 'on' : ''}"><i class="bi bi-grid-3x3"></i> اليوم والساعة</button></div>
           <div class="input-group input-group-sm fc-find"><span class="input-group-text"><i class="bi bi-search"></i></span><input type="search" class="form-control" id="fc-q" placeholder="ابحث عن مدرس…" aria-label="ابحث عن مدرس"></div>
           <button class="btn btn-sm btn-maroon" id="fc-printbtn"><i class="bi bi-printer-fill"></i> طباعة / PDF</button></div>
       </div>
       <div class="fc-opts" id="fc-opts">
-        <div class="fc-grp"><span class="fc-ol">محتوى الخانة</span><div class="fc-ctl">${CC_FIELDS.map(([k, l]) => chip('data-ccf', k, l, on(k))).join('')}</div></div>
+        <div class="fc-grp"><span class="fc-ol">محتوى الخانة</span><div class="fc-ctl">${CC_FIELDS.map(([k, l]) => chip('data-ccf', k, CC_SHORT[k] || l, on(k))).join('')}</div></div>
         <div class="fc-grp fc-hours"><span class="fc-ol">الساعات</span><div class="fc-ctl"><span>من</span>${sel('cfrom', fromH, false)}<span>إلى</span>${sel('cto', toH, true)}</div></div>
         <div class="fc-end">${changed ? '<button type="button" class="btn btn-sm btn-link fc-reset" data-ccreset title="الإعدادات الافتراضية"><i class="bi bi-arrow-counterclockwise"></i> افتراضي</button>' : ''}</div>
-        <div class="fc-grp"><span class="fc-ol">الأيام</span><div class="fc-ctl">${CC_DAYS.map(d => chip('data-ccd', d, DAY_FULL[d], pick.includes(d))).join('')}</div></div>
+        <div class="fc-grp"><span class="fc-ol">الأيام</span><div class="fc-ctl">${CC_DAYS.map(d => chip('data-ccd', d, DAY_FULL[d], pick.includes(d))).join('')}<div class="tp-seg fc-lay fc-gsw" role="group" aria-label="عرض الأيام" title="مجموعتان: الأحد · الثلاثاء · الخميس | الاثنين · الأربعاء"><button type="button" data-cgrp="" class="${grouped ? '' : 'on'}">منفصلة</button><button type="button" data-cgrp="g" class="${grouped ? 'on' : ''}">مجموعتان</button></div></div></div>
         <div class="fc-grp"><span class="fc-ol">نمط التدريس</span><div class="fc-ctl">${CC_MODES.map(([k, l]) => chip('data-ccm', k, l, modes.includes(k))).join('')}</div></div>
         <div class="fc-end"></div>
       </div>
@@ -1590,12 +1604,15 @@
     .fc-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem; } .fc-end { display: flex; justify-content: flex-end; }
     .fc-ol { flex: none; width: 4.9rem; font-size: .72rem; font-weight: 800; color: #6b4a1f; }
     .fc-cb { display: inline-flex; align-items: center; gap: .25rem; margin: 0; height: 1.5rem; padding: 0 .45rem; border: 1px solid #d8d0bf; border-radius: 5px; background: #fff; cursor: pointer; font-size: .72rem; font-weight: 600; color: #3c474c; user-select: none; transition: background .12s, border-color .12s; }
-    .fc-cb input { width: .8rem; height: .8rem; accent-color: #091b22; margin: 0; } .fc-cb.on { border-color: #091b22; background: #091b22; color: #fff; } .fc-cb.on input { accent-color: #fff; }
+    .fc-cb input { width: .8rem; height: .8rem; margin: 0; } .fc-cb.on { border-color: #c98f92; background: #fbf0f0; color: #7a1a1f; } .fc-cb input { accent-color: #901d23; }
+    .fc-lay button.on, .fc-lay button.on:hover { background: #fbf0f0 !important; color: #7a1a1f !important; box-shadow: inset 0 -2px 0 #901d23; font-weight: 800; }
     .fc-cb:hover { border-color: #901d23; }
     .fc-hours span:not(.fc-ol) { font-size: .74rem; color: #6b777c; } .fc-hours select { width: 5.6rem; height: 1.5rem; padding: 0 .4rem; font-size: .72rem; }
     .fc-reset { font-size: .72rem; padding: 0 .3rem; }
+    @media (max-width: 1440px) { .fc-ol { width: 4.1rem; } .fc-grp { padding-inline-end: .6rem; } .fc-grp + .fc-grp { padding-inline-start: .6rem; } .fc-cb { padding: 0 .35rem; gap: .2rem; font-size: .7rem; }
+      .fc-hours select { width: 5rem; } .fc-gsw { margin-inline-start: .2rem; } .fc-gsw button { padding: 0 .4rem; } .fc-h1 small { white-space: normal; } .fc-card .fc-find { width: 10rem; } }
     @media (max-width: 1100px) { .fc-head { flex-wrap: wrap; } .fc-h1 small { white-space: normal; } }
-    @media (max-width: 1100px) { .fc-opts { grid-template-columns: 1fr; } .fc-grp + .fc-grp { padding-inline-start: 0; border: 0; } .fc-end:empty { display: none; } }
+    @media (max-width: 1100px) { .fc-opts { grid-template-columns: 1fr; } .fc-grp + .fc-grp { padding-inline-start: 0; border: 0; } .fc-end:empty { display: none; } .fc-grpby { justify-content: flex-start; } }
     @media (max-width: 576px) { .fc-card .fc-find { width: 100%; } .fc-tools { flex-wrap: wrap; } }
     .fc-lay { margin: 0; } .fc-lay button { padding: .25rem .6rem; font-size: .78rem; }
     .fc-grid thead tr:first-child th { top: 0; } .fc-grid thead tr:nth-child(2) th { top: 2.35rem; }
@@ -1603,6 +1620,8 @@
     .fc-grid thead th.fc-h { background: #f3e9e9 !important; color: #3a1416 !important; min-width: 94px; font-size: .72rem; padding: .25rem; }
     .fc-grid td { min-width: 94px; width: 94px; } .fc-grid .fc-dg { border-right: 3px solid #091b22 !important; }
     .fc-t2 { color: #2b4cb3; font-size: .68rem; }
+    .fc-dd { border: 1px solid #091b22; color: #091b22; border-radius: 4px; padding: 0 .3rem; font-size: .64rem; font-weight: 800; white-space: nowrap; }
+    .fc-grpby { justify-content: flex-end; padding-inline-end: 0; } .fc-lay { flex-wrap: nowrap; flex: none; } .fc-lay button { white-space: nowrap; } .fc-gsw { margin-inline-start: .35rem; } .fc-gsw button { height: 1.5rem; padding: 0 .55rem; font-size: .72rem; } .fc-grouped thead th.fc-gh { min-width: 230px; }
     .fc-grid .fc-e { flex-flow: row wrap; gap: 0 .25rem; } .fc-grid .fc-n { order: 9; flex-basis: 100%; line-height: 1.25; } .fc-grid .fc-t2 { order: 8; }`;
   if (!document.getElementById('fc-css')) { const el = document.createElement('style'); el.id = 'fc-css'; el.textContent = FC_CSS; document.head.appendChild(el); }
 
@@ -1733,7 +1752,7 @@
     .raw .fc-table td { padding: 2px 4px !important; } .raw .fc-table td.fc-today { background: #fff !important; }
     .raw .fc-table tbody tr { break-inside: avoid; }
     .raw .fc-e { font-size: 9pt !important; line-height: 1.3 !important; padding: 1px 4px !important; margin: 1px 0 !important; break-inside: avoid; }
-    .raw .fc-t { font-size: 9pt !important; } .raw .fc-s { font-size: 7.5pt !important; } .raw .fc-k, .raw .fc-x { font-size: 7pt !important; } .raw .fc-r::before { display: none; }
+    .raw .fc-t { font-size: 9pt !important; } .raw .fc-s { font-size: 7.5pt !important; } .raw .fc-k, .raw .fc-x, .raw .fc-dd { font-size: 7pt !important; } .raw .fc-r::before { display: none; }
     .raw .fitmode .fc-table { table-layout: fixed; }`;
   const CC_BW = `
     .raw .fc-table, .raw .fc-table * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -1744,7 +1763,7 @@
     .raw .fc-e:last-child { border-bottom: 0 !important; }
     .raw .fc-t, .raw .fc-c, .raw .fc-n, .raw .fc-r, .raw .fc-g, .raw .fc-k { color: #000 !important; } .raw .fc-t, .raw .fc-c { font-weight: 800; }
     .raw .fc-s { background: #fff !important; color: #000 !important; border: 1px solid #000; border-radius: 3px; }
-    .raw .fc-x { color: #000 !important; background: #fff !important; border: 1.5px dashed #000; }`;
+    .raw .fc-x { color: #000 !important; background: #fff !important; border: 1.5px dashed #000; } .raw .fc-dd { color: #000 !important; border-color: #000 !important; }`;
   // one page: a day's lectures side by side (as many per line as fit), each a small framed block
   const CC_FIT = `
     .raw .fitmode .fc-e, .raw .fitmode .fc-e.m-online, .raw .fitmode .fc-e.m-blend { display: inline-flex !important; vertical-align: top; width: auto; max-width: 100%; margin: 1px 0 1px 3px !important;
@@ -1753,23 +1772,24 @@
   const CC_HIDE = { code: '.fc-c', name: '.fc-n', sec: '.fc-s', room: '.fc-r', type: '.fc-k', reg: '.fc-g' };
   function ccOptions(P, list, st) {
     const box = document.createElement('div'), grid = st.clay === 'grid';
-    box.innerHTML = collegeView(list, st, { fields: CC_FIELDS.map(f => f[0]), tableOnly: true, days: CC_DAYS.filter(d => P.days.includes(d)), from: P.from, to: P.to, modes: P.modes });
+    box.innerHTML = collegeView(list, st, { fields: CC_FIELDS.map(f => f[0]), tableOnly: true, days: CC_DAYS.filter(d => P.days.includes(d)), from: P.from, to: P.to, modes: P.modes, group: P.group === 'g' ? 'g' : '' });
     const t = box.querySelector('.fc-table'); if (!t) return null;
-    t.querySelectorAll('[data-d]').forEach(el => { if (!P.days.includes(el.dataset.d)) el.remove(); });
+    t.querySelectorAll('[data-d]').forEach(el => { if (![...el.dataset.d].some(d => P.days.includes(d))) el.remove(); });
     t.dataset.fields = P.fields.join(',');
     const hide = CC_FIELDS.map(f => f[0]).filter(k => !P.fields.includes(k)).map(k => `.raw .fc-table ${CC_HIDE[k]}`).concat(P.counts ? [] : ['.raw .fc-table .fc-i small']);
     const filters = [...FK, 'seats'].filter(k => st[k]).map(k => [k === 'seats' ? 'المقاعد' : F.find(f => f[0] === k)[1], k === 'seats' ? 'متاحة فقط' : label(k, st[k])]);
     const hh = v => String(v).padStart(2, '0') + ':00';
     filters.push(['الأيام', CC_DAYS.filter(d => P.days.includes(d)).map(d => DAY_FULL[d]).join('، ')],
       ['الساعات', P.from === 'all' && P.to === 'all' ? 'كل الأوقات' : `من ${P.from === 'all' ? 'البداية' : hh(P.from)} إلى ${P.to === 'all' ? 'النهاية' : hh(P.to)}`]);
+    if (P.group === 'g') filters.push(['عرض الأيام', 'مجموعتان: الأحد · الثلاثاء · الخميس | الاثنين · الأربعاء']);
     if (P.modes.length < 3) filters.push(['نمط التدريس', CC_MODES.filter(m => P.modes.includes(m[0])).map(m => m[1]).join('، ')]);
     const one = P.mode === 'one', perDay = grid && P.dsplit === 'day';
     // one page per day: that day's hours only, and only the instructors who teach that day
-    const body = perDay ? ['ح', 'ن', 'ث', 'ر', 'خ', 'س'].filter(d => P.days.includes(d) && t.querySelector(`thead [data-d="${d}"]`)).map(d => {
+    const body = perDay ? [...t.querySelectorAll('thead [data-l]')].map(th => [th.dataset.d, th.dataset.l]).map(([d, l]) => {
       const c = t.cloneNode(true);
       c.querySelectorAll('[data-d]').forEach(el => { if (el.dataset.d !== d) el.remove(); });
       c.querySelectorAll('tbody tr').forEach(tr => { if (!tr.querySelector('.fc-e')) tr.remove(); });
-      return `<div class="part ti-part"><div class="part-h">${esc(DAY_FULL[d])}</div>${c.outerHTML}</div>`;
+      return `<div class="part ti-part"><div class="part-h">${esc(l)}</div>${c.outerHTML}</div>`;
     }).join('') : `<div class="part ti-part">${t.outerHTML}</div>`;
     return { title: 'الجدول الدراسي', subtitle: `${DATA.term} – جدول الكلية${grid ? ' (اليوم والساعة)' : ''}`, source: 'المصدر: بوابة الجامعة (edugate)', filters,
       paper: P.paper, orientation: P.orient, compact: !P.full, qr: P.qr ? undefined : false, hideFilters: !P.filters,
@@ -1788,9 +1808,9 @@
     .raw .fc-grid .fc-t2 { font-size: 8pt !important; }
     .raw .fitmode .fc-grid { table-layout: fixed; }`;
   function ccPrintDialog(list, st) {
-    const P0 = Object.assign(ccLoad(st), { days: ccDays(st), from: st.cfrom === 'all' ? 'all' : String(ccFrom(st.cfrom)), to: st.cto === 'all' ? 'all' : String(ccTo(st.cto)), modes: ccModes(st), fields: ccFields(st) });
+    const P0 = Object.assign(ccLoad(st), { days: ccDays(st), from: st.cfrom === 'all' ? 'all' : String(ccFrom(st.cfrom)), to: st.cto === 'all' ? 'all' : String(ccTo(st.cto)), modes: ccModes(st), fields: ccFields(st), group: st.cgrp === 'g' ? 'g' : 'day' });
     printDialog({ P: P0, save: ccSave, title: st.clay === 'grid' ? 'طباعة جدول الكلية (اليوم والساعة)' : 'طباعة جدول الكلية', count: `${new Set(list.map(s => s.instructor)).size} مدرساً`, fields: CC_FIELDS, base: 9,
-      layout: (seg, P) => `${st.clay === 'grid' ? `<section><h6>توزيع الأيام</h6>${seg('dsplit', [['day', 'كل يوم في صفحة', 'bi-calendar-day'], ['all', 'كل الأيام في جدول واحد', 'bi-calendar-week']])}<p class="tp-hint">«كل يوم في صفحة» يطبع ساعات ذلك اليوم ومدرسيه فقط، وهو الأوضح.</p></section>` : ''}<section><h6>الأيام المطبوعة</h6><div class="tp-seg">${CC_DAYS.map(d => `<button type="button" data-dd="${d}" class="${P.days.includes(d) ? 'on' : ''}">${DAY_FULL[d]}</button>`).join('')}</div></section>
+      layout: (seg, P) => `${st.clay === 'grid' ? `<section><h6>توزيع الأيام</h6>${seg('dsplit', [['day', 'كل يوم (أو مجموعة) في صفحة', 'bi-calendar-day'], ['all', 'كل الأيام في جدول واحد', 'bi-calendar-week']])}<p class="tp-hint">«كل يوم في صفحة» يطبع ساعات ذلك اليوم ومدرسيه فقط، وهو الأوضح.</p></section>` : ''}<section><h6>عرض الأيام</h6>${seg('group', [['day', 'كل يوم منفصل', 'bi-calendar3-week'], ['g', 'مجموعتان: ح·ث·خ | ن·ر', 'bi-collection']])}<p class="tp-hint">«مجموعتان»: عمود للأحد والثلاثاء والخميس وعمود للاثنين والأربعاء، والمحاضرة المتكررة تُطبع مرة واحدة.</p></section><section><h6>الأيام المطبوعة</h6><div class="tp-seg">${CC_DAYS.map(d => `<button type="button" data-dd="${d}" class="${P.days.includes(d) ? 'on' : ''}">${DAY_FULL[d]}</button>`).join('')}</div></section>
         <section><h6>نطاق الساعات</h6><div class="d-flex gap-2"><label class="fc-sel">من <select class="form-select form-select-sm" data-p="from"><option value="all" ${P.from === 'all' ? 'selected' : ''}>كل الأوقات</option>${HOURS.map(h => `<option value="${+h}" ${String(+h) === String(P.from) ? 'selected' : ''}>${h}:00</option>`).join('')}</select></label>
           <label class="fc-sel">إلى <select class="form-select form-select-sm" data-p="to">${HOURS.slice(1).map(h => `<option value="${+h}" ${String(+h) === String(P.to) ? 'selected' : ''}>${h}:00</option>`).join('')}<option value="all" ${P.to === 'all' ? 'selected' : ''}>كل الأوقات</option></select></label></div><p class="tp-hint">تُطبع المحاضرات التي تبدأ ضمن هذا النطاق.</p></section>
         <section><h6>نمط التدريس</h6><div class="tp-seg">${CC_MODES.map(([k, l]) => `<button type="button" data-mm="${k}" class="${P.modes.includes(k) ? 'on' : ''}">${l}</button>`).join('')}</div></section>`,
