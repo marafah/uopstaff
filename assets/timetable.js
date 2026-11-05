@@ -1289,6 +1289,7 @@
           <section class="col-lg-8 col-xl-9"><div id="tt-toolbar"></div><div id="tt-results"></div><div id="tt-verify"></div></section>
         </div>`;
     }
+    $('#tt-layout').classList.toggle('tt-wide', WIDE);
     $('#tt-kpis').innerHTML = kpi(list.length, 'شعبة', 'bi-collection-fill') + kpi(new Set(list.map(s => s.code)).size, 'مقرر', 'bi-journal-bookmark-fill')
       + kpi(new Set(list.map(s => s.instructor)).size, 'مدرس', 'bi-person-video3') + kpi(new Set(list.map(s => s.room).filter(r => r !== '0')).size, 'قاعة', 'bi-door-open-fill')
       + kpi(list.filter(s => s.status === 'مفتوحة').length, 'شعبة مفتوحة', 'bi-unlock-fill') + kpi(reg, `مسجّلاً من سعة ${cap}`, 'bi-people-fill');
@@ -1313,6 +1314,7 @@
     const views = [['dash', 'bi-speedometer', 'لوحة المؤشرات'], ['table', 'bi-table', 'جدول'], ['cards', 'bi-grid-3x2-gap-fill', 'بطاقات'], ['courses', 'bi-journal-bookmark', 'حسب المقرر'], ['grid', 'bi-calendar-week', 'مصفوفة أسبوعية'], ['inst', 'bi-person-lines-fill', 'جدول المدرسين'], ['college', 'bi-building', 'جدول الكلية'], ['free', 'bi-hourglass-split', 'أوقات الفراغ'], ['mx', 'bi-grid-3x3', 'مصفوفات جاهزة']];
     $('#tt-toolbar').innerHTML = `<div class="card mb-3 no-print"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center">
       <button type="button" class="btn btn-sm btn-outline-primary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#fpanel" aria-controls="fpanel"><i class="bi bi-funnel-fill"></i> التصفية${active.length ? ` <span class="badge text-bg-primary">${active.length}</span>` : ''}</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary d-none d-lg-inline-flex align-items-center gap-1 tt-widebtn" data-wide title="${WIDE ? 'إظهار لوحة التصفية' : 'إخفاء لوحة التصفية لتوسيع الجدول'}"><i class="bi ${WIDE ? 'bi-layout-sidebar-inset-reverse' : 'bi-arrows-angle-expand'}"></i> ${WIDE ? `إظهار التصفية${active.length ? ` <span class="badge text-bg-secondary">${active.length}</span>` : ''}` : 'توسيع العرض'}</button>
       <b class="me-1">${list.length} شعبة</b> ${chips}
       ${st.inst && (st.fac || st.dept) ? '<span class="small text-muted w-100"><i class="bi bi-info-circle"></i> تُعرض كل شعب المدرس، بما فيها شعبه خارج الكلية أو القسم المختار.</span>' : ''}
       <div class="ms-auto d-flex flex-wrap gap-2">
@@ -1367,6 +1369,10 @@
       set({ ccell: next.join(',') === CC_DEF.join(',') ? '' : next.join(',') });
     }));
     document.querySelectorAll('[data-clay]').forEach(b => b.addEventListener('click', () => set({ clay: b.dataset.clay })));
+    document.querySelectorAll('[data-wide]').forEach(b => b.addEventListener('click', () => {
+      WIDE = !WIDE; try { localStorage.setItem('tt-wide', WIDE ? '1' : '0'); } catch (e) { /* not kept */ }
+      render();
+    }));
     document.querySelectorAll('[data-cgrp]').forEach(b => b.addEventListener('click', () => set({ cgrp: b.dataset.cgrp })));
     document.querySelectorAll('.fc-cb input').forEach(b => b.addEventListener('change', () => b.closest('.fc-cb').classList.toggle('on', b.checked)));
     document.querySelectorAll('[data-ccd]').forEach(b => b.addEventListener('change', () => {
@@ -1467,6 +1473,8 @@
   // For the dean: one row per instructor, one column per day, each day's lectures in time order — who teaches when, at a
   // glance. A quick search filters the rows; today's column is marked. Each instructor's sections come from the whole
   // timetable (other departments too); asynchronous meetings have no time and are not shown.
+  // «توسيع العرض»: the filter panel folds away so the tables get the whole width (remembered in this browser only)
+  let WIDE = false; try { WIDE = localStorage.getItem('tt-wide') === '1'; } catch (e) { /* not kept */ }
   const CC_FIELDS = [['code', 'رمز المقرر'], ['name', 'اسم المقرر'], ['sec', 'الشعبة'], ['room', 'القاعة'], ['type', 'نوع التدريس'], ['reg', 'عدد الطلبة']];
   const CC_DEF = ['code', 'name', 'sec', 'room', 'type'];
   const CC_SHORT = { code: 'الرمز', name: 'اسم المقرر', sec: 'الشعبة', room: 'القاعة', type: 'النوع', reg: 'الطلبة' };
@@ -1556,6 +1564,7 @@
         <div class="fc-tools">
           <div class="tp-seg fc-lay" role="group" aria-label="شكل الجدول"><button type="button" data-clay="" class="${grid ? '' : 'on'}"><i class="bi bi-calendar-week"></i> حسب اليوم</button><button type="button" data-clay="grid" class="${grid ? 'on' : ''}"><i class="bi bi-grid-3x3"></i> اليوم والساعة</button></div>
           <div class="input-group input-group-sm fc-find"><span class="input-group-text"><i class="bi bi-search"></i></span><input type="search" class="form-control" id="fc-q" placeholder="ابحث عن مدرس…" aria-label="ابحث عن مدرس"></div>
+          <button type="button" class="btn btn-sm btn-outline-secondary d-none d-lg-inline-block fc-widebtn" data-wide title="${WIDE ? 'إظهار لوحة التصفية' : 'توسيع العرض (إخفاء لوحة التصفية)'}" aria-label="${WIDE ? 'إظهار لوحة التصفية' : 'توسيع العرض'}"><i class="bi ${WIDE ? 'bi-arrows-angle-contract' : 'bi-arrows-angle-expand'}"></i></button>
           <button class="btn btn-sm btn-maroon" id="fc-printbtn"><i class="bi bi-printer-fill"></i> طباعة / PDF</button></div>
       </div>
       <div class="fc-opts" id="fc-opts">
@@ -1573,6 +1582,8 @@
   }
   const FC_CSS = `
     .fc-wrap { max-height: 78vh; overflow: auto; }
+    @media (min-width: 992px) { #tt-layout.tt-wide > aside { display: none; } #tt-layout.tt-wide > section { flex: 0 0 100%; width: 100%; max-width: 100%; } }
+    .tt-widebtn.btn-outline-secondary, .fc-widebtn { border-color: #d5cdbd; color: #3c474c; } .tt-widebtn:hover, .fc-widebtn:hover { background: #fbf0f0; color: #7a1a1f; border-color: #c98f92; }
     .fc-find { width: 15rem; }
     .fc-table { font-size: .78rem; border-collapse: separate; border-spacing: 0; margin: 0; }
     .fc-table thead th { position: sticky; top: 0; z-index: 3; background: #091b22 !important; color: #fff !important; text-align: center; font-weight: 800; padding: .5rem .4rem; white-space: nowrap; min-width: 150px; }
