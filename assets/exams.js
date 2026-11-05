@@ -23,8 +23,8 @@
     document.documentElement.classList.add('ex-locked');
     const d = document.createElement('div'); d.className = 'ex-gate'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');
     d.innerHTML = `<form class="box" autocomplete="on"><div class="ic"><i class="bi bi-shield-lock-fill"></i></div><h2>جدول الامتحانات — دخول</h2><p>هذه الأداة للجنة الامتحانات. أدخل اسم المستخدم وكلمة المرور (حساب لجنة الامتحانات أو حساب البحث العلمي).</p>
-      <label>اسم المستخدم<input name="u" class="form-control" autocomplete="username" required></label>
-      <label>كلمة المرور<input name="p" type="password" class="form-control" autocomplete="current-password" required></label>
+      <label>اسم المستخدم<input name="u" class="form-control" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" dir="ltr" required></label>
+      <label>كلمة المرور<input name="p" type="password" class="form-control" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" dir="ltr" required></label>
       <label class="rem"><input type="checkbox" name="r" checked> تذكّرني على هذا الجهاز</label>
       <div class="err" hidden><i class="bi bi-exclamation-triangle-fill"></i> اسم المستخدم أو كلمة المرور غير صحيحة</div>
       <button class="btn btn-ex w-100" type="submit"><i class="bi bi-box-arrow-in-left"></i> دخول</button>
@@ -34,9 +34,9 @@
       const f = d.querySelector('form'); f.u.focus();
       f.onsubmit = async e => {
         e.preventDefault();
-        const u = f.u.value.trim(), main = await sha('uopstaff-research|' + u + '|' + f.p.value) === GATE, ex = EX_USERS.includes(await sha('uopstaff-exams|' + u + '|' + f.p.value));
+        const u = f.u.value.trim(), eu = u.toLowerCase(), main = await sha('uopstaff-research|' + u + '|' + f.p.value) === GATE, exh = await sha('uopstaff-exams|' + eu + '|' + f.p.value), ex = EX_USERS.includes(exh);
         if (!main && !ex) { d.querySelector('.err').hidden = false; f.p.value = ''; f.p.focus(); return; }
-        try { (f.r.checked ? localStorage : sessionStorage).setItem(main ? 'rs-auth' : 'ex-auth', main ? GATE : await sha('uopstaff-exams|' + u + '|' + f.p.value)); } catch (e2) { /* session only */ }
+        try { (f.r.checked ? localStorage : sessionStorage).setItem(main ? 'rs-auth' : 'ex-auth', main ? GATE : exh); } catch (e2) { /* session only */ }
         d.remove(); document.documentElement.classList.remove('ex-locked'); res();
       };
     };
@@ -1022,8 +1022,8 @@
   function approve(what, info, then) {
     U.modal('<i class="bi bi-shield-lock-fill"></i> موافقة على ' + what, `<form id="ex-apf" autocomplete="on">
       <p class="mb-2">${info}</p>
-      <div class="row g-2"><div class="col-sm-6"><label class="form-label small mb-1">اسم المستخدم</label><input name="u" class="form-control" autocomplete="username" required></div>
-      <div class="col-sm-6"><label class="form-label small mb-1">كلمة المرور</label><input name="p" type="password" class="form-control" autocomplete="current-password" required></div></div>
+      <div class="row g-2"><div class="col-sm-6"><label class="form-label small mb-1">اسم المستخدم</label><input name="u" class="form-control" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" dir="ltr" required></div>
+      <div class="col-sm-6"><label class="form-label small mb-1">كلمة المرور</label><input name="p" type="password" class="form-control" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" dir="ltr" required></div></div>
       <div class="text-danger small mt-2" id="ex-aperr" hidden></div>
       <button class="btn btn-ex w-100 mt-3" type="submit"><i class="bi bi-check2-circle"></i> أوافق على ${what}</button></form>`);
     const f = document.getElementById('ex-apf'), err = document.getElementById('ex-aperr'); setTimeout(() => f.u.focus(), 300);
@@ -1080,8 +1080,8 @@
         <li>في <b>Permissions</b> اضغط <b>Add permissions</b> واختر <b>Actions</b>، واجعلها <b>Read and write</b>. (لا تختر غيرها.)</li>
         <li>اضغط <b>Generate token</b> ثم <b>Copy</b>، والصق المفتاح هنا:</li></ol>
       <input name="t" class="form-control mb-2" placeholder="github_pat_…" autocomplete="off" spellcheck="false" required>
-      <div class="row g-2"><div class="col-sm-6"><label class="form-label small mb-1">اسم المستخدم (نفس الدخول)</label><input name="u" class="form-control" autocomplete="username" required></div>
-      <div class="col-sm-6"><label class="form-label small mb-1">كلمة المرور (نفس الدخول)</label><input name="p" type="password" class="form-control" autocomplete="current-password" required></div></div>
+      <div class="row g-2"><div class="col-sm-6"><label class="form-label small mb-1">اسم المستخدم (نفس الدخول)</label><input name="u" class="form-control" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" dir="ltr" required></div>
+      <div class="col-sm-6"><label class="form-label small mb-1">كلمة المرور (نفس الدخول)</label><input name="p" type="password" class="form-control" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" dir="ltr" required></div></div>
       <div id="ex-sust" class="small mt-2" hidden></div>
       <button class="btn btn-ex w-100 mt-3" type="submit"><i class="bi bi-check2-circle"></i> حفظ الإعداد</button>
       <p class="small text-muted mt-2 mb-0"><i class="bi bi-shield-lock"></i> المفتاح يُحفظ على الموقع مشفّراً بكلمة المرور، ولا يُحفظ على هذا الجهاز. يستطيع فقط تشغيل النشر، ولا يعدّل أي ملف في الموقع.</p></form>`);
@@ -1196,7 +1196,7 @@
       ${row('bi-clock', 'الفترات', `${S.periods.length} فترات يومياً (${U.toMin(S.periods[0][1]) - U.toMin(S.periods[0][0])} دقيقة): ${S.periods.map((p, k) => `<span class="ex-sum-c">${k + 1}) <bdi dir="ltr">${p[0]}–${p[1]}</bdi></span>`).join(' ')}${S.firstStart || S.lastEnd ? ` · المسموح من <bdi dir="ltr">${S.firstStart || '—'}</bdi> إلى <bdi dir="ltr">${S.lastEnd || '—'}</bdi>` : ''}`, 3)}
       ${row('bi-rulers', 'القواعد', rules.join(' · '), 4)}
       ${row('bi-people', 'أعداد الطلبة', S.reg && S.src !== 'plans' ? esc(S.regInfo) : S.regN && S.src !== 'plans' ? esc(S.regInfo || 'من ملف مرفوع') : 'من الجدول الدراسي، والتعارض مقدّر من الخطط الدراسية', 5)}
-      ${row('bi-door-open', 'القاعات', `${on.length} ${on.some(r => r.t === LAB) && on.every(r => r.t === LAB) ? 'مختبراً' : 'قاعة'} · ${on.reduce((a, r) => a + r.c, 0)} مقعداً في الفترة<div class="ex-sum-b">${Object.entries(byB).map(([b, rs]) => `<div><b>${esc(b)}</b> (${rs.reduce((a, r) => a + r.c, 0)}): ${rs.map(r => `<span class="ex-sum-c">${esc(r.n)} <small>${r.c}</small></span>`).join(' ')}</div>`).join('')}</div>`, 6)}
+      ${row('bi-door-open', 'القاعات', `${on.length} ${on.some(r => r.t === LAB) && on.every(r => r.t === LAB) ? 'مختبراً' : 'قاعة'} · ${on.reduce((a, r) => a + r.c, 0)} مقعداً في الفترة${(L => on.length > 40 ? `<div class="ex-sum-b"><div>${Object.entries(byB).map(([b, rs]) => `<span class="ex-sum-c">${esc(b)} <small>${rs.length} · ${rs.reduce((a, r) => a + r.c, 0)} مقعداً</small></span>`).join(' ')}</div></div><details class="ex-sum-more"><summary>عرض القاعات (${on.length})</summary>${L}</details>` : L)(`<div class="ex-sum-b">${Object.entries(byB).map(([b, rs]) => `<div><b>${esc(b)}</b> (${rs.reduce((a, r) => a + r.c, 0)}): ${rs.map(r => `<span class="ex-sum-c">${esc(r.n)} <small>${r.c}</small></span>`).join(' ')}</div>`).join('')}</div>`)}`, 6)}
       ${row('bi-list-check', 'المقررات', `${Object.keys(base).length} مقرراً · ${C.length} امتحاناً · ${C.reduce((a, c) => a + c.students, 0).toLocaleString('en-US')} طالباً${Object.values(base).some(b => b.parts.length) ? `<div class="ex-sum-b"><div><b>مقسومة على أكثر من فترة:</b> ${Object.entries(base).filter(([, b]) => b.parts.length).map(([k, b]) => `<span class="ex-sum-c">${esc(k)} ${esc(b.name)} <small>${b.parts.map(c => c.students).join(' + ')}</small></span>`).join(' ')}</div></div>` : ''}`, 8)}
     </details>`;
   }
@@ -1214,6 +1214,14 @@
     <div class="ex-set">
     ${bx(1, 'bi-journal-bookmark-fill', '#901d23', 'الدورة', 'نوع الامتحانات والكليات المشمولة', `
       <div class="ex-types">${Object.entries(TYPES).map(([k, t]) => `<label class="ex-type${S.type === k ? ' on' : ''}"><input type="radio" name="ty" data-ty="${k}" ${S.type === k ? 'checked' : ''}><i class="bi ${{ final: 'bi-mortarboard-fill', mid1: 'bi-1-square-fill', midterm: 'bi-hourglass-split', mid2: 'bi-2-square-fill', makeup: 'bi-arrow-repeat' }[k]}"></i><b>${t.name}</b></label>`).join('')}</div>
+      <div class="ex-mk ex-list"><div class="h"><i class="bi bi-list-columns-reverse"></i> جدول لقائمة مواد من ملف (مثل متطلبات الجامعة)</div>
+        <p>نزّل النموذج، اكتب فيه موادك (صف لكل شعبة مع عدد طلبتها)، ثم ارفعه: تُنشأ <b>خطة جديدة</b> لهذه المواد فقط بأعداد الملف، ولا تتأثر خطتك الحالية (تبقى في قائمة الخطط).</p>
+        <div class="table-responsive"><table class="table table-sm ex-tplprev"><caption>شكل النموذج — <b>عينة غير حقيقية</b></caption><thead><tr>${TPL.list.cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead>
+          <tbody>${TPL.list.ex.map(r => `<tr>${r.map(v => `<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+        <div class="ex-acts"><button class="btn btn-outline-primary" data-tpl="list"><i class="bi bi-file-earmark-arrow-down"></i> تنزيل النموذج (Excel)</button>
+          <label class="btn btn-ex mb-0"><i class="bi bi-upload"></i> رفع الملف وإنشاء الخطة<input type="file" id="ex-list" accept=".xlsx,.xls,.csv" hidden></label>
+          ${S.only && S.only.length && S.regSec ? `<label class="ex-lmax">أقصى عدد طلبة في الفترة <input type="number" min="0" step="10" class="form-control form-control-sm" data-lmax value="${S.listMax || ''}" placeholder="بلا حد"></label>` : ''}</div>
+        ${S.only && S.only.length && S.regInfo ? `<div class="ex-rule ok mt-2"><i class="bi bi-check-circle-fill"></i> ${esc(S.regInfo)}${Object.keys(S.parts || {}).length ? ` · ${Object.keys(S.parts).length} مقررات مقسومة لتبقى كل فترة ضمن ${S.listMax || '—'} طالباً` : ''}</div>` : ''}</div>
       ${S.type === 'makeup' ? `<div class="ex-mk"><div class="h"><i class="bi bi-arrow-repeat"></i> قائمة طلبة الامتحان التكميلي</div>
         <p>الجدول التكميلي يُبنى من قائمة الطلبة الذين لهم إكمال فقط: صف لكل طالب في كل مقرر. نزّل النموذج، املأه، ثم ارفعه.</p>
         <div class="ex-acts"><button class="btn btn-outline-primary" data-tpl="mk"><i class="bi bi-file-earmark-arrow-down"></i> تنزيل النموذج (Excel)</button>
@@ -1307,7 +1315,7 @@
     const sum = [`${TYPES[S.type].name} · ${facLabel()}`, `${nDays(DAYS.length)} من ${DAYS[0] ? DAYS[0].label : '—'}`, `${nPer(P)} يومياً`, `حتى ${S.maxDay} امتحان/يوم`,
       S.reg && S.src !== 'plans' ? 'كشف التسجيل' : S.regN && S.src !== 'plans' ? 'أعداد من ملف' : 'الخطط الدراسية', `${on.length} قاعة · ${capTotal} مقعد`, (S.procMode === 'ratio' ? `طالب/مراقب: ${S.perProc}` : 'مراقب لكل قاعة'), `${C.length} من ${all.length} مقرراً`];
     const k = Math.min(parts.length - 1, Math.max(0, (S.setTab || 1) - 1)), [n, ic, color, ti, sub, bodyHtml] = parts[k];
-    return `${summaryBox()}<div class="ex-intro"><i class="bi bi-1-circle-fill"></i><div><b>الخطوة 1: الإعداد.</b> اختر قسماً من القائمة، أو تنقّل بزرّي «القسم التالي/السابق». الإعدادات كلها مقترحة مسبقاً ويمكن تركها كما هي، ثم اضغط <b>«التالي: التوليد والتعديل»</b>. كل تغيير يُحفظ تلقائياً.</div></div>
+    return `<div class="ex-intro"><i class="bi bi-1-circle-fill"></i><div><b>الخطوة 1: الإعداد.</b> اختر قسماً من القائمة، أو تنقّل بزرّي «القسم التالي/السابق». الإعدادات كلها مقترحة مسبقاً ويمكن تركها كما هي، ثم اضغط <b>«التالي: التوليد والتعديل»</b>. كل تغيير يُحفظ تلقائياً.</div></div>
       <div class="ex-setwrap"><nav class="ex-setnav" aria-label="أقسام الإعداد">${parts.map((p, x) => `<button class="ex-sn${x === k ? ' on' : ''}" data-st="${x + 1}" style="--a:${p[2]}"><span class="bn">${p[0]}</span><i class="bi ${p[1]}"></i><span class="tx"><b>${p[3]}</b><small>${esc(sum[x] || '')}</small></span></button>`).join('')}</nav>
       <div class="ex-setmain">${box(n, ic, color, ti, sub, bodyHtml, true)}
         <div class="ex-subnav">${k > 0 ? `<button class="btn btn-outline-secondary" data-st="${k}"><i class="bi bi-arrow-right"></i> ${parts[k - 1][3]}</button>` : '<span></span>'}
@@ -1455,7 +1463,14 @@
     mk: { file: 'نموذج_الامتحان_التكميلي.xlsx', cols: ['رقم الطالب', 'اسم الطالب', 'رمز المادة', 'اسم المادة', 'الشعبة', 'التخصص', 'ملاحظات'],
       ex: [['202310045', 'مثال: سارة خالد يوسف', '601281', 'قواعد البيانات (1)', '2', 'علم الحاسوب', 'غياب بعذر عن النهائي'], ['202210133', 'مثال: محمد سامي حسن', '601222', 'تراكيب البيانات والخوارزميات', '1', 'هندسة البرمجيات', '']],
       help: [['رقم الطالب', 'إجباري', 'الرقم الجامعي'], ['اسم الطالب', 'اختياري', 'يظهر في كشوف الحضور فقط، ولا يُحفظ'], ['رمز المادة', 'إجباري', 'المقرر الذي للطالب فيه امتحان تكميلي؛ صف لكل طالب ومقرر'],
-        ['اسم المادة', 'مُستحسن', 'يلزم إن لم يكن المقرر مطروحاً هذا الفصل'], ['الشعبة', 'اختياري', 'رقم الشعبة'], ['التخصص', 'اختياري', 'يظهر في كشوف الحضور'], ['ملاحظات', 'اختياري', 'مثل سبب التأجيل']] } };
+        ['اسم المادة', 'مُستحسن', 'يلزم إن لم يكن المقرر مطروحاً هذا الفصل'], ['الشعبة', 'اختياري', 'رقم الشعبة'], ['التخصص', 'اختياري', 'يظهر في كشوف الحضور'], ['ملاحظات', 'اختياري', 'مثل سبب التأجيل']] },
+    // a list of courses and sections with their numbers of students (e.g. the university requirements): the sample is not real
+    list: { file: 'نموذج_قائمة_مواد_متطلبات_الجامعة.xlsx', sheet: 'المواد', cols: ['التسلسل', 'رقم المادة', 'ش', 'اسم المادة', 'اسم المحاضر', 'عدد الطلبة'],
+      ex: [['1', '9900101', '1', 'مادة تجريبية أ (مثال)', 'د. مدرس أول (مثال)', '85'], ['2', '9900101', '2', 'مادة تجريبية أ (مثال)', 'د. مدرس ثانٍ (مثال)', '78'],
+        ['3', '9900202', '1', 'مادة تجريبية ب (مثال)', 'د. مدرس ثالث (مثال)', '90'], ['4', '9900303', '1', 'مادة تجريبية ج (مثال)', 'د. مدرس أول (مثال)', '42']],
+      help: [['التسلسل', 'اختياري', 'رقم الصف'], ['رقم المادة', 'إجباري', 'رمز المقرر كما في الجدول الدراسي، مثل 9400107'], ['ش', 'مُستحسن', 'رقم الشعبة؛ صف لكل شعبة'],
+        ['اسم المادة', 'اختياري', 'للتوضيح'], ['اسم المحاضر', 'اختياري', 'للتوضيح (المدرسون من الجدول الدراسي)'], ['عدد الطلبة', 'إجباري', 'عدد طلبة الشعبة؛ يحل محل عدد الجدول الدراسي']],
+      note: 'العينة غير حقيقية: احذف صفوف المثال واكتب موادك، صف لكل شعبة. لا تغيّر أسماء الأعمدة.' } };
   function downloadTemplate(k) {
     const t = TPL[k];
     loadXLSX().then(() => {
@@ -1463,13 +1478,53 @@
       ws['!cols'] = t.cols.map(c => ({ wch: /اسم/.test(c) ? 30 : 16 })); ws['!views'] = [{ RTL: true }];
       t.cols.forEach((c, j) => { const a = XLSX.utils.encode_cell({ r: 0, c: j }); ws[a].s = { font: { bold: true, color: { rgb: 'FFFFFF' } }, fill: { fgColor: { rgb: '901D23' } }, alignment: { horizontal: 'center' } }; });
       t.ex.forEach((r, i) => r.forEach((v, j) => { const a = XLSX.utils.encode_cell({ r: i + 1, c: j }); ws[a].s = { font: { color: { rgb: '8A8A8A' }, italic: true } }; ws[a].t = 's'; }));
-      XLSX.utils.book_append_sheet(wb, ws, 'الطلبة');
-      const h = XLSX.utils.aoa_to_sheet([['العمود', 'إجباري؟', 'الشرح']].concat(t.help).concat([[], ['احذف صفّي المثال واكتب بياناتك: صف لكل طالب في كل مقرر. لا تغيّر أسماء الأعمدة.']]));
+      XLSX.utils.book_append_sheet(wb, ws, t.sheet || 'الطلبة');
+      const h = XLSX.utils.aoa_to_sheet([['العمود', 'إجباري؟', 'الشرح']].concat(t.help).concat([[], [t.note || 'احذف صفّي المثال واكتب بياناتك: صف لكل طالب في كل مقرر. لا تغيّر أسماء الأعمدة.']]));
       h['!cols'] = [{ wch: 16 }, { wch: 10 }, { wch: 60 }]; h['!views'] = [{ RTL: true }];
       ['A1', 'B1', 'C1'].forEach(a => { h[a].s = { font: { bold: true, color: { rgb: 'FFFFFF' } }, fill: { fgColor: { rgb: '0B4A66' } } }; });
       XLSX.utils.book_append_sheet(wb, h, 'تعليمات');
       XLSX.writeFile(wb, t.file);
     }).catch(() => { U.download(t.file.replace('.xlsx', '.csv'), '﻿' + [t.cols].concat(t.ex).map(r => r.join(',')).join('\r\n'), 'text/csv;charset=utf-8'); });
+  }
+  // a course list (university requirements…): one row per section with its number of students → a new plan of those
+  // courses only, their numbers from the file, and a course larger than «أقصى عدد في الفترة» split by sections
+  function autoParts(regSec, codes, max) {
+    const out = {};
+    codes.forEach(code => { const secs = Object.entries(regSec[code] || {}).map(([s, n]) => ({ s, n })).sort((a, b) => b.n - a.n), tot = secs.reduce((a, x) => a + x.n, 0);
+      if (!max || tot <= max || secs.length < 2) return;
+      for (let k = Math.ceil(tot / max); k <= secs.length; k++) {
+        const P = Array.from({ length: k }, () => ({ n: 0, s: [] }));
+        secs.forEach(x => { const p = P.reduce((a, b) => b.n < a.n ? b : a); p.n += x.n; p.s.push(x.s); });
+        if (P.every(p => p.n <= max) || k === secs.length) { out[code] = P.map(p => p.s.sort((a, b) => +a - +b)); break; }
+      } });
+    return out;
+  }
+  function readList(file) {
+    file.arrayBuffer().then(buf => tableOf(file, buf)).then(rows => {
+      let H = null;
+      for (let i = 0; i < Math.min(15, rows.length) && !H; i++) {
+        const h = (rows[i] || []).map(v => String(v || '').replace(/\s+/g, ' ').trim()), f = re => h.findIndex(x => re.test(x));
+        const m = { row: i, code: f(/رقم المادة|رمز المادة|رقم المقرر|رمز المقرر/), sec: f(/^ش\.?$|الشعبة|^شعبة/), n: f(/عدد الطلبة|عدد الطلاب|المسجلين|^العدد$/), name: f(/اسم المادة|اسم المقرر/) };
+        if (m.code >= 0 && m.n >= 0) H = m;
+      }
+      if (!H) throw new Error('لم أجد عمودَي «رقم المادة» و«عدد الطلبة». استخدم النموذج.');
+      const regN = {}, regSec = {}, names = {};
+      rows.slice(H.row + 1).forEach(r => { const code = String(r[H.code] || '').replace(/\D/g, ''), n = parseInt(String(r[H.n] || '').replace(/[^\d]/g, ''), 10);
+        if (!code || !n) return; const sec = H.sec >= 0 ? String(r[H.sec] || '').replace(/\D/g, '') || '1' : '1';
+        (regSec[code] = regSec[code] || {})[sec] = (regSec[code][sec] || 0) + n; regN[code] = (regN[code] || 0) + n; if (H.name >= 0 && r[H.name]) names[code] = String(r[H.name]).trim(); });
+      const codes = Object.keys(regN);
+      if (!codes.length) throw new Error('لا توجد صفوف فيها رقم مادة وعدد طلبة.');
+      if (codes.every(c => /^99/.test(c))) throw new Error('هذه صفوف المثال من النموذج (غير حقيقية). اكتب موادك مكانها ثم ارفع الملف.');
+      const inTT = new Set(TT.sections.map(x => x.code)), miss = codes.filter(c => !inTT.has(c));
+      const secs = codes.reduce((a, c) => a + Object.keys(regSec[c]).length, 0), tot = codes.reduce((a, c) => a + regN[c], 0);
+      leaveCur(() => {
+        const o = fresh('midterm'); o.planId = 'p' + Date.now(); o.label = 'متطلبات الجامعة'; o.facs = []; o.faculty = ''; o.only = codes; o.regN = regN; o.regSec = regSec; o.src = 'both'; o.b2b = false;
+        o.listMax = 400; o.parts = autoParts(regSec, codes, o.listMax); o.drafts = [];
+        o.regInfo = `${file.name}: ${codes.length} مقرراً · ${secs} شعبة · ${tot.toLocaleString('en-US')} طالباً`;
+        S = o; migrate(); SWAPPED = true; tab = 'set'; S.setTab = 1; build(); render(); DIRTY = true; savebar();
+        alert(`أُنشئت خطة جديدة «متطلبات الجامعة» من ${codes.length} مقرراً (${secs} شعبة، ${tot.toLocaleString('en-US')} طالباً).${miss.length ? `\n\n${miss.length} مقرراً غير موجود في الجدول الدراسي ولن يظهر: ${miss.join('، ')}` : ''}\n\nراجع الأيام والفترات والقاعات في «الإعداد»، ثم اضغط «حفظ». خطتك السابقة محفوظة في قائمة الخطط.`);
+      });
+    }).catch(e => alert(e.message || 'تعذّر قراءة الملف.'));
   }
   // the make-up list: who sits which course; counts and student groups saved, names kept in this page only
   function readMk(file) {
@@ -1665,6 +1720,11 @@
       if (t.dataset.incl) { if (t.checked) delete S.excl[t.dataset.incl]; else S.excl[t.dataset.incl] = 1; rebuild(); return; }
       if (t.id === 'ex-reg' && t.files[0]) { readReg(t.files[0]); return; }
       if (t.id === 'ex-mk' && t.files[0]) { readMk(t.files[0]); t.value = ''; return; }
+      if (t.id === 'ex-list' && t.files[0]) { readList(t.files[0]); t.value = ''; return; }
+      if (t.hasAttribute && t.hasAttribute('data-lmax')) { const v = Math.max(0, parseInt(t.value, 10) || 0), old = JSON.stringify(S.parts || {});
+        S.listMax = v; S.parts = autoParts(S.regSec || {}, S.only || [], v);
+        if (JSON.stringify(S.parts) !== old) { Object.keys(S.slot).forEach(k => { if (k.includes('/') || S.parts[k]) delete S.slot[k]; }); Object.keys(S.pins).forEach(k => { if (k.includes('/') || S.parts[k]) delete S.pins[k]; }); }
+        rebuild(); return; }
       if (t.id === 'ex-reg2' && t.files[0]) { readReg(t.files[0]); t.value = ''; return; }
       if (t.id === 'ex-req' && t.files[0]) { readReq(t.files[0]); t.value = ''; return; }
       if (t.id === 'ex-import' && t.files[0]) { t.files[0].text().then(x => { const o = JSON.parse(x); if (!o.type || !o.periods) throw 0; S = o; migrate(); tab = 'grid'; SWAPPED = true; rebuild(); }).catch(() => alert('الملف ليس خطة امتحانات صالحة.')); }
@@ -1697,6 +1757,9 @@
   .ex-status { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .8rem; }
   .ex-pill { display: inline-flex; gap: .35rem; align-items: center; background: #eef3f6; color: #0b3a50; border-radius: 999px; padding: .28rem .75rem; font-size: .9rem; font-weight: 700; }
   .ex-pill.ok { background: #e4f5e9; color: #15803d; } .ex-pill.bad { background: #fde8e8; color: #b42318; }
+  .ex-list { border-color: #cfe3dc !important; } .ex-tplprev { font-size: .8rem; margin: .4rem 0; background: #fff; } .ex-tplprev caption { caption-side: top; font-size: .78rem; color: #6b777c; padding: 0 0 .2rem; }
+  .ex-tplprev th { background: #901d23 !important; color: #fff !important; white-space: nowrap; } .ex-tplprev td { color: #8a8a8a; font-style: italic; }
+  .ex-lmax { display: inline-flex; align-items: center; gap: .4rem; font-size: .85rem; font-weight: 700; } .ex-lmax input { width: 6.5rem; }
   .ex-pbar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; background: #fff; border: 1px solid #e3dccd; border-radius: 12px; padding: .45rem .7rem; margin-bottom: .75rem; }
   .ex-pbar > i { color: #0f766e; } .ex-pbar-l { font-size: .8rem; font-weight: 700; color: #5b6970; }
   .ex-pbar-cur { display: inline-flex; align-items: center; gap: .5rem; border: 1px solid #b9ddd0; background: #effaf5; color: #0d4f3a; } .ex-pbar-cur small { color: #4b6b60; font-weight: 600; }
@@ -1711,6 +1774,7 @@
   .ex-sum-r { display: grid; grid-template-columns: 1.3rem 7.5rem minmax(0, 1fr) auto; gap: .5rem; align-items: start; padding: .5rem 1rem; border-top: 1px dashed #e3ece8; font-size: .88rem; }
   .ex-sum-r:first-of-type { border-top: 0; } .ex-sum-r > i { color: #0f766e; margin-top: .15rem; } .ex-sum-r > b { color: #091b22; } .ex-sum-r .btn-link { padding: 0 .3rem; font-size: .8rem; }
   .ex-sum-c { display: inline-block; border: 1px solid #d9e6e1; background: #f7fbf9; border-radius: 6px; padding: 0 .4rem; margin: 1px 0; font-size: .8rem; white-space: nowrap; } .ex-sum-c small { color: #6b777c; }
+  .ex-sum-more summary { cursor: pointer; color: #0f766e; font-size: .8rem; font-weight: 700; margin-top: .25rem; }
   .ex-sum-b { margin-top: .25rem; display: flex; flex-direction: column; gap: .2rem; } .ex-sum-b b { font-size: .8rem; }
   @media (max-width: 767.98px) { .ex-sum-r { grid-template-columns: 1.3rem minmax(0, 1fr) auto; } .ex-sum-r > div { grid-column: 2 / -1; } }
   .ex-intro { display: flex; gap: .7rem; align-items: flex-start; background: linear-gradient(90deg, #fff6f6, #fff); border: 1px solid #f1c9cc; border-radius: 14px; padding: .8rem 1rem; margin-bottom: .9rem; font-size: 1rem; }
