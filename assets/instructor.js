@@ -423,7 +423,7 @@
     .ip-wkey { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin-top: .55rem; font-size: .72rem; color: #5b6970; }
     .ip-wkey span { display: inline-flex; align-items: center; gap: .3rem; }
     .ip-sw { display: inline-block; width: 18px; height: 11px; border-radius: 3px; border: 1px solid #901d23; background: #fbecec; } .ip-sw.f { border: 1px dashed #4fae6d; background: #e2f4e7; } .ip-sw.o { border: 1px dashed #15803d; background: #e7f6ec; }
-    .ip-side { display: flex; flex-direction: column; gap: .75rem; }
+    .ip-side .card { overflow: hidden; }
     .ip-side .card-header, .ip-secs .card-header { padding: .45rem .8rem; font-weight: 800; font-size: .9rem; }
     .ip-fr { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr); gap: .4rem; align-items: center; padding: .3rem 0; border-bottom: 1px dashed #ece6da; font-size: .8rem; }
     .ip-fr:last-child { border-bottom: 0; } .ip-fr > b { color: #091b22; }
@@ -544,6 +544,16 @@
     const cb = (k, l) => `<label class="ip-cb${P[k] ? ' on' : ''}"><input type="checkbox" data-ipc="${k}" ${P[k] ? 'checked' : ''}>${l}</label>`;
     const day = d => U.DAYS[d];
 
+    const secsTable = `<div class="table-responsive"><table class="table align-middle mb-0 tt-table ins-table">
+            <thead><tr><th>المقرر</th><th class="text-center">الشعبة</th><th>الأيام والوقت</th><th>القاعة</th><th>المسجلون</th></tr></thead>
+          <tbody>${groups.map(g => { const [c, bg] = W.color(g.s0.code); return g.list.map((s, i) => `<tr class="${i ? '' : 'ins-first'}" style="--cc:${c};--cbg:${bg}">
+            ${i ? '' : `<td class="ins-course" rowspan="${g.list.length}"><b dir="ltr">${esc(s.code)}</b> ${esc(s.name)}
+              <span class="tt-act ${s.activity === 'عملي' ? 'lab' : ''}">${esc(s.activity)}</span>${s.degree !== 'البكالوريوس' ? ` <span class="badge text-bg-warning">${esc(s.degree)}</span>` : ''}
+              ${otherDept(s) ? `<small>${esc(s.department)}</small>` : ''}</td>`}
+            <td class="text-center"><span class="tt-sec">${esc(s.section)}</span></td>
+            <td class="ins-when">${when(s)}</td>
+            <td class="ins-room">${s.room === '0' ? '<span class="tt-none">قاعة افتراضية (0)</span>' : `<a href="room.html?r=${encodeURIComponent(s.room)}" title="صفحة القاعة"><b>${esc(s.room)}</b> <i class="bi bi-door-open"></i></a> <small>${esc(s.building)}</small>`}</td>
+            <td>${seats(s)}</td></tr>`).join(''); }).join('')}</tbody></table></div>`;
     $('#ins-app').innerHTML = `
       <section class="card ip-hero mb-3"><div class="ip-hero-in">
         <div class="ip-id">${I.photo ? `<img class="ins-photo" src="${esc(I.photo)}" alt="">` : `<span class="ins-photo ins-ini">${esc(initials(I.name))}</span>`}
@@ -569,34 +579,22 @@
       <section class="card ip-wk mb-3"><div class="card-header">
         <h5><i class="bi bi-calendar-week"></i> الجدول الأسبوعي</h5>
         <div class="ip-tools no-print">
-          ${seg('v', [['mx', 'مصفوفة الأسبوع والفراغ', 'bi-distribute-horizontal'], ['cols', 'الأيام كأعمدة', 'bi-layout-three-columns'], ['grid', 'الشبكة الزمنية', 'bi-calendar3']])}
-          ${P.v !== 'grid' ? `<span class="ip-tl">الساعات</span>${seg('range', [['auto', 'تلقائي'], ['work', 'الدوام 08–16']])}` : ''}
-          ${P.v !== 'grid' ? `<span class="ip-tl">الخانة</span>${cb('name', 'اسم المقرر')}${cb('room', 'القاعة')}${P.v === 'mx' ? cb('time', 'الوقت') : ''}${cb('free', 'الفراغ')}` : ''}
+          ${seg('v', [['mx', 'مصفوفة الأسبوع والفراغ', 'bi-distribute-horizontal'], ['cols', 'الأيام كأعمدة', 'bi-layout-three-columns'], ['grid', 'الشبكة الزمنية', 'bi-calendar3'], ['secs', `الشعب (${W.secs.length})`, 'bi-list-ul']])}
+          ${P.v === 'mx' || P.v === 'cols' ? `<span class="ip-tl">الساعات</span>${seg('range', [['auto', 'تلقائي'], ['work', 'الدوام 08–16']])}` : ''}
+          ${P.v === 'mx' || P.v === 'cols' ? `<span class="ip-tl">الخانة</span>${cb('name', 'اسم المقرر')}${cb('room', 'القاعة')}${P.v === 'mx' ? cb('time', 'الوقت') : ''}${cb('free', 'الفراغ')}` : ''}
         </div></div>
         <div class="ip-legend">${W.courses.map(c => { const s = W.secs.find(x => x.code === c), [col, bg] = W.color(c);
           return `<span style="--cc:${col};--cbg:${bg}"><i></i><b dir="ltr">${esc(c)}</b> ${esc(s.name)} <em>(${perCourse(c)} طالباً)</em></span>`; }).join('')}</div>
-        <div class="card-body p-2 p-md-3" id="ip-week">${weekBody(W, P)}
+        ${P.v === 'secs' ? `<div class="ip-secs">${secsTable}</div>` : `<div class="card-body p-2 p-md-3" id="ip-week">${weekBody(W, P)}
           <div class="ip-wkey"><span><i class="ip-sw"></i> محاضرة (لون لكل مقرر)</span><span><i class="ip-sw o"></i> ساعة مكتبية</span>${P.free ? '<span><i class="ip-sw f"></i> فراغ لساعة أو أكثر (08:00–16:00)</span>' : ''}
             ${Object.entries(U.MODE).filter(([k]) => k !== 'غير متزامن').map(([k, v]) => `<span><i class="bi ${v.icon}"></i> ${k}</span>`).join('')}
-            ${W.asyncSecs.length ? `<span class="ms-auto"><i class="bi bi-info-circle"></i> ${W.asyncSecs.length} ${W.asyncSecs.length > 2 && W.asyncSecs.length < 11 ? 'شعب لها' : 'شعبة لها'} لقاءات غير متزامنة لا تظهر في الجدول</span>` : ''}</div></div></section>
+            ${W.asyncSecs.length ? `<span class="ms-auto"><i class="bi bi-info-circle"></i> ${W.asyncSecs.length} ${W.asyncSecs.length > 2 && W.asyncSecs.length < 11 ? 'شعب لها' : 'شعبة لها'} لقاءات غير متزامنة لا تظهر في الجدول</span>` : ''}</div></div>`}</section>
 
-      <div class="row g-3 mb-3">
-        <div class="col-xl-8"><section class="card ip-secs h-100"><div class="card-header"><i class="bi bi-list-ul"></i> الشعب <small class="text-muted fw-normal">${W.secs.length} شعبة في ${W.courses.length} مقرر</small></div>
-          <div class="table-responsive"><table class="table align-middle mb-0 tt-table ins-table">
-            <thead><tr><th>المقرر</th><th class="text-center">الشعبة</th><th>الأيام والوقت</th><th>القاعة</th><th>المسجلون</th></tr></thead>
-          <tbody>${groups.map(g => { const [c, bg] = W.color(g.s0.code); return g.list.map((s, i) => `<tr class="${i ? '' : 'ins-first'}" style="--cc:${c};--cbg:${bg}">
-            ${i ? '' : `<td class="ins-course" rowspan="${g.list.length}"><b dir="ltr">${esc(s.code)}</b> ${esc(s.name)}
-              <span class="tt-act ${s.activity === 'عملي' ? 'lab' : ''}">${esc(s.activity)}</span>${s.degree !== 'البكالوريوس' ? ` <span class="badge text-bg-warning">${esc(s.degree)}</span>` : ''}
-              ${otherDept(s) ? `<small>${esc(s.department)}</small>` : ''}</td>`}
-            <td class="text-center"><span class="tt-sec">${esc(s.section)}</span></td>
-            <td class="ins-when">${when(s)}</td>
-            <td class="ins-room">${s.room === '0' ? '<span class="tt-none">قاعة افتراضية (0)</span>' : `<a href="room.html?r=${encodeURIComponent(s.room)}" title="صفحة القاعة"><b>${esc(s.room)}</b> <i class="bi bi-door-open"></i></a> <small>${esc(s.building)}</small>`}</td>
-            <td>${seats(s)}</td></tr>`).join(''); }).join('')}</tbody></table></div></section></div>
-        <div class="col-xl-4 ip-side">
-          <section class="card ins-oh" id="ins-oh">${ohCard(I, W)}</section>
-          <section class="card"><div class="card-header"><i class="bi bi-hourglass-split"></i> أوقات الفراغ <small class="text-muted fw-normal">08:00–16:00 · ساعة فأكثر</small></div>
-            <div class="card-body py-1 px-3">${F.freeBy.map(([d, rs]) => `<div class="ip-fr"><b>${esc(day(d))}</b><span>${rs.length ? rs.map(r => `<em dir="ltr">${toTime(r[0])}–${toTime(r[1])}</em>`).join('') : '<span class="none">لا فراغ لساعة</span>'}</span></div>`).join('')}</div></section>
-          <section class="card"><div class="card-header"><i class="bi bi-info-square"></i> معلومات مفيدة</div>
+      <div class="row g-3 mb-3 ip-side">
+        <div class="col-lg-4"><section class="card ins-oh h-100" id="ins-oh">${ohCard(I, W)}</section></div>
+        <div class="col-lg-4"><section class="card h-100"><div class="card-header"><i class="bi bi-hourglass-split"></i> أوقات الفراغ <small class="text-muted fw-normal">08:00–16:00 · ساعة فأكثر</small></div>
+            <div class="card-body py-1 px-3">${F.freeBy.map(([d, rs]) => `<div class="ip-fr"><b>${esc(day(d))}</b><span>${rs.length ? rs.map(r => `<em dir="ltr">${toTime(r[0])}–${toTime(r[1])}</em>`).join('') : '<span class="none">لا فراغ لساعة</span>'}</span></div>`).join('')}</div></section></div>
+        <div class="col-lg-4"><section class="card h-100"><div class="card-header"><i class="bi bi-info-square"></i> معلومات مفيدة</div>
             <div class="card-body py-2 px-3"><dl class="ip-facts">
               ${F.campus.length ? `<dt>أيام الحضور</dt><dd>${F.campus.length ? U.WEEK.filter(d => F.campus.includes(d)).map(day).join('، ') : '—'}</dd>` : ''}
               ${F.busiest && F.busiest[1] ? `<dt>أكثر الأيام</dt><dd>${esc(day(F.busiest[0]))} · ${hrs(F.busiest[1])} ساعة</dd>` : ''}
@@ -604,8 +602,7 @@
               <dt>نمط التدريس</dt><dd>${Object.entries(F.modes).map(([m, n]) => `${esc(m)} (${n})`).join('، ') || '—'}</dd>
               ${F.rooms.length ? `<dt>القاعات</dt><dd>${F.rooms.map(r => `<a href="room.html?r=${encodeURIComponent(r)}">${esc(r)}</a>`).join('، ')}</dd>` : ''}
               <dt>نسبة الامتلاء</dt><dd>${W.students} من ${F.cap} مقعداً (${F.fill}%)<div class="ip-meter"><i style="width:${Math.min(100, F.fill)}%"></i></div></dd>
-            </dl></div></section>
-        </div>
+            </dl></div></section></div>
       </div>`;
 
     const sub = $('#i-sub');
