@@ -672,23 +672,25 @@
         <td class="tot">${mine.length}</td></tr>`; }).join('')}</tbody></table></div>`;
   }
   function checkView(st) {
-    const k = (n, t, ic, good) => `<div class="ex-kpi ${n ? (good ? 'warn' : 'bad') : 'ok'}"><i class="bi ${ic}"></i><b>${n}</b><span>${t}</span></div>`;
+    // one row of compact indicators (red = must fix, amber = to review, green = fine)
+    const k = (n, t, ic, soft) => `<div class="ex-qk ${n ? (soft ? 'warn' : 'bad') : 'ok'}" title="${esc(t)}"><i class="bi ${ic}"></i><b>${n}</b><span>${t}</span></div>`;
     const loads = Object.values(st.seat.load).filter(Boolean), mx = Math.max(0, ...loads), mn = loads.length ? Math.min(...loads) : 0;
-        return `<div class="ex-kpis">${k(st.clash, 'تعارض إلزامي', 'bi-x-octagon')}${k(st.unseated, 'طالب بلا مقعد', 'bi-door-closed')}${k(st.ins, 'تعارض مدرّس', 'bi-person-x', 1)}
+    const need = C.reduce((x, c) => x + c.students, 0), have = CAP.reduce((x, n) => x + n, 0), full = NS * capTotal;
+    const tips = [
+      st.unseated ? `<li><i class="bi bi-door-closed"></i> <span>المقاعد في كل الفترات <b>${have.toLocaleString('en-US')}</b>${S.busy && have < full ? ` (من ${full.toLocaleString('en-US')} لولا المحاضرات القائمة)` : ''} مقابل <b>${need.toLocaleString('en-US')}</b> مطلوباً: زد الأيام أو الفترات، أو أضف قاعات أو ارفع سعتها${S.busy ? '، أو ألغِ «مراعاة المحاضرات القائمة» إن كانت المحاضرات معلّقة' : ''}.</span></li>` : '',
+      st.short ? '<li><i class="bi bi-person-dash"></i> <span>لنقص المراقبين: أضف مراقبين إضافيين في «الإعداد ← المراقبون» أو ارفع حد المراقبات اليومي.</span></li>' : '',
+      S.src === 'plans' || !S.reg ? '<li><i class="bi bi-info-circle"></i> <span>تعارض الطلبة مقدّر من الخطط الدراسية (التخصص × السنة)؛ لنتيجة دقيقة لكل طالب ارفع كشف التسجيل من «الإعداد».</span></li>' : ''].filter(Boolean);
+    return `<div class="ex-qrow">${k(st.clash, 'تعارض إلزامي', 'bi-x-octagon')}${k(st.unseated, 'طالب بلا مقعد', 'bi-door-closed')}${k(st.ins, 'تعارض مدرّس', 'bi-person-x', 1)}
       ${k(st.day, `يوم بأكثر من ${S.maxDay} امتحان`, 'bi-calendar-x', 1)}${k(st.b2b, 'امتحانان متتاليان', 'bi-arrow-left-right', 1)}${k(st.soft, 'تعارض محتمل', 'bi-question-circle', 1)}
-      ${k(st.short, 'نقص مراقبين', 'bi-person-dash', 1)}<div class="ex-kpi info"><i class="bi bi-person-badge"></i><b>${mn}–${mx}</b><span>مراقبات لكل مدرّس</span></div>
-      ${st.reg ? `<div class="ex-kpi ${st.stuClash ? 'bad' : 'ok'}"><i class="bi bi-people"></i><b>${st.stuClash}</b><span>طالب لديه تعارض (من الكشف)</span></div><div class="ex-kpi ${st.stuDay ? 'warn' : 'ok'}"><i class="bi bi-people"></i><b>${st.stuDay}</b><span>طالب بأكثر من ${S.maxDay} في اليوم</span></div>` : ''}</div>
-      ${st.unseated || st.short ? (() => { const need = C.reduce((x, c) => x + c.students, 0), have = CAP.reduce((x, n) => x + n, 0), full = NS * capTotal;
-        return `<div class="alert alert-warning small"><i class="bi bi-lightbulb"></i> المقاعد المتاحة في كل الفترات: <b>${have}</b>${S.busy && have < full ? ` (من ${full} لولا المحاضرات القائمة)` : ''} مقابل <b>${need}</b> مقعداً مطلوباً.
-          للحل: زد عدد الأيام أو الفترات، أو أضف قاعات أو ارفع سعتها${S.busy ? '، أو ألغِ «مراعاة المحاضرات القائمة» إن كانت المحاضرات معلّقة في أسبوع الامتحانات' : ''}${st.short ? '؛ ولنقص المراقبين: أضف مراقبين إضافيين أو ارفع حد المراقبات اليومي' : ''}.</div>`; })() : ''}
-      ${S.src === 'plans' || !S.reg ? '<div class="alert alert-info small"><i class="bi bi-info-circle"></i> التعارضات هنا مقدّرة من الخطط الدراسية (التخصص × السنة). لنتيجة دقيقة لكل طالب ارفع كشف التسجيل من «الإعداد».</div>' : ''}
+      ${k(st.short, 'نقص مراقبين', 'bi-person-dash', 1)}<div class="ex-qk info" title="مراقبات لكل مدرّس"><i class="bi bi-person-badge"></i><b>${mn}–${mx}</b><span>مراقبات لكل مدرّس</span></div>
+      ${st.reg ? `${k(st.stuClash, 'طالب لديه تعارض', 'bi-people')}${k(st.stuDay, `طالب بأكثر من ${S.maxDay} في اليوم`, 'bi-people', 1)}` : ''}</div>
+      ${tips.length ? `<ul class="ex-qtips">${tips.join('')}</ul>` : ''}
       ${(() => { const rep = report(st); if (!rep.length) return ''; repCache = rep;
         const types = [...new Set(rep.map(r => r.k))], f = repFilter && types.includes(repFilter) ? repFilter : '';
         const list = rep.filter(r => !f || r.k === f);
-        return `<div class="ex-rephead"><h6 class="ex-h m-0"><i class="bi bi-list-ul"></i> تقرير التعارضات والملاحظات <span class="ex-n ${st.clash ? 'bad' : ''}">${rep.length}</span></h6>
-          <span><button class="btn btn-sm btn-outline-secondary" id="ex-rprint"><i class="bi bi-printer"></i> طباعة التقرير</button> <button class="btn btn-sm btn-outline-secondary" id="ex-rxlsx"><i class="bi bi-file-earmark-excel"></i> Excel</button>
-          ${rep.some(r => r.fix) ? '<button class="btn btn-sm btn-ex" id="ex-fixall"><i class="bi bi-magic"></i> طبّق كل الحلول</button>' : ''}</span></div>
-          <div class="ex-filters"><button class="ex-vbtn${f ? '' : ' on'}" data-rf="">الكل (${rep.length})</button>${types.map(k => `<button class="ex-vbtn${f === k ? ' on' : ''}" data-rf="${k}"><i class="bi ${KIND[k][2]}"></i> ${KIND[k][1]} (${rep.filter(r => r.k === k).length})</button>`).join('')}</div>
+        return `<section class="ex-qrep"><div class="ex-rephead"><h6 class="m-0"><i class="bi bi-list-check"></i> الملاحظات <span class="ex-n ${st.clash ? 'bad' : ''}">${rep.length}</span></h6>
+          <div class="ex-rtabs" role="tablist"><button class="${f ? '' : 'on'}" data-rf="">الكل <em>${rep.length}</em></button>${types.map(k => `<button class="${f === k ? 'on' : ''}" data-rf="${k}"><i class="bi ${KIND[k][2]}"></i> ${KIND[k][1]} <em>${rep.filter(r => r.k === k).length}</em></button>`).join('')}</div>
+          <span class="ex-racts">${rep.some(r => r.fix) ? '<button class="btn btn-sm btn-ex" id="ex-fixall"><i class="bi bi-magic"></i> طبّق كل الحلول</button>' : ''}<button class="btn btn-sm btn-outline-secondary" id="ex-rprint" title="طباعة التقرير"><i class="bi bi-printer"></i></button><button class="btn btn-sm btn-outline-secondary" id="ex-rxlsx" title="Excel"><i class="bi bi-file-earmark-excel"></i></button></span></div>
           <div class="ex-rep">${list.map((r, k) => `<article class="ex-ri sev${SEV[r.sev]}">
             <header><span class="sev">${r.sev}</span><b><i class="bi ${KIND[r.k][2]}"></i> ${KIND[r.k][1]}</b><span class="when"><i class="bi bi-clock"></i> ${esc(r.when)}</span>
               ${r.k !== 'ins' && r.n ? `<span class="aff"><i class="bi bi-people-fill"></i> ${r.exact ? r.n : 'حتى ' + r.n} طالب${r.exact ? '' : ' (تقدير)'}</span>` : ''}</header>
@@ -696,7 +698,7 @@
             ${r.who.length ? `<div class="who"><i class="bi bi-diagram-3"></i> ${r.who.map(esc).join(' · ')}</div>` : ''}
             <p class="why">${esc(r.why)}</p>
             <footer>${r.fix ? `<span class="fix"><i class="bi bi-lightbulb-fill"></i> الحل المقترح: ${esc(fixTxt(r.fix))}</span><button class="btn btn-sm btn-ex" data-fix="${r.fix.i},${r.fix.s}">تطبيق</button>` : `<span class="fix muted">${r.k === 'short' ? 'أضف مراقبين أو ارفع حد المراقبات اليومي' : 'لا يوجد نقل يحسّن الوضع؛ زد الأيام أو الفترات أو القاعات'}</span>`}
-              <button class="btn btn-sm btn-link" data-go="${r.cs[0]}">عرض في الجدول</button></footer></article>`).join('')}</div>`; })()}
+              <button class="btn btn-sm btn-link" data-go="${r.cs[0]}">عرض في الجدول</button></footer></article>`).join('')}</div></section>`; })()}
       ${!st.is.length && !st.unseated ? '<div class="ex-empty"><i class="bi bi-patch-check-fill"></i> الجدول نظيف: لا تعارض ولا ضغط زائد ولا نقص مقاعد.</div>' : ''}`;
   }
   // ---------- outputs ----------
@@ -1760,6 +1762,28 @@
   .ex-list { border-color: #cfe3dc !important; } .ex-tplprev { font-size: .8rem; margin: .4rem 0; background: #fff; } .ex-tplprev caption { caption-side: top; font-size: .78rem; color: #6b777c; padding: 0 0 .2rem; }
   .ex-tplprev th { background: #901d23 !important; color: #fff !important; white-space: nowrap; } .ex-tplprev td { color: #8a8a8a; font-style: italic; }
   .ex-lmax { display: inline-flex; align-items: center; gap: .4rem; font-size: .85rem; font-weight: 700; } .ex-lmax input { width: 6.5rem; }
+  .ex-qrow { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: .4rem; margin-bottom: .6rem; }
+  .ex-qk { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: .45rem; align-items: center; background: #fff; border: 1px solid #e3e8eb; border-top: 3px solid #16a34a; border-radius: 10px; padding: .4rem .55rem; min-width: 0; }
+  .ex-qk i { grid-row: span 2; font-size: 1.15rem; color: #16a34a; } .ex-qk b { font-size: 1.15rem; line-height: 1.15; color: #0d4f25; font-variant-numeric: tabular-nums; }
+  .ex-qk span { font-size: .72rem; color: #4b5a62; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ex-qk.warn { border-top-color: #d97706; } .ex-qk.warn i, .ex-qk.warn b { color: #b45309; } .ex-qk.bad { border-top-color: #b42318; background: #fff8f7; } .ex-qk.bad i, .ex-qk.bad b { color: #b42318; }
+  .ex-qk.info { border-top-color: #0b4a66; } .ex-qk.info i, .ex-qk.info b { color: #0b4a66; }
+  .ex-qtips { list-style: none; margin: 0 0 .8rem; padding: .45rem .8rem; background: #fbf9f5; border: 1px solid #ece6da; border-radius: 10px; display: grid; gap: .2rem; font-size: .82rem; color: #3c474c; }
+  .ex-qtips li { display: flex; gap: .45rem; align-items: baseline; } .ex-qtips i { color: #901d23; }
+  .ex-qrep { background: #fff; border: 1px solid #e3dccd; border-radius: 12px; padding: .6rem .7rem; }
+  .ex-qrep .ex-rephead { margin: 0 0 .6rem; padding-bottom: .5rem; border-bottom: 1px solid #ece6da; justify-content: flex-start; }
+  .ex-qrep .ex-rephead h6 { font-weight: 800; color: #091b22; font-size: .98rem; white-space: nowrap; }
+  .ex-rtabs { display: inline-flex; flex-wrap: wrap; border: 1px solid #d5cdbd; border-radius: 8px; overflow: hidden; background: #fff; }
+  .ex-rtabs button { border: 0; background: none; padding: .28rem .7rem; font-size: .8rem; font-weight: 700; color: #3c474c; white-space: nowrap; }
+  .ex-rtabs button + button { border-inline-start: 1px solid #e2d9c8; } .ex-rtabs button.on { background: #fbf0f0; color: #7a1a1f; box-shadow: inset 0 -2px 0 #901d23; }
+  .ex-rtabs em { font-style: normal; font-size: .72rem; background: #f1ede4; border-radius: 999px; padding: 0 .4rem; margin-inline-start: .15rem; } .ex-rtabs button.on em { background: #901d23; color: #fff; }
+  .ex-racts { margin-inline-start: auto; display: inline-flex; gap: .3rem; }
+  @media (max-width: 767.98px) { .ex-qrow { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ex-racts { margin-inline-start: 0; } }
+  .ex-qrep .ex-rep { gap: .45rem; } .ex-qrep .ex-ri { padding: .5rem .7rem; border-radius: 10px; border-inline-start-width: 4px; }
+  .ex-qrep .ex-ri header { font-size: .88rem; gap: .25rem .7rem; } .ex-qrep .ex-ri .when, .ex-qrep .ex-ri .aff { font-size: .8rem; } .ex-qrep .ex-ri .sev { font-size: .7rem; }
+  .ex-qrep .ex-ri .cs { margin: .3rem 0; } .ex-qrep .ex-ri .cs li { font-size: .84rem; } .ex-qrep .ex-ri .cs small { font-size: .76rem; }
+  .ex-qrep .ex-ri .why { font-size: .82rem; margin: .2rem 0; } .ex-qrep .ex-ri .who { font-size: .8rem; }
+  .ex-qrep .ex-ri footer { padding-top: .3rem; } .ex-qrep .ex-ri .fix { font-size: .82rem; }
   .ex-pbar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; background: #fff; border: 1px solid #e3dccd; border-radius: 12px; padding: .45rem .7rem; margin-bottom: .75rem; }
   .ex-pbar > i { color: #0f766e; } .ex-pbar-l { font-size: .8rem; font-weight: 700; color: #5b6970; }
   .ex-pbar-cur { display: inline-flex; align-items: center; gap: .5rem; border: 1px solid #b9ddd0; background: #effaf5; color: #0d4f3a; } .ex-pbar-cur small { color: #4b6b60; font-weight: 600; }
