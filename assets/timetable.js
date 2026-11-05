@@ -1312,10 +1312,10 @@
       </div></form>`;
     const chips = active.map(k => `<a href="#" data-clear="${k}" class="badge rounded-pill text-bg-light border text-decoration-none filter-chip">${k === 'seats' ? 'مقاعد متاحة' : F.find(f => f[0] === k)[1] + ': ' + esc(label(k, st[k]))} <i class="bi bi-x-circle-fill"></i></a>`).join(' ');
     const views = [['dash', 'bi-speedometer', 'لوحة المؤشرات'], ['table', 'bi-table', 'جدول'], ['cards', 'bi-grid-3x2-gap-fill', 'بطاقات'], ['courses', 'bi-journal-bookmark', 'حسب المقرر'], ['grid', 'bi-calendar-week', 'مصفوفة أسبوعية'], ['inst', 'bi-person-lines-fill', 'جدول المدرسين'], ['college', 'bi-building', 'جدول الكلية'], ['free', 'bi-hourglass-split', 'أوقات الفراغ'], ['mx', 'bi-grid-3x3', 'مصفوفات جاهزة']];
-    $('#tt-toolbar').innerHTML = `<div class="card mb-3 no-print"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center">
+    $('#tt-toolbar').innerHTML = `<div class="card mb-3 no-print"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center tt-tbar">
       <button type="button" class="btn btn-sm btn-outline-primary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#fpanel" aria-controls="fpanel"><i class="bi bi-funnel-fill"></i> التصفية${active.length ? ` <span class="badge text-bg-primary">${active.length}</span>` : ''}</button>
-      <button type="button" class="btn btn-sm btn-outline-secondary d-none d-lg-inline-flex align-items-center gap-1 tt-widebtn" data-wide title="${WIDE ? 'إظهار لوحة التصفية' : 'إخفاء لوحة التصفية لتوسيع الجدول'}"><i class="bi ${WIDE ? 'bi-layout-sidebar-inset-reverse' : 'bi-arrows-angle-expand'}"></i> ${WIDE ? `إظهار التصفية${active.length ? ` <span class="badge text-bg-secondary">${active.length}</span>` : ''}` : 'توسيع العرض'}</button>
-      <b class="me-1">${list.length} شعبة</b> ${chips}
+      <button type="button" class="btn btn-sm btn-outline-secondary d-none d-lg-inline-flex align-items-center gap-1 tt-widebtn" data-wide title="${WIDE ? 'إظهار لوحة التصفية' : 'إخفاء لوحة التصفية لتوسيع الجدول'}" aria-label="${WIDE ? 'إظهار لوحة التصفية' : 'توسيع العرض'}"><i class="bi ${WIDE ? 'bi-funnel' : 'bi-arrows-angle-expand'}"></i>${WIDE && active.length ? ` <span class="badge text-bg-secondary">${active.length}</span>` : ''}</button>
+      <b class="text-nowrap">${list.length} شعبة</b><span class="tt-chips">${chips}</span>
       ${st.inst && (st.fac || st.dept) ? '<span class="small text-muted w-100"><i class="bi bi-info-circle"></i> تُعرض كل شعب المدرس، بما فيها شعبه خارج الكلية أو القسم المختار.</span>' : ''}
       <div class="ms-auto d-flex flex-wrap gap-2">
         ${['grid', 'free', 'mx', 'dash', 'inst', 'college'].includes(st.view) ? '' : `<select class="form-select form-select-sm w-auto" id="tt-sort">${[['code', 'رمز المقرر'], ['name', 'اسم المقرر'], ['time', 'اليوم والوقت'], ['inst', 'المدرس'], ['room', 'القاعة'], ['seats', 'المقاعد المتاحة'], ['fill', 'نسبة الامتلاء']].map(([k, t]) =>
@@ -1583,6 +1583,10 @@
   const FC_CSS = `
     .fc-wrap { max-height: 78vh; overflow: auto; }
     @media (min-width: 992px) { #tt-layout.tt-wide > aside { display: none; } #tt-layout.tt-wide > section { flex: 0 0 100%; width: 100%; max-width: 100%; } }
+    .tt-tbar .btn-group .btn { padding: .25rem .55rem; font-size: .8rem; white-space: nowrap; } .tt-tbar .dropdown > .btn { white-space: nowrap; }
+    .tt-chips { display: inline-flex; gap: .3rem; min-width: 0; overflow: hidden; }
+    @media (min-width: 1200px) { .tt-tbar { flex-wrap: nowrap !important; } .tt-tbar > .ms-auto { flex: none; flex-wrap: nowrap !important; } .tt-tbar .btn-group { flex-wrap: nowrap !important; } .tt-chips { flex: 1 1 auto; } .tt-chips .filter-chip { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; } }
+    @media (min-width: 1200px) and (max-width: 1599px) { .tt-tbar .btn-group .btn { padding: .25rem .4rem; font-size: .76rem; } .tt-tbar .btn-group .btn i { display: none; } }
     .tt-widebtn.btn-outline-secondary, .fc-widebtn { border-color: #d5cdbd; color: #3c474c; } .tt-widebtn:hover, .fc-widebtn:hover { background: #fbf0f0; color: #7a1a1f; border-color: #c98f92; }
     .fc-find { width: 15rem; }
     .fc-table { font-size: .78rem; border-collapse: separate; border-spacing: 0; margin: 0; }
@@ -1606,7 +1610,7 @@
     .fc-card { overflow: hidden; }
     .fc-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem 1rem; padding: .5rem .8rem; }
     .fc-h1 { display: flex; align-items: center; gap: .55rem; min-width: 0; } .fc-h1 > div { min-width: 0; } .fc-h1 h2 { margin: 0; font-size: 1.05rem; font-weight: 800; color: #091b22; line-height: 1.2; }
-    .fc-h1 small { display: block; color: #6b777c; font-size: .74rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .fc-h1 small b { color: #091b22; }
+    .fc-h1 small { display: block; color: #6b777c; font-size: .74rem; } .fc-h1 small b { color: #091b22; }
     .fc-note { color: #901d23; cursor: help; font-size: .85rem; }
     .fc-ico { flex: none; width: 2rem; height: 2rem; border-radius: 9px; display: grid; place-items: center; background: #901d23; color: #fff; font-size: 1rem; }
     .fc-tools { flex: none; display: flex; align-items: center; gap: .4rem; } .fc-card .fc-find { width: 12rem; }
