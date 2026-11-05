@@ -36,7 +36,7 @@
   function readState() {
     const p = new URLSearchParams(location.search);
     const st = { q: p.get('q') || '', view: p.get('view') || 'table', sort: p.get('sort') || 'code', page: +(p.get('page') || 1),
-      rows: p.get('rows') || 'time', seats: p.get('seats') || '', names: p.get('names') || '', cell: p.get('cell') || '',
+      rows: p.get('rows') || 'time', seats: p.get('seats') || '', names: p.get('names') || '', cell: p.get('cell') || '', ccell: p.get('ccell') || '',
       // free-time view: chosen instructors, working window, Saturday, asynchronous meetings
       ppl: p.has('ppl') ? p.get('ppl').split('|').filter(Boolean) : null, ftab: p.get('ftab') || 'best', from: p.get('from') || '08:00', to: p.get('to') || '16:00',
       sat: p.get('sat') || '', async: p.get('async') || '',
@@ -52,6 +52,7 @@
     if (st.rows !== 'time') p.set('rows', st.rows);
     if (st.names) p.set('names', st.names);
     if (st.cell) p.set('cell', st.cell);
+    if (st.ccell) p.set('ccell', st.ccell);
     if (st.page > 1) p.set('page', st.page);
     if (st.ppl) p.set('ppl', st.ppl.join('|'));
     if (st.ftab !== 'best') p.set('ftab', st.ftab);
@@ -1306,13 +1307,13 @@
         ${instSelect(st)}
       </div></form>`;
     const chips = active.map(k => `<a href="#" data-clear="${k}" class="badge rounded-pill text-bg-light border text-decoration-none filter-chip">${k === 'seats' ? 'مقاعد متاحة' : F.find(f => f[0] === k)[1] + ': ' + esc(label(k, st[k]))} <i class="bi bi-x-circle-fill"></i></a>`).join(' ');
-    const views = [['dash', 'bi-speedometer', 'لوحة المؤشرات'], ['table', 'bi-table', 'جدول'], ['cards', 'bi-grid-3x2-gap-fill', 'بطاقات'], ['courses', 'bi-journal-bookmark', 'حسب المقرر'], ['grid', 'bi-calendar-week', 'مصفوفة أسبوعية'], ['inst', 'bi-person-lines-fill', 'جدول المدرسين'], ['free', 'bi-hourglass-split', 'أوقات الفراغ'], ['mx', 'bi-grid-3x3', 'مصفوفات جاهزة']];
+    const views = [['dash', 'bi-speedometer', 'لوحة المؤشرات'], ['table', 'bi-table', 'جدول'], ['cards', 'bi-grid-3x2-gap-fill', 'بطاقات'], ['courses', 'bi-journal-bookmark', 'حسب المقرر'], ['grid', 'bi-calendar-week', 'مصفوفة أسبوعية'], ['inst', 'bi-person-lines-fill', 'جدول المدرسين'], ['college', 'bi-building', 'جدول الكلية'], ['free', 'bi-hourglass-split', 'أوقات الفراغ'], ['mx', 'bi-grid-3x3', 'مصفوفات جاهزة']];
     $('#tt-toolbar').innerHTML = `<div class="card mb-3 no-print"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center">
       <button type="button" class="btn btn-sm btn-outline-primary d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#fpanel" aria-controls="fpanel"><i class="bi bi-funnel-fill"></i> التصفية${active.length ? ` <span class="badge text-bg-primary">${active.length}</span>` : ''}</button>
       <b class="me-1">${list.length} شعبة</b> ${chips}
       ${st.inst && (st.fac || st.dept) ? '<span class="small text-muted w-100"><i class="bi bi-info-circle"></i> تُعرض كل شعب المدرس، بما فيها شعبه خارج الكلية أو القسم المختار.</span>' : ''}
       <div class="ms-auto d-flex flex-wrap gap-2">
-        ${['grid', 'free', 'mx', 'dash', 'inst'].includes(st.view) ? '' : `<select class="form-select form-select-sm w-auto" id="tt-sort">${[['code', 'رمز المقرر'], ['name', 'اسم المقرر'], ['time', 'اليوم والوقت'], ['inst', 'المدرس'], ['room', 'القاعة'], ['seats', 'المقاعد المتاحة'], ['fill', 'نسبة الامتلاء']].map(([k, t]) =>
+        ${['grid', 'free', 'mx', 'dash', 'inst', 'college'].includes(st.view) ? '' : `<select class="form-select form-select-sm w-auto" id="tt-sort">${[['code', 'رمز المقرر'], ['name', 'اسم المقرر'], ['time', 'اليوم والوقت'], ['inst', 'المدرس'], ['room', 'القاعة'], ['seats', 'المقاعد المتاحة'], ['fill', 'نسبة الامتلاء']].map(([k, t]) =>
           `<option value="${k}" ${st.sort === k ? 'selected' : ''}>ترتيب: ${t}</option>`).join('')}</select>`}
         <div class="btn-group btn-group-sm flex-wrap">${views.map(([k, i, t]) => `<button type="button" class="btn ${st.view === k ? 'btn-primary' : 'btn-outline-primary'}" data-view="${k}"><i class="bi ${i}"></i> ${t}</button>`).join('')}</div>
         <div class="dropdown"><button class="btn btn-sm btn-success dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-download"></i> تصدير</button>
@@ -1324,7 +1325,7 @@
             <li><a class="dropdown-item" href="#" data-export="print"><i class="bi bi-printer"></i> طباعة / PDF</a></li></ul></div>
       </div></div></div>`;
     $('#tt-results').innerHTML = st.view === 'dash' ? dashView(list, st) : st.view === 'free' ? freeView(st) : st.view === 'mx' ? matrixView(list, st) : !list.length ? '<div class="card"><div class="card-body text-center text-muted py-5"><i class="bi bi-search fs-2 d-block mb-2"></i>لا توجد شعب تطابق التصفية الحالية.</div></div>'
-      : st.view === 'cards' ? cardsView(list, st) : st.view === 'courses' ? coursesView(list, st) : st.view === 'grid' ? gridView(list, st) : st.view === 'inst' ? instView(list, st) : tableView(list, st);
+      : st.view === 'cards' ? cardsView(list, st) : st.view === 'courses' ? coursesView(list, st) : st.view === 'grid' ? gridView(list, st) : st.view === 'inst' ? instView(list, st) : st.view === 'college' ? collegeView(list, st) : tableView(list, st);
     bind(list, st);
     if (focus) { const q = $('#tt-filters input[name=q]'); q.focus(); q.setSelectionRange(q.value.length, q.value.length); }
   }
@@ -1357,6 +1358,19 @@
       if (!next.length) { b.checked = true; return; }
       set({ cell: next.join(',') === TI_DEF.join(',') ? '' : next.join(','), names: '' });
     }));
+    document.querySelectorAll('[data-ccf]').forEach(b => b.addEventListener('change', () => {
+      const cur = ccFields(st), k = b.dataset.ccf, next = CC_FIELDS.map(f => f[0]).filter(x => x === k ? b.checked : cur.includes(x));
+      if (!next.length) { b.checked = true; return; }
+      set({ ccell: next.join(',') === CC_DEF.join(',') ? '' : next.join(',') });
+    }));
+    const fpb = $('#fc-printbtn');
+    if (fpb) fpb.addEventListener('click', () => ccPrintDialog(list, st));
+    const fq = $('#fc-q');
+    if (fq) fq.addEventListener('input', () => {
+      const q = norm(fq.value.trim()); let n = 0;
+      document.querySelectorAll('.fc-table tbody tr').forEach(tr => { const hit = !q || tr.dataset.q.includes(q); tr.hidden = !hit; tr.classList.toggle('fc-hit', !!q && hit); n += hit; });
+      const none = document.querySelector('.fc-none'); if (none) none.hidden = n > 0;
+    });
     const tpb = $('#ti-printbtn');
     if (tpb) tpb.addEventListener('click', () => tiPrintDialog(list, st));
     document.querySelectorAll('[data-sort]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); set({ sort: a.dataset.sort }); }));
@@ -1392,10 +1406,10 @@
   // ------------------------------------------------------------------ export
   // the table on screen in the matrix views (weekly matrix, ready-made matrices, free-time map / busy strips)
   function shownMatrix(st) {
-    if (!['grid', 'mx', 'free', 'inst'].includes(st.view)) return null;
-    const t = document.querySelector('#tt-results .tt-grid, #tt-results .mx-table, #tt-results .fr-heat, #tt-results .fr-strips, #tt-results .ti-table');
+    if (!['grid', 'mx', 'free', 'inst', 'college'].includes(st.view)) return null;
+    const t = document.querySelector('#tt-results .tt-grid, #tt-results .mx-table, #tt-results .fr-heat, #tt-results .fr-strips, #tt-results .ti-table, #tt-results .fc-table');
     if (!t) return null;
-    const title = st.view === 'inst' ? 'جدول المدرسين التفصيلي' : st.view === 'grid' ? `المصفوفة الأسبوعية – الصفوف: ${{ time: 'الوقت', day: 'اليوم', room: 'القاعة', inst: 'المدرس' }[st.rows] || 'الوقت'}`
+    const title = st.view === 'college' ? 'جدول الكلية' : st.view === 'inst' ? 'جدول المدرسين التفصيلي' : st.view === 'grid' ? `المصفوفة الأسبوعية – الصفوف: ${{ time: 'الوقت', day: 'اليوم', room: 'القاعة', inst: 'المدرس' }[st.rows] || 'الوقت'}`
       : st.view === 'mx' ? MX[st.mx in MX ? st.mx : 'load'].t
       : st.ftab === 'busy' ? 'أوقات الفراغ – انشغال المدرسين' : 'أوقات الفراغ – خريطة التفرغ';
     return { table: t, title };
@@ -1430,6 +1444,83 @@
     return `<div class="part ti-part"><table class="tl-table"><thead><tr><th class="tl-c">المدرس</th>${groups.map(g => `<th>${esc(g[1])}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>
       <div class="tl-note">كل شعبة تبدأ بوقتها ثم أيامها.</div>${tiKey(t)}</div>`;
   }
+  // ------------------------------------------------------------------ the college timetable (جدول الكلية)
+  // For the dean: one row per instructor, one column per day, each day's lectures in time order — who teaches when, at a
+  // glance. A quick search filters the rows; today's column is marked. Each instructor's sections come from the whole
+  // timetable (other departments too); asynchronous meetings have no time and are not shown.
+  const CC_FIELDS = [['code', 'رمز المقرر'], ['name', 'اسم المقرر'], ['sec', 'الشعبة'], ['room', 'القاعة'], ['type', 'نوع التدريس'], ['reg', 'عدد الطلبة']];
+  const CC_DEF = ['code', 'name', 'sec', 'room', 'type'];
+  const ccFields = st => { const v = st.ccell ? st.ccell.split(',').filter(k => CC_FIELDS.some(f => f[0] === k)) : CC_DEF; return v.length ? v : ['code']; };
+  const DAY_FULL = { 'ح': 'الأحد', 'ن': 'الاثنين', 'ث': 'الثلاثاء', 'ر': 'الأربعاء', 'خ': 'الخميس', 'س': 'السبت' };
+  function collegeView(list, st, opt = {}) {
+    const insts = [...new Set(list.map(s => s.instructor))].filter(Boolean).sort((a, b) => a.localeCompare(b, 'ar'));
+    if (!insts.length) return '<div class="card"><div class="card-body text-center text-muted py-5">لا يوجد مدرسون في نطاق التصفية.</div></div>';
+    const LIMIT = 250, shownI = insts.slice(0, LIMIT), set = new Set(shownI);
+    const seen = new Set(), secs = S.filter(s => set.has(s.instructor)).filter(s => {
+      const k = [s.instructor, s.code, s.section, s.activity, s.time, s.room].join('|');
+      return seen.has(k) ? false : (seen.add(k), true);
+    });
+    const F_ = opt.fields || ccFields(st), on = k => F_.includes(k);
+    const short = n => n.replace(/\s*-\s*(نظري|عملي)\s*$/, '');
+    const byI = {}; let nAsync = 0;
+    secs.forEach(s => s.meetings.forEach(m => {
+      if (m.mode === 'غير متزامن' || !m.start) { nAsync++; return; }
+      ((byI[s.instructor] ||= {})[m.day] ||= []).push({ s, m });
+    }));
+    const days = ['ح', 'ن', 'ث', 'ر', 'خ'].concat(Object.values(byI).some(d => d['س']) ? ['س'] : []);
+    const today = ['ح', 'ن', 'ث', 'ر', 'خ', 'ج', 'س'][new Date().getDay()];
+    const kind = x => [x.m.mode !== 'وجاهي' ? (x.m.mode.includes('كامل') ? 'إلكتروني' : x.m.mode) : '', x.s.activity === 'عملي' ? 'عملي' : ''].filter(Boolean);
+    const entry = (x, clash) => {
+      const room = x.s.room === '0' ? 'افتراضية' : x.s.room;
+      return `<a href="#" class="fc-e ${(MODE[x.m.mode] || {}).cls || ''}${clash ? ' clash' : ''}" data-open="${S.indexOf(x.s)}" title="${esc(`${x.s.code} ${x.s.name} – شعبة ${x.s.section}\n${DAY_FULL[x.m.day] || ''} ${x.m.start}–${x.m.end} · ${x.m.mode}\nالقاعة ${x.s.room} · ${x.s.building}\n${x.s.registered}/${x.s.capacity} مسجّل`)}">
+        <b class="fc-t" dir="ltr">${esc(x.m.start)}–${esc(x.m.end)}</b>${on('code') ? `<b class="fc-c" dir="ltr">${esc(x.s.code)}</b>` : ''}${on('sec') ? `<span class="fc-s">ش${esc(x.s.section)}</span>` : ''}${on('name') ? `<span class="fc-n">${esc(short(x.s.name))}</span>` : ''}${on('room') ? `<span class="fc-r">${esc(room)}</span>` : ''}${on('type') ? kind(x).map(k => `<span class="fc-k">${esc(k)}</span>`).join('') : ''}${on('reg') ? `<span class="fc-g">${x.s.registered} ط</span>` : ''}${clash ? '<span class="fc-x">تعارض</span>' : ''}</a>`;
+    };
+    const cell = (i, d) => {
+      const xs = ((byI[i] || {})[d] || []).slice().sort((a, b) => a.m.start.localeCompare(b.m.start) || a.s.code.localeCompare(b.s.code));
+      const uniq = xs.filter((x, k) => xs.findIndex(y => y.s === x.s && y.m.start === x.m.start) === k);
+      return uniq.map((x, k) => entry(x, uniq.some((y, j) => j !== k && y.s.code !== x.s.code && y.m.start < x.m.end && x.m.start < y.m.end))).join('');
+    };
+    const rows = shownI.map(i => {
+      const n = days.reduce((a, d) => a + (((byI[i] || {})[d] || []).length), 0);
+      return `<tr data-q="${esc(norm(i))}"><th class="fc-i"><a href="#" data-pick="inst" data-v="${esc(i)}">${esc(i)}</a><small>${n} محاضرة أسبوعياً</small></th>${days.map(d => `<td data-d="${d}" class="${d === today ? 'fc-today' : ''}">${cell(i, d)}</td>`).join('')}</tr>`;
+    });
+    const table = `<table class="table table-bordered mb-0 fc-table" data-fields="${F_.join(',')}"><thead><tr><th class="fc-corner"><i class="bi bi-person-badge"></i> المدرس</th>${days.map(d => `<th data-d="${d}" class="${d === today ? 'fc-today' : ''}">${DAY_FULL[d]}${d === today ? ' <small>(اليوم)</small>' : ''}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
+    if (opt.tableOnly) return table;
+    return `<div class="card fc-card"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center small ti-bar">
+        <span class="ti-title"><i class="bi bi-building"></i> جدول الكلية</span>
+        <span class="text-muted">${shownI.length} مدرساً · كل خانة: محاضرات المدرس في ذلك اليوم مرتبة بالوقت${nAsync ? ` · ${nAsync} لقاءً غير متزامن بلا وقت لا يظهر` : ''}</span>
+        <div class="ms-auto d-flex flex-wrap gap-2 align-items-center">
+          <div class="input-group input-group-sm fc-find"><span class="input-group-text"><i class="bi bi-search"></i></span><input type="search" class="form-control" id="fc-q" placeholder="ابحث عن مدرس…" aria-label="ابحث عن مدرس"></div>
+          <div class="dropdown"><button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"><i class="bi bi-ui-checks-grid"></i> محتوى الخانة <span class="badge text-bg-secondary">${F_.length}</span></button>
+            <div class="dropdown-menu dropdown-menu-end p-2 ti-fmenu"><div class="small text-muted px-2 pb-1">الوقت يظهر دائماً</div>${CC_FIELDS.map(([k, l]) => `<label class="dropdown-item ti-fopt"><input class="form-check-input" type="checkbox" data-ccf="${k}" ${on(k) ? 'checked' : ''}> ${l}</label>`).join('')}</div></div>
+          <button class="btn btn-sm btn-maroon" id="fc-printbtn"><i class="bi bi-printer-fill"></i> طباعة / PDF</button></div></div>
+      ${insts.length > LIMIT ? `<div class="alert alert-info small m-2 mb-0"><i class="bi bi-info-circle"></i> ${insts.length} مدرساً في النطاق؛ يُعرض أول ${LIMIT}. اختر كلية من التصفية.</div>` : ''}
+      ${!st.dept && !st.fac && !st.inst ? '<div class="alert alert-warning small m-2 mb-0"><i class="bi bi-funnel"></i> اختر <b>الكلية</b> (أو القسم) من التصفية لعرض جدولها.</div>' : ''}
+      <div class="fc-none alert alert-light small m-2 mb-0" hidden>لا يوجد مدرس بهذا الاسم في الجدول.</div>
+      <div class="table-responsive fc-wrap">${table}</div></div>`;
+  }
+  const FC_CSS = `
+    .fc-wrap { max-height: 78vh; overflow: auto; }
+    .fc-find { width: 15rem; }
+    .fc-table { font-size: .8rem; border-collapse: separate; border-spacing: 0; }
+    .fc-table thead th { position: sticky; top: 0; z-index: 3; background: #091b22 !important; color: #fff !important; text-align: center; font-weight: 800; padding: .5rem .4rem; white-space: nowrap; min-width: 150px; }
+    .fc-table thead th.fc-today { background: #901d23 !important; } .fc-table thead th small { opacity: .85; font-weight: 600; }
+    .fc-table .fc-corner { right: 0; z-index: 5 !important; min-width: 150px; }
+    .fc-table .fc-i { position: sticky; right: 0; z-index: 2; background: #f6f1e7 !important; min-width: 150px; max-width: 200px; vertical-align: middle; font-weight: 800; box-shadow: -2px 0 0 #e8e1d3; }
+    .fc-i a { color: #091b22; text-decoration: none; } .fc-i a:hover { color: #901d23; } .fc-i small { display: block; font-weight: 500; color: #7a8a90; font-size: .68rem; }
+    .fc-table td { vertical-align: top; padding: 3px; background: #fff; } .fc-table tbody tr:nth-child(even) td { background: #fcfaf6; }
+    .fc-table td.fc-today { background: #fdf3f3 !important; }
+    .fc-table tbody tr.fc-hit th, .fc-table tbody tr.fc-hit td { box-shadow: inset 0 2px 0 #e0a100, inset 0 -2px 0 #e0a100; }
+    .fc-e { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 .35rem; padding: 2px 6px; margin: 2px 0; border-radius: 6px; border: 1px solid #d9e4dc; border-inline-start: 4px solid #1d7a3e; background: #f4faf6; color: #12202a; text-decoration: none; line-height: 1.35; }
+    .fc-e:hover { border-color: #901d23; } .fc-e.m-online { background: #f1f4fd; border-color: #d6def5; border-inline-start-color: #2b4cb3; } .fc-e.m-blend { background: #f6f1fb; border-color: #e3d6f1; border-inline-start-color: #6a2fb0; }
+    .fc-e.clash { box-shadow: inset 0 0 0 2px #e0a100; }
+    .fc-t { color: #091b22; font-size: .78rem; white-space: nowrap; } .fc-c { color: #901d23; white-space: nowrap; }
+    .fc-s { background: #091b22; color: #fff; border-radius: 20px; padding: 0 .4rem; font-size: .64rem; font-weight: 700; white-space: nowrap; }
+    .fc-n { font-weight: 700; color: #24323a; } .fc-r { color: #5c6b72; white-space: nowrap; } .fc-r::before { content: '\\F3E8'; font-family: bootstrap-icons; font-size: .7em; margin-inline-end: 2px; }
+    .fc-k, .fc-x { border: 1px solid currentColor; border-radius: 4px; padding: 0 .3rem; font-size: .62rem; font-weight: 700; white-space: nowrap; } .fc-x { color: #9a6b00; background: #fff6d6; }
+    .fc-g { color: #5c6b72; font-size: .7rem; white-space: nowrap; }`;
+  if (!document.getElementById('fc-css')) { const el = document.createElement('style'); el.id = 'fc-css'; el.textContent = FC_CSS; document.head.appendChild(el); }
+
   // ------------------------------------------------------------------ printing the instructors' timetable
   // A print window: paper and orientation, one page (scaled to fill it, columns as narrow as reads best) or several pages
   // at a fixed readable size, the day groups, what each cell shows, font size, black-and-white, the page header; a live
@@ -1472,21 +1563,24 @@
       fit: one && P.groups !== 'split', fitParts: !one || P.groups === 'split', fitSearch: one, fitMax: 1.6, minZoom: one ? 0 : 1, noSplit: true,
       raw: css + `<style>${TP_FIT}</style><div class="${one ? 'fitmode' : ''}" style="zoom:${one ? 1 : P.font}">${body}</div>` };
   }
-  function tiPrintDialog(list, st) {
-    const P = tpLoad(st);
+  // the print window, shared by «جدول المدرسين» and «جدول الكلية»: C = { P (settings), save, title, count, fields, layout(seg, P),
+  // checks, options(P), tips(P), base (content font in pt at 100%) }
+  function printDialog(C) {
+    const P = C.P;
     document.getElementById('tp-ov')?.remove();
     const seg = (k, opts) => `<div class="tp-seg" role="group">${opts.map(([v, l, ic]) => `<button type="button" data-k="${k}" data-v="${v}" class="${String(P[k]) === String(v) ? 'on' : ''}">${ic ? `<i class="bi ${ic}"></i> ` : ''}${l}</button>`).join('')}</div>`;
     const chk = (k, l) => `<label class="tp-chk"><input type="checkbox" data-c="${k}" ${P[k] ? 'checked' : ''}> ${l}</label>`;
     const ov = document.createElement('div'); ov.id = 'tp-ov'; ov.className = 'tp-ov'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
-    ov.innerHTML = `<div class="tp-box"><header class="tp-h"><div><b><i class="bi bi-printer-fill"></i> طباعة جدول المدرسين</b><small>${new Set(list.map(s => s.instructor)).size} مدرساً · اختر الشكل وشاهد الصفحة قبل الطباعة</small></div><button type="button" class="btn-close" data-x aria-label="إغلاق"></button></header>
+    ov.innerHTML = `<div class="tp-box"><header class="tp-h"><div><b><i class="bi bi-printer-fill"></i> ${esc(C.title)}</b><small>${esc(C.count)} · اختر الشكل وشاهد الصفحة قبل الطباعة</small></div><button type="button" class="btn-close" data-x aria-label="إغلاق"></button></header>
       <div class="tp-main"><aside class="tp-set">
-        <section><h6>الورق</h6>${seg('paper', [['A3', 'A3'], ['A4', 'A4']])}${seg('orient', [['landscape', 'أفقي', 'bi-file-earmark-break'], ['portrait', 'عمودي', 'bi-file-earmark']])}</section>
+        <section><h6>الورق والاتجاه</h6>${seg('paper', [['A3', 'A3'], ['A4', 'A4']])}${seg('orient', [['landscape', 'أفقي', 'bi-file-earmark-break'], ['portrait', 'عمودي', 'bi-file-earmark']])}</section>
         <section><h6>التوزيع</h6>${seg('mode', [['one', 'صفحة واحدة', 'bi-fullscreen'], ['pages', 'عدة صفحات بخط ثابت', 'bi-files']])}
           <p class="tp-hint" data-hint="mode"></p></section>
-        <section><h6>مجموعات الأيام</h6>${seg('groups', [['both', 'المجموعتان في جدول واحد'], ['split', 'كل مجموعة في صفحة'], ['g1', 'الأحد · الثلاثاء · الخميس'], ['g2', 'الاثنين · الأربعاء']])}</section>
-        <section><h6>محتوى الخلية</h6><div class="tp-fields">${TI_FIELDS.map(([k, l]) => `<label class="tp-f"><input type="checkbox" data-f="${k}" ${P.fields.includes(k) ? 'checked' : ''}> ${l}</label>`).join('')}</div></section>
+        ${C.layout(seg, P)}
+        <section><h6>محتوى الخلية</h6><div class="tp-fields">${C.fields.map(([k, l]) => `<label class="tp-f"><input type="checkbox" data-f="${k}" ${P.fields.includes(k) ? 'checked' : ''}> ${l}</label>`).join('')}</div></section>
         <section data-sec="font"><h6>حجم الخط</h6>${seg('font', [[0.85, 'صغير'], [1, 'عادي'], [1.2, 'كبير'], [1.4, 'كبير جداً']])}</section>
-        <section><h6>تفاصيل الصفحة</h6>${chk('bw', 'أبيض وأسود (مناسب لكل الطابعات)')}${chk('counts', 'عدد الشعب تحت اسم المدرس')}${chk('filters', 'التصفية المختارة (الكلية، القسم…)')}${chk('qr', 'رمز QR للنسخة الحية')}${chk('full', 'ترويسة كاملة (أكبر)')}</section>
+        <section><h6>لون الطباعة</h6>${seg('bw', [['true', 'أبيض وأسود', 'bi-circle-half'], ['false', 'ألوان', 'bi-palette']])}<p class="tp-hint">الأبيض والأسود أوضح على أي طابعة؛ الألوان تميّز الإلكتروني والمدمج.</p></section>
+        <section><h6>تفاصيل الصفحة</h6>${C.checks.map(([k, l]) => chk(k, l)).join('')}</section>
       </aside>
       <div class="tp-prev"><div class="tp-gauge" aria-live="polite"><span class="spinner-border spinner-border-sm"></span> يجهّز المعاينة…</div><div class="tp-stage"><div class="tp-paper"><iframe title="معاينة الطباعة" tabindex="-1"></iframe></div></div></div></div>
       <footer class="tp-f2"><small><i class="bi bi-info-circle"></i> في نافذة الطباعة اختر الورق نفسه (<b data-pp>${P.paper}</b>) و«حفظ كـ PDF» إن أردت ملفاً.</small><span class="sp"></span><button type="button" class="btn btn-outline-secondary" data-x>إلغاء</button><button type="button" class="btn btn-maroon" data-go><i class="bi bi-printer-fill"></i> طباعة / حفظ PDF</button></footer></div>`;
@@ -1496,11 +1590,11 @@
     const esc_ = e => { if (e.key === 'Escape') close(); }; document.addEventListener('keydown', esc_);
     let timer, run = 0;
     const draw = () => {
-      tpSave(P); const me = ++run;
+      C.save(P); const me = ++run;
       ov.querySelector('[data-pp]').textContent = P.paper;
       ov.querySelector('[data-sec=font]').style.display = P.mode === 'one' ? 'none' : '';
-      ov.querySelector('[data-hint=mode]').textContent = P.mode === 'one' ? 'يملأ الجدول الصفحة كاملة: تضيق الأعمدة ويكبر الخط إلى أقصى حد ممكن.' : 'خط بحجم ثابت؛ تكمل الصفوف في صفحات تالية مع تكرار عناوين الساعات.';
-      const o = tpOptions(P, list, st); if (!o) return;
+      ov.querySelector('[data-hint=mode]').textContent = P.mode === 'one' ? 'يملأ الجدول الصفحة كاملة: تضيق الأعمدة ويكبر الخط إلى أقصى حد ممكن.' : 'خط بحجم ثابت؛ تكمل الصفوف في صفحات تالية مع تكرار عناوين الأعمدة.';
+      const o = C.options(P); if (!o) return;
       const PX = 96 / 25.4, [L, Sh] = P.paper === 'A3' ? [420, 297] : [297, 210], pw = (P.orient === 'landscape' ? L : Sh) * PX, ph = (P.orient === 'landscape' ? Sh : L) * PX;
       paper.style.width = pw + 'px'; paper.style.height = ph + 'px';
       const k = Math.min((stage.clientWidth - 24) / pw, (stage.clientHeight - 24) / ph); paper.style.transform = `scale(${k})`;
@@ -1508,8 +1602,8 @@
       gauge.innerHTML = '<span class="spinner-border spinner-border-sm"></span> يجهّز المعاينة…';
       printReport(Object.assign(o, { frame: fr, noPrint: true })).then(info => {
         if (me !== run) return;
-        const z = info.zoom * (P.mode === 'one' ? 1 : P.font), pt = (8.5 * z).toFixed(1), lvl = pt >= 7.5 ? 'ok' : pt >= 6.5 ? 'mid' : 'low';
-        const tips = lvl === 'low' ? ` جرّب: ${[P.paper === 'A4' ? 'ورق A3' : '', P.mode === 'one' ? '«عدة صفحات بخط ثابت»' : '', P.groups === 'both' ? '«كل مجموعة في صفحة»' : '', P.fields.length > 4 ? 'إخفاء بعض محتوى الخلية' : '', 'أو تصفية قسم واحد'].filter(Boolean).join('، ')}.` : '';
+        const z = info.zoom * (P.mode === 'one' ? 1 : P.font), pt = ((C.base || 8.5) * z).toFixed(1), lvl = pt >= 7.5 ? 'ok' : pt >= 6.5 ? 'mid' : 'low';
+        const tips = lvl === 'low' ? ` جرّب: ${C.tips(P).filter(Boolean).join('، ')}.` : '';
         gauge.className = 'tp-gauge ' + lvl;
         gauge.innerHTML = `<i class="bi ${lvl === 'ok' ? 'bi-check-circle-fill' : lvl === 'mid' ? 'bi-exclamation-circle-fill' : 'bi-x-octagon-fill'}"></i><span><b>${lvl === 'ok' ? 'واضح ومقروء' : lvl === 'mid' ? 'مقروء لكنه صغير' : 'صغير جداً للطباعة'}</b> · خط المحتوى ≈ ${pt}pt · ${info.pages || 1} ${info.pages > 2 ? 'صفحات' : info.pages === 2 ? 'صفحتان' : 'صفحة'} ${P.paper}${tips}</span>`;
       });
@@ -1518,16 +1612,80 @@
     ov.addEventListener('click', e => {
       const b = e.target.closest('button'); if (!b) return;
       if (b.hasAttribute('data-x')) return close();
-      if (b.hasAttribute('data-go')) { const o = tpOptions(P, list, st); if (o) printReport(o); return; }
-      if (b.dataset.k) { P[b.dataset.k] = b.dataset.k === 'font' ? +b.dataset.v : b.dataset.v; b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); later(); }
+      if (b.hasAttribute('data-go')) { const o = C.options(P); if (o) printReport(o); return; }
+      if (b.dataset.k) { const k = b.dataset.k; P[k] = k === 'font' ? +b.dataset.v : k === 'bw' ? b.dataset.v === 'true' : b.dataset.v; b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); later(); }
+      if (b.dataset.dd) { const d = b.dataset.dd, next = P.days.includes(d) ? P.days.filter(x => x !== d) : P.days.concat(d); if (!next.length) return; P.days = next; b.classList.toggle('on'); later(); }
     });
     ov.addEventListener('change', e => {
       const t = e.target;
-      if (t.dataset.f) { const f = TI_FIELDS.map(x => x[0]).filter(k => k === t.dataset.f ? t.checked : P.fields.includes(k)); if (!f.length) { t.checked = true; return; } P.fields = f; later(); }
+      if (t.dataset.f) { const f = C.fields.map(x => x[0]).filter(k => k === t.dataset.f ? t.checked : P.fields.includes(k)); if (!f.length) { t.checked = true; return; } P.fields = f; later(); }
       if (t.dataset.c) { P[t.dataset.c] = t.checked; later(); }
     });
     window.addEventListener('resize', later, { once: true });
     setTimeout(draw, 30);
+  }
+  function tiPrintDialog(list, st) {
+    printDialog({ P: tpLoad(st), save: tpSave, title: 'طباعة جدول المدرسين', count: `${new Set(list.map(s => s.instructor)).size} مدرساً`, fields: TI_FIELDS,
+      layout: (seg, P) => `<section><h6>مجموعات الأيام</h6>${seg('groups', [['both', 'المجموعتان في جدول واحد'], ['split', 'كل مجموعة في صفحة'], ['g1', 'الأحد · الثلاثاء · الخميس'], ['g2', 'الاثنين · الأربعاء']])}</section>`,
+      checks: [['counts', 'عدد الشعب تحت اسم المدرس'], ['filters', 'التصفية المختارة (الكلية، القسم…)'], ['qr', 'رمز QR للنسخة الحية'], ['full', 'ترويسة كاملة (أكبر)']],
+      options: P => tpOptions(P, list, st),
+      tips: P => [P.paper === 'A4' ? 'ورق A3' : '', P.mode === 'one' ? '«عدة صفحات بخط ثابت»' : '', P.groups === 'both' ? '«كل مجموعة في صفحة»' : '', P.fields.length > 4 ? 'إخفاء بعض محتوى الخلية' : '', 'أو تصفية قسم واحد'] });
+  }
+  // the college timetable on paper
+  const CC_KEY = 'cc-print-1';
+  const ccLoad = st => { let v = {}; try { v = JSON.parse(localStorage.getItem(CC_KEY) || '{}') || {}; } catch (e) { /* defaults */ }
+    return Object.assign({ paper: 'A3', orient: 'landscape', mode: 'one', font: 1, bw: true, full: false, qr: true, filters: true, counts: true, days: ['ح', 'ن', 'ث', 'ر', 'خ', 'س'] }, v, { fields: v.fields && v.fields.length ? v.fields : ccFields(st) }); };
+  const ccSave = P => { try { localStorage.setItem(CC_KEY, JSON.stringify(P)); } catch (e) { /* per viewer only */ } };
+  const CC_PRINT = `
+    .raw .fc-table { width: 100% !important; border-collapse: collapse !important; font-size: 9pt !important; }
+    .raw .fc-table th, .raw .fc-table td { border: 1px solid #777 !important; box-shadow: none !important; }
+    .raw .fc-table thead th { position: static !important; min-width: 0 !important; font-size: 11pt !important; padding: 4px !important; }
+    .raw .fc-table thead th small { display: none; } .raw .fc-table .fc-corner i { display: none; }
+    .raw .fc-table .fc-i { position: static !important; width: 11rem; min-width: 0 !important; max-width: none; font-size: 9.5pt !important; line-height: 1.2; padding: 3px 6px !important; }
+    .raw .fc-table .fc-i small { font-size: 7.5pt !important; }
+    .raw .fc-table td { padding: 2px 4px !important; } .raw .fc-table td.fc-today { background: #fff !important; }
+    .raw .fc-table tbody tr { break-inside: avoid; }
+    .raw .fc-e { font-size: 9pt !important; line-height: 1.3 !important; padding: 1px 4px !important; margin: 1px 0 !important; break-inside: avoid; }
+    .raw .fc-t { font-size: 9pt !important; } .raw .fc-s { font-size: 7.5pt !important; } .raw .fc-k, .raw .fc-x { font-size: 7pt !important; } .raw .fc-r::before { display: none; }
+    .raw .fitmode .fc-table { table-layout: fixed; }`;
+  const CC_BW = `
+    .raw .fc-table, .raw .fc-table * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .raw .fc-table thead th, .raw .fc-table thead th.fc-today { background: #e6e6e6 !important; color: #000 !important; }
+    .raw .fc-table .fc-i { background: #f2f2f2 !important; color: #000 !important; } .raw .fc-table .fc-i a, .raw .fc-table .fc-i small { color: #000 !important; }
+    .raw .fc-table td, .raw .fc-table tbody tr:nth-child(even) td { background: #fff !important; }
+    .raw .fc-e, .raw .fc-e.m-online, .raw .fc-e.m-blend { background: #fff !important; color: #000 !important; border: 0 !important; border-bottom: 1px solid #aaa !important; border-radius: 0; box-shadow: none !important; }
+    .raw .fc-e:last-child { border-bottom: 0 !important; }
+    .raw .fc-t, .raw .fc-c, .raw .fc-n, .raw .fc-r, .raw .fc-g, .raw .fc-k { color: #000 !important; } .raw .fc-t, .raw .fc-c { font-weight: 800; }
+    .raw .fc-s { background: #fff !important; color: #000 !important; border: 1px solid #000; border-radius: 3px; }
+    .raw .fc-x { color: #000 !important; background: #fff !important; border: 1.5px dashed #000; }`;
+  // one page: a day's lectures side by side (as many per line as fit), each a small framed block
+  const CC_FIT = `
+    .raw .fitmode .fc-e, .raw .fitmode .fc-e.m-online, .raw .fitmode .fc-e.m-blend { display: inline-flex !important; vertical-align: top; width: auto; max-width: 100%; margin: 1px 0 1px 3px !important;
+      border: 1px solid #999 !important; border-inline-start-width: 3px !important; border-radius: 3px; padding: 0 3px !important; }
+    .raw .fitmode .fc-table td { line-height: 1; }`;
+  const CC_HIDE = { code: '.fc-c', name: '.fc-n', sec: '.fc-s', room: '.fc-r', type: '.fc-k', reg: '.fc-g' };
+  function ccOptions(P, list, st) {
+    const box = document.createElement('div');
+    box.innerHTML = collegeView(list, st, { fields: CC_FIELDS.map(f => f[0]), tableOnly: true });
+    const t = box.querySelector('.fc-table'); if (!t) return null;
+    t.querySelectorAll('[data-d]').forEach(el => { if (!P.days.includes(el.dataset.d)) el.remove(); });
+    t.dataset.fields = P.fields.join(',');
+    const hide = CC_FIELDS.map(f => f[0]).filter(k => !P.fields.includes(k)).map(k => `.raw .fc-table ${CC_HIDE[k]}`).concat(P.counts ? [] : ['.raw .fc-table .fc-i small']);
+    const filters = [...FK, 'seats'].filter(k => st[k]).map(k => [k === 'seats' ? 'المقاعد' : F.find(f => f[0] === k)[1], k === 'seats' ? 'متاحة فقط' : label(k, st[k])]);
+    const one = P.mode === 'one';
+    return { title: 'الجدول الدراسي', subtitle: `${DATA.term} – جدول الكلية`, source: 'المصدر: بوابة الجامعة (edugate)', filters,
+      paper: P.paper, orientation: P.orient, compact: !P.full, qr: P.qr ? undefined : false, hideFilters: !P.filters,
+      css: ['https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css', 'assets/app.css'],
+      fit: one, fitParts: !one, fitSearch: one, fitMax: 1.6, minZoom: 1, noSplit: true,
+      raw: `<style>${FC_CSS}${CC_PRINT}${P.bw ? CC_BW : ''}${CC_FIT}${hide.length ? hide.join(', ') + ' { display: none !important; }' : ''}</style><div class="${one ? 'fitmode' : ''}" style="zoom:${one ? 1 : P.font}"><div class="part ti-part">${t.outerHTML}</div></div>` };
+  }
+  function ccPrintDialog(list, st) {
+    const present = ['ح', 'ن', 'ث', 'ر', 'خ'].concat(S.some(s => s.meetings.some(m => m.day === 'س' && m.start)) ? ['س'] : []);
+    printDialog({ P: ccLoad(st), save: ccSave, title: 'طباعة جدول الكلية', count: `${new Set(list.map(s => s.instructor)).size} مدرساً`, fields: CC_FIELDS, base: 9,
+      layout: (seg, P) => `<section><h6>الأيام المطبوعة</h6><div class="tp-seg">${present.map(d => `<button type="button" data-dd="${d}" class="${P.days.includes(d) ? 'on' : ''}">${DAY_FULL[d]}</button>`).join('')}</div></section>`,
+      checks: [['counts', 'عدد المحاضرات تحت اسم المدرس'], ['filters', 'التصفية المختارة (الكلية، القسم…)'], ['qr', 'رمز QR للنسخة الحية'], ['full', 'ترويسة كاملة (أكبر)']],
+      options: P => ccOptions(P, list, st),
+      tips: P => [P.paper === 'A4' ? 'ورق A3' : '', P.mode === 'one' ? '«عدة صفحات بخط ثابت»' : '', P.fields.length > 3 ? 'إخفاء بعض محتوى الخلية (مثل اسم المقرر)' : '', 'أو تصفية قسم واحد'] });
   }
   // the instructors' table split by day group (each part printed on its own page, scaled to fit it)
   function tiParts(t) {
@@ -1589,6 +1747,7 @@
   }
   function exportAs(kind, list) {
     if (kind === 'print' && readState().view === 'inst') return tiPrintDialog(list, readState());
+    if (kind === 'print' && readState().view === 'college') return ccPrintDialog(list, readState());
     if (kind === 'print') return printTimetable(list);
     if (isBest(readState()) && (kind === 'xlsx' || kind === 'csv')) {
       const head = ['الفئة', 'اليوم', 'الوقت', 'المدة', 'يغيب'], rows = bestRows();
@@ -1627,6 +1786,8 @@
     const t = shown.table.cloneNode(true);
     t.querySelectorAll('.tt-more, .tt-clash-tag').forEach(x => x.remove());
     // each section on its own lines (code and section, name, room), a blank line between sections: clear in a wrapped Excel cell
+    t.querySelectorAll('.fc-e').forEach(c => { c.textContent = [...c.children].map(x => x.textContent.trim()).filter(Boolean).join('  ') + '\n'; });
+    t.querySelectorAll('tr[hidden]').forEach(r => r.removeAttribute('hidden'));
     t.querySelectorAll('.tt-chip, .ti-chip').forEach(c => { c.textContent = c.innerText.split(/\s*\n\s*/).filter(Boolean).join('\n') + '\n\n'; });
     t.querySelectorAll('td, th').forEach(c => {
       const sub = c.querySelector('.fr-bar');
