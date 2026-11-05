@@ -1534,23 +1534,24 @@
     const chip = (attr, k, l, on_) => `<label class="fc-cb${on_ ? ' on' : ''}"><input type="checkbox" ${attr}="${k}" ${on_ ? 'checked' : ''}><span>${l}</span></label>`;
     const sel = (key, val, isTo) => `<select class="form-select form-select-sm" data-ccr="${key}" aria-label="${isTo ? 'إلى' : 'من'}">${isTo ? '' : `<option value="all" ${st[key] === 'all' ? 'selected' : ''}>البداية</option>`}${(isTo ? HOURS.slice(1) : HOURS).map(h => `<option value="${+h}" ${st[key] !== 'all' && +h === val ? 'selected' : ''}>${h}:00</option>`).join('')}${isTo ? `<option value="all" ${st[key] === 'all' ? 'selected' : ''}>النهاية</option>` : ''}</select>`;
     const changed = st.cdays || st.cfrom || st.cto || st.ccell || st.cmode;
+    const note = [idle ? `${idle} مدرساً بلا محاضرات ضمن الاختيار مخفيّون` : '', nOut ? `${nOut} لقاءً خارج الأيام أو الساعات أو الأنماط المختارة` : '', nAsync ? `${nAsync} لقاءً غير متزامن بلا وقت` : '', grid ? 'يظهر الوقت داخل الخانة فقط إن لم يبدأ على رأس الساعة أو اختلف طوله' : ''].filter(Boolean).join(' · ');
     return `<div class="card fc-card">
       <div class="fc-head">
         <div class="fc-h1"><span class="fc-ico"><i class="bi bi-building"></i></span><div><h2>جدول الكلية</h2>
-          <small><b>${activeI.length}</b> مدرساً · <b>${total}</b> محاضرة · ${days.map(d => DAY_FULL[d]).join('، ')} · ${range}</small></div></div>
+          <small><b>${activeI.length}</b> مدرساً · <b>${total}</b> محاضرة · ${days.map(d => DAY_FULL[d]).join('، ')} · ${range}${note ? ` <i class="bi bi-info-circle fc-note" tabindex="0" title="${esc(note)}" aria-label="${esc(note)}"></i>` : ''}</small></div></div>
         <div class="fc-tools">
           <div class="tp-seg fc-lay" role="group" aria-label="شكل الجدول"><button type="button" data-clay="" class="${grid ? '' : 'on'}"><i class="bi bi-calendar-week"></i> حسب اليوم</button><button type="button" data-clay="grid" class="${grid ? 'on' : ''}"><i class="bi bi-grid-3x3"></i> اليوم والساعة</button></div>
           <div class="input-group input-group-sm fc-find"><span class="input-group-text"><i class="bi bi-search"></i></span><input type="search" class="form-control" id="fc-q" placeholder="ابحث عن مدرس…" aria-label="ابحث عن مدرس"></div>
           <button class="btn btn-sm btn-maroon" id="fc-printbtn"><i class="bi bi-printer-fill"></i> طباعة / PDF</button></div>
       </div>
       <div class="fc-opts" id="fc-opts">
-        <div class="fc-row"><span class="fc-ol">محتوى الخانة</span><div class="fc-ctl">${CC_FIELDS.map(([k, l]) => chip('data-ccf', k, l, on(k))).join('')}</div></div>
-        <div class="fc-row"><span class="fc-ol">الأيام</span><div class="fc-ctl">${CC_DAYS.map(d => chip('data-ccd', d, DAY_FULL[d], pick.includes(d))).join('')}</div></div>
-        <div class="fc-row"><span class="fc-ol">نمط التدريس</span><div class="fc-ctl">${CC_MODES.map(([k, l]) => chip('data-ccm', k, l, modes.includes(k))).join('')}</div></div>
-        <div class="fc-row"><span class="fc-ol">الساعات</span><div class="fc-ctl fc-hours"><span>من</span>${sel('cfrom', fromH, false)}<span>إلى</span>${sel('cto', toH, true)}
-          ${changed ? '<button type="button" class="btn btn-sm btn-link fc-reset" data-ccreset><i class="bi bi-arrow-counterclockwise"></i> الإعدادات الافتراضية</button>' : ''}</div></div>
+        <div class="fc-grp"><span class="fc-ol">محتوى الخانة</span><div class="fc-ctl">${CC_FIELDS.map(([k, l]) => chip('data-ccf', k, l, on(k))).join('')}</div></div>
+        <div class="fc-grp fc-hours"><span class="fc-ol">الساعات</span><div class="fc-ctl"><span>من</span>${sel('cfrom', fromH, false)}<span>إلى</span>${sel('cto', toH, true)}</div></div>
+        <div class="fc-end">${changed ? '<button type="button" class="btn btn-sm btn-link fc-reset" data-ccreset title="الإعدادات الافتراضية"><i class="bi bi-arrow-counterclockwise"></i> افتراضي</button>' : ''}</div>
+        <div class="fc-grp"><span class="fc-ol">الأيام</span><div class="fc-ctl">${CC_DAYS.map(d => chip('data-ccd', d, DAY_FULL[d], pick.includes(d))).join('')}</div></div>
+        <div class="fc-grp"><span class="fc-ol">نمط التدريس</span><div class="fc-ctl">${CC_MODES.map(([k, l]) => chip('data-ccm', k, l, modes.includes(k))).join('')}</div></div>
+        <div class="fc-end"></div>
       </div>
-      ${idle || nOut || nAsync ? `<div class="fc-info"><i class="bi bi-info-circle"></i> ${[idle ? `${idle} مدرساً بلا محاضرات ضمن الاختيار مخفيّون` : '', nOut ? `${nOut} لقاءً خارج الأيام أو الساعات أو الأنماط المختارة` : '', nAsync ? `${nAsync} لقاءً غير متزامن بلا وقت` : ''].filter(Boolean).join(' · ')}${grid ? ' · يظهر الوقت داخل الخانة فقط إن لم يبدأ على رأس الساعة أو اختلف طوله' : ''}</div>` : ''}
       ${insts.length > LIMIT ? `<div class="alert alert-info small m-2 mb-0"><i class="bi bi-info-circle"></i> ${insts.length} مدرساً في النطاق؛ يُعرض أول ${LIMIT}. اختر كلية من التصفية.</div>` : ''}
       ${!st.dept && !st.fac && !st.inst ? '<div class="alert alert-warning small m-2 mb-0"><i class="bi bi-funnel"></i> اختر <b>الكلية</b> (أو القسم) من التصفية لعرض جدولها.</div>' : ''}
       <div class="fc-none alert alert-light small m-2 mb-0" hidden>لا يوجد مدرس بهذا الاسم في الجدول.</div>
@@ -1565,11 +1566,11 @@
     .fc-table .fc-corner { right: 0; z-index: 5 !important; min-width: 150px; }
     .fc-table .fc-i { position: sticky; right: 0; z-index: 2; background: #f6f1e7 !important; min-width: 150px; max-width: 200px; vertical-align: middle; font-weight: 800; box-shadow: -2px 0 0 #e8e1d3; }
     .fc-i a { color: #091b22; text-decoration: none; } .fc-i a:hover { color: #901d23; } .fc-i small { display: block; font-weight: 600; color: #8a6d1f; font-size: .66rem; }
-    .fc-table .fc-i { font-size: .76rem; line-height: 1.3; padding: .35rem .5rem; }
+    .fc-table .fc-i { font-size: .76rem; line-height: 1.25; padding: .2rem .5rem; }
     .fc-table td { vertical-align: top; padding: 2px; background: #fff; } .fc-table tbody tr:nth-child(even) td { background: #fcfaf6; }
     .fc-table td.fc-today { background: #fdf3f3 !important; }
     .fc-table tbody tr.fc-hit th, .fc-table tbody tr.fc-hit td { box-shadow: inset 0 2px 0 #e0a100, inset 0 -2px 0 #e0a100; }
-    .fc-e { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 .3rem; padding: 2px 5px; margin: 2px 0; border-radius: 5px; font-size: .74rem; border: 1px solid #d9e4dc; border-inline-start: 4px solid #1d7a3e; background: #f4faf6; color: #12202a; text-decoration: none; line-height: 1.35; }
+    .fc-e { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 .3rem; padding: 1px 5px; margin: 1px 0; border-radius: 5px; font-size: .74rem; border: 1px solid #d9e4dc; border-inline-start: 4px solid #1d7a3e; background: #f4faf6; color: #12202a; text-decoration: none; line-height: 1.28; }
     .fc-e:hover { border-color: #901d23; } .fc-e.m-online { background: #f1f4fd; border-color: #d6def5; border-inline-start-color: #2b4cb3; } .fc-e.m-blend { background: #f6f1fb; border-color: #e3d6f1; border-inline-start-color: #6a2fb0; }
     .fc-e.clash { box-shadow: inset 0 0 0 2px #e0a100; }
     .fc-t { color: #091b22; font-size: .78rem; white-space: nowrap; } .fc-c { color: #901d23; white-space: nowrap; }
@@ -1578,22 +1579,24 @@
     .fc-k, .fc-x { border: 1px solid currentColor; border-radius: 4px; padding: 0 .3rem; font-size: .62rem; font-weight: 700; white-space: nowrap; } .fc-x { color: #9a6b00; background: #fff6d6; }
     .fc-g { color: #5c6b72; font-size: .7rem; white-space: nowrap; }
     .fc-card { overflow: hidden; }
-    .fc-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1rem; padding: .8rem 1rem; }
-    .fc-h1 { display: flex; align-items: center; gap: .65rem; } .fc-h1 h2 { margin: 0; font-size: 1.12rem; font-weight: 800; color: #091b22; }
-    .fc-h1 small { color: #6b777c; font-size: .78rem; } .fc-h1 small b { color: #091b22; }
-    .fc-ico { width: 2.3rem; height: 2.3rem; border-radius: 10px; display: grid; place-items: center; background: #901d23; color: #fff; font-size: 1.1rem; }
-    .fc-tools { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
-    .fc-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem 1.6rem; padding: .65rem 1rem; background: #fbf9f5; border-block: 1px solid #ece6da; }
-    .fc-row { display: grid; grid-template-columns: 6.3rem minmax(0, 1fr); align-items: center; gap: .5rem; }
-    .fc-ol { font-size: .74rem; font-weight: 800; color: #6b4a1f; letter-spacing: .2px; }
-    .fc-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; }
-    .fc-cb { display: inline-flex; align-items: center; gap: .3rem; margin: 0; height: 1.75rem; padding: 0 .55rem; border: 1px solid #d8d0bf; border-radius: 6px; background: #fff; cursor: pointer; font-size: .76rem; font-weight: 600; color: #3c474c; user-select: none; transition: background .12s, border-color .12s; }
-    .fc-cb input { width: .9rem; height: .9rem; accent-color: #091b22; margin: 0; } .fc-cb.on { border-color: #091b22; background: #091b22; color: #fff; } .fc-cb.on input { accent-color: #fff; }
+    .fc-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem 1rem; padding: .5rem .8rem; }
+    .fc-h1 { display: flex; align-items: center; gap: .55rem; min-width: 0; } .fc-h1 > div { min-width: 0; } .fc-h1 h2 { margin: 0; font-size: 1.05rem; font-weight: 800; color: #091b22; line-height: 1.2; }
+    .fc-h1 small { display: block; color: #6b777c; font-size: .74rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .fc-h1 small b { color: #091b22; }
+    .fc-note { color: #901d23; cursor: help; font-size: .85rem; }
+    .fc-ico { flex: none; width: 2rem; height: 2rem; border-radius: 9px; display: grid; place-items: center; background: #901d23; color: #fff; font-size: 1rem; }
+    .fc-tools { flex: none; display: flex; align-items: center; gap: .4rem; } .fc-card .fc-find { width: 12rem; }
+    .fc-opts { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: .35rem 0; padding: .45rem .8rem; background: #fbf9f5; border-block: 1px solid #ece6da; }
+    .fc-grp { display: flex; align-items: center; gap: .4rem; padding-inline-end: 1rem; } .fc-grp + .fc-grp { padding-inline-start: 1rem; border-inline-start: 1px solid #e2d9c8; }
+    .fc-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem; } .fc-end { display: flex; justify-content: flex-end; }
+    .fc-ol { flex: none; width: 4.9rem; font-size: .72rem; font-weight: 800; color: #6b4a1f; }
+    .fc-cb { display: inline-flex; align-items: center; gap: .25rem; margin: 0; height: 1.5rem; padding: 0 .45rem; border: 1px solid #d8d0bf; border-radius: 5px; background: #fff; cursor: pointer; font-size: .72rem; font-weight: 600; color: #3c474c; user-select: none; transition: background .12s, border-color .12s; }
+    .fc-cb input { width: .8rem; height: .8rem; accent-color: #091b22; margin: 0; } .fc-cb.on { border-color: #091b22; background: #091b22; color: #fff; } .fc-cb.on input { accent-color: #fff; }
     .fc-cb:hover { border-color: #901d23; }
-    .fc-hours span { font-size: .76rem; color: #6b777c; } .fc-hours select { width: 6.2rem; height: 1.75rem; padding: 0 .5rem; font-size: .76rem; }
-    .fc-reset { font-size: .74rem; padding: 0 .3rem; margin-inline-start: auto; }
-    .fc-info { padding: .4rem 1rem; font-size: .74rem; color: #6b777c; border-bottom: 1px solid #ece6da; }
-    @media (max-width: 992px) { .fc-opts { grid-template-columns: 1fr; } }
+    .fc-hours span:not(.fc-ol) { font-size: .74rem; color: #6b777c; } .fc-hours select { width: 5.6rem; height: 1.5rem; padding: 0 .4rem; font-size: .72rem; }
+    .fc-reset { font-size: .72rem; padding: 0 .3rem; }
+    @media (max-width: 1100px) { .fc-head { flex-wrap: wrap; } .fc-h1 small { white-space: normal; } }
+    @media (max-width: 1100px) { .fc-opts { grid-template-columns: 1fr; } .fc-grp + .fc-grp { padding-inline-start: 0; border: 0; } .fc-end:empty { display: none; } }
+    @media (max-width: 576px) { .fc-card .fc-find { width: 100%; } .fc-tools { flex-wrap: wrap; } }
     .fc-lay { margin: 0; } .fc-lay button { padding: .25rem .6rem; font-size: .78rem; }
     .fc-grid thead tr:first-child th { top: 0; } .fc-grid thead tr:nth-child(2) th { top: 2.35rem; }
     .fc-grid thead th.fc-day { background: #901d23 !important; } .fc-grid thead th.fc-day.fc-today { background: #b8892b !important; }
