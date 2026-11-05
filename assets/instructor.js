@@ -54,7 +54,7 @@
     const room = s => s.room === '0' ? 'قاعة افتراضية' : s.room;
     const items = meetings.map(({ s, m }) => {
       const [c, bg] = color(s.code), mode = U.MODE[m.mode] || {};
-      return { day: m.day, start: m.start, end: m.end, title: `${s.code} · ش${s.section}`, line: s.name, sub: room(s),
+      return { s, m, day: m.day, start: m.start, end: m.end, title: `${s.code} · ش${s.section}`, line: s.name, sub: room(s),
         icon: m.mode === 'وجاهي' ? '' : mode.icon, style: `--cc:${c};--cbg:${bg}`, cls: 'cc',
         tip: `${s.code} ${s.name} – شعبة ${s.section} (${s.activity})\n${U.DAYS[m.day]} ${m.start}–${m.end} · ${m.mode}\n${s.room === '0' ? 'قاعة افتراضية (0)' : s.room + ' – ' + s.building}` };
     });
@@ -284,11 +284,242 @@
     });
   }
 
+  // ---------------------------------------------------------------- the instructor's page
+  // display options of the week (kept in this browser only)
+  const VKEY = 'ins-view-1';
+  const vLoad = () => { let v = {}; try { v = JSON.parse(localStorage.getItem(VKEY) || '{}') || {}; } catch (e) { /* defaults */ }
+    return Object.assign({ v: innerWidth < 768 ? 'cols' : 'mx', range: 'work', free: true, name: true, room: true, time: false }, v); };
+  const vSave = P => { try { localStorage.setItem(VKEY, JSON.stringify(P)); } catch (e) { /* not kept */ } };
+  const hrs = m => { const h = Math.round(m / 6) / 10; return (h % 1 ? h.toFixed(1) : String(h)); };
+  // the hour range shown: the working day 08–16, or the whole day around every lecture
+  function rangeOf(W, P) {
+    if (P.range !== 'all' || !W.items.length) return [FREE_FROM, FREE_TO];
+    const a = Math.min(FREE_FROM, ...W.items.map(x => toMin(x.start))), b = Math.max(FREE_TO, ...W.items.map(x => toMin(x.end)));
+    return [Math.floor(a / 60) * 60, Math.ceil(b / 60) * 60];
+  }
+  const blockBody = (x, P) => `<b dir="ltr">${esc(x.title)}</b>${x.icon ? ` <i class="bi ${x.icon}"></i>` : ''}${P.name && x.line ? `<span>${esc(x.line)}</span>` : ''}
+    ${P.room || P.time ? `<small>${P.room && x.sub ? `<i class="bi bi-geo-alt"></i>${esc(x.sub)}` : ''}${P.room && x.sub && P.time ? ' · ' : ''}${P.time ? `<bdi dir="ltr">${x.start}–${x.end}</bdi>` : ''}</small>` : ''}`;
+  // «مصفوفة الأسبوع»: a row per day, the hours across; lectures, office hours and the free gaps on one line
+  function matrixView(W, P) {
+    const [A, B] = rangeOf(W, P), span = B - A, pos = t => +(100 * (Math.max(A, Math.min(B, t)) - A) / span).toFixed(3);
+    const ticks = []; for (let t = A; t <= B; t += 60) ticks.push(t);
+    const rows = W.days.map(d => {
+      const its = W.items.filter(x => x.day === d && toMin(x.end) > A && toMin(x.start) < B).sort((a, b) => toMin(a.start) - toMin(b.start));
+      const lanes = [];
+      its.forEach(x => { let k = lanes.findIndex(e => e <= toMin(x.start)); if (k < 0) { k = lanes.length; lanes.push(0); } lanes[k] = toMin(x.end); x.lane = k; });
+      const n = Math.max(1, lanes.length), H = 100 / n;
+      const free = P.free ? W.free(d).filter(r => r[1] - r[0] >= 60 && r[1] > A && r[0] < B) : [];
+      const lect = W.items.filter(x => x.day === d && !x.oh), mins = lect.reduce((a, x) => a + toMin(x.end) - toMin(x.start), 0);
+      return `<div class="ip-mr" style="--lanes:${n}"><div class="ip-md"><b>${esc(U.DAYS[d])}</b><small>${lect.length ? `${lect.length} لقاء · ${hrs(mins)} س` : 'لا محاضرات'}</small></div>
+        <div class="ip-mt">${free.map(([a, b]) => `<i class="ip-free" style="right:${pos(a)}%;width:${pos(b) - pos(a)}%" title="فراغ ${toTime(a)}–${toTime(b)}"><span><b>فراغ</b> <bdi dir="ltr">${toTime(a)}–${toTime(b)}</bdi></span></i>`).join('')}
+        ${its.map(x => `<div class="ip-b ${x.oh ? 'oh' : ''}" style="${x.style};right:${pos(toMin(x.start))}%;width:${pos(toMin(x.end)) - pos(toMin(x.start))}%;top:calc(${x.lane * H}% + 3px);height:calc(${H}% - 6px)" title="${esc(x.tip)}">${blockBody(x, P)}</div>`).join('')}</div></div>`;
+    }).join('');
+    return `<div class="ip-mx"><div class="ip-mr ip-mh"><div class="ip-md"></div><div class="ip-mt">${ticks.map(t => `<span style="right:${pos(t)}%">${toTime(t)}</span>`).join('')}</div></div>
+      <div class="ip-mgrid" style="--cols:${ticks.length - 1}">${rows}</div></div>`;
+  }
+  // «الأيام كأعمدة»: each day's lectures (and gaps) in time order
+  function columnsView(W, P) {
+    const [A, B] = rangeOf(W, P);
+    return `<div class="ip-cols" style="--n:${W.days.length}">${W.days.map(d => {
+      const its = W.items.filter(x => x.day === d && toMin(x.end) > A && toMin(x.start) < B).map(x => ({ t: toMin(x.start), h: `<div class="ip-ce ${x.oh ? 'oh' : ''}" style="${x.style}" title="${esc(x.tip)}"><em dir="ltr">${x.start}–${x.end}</em>${blockBody(x, { ...P, time: false })}</div>` }));
+      const free = P.free ? W.free(d).filter(r => r[1] - r[0] >= 60).map(([a, b]) => ({ t: a, h: `<div class="ip-cf"><i class="bi bi-hourglass-split"></i> فراغ <bdi dir="ltr">${toTime(a)}–${toTime(b)}</bdi></div>` })) : [];
+      const all = its.concat(free).sort((a, b) => a.t - b.t);
+      return `<div class="ip-col"><h6>${esc(U.DAYS[d])}</h6>${all.map(x => x.h).join('') || '<div class="ip-cnone">لا محاضرات</div>'}</div>`; }).join('')}</div>`;
+  }
+  function weekBody(W, P) {
+    if (!W.items.length) return '<p class="text-muted mb-0">لا لقاءات بوقت ثابت هذا الفصل.</p>';
+    if (P.v === 'cols') return columnsView(W, P);
+    if (P.v === 'grid') return U.weekGrid(W.items, { days: W.days, px: 56, cls: 'wk-ins', compact: true });
+    return matrixView(W, P);
+  }
+  // numbers and facts drawn from the week
+  function facts(I, W) {
+    const lect = W.items.filter(x => !x.oh);
+    const freeBy = W.days.map(d => [d, W.free(d).filter(r => r[1] - r[0] >= 60)]);
+    const freeMin = freeBy.reduce((a, [, rs]) => a + rs.reduce((b, r) => b + r[1] - r[0], 0), 0);
+    const live_ = W.secs.flatMap(s => s.meetings.filter(live).map(m => ({ s, m })));
+    const campus = [...new Set(live_.filter(x => x.s.room !== '0' && x.m.mode !== 'كامل إلكتروني' && !/إلكتروني|الكتروني/.test(x.m.mode)).map(x => x.m.day))];
+    const perDay = W.days.map(d => [d, lect.filter(x => x.day === d).reduce((a, x) => a + toMin(x.end) - toMin(x.start), 0)]);
+    const busiest = perDay.slice().sort((a, b) => b[1] - a[1])[0];
+    const first = lect.length ? lect.reduce((a, x) => toMin(x.start) < toMin(a.start) ? x : a) : null;
+    const last = lect.length ? lect.reduce((a, x) => toMin(x.end) > toMin(a.end) ? x : a) : null;
+    const modes = {}; live_.forEach(x => { modes[x.m.mode] = (modes[x.m.mode] || 0) + 1; });
+    W.secs.forEach(s => s.meetings.filter(m => !live(m)).forEach(m => { modes[m.mode] = (modes[m.mode] || 0) + 1; }));
+    const rooms = [...new Set(W.secs.map(s => s.room).filter(r => r && r !== '0'))].sort();
+    const cap = W.secs.reduce((a, s) => a + s.capacity, 0), fill = cap ? Math.round(100 * W.students / cap) : 0;
+    return { freeBy, freeMin, campus, busiest, first, last, modes, rooms, fill, cap };
+  }
+  const IP_CSS = `
+    .ip-hero { overflow: hidden; }
+    .ip-hero-in { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1.5fr); gap: 0; }
+    .ip-hero-in > div { padding: .9rem 1rem; min-width: 0; } .ip-hero-in > div + div { border-inline-start: 1px solid #ece6da; }
+    .ip-id { display: flex; gap: .85rem; align-items: center; }
+    .ip-id .ins-photo { width: 88px; height: 88px; box-shadow: 0 0 0 3px #fff, 0 3px 10px rgba(9,27,34,.16); }
+    .ip-id h2 { font-size: 1.12rem; font-weight: 800; margin: 0; color: #091b22; } .ip-id .ins-en { text-align: start; }
+    .ip-id .ins-unit { margin: .3rem 0 0; font-size: .86rem; } .ip-badges { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .3rem; }
+    .ip-ct { display: flex; flex-direction: column; gap: .35rem; justify-content: center; }
+    .ip-ct a, .ip-ct span.ip-c { display: flex; align-items: center; gap: .5rem; font-size: .84rem; color: #13222a; text-decoration: none; min-width: 0; }
+    .ip-ct a:hover { color: #901d23; } .ip-ct i { color: #901d23; width: 1rem; text-align: center; } .ip-ct b { overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+    .ip-ct small { color: #6b777c; }
+    .ip-links { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .2rem; }
+    .ip-links a { font-size: .74rem !important; font-weight: 700; border: 1px solid #ddd5c5; border-radius: 6px; padding: .15rem .5rem; color: #091b22 !important; }
+    .ip-links a:hover { border-color: #901d23; color: #901d23 !important; }
+    .ip-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .45rem; align-content: center; }
+    .ip-k { border: 1px solid #ece6da; border-radius: 10px; padding: .4rem .6rem; background: #fcfaf6; }
+    .ip-k b { display: block; font-size: 1.3rem; line-height: 1.1; color: #091b22; font-variant-numeric: tabular-nums; } .ip-k span { font-size: .72rem; color: #5b6970; font-weight: 600; }
+    .ip-k.free { background: #effaf2; border-color: #bfe5cb; } .ip-k.free b { color: #13622f; }
+    .ip-now { display: flex; align-items: center; gap: .5rem; padding: .5rem 1rem; border-top: 1px solid #ece6da; background: #f6f8fa; font-size: .86rem; font-weight: 700; color: #13222a; }
+    .ip-now.live { background: #e9f7ee; color: #0d4f25; } .ip-now.live i { color: #15803d; animation: insPulse 1.6s ease-in-out infinite; }
+    .ip-now .ms-auto { font-weight: 500; color: #6b777c; font-size: .78rem; }
+    @media (max-width: 1199.98px) { .ip-hero-in { grid-template-columns: 1fr 1fr; } .ip-kpis { grid-column: 1 / -1; border-inline-start: 0 !important; border-top: 1px solid #ece6da; grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+    @media (max-width: 767.98px) { .ip-hero { display: flex; flex-direction: column; } .ip-hero-in { display: contents; } .ip-hero-in > div { padding: .65rem .75rem; }
+      .ip-id { order: 1; } .ip-live { order: 2; } .ip-kpis { order: 3; border-top: 1px solid #ece6da; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; } .ip-ct { order: 4; border-top: 1px solid #ece6da; }
+      .ip-hero-in > div + div { border-inline-start: 0 !important; }
+      .ip-id h2 { font-size: 1.02rem; } .ip-id .ins-unit { font-size: .8rem; }
+      .ip-k { padding: .3rem .45rem; } .ip-k b { font-size: 1.1rem; } .ip-k span { font-size: .66rem; display: block; line-height: 1.25; }
+      .ip-ct { flex-direction: row; flex-wrap: wrap; gap: .3rem .9rem; } .ip-ct a, .ip-ct span.ip-c { font-size: .8rem; } .ip-links { width: 100%; } }
+    .ip-wk .card-header { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; padding: .5rem .9rem; }
+    .ip-wk .card-header h5 { margin: 0; font-size: 1rem; font-weight: 800; color: #091b22; }
+    .ip-tools { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .9rem; margin-inline-start: auto; }
+    .ip-seg { display: inline-flex; border: 1px solid #d5cdbd; border-radius: 8px; overflow: hidden; background: #fff; }
+    .ip-seg button { border: 0; background: none; padding: .2rem .6rem; font-size: .76rem; font-weight: 700; color: #3c474c; white-space: nowrap; }
+    .ip-seg button + button { border-inline-start: 1px solid #e2d9c8; } .ip-seg button.on { background: #fbf0f0; color: #7a1a1f; box-shadow: inset 0 -2px 0 #901d23; }
+    .ip-cb { display: inline-flex; align-items: center; gap: .25rem; height: 1.6rem; padding: 0 .45rem; border: 1px solid #d8d0bf; border-radius: 6px; background: #fff; font-size: .74rem; font-weight: 600; color: #3c474c; cursor: pointer; margin: 0; user-select: none; }
+    .ip-cb input { accent-color: #901d23; margin: 0; } .ip-cb.on { background: #fbf0f0; border-color: #c98f92; color: #7a1a1f; }
+    .ip-tl { font-size: .7rem; font-weight: 800; color: #6b4a1f; }
+    .ip-legend { display: flex; flex-wrap: wrap; gap: .3rem .9rem; padding: .4rem .9rem; border-bottom: 1px solid #ece6da; background: #fbf9f5; font-size: .76rem; }
+    .ip-legend span { display: inline-flex; align-items: center; gap: .3rem; } .ip-legend i { width: 11px; height: 11px; border-radius: 3px; background: var(--cbg); border: 2px solid var(--cc); }
+    .ip-legend b { color: var(--cc); } .ip-legend em { font-style: normal; color: #6b777c; }
+    .ip-mx { --dw: 92px; }
+    .ip-mr { display: grid; grid-template-columns: var(--dw) minmax(0, 1fr); }
+    .ip-md { display: flex; flex-direction: column; justify-content: center; padding: 0 .6rem; border-inline-end: 2px solid #091b22; background: #f6f1e7; }
+    .ip-md b { font-size: .88rem; color: #091b22; } .ip-md small { font-size: .66rem; color: #6b4a1f; font-weight: 700; }
+    .ip-mh .ip-md { background: none; border-color: transparent; }
+    .ip-mh .ip-mt { height: 22px; } .ip-mh .ip-mt span { position: absolute; top: 2px; transform: translateX(50%); font-size: .7rem; font-weight: 800; color: #3c474c; font-variant-numeric: tabular-nums; }
+    .ip-mh .ip-mt span:first-child { transform: none; } .ip-mh .ip-mt span:last-child { transform: translateX(100%); }
+    .ip-mt { position: relative; min-width: 0; }
+    .ip-mgrid .ip-mr { border-top: 1px solid #e6dfd0; } .ip-mgrid .ip-mr:last-child { border-bottom: 1px solid #e6dfd0; }
+    .ip-mgrid .ip-mt { height: calc(var(--lanes) * 60px + 6px);
+      background: repeating-linear-gradient(to left, transparent 0, transparent calc(100% / var(--cols) - 1px), #ebe5d8 calc(100% / var(--cols) - 1px), #ebe5d8 calc(100% / var(--cols))); }
+    .ip-mgrid .ip-mr:nth-child(even) .ip-mt { background-color: #fcfaf6; }
+    .ip-b, .ip-free { position: absolute; box-sizing: border-box; }
+    .ip-b { padding: 3px 6px; margin: 0 2px; border: 1px solid var(--cc); border-inline-start-width: 4px; border-radius: 6px; background: var(--cbg); overflow: hidden; line-height: 1.25; font-size: .74rem; color: #13222a; }
+    .ip-b b { color: var(--cc); font-size: .78rem; white-space: nowrap; } .ip-b span { display: block; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ip-b small { display: block; color: #4b5a62; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .68rem; } .ip-b small i { font-size: .62rem; margin-inline-end: 2px; }
+    .ip-b.oh { border-style: dashed; }
+    .ip-free { top: 4px; bottom: 4px; display: flex; align-items: center; justify-content: center; border: 1px dashed #4fae6d; border-radius: 6px; background: repeating-linear-gradient(135deg, #eef9f1 0 8px, #e2f4e7 8px 16px); color: #0d5c2a; overflow: hidden; font-style: normal; }
+    .ip-free span { font-size: .72rem; font-weight: 700; white-space: nowrap; padding: 0 4px; font-variant-numeric: tabular-nums; } .ip-free b { font-weight: 800; }
+    .ip-cols { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: .5rem; }
+    .ip-col { border: 1px solid #ece6da; border-radius: 10px; padding: .4rem; background: #fcfaf6; min-width: 0; }
+    .ip-col h6 { margin: -.4rem -.4rem .4rem; padding: .35rem .5rem; background: #091b22; color: #fff; border-radius: 9px 9px 0 0; font-size: .84rem; font-weight: 800; text-align: center; }
+    .ip-ce { border: 1px solid var(--cc); border-inline-start-width: 4px; border-radius: 6px; background: var(--cbg); padding: 3px 6px; margin-bottom: 4px; font-size: .74rem; line-height: 1.3; }
+    .ip-ce em { display: block; font-style: normal; font-weight: 800; color: #091b22; font-size: .74rem; } .ip-ce b { color: var(--cc); } .ip-ce span { display: block; font-weight: 700; } .ip-ce small { display: block; color: #4b5a62; font-size: .68rem; }
+    .ip-ce.oh { border-style: dashed; }
+    .ip-cf { border: 1px dashed #4fae6d; border-radius: 6px; background: #eef9f1; color: #0d5c2a; padding: 2px 6px; margin-bottom: 4px; font-size: .72rem; font-weight: 700; }
+    .ip-cnone { color: #8a959a; font-size: .76rem; text-align: center; padding: .6rem 0; }
+    @media (max-width: 991.98px) { .ip-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .ip-wkey { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin-top: .55rem; font-size: .72rem; color: #5b6970; }
+    .ip-wkey span { display: inline-flex; align-items: center; gap: .3rem; }
+    .ip-sw { display: inline-block; width: 18px; height: 11px; border-radius: 3px; border: 1px solid #901d23; background: #fbecec; } .ip-sw.f { border: 1px dashed #4fae6d; background: #e2f4e7; } .ip-sw.o { border: 1px dashed #15803d; background: #e7f6ec; }
+    .ip-side { display: flex; flex-direction: column; gap: .75rem; }
+    .ip-side .card-header, .ip-secs .card-header { padding: .45rem .8rem; font-weight: 800; font-size: .9rem; }
+    .ip-fr { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr); gap: .4rem; align-items: center; padding: .3rem 0; border-bottom: 1px dashed #ece6da; font-size: .8rem; }
+    .ip-fr:last-child { border-bottom: 0; } .ip-fr > b { color: #091b22; }
+    .ip-fr span { display: flex; flex-wrap: wrap; gap: 4px; } .ip-fr em { font-style: normal; font-weight: 700; font-size: .74rem; background: #e9f7ee; border: 1px solid #8fd0a4; color: #0d5c2a; border-radius: 999px; padding: 0 8px; font-variant-numeric: tabular-nums; }
+    .ip-fr .none { color: #8a959a; font-size: .74rem; }
+    .ip-facts { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .3rem .7rem; font-size: .8rem; margin: 0; }
+    .ip-facts dt { color: #6b777c; font-weight: 600; white-space: nowrap; } .ip-facts dd { margin: 0; font-weight: 700; color: #13222a; }
+    .ip-facts dd a { color: #091b22; text-decoration: none; border-bottom: 1px dotted #901d23; } .ip-facts dd a:hover { color: #901d23; }
+    .ip-meter { height: 6px; border-radius: 3px; background: #ece6da; overflow: hidden; margin-top: 3px; } .ip-meter i { display: block; height: 100%; background: #901d23; }
+    .ip-secs .ins-table { font-size: .82rem; } .ip-secs .ins-table td, .ip-secs .ins-table th { padding: .35rem .5rem; }
+    .ip-live { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.15fr) minmax(0, 1fr); gap: .6rem; padding: .7rem .9rem; border-top: 1px solid #ece6da; background: #faf8f3; }
+    .ip-lv { background: #fff; border: 1px solid #e3dccd; border-radius: 12px; padding: .55rem .75rem; display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+    .ip-lv.now, .ip-lv.next { border-inline-start: 5px solid var(--cc); }
+    .ip-lv.now { background: linear-gradient(0deg, #fff, #fff), var(--cbg); box-shadow: 0 0 0 2px #cdebd6; border-color: #7cc694; border-inline-start-color: #15803d; }
+    .ip-lv-h { display: flex; align-items: center; gap: .4rem; font-size: .74rem; font-weight: 800; color: #6b4a1f; text-transform: none; }
+    .ip-lv.now .ip-lv-h { color: #0d6b2e; } .ip-lv-h bdi, .ip-lv-h .ms-auto { font-weight: 800; color: #091b22; font-size: .8rem; font-variant-numeric: tabular-nums; }
+    .ip-dot { width: 9px; height: 9px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 0 rgba(22,163,74,.6); animation: ipPing 1.6s infinite; }
+    @keyframes ipPing { 0% { box-shadow: 0 0 0 0 rgba(22,163,74,.55); } 70% { box-shadow: 0 0 0 8px rgba(22,163,74,0); } 100% { box-shadow: 0 0 0 0 rgba(22,163,74,0); } }
+    .ip-lv-c { font-size: 1.05rem; color: var(--cc, #091b22); font-weight: 800; } .ip-lv.idle .ip-lv-c { color: #5b6970; font-size: .98rem; }
+    .ip-lv-sec { font-size: .72rem; font-weight: 700; background: #091b22; color: #fff; border-radius: 20px; padding: 0 .45rem; vertical-align: middle; }
+    .ip-lv-n { font-weight: 700; color: #13222a; font-size: .88rem; line-height: 1.3; } .ip-lv.idle .ip-lv-n { color: #6b777c; font-weight: 600; font-size: .8rem; }
+    .ip-lv-m { display: flex; flex-wrap: wrap; gap: .2rem .7rem; font-size: .78rem; margin-top: .15rem; }
+    .ip-lv-m a { color: #091b22; font-weight: 800; text-decoration: none; } .ip-lv-m a:hover { color: #901d23; } .ip-lv-m i { color: #901d23; } .ip-lv-m small { color: #6b777c; }
+    .ip-lv-mode { color: #2b4cb3; font-weight: 700; } .ip-lv-mode i { color: #2b4cb3 !important; }
+    .ip-prog { height: 6px; border-radius: 3px; background: #e2efe6; overflow: hidden; } .ip-prog i { display: block; height: 100%; background: #16a34a; border-radius: 3px; }
+    .ip-lv-f { font-size: .76rem; color: #3c474c; margin-top: auto; } .ip-lv-f b { color: #091b22; } .ip-lv.next .ip-lv-f { color: #7a1a1f; } .ip-lv.next .ip-lv-f b { color: #901d23; }
+    .ip-lv-list { display: flex; flex-direction: column; gap: 3px; }
+    .ip-lv-list > div { display: grid; grid-template-columns: 2.6rem auto minmax(0, 1fr) auto; gap: .35rem; align-items: baseline; font-size: .76rem; padding: 2px 6px; border-radius: 5px; background: var(--cbg); border-inline-start: 3px solid var(--cc); }
+    .ip-lv-list bdi { font-weight: 800; color: #091b22; font-variant-numeric: tabular-nums; } .ip-lv-list b { color: var(--cc); }
+    .ip-lv-list span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; } .ip-lv-list small { color: #5b6970; }
+    .ip-lv-list p { margin: 0; color: #8a959a; font-size: .78rem; }
+    @media (max-width: 991.98px) { .ip-live { grid-template-columns: 1fr 1fr; } .ip-lv.day { grid-column: 1 / -1; } }
+    @media (max-width: 575.98px) { .ip-live { grid-template-columns: 1fr; padding: .6rem; } }
+    @media (max-width: 767.98px) { .ip-mx { overflow-x: auto; -webkit-overflow-scrolling: touch; } .ip-mx > * { min-width: 720px; } .ip-mx { --dw: 70px; }
+      .ip-cols { grid-template-columns: 1fr; } .ip-wk .card-header { padding: .5rem; } .ip-tools { margin-inline-start: 0; gap: .35rem .5rem; } .ip-seg button { padding: .25rem .45rem; font-size: .72rem; }
+      .ip-legend { padding: .4rem .6rem; } .ip-id .ins-photo { width: 72px; height: 72px; } }
+    @media (max-width: 991.98px) and (min-width: 768px) { .ip-b span { display: none; } }`;
+  if (!document.getElementById('ip-css')) { const el = document.createElement('style'); el.id = 'ip-css'; el.textContent = IP_CSS; document.head.appendChild(el); }
+
+  // «الآن والتالية»: the lecture going on (with how far it has run), the next one (with a countdown) and the rest of today
+  function liveInfo(W) {
+    const amman = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Amman' }));
+    const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const T = IDX.teaching || {}, hol = new Set(T.holidays || []);
+    const today = ymd(amman), mins = amman.getHours() * 60 + amman.getMinutes(), dToday = U.JS_DAY[amman.getDay()];
+    const list = W.items.map(x => ({ ...x, a: toMin(x.start), b: toMin(x.end) }));
+    const R = { mins, dToday, note: '' };
+    if (T.start && today < T.start) R.note = `تبدأ المحاضرات ${U.numDate(T.start)}`;
+    else if (T.end && today > T.end) { R.note = 'انتهت فترة التدريس لهذا الفصل'; return R; }
+    if (hol.has(today)) R.note = 'اليوم عطلة رسمية';
+    if (!hol.has(today) && !(T.start && today < T.start)) {
+      R.cur = list.filter(x => x.day === dToday && x.a <= mins && mins < x.b).sort((a, b) => !!a.oh - !!b.oh)[0];
+      R.rest = list.filter(x => !x.oh && x.day === dToday && x.a > mins).sort((a, b) => a.a - b.a);
+    }
+    for (let k = 0; k < 21; k++) {
+      const d = new Date(amman); d.setDate(d.getDate() + k);
+      const key = ymd(d);
+      if (hol.has(key) || (T.end && key > T.end) || (T.start && key < T.start)) continue;
+      const nx = list.filter(x => !x.oh && x.day === U.JS_DAY[d.getDay()] && (k > 0 || x.a > mins)).sort((a, b) => a.a - b.a)[0];
+      if (nx) { R.next = nx; R.k = k; R.date = d; break; }
+    }
+    return R;
+  }
+  const durTxt = m => { const h = Math.floor(m / 60), r = m % 60; return [h ? (h === 1 ? 'ساعة' : h === 2 ? 'ساعتين' : `${h} ساعات`) : '', r ? `${r} دقيقة` : ''].filter(Boolean).join(' و'); };
+  function liveHTML(W) {
+    const R = liveInfo(W);
+    const room = x => x.s ? (x.s.room === '0' ? '<span><i class="bi bi-laptop"></i> قاعة افتراضية</span>' : `<a href="room.html?r=${encodeURIComponent(x.s.room)}"><i class="bi bi-geo-alt-fill"></i> ${esc(x.s.room)}</a>${x.s.building ? ` <small>${esc(x.s.building)}</small>` : ''}`) : (W.ohPlace ? `<span><i class="bi bi-geo-alt-fill"></i> ${esc(W.ohPlace)}</span>` : '');
+    const mode = x => x.m && x.m.mode !== 'وجاهي' ? `<span class="ip-lv-mode"><i class="bi ${(U.MODE[x.m.mode] || {}).icon || 'bi-laptop'}"></i> ${esc(x.m.mode)}</span>` : '';
+    const what = x => x.oh ? '<b class="ip-lv-c">ساعة مكتبية</b>' : `<b class="ip-lv-c" dir="ltr">${esc(x.s.code)}</b> <span class="ip-lv-sec">شعبة ${esc(x.s.section)}</span><div class="ip-lv-n">${esc(x.s.name)}</div>`;
+    let cur;
+    if (R.cur) {
+      const x = R.cur, pct = Math.max(2, Math.round(100 * (R.mins - x.a) / (x.b - x.a)));
+      cur = `<div class="ip-lv now" style="${x.style}"><div class="ip-lv-h"><span class="ip-dot"></span> ${x.oh ? 'الآن · ساعة مكتبية' : 'يحاضر الآن'}<bdi class="ms-auto" dir="ltr">${x.start}–${x.end}</bdi></div>
+        <div class="ip-lv-b">${what(x)}<div class="ip-lv-m">${room(x)}${mode(x)}</div></div>
+        <div class="ip-prog"><i style="width:${pct}%"></i></div><div class="ip-lv-f">مضى ${durTxt(R.mins - x.a) || 'أقل من دقيقة'} · يبقى <b>${durTxt(x.b - R.mins)}</b></div></div>`;
+    } else {
+      const hadToday = W.items.some(x => x.day === R.dToday && !x.oh);
+      cur = `<div class="ip-lv idle"><div class="ip-lv-h"><i class="bi bi-pause-circle"></i> الآن</div><div class="ip-lv-b"><b class="ip-lv-c">لا محاضرة الآن</b>
+        <div class="ip-lv-n">${esc(R.note || (R.rest && R.rest.length ? 'بين المحاضرات' : hadToday ? 'انتهت محاضرات اليوم' : 'لا محاضرات اليوم'))}</div></div></div>`;
+    }
+    let nxt;
+    if (R.next) {
+      const x = R.next, w = R.k === 0 ? 'اليوم' : R.k === 1 ? 'غداً' : U.DAYS[x.day];
+      const cd = R.k === 0 ? `تبدأ بعد <b>${durTxt(x.a - R.mins)}</b>` : `<b>${esc(w)}</b> · ${U.DAYS[x.day]} ${R.date.getDate()}/${R.date.getMonth() + 1}`;
+      nxt = `<div class="ip-lv next" style="${x.style}"><div class="ip-lv-h"><i class="bi bi-skip-forward-circle"></i> المحاضرة التالية<span class="ms-auto">${esc(w)} <bdi dir="ltr">${x.start}–${x.end}</bdi></span></div>
+        <div class="ip-lv-b">${what(x)}<div class="ip-lv-m">${room(x)}${mode(x)}</div></div><div class="ip-lv-f"><i class="bi bi-alarm"></i> ${cd}</div></div>`;
+    } else nxt = `<div class="ip-lv idle"><div class="ip-lv-h"><i class="bi bi-skip-forward-circle"></i> المحاضرة التالية</div><div class="ip-lv-b"><b class="ip-lv-c">لا محاضرات قادمة</b><div class="ip-lv-n">${esc(R.note || 'ضمن فترة التدريس')}</div></div></div>`;
+    const rest = (R.rest || []).filter(x => x !== R.next);
+    const day = `<div class="ip-lv day"><div class="ip-lv-h"><i class="bi bi-calendar-day"></i> بقية اليوم${U.DAYS[R.dToday] ? ` · ${esc(U.DAYS[R.dToday])}` : ''}</div>
+      <div class="ip-lv-list">${rest.length ? rest.map(x => `<div style="${x.style}"><bdi dir="ltr">${x.start}</bdi><b dir="ltr">${esc(x.s.code)}</b><span>${esc(x.s.name)}</span><small>${x.s.room === '0' ? 'افتراضية' : esc(x.s.room)}</small></div>`).join('')
+        : '<p>لا محاضرات أخرى اليوم.</p>'}</div></div>`;
+    return cur + nxt + day;
+  }
+  let liveTimer;
   function personView(I) {
-    const W = build(I);
+    const W = build(I), F = facts(I, W), P = vLoad();
     const pageUrl = SITE + 'instructor.html?id=' + I.id;
     const icsUrl = I.ics ? SITE + I.ics : '';
-    const nn = nowNext(W);
 
     document.title = `${I.name} – جامعة البترا`;
     $('#pg-title').textContent = I.name;
@@ -300,64 +531,90 @@
     U.updatedLine(TT.updated, 'يُراجَع كل ساعة');
 
     const contact = [
-      I.ext ? `<a class="ins-ct${I.office ? '' : ' wide'}" href="tel:+96265799555,${esc(I.ext)}"><i class="bi bi-telephone-fill"></i><span><small>الفرعي</small><b dir="ltr">${esc(I.ext)}</b></span></a>` : '',
-      I.office ? `<span class="ins-ct${I.ext ? '' : ' wide'}"><i class="bi bi-door-open-fill"></i><span><small>المكتب</small><b>${esc(I.office)}</b></span></span>` : '',
-      I.email ? `<a class="ins-ct wide" href="mailto:${esc(I.email)}"><i class="bi bi-envelope-fill"></i><span><small>البريد</small><b dir="ltr">${esc(I.email)}</b></span></a>` : '',
+      I.email ? `<a href="mailto:${esc(I.email)}"><i class="bi bi-envelope-fill"></i><b dir="ltr">${esc(I.email)}</b></a>` : '',
+      I.ext ? `<a href="tel:+96265799555,${esc(I.ext)}"><i class="bi bi-telephone-fill"></i><span><small>الفرعي</small> <b dir="ltr">${esc(I.ext)}</b></span></a>` : '',
+      I.office ? `<span class="ip-c"><i class="bi bi-door-open-fill"></i><span><small>المكتب</small> <b>${esc(I.office)}</b></span></span>` : '',
     ].join('');
     const groups = [];
     W.secs.forEach(s => { const k = s.code + '|' + s.activity; let g = groups.find(x => x.k === k); if (!g) groups.push(g = { k, s0: s, list: [] }); g.list.push(s); });
     const otherDept = s => s.department && I.department && !I.department.split(', ').includes(s.department);
+    const perCourse = c => W.secs.filter(s => s.code === c).reduce((a, s) => a + s.registered, 0);
+    const seg = (k, opts) => `<div class="ip-seg" role="group">${opts.map(([v, l, ic]) => `<button type="button" data-ipk="${k}" data-ipv="${v}" class="${P[k] === v ? 'on' : ''}">${ic ? `<i class="bi ${ic}"></i> ` : ''}${l}</button>`).join('')}</div>`;
+    const cb = (k, l) => `<label class="ip-cb${P[k] ? ' on' : ''}"><input type="checkbox" data-ipc="${k}" ${P[k] ? 'checked' : ''}>${l}</label>`;
+    const day = d => U.DAYS[d];
 
     $('#ins-app').innerHTML = `
-      <div class="row g-3 mb-3">
-        <div class="col-xl-5"><section class="card h-100 ins-card"><div class="card-body">
-          <div class="ins-top">
-            ${I.photo ? `<img class="ins-photo" src="${esc(I.photo)}" alt="">` : `<span class="ins-photo ins-ini">${esc(initials(I.name))}</span>`}
-            <div class="min-w-0"><h2 class="ins-name">${esc(I.name)}</h2>${I.name_en ? `<div class="ins-en" dir="ltr">${esc(I.name_en)}</div>` : ''}
-              <div class="mt-1 d-flex flex-wrap gap-1">${I.role ? `<span class="badge badge-lead"><i class="bi bi-star-fill"></i> ${esc(I.role)}</span>` : ''}${I.rank ? `<span class="badge text-bg-light border">${esc(I.rank)}</span>` : ''}
+      <section class="card ip-hero mb-3"><div class="ip-hero-in">
+        <div class="ip-id">${I.photo ? `<img class="ins-photo" src="${esc(I.photo)}" alt="">` : `<span class="ins-photo ins-ini">${esc(initials(I.name))}</span>`}
+          <div class="min-w-0"><h2>${esc(I.name)}</h2>${I.name_en ? `<div class="ins-en" dir="ltr">${esc(I.name_en)}</div>` : ''}
+            <div class="ip-badges">${I.role ? `<span class="badge badge-lead"><i class="bi bi-star-fill"></i> ${esc(I.role)}</span>` : ''}${I.rank ? `<span class="badge text-bg-light border">${esc(I.rank)}</span>` : ''}
               ${I.corrected ? '<span class="badge badge-fix" title="بيانات مصحَّحة عن الموقع الرسمي (انظر دليل الموظفين)"><i class="bi bi-pencil-square"></i> مصحَّح</span>' : ''}</div>
-              <div class="ins-unit mt-2"><i class="bi bi-diagram-3"></i> ${esc(I.department || 'القسم غير معروف (غير موجود في دليل الموظفين)')}${I.faculty ? `<small>${esc(I.faculty)}</small>` : ''}</div></div>
-          </div>
-          <div class="ins-now ${nn.now ? 'live' : ''}"><i class="bi ${nn.icon}"></i> ${esc(nn.text)}</div>
-          <div class="ins-cts">${contact || '<span class="text-muted small">لا توجد بيانات تواصل في دليل الموظفين.</span>'}</div>
-          <div class="ins-links no-print">
+            <div class="ins-unit"><i class="bi bi-diagram-3"></i> ${esc(I.department || 'القسم غير معروف')}${I.faculty ? `<small>${esc(I.faculty)}</small>` : ''}</div></div></div>
+        <div class="ip-ct">${contact || '<span class="text-muted small">لا توجد بيانات تواصل في دليل الموظفين.</span>'}
+          <div class="ip-links no-print">
             ${I.directory_id ? `<a href="directory.html?q=${encodeURIComponent(U.shortName(I.name).split(' ').slice(0, 2).join(' '))}"><i class="bi bi-person-lines-fill"></i> دليل الموظفين</a>` : ''}
             ${I.profile ? `<a href="${esc(I.profile)}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-left"></i> الملف الرسمي</a>` : ''}
-            <a href="timetable.html?inst=${encodeURIComponent(I.name)}"><i class="bi bi-table"></i> الجدول الدراسي</a>
-          </div></div></section></div>
-        <div class="col-xl-7 d-flex flex-column gap-3">
-          <div class="ins-kpis">
-            <div class="stat-card"><div class="v">${W.secs.length}</div><div class="l"><i class="bi bi-collection-fill"></i> شعبة</div></div>
-            <div class="stat-card"><div class="v">${W.courses.length}</div><div class="l"><i class="bi bi-journal-bookmark-fill"></i> مقرر</div></div>
-            <div class="stat-card"><div class="v">${W.hours.toLocaleString('en-US')}</div><div class="l"><i class="bi bi-clock-fill"></i> ساعة حضور أسبوعياً</div></div>
-            <div class="stat-card"><div class="v">${W.students}</div><div class="l"><i class="bi bi-people-fill"></i> طالباً مسجلاً</div></div></div>
-          <section class="card ins-oh" id="ins-oh">${ohCard(I, W)}</section>
-          <section class="card flex-grow-1"><div class="card-header"><i class="bi bi-hourglass-split"></i> أوقات الفراغ <small class="text-muted">بين 08:00 و16:00</small></div>
-            <div class="card-body">${timeline(W)}</div></section>
-        </div>
+            <a href="timetable.html?inst=${encodeURIComponent(I.name)}"><i class="bi bi-table"></i> الجدول الدراسي</a></div></div>
+        <div class="ip-kpis">
+          <div class="ip-k"><b>${W.secs.length}</b><span>شعبة</span></div>
+          <div class="ip-k"><b>${W.courses.length}</b><span>مقرر</span></div>
+          <div class="ip-k"><b>${W.hours.toLocaleString('en-US')}</b><span>ساعة حضور أسبوعياً</span></div>
+          <div class="ip-k"><b>${W.students}</b><span>طالباً مسجلاً</span></div>
+          <div class="ip-k free"><b>${hrs(F.freeMin)}</b><span title="بين 08:00 و16:00، فترات ساعة فأكثر">ساعة فراغ في الدوام</span></div>
+          <div class="ip-k"><b>${F.campus.length}</b><span>${F.campus.length > 2 && F.campus.length < 11 ? 'أيام' : 'يوم'} في الحرم</span></div></div>
       </div>
-      <section class="card mb-3"><div class="card-header d-flex flex-wrap gap-2 align-items-center"><span><i class="bi bi-calendar-week"></i> الجدول الأسبوعي</span>
-        <span class="ins-legend ms-auto">${W.courses.map(c => { const s = W.secs.find(x => x.code === c), [col, bg] = W.color(c);
-          return `<span style="--cc:${col};--cbg:${bg}"><i></i><b dir="ltr">${esc(c)}</b> ${esc(s.name)}</span>`; }).join('')}</span></div>
-        <div class="card-body">${W.items.length ? U.weekGrid(W.items, { days: W.days, px: 64, cls: 'wk-ins', compact: true }) : '<p class="text-muted mb-0">لا لقاءات بوقت ثابت.</p>'}
-          <div class="ins-modes">${Object.entries(U.MODE).filter(([k]) => k !== 'غير متزامن').map(([k, v]) => `<span><i class="bi ${v.icon}"></i> ${k}</span>`).join('')}
-            ${W.asyncSecs.length ? `<span class="ms-auto"><i class="bi bi-info-circle"></i> ${W.asyncSecs.length} ${W.asyncSecs.length > 2 && W.asyncSecs.length < 11 ? 'شعب لها' : 'شعبة لها'} لقاءات غير متزامنة (بلا وقت ثابت) لا تظهر في الجدول</span>` : ''}</div></div></section>
-      <section class="card mb-3"><div class="card-header"><i class="bi bi-list-ul"></i> الشعب <small class="text-muted">${W.secs.length} شعبة في ${W.courses.length} مقرر</small></div>
-        <div class="table-responsive"><table class="table align-middle mb-0 tt-table ins-table">
-          <thead><tr><th>المقرر</th><th class="text-center">الشعبة</th><th>الأيام والوقت</th><th>القاعة</th><th>المسجلون</th></tr></thead>
-        <tbody>${groups.map(g => { const [c, bg] = W.color(g.s0.code); return g.list.map((s, i) => `<tr class="${i ? '' : 'ins-first'}" style="--cc:${c};--cbg:${bg}">
-          ${i ? '' : `<td class="ins-course" rowspan="${g.list.length}"><b dir="ltr">${esc(s.code)}</b> ${esc(s.name)}
-            <span class="tt-act ${s.activity === 'عملي' ? 'lab' : ''}">${esc(s.activity)}</span>${s.degree !== 'البكالوريوس' ? ` <span class="badge text-bg-warning">${esc(s.degree)}</span>` : ''}
-            ${otherDept(s) ? `<small>${esc(s.department)}</small>` : ''}</td>`}
-          <td class="text-center"><span class="tt-sec">${esc(s.section)}</span></td>
-          <td class="ins-when">${when(s)}</td>
-          <td class="ins-room">${s.room === '0' ? '<span class="tt-none">قاعة افتراضية (0)</span>' : `<a href="room.html?r=${encodeURIComponent(s.room)}" title="صفحة القاعة"><b>${esc(s.room)}</b> <i class="bi bi-door-open"></i></a> <small>${esc(s.building)}</small>`}</td>
-          <td>${seats(s)}</td></tr>`).join(''); }).join('')}</tbody></table></div></section>`;
+      <div class="ip-live" id="ip-live" aria-live="polite">${liveHTML(W)}</div></section>
+
+      <section class="card ip-wk mb-3"><div class="card-header">
+        <h5><i class="bi bi-calendar-week"></i> الجدول الأسبوعي</h5>
+        <div class="ip-tools no-print">
+          ${seg('v', [['mx', 'مصفوفة الأسبوع والفراغ', 'bi-distribute-horizontal'], ['cols', 'الأيام كأعمدة', 'bi-layout-three-columns'], ['grid', 'الشبكة الزمنية', 'bi-calendar3']])}
+          ${P.v !== 'grid' ? `<span class="ip-tl">الساعات</span>${seg('range', [['work', '08–16'], ['all', 'اليوم كاملاً']])}` : ''}
+          ${P.v !== 'grid' ? `<span class="ip-tl">الخانة</span>${cb('name', 'اسم المقرر')}${cb('room', 'القاعة')}${P.v === 'mx' ? cb('time', 'الوقت') : ''}${cb('free', 'الفراغ')}` : ''}
+        </div></div>
+        <div class="ip-legend">${W.courses.map(c => { const s = W.secs.find(x => x.code === c), [col, bg] = W.color(c);
+          return `<span style="--cc:${col};--cbg:${bg}"><i></i><b dir="ltr">${esc(c)}</b> ${esc(s.name)} <em>(${perCourse(c)} طالباً)</em></span>`; }).join('')}</div>
+        <div class="card-body p-2 p-md-3" id="ip-week">${weekBody(W, P)}
+          <div class="ip-wkey"><span><i class="ip-sw"></i> محاضرة (لون لكل مقرر)</span><span><i class="ip-sw o"></i> ساعة مكتبية</span>${P.free ? '<span><i class="ip-sw f"></i> فراغ لساعة أو أكثر (08:00–16:00)</span>' : ''}
+            ${Object.entries(U.MODE).filter(([k]) => k !== 'غير متزامن').map(([k, v]) => `<span><i class="bi ${v.icon}"></i> ${k}</span>`).join('')}
+            ${W.asyncSecs.length ? `<span class="ms-auto"><i class="bi bi-info-circle"></i> ${W.asyncSecs.length} ${W.asyncSecs.length > 2 && W.asyncSecs.length < 11 ? 'شعب لها' : 'شعبة لها'} لقاءات غير متزامنة لا تظهر في الجدول</span>` : ''}</div></div></section>
+
+      <div class="row g-3 mb-3">
+        <div class="col-xl-8"><section class="card ip-secs h-100"><div class="card-header"><i class="bi bi-list-ul"></i> الشعب <small class="text-muted fw-normal">${W.secs.length} شعبة في ${W.courses.length} مقرر</small></div>
+          <div class="table-responsive"><table class="table align-middle mb-0 tt-table ins-table">
+            <thead><tr><th>المقرر</th><th class="text-center">الشعبة</th><th>الأيام والوقت</th><th>القاعة</th><th>المسجلون</th></tr></thead>
+          <tbody>${groups.map(g => { const [c, bg] = W.color(g.s0.code); return g.list.map((s, i) => `<tr class="${i ? '' : 'ins-first'}" style="--cc:${c};--cbg:${bg}">
+            ${i ? '' : `<td class="ins-course" rowspan="${g.list.length}"><b dir="ltr">${esc(s.code)}</b> ${esc(s.name)}
+              <span class="tt-act ${s.activity === 'عملي' ? 'lab' : ''}">${esc(s.activity)}</span>${s.degree !== 'البكالوريوس' ? ` <span class="badge text-bg-warning">${esc(s.degree)}</span>` : ''}
+              ${otherDept(s) ? `<small>${esc(s.department)}</small>` : ''}</td>`}
+            <td class="text-center"><span class="tt-sec">${esc(s.section)}</span></td>
+            <td class="ins-when">${when(s)}</td>
+            <td class="ins-room">${s.room === '0' ? '<span class="tt-none">قاعة افتراضية (0)</span>' : `<a href="room.html?r=${encodeURIComponent(s.room)}" title="صفحة القاعة"><b>${esc(s.room)}</b> <i class="bi bi-door-open"></i></a> <small>${esc(s.building)}</small>`}</td>
+            <td>${seats(s)}</td></tr>`).join(''); }).join('')}</tbody></table></div></section></div>
+        <div class="col-xl-4 ip-side">
+          <section class="card ins-oh" id="ins-oh">${ohCard(I, W)}</section>
+          <section class="card"><div class="card-header"><i class="bi bi-hourglass-split"></i> أوقات الفراغ <small class="text-muted fw-normal">08:00–16:00 · ساعة فأكثر</small></div>
+            <div class="card-body py-1 px-3">${F.freeBy.map(([d, rs]) => `<div class="ip-fr"><b>${esc(day(d))}</b><span>${rs.length ? rs.map(r => `<em dir="ltr">${toTime(r[0])}–${toTime(r[1])}</em>`).join('') : '<span class="none">لا فراغ لساعة</span>'}</span></div>`).join('')}</div></section>
+          <section class="card"><div class="card-header"><i class="bi bi-info-square"></i> معلومات مفيدة</div>
+            <div class="card-body py-2 px-3"><dl class="ip-facts">
+              ${F.campus.length ? `<dt>أيام الحضور</dt><dd>${F.campus.length ? U.WEEK.filter(d => F.campus.includes(d)).map(day).join('، ') : '—'}</dd>` : ''}
+              ${F.busiest && F.busiest[1] ? `<dt>أكثر الأيام</dt><dd>${esc(day(F.busiest[0]))} · ${hrs(F.busiest[1])} ساعة</dd>` : ''}
+              ${F.first ? `<dt>أبكر محاضرة</dt><dd>${esc(day(F.first.day))} <bdi dir="ltr">${F.first.start}</bdi></dd><dt>آخر محاضرة</dt><dd>${esc(day(F.last.day))} حتى <bdi dir="ltr">${F.last.end}</bdi></dd>` : ''}
+              <dt>نمط التدريس</dt><dd>${Object.entries(F.modes).map(([m, n]) => `${esc(m)} (${n})`).join('، ') || '—'}</dd>
+              ${F.rooms.length ? `<dt>القاعات</dt><dd>${F.rooms.map(r => `<a href="room.html?r=${encodeURIComponent(r)}">${esc(r)}</a>`).join('، ')}</dd>` : ''}
+              <dt>نسبة الامتلاء</dt><dd>${W.students} من ${F.cap} مقعداً (${F.fill}%)<div class="ip-meter"><i style="width:${Math.min(100, F.fill)}%"></i></div></dd>
+            </dl></div></section>
+        </div>
+      </div>`;
 
     const sub = $('#i-sub');
     if (sub) sub.addEventListener('click', () => subscribe(I, icsUrl));
     $('#i-print').addEventListener('click', () => printPage(I, W, pageUrl));
+    document.querySelectorAll('[data-ipk]').forEach(b => b.addEventListener('click', () => { P[b.dataset.ipk] = b.dataset.ipv; vSave(P); personView(I); }));
+    document.querySelectorAll('[data-ipc]').forEach(b => b.addEventListener('change', () => { P[b.dataset.ipc] = b.checked; vSave(P); personView(I); }));
     bindOh(I, W);
+    clearInterval(liveTimer);
+    liveTimer = setInterval(() => { const el = $('#ip-live'); if (el) el.innerHTML = liveHTML(W); else clearInterval(liveTimer); }, 60000);
   }
 
   function subscribe(I, url) {
