@@ -754,7 +754,7 @@
     ]
    },
    "groupB": {
-    "label": "باقي كليات الجامعة",
+    "label": "باقي كليات الجامع ة",
     "bands": [
      [
       95.0,
@@ -803,18 +803,36 @@
    ],
    "first": "يشترط على الطالب للحصول على منحة التفوق الأكاديمي للمرة الأولى أن يكون قد إجتاز (30) ساعة معتمدة من ضمن خطته الدراسية في جامعة البترا وأن يحقق معدلاً تراكمياً حده الأدنى (3.67)، شريطة المحافظة على الحد الأدنى لعدد الساعات المسجلة في الفصل الاعتيادي",
    "continue": "تستمر منحة التفوق الأكاديمي في الفصول اللاحقة شريطة إجتياز (12) ساعة معتمدة كحد أدنى في الفصل الإعتيادي، و (6) ساعات في الفصل الصيفي، مع الأخذ بعين الإعتبار ضرورة كون هذه المواد من خطة الطالب، وأن تكون من المواد التي تدخل في حساب المعدل التراكمي، بالإضافة إلى تحقيق معدل تراكمي حده الأدنى (3.67).",
-   "discipline": "بغض النظر عما ورد في 1 و 2 من هذه المادة، يشترط على الطالب للحصول على منحة التفوق الأكاديمي أن لا تكون قد صدرت بحقه عقوبة تأديبية من درجة إنذار فأكثر."
+   "discipline": "بغض النظر عما ورد في 1 و 2 من هذه المادة، يشترط على الطالب للحصول على منحة التفوق الأكاديمي أن لا تكون قد صدرت بحقه عقوبة تأديبية من درجة إنذار فأكثر ."
   },
   "instructions": "تعليمات رقم (27) لسنة 2015 - تعليمات المنح والتشغيل لطلبة جامعة البترا"
  },
- "review": [],
- "changes": [],
+ "review": [
+  {
+   "part": "fees",
+   "reason": "403 Client Error: Access Denied for url: https://www.uop.edu.jo/_api/web/lists/getbytitle('UniversityMajor')/items?$expand=Faculty&$select=Faculty/TitleAR,Faculty/ID,Title,TitleAR,MajorType,NumberOfHours,LowRate,LowRateAR,LowRate2,LowRate2AR,CostOfHour,CostOfHour2,ID,LinkAR&$orderby=Order0%20asc&$top=1000",
+   "url": "https://www.uop.edu.jo/Ar/AdmissionsAndRegistration/Pages/AllCourses.aspx",
+   "since": "2026-11-06T23:45:02+03:00"
+  },
+  {
+   "part": "finance",
+   "reason": "403 Client Error: Access Denied for url: https://www.uop.edu.jo/en/FinanceDepartment/_api/web/lists/getbytitle('ContentItems')/items?$select=ID,TitleAR,DescriptionAR&$top=500",
+   "url": "https://www.uop.edu.jo/Ar/FinanceDepartment/Pages/ImportantFinancialInformation.aspx",
+   "since": "2026-11-06T23:45:02+03:00"
+  }
+ ],
+ "changes": [
+  {
+   "part": "grants",
+   "at": "2026-11-06T23:45:02+03:00"
+  }
+ ],
  "note": "صفحة غير رسمية؛ كل الأرقام والنصوص منقولة كما تنشرها جامعة البترا على موقعها الرسمي دون تقدير أو تقريب، والمرجع المعتمد دائرة الشؤون المالية ودائرة القبول والتسجيل.",
  "hashes": {
   "fees": "c335c458b6817eb49277857c1df5359a385d0c4a139598181c5f0886f97f5f64",
   "finance": "e7b0129068fc6749f88fdbfa3f9917a02681367e9853ecb5c6caa4b7cfe486f8",
-  "grants": "a101bebba55568d6a8c98dd606d15b9c59b9fd6cfce6e29f8fbf98e8e7e00340"
+  "grants": "738b65a63242d00f67b1a73ff282563afd4d19050ec3248717b90a880b0b578e"
  },
- "checked": "2026-11-06T23:00:00+03:00",
- "updated": "2026-11-06T23:00:00+03:00"
+ "checked": "2026-11-06T23:45:02+03:00",
+ "updated": "2026-11-06T23:45:02+03:00"
 }
