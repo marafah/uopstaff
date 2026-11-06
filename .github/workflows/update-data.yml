@@ -43,6 +43,10 @@ jobs:
       - name: Office hours backup (from the Google Sheet service)
         continue-on-error: true
         run: python scripts/update_office_hours.py
+      - name: Finance pages from uop.edu.jo (majors and fees, financial Q&A, grants — word for word)
+        # a part whose official text no longer matches keeps its last good copy and is flagged on the pages
+        continue-on-error: true
+        run: python scripts/update_finance.py
       - name: Organizational structure (official chart check, links to the directory)
         continue-on-error: true
         run: python scripts/update_org.py
