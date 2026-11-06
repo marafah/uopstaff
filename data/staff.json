@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-06T07:59:27Z",
+"updated": "2026-11-06T15:59:09Z",
 "main_line": "+96265799555",
 "main_line_display": "06 5799555",
 "faculties": [
@@ -4811,10 +4811,10 @@
 "ext": "8301",
 "office": "8301",
 "email": "hshaker@uop.edu.jo",
-"photo": "assets/photos/d85040206cc40bd8.jpg",
+"photo": "",
 "profile": "https://pharma.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=68007300680061006B0065007200400075006F0070002E006500640075002E006A006F00",
 "source": "academic_api",
-"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20251007.png"
+"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20251007.svg"
 },
 {
 "id": "A:73006100620075006A00610064006100790069006C00400075006F0070002E006500640075002E006A006F00",
@@ -4833,10 +4833,10 @@
 "ext": "8412",
 "office": "8412",
 "email": "sabujadayil@uop.edu.jo",
-"photo": "assets/photos/c966e07bfe74a2d4.jpg",
+"photo": "assets/photos/5686a8d50224c4c4.jpg",
 "profile": "https://pharma.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=73006100620075006A00610064006100790069006C00400075006F0070002E006500640075002E006A006F00",
 "source": "academic_api",
-"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20160002.JPG"
+"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20160002.png"
 },
 {
 "id": "A:6400690061006C0061002E0061006C00610062006200610073006900400075006F0070002E006500640075002E006A006F00",
@@ -5603,10 +5603,10 @@
 "ext": "",
 "office": "",
 "email": "abdelaziz.sharabati@uop.edu.jo",
-"photo": "",
+"photo": "assets/photos/fad18a32544bc84f.jpg",
 "profile": "https://fafs.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=61006200640065006C0061007A0069007A002E00730068006100720061006200610074006900400075006F0070002E006500640075002E006A006F00",
 "source": "academic_api",
-"photo_src": ""
+"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20261046.jpeg"
 },
 {
 "id": "A:690079006F007500730065006600400075006F0070002E006500640075002E006A006F00",
