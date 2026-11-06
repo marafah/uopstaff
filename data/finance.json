@@ -807,15 +807,7 @@
   },
   "instructions": "تعليمات رقم (27) لسنة 2015 - تعليمات المنح والتشغيل لطلبة جامعة البترا"
  },
- "review": [
-  {
-   "part": "finance",
-   "kind": "check",
-   "reason": "لم تُقرأ أرقام المواصلات",
-   "url": "https://www.uop.edu.jo/Ar/FinanceDepartment/Pages/ImportantFinancialInformation.aspx",
-   "since": "2026-11-06T23:45:02+03:00"
-  }
- ],
+ "review": [],
  "changes": [
   {
    "part": "fees",
@@ -833,8 +825,8 @@
   "grants": "738b65a63242d00f67b1a73ff282563afd4d19050ec3248717b90a880b0b578e",
   "docs": "c34db4bc0e3cd0b05297db10c713d24b68e465e62ec4d3bea419c01104b992c0"
  },
- "checked": "2026-11-07T00:03:16+03:00",
- "updated": "2026-11-07T00:03:16+03:00",
+ "checked": "2026-11-07T00:11:14+03:00",
+ "updated": "2026-11-07T00:11:14+03:00",
  "docs_index": {
   "overtime_faculty": {
    "title": "تعليمات العمل الإضافي لأعضاء الهيئة التدريسية والمحاضرين المتفرغين في جامعة البترا لسنة 2017",
