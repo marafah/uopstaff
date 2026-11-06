@@ -39,6 +39,13 @@
       <span>${changed ? 'يُعرض هنا آخر نص مطابق قُرئ قبل التغيير؛ راجع الصفحة الرسمية قبل الاعتماد على الأرقام:' : 'الأرقام المعروضة هي آخر نسخة مطابقة نُقلت من الصفحة الرسمية، وستُحدَّث تلقائياً عند نجاح الاتصال:'} ${pages}</span></div></div>`;
   };
   const verbatim = t => esc(t).replace(/\n/g, '<br>');
+  // official text, one clause per row: the clause's own number on the side, the words as published
+  const LBL = /^((?:المادة\s*\(\d+\)\s*:?\s*)(?:[أ-ي]\s*\.\s*)?|[أ-ي]\s*\.\s*|\d+\s*\.\s*)/;
+  const legal = (title, items, o = {}) => `<details class="fn-legal ${o.cls || ''}" ${o.open ? 'open' : ''}><summary><i class="bi ${o.icon || 'bi-journal-text'}"></i><b>${esc(title)}</b>
+      <span class="fn-legal-n">${items.length} ${items.length > 10 ? 'بنداً' : 'بنود'}</span>${o.badge || ''}<i class="bi bi-chevron-down fn-legal-c"></i></summary>
+      <ol class="fn-legal-l">${items.map(t => { const m = String(t).match(LBL), lab = m ? m[1].replace(/\s*:\s*$/, '').trim() : '', body = m ? String(t).slice(m[0].length) : String(t);
+        return `<li><span class="fn-legal-k">${esc(lab) || '<i class="bi bi-dot"></i>'}</span><span class="fn-legal-t">${esc(body)}</span></li>`; }).join('')}</ol>
+      ${o.link ? `<div class="fn-legal-f">${o.link}</div>` : ''}</details>`;
 
   /* ---------------------------------------------------------------- the academic calendar (data/calendar.json, read from the official PDF) */
   let CAL = null;
@@ -239,7 +246,7 @@
       <div class="card-body"><div class="row g-3 align-items-end"><div class="col-sm-4"><label class="small fw-bold" for="c-dh">الساعات المضافة (+) أو المسحوبة (−)</label><input type="number" step="1" min="${-cs.h}" max="24" class="form-control form-control-sm" id="c-dh" value="${cs.dh}"></div>
         <div class="col-sm-8"><div class="fn-split fn-split-l"><div><small>الساعات بعد التعديل</small><b>${nh}</b></div><div><small>فرق رسوم الساعات</small><b>${diff < 0 ? '−' : diff > 0 ? '+' : ''}${JD(Math.abs(diff))}</b></div>
           ${r.gr.pct ? `<div><small>بعد المنحة ${r.gr.pct}%</small><b>${diff < 0 ? '−' : diff > 0 ? '+' : ''}${JD(Math.abs(diff - disc))}</b></div>` : ''}<div><small>رسوم الفصل بعد التعديل</small><b>${JD(r.total + diff - disc)}</b></div></div></div></div>
-        <p class="small mt-2 mb-0">${Math.abs(cs.dh)} ساعة × ${price} د.أ سعر الساعة في ${esc(progName(p))}. رسوم التسجيل والخدمات لا تتغير بعدد الساعات.</p>
+        <p class="fn-formula"><i class="bi bi-calculator"></i> ${Math.abs(cs.dh)} ساعة × ${price} د.أ سعر الساعة في ${esc(progName(p))}. رسوم التسجيل والخدمات لا تتغير بعدد الساعات.</p>
         ${ti && ti.withdraw.length ? `<div class="fn-wd mt-2"><b class="small">الانسحاب من الفصل كما ينشره التقويم الجامعي:</b><ul class="fn-cond mt-1 mb-0">${ti.withdraw.map(e => `<li><i class="bi bi-box-arrow-right"></i><span><b>${esc(e.title)}</b>${e.note ? ' – ' + esc(e.note) : ''} · ${esc(dRange(e))} <span class="fn-cd ${when(e).k}">${esc(when(e).txt)}</span></span></li>`).join('')}</ul></div>` : ''}</div></section>`;
   }
   // ---- comparing up to three programmes: the plan's cost at today's prices, and the Tawjihi excellence grant on its hours
@@ -325,7 +332,7 @@
           <section class="card mt-3"><div class="table-responsive"><table class="table align-middle mb-0 tt-table fn-lines"><thead><tr><th>البند</th><th>التفصيل</th><th class="text-end">المبلغ</th></tr></thead><tbody>
             ${(() => { const row = ([n, d, v, k]) => `<tr class="${k}"><td><b>${esc(n)}</b></td><td class="small">${esc(d)}</td><td class="text-end"><b>${v < 0 ? '−' : ''}${JD(Math.abs(v))}</b></td></tr>`;
               const A = r.L.filter(l => l[3] !== 'fixed'), B = r.L.filter(l => l[3] === 'fixed'), sub = (t, v) => `<tr class="sub"><td colspan="2">${t}</td><td class="text-end">${JD(v)}</td></tr>`;
-              return `<tr class="grp"><td colspan="3"><i class="bi bi-mortarboard"></i> الرسوم الدراسية</td></tr>${A.map(row).join('')}${sub('صافي الرسوم الدراسية', r.net)}
+              return `<tr class="grp"><td colspan="3"><i class="bi bi-mortarboard"></i> الرسوم الدراسية</td></tr>${A.map(row).join('')}${A.length > 1 ? sub('صافي الرسوم الدراسية', r.net) : ''}
                 <tr class="grp"><td colspan="3"><i class="bi bi-receipt"></i> رسوم التسجيل والخدمات وغيرها</td></tr>${B.map(row).join('')}${sub('مجموع الرسوم الأخرى', r.total - r.net)}`; })()}
             <tr class="sum"><td colspan="2"><b>المجموع</b></td><td class="text-end"><b>${JD(r.total)}</b></td></tr></tbody></table></div></section>
           ${planHTML(p, r)}${dropHTML(p, r)}
@@ -433,10 +440,10 @@
     const tables = `<div class="row g-3">
         <div class="col-xl-7"><section class="card h-100"><div class="card-header fw-bold fn-ch"><i class="bi bi-trophy"></i> ${esc(T.title)} <small>للطالب المستجد</small></div><div class="card-body">
           <div class="table-responsive">${tTable}</div>
-          <ul class="fn-cond mt-3 mb-0">${ok(null, `<b>لمن؟</b> ${esc(T.who)}`)}${ok(null, `<b>تشمل:</b> ${esc(T.covers)}`)}${ok(null, esc(T.keep))}${T.after ? ok(null, esc(T.after)) : ''}</ul></div></section></div>
+          ${legal('النص الرسمي لهذه المنحة', [T.who, 'تشمل: ' + T.covers, T.keep, ...(T.after ? [T.after] : [])], { cls: 'mt-3 fn-legal-in' })}</div></section></div>
         <div class="col-xl-5"><section class="card h-100"><div class="card-header fw-bold fn-ch"><i class="bi bi-mortarboard"></i> ${esc(A.title)} <small>للطالب الحالي، كل فصل</small></div><div class="card-body">
           <div class="table-responsive">${aTable}</div>
-          <ul class="fn-cond mt-3 mb-0">${ok(null, esc(A.covers))}${ok(null, esc(A.first))}${ok(null, esc(A.continue))}${ok(null, esc(A.discipline))}</ul></div></section></div></div>`;
+          ${legal('النص الرسمي لهذه المنحة', [A.covers, A.first, A.continue, A.discipline], { cls: 'mt-3 fn-legal-in' })}</div></section></div></div>`;
     const cards = `<div class="fn-cards">${[...T.groupB.bands.map(b => ['تفوق الثانوية', T.groupB.label, b]), ...T.groupA.bands.map(b => ['تفوق الثانوية', T.groupA.label, b])].map(([k, l, [lo, hi, pc]]) =>
       `<div class="fn-card"><div class="fn-card-h"><span class="fn-deg">${k}</span><small>${esc(l)}</small></div><div class="fn-card-price"><b>${pc}%</b><span>من الرسوم الدراسية</span></div><ul><li><i class="bi bi-bar-chart"></i> معدل ${avgTxt(lo, hi)}</li><li><i class="bi bi-calendar3"></i> عام دراسي كامل</li><li><i class="bi bi-arrow-repeat"></i> بمعدل ${T.keep_gpa[String(pc)]} للاستمرار</li></ul></div>`).join('')}
       ${A.bands.map(([lo, hi, pc]) => `<div class="fn-card"><div class="fn-card-h"><span class="fn-deg m">تفوق أكاديمي</span><small>كل فصل</small></div><div class="fn-card-price"><b>${pc}%</b><span>من الرسوم الدراسية</span></div><ul><li><i class="bi bi-bar-chart"></i> معدل ${gpaTxt(lo, hi)}</li><li><i class="bi bi-journal-check"></i> بعد اجتياز 30 ساعة</li></ul></div>`).join('')}</div>`;
@@ -466,9 +473,9 @@
         <div class="col-xl-4 col-lg-5"><section class="card fn-form h-100"><div class="card-header fw-bold"><i class="bi bi-sliders"></i> بياناتك</div><div class="card-body d-grid gap-2 align-content-start">${form}
           <div class="fn-hint"><i class="bi bi-shield-lock"></i> لا يُحفظ ولا يُرسل أي شيء تُدخله هنا.</div></div></section></div>
         <div class="col-xl-8 col-lg-7 d-grid gap-3 align-content-start">
-          <section class="fn-total fn-gres ${res.tone}"><div><small>${tw ? esc(T.title) : esc(A.title)} حسب التعليمات المنشورة</small><b>${res.pct === null ? '—' : res.pct ? res.pct + '%' : '0%'}</b><span>${res.head ? `<strong>${esc(res.head)}</strong> · ` : ''}${esc(res.sub)}</span></div>
+          <section class="fn-total fn-gres ${res.tone} ${res.pct === null && !res.head ? 'empty' : ''}"><div><small>${tw ? esc(T.title) : esc(A.title)} حسب التعليمات المنشورة</small><b>${res.pct === null ? '—' : res.pct ? res.pct + '%' : '0%'}</b><span>${res.head ? `<strong>${esc(res.head)}</strong> · ` : ''}${esc(res.sub)}</span></div>
             ${res.split.length ? `<div class="fn-split">${res.split.map(([l, v]) => `<div><small>${esc(l)}</small><b>${esc(v)}</b></div>`).join('')}</div>` : ''}</section>
-          <section class="card"><div class="card-header fw-bold fn-ch"><i class="bi bi-list-check"></i> الشروط</div><div class="card-body"><ul class="fn-cond mb-0">${res.cond.join('')}</ul></div></section>
+          <section class="card fn-condcard"><div class="card-header fw-bold fn-ch"><i class="bi bi-list-check"></i> الشروط <small>كما وردت في الصفحة الرسمية</small></div><div class="card-body"><ul class="fn-cond mb-0">${res.cond.join('')}</ul></div></section>
           ${tw ? '' : whatIf()}</div></div>
       <div class="fn-alert"><i class="bi bi-exclamation-circle-fill"></i> ${esc(G.excluded_note)}</div>
       <div class="fn-head"><h2><i class="bi bi-table"></i> جداول المنح المنشورة</h2>${views('fn-gv', [['tables', 'bi-table', 'جداول'], ['cards', 'bi-grid-1x2', 'بطاقات']], gs.view)}</div>
@@ -590,8 +597,7 @@
     if (!S) { $('#fn-staff').innerHTML = '<div class="fn-empty">تُنشر هذه الصفحة بعد أول قراءة للتعليمات من الموقع الرسمي.</div>'; return; }
     const st = k => (S.status || {})[k] || {}, docLink = k => `<a href="${esc(st(k).url || D.sources.regulations)}" target="_blank" rel="noopener">${esc(S.docs[k].title)} <i class="bi bi-box-arrow-up-left"></i></a>`;
     const badge = k => st(k).ok ? '<span class="fn-cd now"><i class="bi bi-patch-check"></i> مطابق للملف الرسمي</span>' : '<span class="fn-cd past"><i class="bi bi-exclamation-triangle"></i> تغيّر الملف الرسمي – راجِعه</span>';
-    const texts = (k, L, title) => `<section class="card mt-3 fn-notes"><div class="card-header fw-bold fn-ch d-flex flex-wrap gap-2 align-items-center"><span><i class="bi bi-quote"></i> ${esc(title || 'النص كما ورد في التعليمات')}</span>${badge(k)}</div>
-      <div class="card-body"><ul class="fn-cond mb-2">${L.map(t => `<li><i class="bi bi-dot"></i><span>${esc(t)}</span></li>`).join('')}</ul><div class="small">${docLink(k)}</div></div></section>`;
+    const texts = (k, L, title) => legal(title || 'النص الرسمي كما ورد في التعليمات', L, { badge: badge(k), link: docLink(k), icon: 'bi-quote', cls: 'mt-3' });
     const num = (v, lo, hi, def) => { const x = parseFloat(v); return Number.isFinite(x) ? Math.max(lo, Math.min(hi, x)) : def; };
     const tot = (sub, big, head, split, tone) => `<section class="fn-total ${tone || ''}"><div><small>${esc(sub)}</small><b>${big}</b><span>${head}</span></div>${split && split.length ? `<div class="fn-split">${split.map(([l, v]) => `<div><small>${esc(l)}</small><b>${esc(v)}</b></div>`).join('')}</div>` : ''}</section>`;
     const field = (id, label, input) => `<div><label class="small fw-bold" for="${id}">${label}</label>${input}</div>`;
@@ -609,7 +615,7 @@
         `${tot('المنحة التشجيعية حسب المادة (11)', it.pct + '%', `<strong>${esc(it.label)}</strong>${p ? ' · ' + esc(progName(p)) + ` · ${h} ساعة` : ' · اختر التخصص لحساب المبلغ'}`,
           p ? [['رسوم الساعات', JD(fee)], ['تخصم المنحة', JD(save)], ['رسوم الساعات بعدها', JD(fee - save)]] : [], 'ok')}
         ${h < C.min_hours ? `<div class="fn-alert mt-3"><i class="bi bi-exclamation-circle-fill"></i> المادة (12/ب): يشترط لاستمرار المنحة التشجيعية أن يدرس الطالب ما لا يقل عن (${C.min_hours}) ساعة معتمدة في الفصل، ويستثنى من ذلك الفصل الصيفي، وفصل التخرج.</div>` : ''}
-        <p class="small mt-2 mb-0">المنحة من «الرسوم الدراسية» أي رسوم الساعات؛ ويستثنى منها ما تذكره المادة (19) أدناه.</p>
+        <p class="fn-formula"><i class="bi bi-calculator"></i> المنحة من «الرسوم الدراسية» أي رسوم الساعات؛ ويستثنى منها ما تذكره المادة (19) أدناه.</p>
         ${texts(C.doc ? 'grants_work' : 'grants_work', [C.intro, ...C.items.map(x => x.text), ...C.conditions, C.excluded])}`);
     } else if (sf.tab === 'teach') {
       const T = S.teaching, G = S.graduate, rate = (T.rates.find(x => x.key === sf.rank) || T.rates[0]).jd, load = T.loads.find(x => x.key === sf.rank);
@@ -640,9 +646,10 @@
           <div class="col-md-5">${field('s-ptype', 'نوع الشعبة', sel('s-ptype', T.prorata.map(x => [x.key, `${x.label} – ${x.n} طالباً`]), pm.key))}</div>
           <div class="col-md-3">${field('s-pst', 'الطلبة المسجلون', inp('s-pst', sf.pst, 'min="0" placeholder="مثال: 12"'))}</div><div class="col-md-4">${field('s-phr', 'ساعاتها المعتمدة', inp('s-phr', sf.phr, 'min="0" max="12"'))}</div></div>
           ${pst != null ? `<div class="fn-split fn-split-l mt-2"><div><small>الحد الأدنى للأجر الكامل</small><b>${pm.n} طالباً</b></div><div><small>العبء المحسوب للشعبة</small><b>${pst >= pm.n ? phr : Math.round(phr * pst / pm.n * 100) / 100} ساعة</b></div><div><small>النسبة</small><b>${pst >= pm.n ? '100%' : Math.round(pst / pm.n * 1000) / 10 + '%'}</b></div></div>
-            <p class="small mt-2 mb-0">${pst >= pm.n ? 'العدد يبلغ الحد الأدنى: أجر إضافي كامل.' : `«إذا قل العدد عن ذلك فيُحسب العبء التدريسي بما يتناسب مع عدد الطلبة وفقاً لنظام Pro-Rata»: ${pst} ÷ ${pm.n}.`}</p>` : ''}</div></section>
+            <p class="fn-formula"><i class="bi bi-calculator"></i> ${pst >= pm.n ? 'العدد يبلغ الحد الأدنى: أجر إضافي كامل.' : `«إذا قل العدد عن ذلك فيُحسب العبء التدريسي بما يتناسب مع عدد الطلبة وفقاً لنظام Pro-Rata»: ${pst} ÷ ${pm.n}.`}</p>` : ''}</div></section>
         <section class="card mt-3"><div class="card-header fw-bold fn-ch"><i class="bi bi-mortarboard"></i> الإشراف والمناقشة والامتحان الشامل</div><div class="card-body">
-          <ul class="fn-cond mb-2"><li><i class="bi bi-journal-check"></i><span>${esc(G.supervision.text)}</span></li><li><i class="bi bi-cash"></i><span>${esc(G.council.text)}</span></li><li><i class="bi bi-info-circle"></i><span>${esc(G.unpublished)} ورسوم الطالب نفسه منشورة في صفحة الرسوم: مناقشة الرسالة ${JD(D.masters.thesis_defense)}، والامتحان الشامل ${JD(D.masters.comprehensive)}.</span></li></ul>
+          ${legal('النص الرسمي', [G.supervision.text, G.council.text], { open: true, cls: 'fn-legal-in mb-2' })}
+          <p class="fn-formula mb-3"><i class="bi bi-info-circle"></i> ${esc(G.unpublished)} ورسوم الطالب نفسه منشورة في صفحة الرسوم: مناقشة الرسالة ${JD(D.masters.thesis_defense)}، والامتحان الشامل ${JD(D.masters.comprehensive)}.</p>
           <div class="row g-2 align-items-end"><div class="col-md-5">${field('s-council', 'جلسات مجلس الدراسات العليا (عضو من خارج الجامعة)', inp('s-council', sf.council, 'min="0" max="50"'))}</div><div class="col-md-7"><div class="fn-split fn-split-l"><div><small>المبلغ</small><b>${JD(num(sf.council, 0, 50, 0) * G.council.jd)}</b></div></div></div></div>
           <div class="small mt-2">${docLink('overtime_faculty')} · ${docLink('salaries')}</div></div></section>
         ${texts('salaries', [T.intro, ...T.rates.map(x => `${x.label}: ${x.jd} ${x.jd === 10 ? 'دنانير' : 'ديناراً'}`), ...T.more], 'مكافأة الساعة التدريسية – تعليمات الرواتب والعلاوات')}
