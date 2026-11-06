@@ -1,0 +1,38 @@
+name: Update finance pages (fees, Q&A, grants, staff instructions)
+
+# the hourly «Update staff data…» workflow runs the same script; this one is for an update on demand
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "41 3 * * *"   # daily, 06:41 Amman
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-commit
+  cancel-in-progress: false
+
+jobs:
+  finance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install requests pdfplumber
+      - name: Finance pages from uop.edu.jo, word for word
+        run: python scripts/update_finance.py
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/finance.json data/finance_docs.json 2>/dev/null || git add data/finance.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update finance $(date -u +'%Y-%m-%d %H:%M')"
+            git pull --rebase --autostash -q origin main || true
+            git push
+          else
+            echo "No changes."
+          fi
