@@ -39,6 +39,8 @@
       <span>${changed ? 'يُعرض هنا آخر نص مطابق قُرئ قبل التغيير؛ راجع الصفحة الرسمية قبل الاعتماد على الأرقام:' : 'الأرقام المعروضة هي آخر نسخة مطابقة نُقلت من الصفحة الرسمية، وستُحدَّث تلقائياً عند نجاح الاتصال:'} ${pages}</span></div></div>`;
   };
   const verbatim = t => esc(t).replace(/\n/g, '<br>');
+  // the inputs of a tool in one bar across the page, the results under it at full width
+  const inbar = (form, title) => `<section class="card fn-inbar no-print"><div class="fn-inbar-h"><span><i class="bi bi-sliders"></i> ${title || 'بياناتك'}</span><small><i class="bi bi-shield-lock"></i> لا يُحفظ ولا يُرسل أي شيء تُدخله هنا</small></div><div class="fn-inbar-g">${form}</div></section>`;
   // official text, one clause per row: the clause's own number on the side, the words as published
   const LBL = /^((?:المادة\s*\(\d+\)\s*:?\s*)(?:[أ-ي]\s*\.\s*)?|[أ-ي]\s*\.\s*|\d+\s*\.\s*)/;
   const legal = (title, items, o = {}) => `<details class="fn-legal ${o.cls || ''}" ${o.open ? 'open' : ''}><summary><i class="bi ${o.icon || 'bi-journal-text'}"></i><b>${esc(title)}</b>
@@ -469,14 +471,13 @@
     $('#fn-grants').innerHTML = `
       ${kpis([['100%', 'أعلى منحة تفوق', 'bi-trophy', 'good', 'للمعدل 95% فأكثر أو التراكمي 4.00'], [A.bands.length, 'شرائح للتفوق الأكاديمي', 'bi-mortarboard', '', A.bands.map(b => b[2] + '%').join(' · ')], ['30', 'ساعة قبل أول منحة أكاديمية', 'bi-journal-check'], [G.excluded_majors.length, 'تخصصات لا تخضع للمنح', 'bi-slash-circle', 'bad', G.excluded_majors.join(' · ')]])}
       <div class="fn-tabs no-print">${views('fn-gm', [['tawjihi', 'bi-person-plus', 'طالب مستجد: تفوق الثانوية العامة'], ['gpa', 'bi-person-check', 'طالب حالي: التفوق الأكاديمي']], gs.mode)}</div>
-      <div class="row g-3 mb-3 no-print">
-        <div class="col-xl-4 col-lg-5"><section class="card fn-form h-100"><div class="card-header fw-bold"><i class="bi bi-sliders"></i> بياناتك</div><div class="card-body d-grid gap-2 align-content-start">${form}
-          <div class="fn-hint"><i class="bi bi-shield-lock"></i> لا يُحفظ ولا يُرسل أي شيء تُدخله هنا.</div></div></section></div>
-        <div class="col-xl-8 col-lg-7 d-grid gap-3 align-content-start">
+      ${inbar(form)}
+      <div class="row g-3 mb-3">
+        <div class="col-lg-7 d-grid gap-3 align-content-start">
           <section class="fn-total fn-gres ${res.tone} ${res.pct === null && !res.head ? 'empty' : ''}"><div><small>${tw ? esc(T.title) : esc(A.title)} حسب التعليمات المنشورة</small><b>${res.pct === null ? '—' : res.pct ? res.pct + '%' : '0%'}</b><span>${res.head ? `<strong>${esc(res.head)}</strong> · ` : ''}${esc(res.sub)}</span></div>
             ${res.split.length ? `<div class="fn-split">${res.split.map(([l, v]) => `<div><small>${esc(l)}</small><b>${esc(v)}</b></div>`).join('')}</div>` : ''}</section>
-          <section class="card fn-condcard"><div class="card-header fw-bold fn-ch"><i class="bi bi-list-check"></i> الشروط <small>كما وردت في الصفحة الرسمية</small></div><div class="card-body"><ul class="fn-cond mb-0">${res.cond.join('')}</ul></div></section>
-          ${tw ? '' : whatIf()}</div></div>
+          ${tw ? '' : whatIf()}</div>
+        <div class="col-lg-5"><section class="card fn-condcard h-100"><div class="card-header fw-bold fn-ch"><i class="bi bi-list-check"></i> الشروط <small>كما وردت في الصفحة الرسمية</small></div><div class="card-body"><ul class="fn-cond mb-0">${res.cond.join('')}</ul></div></section></div></div>
       <div class="fn-alert"><i class="bi bi-exclamation-circle-fill"></i> ${esc(G.excluded_note)}</div>
       <div class="fn-head"><h2><i class="bi bi-table"></i> جداول المنح المنشورة</h2>${views('fn-gv', [['tables', 'bi-table', 'جداول'], ['cards', 'bi-grid-1x2', 'بطاقات']], gs.view)}</div>
       ${gs.view === 'cards' ? cards : tables}
@@ -603,7 +604,7 @@
     const field = (id, label, input) => `<div><label class="small fw-bold" for="${id}">${label}</label>${input}</div>`;
     const inp = (id, v, attrs) => `<input type="number" class="form-control form-control-sm" id="${id}" value="${esc(v)}" ${attrs || ''}>`;
     const sel = (id, opts, cur) => `<select class="form-select form-select-sm" id="${id}">${opts.map(([v, l]) => `<option value="${esc(v)}" ${String(v) === String(cur) ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
-    const layout = (form, main) => `<div class="row g-3"><div class="col-xl-4 col-lg-5 no-print"><section class="card fn-form"><div class="card-header fw-bold"><i class="bi bi-sliders"></i> بياناتك</div><div class="card-body d-grid gap-2">${form}<div class="fn-hint"><i class="bi bi-shield-lock"></i> لا يُحفظ ولا يُرسل أي شيء تُدخله هنا.</div></div></section></div><div class="col-xl-8 col-lg-7">${main}</div></div>`;
+    const layout = (form, main) => `${inbar(form)}<div class="fn-out">${main}</div>`;
     let body = '';
     if (sf.tab === 'children') {
       const C = S.children, progs = D.programs, p = progs.find(x => String(x.id) === sf.p), h = num(sf.h, 1, 24, 15), it = C.items.find(x => x.key === sf.rel) || C.items[0];
