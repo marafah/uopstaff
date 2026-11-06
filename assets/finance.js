@@ -170,7 +170,10 @@
         ['رسوم عند القبول', `طلب التحاق${p.degree === 'بكالوريوس' ? ' + امتحانات المستوى' : ''}`, fx.application.once + (p.degree === 'بكالوريوس' ? fx.placement.once : 0)],
         ...(p.degree === 'ماجستير' ? [cs.track === 'comp' ? ['رسوم الامتحان الشامل', 'مسار الامتحان الشامل', D.masters.comprehensive] : ['رسوم مناقشة الرسالة / الأطروحة', 'مسار الرسالة', D.masters.thesis_defense]] : []),
         ...(cs.trans ? [['المواصلات', `${sems} فصل اعتيادي و${cs.sums} صيفي`, T.regular_first + Math.max(0, sems - 1) * T.regular + (cs.sums ? T.summer_first + Math.max(0, cs.sums - 1) * T.summer : 0)]] : [])];
-      return { rows, total: rows.reduce((a, x) => a + x[2], 0), insurance: fx.insurance.regular, first: 0 };
+      const gr = grantOf(p), gross = rows.reduce((a, x) => a + x[2], 0), disc = gr.pct ? Math.round(p.hours * price * gr.pct) / 100 : 0;
+      // the grant applies to the hours' fees only; shown for the whole plan on the condition that it is kept every semester
+      if (disc) rows.splice(1, 0, ['المنحة / الخصم (على رسوم الساعات فقط)', `${gr.pct}% من ${JD(p.hours * price)}، إن استمرت طوال الخطة`, -disc]);
+      return { rows, gross, disc, gr, total: gross - disc, insurance: fx.insurance.regular, first: 0 };
     })();
     $('#fn-calc').innerHTML = `
       <div class="fn-tabs no-print">${views('fn-tab', [['sem', 'bi-calendar3', 'رسوم فصل دراسي'], ['plan', 'bi-signpost-2', 'كلفة البرنامج كاملاً']], cs.tab)}</div>
@@ -206,12 +209,12 @@
             <li><i class="bi bi-shield-check"></i> المنح تُحسب على الرسوم الدراسية فقط، ومادة العلوم العسكرية لا تُدرج ضمن أي منحة.</li>
             <li><i class="bi bi-house"></i> السكن الداخلي للطالبات غير محسوب؛ أسعاره في <a href="${esc(D.sources.housing)}" target="_blank" rel="noopener">صفحة سكن الطالبات</a>.</li></ul>`
           : `<section class="fn-total"><div><small>كلفة البرنامج حسب الأرقام المنشورة وعدد الفصول الذي أدخلته</small><b>${JD(plan.total)}</b><span>${esc(progName(p))} · ${p.hours} ساعة · ${sems} فصل اعتيادي و${cs.sums} صيفي</span></div>
-             <div class="fn-split"><div><small>رسوم الساعات وحدها</small><b>${JD(plan.rows[0][2])}</b></div><div><small>تأمين مسترد</small><b>${JD(plan.insurance)}</b></div></div></section>
+             <div class="fn-split">${plan.disc ? `<div><small>قبل المنحة</small><b>${JD(plan.gross)}</b></div><div><small>المنحة ${plan.gr.pct}%</small><b>−${JD(plan.disc)}</b></div>` : `<div><small>رسوم الساعات وحدها</small><b>${JD(plan.rows[0][2])}</b></div>`}<div><small>تأمين مسترد</small><b>${JD(plan.insurance)}</b></div></div></section>
           <section class="card mt-3"><div class="table-responsive"><table class="table align-middle mb-0 tt-table fn-lines"><thead><tr><th>البند</th><th>التفصيل</th><th class="text-end">المبلغ</th></tr></thead><tbody>
-            ${plan.rows.map(([n, d, v]) => `<tr><td><b>${esc(n)}</b></td><td class="small">${esc(d)}</td><td class="text-end"><b>${JD(v)}</b></td></tr>`).join('')}
+            ${plan.rows.map(([n, d, v]) => `<tr class="${v < 0 ? 'grant' : ''}"><td><b>${esc(n)}</b></td><td class="small">${esc(d)}</td><td class="text-end"><b>${v < 0 ? '−' : ''}${JD(Math.abs(v))}</b></td></tr>`).join('')}
             <tr class="sum"><td colspan="2"><b>المجموع</b></td><td class="text-end"><b>${JD(plan.total)}</b></td></tr></tbody></table></div></section>
           <ul class="fn-notes-list"><li><i class="bi bi-info-circle"></i> بأسعار ${esc(D.year)} المنشورة الآن، دون افتراض أي تغيير مستقبلي. عدد الفصول الاعتيادية والصيفية تُدخله أنت حسب خطتك.</li>
-            <li><i class="bi bi-info-circle"></i> لا يشمل التأمين المسترد ولا السكن ولا المنح (فالمنح مشروطة بالمعدل فصلاً بفصل).</li></ul>`}
+            <li><i class="bi bi-info-circle"></i> لا يشمل التأمين المسترد ولا السكن.${plan.disc ? ' المنحة محسوبة على رسوم ساعات الخطة كلها بافتراض استمرارها؛ استمرارها مشروط بالمحافظة على المعدل المطلوب فصلاً بفصل (انظر <a href="grants.html">المنح والخصومات</a>)، ومادة العلوم العسكرية لا تُدرج ضمن أي منحة.' : ''}</li></ul>`}
           <div class="d-flex flex-wrap gap-2 no-print mt-2"><button type="button" class="btn btn-sm btn-maroon" id="c-print"><i class="bi bi-printer"></i> طباعة / PDF</button>
             <button type="button" class="btn btn-sm btn-outline-secondary" id="c-link"><i class="bi bi-link-45deg"></i> نسخ رابط هذا الحساب</button>
             <a class="btn btn-sm btn-outline-secondary" href="fees.html"><i class="bi bi-tags"></i> كل التخصصات والأسعار</a></div>
@@ -243,7 +246,7 @@
         filters: sem ? [['عدد الساعات', cs.h], ['الفصل', cs.sem === 'summer' ? 'صيفي' : 'اعتيادي'], ['طالب مستجد', cs.first ? 'نعم' : 'لا'], ['موعد التسجيل', cs.pay === 'late' ? 'بعد المبكر' : 'المبكر']]
           : [['الفصول الاعتيادية', sems], ['الفصول الصيفية', cs.sums]],
         stats: sem ? [['المجموع', JD(r.total)], ...(r.late ? [['عند التسجيل', JD(r.now)], ['قبل النهائي', JD(r.later)]] : [])] : [['المجموع', JD(plan.total)]],
-        sections: [{ columns: ['البند', 'التفصيل', 'المبلغ'], rows: (sem ? r.L.map(([n, d, v]) => [n, d, (v < 0 ? '−' : '') + JD(Math.abs(v))]) : plan.rows.map(([n, d, v]) => [n, d, JD(v)])) }],
+        sections: [{ columns: ['البند', 'التفصيل', 'المبلغ'], rows: (sem ? r.L.map(([n, d, v]) => [n, d, (v < 0 ? '−' : '') + JD(Math.abs(v))]) : plan.rows.map(([n, d, v]) => [n, d, (v < 0 ? '−' : '') + JD(Math.abs(v))])) }],
         note: 'مجموع الأرقام المنشورة على الموقع الرسمي للجامعة (' + D.year + ')، دون تقدير أو تقريب؛ المرجع المعتمد كشف الحساب لدى دائرة الشؤون المالية. ' + D.sources.fees });
     });
   }
