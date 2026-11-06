@@ -296,16 +296,61 @@ DOCS = [("overtime_faculty", r"تعليمات العمل الإضافي لأعض
 DOCS_OUT = os.path.join(os.path.dirname(OUT), "finance_docs.json")
 
 
+EXTRACTOR = "pdfium"
+
+
 def pdf_pages(data):
-    import io
+    """the text of each page in reading order (pdfium keeps Arabic in logical order; the images remain the reference)"""
     import unicodedata
-    import pdfplumber
-    out = []
-    with pdfplumber.open(io.BytesIO(data)) as pdf:
-        for pg in pdf.pages:
-            t = pg.extract_text() or ""
-            out.append(unicodedata.normalize("NFKC", t))
-    return out
+    import pypdfium2 as pdfium
+    pdf = pdfium.PdfDocument(data)
+    return [unicodedata.normalize("NFKC", pg.get_textpage().get_text_range()) for pg in pdf]
+
+
+# ------------------------------------------------------------------ staff tools: the transcription is checked against the official files
+STAFF_SRC = os.path.join(ROOT, "scripts", "finance_staff.json")
+
+
+def art(t, n, m):
+    """the text of an article (n) up to the next one (m); PDFs write «المادة (n)» with turned brackets or a split ligature"""
+    rx = lambda k: r"(?:المادة|املادة)\s*[()]\s*%d\s*[()]" % k
+    a = re.search(rx(n), t)
+    if not a:
+        return ""
+    b = re.search(rx(m), t[a.end():])
+    return t[a.start(): a.end() + (b.start() if b else len(t))]
+
+
+STAFF_CHECKS = {
+    "travel": lambda t: re.findall(r"(?m)(\d{3})\s*$", art(t, 5, 6)) == ["400", "350", "300", "250", "200", "150"] and len(re.findall(r"%\s*50|50\s*%", art(t, 6, 7))) >= 2,
+    "grants_work": lambda t: re.findall(r"\(%\s*(\d+)\s*\)", art(t, 11, 12)) == ["50", "25", "15", "20", "25"]
+    and re.search(r"[()]\s*40\s*[()]", art(t, 16, 17)) is not None and re.search(r"[()]\s*240\s*[()]", art(t, 16, 17)) is not None,
+    "salaries": lambda t: re.findall(r"(?<![\d()])(\d{2})(?![\d()%])", art(t, 7, 8).split("إذا اقتضت")[0])[:5] == ["25", "20", "17", "12", "10"]
+    and re.search(r"100\s*[()]?\s*مائة", t) is not None,
+    "overtime_staff": lambda t: re.search(r"[()]\s*40\s*[()]", art(t, 9, 10)) is not None and re.search(r"[()]\s*6\s*[()]", art(t, 12, 13)) is not None,
+    "overtime_faculty": None,  # its digits do not come out of the PDF's font: the file's fingerprint alone is compared
+}
+
+
+def read_staff(docs):
+    with open(STAFF_SRC, encoding="utf-8") as f:
+        src = json.load(f)
+    out, flags = {k: v for k, v in src.items() if k != "_about"}, []
+    status = {}
+    for key, meta in src["docs"].items():
+        d = docs.get(key)
+        if not d:
+            flags.append((key, "تعذّر قراءة الملف الرسمي"))
+            status[key] = {"ok": False}
+            continue
+        same = d["sha256"] == meta["sha256"]
+        chk = STAFF_CHECKS.get(key)
+        nums = chk("\n".join(d.get("pages", []))) if chk else None
+        status[key] = {"ok": same, "url": d["url"], "title": meta["title"], "sha256": d["sha256"], "numbers": nums}
+        if not same:
+            flags.append((key, "تغيّر الملف الرسمي عن النسخة التي نُقل منها هذا الجزء" + ("؛ الأرقام ما زالت كما هي" if nums else "؛ تحتاج الأرقام مراجعة")))
+    out["status"] = status
+    return out, flags
 
 
 def read_docs(get_bin, guide_html, old):
@@ -326,11 +371,11 @@ def read_docs(get_bin, guide_html, old):
             raise ReadError(f"{label}: الملف ليس PDF")
         h = hashlib.sha256(data).hexdigest()
         prev = (old.get("docs") or {}).get(key)
-        if prev and prev.get("sha256") == h:
+        if prev and prev.get("sha256") == h and prev.get("extractor") == EXTRACTOR:
             docs[key] = prev
             continue
         pages = pdf_pages(data)
-        docs[key] = {"title": label, "url": url, "sha256": h, "pages": pages, "chars": sum(len(x) for x in pages)}
+        docs[key] = {"title": label, "url": url, "sha256": h, "pages": pages, "chars": sum(len(x) for x in pages), "extractor": EXTRACTOR}
     return docs
 
 
@@ -401,6 +446,11 @@ def main():
             body["updated"] = od.get("updated", now)
         hashes["docs"] = sha(json.dumps({k: v["sha256"] for k, v in d.items()}))
         new["docs_index"] = {k: {"title": v["title"], "url": v["url"], "sha256": v["sha256"], "chars": v["chars"]} for k, v in d.items()}
+        staff, flags = read_staff(d)
+        new["staff"] = staff
+        for key, why in flags:
+            review.append({"part": "staff:" + key, "kind": "check", "reason": why, "url": (d.get(key) or {}).get("url", URL["regulations"]),
+                           "since": next((r["since"] for r in old.get("review", []) if r["part"] == "staff:" + key), now)})
 
     if not args.fixtures:
         part("docs", docs)
