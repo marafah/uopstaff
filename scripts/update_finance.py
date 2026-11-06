@@ -195,7 +195,8 @@ def read_fees_page(t):
 def read_faq(items):
     faq = []
     for it in items:
-        q, a_html = clean(it.get("TitleAR")), it.get("DescriptionAR") or ""
+        # line breaks in the HTML source are only spaces on the page; the page's own breaks are its tags (<br>, <p>, <li>…)
+        q, a_html = clean(it.get("TitleAR")), re.sub(r"\s+", " ", it.get("DescriptionAR") or "")
         links = [(clean(strip_html(txt)), href) for href, txt in re.findall(r'(?is)<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>', a_html)]
         a = "\n".join(clean(x) for x in strip_html(a_html).split("\n") if clean(x))
         if q and a:
