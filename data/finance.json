@@ -10,535 +10,535 @@
  },
  "programs": [
   {
-   "id": 1,
+   "id": 8,
    "faculty": "كلية العلوم الإدارية والمالية",
    "name": "إدارة الأعمال",
    "degree": "بكالوريوس",
    "hours": 132,
    "price": 80,
    "min": "60%",
-   "link": ""
+   "link": "https://fafs.uop.edu.jo/Ar/BusinessAdministration/Pages/default.aspx"
   },
   {
-   "id": 2,
+   "id": 9,
    "faculty": "كلية العلوم الإدارية والمالية",
    "name": "العلوم المالية والمصرفية",
    "degree": "بكالوريوس",
    "hours": 132,
    "price": 80,
    "min": "60%",
-   "link": ""
+   "link": "https://fafs.uop.edu.jo/Ar/BankingAndFinance/Pages/default.aspx"
   },
   {
-   "id": 3,
+   "id": 10,
    "faculty": "كلية العلوم الإدارية والمالية",
    "name": "المحاسبة",
    "degree": "بكالوريوس",
    "hours": 132,
    "price": 80,
    "min": "60%",
-   "link": ""
+   "link": "https://fafs.uop.edu.jo/Ar/Accounting/Pages/default.aspx"
   },
   {
-   "id": 4,
+   "id": 11,
    "faculty": "كلية العلوم الإدارية والمالية",
    "name": "التسويق الرقمي",
    "degree": "بكالوريوس",
    "hours": 132,
    "price": 80,
    "min": "60%",
-   "link": ""
+   "link": "https://fafs.uop.edu.jo/Ar/DigitalMarketing/Pages/default.aspx"
   },
   {
-   "id": 5,
+   "id": 12,
    "faculty": "كلية العلوم الإدارية والمالية",
    "name": "الأعمال والتجارة الإلكترونية",
    "degree": "بكالوريوس",
    "hours": 132,
    "price": 80,
    "min": "60%",
-   "link": ""
+   "link": "https://fafs.uop.edu.jo/Ar/EBusinessAndCommerce/Pages/default.aspx"
   },
   {
-   "id": 6,
+   "id": 13,
    "faculty": "كلية العلوم الإدارية والمالية",
    "name": "ذكاء الأعمال وتحليل البيانات",
    "degree": "بكالوريوس",
    "hours": 132,
    "price": 80,
    "min": "60%",
-   "link": ""
+   "link": "https://fafs.uop.edu.jo/Ar/BusinessIntelligence/Pages/default.aspx"
   },
   {
-   "id": 7,
+   "id": 14,
    "faculty": "كلية العلوم الإدارية والمالية",
    "name": "التكنولوجيا المالية",
    "degree": "بكالوريوس",
    "hours": 132,
    "price": 80,
    "min": "60%",
-   "link": ""
+   "link": "https://fafs.uop.edu.jo/Ar/FinancialTechnology/Pages/default.aspx"
   },
   {
-   "id": 8,
+   "id": 48,
    "faculty": "كلية العلوم الإدارية والمالية",
    "name": "إدارة سلاسل التوريد والعلوم اللوجستية",
    "degree": "بكالوريوس",
    "hours": 132,
    "price": 80,
    "min": "60%",
-   "link": ""
+   "link": "https://fafs.uop.edu.jo/Ar/LogisticsManagement/Pages/default.aspx"
   },
   {
-   "id": 9,
+   "id": 15,
    "faculty": "كلية العلوم الإدارية والمالية",
    "name": "إدارة الأعمال",
    "degree": "ماجستير",
    "hours": 33,
    "price": 150,
    "min": "جيد",
-   "link": ""
+   "link": "https://fafs.uop.edu.jo/ar/masterinbusinessadministration/pages/default.aspx"
   },
   {
-   "id": 10,
+   "id": 51,
    "faculty": "كلية العلوم الإدارية والمالية",
    "name": "التسويق الرقمي",
    "degree": "ماجستير",
    "hours": 33,
    "price": 150,
    "min": "جيد",
-   "link": ""
+   "link": "https://fafs.uop.edu.jo/Ar/masterdigitalmarketing/Pages/default.aspx"
   },
   {
-   "id": 11,
+   "id": 60,
    "faculty": "كلية العلوم الإدارية والمالية",
    "name": "ذكاء الأعمال وتحليل البيانات",
    "degree": "ماجستير",
    "hours": 33,
    "price": 100,
    "min": "جيد",
-   "link": ""
+   "link": "https://fafs.uop.edu.jo/ar/MasterBusinessIntelligenceDataAnalysis/Pages/default.aspx"
   },
   {
-   "id": 12,
+   "id": 16,
    "faculty": "كلية الآداب والعلوم",
    "name": "اللغة العربية وآدابها",
    "degree": "بكالوريوس",
    "hours": 135,
    "price": 40,
    "min": "60%",
-   "link": ""
+   "link": "https://artsci.uop.edu.jo/Ar/ArabicLanguage/Pages/default.aspx"
   },
   {
-   "id": 13,
+   "id": 17,
    "faculty": "كلية الآداب والعلوم",
    "name": "اللغة الإنجليزية وآدابها",
    "degree": "بكالوريوس",
    "hours": 135,
    "price": 60,
    "min": "60%",
-   "link": ""
+   "link": "https://artsci.uop.edu.jo/Ar/EnglishLanguage/Pages/default.aspx"
   },
   {
-   "id": 14,
+   "id": 18,
    "faculty": "كلية الآداب والعلوم",
    "name": "اللغة الإنجليزية / الترجمة",
    "degree": "بكالوريوس",
    "hours": 135,
    "price": 60,
    "min": "60%",
-   "link": ""
+   "link": "https://artsci.uop.edu.jo/Ar/EnglishLanguage/Pages/default.aspx"
   },
   {
-   "id": 15,
+   "id": 19,
    "faculty": "كلية الآداب والعلوم",
    "name": "اللغة الفرنسية والإنجليزية وآدابهما",
    "degree": "بكالوريوس",
    "hours": 135,
    "price": 60,
    "min": "60%",
-   "link": ""
+   "link": "https://artsci.uop.edu.jo/Ar/ModernLanguages/Pages/default.aspx"
   },
   {
-   "id": 16,
+   "id": 56,
    "faculty": "كلية الآداب والعلوم",
    "name": "اللغة الإنجليزية التطبيقية",
    "degree": "بكالوريوس",
    "hours": 135,
    "price": 60,
    "min": "60%",
-   "link": ""
+   "link": "https://artsci.uop.edu.jo/Ar/EnglishLanguage/Pages/default.aspx"
   },
   {
-   "id": 17,
+   "id": 20,
    "faculty": "كلية الآداب والعلوم",
    "name": "معلم صف",
    "degree": "بكالوريوس",
    "hours": 135,
    "price": 40,
    "min": "60%",
-   "link": ""
+   "link": "https://artsci.uop.edu.jo/Ar/EducationalSciences/Pages/default.aspx"
   },
   {
-   "id": 18,
+   "id": 21,
    "faculty": "كلية الآداب والعلوم",
    "name": "الطفولة المبكرة",
    "degree": "بكالوريوس",
    "hours": 135,
    "price": 40,
    "min": "60%",
-   "link": ""
+   "link": "https://artsci.uop.edu.jo/Ar/EducationalSciences/Pages/default.aspx"
   },
   {
-   "id": 19,
+   "id": 22,
    "faculty": "كلية الآداب والعلوم",
    "name": "الكيمياء",
    "degree": "بكالوريوس",
    "hours": 132,
    "price": 55,
    "min": "60%",
-   "link": ""
+   "link": "https://artsci.uop.edu.jo/Ar/Chemistry/Pages/default.aspx"
   },
   {
-   "id": 20,
+   "id": 23,
    "faculty": "كلية الآداب والعلوم",
    "name": "الرياضيات",
    "degree": "بكالوريوس",
    "hours": 132,
    "price": 55,
    "min": "60%",
-   "link": ""
+   "link": "https://artsci.uop.edu.jo/Ar/Mathematics/Pages/default.aspx"
   },
   {
-   "id": 21,
+   "id": 45,
    "faculty": "كلية الآداب والعلوم",
    "name": "التربية الرياضية",
    "degree": "بكالوريوس",
    "hours": 135,
    "price": 50,
    "min": "60%",
-   "link": ""
+   "link": "https://artsci.uop.edu.jo/ar/PhysicalEducation/Pages/default.aspx"
   },
   {
-   "id": 22,
+   "id": 24,
    "faculty": "كلية الآداب والعلوم",
    "name": "اللغة الإنجليزية / الترجمة",
    "degree": "ماجستير",
    "hours": 33,
    "price": 100,
    "min": "جيد",
-   "link": ""
+   "link": "https://artsci.uop.edu.jo/ar/masterenglishlanguage/pages/default.aspx"
   },
   {
-   "id": 23,
+   "id": 25,
    "faculty": "كلية الآداب والعلوم",
    "name": "اللغة العربية وآدابها",
    "degree": "ماجستير",
    "hours": 33,
    "price": 100,
    "min": "جيد",
-   "link": ""
+   "link": "https://artsci.uop.edu.jo/ar/masterarabiclanguage/pages/default.aspx"
   },
   {
-   "id": 24,
+   "id": 40,
    "faculty": "كلية الآداب والعلوم",
    "name": "الكيمياء",
    "degree": "ماجستير",
    "hours": 33,
    "price": 100,
    "min": "جيد",
-   "link": ""
+   "link": "https://artsci.uop.edu.jo/ar/masterchemistry/pages/default.aspx"
   },
   {
-   "id": 25,
+   "id": 55,
    "faculty": "كلية الآداب والعلوم",
    "name": "الرياضيات",
    "degree": "ماجستير",
    "hours": 33,
    "price": 100,
    "min": "جيد",
-   "link": ""
+   "link": "https://artsci.uop.edu.jo/Ar/MasterinMathematics/Pages/default.aspx"
   },
   {
-   "id": 26,
+   "id": 57,
    "faculty": "كلية الآداب والعلوم",
    "name": "المناهج والتعليم الإلكتروني",
    "degree": "ماجستير",
    "hours": 33,
    "price": 100,
    "min": "جيد",
-   "link": ""
+   "link": "https://artsci.uop.edu.jo/Ar/MasterCurriculaELearning/Pages/default.aspx"
   },
   {
-   "id": 27,
+   "id": 4,
    "faculty": "كلية تكنولوجيا المعلومات",
    "name": "هندسة البرمجيات",
    "degree": "بكالوريوس",
    "hours": 133,
    "price": 80,
    "min": "75%",
-   "link": ""
+   "link": "https://fit.uop.edu.jo/Ar/SoftwareEngineering/Pages/default.aspx"
   },
   {
-   "id": 28,
+   "id": 1,
    "faculty": "كلية تكنولوجيا المعلومات",
    "name": "علم الحاسوب",
    "degree": "بكالوريوس",
    "hours": 134,
    "price": 80,
    "min": "75%",
-   "link": ""
+   "link": "https://fit.uop.edu.jo/Ar/ComputerScience/Pages/default.aspx"
   },
   {
-   "id": 29,
+   "id": 5,
    "faculty": "كلية تكنولوجيا المعلومات",
    "name": "علم البيانات والذكاء الاصطناعي",
    "degree": "بكالوريوس",
    "hours": 133,
    "price": 80,
    "min": "75%",
-   "link": ""
+   "link": "https://fit.uop.edu.jo/Ar/DataScience/Pages/default.aspx"
   },
   {
-   "id": 30,
+   "id": 6,
    "faculty": "كلية تكنولوجيا المعلومات",
    "name": "أمن المعلومات",
    "degree": "بكالوريوس",
    "hours": 133,
    "price": 80,
    "min": "75%",
-   "link": ""
+   "link": "https://fit.uop.edu.jo/Ar/InformationSecurity/Pages/default.aspx"
   },
   {
-   "id": 31,
+   "id": 7,
    "faculty": "كلية تكنولوجيا المعلومات",
    "name": "الواقع الافتراضي والمعزز",
    "degree": "بكالوريوس",
    "hours": 133,
    "price": 80,
    "min": "75%",
-   "link": ""
+   "link": "https://fit.uop.edu.jo/Ar/VirtualAndAugmentedReality/Pages/default.aspx"
   },
   {
-   "id": 32,
+   "id": 26,
    "faculty": "كلية العمارة والتصميم",
    "name": "هندسة العمارة",
    "degree": "بكالوريوس",
    "hours": 169,
    "price": 90,
    "min": "80%",
-   "link": ""
+   "link": "https://arch.uop.edu.jo/Ar/ArchitectureDesign/Pages/default.aspx"
   },
   {
-   "id": 33,
+   "id": 27,
    "faculty": "كلية العمارة والتصميم",
    "name": "التصميم الداخلي",
    "degree": "بكالوريوس",
    "hours": 143,
    "price": 90,
    "min": "60%",
-   "link": ""
+   "link": "https://arch.uop.edu.jo/Ar/InteriorDesign/Pages/default.aspx"
   },
   {
-   "id": 34,
+   "id": 28,
    "faculty": "كلية العمارة والتصميم",
    "name": "التصميم الجرافيكي",
    "degree": "بكالوريوس",
    "hours": 137,
    "price": 90,
    "min": "60%",
-   "link": ""
+   "link": "https://arch.uop.edu.jo/Ar/GraphicDesign/Pages/default.aspx"
   },
   {
-   "id": 35,
+   "id": 29,
    "faculty": "كلية العمارة والتصميم",
    "name": "التحريك والوسائط المتعددة",
    "degree": "بكالوريوس",
    "hours": 137,
    "price": 90,
    "min": "60%",
-   "link": ""
+   "link": "https://arch.uop.edu.jo/Ar/AnimationAndMultiMedia/Pages/default.aspx"
   },
   {
-   "id": 36,
+   "id": 41,
    "faculty": "كلية العمارة والتصميم",
    "name": "تكنولوجيا تصميم الفيلم الرقمي",
    "degree": "بكالوريوس",
    "hours": 140,
    "price": 75,
    "min": "60%",
-   "link": ""
+   "link": "https://arch.uop.edu.jo/Ar/DigitalFilmDesign/Pages/default.aspx"
   },
   {
-   "id": 37,
+   "id": 42,
    "faculty": "كلية العمارة والتصميم",
    "name": "التصميم الداخلي",
    "degree": "ماجستير",
    "hours": 33,
    "price": 150,
    "min": "جيد",
-   "link": ""
+   "link": "https://arch.uop.edu.jo/Ar/MasterInteriorDesign/Pages/default.aspx"
   },
   {
-   "id": 38,
+   "id": 58,
    "faculty": "كلية العمارة والتصميم",
    "name": "المدن المستدامة الذكية",
    "degree": "ماجستير",
    "hours": 33,
    "price": 150,
    "min": "جيد",
-   "link": ""
+   "link": "https://arch.uop.edu.jo/Ar/MasterSustainableSmartCities/Pages/default.aspx"
   },
   {
-   "id": 39,
+   "id": 31,
    "faculty": "كلية الحقوق",
    "name": "الحقوق",
    "degree": "بكالوريوس",
    "hours": 141,
    "price": 60,
    "min": "65%",
-   "link": ""
+   "link": "https://law.uop.edu.jo/Ar/law/Pages/default.aspx"
   },
   {
-   "id": 40,
+   "id": 43,
    "faculty": "كلية الحقوق",
    "name": "الحقوق",
    "degree": "ماجستير",
    "hours": 33,
    "price": 100,
    "min": "جيد",
-   "link": ""
+   "link": "https://law.uop.edu.jo/Ar/MastersinLaw/Pages/default.aspx"
   },
   {
-   "id": 41,
+   "id": 32,
    "faculty": "كلية الصيدلة والعلوم الطبية",
    "name": "الصيدلة",
    "degree": "بكالوريوس",
    "hours": 164,
    "price": 90,
    "min": "80%",
-   "link": ""
+   "link": "https://pharma.uop.edu.jo/Ar/Pharmacy/Pages/default.aspx"
   },
   {
-   "id": 42,
+   "id": 33,
    "faculty": "كلية الصيدلة والعلوم الطبية",
    "name": "التغذية السريرية والحميات",
    "degree": "بكالوريوس",
    "hours": 136,
    "price": 60,
    "min": "70%",
-   "link": ""
+   "link": "https://pharma.uop.edu.jo/Ar/Nutrition/Pages/default.aspx"
   },
   {
-   "id": 43,
+   "id": 49,
    "faculty": "كلية الصيدلة والعلوم الطبية",
    "name": "التحاليل الطبية",
    "degree": "بكالوريوس",
    "hours": 136,
    "price": 60,
    "min": "70%",
-   "link": ""
+   "link": "https://pharma.uop.edu.jo/Ar/MedicalAnalysis/Pages/default.aspx"
   },
   {
-   "id": 44,
+   "id": 34,
    "faculty": "كلية الصيدلة والعلوم الطبية",
    "name": "العلوم الصيدلانية",
    "degree": "ماجستير",
    "hours": 33,
    "price": 150,
    "min": "جيد",
-   "link": ""
+   "link": "https://pharma.uop.edu.jo/ar/mscpharmaceuticalsciences/pages/default.aspx"
   },
   {
-   "id": 45,
+   "id": 44,
    "faculty": "كلية الصيدلة والعلوم الطبية",
    "name": "الغذاء والتغذية",
    "degree": "ماجستير",
    "hours": 33,
    "price": 100,
    "min": "جيد",
-   "link": ""
+   "link": "https://pharma.uop.edu.jo/Ar/MScInNutritionFood/Pages/default.aspx"
   },
   {
-   "id": 46,
+   "id": 35,
    "faculty": "كلية الإعلام",
    "name": "الصحافة والإعلام الرقمي",
    "degree": "بكالوريوس",
    "hours": 135,
    "price": 60,
    "min": "60%",
-   "link": ""
+   "link": "https://mass.uop.edu.jo/Ar/JournalismAndDigitalMedia/Pages/default.aspx"
   },
   {
-   "id": 47,
+   "id": 36,
    "faculty": "كلية الإعلام",
    "name": "العلاقات العامة والترويج الرقمي",
    "degree": "بكالوريوس",
    "hours": 135,
    "price": 60,
    "min": "60%",
-   "link": ""
+   "link": "https://mass.uop.edu.jo/Ar/DigitalPromotionalMedia/Pages/default.aspx"
   },
   {
-   "id": 48,
+   "id": 37,
    "faculty": "كلية الإعلام",
    "name": "الإذاعة والتلفزيون",
    "degree": "بكالوريوس",
    "hours": 135,
    "price": 60,
    "min": "60%",
-   "link": ""
+   "link": "https://mass.uop.edu.jo/Ar/RadioAndTelevision/Pages/default.aspx"
   },
   {
-   "id": 49,
+   "id": 38,
    "faculty": "كلية الإعلام",
    "name": "الصحافة والإعلام الرقمي",
    "degree": "ماجستير",
    "hours": 33,
    "price": 125,
    "min": "جيد",
-   "link": ""
+   "link": "https://mass.uop.edu.jo/Ar/mastermediaandjournalism/pages/default.aspx"
   },
   {
-   "id": 50,
+   "id": 39,
    "faculty": "كلية الهندسة",
    "name": "الهندسة المدنية",
    "degree": "بكالوريوس",
    "hours": 160,
    "price": 60,
    "min": "80%",
-   "link": ""
+   "link": "https://eng.uop.edu.jo/Ar/CivilEngineering/Pages/default.aspx"
   },
   {
-   "id": 51,
+   "id": 54,
    "faculty": "كلية الهندسة",
    "name": "إدارة المشاريع الهندسية",
    "degree": "ماجستير",
    "hours": 33,
    "price": 125,
    "min": "جيد",
-   "link": ""
+   "link": "https://eng.uop.edu.jo/ar/MasterEngineeringProjectManagement/Pages/default.aspx"
   },
   {
-   "id": 52,
+   "id": 46,
    "faculty": "كلية طب الأسنان",
    "name": "دكتور في طب الأسنان",
    "degree": "بكالوريوس",
    "hours": 214,
    "price": 250,
    "min": "90%",
-   "link": "",
+   "link": "https://dentist.uop.edu.jo/ar/dentistry/pages/default.aspx",
    "price_intl": 300
   },
   {
-   "id": 53,
+   "id": 59,
    "faculty": "كلية طب الأسنان",
    "name": "تكنولوجيا صناعة الأسنان",
    "degree": "بكالوريوس",
    "hours": 132,
    "price": 90,
    "min": "70%",
-   "link": "",
+   "link": "https://dentist.uop.edu.jo/Ar/DentalManufacturingTechnology/Pages/default.aspx",
    "price_intl": 110
   }
  ],
@@ -809,19 +809,18 @@
  },
  "review": [
   {
-   "part": "fees",
-   "reason": "403 Client Error: Access Denied for url: https://www.uop.edu.jo/_api/web/lists/getbytitle('UniversityMajor')/items?$expand=Faculty&$select=Faculty/TitleAR,Faculty/ID,Title,TitleAR,MajorType,NumberOfHours,LowRate,LowRateAR,LowRate2,LowRate2AR,CostOfHour,CostOfHour2,ID,LinkAR&$orderby=Order0%20asc&$top=1000",
-   "url": "https://www.uop.edu.jo/Ar/AdmissionsAndRegistration/Pages/AllCourses.aspx",
-   "since": "2026-11-06T23:45:02+03:00"
-  },
-  {
    "part": "finance",
-   "reason": "403 Client Error: Access Denied for url: https://www.uop.edu.jo/en/FinanceDepartment/_api/web/lists/getbytitle('ContentItems')/items?$select=ID,TitleAR,DescriptionAR&$top=500",
+   "kind": "check",
+   "reason": "لم تُقرأ أرقام المواصلات",
    "url": "https://www.uop.edu.jo/Ar/FinanceDepartment/Pages/ImportantFinancialInformation.aspx",
    "since": "2026-11-06T23:45:02+03:00"
   }
  ],
  "changes": [
+  {
+   "part": "fees",
+   "at": "2026-11-07T00:03:16+03:00"
+  },
   {
    "part": "grants",
    "at": "2026-11-06T23:45:02+03:00"
@@ -829,10 +828,67 @@
  ],
  "note": "صفحة غير رسمية؛ كل الأرقام والنصوص منقولة كما تنشرها جامعة البترا على موقعها الرسمي دون تقدير أو تقريب، والمرجع المعتمد دائرة الشؤون المالية ودائرة القبول والتسجيل.",
  "hashes": {
-  "fees": "c335c458b6817eb49277857c1df5359a385d0c4a139598181c5f0886f97f5f64",
+  "fees": "b966bf6d19ddb137831c56a3555995efc79ca59e7c61ff5322b1a312de73d3b6",
   "finance": "e7b0129068fc6749f88fdbfa3f9917a02681367e9853ecb5c6caa4b7cfe486f8",
-  "grants": "738b65a63242d00f67b1a73ff282563afd4d19050ec3248717b90a880b0b578e"
+  "grants": "738b65a63242d00f67b1a73ff282563afd4d19050ec3248717b90a880b0b578e",
+  "docs": "c34db4bc0e3cd0b05297db10c713d24b68e465e62ec4d3bea419c01104b992c0"
  },
- "checked": "2026-11-06T23:45:02+03:00",
- "updated": "2026-11-06T23:45:02+03:00"
+ "checked": "2026-11-07T00:03:16+03:00",
+ "updated": "2026-11-07T00:03:16+03:00",
+ "docs_index": {
+  "overtime_faculty": {
+   "title": "تعليمات العمل الإضافي لأعضاء الهيئة التدريسية والمحاضرين المتفرغين في جامعة البترا لسنة 2017",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/3%20%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D8%A7%D8%AA%20%D8%A7%D9%84%D8%B9%D9%85%D9%84%20%D8%A7%D9%84%D8%A5%D8%B6%D8%A7%D9%81%D9%8A%20%D9%84%D8%A3%D8%B9%D8%B6%D8%A7%D8%A1%20%D8%A7%D9%84%D9%87%D9%8A%D8%A6%D8%A9%20%D8%A7%D9%84%D8%AA%D8%AF%D8%B1%D9%8A%D8%B3%D9%8A%D8%A9%20%D9%88%D8%A7%D9%84%D9%85%D8%AD%D8%A7%D8%B6%D8%B1%D9%8A%D9%86%20%D8%BA%D9%8A%D8%B1%20%D8%A7%D9%84%D9%85%D8%AA%D9%81%D8%B1%D8%BA%D9%8A%D9%86%20%D9%85%D8%B9%D8%AF.pdf",
+   "sha256": "94cab4f9e08c1934700f0d032292d6b7c776670b522b52cbee116f35868f3451",
+   "chars": 5897
+  },
+  "overtime_staff": {
+   "title": "تعليمات العمل الإضافي داخل جامعة البترا للعاملين فيها من غير أعضاء هيئة التدريس والمحاضرين المتفرغين لسنة 2016",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/12%20%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D8%A7%D8%AA%20%D8%A7%D9%84%D8%B9%D9%85%D9%84%20%D8%A7%D9%84%D8%A5%D8%B6%D8%A7%D9%81%D9%8A%20%D8%AF%D8%A7%D8%AE%D9%84%20%D8%A7%D9%84%D8%AC%D8%A7%D9%85%D8%B9%D8%A9%20%D9%84%D9%84%D8%B9%D8%A7%D9%85%D9%84%D9%8A%D9%86%20%D9%81%D9%8A%D9%87%D8%A7%20%D9%85%D9%86%20%D8%BA%D9%8A%D8%B1%20%D8%A3%D8%B9%D8%B6%D8%A7%D8%A1%20%D9%87%D9%8A%D8%A6%D8%A9%20%D8%A7%D9%84%D8%AA%D8%AF%D8%B1%D9%8A%D8%B3%20%D9%88%D8%A7%D9%84%D9%85%D8%AD%D8%A7%D8%B6%D8%B1%D9%8A%D9%86%20%D8%A7%D9%84%D9%85%D8%AA%D9%81%D8%B1%D8%BA%D9%8A%D9%86.pdf",
+   "sha256": "e3a1a0a1657b659637ceb30b0957e44be803eb6a45feb59251ba0993a9f71098",
+   "chars": 4940
+  },
+  "travel": {
+   "title": "تعليمات الانتقال والسفر في جامعة البترا لسنة 2014",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/13%20%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D8%A7%D8%AA%20%D8%A7%D9%84%D8%A7%D9%86%D8%AA%D9%82%D8%A7%D9%84%20%D9%88%D8%A7%D9%84%D8%B3%D9%81%D8%B1.pdf",
+   "sha256": "bc0c81fb5419b980156e1c912efd424b3449d06a3032c9774d5ae5bc747833ee",
+   "chars": 3693
+  },
+  "salaries": {
+   "title": "تعليمات الرواتب والعلاوات في جامعة البترا لسنة 2016",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/10%20%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D8%A7%D8%AA%20%D8%A7%D9%84%D8%B1%D9%88%D8%A7%D8%AA%D8%A8%20%D9%88%D8%A7%D9%84%D8%B9%D9%84%D8%A7%D9%88%D8%A7%D8%AA%20%D9%81%D9%8A%20%D8%AC%D8%A7%D9%85%D8%B9%D8%A9%20%D8%A7%D9%84%D8%A8%D8%AA%D8%B1%D8%A7%2020260513.pdf",
+   "sha256": "abcd2d33db5aa69d2dce4226c037a9be9ab9e64188d91069477f94a76132ad65",
+   "chars": 14187
+  },
+  "masters": {
+   "title": "تعليمات منح درجة الماجستير رقم (18) لسنة 2017",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/18%20%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D8%A7%D8%AA%20%D9%85%D9%86%D8%AD%20%D8%AF%D8%B1%D8%AC%D8%A9%20%D8%A7%D9%84%D9%85%D8%A7%D8%AC%D8%B3%D8%AA%D9%8A%D8%B1%2020251230.pdf",
+   "sha256": "9f7f5368a181a105af02d439e3fa7ec4c56b813e89683455f860c0ee399a1d24",
+   "chars": 28473
+  },
+  "grants_work": {
+   "title": "تعليمات المنح والتشغيل لطلبة جامعة البترا لسنة 2015",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/27%20%D8%AA%D8%B9%D9%84%D9%8A%D9%85%D8%A7%D8%AA%20%D8%A7%D9%84%D9%85%D9%86%D8%AD%20%D9%88%D8%A7%D9%84%D8%AA%D8%B4%D8%BA%D9%8A%D9%84%20%D9%84%D8%B7%D9%84%D8%A8%D8%A9%20%D8%AC%D8%A7%D9%85%D8%B9%D8%A9%20%D8%A7%D9%84%D8%A8%D8%AA%D8%B1%D8%A7.pdf",
+   "sha256": "12127577f359809410bcd22a9382e1fba18d4ada88465bd25f8fb4e532811b3b",
+   "chars": 7615
+  },
+  "finance_sys": {
+   "title": "النظام المالي في جامعة البترا لسنة 2010",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/3%20%D8%A7%D9%84%D9%86%D8%B8%D8%A7%D9%85%20%D8%A7%D9%84%D9%85%D8%A7%D9%84%D9%8A.pdf",
+   "sha256": "97d686351569d02650a83d6589c3b9a378bce980ff8c39d362524dd58b60c0c8",
+   "chars": 17514
+  },
+  "salaries_sys": {
+   "title": "نظام الرواتب والعلاوات في جامعة البترا لسنة 2010",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/%D9%86%D8%B8%D8%A7%D9%85%20%D8%A7%D9%84%D8%B1%D9%88%D8%A7%D8%AA%D8%A8%20%D9%88%D8%A7%D9%84%D8%B9%D9%84%D8%A7%D9%88%D8%A7%D8%AA.pdf",
+   "sha256": "85e34007e18387592ece59b90e794f77fe549c2bb05d71460546956f156c9af6",
+   "chars": 4587
+  },
+  "staff_sys": {
+   "title": "نظام الموظفين في جامعة البترا لسنة 2009",
+   "url": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/%D9%86%D8%B8%D8%A7%D9%85%20%D8%A7%D9%84%D9%85%D9%88%D8%B8%D9%81%D9%8A%D9%86%20%D8%B1%D9%82%D9%85%20(2)%20%D9%84%D8%B3%D9%86%D8%A9%202009%2020250714.pdf",
+   "sha256": "1d9a6c1ae5b6738a0d3f619b9a30d7c5477f214caff1095874228c06727a69e3",
+   "chars": 20817
+  }
+ }
 }
