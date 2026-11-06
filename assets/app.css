@@ -2035,3 +2035,91 @@ html[data-theme="dark"] .modal-backdrop.show { opacity: .25; }
 .ad-ib { flex: none; padding: .2rem .5rem; }
 @media (max-width: 1400px) { .ad-bar .ad-views .btn:not(.btn-maroon) span { display: none; } }
 @media (max-width: 991px) { .ad-bar { flex-wrap: wrap; } .ad-s-p { flex-basis: 100%; } .ad-bar .ad-views { order: 5; } }
+
+/* ---- «المالية»: fees, tuition calculator, grants, payments (assets/finance.js) ---- */
+@media (max-width: 575.98px) { .site-nav > a, .site-nav > .site-more { flex-basis: 18%; } }
+.fn-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 767.98px) { .fn-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.fn-bar-row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: flex-end; }
+.fn-bar-row > div { min-width: 10rem; }
+.fn-head { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; margin: .2rem 0 .6rem; }
+.fn-head h2 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--uop-navy); } .fn-head h2 i { color: var(--uop-maroon); }
+.fn-head h2 small { font-size: .82rem; font-weight: 600; color: #555; margin-inline-start: .3rem; }
+.fn-views { display: inline-flex; border: 1.5px solid var(--uop-maroon); border-radius: 10px; overflow: hidden; margin-inline-start: auto; }
+.fn-views button { border: 0; background: #fff; color: var(--uop-maroon); font-weight: 700; padding: .32rem .7rem; font-size: .88rem; white-space: nowrap; }
+.fn-views button + button { border-inline-start: 1px solid #e3c9ca; }
+.fn-views button.on { background: var(--uop-maroon); color: #fff; }
+.fn-tabs { margin-bottom: .8rem; } .fn-tabs .fn-views { margin: 0; }
+.fn-deg { display: inline-block; font-size: .75rem; font-weight: 700; padding: .12rem .5rem; border-radius: 999px; background: #e4f0f6; color: #0b4a66; }
+.fn-deg.m { background: #f0e9fd; color: #6d28d9; }
+.fn-price { white-space: nowrap; } .fn-price b { font-size: 1.05rem; color: var(--uop-navy); } .fn-price small, .fn-tbl td small { display: block; font-size: .72rem; color: #6c757d; }
+.fn-bar { display: inline-block; width: 70px; height: 8px; background: #efeae0; border-radius: 6px; overflow: hidden; vertical-align: middle; margin-inline-end: .4rem; }
+.fn-bar i { display: block; height: 100%; background: var(--uop-maroon); border-radius: 6px; }
+.fn-bar.lg { width: auto; flex: 1; height: 12px; }
+.fn-cmpbox { display: inline-flex; align-items: center; gap: .2rem; margin-inline-start: .35rem; font-size: .85rem; cursor: pointer; }
+.fn-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: .75rem; }
+.fn-card { background: #fff; border: 1px solid #e7e1d3; border-top: 4px solid var(--uop-maroon); border-radius: 14px; padding: .75rem .85rem; display: flex; flex-direction: column; gap: .35rem; }
+.fn-card-h { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; } .fn-card-h small { color: #555; font-size: .78rem; }
+.fn-card h3 { font-size: 1.05rem; font-weight: 800; margin: 0; color: var(--uop-navy); }
+.fn-card-price b { font-size: 1.7rem; font-weight: 800; color: var(--uop-maroon); } .fn-card-price span { font-size: .82rem; color: #555; margin-inline-start: .3rem; }
+.fn-card-intl { font-size: .85rem; }
+.fn-card ul { list-style: none; padding: 0; margin: 0; font-size: .86rem; } .fn-card li { padding: .12rem 0; } .fn-card li i { color: var(--uop-navy); width: 1.2rem; }
+.fn-card-a { margin-top: auto; display: flex; align-items: center; gap: .4rem; border-top: 1px dashed #e7e1d3; padding-top: .45rem; }
+.fn-facs { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: .75rem; }
+.fn-fac { background: #fff; border: 1px solid #e7e1d3; border-radius: 14px; padding: .65rem .8rem; }
+.fn-fac h3 { font-size: 1rem; font-weight: 800; margin: 0 0 .45rem; color: var(--uop-navy); border-bottom: 2px solid var(--uop-maroon); padding-bottom: .3rem; }
+.fn-fac h3 small { font-weight: 600; color: #666; font-size: .78rem; }
+.fn-hrow { display: grid; grid-template-columns: minmax(0, 1.4fr) 1fr 2.6rem; gap: .5rem; align-items: center; font-size: .86rem; padding: .15rem 0; }
+.fn-hrow small { color: #777; } .fn-hrow b { text-align: center; color: var(--uop-navy); }
+.fn-cmp th small { display: block; font-weight: 500; color: #666; font-size: .75rem; }
+.fn-empty { background: #fff; border: 1px dashed #cfc7b6; border-radius: 14px; padding: 1.2rem; text-align: center; color: #444; }
+.fn-foot-note { font-size: .82rem; color: #444; margin: .6rem .2rem; }
+.fn-yes { color: #2e8540; font-weight: 700; } .fn-no { color: #b42318; font-weight: 700; }
+.fn-notes p { font-size: .86rem; margin-bottom: .5rem; }
+.fn-pair { display: flex; justify-content: space-between; gap: .6rem; padding: .35rem 0; border-bottom: 1px dashed #e7e1d3; font-size: .9rem; }
+.fn-pair small { display: block; color: #666; font-size: .76rem; } .fn-pair b { white-space: nowrap; color: var(--uop-navy); }
+.fn-src { display: flex; gap: .6rem; margin-top: 1rem; padding: .7rem .9rem; background: #f6f9fb; border: 1px solid #d9e6ee; border-radius: 12px; font-size: .86rem; }
+.fn-src > i { color: #2e8540; font-size: 1.2rem; } .fn-src b { display: block; margin-bottom: .15rem; }
+.fn-src a { display: inline-block; margin-inline-end: 1rem; } .fn-src small { display: block; color: #555; margin-top: .25rem; }
+.fn-review { display: flex; gap: .6rem; margin-bottom: .8rem; padding: .7rem .9rem; background: #fff4f2; border: 1px solid #f1c3bc; border-inline-start: 4px solid #b42318; border-radius: 12px; font-size: .9rem; }
+.fn-review > i { color: #b42318; font-size: 1.3rem; } .fn-review span { display: block; margin-top: .15rem; }
+.fn-alert { display: flex; gap: .55rem; align-items: flex-start; padding: .6rem .85rem; margin-bottom: .8rem; background: #fff8e6; border: 1px solid #f0dca8; border-radius: 12px; font-size: .9rem; }
+.fn-alert i { color: #9a5b00; font-size: 1.1rem; }
+.fn-disclaimer { margin-top: .9rem; padding: .55rem .85rem; border-radius: 10px; background: #f8f6f1; border: 1px solid #e7e1d3; font-size: .82rem; color: #444; }
+.fn-disclaimer i { color: #9a5b00; }
+.fn-form .card-header, .fn-check .card-header { background: #fff; border-bottom: 2px solid var(--uop-maroon); }
+.fn-seg { display: flex; border: 1px solid #d8d0bf; border-radius: 9px; overflow: hidden; }
+.fn-seg label { flex: 1; margin: 0; } .fn-seg input { display: none; }
+.fn-seg span { display: block; text-align: center; padding: .35rem .3rem; font-size: .82rem; font-weight: 700; cursor: pointer; background: #fff; }
+.fn-seg label + label span { border-inline-start: 1px solid #d8d0bf; }
+.fn-seg input:checked + span { background: var(--uop-maroon); color: #fff; }
+.fn-hint { font-size: .84rem; padding: .4rem .55rem; border-radius: 8px; background: #f3f1ec; } .fn-hint.ok { background: #e4f5e9; color: #15602f; }
+.fn-total { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .8rem; align-items: center; background: linear-gradient(135deg, #091b22, #0b4a66); color: #fff; border-radius: 16px; padding: 1rem 1.2rem; }
+.fn-total small { display: block; opacity: .85; font-size: .82rem; } .fn-total b { display: block; font-size: 2rem; font-weight: 800; line-height: 1.2; }
+.fn-total span { font-size: .85rem; opacity: .9; }
+.fn-split { display: flex; gap: .6rem; } .fn-split > div { background: rgba(255,255,255,.1); border-radius: 12px; padding: .45rem .8rem; } .fn-split b { font-size: 1.15rem; }
+.fn-lines tr.grant td { color: #15602f; } .fn-lines tr.sum td { border-top: 2px solid var(--uop-navy); background: #f8f6f1; font-size: 1.02rem; }
+.fn-notes-list { list-style: none; padding: 0; margin: .7rem 0 0; font-size: .84rem; } .fn-notes-list li { padding: .2rem 0; } .fn-notes-list i { color: var(--uop-navy); }
+.fn-h6 { font-size: .82rem; font-weight: 800; color: var(--uop-navy); min-height: 2.4em; }
+.fn-pct { color: var(--uop-maroon); font-size: 1.05rem; }
+.fn-rules { font-size: .84rem; padding-inline-start: 1.1rem; margin: .3rem 0 0; } .fn-rules li { margin-bottom: .3rem; }
+.fn-res { font-size: .9rem; padding: .55rem .7rem; border-radius: 10px; background: #f3f1ec; } .fn-res small { display: block; margin-top: .25rem; color: #444; }
+.fn-res.ok { background: #e4f5e9; color: #15602f; } .fn-res.bad { background: #fdecea; color: #8a1c12; }
+.fn-pay-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: .75rem; }
+.fn-pay { background: #fff; border: 1px solid #e7e1d3; border-inline-start: 5px solid var(--c); border-radius: 14px; padding: .7rem .85rem; }
+.fn-pay-h { display: flex; gap: .5rem; align-items: flex-start; margin-bottom: .35rem; } .fn-pay-h i { color: var(--c); font-size: 1.2rem; }
+.fn-pay-h b { flex: 1; color: var(--uop-navy); } .fn-pay-h small { font-size: .72rem; font-weight: 700; color: var(--c); white-space: nowrap; }
+.fn-pay p { font-size: .9rem; margin: 0; line-height: 1.75; }
+.fn-links { display: flex; flex-wrap: wrap; gap: .3rem .9rem; margin-top: .4rem; font-size: .84rem; }
+.fn-cat { font-size: .75rem; font-weight: 700; color: var(--c); white-space: nowrap; }
+.fn-faq .accordion-button { font-weight: 700; } .fn-faq .accordion-body { line-height: 1.8; }
+.fn-steps { list-style: none; padding: 0; margin: 0; position: relative; }
+.fn-steps::before { content: ""; position: absolute; inset-inline-start: 19px; top: 8px; bottom: 8px; width: 3px; background: #e7e1d3; }
+.fn-steps li { position: relative; display: flex; gap: .8rem; margin-bottom: .7rem; }
+.fn-step-i { flex: 0 0 40px; height: 40px; border-radius: 50%; background: var(--uop-maroon); color: #fff; display: grid; place-items: center; z-index: 1; }
+.fn-steps li > div { background: #fff; border: 1px solid #e7e1d3; border-radius: 12px; padding: .5rem .8rem; flex: 1; } .fn-steps p { margin: .2rem 0 0; font-size: .9rem; line-height: 1.75; }
+.fn-fixed .fn-pair span { font-weight: 600; }
+[data-theme="dark"] .fn-card, [data-theme="dark"] .fn-fac, [data-theme="dark"] .fn-pay, [data-theme="dark"] .fn-steps li > div, [data-theme="dark"] .fn-empty { background: #16242b; border-color: #2a3a42; }
+[data-theme="dark"] .fn-views button, [data-theme="dark"] .fn-seg span { background: #16242b; color: #f0c8ca; }
+[data-theme="dark"] .fn-src, [data-theme="dark"] .fn-disclaimer, [data-theme="dark"] .fn-hint, [data-theme="dark"] .fn-res { background: #16242b; border-color: #2a3a42; color: #e6e6e6; }
+@media print { .fn-views, .fn-cmpbox { display: none !important; } .fn-total { background: #fff !important; color: #000 !important; border: 1px solid #000; } }
