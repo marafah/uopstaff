@@ -1,0 +1,48 @@
+name: Finance staff instructions – page preview (review branch only)
+
+# renders the official instruction PDFs to images on the «docs-preview» branch, to check the transcription by eye;
+# nothing on the published site changes
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install requests pypdfium2 pillow
+      - name: Render pages and extract text with pdfium
+        run: |
+          python - <<'EOF'
+          import json, os, requests, pypdfium2 as pdfium
+          docs = json.load(open("data/finance.json"))["docs_index"]
+          os.makedirs("preview", exist_ok=True)
+          s = requests.Session()
+          s.headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"
+          s.headers["Referer"] = "https://www.uop.edu.jo/Ar/MoreAbout/Pages/GuideLawsRegulationsInstructions.aspx"
+          out = {}
+          for key in ["travel", "overtime_faculty", "overtime_staff", "salaries", "masters", "grants_work"]:
+              data = s.get(docs[key]["url"], timeout=90).content
+              pdf = pdfium.PdfDocument(data)
+              pages = []
+              for i, page in enumerate(pdf):
+                  page.render(scale=1.6).to_pil().convert("L").save(f"preview/{key}-{i + 1}.png", optimize=True)
+                  pages.append(page.get_textpage().get_text_range())
+              out[key] = pages
+          json.dump(out, open("preview/text_pdfium.json", "w"), ensure_ascii=False, indent=1)
+          EOF
+      - name: Push to the docs-preview branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan docs-preview
+          git rm -rq --cached .
+          git add preview
+          git commit -qm "Preview of the finance staff instructions"
+          git push -f origin docs-preview
