@@ -2,15 +2,15 @@
    fetched fresh when online and the last copy is used when offline or when the network is too slow; libraries,
    fonts and photos are kept once used. VERSION changes with every release of the site (the same ?v= the pages use),
    which replaces the kept pages and scripts. */
-const VERSION = '202611050200';
+const VERSION = '202611120100';
 const CORE = 'uop-core-' + VERSION, DATA = 'uop-data', LIBS = 'uop-libs', ASSETS = 'uop-assets';
 const PAGES = ['./', 'index.html', 'directory.html', 'timetable.html', 'calendar.html', 'now.html', 'notes.html', 'changes.html', 'makeup.html', 'load.html',
   'phones.html', 'together.html', 'instructor.html', 'planner.html', 'room.html', 'office-hours.html', 'usage.html', 'screen.html', 'trends.html', 'org.html', 'plans.html', 'advisory.html',
-  'research.html', 'researchers.html', 'researcher.html', 'publications.html', 'compare.html', 'universities.html', 'network.html', 'publication.html', 'jordan.html', 'journals.html', 'experts.html', 'simulator.html', 'reports.html', 'projects.html', 'regulations.html', 'promotion.html', 'reward.html', 'award.html', 'sabbatical.html', 'publish.html', 'annual.html', 'dept.html', 'goals.html', 'intl.html', 'impact.html', 'integrity.html'];
+  'research.html', 'researchers.html', 'researcher.html', 'publications.html', 'compare.html', 'universities.html', 'network.html', 'publication.html', 'jordan.html', 'journals.html', 'experts.html', 'simulator.html', 'reports.html', 'projects.html', 'regulations.html', 'promotion.html', 'reward.html', 'award.html', 'sabbatical.html', 'publish.html', 'annual.html', 'dept.html', 'goals.html', 'intl.html', 'impact.html', 'integrity.html', 'fees.html', 'tuition.html', 'grants.html', 'payments.html'];
 const SCRIPTS = ['app', 'calendar', 'changes', 'common', 'find', 'instructor', 'load', 'makeup', 'notes', 'now', 'officehours', 'oh-list', 'org', 'phones',
-  'planner', 'report', 'room', 'screen', 'share', 'site', 'timetable', 'together', 'trends', 'usage'].map(n => `assets/${n}.js?v=${VERSION}`);
+  'planner', 'report', 'room', 'screen', 'share', 'site', 'timetable', 'together', 'trends', 'usage', 'finance'].map(n => `assets/${n}.js?v=${VERSION}`);
 const CORE_FILES = PAGES.concat(SCRIPTS, [`assets/app.css?v=${VERSION}`, 'assets/logo.png', 'manifest.webmanifest', 'assets/icons/icon-192.png']);
-const DATA_FILES = ['data/staff.json', 'data/timetable.json', 'data/instructors.json', 'data/calendar.json', 'data/org.json', 'data/org_structure.json', 'data/changes.json'];
+const DATA_FILES = ['data/staff.json', 'data/timetable.json', 'data/instructors.json', 'data/calendar.json', 'data/org.json', 'data/org_structure.json', 'data/changes.json', 'data/finance.json'];
 const LIB_HOSTS = ['cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 const LIB_FILES = ['https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js',
   'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/fonts/bootstrap-icons.woff2?dd67030699838ea613ee6dbda90effa6',
