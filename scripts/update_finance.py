@@ -18,11 +18,13 @@ hash of each source's text, so a reworded page is never silently replaced by a g
 import argparse
 import datetime as dt
 import hashlib
+import time
 import html
 import json
 import os
 import re
 import sys
+from urllib.parse import quote
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 OUT = os.path.join(ROOT, "data", "finance.json")
@@ -46,6 +48,10 @@ ARABIC_DIGITS = str.maketrans("٠١٢٣٤٥٦٧٨٩", "0123456789")
 
 class ReadError(Exception):
     pass
+
+
+class FetchError(Exception):
+    """the official page could not be reached (not a change in what it says)"""
 
 
 def clean(s):
@@ -82,14 +88,29 @@ def fetcher(fixtures):
         return get
     import requests
     s = requests.Session()
-    s.headers.update({"User-Agent": "Mozilla/5.0 (compatible; UoP-Compass/1.0; +https://marafah.github.io/uopstaff/)"})
+    # the same browser identity as the other updaters; the site's firewall answers its own API only with a Referer from the site (else 403)
+    s.headers.update({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"})
+    referer = {"majors": URL["fees"], "faculties": URL["fees"], "fees": URL["fees"], "faq": URL["finance"], "grants": URL["grants"], "regulations": URL["regulations"]}
 
     def get(name, url, kind):
-        r = s.get(url, timeout=60, headers={"Accept": "application/json;odata=verbose"} if kind == "json" else {})
-        r.raise_for_status()
+        h = {"Referer": referer.get(name, BASE + "/Ar/Pages/default.aspx")}
+        if kind == "json":
+            h["Accept"] = "application/json;odata=verbose"
+        for attempt in range(4):
+            try:
+                r = s.get(url, timeout=60, headers=h)
+                r.raise_for_status()
+                break
+            except requests.RequestException as e:
+                if attempt == 3:
+                    raise FetchError(f"{type(e).__name__}: {e}") from e
+                print(f"retry [{name}] {type(e).__name__}", file=sys.stderr)
+                time.sleep(5 * (attempt + 1))
         if kind == "json":
             d = r.json()["d"]
             return d.get("results", d)
+        if kind == "bin":
+            return r.content
         r.encoding = "utf-8"
         return r.text
     return get
@@ -264,6 +285,54 @@ def read_grants(t, programs, faculties):
             "instructions": instr}
 
 
+# ------------------------------------------------------------------ staff instructions (PDFs in the legislation guide)
+# the documents the staff tools rest on, found by their title in «دليل القوانين والأنظمة والتعليمات»; their text is kept
+# word for word (as the PDF gives it) in data/finance_docs.json, with each file's SHA-256 so a new version is noticed
+DOCS = [("overtime_faculty", r"تعليمات العمل الإضافي لأعضاء الهيئة التدريسية"), ("overtime_staff", r"تعليمات العمل الإضافي داخل"),
+        ("travel", r"تعليمات الانتقال والسفر"), ("salaries", r"تعليمات الرواتب والعلاوات"), ("masters", r"تعليمات منح درجة الماجستير"),
+        ("grants_work", r"تعليمات المنح والتشغيل"), ("finance_sys", r"النظام المالي"), ("salaries_sys", r"نظام الرواتب والعلاوات"),
+        ("staff_sys", r"نظام الموظفين")]
+DOCS_OUT = os.path.join(os.path.dirname(OUT), "finance_docs.json")
+
+
+def pdf_pages(data):
+    import io
+    import unicodedata
+    import pdfplumber
+    out = []
+    with pdfplumber.open(io.BytesIO(data)) as pdf:
+        for pg in pdf.pages:
+            t = pg.extract_text() or ""
+            out.append(unicodedata.normalize("NFKC", t))
+    return out
+
+
+def read_docs(get_bin, guide_html, old):
+    links = re.findall(r'(?is)<a\b[^>]*href="([^"]+\.pdf)"[^>]*>(.*?)</a>', guide_html)
+    found, docs = {}, {}
+    for href, label in links:
+        label = clean(strip_html(label))
+        for key, pat in DOCS:
+            if key not in found and re.search(pat, label):
+                found[key] = (html.unescape(href), label)
+    for key, _ in DOCS:
+        if key not in found:
+            raise ReadError(f"لم يُعثر على وثيقة {key} في دليل الأنظمة والتعليمات")
+        href, label = found[key]
+        url = href if href.startswith("http") else BASE + quote(href, safe="/%()")
+        data = get_bin(url)
+        if data[:4] != b"%PDF":
+            raise ReadError(f"{label}: الملف ليس PDF")
+        h = hashlib.sha256(data).hexdigest()
+        prev = (old.get("docs") or {}).get(key)
+        if prev and prev.get("sha256") == h:
+            docs[key] = prev
+            continue
+        pages = pdf_pages(data)
+        docs[key] = {"title": label, "url": url, "sha256": h, "pages": pages, "chars": sum(len(x) for x in pages)}
+    return docs
+
+
 # ------------------------------------------------------------------ main
 def main():
     ap = argparse.ArgumentParser()
@@ -286,7 +355,7 @@ def main():
             review_old = [r for r in old.get("review", []) if r["part"] == name]
             return bool(review_old) or True
         except Exception as e:  # noqa: BLE001 – any failure keeps the last good copy of this part
-            review.append({"part": name, "reason": str(e), "url": URL.get(name, URL["fees"]), "since": next((r["since"] for r in old.get("review", []) if r["part"] == name), now)})
+            review.append({"part": name, "kind": "fetch" if isinstance(e, FetchError) else "check", "reason": str(e), "url": URL.get(name, URL["fees"]), "since": next((r["since"] for r in old.get("review", []) if r["part"] == name), now)})
             print(f"[{name}] kept the last copy: {e}", file=sys.stderr)
             return False
 
@@ -313,6 +382,27 @@ def main():
     part("fees", fees)
     part("finance", faq)
     part("grants", grants)
+
+    def docs():
+        try:
+            with open(DOCS_OUT, encoding="utf-8") as f:
+                od = json.load(f)
+        except (OSError, ValueError):
+            od = {}
+        guide = get("regulations", URL["regulations"], "text")
+        d = read_docs(lambda u: get("regulations", u, "bin"), guide, od)
+        body = {"docs": d, "source": URL["regulations"]}
+        if body["docs"] != od.get("docs"):
+            body["updated"] = now
+            with open(DOCS_OUT, "w", encoding="utf-8") as f:
+                json.dump(body, f, ensure_ascii=False, indent=1)
+        else:
+            body["updated"] = od.get("updated", now)
+        hashes["docs"] = sha(json.dumps({k: v["sha256"] for k, v in d.items()}))
+        new["docs_index"] = {k: {"title": v["title"], "url": v["url"], "sha256": v["sha256"], "chars": v["chars"]} for k, v in d.items()}
+
+    if not args.fixtures:
+        part("docs", docs)
     if not new.get("programs"):
         print("no programmes read and no earlier copy: nothing written", file=sys.stderr)
         return 1
