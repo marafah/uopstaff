@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-07T08:56:15Z",
-"checked": "2026-11-07T08:56:15Z",
+"updated": "2026-11-07T15:49:51Z",
+"checked": "2026-11-07T15:49:51Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -16843,14 +16843,14 @@
 "time": "[ 09:00_10:00 ] ح وجاهي ث وجاهي خ غير متزامن",
 "room": "9217",
 "section": "1",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "د. محمد سميح هارون فاشة",
 "building": "مبنى كلية العلوم الإدارية",
 "faculty": "العلوم الادارية والمالية",
 "department": "ذكاء الأعمال وتحليل البيانات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 36,
+"registered": 35,
 "capacity": 36,
 "meetings": [
 {
@@ -20177,7 +20177,7 @@
 "department": "العلوم المالية والمصرفية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 51,
+"registered": 50,
 "capacity": 55,
 "meetings": [
 {
