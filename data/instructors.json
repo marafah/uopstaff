@@ -1,6 +1,6 @@
 {
 "term": "الفصل الأول 2027/2026",
-"updated": "2026-11-08T06:16:20Z",
+"updated": "2026-11-08T13:35:28Z",
 "teaching": {
 "start": "2026-10-18",
 "end": "2027-01-19",
@@ -1818,7 +1818,7 @@
 {
 "id": "833fc7013f",
 "name": "د. دعاء محمد الحاج محمود قعدان",
-"sections": 5,
+"sections": 6,
 "department": "المعالجة الترميمية والعلوم الطبية الأساسية",
 "faculty": "طب الأسنان",
 "email": "duaa.quedan@uop.edu.jo",
@@ -3516,7 +3516,7 @@
 {
 "id": "da22dbbf3b",
 "name": "د. محمد طه احمد صالح",
-"sections": 7,
+"sections": 9,
 "department": "طب وجراحة الأسنان",
 "faculty": "طب الأسنان",
 "email": "mohamed.saleh@uop.edu.jo",
@@ -4539,7 +4539,7 @@
 {
 "id": "54290840a3",
 "name": "د. هبة حسني محمود الخرابشة",
-"sections": 7,
+"sections": 4,
 "department": "طب وجراحة الأسنان",
 "faculty": "طب الأسنان",
 "email": "heba.alkharabshah@uop.edu.jo",
@@ -5593,7 +5593,7 @@
 "email": "farah.alturk@uop.edu.jo",
 "ext": "",
 "office": "",
-"photo": "",
+"photo": "assets/photos/8cea43f41b709290.jpg",
 "rank": "مدرس",
 "job": "عضو هيئة تدريس",
 "role": "",

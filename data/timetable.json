@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-08T06:16:20Z",
-"checked": "2026-11-08T06:16:20Z",
+"updated": "2026-11-08T13:35:28Z",
+"checked": "2026-11-08T13:35:28Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -2341,7 +2341,7 @@
 "room": "0",
 "section": "3",
 "status": "مفتوحة",
-"instructor": "د. هبة حسني محمود الخرابشة",
+"instructor": "د. دعاء محمد الحاج محمود قعدان",
 "building": "-",
 "faculty": "طب الأسنان",
 "department": "طب وجراحة الأسنان",
@@ -2366,7 +2366,7 @@
 "room": "0",
 "section": "4",
 "status": "مغلقة",
-"instructor": "د. هبة حسني محمود الخرابشة",
+"instructor": "د. محمد طه احمد صالح",
 "building": "-",
 "faculty": "طب الأسنان",
 "department": "طب وجراحة الأسنان",
@@ -2391,7 +2391,7 @@
 "room": "0",
 "section": "5",
 "status": "مفتوحة",
-"instructor": "د. هبة حسني محمود الخرابشة",
+"instructor": "د. محمد طه احمد صالح",
 "building": "-",
 "faculty": "طب الأسنان",
 "department": "طب وجراحة الأسنان",
@@ -6168,7 +6168,7 @@
 "department": "العلوم الأساسية / الرياضيات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 26,
+"registered": 27,
 "capacity": 40,
 "meetings": [
 {
@@ -12649,7 +12649,7 @@
 "department": "ادارة الأعمال",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 12,
+"registered": 11,
 "capacity": 20,
 "meetings": [
 {
@@ -14588,14 +14588,14 @@
 "time": "[ 09:00_10:00 ] ح وجاهي ث وجاهي خ وجاهي",
 "room": "9118",
 "section": "2",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "د. واصف محمود سعد مطر",
 "building": "مبنى كلية العلوم الإدارية",
 "faculty": "العلوم الادارية والمالية",
 "department": "الأعمال والتجارة الالكترونية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 24,
+"registered": 23,
 "capacity": 24,
 "meetings": [
 {
@@ -19757,7 +19757,7 @@
 "department": "ادارة الأعمال",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 49,
+"registered": 50,
 "capacity": 55,
 "meetings": [
 {
@@ -23436,7 +23436,7 @@
 "department": "اللغة الانجليزية /الترجمه",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 46,
+"registered": 47,
 "capacity": 40,
 "meetings": [
 {
@@ -23486,7 +23486,7 @@
 "department": "اللغة الانجليزية /الترجمه",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 46,
+"registered": 47,
 "capacity": 40,
 "meetings": [
 {
@@ -26835,7 +26835,7 @@
 "department": "الصيدلة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 21,
+"registered": 22,
 "capacity": 40,
 "meetings": [
 {
@@ -27388,7 +27388,7 @@
 "department": "الصيدلة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 46,
+"registered": 47,
 "capacity": 43,
 "meetings": [
 {
@@ -27537,7 +27537,7 @@
 "department": "الصيدلة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 48,
+"registered": 49,
 "capacity": 47,
 "meetings": [
 {
@@ -27599,7 +27599,7 @@
 "department": "الصيدلة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 23,
+"registered": 24,
 "capacity": 21,
 "meetings": [
 {
@@ -30737,7 +30737,7 @@
 "department": "الصيدلة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 40,
+"registered": 41,
 "capacity": 40,
 "meetings": [
 {
@@ -34202,7 +34202,7 @@
 "department": "التحاليل الطبية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 14,
+"registered": 15,
 "capacity": 20,
 "meetings": [
 {
@@ -39548,7 +39548,7 @@
 "department": "أمن المعلومات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 9,
+"registered": 10,
 "capacity": 9,
 "meetings": [
 {
@@ -40160,7 +40160,7 @@
 "department": "علم البيانات والذكاء الاصطناعي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 27,
+"registered": 28,
 "capacity": 40,
 "meetings": [
 {
@@ -44811,7 +44811,7 @@
 "department": "الصحافة والإعلام الرقمي",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 7,
+"registered": 8,
 "capacity": 20,
 "meetings": [
 {
@@ -48148,7 +48148,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 85,
+"registered": 86,
 "capacity": 85,
 "meetings": [
 {

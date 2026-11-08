@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-08T06:10:15Z",
+"updated": "2026-11-08T13:32:23Z",
 "main_line": "+96265799555",
 "main_line_display": "06 5799555",
 "faculties": [
@@ -1724,10 +1724,10 @@
 "ext": "5220",
 "office": "دائرة الموارد البشرية",
 "email": "yousef.abdelfattah@uop.edu.jo",
-"photo": "",
+"photo": "assets/photos/6eee21405ac537c2.jpg",
 "profile": "https://www.uop.edu.jo/Ar/HRD/Pages/AdministrativeStaff.aspx",
 "source": "admin_hrd",
-"photo_src": ""
+"photo_src": "https://www.uop.edu.jo/En/HRD/PublishingImages/Staff/Yousef%20Abdel%20Fatah.jpg"
 },
 {
 "id": "S:qualityassuranceplanning:20",
@@ -4899,10 +4899,10 @@
 "ext": "",
 "office": "",
 "email": "farah.alturk@uop.edu.jo",
-"photo": "",
+"photo": "assets/photos/8cea43f41b709290.jpg",
 "profile": "https://pharma.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=660061007200610068002E0061006C007400750072006B00400075006F0070002E006500640075002E006A006F00",
 "source": "academic_api",
-"photo_src": ""
+"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20211011.jpeg"
 },
 {
 "id": "A:6D0079006100730069006E00400075006F0070002E006500640075002E006A006F00",
