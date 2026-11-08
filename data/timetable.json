@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-07T20:23:40Z",
-"checked": "2026-11-07T20:23:40Z",
+"updated": "2026-11-08T06:16:20Z",
+"checked": "2026-11-08T06:16:20Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -14897,14 +14897,14 @@
 "time": "[ 08:00_09:00 ] ح وجاهي ث وجاهي خ وجاهي",
 "room": "9215",
 "section": "1",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "م. حسين واصف محمود المؤقت",
 "building": "مبنى كلية العلوم الإدارية",
 "faculty": "العلوم الادارية والمالية",
 "department": "الأعمال والتجارة الالكترونية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 23,
+"registered": 22,
 "capacity": 23,
 "meetings": [
 {
@@ -41291,7 +41291,7 @@
 "department": "القانون الخاص",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 28,
+"registered": 27,
 "capacity": 40,
 "meetings": [
 {
@@ -42188,7 +42188,7 @@
 "department": "القانون العام",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 55,
+"registered": 54,
 "capacity": 40,
 "meetings": [
 {
@@ -42522,7 +42522,7 @@
 "department": "القانون العام",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 10,
+"registered": 9,
 "capacity": 40,
 "meetings": [
 {
