@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-09T11:45:08Z",
-"checked": "2026-11-09T11:45:08Z",
+"updated": "2026-11-09T22:31:57Z",
+"checked": "2026-11-09T22:31:57Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -16677,7 +16677,7 @@
 "department": "ذكاء الأعمال وتحليل البيانات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 28,
+"registered": 27,
 "capacity": 30,
 "meetings": [
 {
@@ -25811,7 +25811,7 @@
 "name": "كرة اليد (1)",
 "activity": "نظري",
 "time": "[ 09:00_10:00 ] ح وجاهي ث وجاهي خ وجاهي",
-"room": "14308",
+"room": "06312",
 "section": "1",
 "status": "مغلقة",
 "instructor": "م. سمير لطفي عيد نصار",

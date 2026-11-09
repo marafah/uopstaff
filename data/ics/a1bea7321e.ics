@@ -24,7 +24,7 @@ DTEND;TZID=Asia/Amman:20261018T100000
 RRULE:FREQ=WEEKLY;BYDAY=TU,TH,SU;UNTIL=20270119T205959Z
 EXDATE;TZID=Asia/Amman:20270105T090000
 SUMMARY:411261 كرة اليد (1) – ش1
-LOCATION:14308 – مبنى كلية الآداب والعلوم
+LOCATION:06312 – مبنى كلية الآداب والعلوم
 DESCRIPTION:نظري · وجاهي · العلوم التربوية / ال
  تربية الرياضية – الآداب والعلوم
 END:VEVENT
