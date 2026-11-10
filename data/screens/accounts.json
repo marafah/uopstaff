@@ -1,0 +1,38 @@
+{
+ "v": 1,
+ "users": {
+  "admin": {
+   "name": "مسؤول الموقع",
+   "role": "admin",
+   "screens": [
+    "*"
+   ],
+   "types": [
+    "ticker",
+    "notice",
+    "poster",
+    "event"
+   ],
+   "trusted": true,
+   "max": 30,
+   "maxDays": 365,
+   "active": true,
+   "created": "2026-11-10T08:03:59Z",
+   "by": "admin",
+   "pub": {
+    "x": "X83T3j5UQ20r4Ajw-68DL611HKUZX6YGccevROrDjyY",
+    "y": "k9mjSpBkpIRYOMXcijqtPYMAbvm0MHEJy0gdkpuW_8I"
+   },
+   "box": {
+    "salt": "JiJoy8n1BwLY6fnzornq2A==",
+    "iv": "qLz2oMamq3fbwdeo",
+    "ct": "+Spup9i3UtJugTYvJaeNOwCLlv0hp4WeL2p3ol9m8+KLF4rI6TOHwvn5yqc2o7Q5KTMCKhE4qBaIYErW+JaRirMSRWFvSuKRP+vkg3PM47OaJEuK/RJnhkkCrPgEqqnqAYkJkjOE9bKthADGUoaLj21CJBpe9KXEfkacuHxCw0100rxaqkvyeHi1qwbOes6HofxRb7g9uJAu2o8C/dYW9oSqNZc14qutIg9Abw1zg9NYkj1XCzb1xeD17PfQq70y13f75fyjzCHBY87+cxpa85FHynMDnPiq9RMiC9zwRGhYmjt412Ha3JsIR6CkM2hbTNWniOXDO1tHLfF8ARQxZKokuw=="
+   }
+  }
+ },
+ "tok": {
+  "iv": "WjY0cf1NMwdpctQ8",
+  "ct": "ZnrREqX6yKJ2ahi69fhT55Sn5+5WsnPLV1qmqoqzq3gYFg29XKFcpK+/pgzch0WrJc5R9WP2iJ4ob+mkBppaq2gHhcLp440MpKCtQ2hvtFZjODhx0ZvocORjLkyos+9V4d5RuMoS6Emy+v0gOg==",
+  "at": "2026-11-10T08:03:59Z"
+ }
+}
