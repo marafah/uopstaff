@@ -1,0 +1,38 @@
+{
+ "v": 1,
+ "users": {
+  "admin": {
+   "name": "arafah",
+   "role": "admin",
+   "screens": [
+    "*"
+   ],
+   "types": [
+    "ticker",
+    "notice",
+    "poster",
+    "event"
+   ],
+   "trusted": true,
+   "max": 30,
+   "maxDays": 365,
+   "active": true,
+   "created": "2026-11-10T06:44:49Z",
+   "by": "admin",
+   "pub": {
+    "x": "nked1NfeKWNBMRApx4_HoH-vpknUeCfPUKkt8KUM2YE",
+    "y": "LPDqmbQKWTldDRd0cdYBQipNOuij8JHwuHE7ixL0JAs"
+   },
+   "box": {
+    "salt": "MfKWnKIf26yXE1MRs27xFQ==",
+    "iv": "VgcfLl+8S6EpBE/a",
+    "ct": "rgZ4LqUsTtZtRf+i5IvxZvoeLYId/QMJSpaq8u0lcNYMX8bNxzPPYN3xCOWE7h1jQnDcCVRFYUFVobiLx/SoYx+xKlBu4IoMPafJCGENjVmkHnPRjmHP5Q3WNocoNRnIFGW+NeLDSkYV+HXdAbLGNdI+67nKteHQVHEMVzh/B/fYdN2yqwvPzyabXQSF78WsrvrbbbsXn9o37TvxCn7SWhpT2o6gX9+UGPCGmQYTbr0dv2+grPd9BDca7jEmP4Ti+lLHIzrO+qqiiAyT1mrr19KOo4kiuNaF7CrAD7ljVnU+4ol2sUnuK71RczaFASrbgqyi2Jzfe0HUcTsaOHXvDiXCCg=="
+   }
+  }
+ },
+ "tok": {
+  "iv": "zphaSrHVLlAbmYtf",
+  "ct": "id1QBE9tQAdwxZoy5IOLo35lp2CO7kWatD3jPGNTq09ZAElQeVryExTPEnNFFEEwy5iPWaM6H9gKXvKW6N9p2qnxHf2Vjq64wWY8G+F7PPfuz1d1BIZdiOn2O8/SUej4UACXJ+KVfEysAvNNeg==",
+  "at": "2026-11-10T06:44:49Z"
+ }
+}
