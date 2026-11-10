@@ -117,6 +117,7 @@
       @keyframes ppBlink { 50% { opacity: .45; } }
       @media (prefers-reduced-motion: reduce) { .pp-urg, .pp-alert i { animation: none; } .pp-tt > span { transition: none; } }
       .pp-mockw { container-type: inline-size; }
+      .scr.pp-mock, .scr.pp-mock * { box-sizing: border-box; }
       .scr.pp-mock { position: relative; inset: auto; width: 100%; aspect-ratio: 16 / 9; font-size: 1.15cqw; border-radius: 12px; overflow: hidden; z-index: 0; }
       .scr.pp-mock .pp-ov { position: static; opacity: 1; min-height: 0; }
       .pp-ghost { display: grid; grid-template-columns: 1.35fr 1fr .9fr; gap: 1.2em; min-height: 0; }

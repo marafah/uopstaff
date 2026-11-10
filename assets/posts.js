@@ -70,6 +70,7 @@
       { ...base, id: 'd2', type: 'notice', title: 'محاضرة عامة: الذكاء الاصطناعي في التعليم', text: 'يدعوكم القسم لحضور محاضرة عامة يوم الخميس الساعة 11:00 في القاعة 101.\nالدعوة عامة.', icon: 'bi-lightbulb', tone: 'gold', link: 'https://example.com/lecture', status: 'live' },
       { ...base, id: 'd3', type: 'event', title: 'يوم الإبداع الطلابي', text: 'معرض مشاريع ومسابقات وجوائز', place: 'ساحة الجامعة', at: addDays(t, 3) + 'T10:00', icon: 'bi-trophy', tone: 'maroon', link: 'https://example.com/event', status: 'live' },
       { ...base, id: 'd4', type: 'poster', title: 'المعرض السنوي', text: 'مثال على بوستر', image: POSTER, link: '', status: 'live' },
+      { ...base, id: 'd6', type: 'urgent', owner: 'admin', ownerName: 'المسؤول (تجربة)', title: 'تنبيه', text: 'إغلاق موقف السيارات الشرقي اليوم للصيانة (مثال)', status: 'live' },
       { ...base, id: 'd5', type: 'notice', title: 'ورشة عمل: كتابة السيرة الذاتية', text: 'ورشة لطلبة السنة الرابعة؛ التسجيل لدى سكرتيرة الكلية.', icon: 'bi-briefcase', tone: 'info', link: '', status: 'pending' }];
     ACC = { users: { demo: { name: 'كلية تجريبية', role: 'unit', screens: [DS], types: ['ticker', 'notice', 'event', 'poster'], trusted: false, max: 6, maxDays: 30, active: true },
       admin: { name: 'المسؤول (تجربة)', role: 'admin', screens: ['*'], types: ['ticker', 'notice', 'event', 'poster'], trusted: true, active: true } } };
@@ -204,7 +205,7 @@
     if (!ACC || !ACC.users || !Object.keys(ACC.users).length) { setup(); return; }
     if (!S) { login(); return; }
     const pend = (DATA.posts || []).filter(p => p.status === 'pending').length;
-    const T = [['new', 'bi-plus-circle', edit ? 'تعديل إعلان' : 'إعلان جديد'], ['mine', 'bi-collection', isAdmin() ? 'إعلاناتي' : 'إعلاناتي']]
+    const T = [['new', 'bi-plus-circle', edit ? 'تعديل إعلان' : 'إعلان جديد'], ['examples', 'bi-grid-1x2', 'أمثلة الإعلانات'], ['mine', 'bi-collection', 'إعلاناتي']]
       .concat(isAdmin() ? [['queue', 'bi-inbox', `بانتظار الموافقة${pend ? ` <span class="badge text-bg-danger">${pend}</span>` : ''}`], ['all', 'bi-list-check', 'كل الإعلانات'],
         ['now', 'bi-display', 'الشاشات الآن'], ['settings', 'bi-sliders', 'إعدادات الشاشات'], ['alert', 'bi-exclamation-octagon', 'رسالة طوارئ'],
         ['accounts', 'bi-people', 'الحسابات'], ['log', 'bi-journal-text', 'السجل']] : [['now', 'bi-display', 'الشاشات الآن']])
@@ -224,7 +225,7 @@
       $('#pp-reset').onclick = () => { demoSeed(); S = { u: 'demo', a: ACC.users.demo, demo: true }; tab = 'new'; edit = null; draft = null; img = null; render(); };
     }
     app.querySelectorAll('[data-tab]').forEach(a => a.onclick = e => { e.preventDefault(); tab = a.dataset.tab; if (tab !== 'new') { edit = null; } render(); });
-    ({ new: compose, mine: () => list('mine'), queue: () => list('queue'), all: () => list('all'), now: screensNow, settings, alert: alertTab, accounts, log: logTab, me }[tab] || compose)();
+    ({ new: compose, examples, mine: () => list('mine'), queue: () => list('queue'), all: () => list('all'), now: screensNow, settings, alert: alertTab, accounts, log: logTab, me }[tab] || compose)();
   }
   const body = () => $('#pp-body');
   const busy = (btn, on) => { if (!btn) return; btn.disabled = on; if (on) { btn.dataset.html = btn.innerHTML; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> …'; } else if (btn.dataset.html) btn.innerHTML = btn.dataset.html; };
@@ -297,11 +298,40 @@
     };
   }
 
+  // ---------------------------------------------------------------- examples of every kind, with their preview
+  const SAMPLE = {
+    ticker: { text: 'التسجيل مفتوح في دورة الإسعافات الأولية — المقاعد محدودة', use: 'خبر قصير في سطر واحد: تذكير بموعد، تغيير قاعة، فتح تسجيل. يبقى ظاهراً أسفل الشاشة طوال مدته.' },
+    notice: { title: 'محاضرة عامة: الذكاء الاصطناعي في التعليم', text: 'يدعوكم القسم لحضور محاضرة عامة يوم الخميس الساعة 11:00 في القاعة 101.\nالدعوة عامة للطلبة والمدرسين.',
+      icon: 'bi-lightbulb', tone: 'gold', link: 'https://example.com/lecture', use: 'إعلان بعنوان وتفاصيل: محاضرة، تعليمات، دعوة. يظهر دورياً في وسط الشاشة 15 ثانية، ومع رابط يظهر رمز QR.' },
+    event: { title: 'يوم الإبداع الطلابي', text: 'معرض مشاريع الطلبة ومسابقات وجوائز', place: 'ساحة الجامعة', icon: 'bi-trophy', tone: 'maroon', link: 'https://example.com/register',
+      use: 'فعالية بموعد محدد: يظهر عدّ تنازلي (بعد 3 أيام، غداً، اليوم) ورمز QR للتسجيل. تختفي بعد الفعالية وحدها.' },
+    poster: { title: 'المعرض السنوي', text: '15 – 17 من الشهر القادم', use: 'ملصق جاهز التصميم (صورة JPG أو PNG). يملأ وسط الشاشة دورياً؛ الأفضل صورة عرضية بخطوط كبيرة.' },
+    urgent: { title: 'تنبيه', text: 'إغلاق موقف السيارات الشرقي اليوم للصيانة', use: 'للمسؤول فقط: شريط أحمر ثابت تحت عنوان الشاشة طوال مدته، لأمر مهم يجب أن يراه الجميع.' },
+    alert: { title: 'إخلاء المبنى', text: 'يرجى التوجه إلى أقرب مخرج بهدوء واتباع تعليمات الأمن', use: 'للمسؤول فقط (من «رسالة طوارئ»): تغطي وسط الشاشة بالكامل حتى تُلغى، حتى على الشاشات المضبوطة «كما هي».' } };
+  const sample = type => { const x = Object.assign({}, SAMPLE[type]); delete x.use; if (type === 'event') x.at = addDays(today(), 3) + 'T10:00'; if (type === 'poster') x.image = POSTER; return x; };
+  function examples() {
+    const scr = (DEMO && DS) || (S && ALL().filter(k => may(S.a, k)).find(k => !k.startsWith('g:') && k !== '*')) || DS || BLDS[0], allowed = typesOf(S.a);
+    body().innerHTML = `<p class="small text-muted"><i class="bi bi-info-circle"></i> كل أنواع الإعلانات كما تظهر على الشاشة، ببيانات مثال. اضغط «استعمل هذا المثال» لتبدأ إعلاناً من النوع نفسه وتعدّل نصه.</p>
+      <div class="pp-exs">${['ticker', 'notice', 'event', 'poster', 'urgent', 'alert'].map(t => {
+        const T = t === 'alert' ? { t: 'رسالة طوارئ', ic: 'bi-exclamation-octagon-fill' } : PP.TYPES[t], ok = t === 'alert' ? isAdmin() : allowed.includes(t);
+        return `<div class="pp-ex card"><div class="card-body"><h6 class="fw-bold"><i class="bi ${T.ic} text-maroon"></i> ${T.t}${['urgent', 'alert'].includes(t) ? ' <span class="badge text-bg-dark">للمسؤول</span>' : ''}</h6>
+          <p class="small text-muted">${SAMPLE[t].use}</p>
+          ${PP.mock({ title: label(scr), p: Object.assign(sample(t), { type: t, status: 'live', ownerName: S.a.name }), img: t === 'poster' ? POSTER : '', now: U.amman() })}
+          ${ok ? `<button class="btn btn-sm btn-outline-dark mt-2" data-ex="${t}"><i class="bi bi-pencil-square"></i> استعمل هذا المثال</button>` : ''}</div></div>`; }).join('')}</div>`;
+    body().querySelectorAll('[data-ex]').forEach(b => b.onclick = () => {
+      if (b.dataset.ex === 'alert') { tab = 'alert'; render(); const f = $('#pp-af'); if (f) { f.title.value = SAMPLE.alert.title; f.text.value = SAMPLE.alert.text; f.oninput(); } return; }
+      edit = null; img = null; draft = Object.assign(blank(b.dataset.ex), sample(b.dataset.ex));
+      if (draft.type === 'poster' && DEMO) img = { b64: POSTER.split(',')[1], url: POSTER, info: 'صورة المثال (يمكنك اختيار صورة أخرى)' };
+      if (draft.type === 'poster' && !DEMO) delete draft.image;
+      tab = 'new'; render(); });
+  }
+
   // ---------------------------------------------------------------- compose (new / edit) with live preview
   function blank(type) {
     const t = today(), a = S.a, scr = ALL().filter(k => may(a, k));
     return { type, title: '', text: '', icon: type === 'event' ? 'bi-calendar-event' : 'bi-megaphone', tone: 'maroon', link: '', place: '', at: addDays(t, 3) + 'T10:00',
-      screens: scr.length === 1 ? scr : [], start: t, end: addDays(t, Math.min(6, (a.maxDays || 30) - 1)), days: [], from: '', to: '', pin: false, ownerName: a.name };
+      screens: scr.length === 1 ? scr : [], start: t, end: addDays(t, Math.min(6, (a.maxDays || 30) - 1)), days: [], from: '', to: '', pin: false, ownerName: a.name,
+      ...(DEMO ? sample(type) : {}) };
   }
   function compose() {
     const types = typesOf(S.a);
@@ -351,7 +381,8 @@
     };
     form.addEventListener('input', read);
     form.addEventListener('change', e => {
-      if (e.target.name === 'type') { const nt = blank(e.target.value); draft = Object.assign(nt, { title: d.title, text: d.text, screens: d.screens, start: d.start, end: d.end }); img = null; compose(); return; }
+      if (e.target.name === 'type') { const nt = blank(e.target.value); draft = DEMO ? Object.assign(nt, { screens: d.screens, start: d.start, end: d.end }) : Object.assign(nt, { title: d.title, text: d.text, screens: d.screens, start: d.start, end: d.end });
+        img = DEMO && nt.type === 'poster' ? { b64: POSTER.split(',')[1], url: POSTER, info: 'صورة المثال (يمكنك اختيار صورة أخرى)' } : null; compose(); return; }
       if (e.target.name === 'image' && e.target.files[0]) shrink(e.target.files[0]);
       read();
     });
@@ -640,6 +671,7 @@
     .pp-iprev { max-width: 640px; } .pp-iprev:not(:empty) { margin-top: .5rem; }
     .pp-pre { background: #fff; border-radius: 8px; padding: .6rem; white-space: pre-wrap; font-size: .95rem; }
     .pp-set td { min-width: 6rem; }
+    .pp-exs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); gap: 1rem; }
     .pp-demo { display: flex; justify-content: space-between; align-items: center; gap: .6rem; flex-wrap: wrap; background: #fff3cd; border: 2px dashed #d39e00; border-radius: 12px; padding: .6rem .9rem; margin-bottom: .8rem; }
   </style>`);
   Promise.all([noCache('data/screens/accounts.json'), noCache('data/screen_posts.json'), U.getJSON('data/timetable.json')]).then(([a, d, tt]) => {
