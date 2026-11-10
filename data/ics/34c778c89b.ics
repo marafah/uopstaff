@@ -51,4 +51,16 @@ LOCATION:3401 – مبنى كلية الإعلام
 DESCRIPTION:نظري · وجاهي · العلاقات العامة وال
  ترويج الرقمي – الإعلام
 END:VEVENT
+BEGIN:VEVENT
+UID:36c6f9e51150d3c6@uopstaff
+DTSTAMP:20261018T000000Z
+DTSTART;TZID=Asia/Amman:20261019T123000
+DTEND;TZID=Asia/Amman:20261019T133000
+RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
+SUMMARY:805272 خصائص الجمهور في البيئة الرقمية 
+ – ش1
+LOCATION:3301 – مبنى كلية الإعلام
+DESCRIPTION:نظري · وجاهي · العلاقات العامة وال
+ ترويج الرقمي – الإعلام
+END:VEVENT
 END:VCALENDAR

@@ -65,6 +65,19 @@ DESCRIPTION:نظري · وجاهي · العلاقات العامة وال
  ترويج الرقمي – الإعلام
 END:VEVENT
 BEGIN:VEVENT
+UID:0735e3fa43eb92bb@uopstaff
+DTSTAMP:20261018T000000Z
+DTSTART;TZID=Asia/Amman:20261018T100000
+DTEND;TZID=Asia/Amman:20261018T110000
+RRULE:FREQ=WEEKLY;BYDAY=TU,SU;UNTIL=20270119T205959Z
+EXDATE;TZID=Asia/Amman:20270105T100000
+SUMMARY:805374 الاتصال التنظيمي في العلاقات الع
+ امة – ش1
+LOCATION:3311 – مبنى كلية الإعلام
+DESCRIPTION:نظري · وجاهي · العلاقات العامة وال
+ ترويج الرقمي – الإعلام
+END:VEVENT
+BEGIN:VEVENT
 UID:b9dd0230466afcd0@uopstaff
 DTSTAMP:20261018T000000Z
 DTSTART;TZID=Asia/Amman:20261018T210000

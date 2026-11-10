@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-10T04:46:21Z",
-"checked": "2026-11-10T04:46:21Z",
+"updated": "2026-11-10T13:36:46Z",
+"checked": "2026-11-10T13:36:46Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -4384,7 +4384,7 @@
 "department": "الكيمياء",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 19,
+"registered": 18,
 "capacity": 20,
 "meetings": [
 {
@@ -4948,7 +4948,7 @@
 "department": "العلوم الأساسية / الرياضيات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 46,
+"registered": 47,
 "capacity": 42,
 "meetings": [
 {
@@ -13390,14 +13390,14 @@
 "time": "[ 10:00_11:00 ] ح وجاهي ث وجاهي خ غير متزامن",
 "room": "9318",
 "section": "2",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "م. ياره احمد زيدان الجمل",
 "building": "مبنى كلية العلوم الإدارية",
 "faculty": "العلوم الادارية والمالية",
 "department": "العلوم المالية والمصرفية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 60,
+"registered": 59,
 "capacity": 60,
 "meetings": [
 {
@@ -13539,7 +13539,7 @@
 "department": "العلوم المالية والمصرفية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 39,
+"registered": 38,
 "capacity": 40,
 "meetings": [
 {
@@ -15002,14 +15002,14 @@
 "time": "[ 09:00_10:00 ] ح وجاهي ث وجاهي خ وجاهي",
 "room": "9215",
 "section": "1",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "م. حسين واصف محمود المؤقت",
 "building": "مبنى كلية العلوم الإدارية",
 "faculty": "العلوم الادارية والمالية",
 "department": "الأعمال والتجارة الالكترونية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 24,
+"registered": 23,
 "capacity": 24,
 "meetings": [
 {
@@ -26667,7 +26667,7 @@
 "department": "الصيدلة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 54,
+"registered": 53,
 "capacity": 48,
 "meetings": [
 {
@@ -27699,7 +27699,7 @@
 "department": "الصيدلة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 24,
+"registered": 23,
 "capacity": 20,
 "meetings": [
 {
@@ -31166,13 +31166,13 @@
 "room": "0",
 "section": "1",
 "status": "مفتوحة",
-"instructor": "د. بيان يوسف عمر غانم",
+"instructor": "هيئه تدريسيه",
 "building": "-",
 "faculty": "طب الأسنان",
 "department": "طب وجراحة الأسنان",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 34,
+"registered": 0,
 "capacity": 60,
 "meetings": [
 {
@@ -31209,7 +31209,7 @@
 "department": "طب وجراحة الأسنان",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 60,
+"registered": 94,
 "capacity": 60,
 "meetings": [
 {
@@ -36277,7 +36277,7 @@
 "department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 28,
+"registered": 29,
 "capacity": 20,
 "meetings": [
 {
@@ -36419,7 +36419,7 @@
 "department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 28,
+"registered": 29,
 "capacity": 26,
 "meetings": [
 {
@@ -37552,7 +37552,7 @@
 "department": "هندسة البرمجيات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 24,
+"registered": 25,
 "capacity": 26,
 "meetings": [
 {
@@ -43165,7 +43165,7 @@
 "department": "الإذاعة والتلفزيون",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 19,
+"registered": 18,
 "capacity": 20,
 "meetings": [
 {
@@ -45196,7 +45196,7 @@
 "room": "3301",
 "section": "1",
 "status": "مفتوحة",
-"instructor": "هيئه تدريسيه",
+"instructor": "د. زينة رافع مبارك الزعبي",
 "building": "مبنى كلية الإعلام",
 "faculty": "الإعلام",
 "department": "العلاقات العامة والترويج الرقمي",
@@ -45270,7 +45270,7 @@
 "room": "3311",
 "section": "1",
 "status": "مفتوحة",
-"instructor": "هيئه تدريسيه",
+"instructor": "د. مخلد خلف سالم النوافعة",
 "building": "مبنى كلية الإعلام",
 "faculty": "الإعلام",
 "department": "العلاقات العامة والترويج الرقمي",
@@ -50167,7 +50167,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 88,
+"registered": 89,
 "capacity": 85,
 "meetings": [
 {
@@ -50389,7 +50389,7 @@
 "department": "هندسة البرمجيات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 14,
+"registered": 15,
 "capacity": 20,
 "meetings": [
 {

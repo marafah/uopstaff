@@ -1,6 +1,6 @@
 {
 "term": "الفصل الأول 2027/2026",
-"updated": "2026-11-10T04:46:21Z",
+"updated": "2026-11-10T13:36:46Z",
 "teaching": {
 "start": "2026-10-18",
 "end": "2027-01-19",
@@ -1354,7 +1354,7 @@
 {
 "id": "8a6a309741",
 "name": "د. بيان يوسف عمر غانم",
-"sections": 5,
+"sections": 4,
 "department": "طب وجراحة الأسنان",
 "faculty": "طب الأسنان",
 "email": "bayan.ghanim@uop.edu.jo",
@@ -2062,7 +2062,7 @@
 {
 "id": "34c778c89b",
 "name": "د. زينة رافع مبارك الزعبي",
-"sections": 3,
+"sections": 4,
 "department": "العلاقات العامة والترويج الرقمي",
 "faculty": "الإعلام",
 "email": "zaineh.alzoubi@uop.edu.jo",
@@ -3600,8 +3600,8 @@
 "office": "9000",
 "photo": "assets/photos/2778dd4792535337.jpg",
 "rank": "أستاذ مساعد",
-"job": "رئيس قسم ذكاء الاعمال وتحليل البيانات",
-"role": "رئيس قسم",
+"job": "عميد الكلية",
+"role": "عميد",
 "profile": "https://fafs.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6D006F00680061006D006D00610064002E0061006C006B00680061006C0064007900400075006F0070002E006500640075002E006A006F00",
 "name_en": "Mohammad Al Khaldy",
 "directory_id": "A:6D006F00680061006D006D00610064002E0061006C006B00680061006C0064007900400075006F0070002E006500640075002E006A006F00",
@@ -3809,7 +3809,7 @@
 {
 "id": "fb23ae6295",
 "name": "د. مخلد خلف سالم النوافعة",
-"sections": 5,
+"sections": 6,
 "department": "العلاقات العامة والترويج الرقمي",
 "faculty": "الإعلام",
 "email": "mikhled.alnawafah@uop.edu.jo",
@@ -6050,7 +6050,7 @@
 {
 "id": "5c9a3c6221",
 "name": "هيئه تدريسيه",
-"sections": 2,
+"sections": 1,
 "department": "",
 "faculty": "",
 "ics": "data/ics/5c9a3c6221.ics"

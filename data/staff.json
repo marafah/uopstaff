@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-09T11:41:15Z",
+"updated": "2026-11-10T13:32:15Z",
 "main_line": "+96265799555",
 "main_line_display": "06 5799555",
 "faculties": [
@@ -5345,6 +5345,28 @@
 "photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20015359.jpeg"
 },
 {
+"id": "A:6D006F00680061006D006D00610064002E0061006C006B00680061006C0064007900400075006F0070002E006500640075002E006A006F00",
+"type": "academic",
+"faculty": 3,
+"name": "د. محمد علي عبيد الخالدي",
+"name_en": "Mohammad Al Khaldy",
+"job": "عميد الكلية",
+"rank": "أستاذ مساعد",
+"rank_order": 3,
+"role": "عميد",
+"sort": 2,
+"department": "ذكاء الأعمال وتحليل البيانات",
+"specialization": "علم الحاسوب – الذكاء الاصطناعي",
+"qualification": "",
+"ext": "ext. 9000",
+"office": "9000",
+"email": "mohammad.alkhaldy@uop.edu.jo",
+"photo": "assets/photos/2778dd4792535337.jpg",
+"profile": "https://fafs.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6D006F00680061006D006D00610064002E0061006C006B00680061006C0064007900400075006F0070002E006500640075002E006A006F00",
+"source": "academic_api",
+"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20212013.jpg"
+},
+{
 "id": "A:73006D00610067006100740065006600400075006F0070002E006500640075002E006A006F00",
 "type": "academic",
 "faculty": 3,
@@ -5453,28 +5475,6 @@
 "profile": "https://fafs.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6B0062007100610069006E00400075006F0070002E006500640075002E006A006F00",
 "source": "academic_api",
 "photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/2011008.JPG"
-},
-{
-"id": "A:6D006F00680061006D006D00610064002E0061006C006B00680061006C0064007900400075006F0070002E006500640075002E006A006F00",
-"type": "academic",
-"faculty": 3,
-"name": "د. محمد علي عبيد الخالدي",
-"name_en": "Mohammad Al Khaldy",
-"job": "رئيس قسم ذكاء الاعمال وتحليل البيانات",
-"rank": "أستاذ مساعد",
-"rank_order": 3,
-"role": "رئيس قسم",
-"sort": 5,
-"department": "ذكاء الأعمال وتحليل البيانات",
-"specialization": "علم الحاسوب – الذكاء الاصطناعي",
-"qualification": "",
-"ext": "ext. 9000",
-"office": "9000",
-"email": "mohammad.alkhaldy@uop.edu.jo",
-"photo": "assets/photos/2778dd4792535337.jpg",
-"profile": "https://fafs.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6D006F00680061006D006D00610064002E0061006C006B00680061006C0064007900400075006F0070002E006500640075002E006A006F00",
-"source": "academic_api",
-"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20212013.jpg"
 },
 {
 "id": "A:770061007300650066002E006D006100740061007200400075006F0070002E006500640075002E006A006F00",

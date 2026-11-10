@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-05T11:02:05Z",
+"updated": "2026-11-10T13:32:15Z",
 "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
 "revision": "Rev.E",
 "revision_date": "2023-12-20",
@@ -1407,7 +1407,19 @@
 "count": 69,
 "academic": 61
 },
-"people": [],
+"people": [
+{
+"id": "A:6D006F00680061006D006D00610064002E0061006C006B00680061006C0064007900400075006F0070002E006500640075002E006A006F00",
+"name": "د. محمد علي عبيد الخالدي",
+"job": "عميد الكلية",
+"role": "عميد",
+"type": "academic",
+"ext": "ext. 9000",
+"email": "mohammad.alkhaldy@uop.edu.jo",
+"photo": "assets/photos/2778dd4792535337.jpg",
+"faculty": 3
+}
+],
 "official_heads": [
 {
 "name": "د. محمد الخالدي",
@@ -1581,17 +1593,6 @@
 "ext": "",
 "email": "ahmad.eyadat@uop.edu.jo",
 "photo": "assets/photos/94138408f1a1f64a.jpg",
-"faculty": 3
-},
-{
-"id": "A:6D006F00680061006D006D00610064002E0061006C006B00680061006C0064007900400075006F0070002E006500640075002E006A006F00",
-"name": "د. محمد علي عبيد الخالدي",
-"job": "رئيس قسم ذكاء الاعمال وتحليل البيانات",
-"role": "رئيس قسم",
-"type": "academic",
-"ext": "ext. 9000",
-"email": "mohammad.alkhaldy@uop.edu.jo",
-"photo": "assets/photos/2778dd4792535337.jpg",
 "faculty": 3
 }
 ]
