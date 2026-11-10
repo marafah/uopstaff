@@ -60,7 +60,9 @@
         <i class="bi bi-megaphone text-maroon fs-2"></i>
         <div class="small flex-grow-1"><b class="d-block mb-1">إعلانات على الشاشات</b>
           تنشر الكليات والدوائر أخباراً وإعلانات وفعاليات وبوسترات على شاشاتها من صفحة «إعلانات الشاشات»، بموافقة مسؤول الموقع. لا تظهر على شاشة إلا ما هو موجّه إليها،
-          ولإبقاء شاشة معيّنة كما هي تماماً دون أي إعلان أضف <code dir="ltr">&amp;posts=off</code> إلى رابطها.</div>
+          لجهاز عرض يجب ألّا يعرض أي إعلان أبداً، فعّل الخيار المجاور ثم افتح الشاشة أو انسخ رابطها من الأسفل.</div>
+        <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" role="switch" id="scr-nopost">
+          <label class="form-check-label small fw-bold" for="scr-nopost">روابط بلا إعلانات</label></div>
         <a class="btn btn-sm btn-maroon" href="screen-posts.html"><i class="bi bi-megaphone"></i> إعلانات الشاشات</a></div></div>
       <h6 class="fw-bold mb-2"><i class="bi bi-person-raised-hand"></i> شاشات الخدمات</h6>
       <div class="scr-pick mb-4">${[['registration', 'bi-pencil-square', 'عمادة القبول والتسجيل', 'مواعيد التسجيل وعدّها التنازلي، الشعب التي تمتلئ وأين ما زالت المقاعد متاحة، تغييرات الجدول اليوم، ورموز QR لجدول بلا تعارض'],
@@ -85,6 +87,13 @@
           <div class="d-flex flex-wrap gap-2 mt-2"><a class="btn btn-sm btn-maroon" href="${url}"><i class="bi bi-display"></i> افتح الشاشة</a>${EX ? `<a class="btn btn-sm btn-outline-warning" href="${url}&mode=exams" title="يعرض الامتحانات دائماً"><i class="bi bi-clipboard-check"></i> الامتحانات</a><a class="btn btn-sm btn-outline-secondary" href="${url}&mode=lectures" title="يعرض المحاضرات دائماً، حتى في أيام الامتحانات"><i class="bi bi-easel"></i> المحاضرات فقط</a>` : ''}
             <button type="button" class="btn btn-sm btn-outline-secondary" data-copy="${esc(SITE + url)}"><i class="bi bi-link-45deg"></i> نسخ الرابط</button></div></div>`;
       }).join('')}</div>`;
+    // «روابط بلا إعلانات»: every screen link and copied link below gets &posts=off (that device shows the screen exactly as before)
+    const NP = '&posts=off', np = $('#scr-nopost');
+    if (np) np.addEventListener('change', () => document.querySelectorAll('#scr-app a[href^="screen.html?b="], #scr-app [data-copy]').forEach(el => {
+      const k = el.hasAttribute('data-copy') ? 'data-copy' : 'href', v = el.getAttribute(k).replace(NP, '');
+      el.setAttribute(k, np.checked ? v + NP : v);
+      if (el.hasAttribute('data-copy')) el.innerHTML = np.checked ? '<i class="bi bi-link-45deg"></i> نسخ الرابط (بلا إعلانات)' : '<i class="bi bi-link-45deg"></i> نسخ الرابط';
+    }));
     document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => navigator.clipboard.writeText(b.dataset.copy).then(() => { b.innerHTML = '<i class="bi bi-check2"></i> تم النسخ'; })));
   }
 

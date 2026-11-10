@@ -372,10 +372,12 @@
       const al = DATA.alert && DATA.alert.title && (DATA.alert.screens || ['*']).some(t => PP.inTarget(t, k));
       return `<tr><td><b>${esc(label(k))}</b></td><td>${s.mode === 'off' ? '<span class="badge text-bg-secondary">كما هي (بلا إعلانات)</span>' : '<span class="badge text-bg-success">تعرض الإعلانات</span>'}${al ? ' <span class="badge text-bg-danger">طوارئ</span>' : ''}</td>
         <td>${c('ticker')}</td><td>${c('notice') + c('event') + c('poster')}</td><td>${c('urgent')}</td>
-        <td><a class="btn btn-sm btn-outline-secondary" target="_blank" href="${SITE}screen.html?b=${encodeURIComponent(k)}"><i class="bi bi-box-arrow-up-left"></i> افتح</a></td></tr>`;
+        <td class="text-nowrap"><a class="btn btn-sm btn-outline-secondary" target="_blank" href="${SITE}screen.html?b=${encodeURIComponent(k)}"><i class="bi bi-box-arrow-up-left"></i> افتح</a>
+          <button class="btn btn-sm btn-outline-secondary" data-np="${esc(SITE + 'screen.html?b=' + encodeURIComponent(k) + '&posts=off')}"><i class="bi bi-link-45deg"></i> رابط بلا إعلانات</button></td></tr>`;
     }).join('');
     body().innerHTML = `<div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>الشاشة</th><th>الحالة</th><th>أخبار</th><th>إعلانات وفعاليات وبوسترات</th><th>عاجل</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
-      <p class="small text-muted"><i class="bi bi-info-circle"></i> ما يُعرض في هذه اللحظة. أي شاشة يمكن إبقاؤها كما هي تماماً بإضافة <code dir="ltr">&posts=off</code> إلى رابطها.</p>`;
+      <p class="small text-muted"><i class="bi bi-info-circle"></i> ما يُعرض في هذه اللحظة. «رابط بلا إعلانات» لجهاز عرض يجب أن يبقى كما هو تماماً دون أي إعلان (ولا حتى الطوارئ): انسخه وافتحه على ذلك الجهاز.</p>`;
+    body().querySelectorAll('[data-np]').forEach(b => b.onclick = () => navigator.clipboard.writeText(b.dataset.np).then(() => { b.innerHTML = '<i class="bi bi-check2"></i> تم النسخ'; }));
   }
 
   // ---------------------------------------------------------------- screen settings (admin)
