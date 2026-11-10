@@ -49,6 +49,71 @@
   const sign = async (priv, s) => b64(await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, priv, TE.encode(s)));
   const nonce = () => Array.from(crypto.getRandomValues(new Uint8Array(12)), x => x.toString(16).padStart(2, '0')).join('');
 
+  // ---------------------------------------------------------------- «وضع التجربة» (screen-posts.html?demo=1)
+  // For trying the system without an account: made-up data, a switch between «جهة» and «مسؤول», and a demo screen
+  // (screen.html?b=...&demo=1). Nothing is sent to GitHub and no key or password is used: everything stays in this
+  // browser (localStorage) until «ابدأ من جديد».
+  const DEMO = new URLSearchParams(location.search).has('demo'), DKEY = 'uop-pp-demo';
+  let DS = '';   // the demo faculty's screen
+  const dSave = () => { try { localStorage.setItem(DKEY, JSON.stringify({ ACC, DATA, LOG: LOGF })); } catch (e) { /* storage unavailable: the demo still works on this page */ } };
+  const dLoad = () => { try { return JSON.parse(localStorage.getItem(DKEY) || 'null'); } catch (e) { return null; } };
+  const POSTER = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b4a66"/><stop offset="1" stop-color="#6e151a"/></linearGradient></defs>
+    <rect width="1600" height="900" fill="url(#g)"/><circle cx="1350" cy="160" r="260" fill="#fbbf24" opacity=".18"/><circle cx="220" cy="760" r="320" fill="#fff" opacity=".07"/>
+    <g font-family="Tahoma, Arial, sans-serif" text-anchor="middle" fill="#fff"><text x="800" y="300" font-size="64" fill="#fde68a">بوستر تجريبي</text>
+    <text x="800" y="450" font-size="110" font-weight="bold">المعرض السنوي لمشاريع الطلبة</text>
+    <text x="800" y="580" font-size="56">١٥ – ١٧ من الشهر القادم · ساحة الجامعة</text><text x="800" y="760" font-size="40" fill="#cbd5e1">مثال فقط — ليس إعلاناً حقيقياً</text></g></svg>`)));
+  function demoSeed() {
+    const t = today(), base = { owner: 'demo', ownerName: 'كلية تجريبية', screens: [DS], start: t, end: addDays(t, 14), days: [], from: '', to: '', pin: false, created: new Date().toISOString() };
+    const posts = [
+      { ...base, id: 'd1', type: 'ticker', title: '', text: 'التسجيل مفتوح في دورة الإسعافات الأولية — المقاعد محدودة (مثال)', status: 'live' },
+      { ...base, id: 'd2', type: 'notice', title: 'محاضرة عامة: الذكاء الاصطناعي في التعليم', text: 'يدعوكم القسم لحضور محاضرة عامة يوم الخميس الساعة 11:00 في القاعة 101.\nالدعوة عامة.', icon: 'bi-lightbulb', tone: 'gold', link: 'https://example.com/lecture', status: 'live' },
+      { ...base, id: 'd3', type: 'event', title: 'يوم الإبداع الطلابي', text: 'معرض مشاريع ومسابقات وجوائز', place: 'ساحة الجامعة', at: addDays(t, 3) + 'T10:00', icon: 'bi-trophy', tone: 'maroon', link: 'https://example.com/event', status: 'live' },
+      { ...base, id: 'd4', type: 'poster', title: 'المعرض السنوي', text: 'مثال على بوستر', image: POSTER, link: '', status: 'live' },
+      { ...base, id: 'd5', type: 'notice', title: 'ورشة عمل: كتابة السيرة الذاتية', text: 'ورشة لطلبة السنة الرابعة؛ التسجيل لدى سكرتيرة الكلية.', icon: 'bi-briefcase', tone: 'info', link: '', status: 'pending' }];
+    ACC = { users: { demo: { name: 'كلية تجريبية', role: 'unit', screens: [DS], types: ['ticker', 'notice', 'event', 'poster'], trusted: false, max: 6, maxDays: 30, active: true },
+      admin: { name: 'المسؤول (تجربة)', role: 'admin', screens: ['*'], types: ['ticker', 'notice', 'event', 'poster'], trusted: true, active: true } } };
+    DATA = { v: 1, settings: { default: { every: 1, secs: 12 }, screens: {} }, alert: null, posts };
+    LOGF = { log: [] };
+    dSave();
+  }
+  function demoApply(a, d) {
+    const u = S.u, acc = ACC.users[u], admin = acc.role === 'admin', P = DATA.posts, find = id => P.find(p => p.id === id);
+    const no = why => ({ ok: false, why }), adminOnly = () => admin ? null : no('هذا الإجراء للمسؤول فقط');
+    if (a === 'submit') {
+      const old = d.id ? find(d.id) : null;
+      if (old && old.owner !== u && !admin) return no('ليس إعلانك');
+      if (!d.screens.length || d.screens.some(k => !may(acc, k))) return no('لا يحق لحسابك النشر على هذه الشاشات');
+      if (!admin && !typesOf(acc).includes(d.type)) return no('هذا النوع غير مسموح لحسابك');
+      if (d.end < today() || d.end < d.start) return no('تحقق من التاريخين');
+      if (!admin && (Date.parse(d.end) - Date.parse(d.start)) / 864e5 + 1 > (acc.maxDays || 30)) return no(`مدة الإعلان ${acc.maxDays || 30} يوماً على الأكثر`);
+      const mine = P.filter(p => p.owner === u && ['pending', 'live'].includes(p.status) && p.end >= today() && p.id !== d.id);
+      if (!admin && mine.length >= (acc.max || 6)) return no(`لديك ${mine.length} إعلانات نشطة؛ الحد ${acc.max || 6}`);
+      const rec = Object.assign({}, old || {}, d, { id: old ? old.id : 'd' + Date.now(), owner: old ? old.owner : u, ownerName: old ? old.ownerName : acc.name,
+        status: admin || acc.trusted ? 'live' : 'pending', updated: new Date().toISOString() });
+      if (d.image) rec.image = (d.image.startsWith('/9j/') ? 'data:image/jpeg;base64,' : d.image.startsWith('iVBOR') ? 'data:image/png;base64,' : 'data:image/webp;base64,') + d.image;
+      if (rec.type !== 'poster') delete rec.image; else if (!rec.image) return no('البوستر يحتاج صورة');
+      if (rec.status === 'pending') delete rec.review;
+      if (old) P[P.indexOf(old)] = rec; else P.unshift(rec);
+      return { ok: true, id: rec.id, note: rec.status === 'live' ? 'نُشر (تجربة)' : 'بانتظار الموافقة — بدّل إلى «مسؤول» لتوافق عليه' };
+    }
+    if (a === 'withdraw' || a === 'delete') { const p = find(d.id); if (!p) return no('غير موجود'); if (a === 'delete' && !admin) return adminOnly(); P.splice(P.indexOf(p), 1); return { ok: true }; }
+    if (a === 'review') { if (!admin) return adminOnly(); d.ids.forEach(id => { const p = find(id); if (p) { p.status = d.ok ? 'live' : 'rejected'; p.review = { by: u, ok: d.ok, note: d.note }; } }); return { ok: true, note: d.ok ? 'موافقة' : 'رفض' }; }
+    if (a === 'stop' || a === 'resume' || a === 'pin') { const p = find(d.id); if (!p) return no('غير موجود'); if (!(a === 'stop' && p.owner === u) && !admin) return adminOnly();
+      if (a === 'stop') { p.status = 'stopped'; p.review = { by: u, ok: false, note: 'أوقف' }; } else if (a === 'resume') p.status = 'live'; else p.pin = !!d.on; return { ok: true }; }
+    if (a === 'settings') { if (!admin) return adminOnly(); DATA.settings = { default: d.default, screens: d.screens }; return { ok: true }; }
+    if (a === 'alert') { if (!admin) return adminOnly(); DATA.alert = d.on ? { title: d.title, text: d.text, screens: d.screens, until: new Date(Date.now() + d.hours * 3600e3).toISOString() } : null; return { ok: true }; }
+    if (a === 'account') { if (!admin) return adminOnly(); if (d.remove) delete ACC.users[d.user]; else ACC.users[d.user] = Object.assign({}, ACC.users[d.user] || {}, pick(d)); return { ok: true, note: 'لا يُنشأ حساب حقيقي في التجربة' }; }
+    return no('غير متاح في وضع التجربة');
+  }
+  function demoBar() {
+    const other = S.u === 'admin' ? 'demo' : 'admin', SITE = location.origin + location.pathname.replace(/[^/]*$/, '');
+    return `<div class="pp-demo"><div><i class="bi bi-cone-striped"></i> <b>وضع التجربة</b> — بيانات وهمية؛ لا يُنشر أي شيء على الشاشات الحقيقية، وكل شيء يبقى في هذا المتصفح فقط.</div>
+      <div class="d-flex flex-wrap gap-2"><button class="btn btn-sm btn-dark" id="pp-role"><i class="bi bi-arrow-left-right"></i> جرّب بصفة ${other === 'admin' ? '«المسؤول»' : '«الجهة»'}</button>
+        <a class="btn btn-sm btn-outline-dark" target="_blank" href="${SITE}screen.html?b=${encodeURIComponent(DS)}&demo=1"><i class="bi bi-display"></i> الشاشة التجريبية</a>
+        <button class="btn btn-sm btn-outline-danger" id="pp-reset"><i class="bi bi-arrow-counterclockwise"></i> ابدأ من جديد</button></div></div>`;
+  }
+
   // ---------------------------------------------------------------- sending a request
   async function dispatch(tok, req) {
     const r = await fetch(WF, { method: 'POST', headers: { Authorization: 'Bearer ' + tok, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' },
@@ -60,6 +125,14 @@
     denied: 'مفتاح النشر لا يملك صلاحية تشغيل النشر. على المسؤول تجديده.', toolarge: 'الطلب أكبر من المسموح؛ صغّر الصورة أو النص.',
     big: 'الطلب أكبر من المسموح (65 ألف حرف)؛ اختر صورة أبسط.' }[e.message] || 'تعذّر الاتصال بـ GitHub. تأكد من الإنترنت وحاول مرة أخرى.');
   async function send(a, d, what, opt = {}) {
+    if (DEMO) {
+      const r = demoApply(a, JSON.parse(JSON.stringify(d)));
+      LOGF.log.unshift(Object.assign({ at: new Date().toISOString(), u: S.u, a }, r));
+      dSave();
+      flash = r.ok ? `<div class="alert alert-success py-2 mb-2"><i class="bi bi-check-circle-fill"></i> تم (تجربة): ${esc(what)}${r.note ? ' — ' + esc(r.note) : ''}</div>`
+        : `<div class="alert alert-danger py-2 mb-2"><i class="bi bi-x-octagon-fill"></i> رُفض «${esc(what)}»: ${esc(r.why)}</div>`;
+      return;
+    }
     const p = JSON.stringify({ v: 1, u: opt.user || S.u, ts: Date.now(), n: nonce(), a, d });
     const req = JSON.stringify({ p, s: await sign(opt.priv || S.priv, p) });
     if (req.length > MAXREQ) throw new Error('big');
@@ -97,6 +170,7 @@
     el.innerHTML = wait.length ? `<div class="pp-waitbar"><span class="spinner-border spinner-border-sm"></span> قيد التنفيذ على GitHub: ${wait.map(w => esc(w.what)).join('، ')} · عادةً أقل من دقيقتين، ثم تتحدّث الشاشات خلال 3 دقائق</div>` : '';
   }
   async function reload() {
+    if (DEMO) { render(); return; }
     [ACC, DATA] = await Promise.all([noCache('data/screens/accounts.json'), noCache('data/screen_posts.json')]);
     DATA = DATA || { posts: [], settings: { default: {}, screens: {} }, alert: null };
     if (S && ACC && ACC.users[S.u]) S.a = ACC.users[S.u];
@@ -135,7 +209,7 @@
         ['now', 'bi-display', 'الشاشات الآن'], ['settings', 'bi-sliders', 'إعدادات الشاشات'], ['alert', 'bi-exclamation-octagon', 'رسالة طوارئ'],
         ['accounts', 'bi-people', 'الحسابات'], ['log', 'bi-journal-text', 'السجل']] : [['now', 'bi-display', 'الشاشات الآن']])
       .concat([['me', 'bi-key', isAdmin() ? 'المفتاح وكلمة المرور' : 'كلمة المرور']]);
-    app.innerHTML = `<div class="pp-top"><div><i class="bi bi-person-circle"></i> <b>${esc(S.a.name)}</b> <small class="text-muted" dir="ltr">${esc(S.u)}</small>
+    app.innerHTML = (DEMO ? demoBar() : '') + `<div class="pp-top"><div><i class="bi bi-person-circle"></i> <b>${esc(S.a.name)}</b> <small class="text-muted" dir="ltr">${esc(S.u)}</small>
         ${isAdmin() ? '<span class="badge text-bg-dark">مسؤول</span>' : S.a.trusted ? '<span class="badge text-bg-success">نشر مباشر</span>' : '<span class="badge text-bg-secondary">بموافقة المسؤول</span>'}</div>
         <button class="btn btn-sm btn-outline-secondary" id="pp-out"><i class="bi bi-box-arrow-right"></i> خروج</button></div>
       <div id="pp-wait"></div>${flash}
@@ -143,7 +217,12 @@
       <div id="pp-body"></div>`;
     flash = '';
     bar();
-    $('#pp-out').onclick = () => { S = null; edit = null; draft = null; img = null; render(); };
+    $('#pp-out').onclick = () => { if (DEMO) { location.href = location.pathname; return; } S = null; edit = null; draft = null; img = null; render(); };
+    if (DEMO) {
+      $('#pp-role').onclick = () => { const o = S.u === 'admin' ? 'demo' : 'admin'; S = { u: o, a: ACC.users[o], demo: true }; edit = null; draft = null; img = null;
+        tab = o === 'admin' && DATA.posts.some(p => p.status === 'pending') ? 'queue' : 'new'; render(); };
+      $('#pp-reset').onclick = () => { demoSeed(); S = { u: 'demo', a: ACC.users.demo, demo: true }; tab = 'new'; edit = null; draft = null; img = null; render(); };
+    }
     app.querySelectorAll('[data-tab]').forEach(a => a.onclick = e => { e.preventDefault(); tab = a.dataset.tab; if (tab !== 'new') { edit = null; } render(); });
     ({ new: compose, mine: () => list('mine'), queue: () => list('queue'), all: () => list('all'), now: screensNow, settings, alert: alertTab, accounts, log: logTab, me }[tab] || compose)();
   }
@@ -199,6 +278,7 @@
       <form id="pp-login" class="d-grid gap-2"><input name="u" class="form-control" dir="ltr" placeholder="اسم المستخدم" autocomplete="username" autocapitalize="off" required>
         <input name="p" type="password" class="form-control" dir="ltr" placeholder="كلمة المرور" autocomplete="current-password" required>
         <div id="pp-msg"></div><button class="btn btn-maroon"><i class="bi bi-box-arrow-in-left"></i> دخول</button></form>
+      <a class="btn btn-outline-secondary w-100 mt-3" href="?demo=1"><i class="bi bi-cone-striped"></i> جرّب النظام دون حساب (وضع تجربة)</a>
       <p class="small text-muted mt-3 mb-0"><i class="bi bi-shield-check"></i> كلمة المرور لا تغادر جهازك، ولا يُحفظ شيء بعد إغلاق الصفحة.</p></div></div>`;
     const f = $('#pp-login');
     f.onsubmit = async e => {
@@ -257,6 +337,7 @@
       </div></form></div>
       <div class="col-lg-6"><div class="pp-sticky"><div class="d-flex justify-content-between align-items-baseline"><b class="small"><i class="bi bi-eye"></i> معاينة كما ستظهر على الشاشة</b><small class="text-muted">${t === 'ticker' || t === 'urgent' ? 'يبقى طوال المدة' : 'يظهر دورياً لـ 15 ثانية ثم تعود الشاشة كما هي'}</small></div>
         <div id="pp-prev" class="mt-2"></div>
+        ${DEMO ? `<a class="btn btn-sm btn-outline-dark mt-2" target="_blank" href="screen.html?b=${encodeURIComponent(DS)}&demo=1"><i class="bi bi-display"></i> افتح الشاشة التجريبية كاملة</a>` : ''}
         <p class="small text-muted mt-2 mb-0"><i class="bi bi-info-circle"></i> النصوص تُعرض كما هي (دون تنسيق أو روابط قابلة للنقر). الشاشات التي ضبطها المسؤول على «كما هي» لا تعرض أي إعلان.</p></div></div></div>`;
     form = $('#pp-form');
     const read = () => {
@@ -372,7 +453,7 @@
       const al = DATA.alert && DATA.alert.title && (DATA.alert.screens || ['*']).some(t => PP.inTarget(t, k));
       return `<tr><td><b>${esc(label(k))}</b></td><td>${s.mode === 'off' ? '<span class="badge text-bg-secondary">كما هي (بلا إعلانات)</span>' : '<span class="badge text-bg-success">تعرض الإعلانات</span>'}${al ? ' <span class="badge text-bg-danger">طوارئ</span>' : ''}</td>
         <td>${c('ticker')}</td><td>${c('notice') + c('event') + c('poster')}</td><td>${c('urgent')}</td>
-        <td class="text-nowrap"><a class="btn btn-sm btn-outline-secondary" target="_blank" href="${SITE}screen.html?b=${encodeURIComponent(k)}"><i class="bi bi-box-arrow-up-left"></i> افتح</a>
+        <td class="text-nowrap"><a class="btn btn-sm btn-outline-secondary" target="_blank" href="${SITE}screen.html?b=${encodeURIComponent(k)}${DEMO ? '&demo=1' : ''}"><i class="bi bi-box-arrow-up-left"></i> افتح</a>
           <button class="btn btn-sm btn-outline-secondary" data-np="${esc(SITE + 'screen.html?b=' + encodeURIComponent(k) + '&posts=off')}"><i class="bi bi-link-45deg"></i> رابط بلا إعلانات</button></td></tr>`;
     }).join('');
     body().innerHTML = `<div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>الشاشة</th><th>الحالة</th><th>أخبار</th><th>إعلانات وفعاليات وبوسترات</th><th>عاجل</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
@@ -497,7 +578,7 @@
   // ---------------------------------------------------------------- log (admin)
   async function logTab() {
     body().innerHTML = '<div class="text-muted"><span class="spinner-border spinner-border-sm"></span> …</div>';
-    LOGF = await noCache('data/screens/log.json').catch(() => null);
+    if (!DEMO) LOGF = await noCache('data/screens/log.json').catch(() => null);
     const A = { init: 'إعداد', submit: 'نشر/تعديل', withdraw: 'سحب', review: 'مراجعة', stop: 'إيقاف', resume: 'استئناف', pin: 'تثبيت', delete: 'حذف', settings: 'إعدادات', alert: 'طوارئ', account: 'حساب', passwd: 'كلمة مرور', token: 'مفتاح النشر' };
     body().innerHTML = `<div class="table-responsive"><table class="table table-sm small align-middle"><thead><tr><th>الوقت</th><th>المستخدم</th><th>الإجراء</th><th>النتيجة</th></tr></thead><tbody>
       ${((LOGF && LOGF.log) || []).slice(0, 300).map(e => `<tr><td dir="ltr" class="text-end text-nowrap">${esc(new Date(e.at).toLocaleString('en-GB', { timeZone: 'Asia/Amman' }))}</td><td dir="ltr" class="text-end">${esc(e.u)}</td>
@@ -507,6 +588,7 @@
 
   // ---------------------------------------------------------------- my password; the publishing key (admin)
   function me() {
+    if (DEMO) { body().innerHTML = '<div class="alert alert-info">تغيير كلمة المرور ومفتاح النشر غير متاحين في وضع التجربة؛ لا توجد كلمة مرور هنا أصلاً.</div>'; return; }
     body().innerHTML = `<div class="row g-3"><div class="col-lg-6"><form class="card" id="pp-pw"><div class="card-body d-grid gap-2"><h6 class="fw-bold mb-0"><i class="bi bi-key"></i> تغيير كلمة المرور</h6>
         <div class="input-group"><input name="p" class="form-control" dir="ltr" minlength="12" required placeholder="كلمة المرور الجديدة (12 حرفاً على الأقل)" autocomplete="new-password"><button type="button" class="btn btn-outline-secondary" id="pp-gen">توليد</button></div>
         <input name="p2" class="form-control" dir="ltr" required placeholder="أعد كتابتها" autocomplete="new-password">
@@ -558,12 +640,19 @@
     .pp-iprev { max-width: 640px; } .pp-iprev:not(:empty) { margin-top: .5rem; }
     .pp-pre { background: #fff; border-radius: 8px; padding: .6rem; white-space: pre-wrap; font-size: .95rem; }
     .pp-set td { min-width: 6rem; }
+    .pp-demo { display: flex; justify-content: space-between; align-items: center; gap: .6rem; flex-wrap: wrap; background: #fff3cd; border: 2px dashed #d39e00; border-radius: 12px; padding: .6rem .9rem; margin-bottom: .8rem; }
   </style>`);
   Promise.all([noCache('data/screens/accounts.json'), noCache('data/screen_posts.json'), U.getJSON('data/timetable.json')]).then(([a, d, tt]) => {
     ACC = a; DATA = d || { posts: [], settings: { default: {}, screens: {} }, alert: null };
     BLDS = [...new Set(tt.sections.map(s => s.building).filter(b => b && !/^-+$/.test(b)))].sort((x, y) => x.localeCompare(y, 'ar'));
     U.setDays(tt.days);
-    const up = $('#pg-updated'); if (up) up.textContent = 'تُنشر الإعلانات بعد موافقة مسؤول الموقع';
+    const up = $('#pg-updated'); if (up) up.textContent = DEMO ? 'وضع التجربة: لا يُنشر شيء' : 'تُنشر الإعلانات بعد موافقة مسؤول الموقع';
+    if (DEMO) {
+      DS = BLDS.find(b => /الهندسة/.test(b)) || BLDS[0];
+      const k = dLoad();
+      if (k && k.ACC && k.DATA) { ACC = k.ACC; DATA = k.DATA; LOGF = k.LOG || { log: [] }; DS = (ACC.users.demo && ACC.users.demo.screens[0]) || DS; } else demoSeed();
+      S = { u: 'demo', a: ACC.users.demo, demo: true };
+    }
     render();
   }).catch(e => { app.innerHTML = `<div class="alert alert-danger mt-3">تعذّر التحميل (${esc(e.message)}).</div>`; });
 })();

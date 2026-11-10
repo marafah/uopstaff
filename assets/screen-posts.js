@@ -28,7 +28,8 @@
   const DAYL = ['ح', 'ن', 'ث', 'ر', 'خ', 'س', 'ج'];
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const toMin = t => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ''); return m ? +m[1] * 60 + +m[2] : null; };
-  const safeImg = u => /^data\/screens\/media\/[A-Za-z0-9._-]+\.(webp|jpe?g|png)$/.test(u || '') ? u : '';
+  const DEMO = /[?&]demo=1(&|$)/.test(location.search);   // the try-out screen of «وضع التجربة»: its posts come from this browser only
+  const safeImg = u => /^data\/screens\/media\/[A-Za-z0-9._-]+\.(webp|jpe?g|png)$/.test(u || '') || (DEMO && /^data:image\/(webp|jpeg|png|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(u || '')) ? u : '';
   const safeLink = u => /^https:\/\/[^\s"'<>]{3,300}$/.test(u || '') ? u : '';
   const icon = i => ICONS.includes(i) ? i : 'bi-megaphone';
   const tone = t => (TONES[t] || TONES.maroon)[0];
@@ -186,7 +187,8 @@
   if (!KEY) return;
   let D = null, SCR = null, show = [], tick = [], tk = 0, si = 0, nextAt = Date.now() + 20000, ov = null, rowsWas = '';
   const now = () => window.UOP.amman(P.get('at'));
-  const load = () => fetch('data/screen_posts.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(x => { D = x; draw(); }).catch(() => {});
+  const load = () => DEMO ? (() => { try { const x = JSON.parse(localStorage.getItem('uop-pp-demo') || 'null'); D = x && x.DATA; } catch (e) { D = null; } draw(); })()
+    : fetch('data/screen_posts.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(x => { D = x; draw(); }).catch(() => {});
   // the strips go in the screen's own grid (the columns re-measure themselves); nothing at all when there is nothing to show
   function layout() {
     const kids = [...SCR.children].filter(e => e !== ov);
@@ -230,7 +232,7 @@
   }
   function hide() { if (!ov) return; const o = ov; ov = null; o.classList.remove('on'); setTimeout(() => o.remove(), 800); }
   function second() {
-    if (!SCR) { SCR = document.getElementById('scr'); if (SCR) draw(); return; }
+    if (!SCR) { SCR = document.getElementById('scr'); if (SCR) { draw(); if (DEMO) SCR.insertAdjacentHTML('beforeend', '<div style="position:fixed;left:50%;transform:translateX(-50%);top:.35em;z-index:40;background:#fbbf24;color:#1b1405;font-weight:800;border-radius:999px;padding:.3em 1em;font-size:1.1em">شاشة تجريبية — لا تظهر على الشاشات الحقيقية</div>'); } return; }
     if (!document.body.contains(SCR)) { SCR = null; ov = null; rowsWas = ''; return; }
     // ticker: one line at a time, every 8 seconds
     const tt = document.querySelectorAll('#pp-tick .pp-tt > span');
@@ -245,5 +247,5 @@
   setInterval(second, 1000);
   setInterval(draw, 60000);
   load();
-  setInterval(load, 3 * 60000);
+  setInterval(load, DEMO ? 10000 : 3 * 60000);
 })();
