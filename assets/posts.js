@@ -153,7 +153,7 @@
     busy(btn, true);
     try { await send(a, d, what); if (after) after(); else render(); } catch (e) { busy(btn, false); say(errText(e), 'danger'); }
   }
-  function say(t, kind = 'danger') { const el = $('#pp-msg') || $('#pp-wait'); if (el) el.insertAdjacentHTML('afterbegin', `<div class="alert alert-${kind} py-2">${t}</div>`); }
+  function say(t, kind = 'danger') { const m = $('#pp-msg'), el = m || $('#pp-wait'); if (!el) return; const h = `<div class="alert alert-${kind} py-2">${t}</div>`; if (m) m.innerHTML = h; else el.insertAdjacentHTML('afterbegin', h); }
 
   // ---------------------------------------------------------------- first set-up (the site owner, once)
   function setup() {
@@ -163,7 +163,7 @@
       <p class="small text-muted">تنشئ هنا حساب المسؤول الأول. كلمة المرور لا تُرسل ولا تُحفظ في أي مكان؛ تُستعمل على جهازك فقط لتشفير مفاتيحك. احفظها في مكان آمن: لا يمكن استعادتها.</p>
       <ol class="small"><li>افتح <a href="${NEWTOK}" target="_blank" rel="noopener">إنشاء مفتاح GitHub</a> (تسجيل الدخول بحساب marafah).</li>
         <li>في <b>Repository access</b> اختر <b>Only select repositories</b> ثم <b>uopstaff</b> فقط.</li>
-        <li>في <b>Permissions ← Actions</b> اختر <b>Read and write</b> (ولا شيء غيره)، ثم <b>Generate token</b> وانسخه والصقه هنا.</li></ol>
+        <li>في <b>Permissions</b> اضغط <b>+ Add permissions</b> واختر <b>Actions</b> ثم <b>Read and write</b> (ولا شيء غيره؛ يُضاف Metadata وحده). ثم <b>Generate token</b> وانسخه والصقه هنا.</li></ol>
       <form id="pp-setup" class="row g-2">
         <div class="col-md-4"><label class="form-label small">اسم المستخدم (إنجليزي)</label><input name="u" class="form-control" dir="ltr" value="admin" required></div>
         <div class="col-md-8"><label class="form-label small">الاسم الظاهر</label><input name="name" class="form-control" value="مسؤول الموقع" required></div>
@@ -512,7 +512,7 @@
         <input name="p2" class="form-control" dir="ltr" required placeholder="أعد كتابتها" autocomplete="new-password">
         <div id="pp-msg"></div><button class="btn btn-maroon">حفظ كلمة المرور</button></div></form></div>
       ${isAdmin() ? `<div class="col-lg-6"><form class="card" id="pp-tk"><div class="card-body d-grid gap-2"><h6 class="fw-bold mb-0"><i class="bi bi-github"></i> مفتاح النشر</h6>
-        <p class="small text-muted mb-0">آخر تجديد: ${ACC.tok && ACC.tok.at ? U.numDate(ACC.tok.at) : '—'}. صلاحيته سنة؛ جدّده قبل انتهائه (نفس خطوات الإعداد: هذا المستودع فقط، Actions: Read and write). التجديد هنا يكفي لكل الحسابات.</p>
+        <p class="small text-muted mb-0">آخر تجديد: ${ACC.tok && ACC.tok.at ? U.numDate(ACC.tok.at) : '—'}. صلاحيته سنة؛ جدّده قبل انتهائه (نفس خطوات الإعداد: هذا المستودع فقط، ثم Add permissions ← Actions: Read and write). التجديد هنا يكفي لكل الحسابات.</p>
         <input name="tok" class="form-control" dir="ltr" placeholder="github_pat_…" required><button class="btn btn-outline-dark">تجديد المفتاح</button></div></form></div>` : ''}</div>`;
     const f = $('#pp-pw');
     $('#pp-gen').onclick = () => { f.p.value = f.p2.value = newPassword(); };
