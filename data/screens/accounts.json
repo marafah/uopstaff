@@ -28,6 +28,35 @@
     "iv": "qLz2oMamq3fbwdeo",
     "ct": "+Spup9i3UtJugTYvJaeNOwCLlv0hp4WeL2p3ol9m8+KLF4rI6TOHwvn5yqc2o7Q5KTMCKhE4qBaIYErW+JaRirMSRWFvSuKRP+vkg3PM47OaJEuK/RJnhkkCrPgEqqnqAYkJkjOE9bKthADGUoaLj21CJBpe9KXEfkacuHxCw0100rxaqkvyeHi1qwbOes6HofxRb7g9uJAu2o8C/dYW9oSqNZc14qutIg9Abw1zg9NYkj1XCzb1xeD17PfQq70y13f75fyjzCHBY87+cxpa85FHynMDnPiq9RMiC9zwRGhYmjt412Ha3JsIR6CkM2hbTNWniOXDO1tHLfF8ARQxZKokuw=="
    }
+  },
+  "cce": {
+   "name": "مركز التعلم الإلكتروني",
+   "role": "unit",
+   "screens": [
+    "مبنى المكتبة"
+   ],
+   "types": [
+    "ticker",
+    "notice",
+    "poster",
+    "event"
+   ],
+   "trusted": true,
+   "max": 6,
+   "maxDays": 30,
+   "active": true,
+   "pub": {
+    "x": "ceLzuhnvOMG30ZfhBPDTpjPPw5zkVhRvEdBKkV_iCRA",
+    "y": "FLnegiWYM-BjDgnEv4DqcRhMrY2nM4Ji-5THBJlsEN8"
+   },
+   "box": {
+    "salt": "ln8J4iJ/JZvc+TAkaVoT7A==",
+    "iv": "Z3gBr+vZ6vv+DFZ1",
+    "ct": "rxtBG11Kevu4AmXm90hmFuhgukFFVkRvzEIvaWxOo3Y4Vz+JEIGjC2AmX/PUjPnrR4jNRl4K/BH9cSEoUcVHiDHJHmvGONpHezAF2NWFZdR7LaC5WL7kZXg5QHEnXMsWIgFIMt57ozY5iafS78z0A88TE1FtfIZ/DXYe2GZRVQC2DtpwiVVAlOr7el43TxWJr2DIkqEVLNK/rRVwuiUANPuUSut9kL+lxvj1mw8IGvmPJGVY+BRSJuFkAhrMtCoSp+eBjBvqGfuVbUzoK4WSuyO9g/BBOWNLXs6eIJMWatS1eqHzTaHWuIrbx/PvVS3VVB5i34SpT6t8kIff/9c6OT/KcA=="
+   },
+   "created": "2026-11-10T08:30:48Z",
+   "by": "admin",
+   "updated": "2026-11-10T08:30:48Z"
   }
  },
  "tok": {
