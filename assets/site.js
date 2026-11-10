@@ -361,6 +361,19 @@ document.addEventListener('show.bs.dropdown', e => {
 })();
 
 
+// «المالية» and «البحث العلمي» appear in the menu only for those signed in to them (the same sign-in as research.js,
+// finance.js and exams.js); others do not see the two menus at all. The pages themselves ask for the sign-in.
+(function () {
+  const GATE = '15d12ce11e3c3bda9774ef2909a61065e35cedc2a575fa63a9632d0df823aa1a';
+  let ok = false;
+  try { ok = localStorage.getItem('rs-auth') === GATE || sessionStorage.getItem('rs-auth') === GATE; } catch (e) { /* storage blocked: treated as not signed in */ }
+  if (ok) return;
+  document.querySelectorAll('.site-nav > .dropdown, .site-nav > a').forEach(d => {
+    const a = d.matches('a') ? d : d.querySelector(':scope > a');
+    if (a && ['fees.html', 'research.html'].includes(a.getAttribute('href'))) d.style.display = 'none';
+  });
+})();
+
 // phones: every top-bar menu opens as a full-width panel under its button, never partly off the screen
 (function () {
   const phone = () => matchMedia('(max-width: 575.98px)').matches;

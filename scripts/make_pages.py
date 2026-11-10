@@ -226,11 +226,12 @@ def app_shell(html):
     html = re.sub(r"\s*<!-- app -->.*?<!-- /app -->", "", html, flags=re.S)
     html = re.sub(r'(<meta name="viewport"[^>]*>)', lambda m: m.group(1) + "\n  " + APP_HEAD, html, count=1)
     html = re.sub(r'\n<script src="assets/site\.js\?v=\d+"></script>', "", html)
-    v = re.search(r'assets/app\.css\?v=(\d+)', html).group(1)
+    v = SITE_V  # assets/site.js has its own release number (raise it when site.js changes)
     html = re.sub(r'(<script src="assets/share\.js\?v=\d+"></script>)', lambda m: m.group(1) + f'\n<script src="assets/site.js?v={v}"></script>', html, count=1)
     return add_voice(html)
 
 
+SITE_V = "202611131200"
 VOICE_V = "202611030900"
 
 
