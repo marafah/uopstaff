@@ -56,6 +56,12 @@
         <div class="small"><b class="d-block mb-1">للعرض على شاشة في مدخل المبنى</b>
           افتح رابط المبنى على متصفح الشاشة (أو جهاز صغير موصول بها) ثم اضغط <kbd>F11</kbd> لملء الشاشة. تتحدّث الشاشة تلقائياً كل دقيقة،
           وتقرأ أي تغيير في الجدول كل 15 دقيقة، ولا تحتاج أي تدخّل بعد ذلك. القوائم الطويلة تتقلّب صفحاتها كل 12 ثانية.</div></div></div>
+      <div class="card mb-3"><div class="card-body d-flex gap-3 align-items-center flex-wrap">
+        <i class="bi bi-megaphone text-maroon fs-2"></i>
+        <div class="small flex-grow-1"><b class="d-block mb-1">إعلانات على الشاشات</b>
+          تنشر الكليات والدوائر أخباراً وإعلانات وفعاليات وبوسترات على شاشاتها من صفحة «إعلانات الشاشات»، بموافقة مسؤول الموقع. لا تظهر على شاشة إلا ما هو موجّه إليها،
+          ولإبقاء شاشة معيّنة كما هي تماماً دون أي إعلان أضف <code dir="ltr">&amp;posts=off</code> إلى رابطها.</div>
+        <a class="btn btn-sm btn-maroon" href="screen-posts.html"><i class="bi bi-megaphone"></i> إعلانات الشاشات</a></div></div>
       <h6 class="fw-bold mb-2"><i class="bi bi-person-raised-hand"></i> شاشات الخدمات</h6>
       <div class="scr-pick mb-4">${[['registration', 'bi-pencil-square', 'عمادة القبول والتسجيل', 'مواعيد التسجيل وعدّها التنازلي، الشعب التي تمتلئ وأين ما زالت المقاعد متاحة، تغييرات الجدول اليوم، ورموز QR لجدول بلا تعارض'],
         ['finance', 'bi-cash-coin', 'دائرة الشؤون المالية', 'المواعيد المالية (الغرامات والتسجيل والانسحاب) بعدّ تنازلي، وإلى من تتوجه لكل خدمة مع الرقم الفرعي'],

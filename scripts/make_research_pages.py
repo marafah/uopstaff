@@ -107,6 +107,7 @@ SITE = [  # the site's own menu (same as the other pages): href, icon, full labe
                                      ('load.html', 'bi-bar-chart-line', 'عبء المدرسين', 'شعب كل مدرس وطلبته وساعات تدريسه، حسب القسم'),
                                      ('usage.html', 'bi-grid-3x3-gap-fill', 'إشغال القاعات', 'نسب الإشغال حسب اليوم والساعة والمبنى، للتخطيط'),
                                      ('screen.html', 'bi-display', 'شاشة المبنى', 'للشاشات في مداخل الكليات: الجاري والقادم والشاغر'),
+                                     ('screen-posts.html', 'bi-megaphone', 'إعلانات الشاشات', 'للكليات والدوائر: انشر إعلاناً أو فعالية أو بوستر على شاشات المباني'),
                                      ('exams.html', 'bi-clipboard-check', 'جدول الامتحانات', 'تخطيط الامتحانات بلا تعارض: الأيام والقاعات والمراقبون (للجنة الامتحانات)')]),
     ('instructor.html', 'bi-person-badge', 'للمدرس', '', [('instructor.html', 'bi-person-badge', 'صفحة المدرس', 'جدول كل مدرس وأوقات فراغه واشتراك تقويمه'), None,
                                      ('office-hours.html', 'bi-person-raised-hand', 'الساعات المكتبية', 'ساعات كل مدرس حسب القسم والكلية، تصدير وطباعة مع QR'),

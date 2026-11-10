@@ -1,0 +1,51 @@
+name: Screen posts
+
+# Started by the «إعلانات الشاشات» page (screen-posts.html) with a signed request; scripts/screen_posts.py checks the
+# signature, the account's permissions and the content before anything is written. Daily: removes finished posts.
+
+on:
+  workflow_dispatch:
+    inputs:
+      req:
+        description: "signed request sent by the screen posts page"
+        required: false
+        type: string
+  schedule:
+    - cron: "23 22 * * *"   # 01:23 in Amman
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -q cryptography pillow
+      - name: Apply the request and publish
+        # the request reaches the script only as a variable, never as shell text. Several requests may run at the
+        # same time: each one is applied again on the newest copy until its push goes through.
+        env:
+          SCREEN_REQ: ${{ inputs.req }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for i in 1 2 3 4 5 6; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            python scripts/screen_posts.py
+            git add -A data/screen_posts.json data/screens
+            if git diff --cached --quiet; then echo "nothing to publish"; exit 0; fi
+            git commit -q -m "Screen posts: $(cat "$RUNNER_TEMP/screen_msg")"
+            if git push -q origin HEAD:main; then echo "published"; echo "PUSHED=1" >> "$GITHUB_ENV"; exit 0; fi
+            sleep $((RANDOM % 6 + 2))
+          done
+          exit 1
+      - name: Tell the site owner about posts waiting for approval
+        if: env.PUSHED == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/screen_posts.py --notify || true
