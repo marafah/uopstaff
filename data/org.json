@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-10T13:32:15Z",
+"updated": "2026-11-10T20:52:59Z",
 "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
 "revision": "Rev.E",
 "revision_date": "2023-12-20",
@@ -1451,7 +1451,19 @@
 "from_directory": true,
 "dept": "ادارة الأعمال",
 "count": 12,
-"people": []
+"people": [
+{
+"id": "A:6D006F007500730061002E0061006C00730068006500790061006200400075006F0070002E006500640075002E006A006F00",
+"name": "د. موسى جهاد شاهر الشياب",
+"job": "رئيس قسم إدارة الاعمال وقسم إدارة سلاسل التوريد والعلوم اللوجستية",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "9304",
+"email": "mousa.alsheyab@uop.edu.jo",
+"photo": "assets/photos/5eeab9e00a88b85a.jpg",
+"faculty": 3
+}
+]
 },
 {
 "id": "f3-d3",
