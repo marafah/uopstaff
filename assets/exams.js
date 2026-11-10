@@ -13,7 +13,7 @@
   const APP = '#ex-app';
 
   // ---------- sign-in (same account as the research pages) ----------
-  const GATE = 'e1ebfc7594699cb5f05115abec21192e43ccc20273593b6662d1d4e9e91d854b';
+  const GATE = '15d12ce11e3c3bda9774ef2909a61065e35cedc2a575fa63a9632d0df823aa1a';
   const sha = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map(x => x.toString(16).padStart(2, '0')).join('');
   // accounts for this page only (exams committee): sha256('uopstaff-exams|' + user + '|' + password); they do not open the research pages
   const EX_USERS = ['51b45402b30455c5641c82cd1ffe05c1907bfaae0a69b7b03900105796bdd985'];

@@ -8,6 +8,45 @@
   const JD = n => (Math.round(n * 100) / 100).toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' د.أ';
   const num = n => Number(n).toLocaleString('en-US');
   const APP = ['fn-fees', 'fn-calc', 'fn-grants', 'fn-pay', 'fn-staff'].find(id => document.getElementById(id));
+  // ---- access gate: the finance pages open only after signing in, with the same account as the research pages
+  // (one sign-in opens both; the hash below is the same as in research.js and exams.js)
+  const GATE = '15d12ce11e3c3bda9774ef2909a61065e35cedc2a575fa63a9632d0df823aa1a';
+  const sha = async t => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)))].map(x => x.toString(16).padStart(2, '0')).join('');
+  const authed = () => { try { return localStorage.getItem('rs-auth') === GATE || sessionStorage.getItem('rs-auth') === GATE; } catch (e) { return false; } };
+  const gate = new Promise(res => {
+    if (authed()) { res(); return; }
+    document.documentElement.classList.add('fn-locked');
+    document.head.insertAdjacentHTML('beforeend', `<style id="fn-gate-css">
+      html.fn-locked main, html.fn-locked .uop-hero { visibility: hidden; }
+      .fn-gate { position: fixed; inset: 0; z-index: 3000; display: grid; place-items: center; padding: 16px; background: radial-gradient(circle at 50% 30%, rgba(144,29,35,.92), rgba(9,27,34,.97)); backdrop-filter: blur(4px); }
+      .fn-gate .box { width: min(100%, 400px); background: #fff; border-radius: 18px; padding: 1.6rem 1.5rem; box-shadow: 0 20px 60px rgba(0,0,0,.35); display: flex; flex-direction: column; gap: .7rem; text-align: center; color: #091b22; }
+      .fn-gate .ic { width: 64px; height: 64px; margin: 0 auto; border-radius: 50%; background: #f8e3e5; color: #901d23; display: grid; place-items: center; font-size: 1.8rem; }
+      .fn-gate h2 { font-size: 1.3rem; font-weight: 800; margin: 0; } .fn-gate p { color: #4f5e64; font-size: .92rem; margin: 0; }
+      .fn-gate label { text-align: start; font-weight: 700; font-size: .9rem; display: flex; flex-direction: column; gap: .25rem; }
+      .fn-gate .rem { flex-direction: row; align-items: center; gap: .4rem; font-weight: 600; }
+      .fn-gate .err { background: #fde7e4; color: #a02a1c; border-radius: 10px; padding: .45rem; font-size: .88rem; font-weight: 700; }
+      .fn-gate .go { background: #901d23; color: #fff; border: 0; border-radius: 10px; padding: .6rem; font-weight: 700; } .fn-gate .back { font-size: .88rem; color: #4f5e64; }
+    </style>`);
+    const show = () => {
+      const d = document.createElement('div'); d.className = 'fn-gate'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');
+      d.innerHTML = `<form class="box" autocomplete="on"><div class="ic"><i class="bi bi-shield-lock-fill"></i></div><h2>المالية — دخول</h2><p>هذا القسم متاح للمخوّلين فقط. أدخل اسم المستخدم وكلمة المرور.</p>
+        <label>اسم المستخدم<input name="u" class="form-control" autocomplete="username" required dir="ltr"></label>
+        <label>كلمة المرور<input name="p" type="password" class="form-control" autocomplete="current-password" required dir="ltr"></label>
+        <label class="rem"><input type="checkbox" name="r" checked> تذكّرني على هذا الجهاز</label>
+        <div class="err" hidden><i class="bi bi-exclamation-triangle-fill"></i> اسم المستخدم أو كلمة المرور غير صحيحة</div>
+        <button class="go" type="submit"><i class="bi bi-box-arrow-in-left"></i> دخول</button>
+        <a class="back" href="index.html"><i class="bi bi-arrow-right"></i> العودة إلى الصفحة الرئيسية</a></form>`;
+      document.body.appendChild(d);
+      const f = d.querySelector('form'); f.u.focus();
+      f.onsubmit = async e => {
+        e.preventDefault();
+        if (await sha('uopstaff-research|' + f.u.value.trim() + '|' + f.p.value) !== GATE) { d.querySelector('.err').hidden = false; f.p.value = ''; f.p.focus(); return; }
+        try { (f.r.checked ? localStorage : sessionStorage).setItem('rs-auth', GATE); } catch (e2) { /* storage blocked: this visit only */ }
+        d.remove(); document.documentElement.classList.remove('fn-locked'); res();
+      };
+    };
+    if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
+  });
   let D;
 
   const src = (keys, extra) => `<div class="fn-src no-print"><i class="bi bi-patch-check-fill"></i><div><b>المصدر الرسمي</b>
@@ -702,7 +741,7 @@
     document.querySelectorAll('#fn-stab button').forEach(b => b.addEventListener('click', () => { sf.tab = b.dataset.v; const u = new URL(location.href); u.searchParams.set('tab', sf.tab); history.replaceState(null, '', u); staffPage(); }));
   }
 
-  Promise.all([U.getJSON('data/finance.json'), ['fn-calc', 'fn-pay', 'fn-staff'].includes(APP) ? U.getJSON('data/calendar.json').catch(() => null) : null]).then(([d, c]) => {
+  gate.then(() => Promise.all([U.getJSON('data/finance.json'), ['fn-calc', 'fn-pay', 'fn-staff'].includes(APP) ? U.getJSON('data/calendar.json').catch(() => null) : null]).then(([d, c]) => {
     D = d; CAL = c;
     U.updatedLine(d.updated, 'من الموقع الرسمي للجامعة · أسعار ' + d.year);
     const top = $('#pg-q');
@@ -711,5 +750,5 @@
       else if (APP === 'fn-pay') { ps.q = e.target.value; pay(); }
     });
     ({ 'fn-fees': fees, 'fn-calc': calc, 'fn-grants': grants, 'fn-pay': pay, 'fn-staff': staffPage }[APP] || (() => {}))();
-  }).catch(() => { const el = document.getElementById(APP); if (el) el.innerHTML = '<div class="alert alert-warning">تعذّر تحميل بيانات الرسوم. أعد المحاولة بعد قليل.</div>'; });
+  }).catch(() => { const el = document.getElementById(APP); if (el) el.innerHTML = '<div class="alert alert-warning">تعذّر تحميل بيانات الرسوم. أعد المحاولة بعد قليل.</div>'; }));
 })();
