@@ -250,7 +250,8 @@
     if ((L.safety || tool === 'emergency') && C.safety) h += C.safety.assembly.map(a => `<span class="cm-ap" style="${pos(a)}" title="نقطة التجمع ${esc(a.id)}: ${esc(a.name)}${C.safety.status !== 'official' ? ' (مقترحة)' : ''}"><i class="bi bi-people-fill"></i><b>${esc(a.id)}</b></span>`).join('');
     if (day && day.length) { const seen = {}; h += day.map((x, i) => { if (!x.b) return ''; const k = seen[x.b.id] = (seen[x.b.id] || 0) + 1; return `<span class="cm-step" style="left:${x.b.x * 100}%;top:${x.b.y * 100}%;--i:${k - 1}">${i + 1}</span>`; }).join(''); }
     $('#cm-pins').innerHTML = h;
-    $('#cm-pins').querySelectorAll('.cm-pin').forEach(p => p.onclick = e => { e.stopPropagation(); if (tool === 'route') { pickTo({ b: B(p.dataset.b) }); return; } open(p.dataset.b); });
+    $('#cm-pins').querySelectorAll('.cm-pin').forEach(p => p.onclick = e => { e.stopPropagation(); if (tool === 'route') { pickTo({ b: B(p.dataset.b) }); return; }
+      if (tool === 'whatif') { const id = p.dataset.b; if ((B(id).tt || []).length) { WI.closed = WI.closed.includes(id) ? WI.closed.filter(y => y !== id) : [...WI.closed, id]; whatIfTool(); } return; } open(p.dataset.b); });
     $('#cm-pins').querySelectorAll('.cm-gdn').forEach(p => p.onclick = e => { e.stopPropagation(); garden(p.dataset.g); });
     lines(); legend(); names();
   }
@@ -352,6 +353,8 @@
     if (tool === 'exams') return examTool(n);
     if (tool === 'crowd') return crowdTool(n);
     if (tool === 'lapse') return lapseTool(n);
+    if (tool === 'board') return boardInfo();
+    if (tool === 'whatif') return whatIfTool();
     if (tool === 'tour') return tourTool();
     if (tool === 'emergency') return emergencyTool();
     if (tool === 'fix') return fixTool();
@@ -750,7 +753,7 @@
     ['للطلبة', [['tour', 'bi-flag', 'جولة الطلبة الجدد', 'محطات الحرم الأساسية بالترتيب، مع دليل للطباعة']]],
     ['السلامة والخدمات', [['emergency', 'bi-exclamation-octagon', 'الطوارئ ونقاط التجمع', 'أقرب نقطة تجمع وأرقام الطوارئ وخطة الإخلاء'],
       ['fix', 'bi-tools', 'بلاغ عطل', 'أبلغ عن عطل في قاعة أو مبنى ببلاغ رسمي مرقّم'], ['access', 'bi-universal-access', 'الوصول الميسّر', 'مسار مقترح والطوابق ومقترح رسمي للدراسة']]],
-    ['للإدارة والتخطيط', [['lapse', 'bi-play-circle', 'يوم الحرم في دقيقة', 'الازدحام متحركاً من 7:30 إلى 18:30، ورابط لشاشة عرض'], ['week', 'bi-bar-chart-line', 'الإشغال وتقرير القاعات', 'نسب الإشغال والتوصيات وتقرير رسمي'], ['crowd', 'bi-people', 'توقّع الازدحام', 'الذروة في المباني والبوابات من أعداد المسجلين'],
+    ['للإدارة والتخطيط', [['board', 'bi-tv', 'لوحة «الحرم الآن»', 'أرقام اللحظة على شاشة كبيرة، تتحدّث وحدها'], ['whatif', 'bi-cone-striped', 'ماذا لو؟ إغلاق مبنى', 'أين تذهب شعبه، مع خطة نقل رسمية'], ['lapse', 'bi-play-circle', 'يوم الحرم في دقيقة', 'الازدحام متحركاً من 7:30 إلى 18:30، ورابط لشاشة عرض'], ['week', 'bi-bar-chart-line', 'الإشغال وتقرير القاعات', 'نسب الإشغال والتوصيات وتقرير رسمي'], ['crowd', 'bi-people', 'توقّع الازدحام', 'الذروة في المباني والبوابات من أعداد المسجلين'],
       ['qr', 'bi-qr-code', 'ملصقات QR', '«أنت هنا» و«بلاغ عطل» لكل بوابة ومبنى']]]];
   const MOREK = MORE.flatMap(g => g[1].map(x => x[0]));
   function moreTool() {
@@ -1221,6 +1224,182 @@
   }
   function lapseStop() { clearInterval(LP.tm); clearTimeout(LP.tm); LP.tm = null; if ($('#cm-lplay')) $('#cm-lplay').innerHTML = '<i class="bi bi-play-fill"></i> تابع'; }
 
+  // ---------------------------------------------------------------- «الحرم الآن»: one full-screen board for the president's office (campus.html?view=board)
+  // the moment's numbers, each against the same time on the previous teaching day; the map with each building's students;
+  // the busiest buildings, what starts within the hour, today's exams and events. Updates itself every 30 seconds.
+  const BOARD = P.get('view') === 'board';
+  function snap(day, min) {   // the campus at a moment: students in rooms, lectures, free and busy rooms, per building
+    const n = { day, min, iso: '', clock: toTime(min) }, out = { students: 0, run: 0, free: 0, rooms: 0, soon: 0, soonSt: 0, per: [] };
+    C.buildings.forEach(b => {
+      if (!(b.tt || []).length) return;
+      const all = meetings(b, day), rooms = roomsOf(b), run = all.filter(x => x.a <= min && min < x.z), busy = new Set(run.map(x => x.room));
+      const st = run.reduce((a, x) => a + (+x.s.registered || 0), 0), soon = all.filter(x => x.a > min && x.a <= min + 60);
+      out.students += st; out.run += run.length; out.rooms += rooms.length; out.free += rooms.filter(r => !busy.has(r)).length;
+      out.soon += soon.length; out.soonSt += soon.reduce((a, x) => a + (+x.s.registered || 0), 0);
+      out.per.push({ b, st, run: run.length, busy: busy.size, rooms: rooms.length });
+    });
+    out.occ = out.rooms ? (out.rooms - out.free) / out.rooms : 0;
+    return out;
+  }
+  // the previous teaching day of the week (the timetable repeats every week): for «compared with yesterday»
+  function prevDay(d) {
+    const DAYS = Object.keys(U.DAYS).filter(k => k !== 'ج'), i = DAYS.indexOf(d);
+    for (let k = 1; k < DAYS.length; k++) { const p = DAYS[(i - k + DAYS.length) % DAYS.length]; if (C.buildings.some(b => (b.tt || []).length && meetings(b, p).length)) return p; }
+    return null;
+  }
+  function boardView() {
+    document.body.classList.add('cm-board-on');
+    app.innerHTML = '<div class="cm-board" id="cm-board"></div>';
+    const draw1 = () => {
+      const n = now(), ok = teaching(n), s = ok ? snap(n.day, n.min) : snap('-', n.min), pd = prevDay(n.day), y = pd ? snap(pd, n.min) : null;
+      const ex = EX ? EX.exams.filter(e => e.date === n.iso) : [], exNow = ex.filter(e => toMin(e.from) <= n.min && n.min < toMin(e.to));
+      const ev = events(n).filter(x => x.p.at && x.p.at.slice(0, 10) === n.iso);
+      const delta = (a, b, pctMode) => { if (b == null) return ''; const d = pctMode ? Math.round((a - b) * 100) : a - b; if (!d) return '<small class="eq">مثل أمس</small>';
+        return `<small class="${d > 0 ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'} ${pctMode ? U.count(Math.abs(d), 'نقطة واحدة', 'نقطتان', 'نقاط', 'نقطة') : Math.abs(d).toLocaleString('en')} عن ${esc(U.DAYS[pd] || 'أمس')}</small>`; };
+      const max = Math.max(1, ...s.per.map(p => p.st)), al = POSTS && POSTS.alert && POSTS.alert.title && (!POSTS.alert.until || POSTS.alert.until > new Date().toISOString()) ? POSTS.alert : null;
+      const top = s.per.filter(p => p.st).sort((a, b) => b.st - a.st).slice(0, 6), color = v => crowdColor(v);
+      $('#cm-board').innerHTML = `${al ? `<div class="bd-alert"><i class="bi bi-exclamation-octagon-fill"></i> <b>${esc(al.title)}</b> ${esc(al.text || '')}</div>` : ''}
+        <header class="bd-h"><img src="assets/logo-print.png" alt="جامعة البترا"><div><h1>الحرم الآن</h1><span>${esc(U.DAYS[n.day] || '')} ${new Date().toLocaleDateString('ar-JO-u-nu-latn', { timeZone: 'Asia/Amman', day: 'numeric', month: 'long', year: 'numeric' })}${!ok ? ' · لا تدريس اليوم حسب التقويم' : ''}</span></div>
+          <b class="bd-clock" dir="ltr" id="bd-clock">${new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Amman', hour: '2-digit', minute: '2-digit' })}</b></header>
+        <section class="bd-kpis">
+          <div class="k1"><span>طلبة في القاعات</span><b>${s.students.toLocaleString('en')}</b>${delta(s.students, y && y.students)}</div>
+          <div><span>محاضرات جارية</span><b>${s.run}</b>${delta(s.run, y && y.run)}</div>
+          <div><span>نسبة إشغال القاعات</span><b>${pct(s.occ)}</b>${delta(s.occ, y && y.occ, true)}</div>
+          <div><span>قاعات شاغرة</span><b>${s.free}<small>/${s.rooms}</small></b><small class="eq">تبدأ خلال ساعة: ${s.soon} محاضرة</small></div>
+          <div><span>امتحانات جارية</span><b>${exNow.length}</b><small class="eq">${!EX ? 'لم يُنشر جدول الامتحانات' : !ex.length ? 'لا امتحانات اليوم' : `${U.count(ex.length, 'امتحان واحد', 'امتحانان', 'امتحانات', 'امتحاناً')} اليوم${exNow.length ? ' · ' + exNow.reduce((a, e) => a + (e.students || 0), 0).toLocaleString('en') + ' طالباً الآن' : ''}`}</small></div>
+          <div><span>فعاليات اليوم</span><b>${ev.length}</b><small class="eq">${ev.length ? esc(ev[0].p.title).slice(0, 34) : 'لا فعاليات معلنة'}</small></div>
+          <div class="na"><span>بلاغات أعطال مفتوحة</span><b>—</b><small class="eq">غير مفعّل: البلاغات تُرسل بالبريد ولا تُحفظ في الموقع بعد</small></div></section>
+        <section class="bd-main">
+          <div class="bd-map"><svg viewBox="0 0 ${C.width} ${C.height}" preserveAspectRatio="xMidYMid meet"><image href="${esc(C.image_2x || C.image)}" width="${C.width}" height="${C.height}"/>
+            ${s.per.map(p => { const r = p.st ? 22 + Math.sqrt(p.st / max) * 95 : 0; return `<g transform="translate(${(p.b.x * C.width).toFixed(0)} ${(p.b.y * C.height).toFixed(0)})">${r ? `<circle r="${r.toFixed(0)}" fill="${color(p.st)}" fill-opacity=".38" stroke="${color(p.st)}" stroke-width="4"/>` : ''}
+              <circle r="19" fill="#091b22" stroke="#fff" stroke-width="4"/><text y="7" text-anchor="middle" fill="#fff" font-size="${p.b.id.length > 2 ? 14 : 18}" font-weight="800">${esc(p.b.id)}</text>${p.st ? `<text y="${-(r + 8).toFixed(0)}" text-anchor="middle" fill="#091b22" stroke="#fff" stroke-width="5" paint-order="stroke" font-size="24" font-weight="800">${p.st.toLocaleString('en')}</text>` : ''}</g>`; }).join('')}</svg>
+            <div class="bd-key"><span><i style="background:#16a34a"></i> أقل من 150 طالباً</span><span><i style="background:#f59e0b"></i> 150–400</span><span><i style="background:#dc2626"></i> أكثر من 400</span></div></div>
+          <div class="bd-side"><h2><i class="bi bi-buildings"></i> الأكثر ازدحاماً الآن</h2>${top.length ? top.map(p => `<div class="bd-row"><em style="background:${color(p.st)}">${esc(p.b.id)}</em><span>${esc(p.b.short || p.b.name)}<small>${p.run} محاضرة · ${p.busy}/${p.rooms} قاعة</small></span><b>${p.st.toLocaleString('en')}</b></div>`).join('') : '<p class="bd-none">لا محاضرات في هذه اللحظة.</p>'}
+            <h2><i class="bi bi-clipboard-check"></i> امتحانات اليوم</h2>${ex.length ? ex.sort((a, b) => a.from.localeCompare(b.from)).slice(0, 4).map(e => `<div class="bd-row sm"><em class="t" dir="ltr">${esc(e.from)}</em><span>${esc(e.name)}<small>${e.rooms.map(r => r.room).join('، ')}</small></span><b>${e.students || ''}</b></div>`).join('') : `<p class="bd-none">${EX ? 'لا امتحانات اليوم.' : 'لم يُنشر جدول الامتحانات بعد.'}</p>`}
+            <h2><i class="bi bi-calendar-event"></i> فعاليات اليوم</h2>${ev.length ? ev.slice(0, 3).map(({ p, b }) => `<div class="bd-row sm"><em class="t" dir="ltr">${esc(p.at.slice(11, 16))}</em><span>${esc(p.title)}<small>${esc(p.place)}</small></span><b>${esc(b.id)}</b></div>`).join('') : '<p class="bd-none">لا فعاليات معلنة اليوم.</p>'}</div></section>
+        <footer class="bd-f"><span>من الجدول الدراسي (أعداد المسجلين) وجدول الامتحانات وإعلانات الشاشات · المقارنة مع الوقت نفسه يوم ${esc(U.DAYS[pd] || '—')} الدراسي السابق</span><span>يتحدّث كل 30 ثانية · ${esc(SITE)}campus.html?view=board</span></footer>`;
+    };
+    draw1();
+    setInterval(() => { const c = $('#bd-clock'); if (c) c.textContent = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Amman', hour: '2-digit', minute: '2-digit' }); }, 1000);
+    setInterval(() => { Object.keys(cache).forEach(k => delete cache[k]); draw1(); }, 30000);
+    // announcements, events and emergency messages change during the day: read them again every 3 minutes
+    setInterval(() => U.getJSON('data/screen_posts.json', true).then(p => { POSTS = p; draw1(); }).catch(() => {}), 180000);
+    document.head.insertAdjacentHTML('beforeend', `<style>
+      body.cm-board-on { overflow: hidden; }
+      .cm-board { position: fixed; inset: 0; z-index: 4000; background: linear-gradient(160deg, #0b1c22, #102a33); color: #fff; display: grid; grid-template-rows: auto auto auto minmax(0, 1fr) auto; gap: 1.1vh; padding: 1.6vh 1.6vw; font-size: clamp(12px, 1.05vw, 22px); direction: rtl; }
+      .bd-alert { background: #b91c1c; border-radius: 12px; padding: .5em 1em; font-size: 1.3em; animation: bdA 1.6s steps(2) infinite; } @keyframes bdA { 50% { background: #7f1d1d; } }
+      .bd-h { display: flex; align-items: center; gap: 1em; border-bottom: 2px solid rgba(255,255,255,.12); padding-bottom: .6em; } .bd-h img { height: 3.2em; background: #fff; border-radius: 10px; padding: .2em .4em; }
+      .bd-h div { flex: 1; } .bd-h h1 { margin: 0; font-size: 2.1em; font-weight: 800; } .bd-h span { color: #b6c7cf; } .bd-clock { font-size: 3.4em; font-variant-numeric: tabular-nums; color: #fde68a; line-height: 1; }
+      .bd-kpis { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .8em; }
+      .bd-kpis > div { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: .7em .9em; display: grid; gap: .15em; align-content: start; min-width: 0; }
+      .bd-kpis span { color: #b6c7cf; font-size: .95em; } .bd-kpis b { font-size: 2.6em; line-height: 1.05; font-variant-numeric: tabular-nums; } .bd-kpis b small { font-size: .45em; color: #b6c7cf; }
+      .bd-kpis .k1 { background: #901d23; border-color: #b9333b; } .bd-kpis small { font-size: .82em; } .bd-kpis .up { color: #fca5a5; } .bd-kpis .k1 .up, .bd-kpis .k1 .down, .bd-kpis .k1 .eq { color: #fde2e4; } .bd-kpis .down { color: #86efac; } .bd-kpis .eq { color: #b6c7cf; }
+      .bd-kpis .na { opacity: .6; border-style: dashed; }
+      .bd-main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 27em); gap: 1em; min-height: 0; }
+      .bd-map { position: relative; background: #f3f6f4; border-radius: 16px; overflow: hidden; min-height: 0; } .bd-map svg { width: 100%; height: 100%; display: block; }
+      .bd-key { position: absolute; bottom: .6em; inset-inline-start: .6em; display: flex; gap: .9em; background: rgba(9,27,34,.85); border-radius: 10px; padding: .3em .8em; font-size: .9em; } .bd-key i { display: inline-block; width: .8em; height: .8em; border-radius: 50%; vertical-align: middle; }
+      .bd-side { overflow: hidden; display: grid; align-content: start; gap: .35em; min-width: 0; } .bd-side h2 { font-size: 1.15em; font-weight: 800; margin: .4em 0 .1em; color: #fde68a; } .bd-side h2:first-child { margin-top: 0; }
+      .bd-row { display: flex; align-items: center; gap: .6em; background: rgba(255,255,255,.06); border-radius: 10px; padding: .35em .6em; min-width: 0; }
+      .bd-row em { font-style: normal; font-weight: 800; border-radius: 999px; min-width: 2.2em; text-align: center; padding: .1em .3em; } .bd-row em.t { background: rgba(255,255,255,.12); font-size: .9em; }
+      .bd-row span { flex: 1; min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .bd-row span small { display: block; font-weight: 400; color: #b6c7cf; font-size: .82em; overflow: hidden; text-overflow: ellipsis; }
+      .bd-row b { font-size: 1.35em; font-variant-numeric: tabular-nums; } .bd-row.sm b { font-size: 1em; color: #b6c7cf; } .bd-none { color: #8fa3ad; margin: 0; }
+      .bd-f { display: flex; justify-content: space-between; gap: 1em; color: #8fa3ad; font-size: .8em; }
+      @media (max-width: 1100px) { .bd-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } .bd-main { grid-template-columns: 1fr; } .cm-board { overflow: auto; grid-template-rows: none; } .bd-map { height: 55vh; } }
+      @media (max-width: 600px) { .bd-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .bd-f { flex-direction: column; } }
+    </style>`);
+  }
+
+  // ---------------------------------------------------------------- «ماذا لو؟»: close buildings (maintenance, emergency) and see where each section can go
+  // Each affected section is moved, as a whole, to one free room nearby for all its meeting times (same day and hours);
+  // the room's size is estimated from the largest section ever taught in it. Sections that cannot move as a whole are
+  // placed meeting by meeting, and those with no free room are listed for a decision.
+  const WI = { closed: [], days: null, res: null };
+  function whatIf() {
+    const DAYS = Object.keys(U.DAYS).filter(k => k !== 'ج'), days = WI.days || DAYS, closed = new Set(WI.closed);
+    const used = {}, cap = {};   // used[room][day] = [[a, z]...], cap[room] = largest registered there
+    S.forEach(s => { const r = clean(s.room); if (r && r !== '0') cap[r] = Math.max(cap[r] || 0, +s.registered || 0); });
+    C.buildings.forEach(b => DAYS.forEach(d => meetings(b, d).forEach(x => { ((used[x.room] = used[x.room] || {})[d] = used[x.room][d] || []).push([x.a, x.z]); })));
+    const free = (r, d, a, z) => !((used[r] || {})[d] || []).some(([p, q]) => p < z && a < q);
+    const take = (r, d, a, z) => { ((used[r] = used[r] || {})[d] = used[r][d] || []).push([a, z]); };
+    // the affected sections: their in-person meetings, on the closing days, in the closed buildings
+    const secs = {};
+    C.buildings.filter(b => closed.has(b.id)).forEach(b => days.forEach(d => meetings(b, d).forEach(x => {
+      const k = [x.s.code, x.s.section, x.room].join('|'); (secs[k] = secs[k] || { s: x.s, from: x.room, b, list: [], reg: +x.s.registered || 0 }).list.push({ d, a: x.a, z: x.z, m: x.m });
+    })));
+    const targets = C.buildings.filter(b => !closed.has(b.id) && (b.tt || []).length).flatMap(b => roomsOf(b).map(r => ({ r, b })));
+    const rank = (sec, t) => meters(sec.b, t.b) + ((cap[t.r] || 0) < sec.reg ? 4000 : 0) + (floorOf(t.r) > 0 && floorOf(sec.from) === 0 ? 300 : 0);
+    const out = Object.values(secs).sort((a, b) => b.reg - a.reg || b.list.length - a.list.length).map(sec => {
+      const cand = targets.slice().sort((x, y) => rank(sec, x) - rank(sec, y));
+      const whole = cand.find(t => sec.list.every(m => free(t.r, m.d, m.a, m.z)));
+      if (whole) { sec.list.forEach(m => take(whole.r, m.d, m.a, m.z)); return Object.assign(sec, { kind: 'whole', moves: sec.list.map(m => Object.assign({}, m, { to: whole })) }); }
+      const moves = sec.list.map(m => { const t = cand.find(c => free(c.r, m.d, m.a, m.z)); if (t) take(t.r, m.d, m.a, m.z); return Object.assign({}, m, { to: t || null }); });
+      return Object.assign(sec, { kind: moves.every(m => m.to) ? 'split' : moves.some(m => m.to) ? 'part' : 'none', moves });
+    });
+    const small = out.filter(x => x.moves.some(m => m.to && (cap[m.to.r] || 0) < x.reg));
+    return (WI.res = { out, cap, small, students: out.reduce((a, x) => a + x.reg, 0), meet: out.reduce((a, x) => a + x.list.length, 0), days });
+  }
+  const whenTxt = list => [...new Set(list.map(m => `${U.DAYS[m.d] || m.d} ${toTime(m.a)}`))].join('، ');
+  function whatIfTool() {
+    const DAYS = Object.keys(U.DAYS).filter(k => k !== 'ج'), R = WI.closed.length ? whatIf() : null;
+    const K = R ? { whole: R.out.filter(x => x.kind === 'whole').length, split: R.out.filter(x => x.kind === 'split').length, bad: R.out.filter(x => x.kind === 'part' || x.kind === 'none').length } : null;
+    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'ماذا لو؟ — إغلاق مبنى', 'أين تذهب شعبه إلى قاعات شاغرة قريبة بالأوقات نفسها')}
+      <label class="cm-lbl">المباني المغلقة <small class="text-muted fw-normal">(اضغط لاختيار مبنى أو أكثر، أو اضغطه على الخريطة)</small></label>
+      <div class="cm-by">${C.buildings.filter(b => (b.tt || []).length && roomsOf(b).length).map(b => `<button type="button" data-wc="${esc(b.id)}" class="${WI.closed.includes(b.id) ? 'on danger' : ''}" title="${esc(b.name)}">${esc(b.id)} · ${esc(b.short || b.name)}</button>`).join('')}</div>
+      <label class="cm-lbl">أيام الإغلاق</label><div class="cm-by">${DAYS.map(d => `<button type="button" data-wd="${d}" class="${(WI.days || DAYS).includes(d) ? 'on' : ''}">${esc(U.DAYS[d])}</button>`).join('')}</div>
+      ${!R ? `<p class="cm-note mt-2">اختر مبنى لترى الأثر وخطة النقل.</p>` : !R.out.length ? empty('لا محاضرات وجاهية في المبنى المختار بهذه الأيام.') : `
+      <div class="cm-kpis mt-2"><div><b>${R.out.length}</b><span>شعبة متأثرة</span></div><div><b>${R.students.toLocaleString('en')}</b><span>طالباً (تسجيلاً)</span></div><div><b>${R.meet}</b><span>محاضرة أسبوعياً</span></div></div>
+      <div class="cm-wsum">${K.whole ? `<span class="ok"><b>${K.whole}</b> تنتقل كاملة إلى قاعة واحدة</span>` : ''}${K.split ? `<span class="mid"><b>${K.split}</b> تتوزع على أكثر من قاعة</span>` : ''}${K.bad ? `<span class="bad"><b>${K.bad}</b> بلا قاعة متاحة لبعض أوقاتها — تحتاج قراراً</span>` : '<span class="ok"><i class="bi bi-check2-circle"></i> كل الشعب لها قاعات بديلة</span>'}${R.small.length ? `<span class="mid"><b>${R.small.length}</b> قد تكون قاعتها الجديدة أصغر (تحقّق منها)</span>` : ''}</div>
+      <div class="cm-body"><div class="cm-found">${R.out.slice(0, 60).map(x => { const to = [...new Set(x.moves.filter(m => m.to).map(m => m.to.r))];
+        return `<div class="cm-sec cm-w ${x.kind}"><span class="cm-t"><b>${esc(x.s.name)} <small>ش${esc(x.s.section)} · ${x.reg} طالباً</small></b><small>${esc(U.shortName(x.s.instructor))} · ${esc(whenTxt(x.list))}</small>
+          <small>من <b dir="ltr">${esc(x.from)}</b> إلى ${to.length ? to.map(r => `<b dir="ltr">${esc(r)}</b>`).join('، ') : '<b class="text-danger">لا قاعة متاحة</b>'}${to.length === 1 ? ` · مبنى ${esc(x.moves.find(m => m.to).to.b.id)} (${meters(x.b, x.moves.find(m => m.to).to.b)} م)` : ''}${x.moves.some(m => m.to && (R.cap[m.to.r] || 0) < x.reg) ? ' · <span class="text-warning-emphasis">قد تكون أصغر</span>' : ''}</small></span></div>`; }).join('')}</div>${R.out.length > 60 ? `<div class="cm-more">و${R.out.length - 60} شعبة أخرى في التقرير</div>` : ''}</div>`}
+      <div class="cm-links"><button type="button" class="btn btn-sm btn-maroon" id="cm-doc" ${R && R.out.length ? '' : 'disabled'}><i class="bi bi-file-earmark-text"></i> خطة النقل (تقرير رسمي)</button>
+        ${WI.closed.length ? '<button type="button" class="btn btn-sm btn-outline-secondary" id="cm-wclr">ابدأ من جديد</button>' : ''}</div></div>`;
+    bind(() => setTool(''));
+    const c = $('#cm-card');
+    c.querySelectorAll('[data-wc]').forEach(x => x.onclick = () => { const id = x.dataset.wc; WI.closed = WI.closed.includes(id) ? WI.closed.filter(y => y !== id) : [...WI.closed, id]; whatIfTool(); });
+    c.querySelectorAll('[data-wd]').forEach(x => x.onclick = () => { const all = WI.days || DAYS, d = x.dataset.wd; let nd = all.includes(d) ? all.filter(y => y !== d) : [...all, d]; if (!nd.length) nd = DAYS; WI.days = DAYS.filter(y => nd.includes(y)); whatIfTool(); });
+    if ($('#cm-wclr')) $('#cm-wclr').onclick = () => { WI.closed = []; WI.days = null; whatIfTool(); };
+    if ($('#cm-doc')) $('#cm-doc').onclick = whatIfDoc;
+    // on the map: closed buildings crossed out, receiving buildings ringed, a line from each closed building to where its sections go
+    const dest = R ? [...new Set(R.out.flatMap(x => x.moves.filter(m => m.to).map(m => m.to.b)))] : [];
+    mark = new Set(dest.map(b => b.id));
+    OV = { lines: R ? C.buildings.filter(b => WI.closed.includes(b.id)).flatMap(b => [...new Set(R.out.filter(x => x.b === b).flatMap(x => x.moves.filter(m => m.to).map(m => m.to.b)))].map(t => ({ pts: [b, t], cls: 'cm-wline', nocase: true }))) : [],
+      marks: C.buildings.filter(b => WI.closed.includes(b.id)).map(b => `<span class="cm-closed" style="left:${b.x * 100}%;top:${b.y * 100}%" title="مغلق"><i class="bi bi-x-lg"></i></span>`).join('') };
+    pins();
+  }
+  function whatIfDoc() {
+    const R = WI.res, cb = C.buildings.filter(b => WI.closed.includes(b.id)), all = R.out.length === 0;
+    const rows = R.out.map((x, i) => { const to = [...new Set(x.moves.filter(m => m.to).map(m => m.to.r))];
+      return [[i + 1, 'n'], `${esc(x.s.name)}<br><small>${esc(x.s.code)} · ش${esc(x.s.section)}</small>`, esc(U.shortName(x.s.instructor)), [x.reg, 'c'], esc(whenTxt(x.list)), [esc(x.from), 'ltr'],
+        to.length ? (to.length === 1 ? `<b dir="ltr">${esc(to[0])}</b> · مبنى ${esc(x.moves.find(m => m.to).to.b.id)}` : x.moves.map(m => `${esc(U.DAYS[m.d])} ${toTime(m.a)}: ${m.to ? `<b dir="ltr">${esc(m.to.r)}</b>` : '<b style="color:#b91c1c">لا قاعة</b>'}`).join('<br>')) : '<b style="color:#b91c1c">لا قاعة متاحة</b>',
+        [x.kind === 'whole' ? 'كاملة' : x.kind === 'split' ? 'موزعة' : 'تحتاج قراراً', 'c']]; });
+    const bad = R.out.filter(x => x.kind === 'part' || x.kind === 'none');
+    const recv = {}; R.out.forEach(x => x.moves.forEach(m => { if (m.to) recv[m.to.b.id] = (recv[m.to.b.id] || 0) + 1; }));
+    doc({ code: 'WI', title: 'خطة نقل الشعب عند إغلاق ' + (cb.length === 1 ? 'مبنى' : 'مبانٍ'), sub: cb.map(b => `${b.id} · ${b.name}`).join('، '), unit: 'التخطيط والشؤون الأكاديمية', status: 'مسودة للمراجعة', landscape: true,
+      info: [['المباني المغلقة', cb.map(b => b.id).join('، ')], ['أيام الإغلاق', R.days.map(d => U.DAYS[d]).join('، ')], ['الشعب المتأثرة', String(R.out.length)], ['الطلبة (تسجيلاً)', R.students.toLocaleString('en')]],
+      sections: [
+        ['الملخص', `<p>عند إغلاق ${esc(cb.map(b => b.name).join(' و'))} ${R.days.length < Object.keys(U.DAYS).filter(k => k !== 'ج').length ? 'أيام ' + esc(R.days.map(d => U.DAYS[d]).join('، ')) : 'طوال الأسبوع'} تتأثر ${R.out.length} شعبة فيها ${R.students.toLocaleString('en')} طالباً و${R.meet} محاضرة أسبوعياً.
+          تنتقل ${R.out.filter(x => x.kind === 'whole').length} شعبة كاملة إلى قاعة واحدة قريبة، وتتوزع ${R.out.filter(x => x.kind === 'split').length} على أكثر من قاعة، وتحتاج ${bad.length} قراراً لأن بعض أوقاتها بلا قاعة شاغرة.</p>`],
+        ['المباني المستقبِلة', tbl(['المبنى', 'الاسم', 'محاضرات أسبوعية تُنقل إليه'], Object.entries(recv).sort((a, b) => b[1] - a[1]).map(([id, k]) => [[id, 'c'], esc(B(id).name), [k, 'c']]))],
+        ['خطة النقل لكل شعبة', tbl(['#', 'المقرر', 'المدرس', 'الطلبة', 'المواعيد', 'القاعة الحالية', 'القاعة المقترحة', 'الحالة'], rows)],
+        ...(bad.length ? [['شعب تحتاج قراراً', `<p>لا توجد قاعة شاغرة في بعض أوقات هذه الشعب. الخيارات: تغيير وقت المحاضرة، أو جعلها إلكترونية، أو دمج شعبتين، أو استعمال قاعة غير تدريسية.</p>${tbl(['المقرر', 'الشعبة', 'الأوقات بلا قاعة'], bad.map(x => [esc(x.s.name), [x.s.section, 'c'], esc(whenTxt(x.moves.filter(m => !m.to)))]))}`]] : []),
+        ['ملاحظات وتوصيات', `<ol><li>تُبلَّغ الأقسام والمدرسون والطلبة بالقاعات الجديدة قبل الإغلاق بأسبوع على الأقل، وتُحدَّث القاعات في نظام التسجيل فتظهر في «مخطط جدولي» وشاشات المباني.</li>
+          ${R.small.length ? `<li>${R.small.length} شعبة قد تكون قاعتها الجديدة أصغر من عدد طلبتها (تقدير السعة من أكبر شعبة دُرّست في القاعة): يُتحقق منها ميدانياً.</li>` : ''}
+          <li>تُعطى الأولوية في القاعات الأرضية للشعب التي فيها طلبة من ذوي الإعاقة.</li><li>الخطة آلية ويمكن تعديلها؛ أُنشئت بحيث تنتقل الشعبة كاملة إلى أقرب قاعة شاغرة في كل أوقاتها كلما أمكن.</li></ol>`],
+        ['المنهجية', '<p>المحاضرات الوجاهية من الجدول الدراسي للفصل الحالي. القاعة «شاغرة» إذا لم تكن فيها محاضرة في الوقت نفسه، بما في ذلك الشعب التي نُقلت إليها في هذه الخطة. الأقرب حسب المسافة بين المباني على المخطط. سعة القاعة غير مسجلة في الجدول، فقُدّرت بأكبر عدد مسجلين في شعبة دُرّست فيها.</p>']],
+      sign: ['أعدّه', 'مدير التخطيط', 'نائب الرئيس للشؤون الأكاديمية'] });
+  }
+
+  function boardInfo() {
+    const link = SITE + 'campus.html?view=board';
+    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'لوحة «الحرم الآن»', 'لشاشة كبيرة في مكتب الرئاسة أو الإدارة')}
+      <p class="cm-note">صفحة واحدة بملء الشاشة: طلبة في القاعات، ومحاضرات جارية، ونسبة الإشغال مقارنة بالوقت نفسه في اليوم الدراسي السابق، وقاعات شاغرة، وامتحانات جارية، وفعاليات اليوم، والمباني الأكثر ازدحاماً على المخطط. تتحدّث كل 30 ثانية، وتظهر عليها رسالة الطوارئ إن وُجدت.</p>
+      <div class="cm-links cm-col"><a class="btn btn-maroon" href="${esc(link)}" target="_blank"><i class="bi bi-tv"></i> افتح اللوحة</a>
+        <button type="button" class="btn btn-outline-secondary" data-copy="${esc(link)}"><i class="bi bi-link-45deg"></i> نسخ رابط اللوحة للشاشة</button></div>
+      <p class="cm-note mt-2">على الشاشة: افتح الرابط في المتصفح ثم اضغط F11 لملء الشاشة.</p></div>`;
+    bind(() => setTool(''));
+  }
+
   // ---------------------------------------------------------------- «ملصقات QR»: «أنت هنا» stickers for the gates and the building entrances
   function qrTool() {
     const qr = link => { if (!window.qrcode) return ''; const x = window.qrcode(0, 'M'); x.addData(link); x.make(); return x.createSvgTag({ cellSize: 4, margin: 1, scalable: true }); };
@@ -1604,6 +1783,11 @@
     .cm-lp-ctl { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin: .5rem 0; } .cm-lp-ctl .cm-by { margin: 0; }
     .cm-lrow { display: flex; gap: .45rem; align-items: center; padding: .2rem 0; font-size: .84rem; } .cm-lrow > span:nth-child(2) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .cm-lrow b { font-variant-numeric: tabular-nums; min-width: 2.6rem; text-align: end; }
     @media (max-width: 575.98px) { #cm-play { display: none; } .cm-lov { min-width: 0; padding: .2rem .7rem .35rem; } .cm-lov b { font-size: 1.4rem; } .cm-lov span { font-size: .7rem; } }
+    .cm-wsum { display: grid; gap: .2rem; margin: .4rem 0; font-size: .82rem; } .cm-wsum span { border-radius: 8px; padding: .2rem .5rem; } .cm-wsum b { font-size: 1rem; }
+    .cm-wsum .ok { background: #f0fdf4; color: #14532d; } .cm-wsum .mid { background: #fffbeb; color: #78350f; } .cm-wsum .bad { background: #fef2f2; color: #7f1d1d; }
+    .cm-w { border-inline-start: 4px solid #16a34a; } .cm-w.split { border-inline-start-color: #f59e0b; } .cm-w.part, .cm-w.none { border-inline-start-color: #dc2626; } .cm-w .cm-t small b { color: #091b22; }
+    .cm-closed { position: absolute; transform: translate(-50%, -50%) scale(var(--pin, 1)); width: 2.6rem; height: 2.6rem; border-radius: 50%; background: rgba(17,24,39,.75); color: #fff; display: grid; place-items: center; font-size: 1.3rem; z-index: 4; pointer-events: none; box-shadow: 0 0 0 3px #dc2626; }
+    #cm-svg .cm-wline { stroke: #dc2626; stroke-width: 3; stroke-dasharray: 6 6; opacity: .75; }
     .cm-heatwrap { overflow-x: auto; } .cm-heat { border-collapse: separate; border-spacing: 2px; width: 100%; font-size: .7rem; }
     .cm-heat th { font-weight: 700; color: var(--bs-secondary-color); text-align: center; padding: .1rem; white-space: nowrap; } .cm-heat tbody th { text-align: start; }
     .cm-heat td { text-align: center; border-radius: 4px; padding: .25rem 0; background: color-mix(in srgb, #dc2626 calc(var(--v) * 100%), #ecfdf3); color: #111; font-weight: 700; }
@@ -1633,6 +1817,7 @@
     const h = (P.get('here') || '').split(':');
     if (h[0] === 'gate') { const g = (C.gates || []).find(x => x.id === h[1]); if (g) here = { x: g.x, y: g.y, label: g.name }; }
     if (h[0] === 'b' && B(h[1])) here = { x: B(h[1]).x, y: B(h[1]).y, label: 'مبنى ' + B(h[1]).name };
+    if (BOARD) { boardView(); return; }
     shell();
     const toQ = P.get('room') || P.get('to');
     if (toQ) { tool = 'route'; route = { from: here, to: resolve(toQ) }; }
