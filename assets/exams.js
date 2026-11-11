@@ -214,6 +214,7 @@
     AV = []; CAP = []; BUSYI = busyI; BLK = [];
     for (let s = 0; s < NS; s++) BLK[s] = outWin(DAYS[dayOf(s)].n, S.periods[s % P]);
     for (let s = 0; s < NS; s++) { AV[s] = rooms().filter(r => r.on && !(busyR[s] && busyR[s].has(r.n))); CAP[s] = AV[s].reduce((a, r) => a + r.c, 0); CAPL[s] = AV[s].filter(r => r.t === LAB).reduce((a, r) => a + r.c, 0); }
+    lecPrep();
   }
   // rooms: by default the rooms the faculty teaches in, with an exam capacity of half the largest class seen there
   // rooms: by default the rooms the faculty teaches in. A hall's exam capacity is ~60% of the largest class seen there (an empty
@@ -241,15 +242,30 @@
   // what the exams coordinator asked for each course: room type, number of rooms, proctors, notes
   const REQ = c => (S.req || {})[c.code] || {};
   const needLab = c => REQ(c).type === LAB;
+  // an exam another department holds at a fixed time (e.g. the basic sciences' maths exams): it keeps its students from other
+  // exams at that time, but takes no seats, rooms or proctors here (S.req[code].ext)
+  const EXT = c => !!((S.req || {})[c.base || c.code] || {}).ext;
+  // an exam longer than its period (S.req[code].until, e.g. 2:00–3:30 in hourly periods) also takes the next period from its students
+  const overrun = (i, s) => { const u = REQ(C[i]).until; if (!u || s < 0) return -1; const k = s % P; return k + 1 < P && U.toMin(S.periods[k + 1][0]) < U.toMin(u) ? s + 1 : -1; };
   let capTotal = 0, AV = [], CAP = [], CAPL = [], BUSYI = {}, BLK = [], COLBY = 'dept';
   const capOf = s => CAP[s] == null ? capTotal : CAP[s];
 
   // ---------- cost ----------
-  const W = { blocked: 20000, clash: 1000, softClash: 60, overDay: 45, sameDay: 4, backToBack: 12, ins: 150, seat: 80, spread: 0.08, early: 0.0005 };
+  const W = { blocked: 20000, clash: 1000, softClash: 60, overDay: 45, sameDay: 4, backToBack: 12, ins: 150, seat: 80, spread: 0.08, early: 0.0005, lec: 6 };
+  // students' own lectures at an exam's time (midterms run during teaching weeks). S.lec, from the registration report: per course,
+  // per weekday, the lecture times of its students' OTHER in-person courses with how many of them ([from, to, students] in minutes);
+  // counts only, no student. LEC[i][s] = students of exam i who would miss a lecture if it is at slot s.
+  let LEC = [];
+  function lecPrep() {
+    LEC = C.map(c => { const L = (S.lec || {})[c.base || c.code]; if (!L || S.lecOn === false) return null; const a = new Array(NS).fill(0);
+      for (let s = 0; s < NS; s++) { const d = DAYS[dayOf(s)], p = S.periods[s % P], x = U.toMin(p[0]), y = U.toMin(p[1]); (L[d.dl] || []).forEach(([la, lb, n]) => { if (la < y && x < lb) a[s] += n; }); }
+      return a; });
+  }
+  const lecAt = (i, s) => s >= 0 && LEC[i] ? LEC[i][s] : 0;
   const dayOf = s => Math.floor(s / P);
   function groupCost(g, sl) {
     const per = {}, day = {};
-    g.c.forEach(i => { const s = sl[i]; if (s < 0) return; per[s] = (per[s] || 0) + 1; const d = dayOf(s); (day[d] = day[d] || []).push(s); });
+    g.c.forEach(i => { const s = sl[i]; if (s < 0) return; per[s] = (per[s] || 0) + 1; const e = overrun(i, s); if (e >= 0) per[e] = (per[e] || 0) + 1; const d = dayOf(s); (day[d] = day[d] || []).push(s); });
     let cost = 0;
     for (const s in per) if (per[s] > 1) cost += (per[s] - 1) * (g.hard ? W.clash : W.softClash);
     for (const d in day) {
@@ -265,7 +281,7 @@
   let WORK = null, SEAT = [], SEATL = [];
   const labF = (s, n) => s < 0 || !n ? 0 : Math.max(0, n - (CAPL[s] || 0)) * W.seat;
   const labAt = (s, sl) => { if (s < 0) return 0; if (sl === WORK) return SEATL[s]; let n = 0; for (const c of C) if (sl[c.i] === s && needLab(c)) n += c.students; return n; };
-  const seatsAt = (s, sl) => { if (s < 0) return 0; if (sl === WORK) return SEAT[s]; let n = 0; for (const c of C) if (sl[c.i] === s) n += c.students; return n; };
+  const seatsAt = (s, sl) => { if (s < 0) return 0; if (sl === WORK) return SEAT[s]; let n = 0; for (const c of C) if (sl[c.i] === s && !EXT(c)) n += c.students; return n; };
   const seatCost = (s, sl) => seatF(s, seatsAt(s, sl));
   function insCost(i, sl) {
     let cost = 0; if (S.insClash === false) return 0;
@@ -276,11 +292,11 @@
   function local(i, sl) {
     let cost = 0;
     C[i].g.forEach(g => { cost += groupCost(G[g], sl); });
-    return cost + (sl[i] >= 0 && BLK[sl[i]] ? W.blocked : 0) + insCost(i, sl) * 2 + (sl[i] >= 0 && S.early !== false ? C[i].students * dayOf(sl[i]) * W.early : 0);
+    return cost + (sl[i] >= 0 && BLK[sl[i]] ? W.blocked : 0) + insCost(i, sl) * 2 + (sl[i] >= 0 && S.early !== false ? C[i].students * dayOf(sl[i]) * W.early : 0) + lecAt(i, sl[i]) * W.lec;
   }
   function delta(i, to, sl) {
     const from = sl[i]; if (from === to) return 0;
-    const n = C[i].students, a = seatsAt(from, sl), b = seatsAt(to, sl);
+    const n = EXT(C[i]) ? 0 : C[i].students, a = seatsAt(from, sl), b = seatsAt(to, sl);
     let seatD = seatF(from, a - n) + seatF(to, b + n) - seatF(from, a) - seatF(to, b);
     if (needLab(C[i])) { const la = labAt(from, sl), lb = labAt(to, sl); seatD += labF(from, la - n) + labF(to, lb + n) - labF(from, la) - labF(to, lb); }
     const before = local(i, sl);
@@ -293,15 +309,15 @@
     let cost = 0;
     G.forEach(g => { cost += groupCost(g, sl); });
     for (let s = 0; s < NS; s++) cost += seatCost(s, sl) + labF(s, labAt(s, sl));
-    C.forEach(c => { cost += (sl[c.i] >= 0 && BLK[sl[c.i]] ? W.blocked : 0) + insCost(c.i, sl) + (sl[c.i] >= 0 && S.early !== false ? c.students * dayOf(sl[c.i]) * W.early : 0); });
+    C.forEach(c => { cost += (sl[c.i] >= 0 && BLK[sl[c.i]] ? W.blocked : 0) + insCost(c.i, sl) + (sl[c.i] >= 0 && S.early !== false ? c.students * dayOf(sl[c.i]) * W.early : 0) + lecAt(c.i, sl[c.i]) * W.lec; });
     return cost;
   }
 
   // ---------- solver ----------
   function solve(keep) {
     const sl = C.map(c => c.pin != null ? c.pin : keep && c.s >= 0 ? c.s : -1);
-    WORK = sl; SEAT = new Array(NS).fill(0); SEATL = new Array(NS).fill(0); C.forEach(c => { if (sl[c.i] >= 0) { SEAT[sl[c.i]] += c.students; if (needLab(c)) SEATL[sl[c.i]] += c.students; } });
-    const set = (i, s) => { const L = needLab(C[i]); if (sl[i] >= 0) { SEAT[sl[i]] -= C[i].students; if (L) SEATL[sl[i]] -= C[i].students; } sl[i] = s; if (s >= 0) { SEAT[s] += C[i].students; if (L) SEATL[s] += C[i].students; } };
+    WORK = sl; SEAT = new Array(NS).fill(0); SEATL = new Array(NS).fill(0); C.forEach(c => { if (sl[c.i] >= 0 && !EXT(c)) { SEAT[sl[c.i]] += c.students; if (needLab(c)) SEATL[sl[c.i]] += c.students; } });
+    const set = (i, s) => { const L = needLab(C[i]), n = EXT(C[i]) ? 0 : C[i].students; if (sl[i] >= 0) { SEAT[sl[i]] -= n; if (L) SEATL[sl[i]] -= n; } sl[i] = s; if (s >= 0) { SEAT[s] += n; if (L) SEATL[s] += n; } };
     const free = C.filter(c => c.pin == null);
     const weight = c => c.g.reduce((a, g) => a + (G[g].hard ? G[g].w * G[g].c.length : 0), 0) * 10 + c.students;
     free.filter(c => sl[c.i] < 0).sort((a, b) => weight(b) - weight(a)).forEach(c => {
@@ -345,6 +361,7 @@
       const can = n => !busy.has(n) && (!S.maxDuty || (load[n] || 0) < S.maxDuty) && (!S.maxDutyDay || ((dayLoad[n] || {})[dd] || 0) < S.maxDutyDay);
       const take = n => { load[n] = (load[n] || 0) + 1; (dayLoad[n] = dayLoad[n] || {})[dd] = ((dayLoad[n] || {})[dd] || 0) + 1; };
       out[s] = list.map(c => {
+        if (EXT(c)) return { c, rooms: [], left: 0, ext: true };
         // each section goes whole into the smallest free room it fits (or the room its course already uses, if there is
         // space), so a section stays together with its own instructor; only a section larger than every room is split
         const got = [], parts = c.sl.length ? c.sl.slice().sort((a, b) => b.n - a.n) : [{ s: '', n: c.students, ins: '' }], q = REQ(c);
@@ -406,7 +423,7 @@
     const sl = SL(), list = [];
     G.forEach(g => {
       const per = {}, day = {};
-      g.c.forEach(i => { const s = sl[i]; if (s < 0) return; (per[s] = per[s] || []).push(i); (day[dayOf(s)] = day[dayOf(s)] || new Set()).add(s); });
+      g.c.forEach(i => { const s = sl[i]; if (s < 0) return; (per[s] = per[s] || []).push(i); const e = overrun(i, s); if (e >= 0) (per[e] = per[e] || []).push(i); (day[dayOf(s)] = day[dayOf(s)] || new Set()).add(s); });
       Object.values(per).filter(v => v.length > 1).forEach(v => list.push({ k: g.hard ? 'clash' : 'soft', g, cs: v, txt: `${g.hard ? 'تعارض' : 'تعارض محتمل'}: ${v.map(i => C[i].code).join(' و ')} في الفترة نفسها` }));
       Object.entries(day).filter(([, v]) => v.size > S.maxDay).forEach(([d, v]) => list.push({ k: 'day', g, cs: g.c.filter(i => v.has(sl[i])), txt: `${v.size} امتحانات يوم ${DAYS[d].label}` }));
       if (S.b2b !== false) Object.entries(day).forEach(([d, v]) => { const ks = [...v].sort((a, b) => a - b); for (let k = 1; k < ks.length; k++) if (ks[k] - ks[k - 1] === 1 && g.kind !== 'near') list.push({ k: 'b2b', g, cs: g.c.filter(i => sl[i] === ks[k] || sl[i] === ks[k - 1]), txt: `امتحانان متتاليان يوم ${DAYS[d].label}` }); });
@@ -416,13 +433,14 @@
       Object.values(per).filter(v => v.length > 1).forEach(v => list.push({ k: 'ins', cs: v, txt: `${U.shortName(n)}: امتحانان لمقرريه في الفترة نفسها (${v.map(i => C[i].code).join('، ')})` }));
     });
     C.forEach(c => { if (c.s >= 0 && BLK[c.s]) list.push({ k: 'blk', cs: [c.i], txt: `${c.code} في ${slotLabel(c.s)}: خارج وقت الامتحانات لهذا اليوم` }); });
+    C.forEach(c => { const n = lecAt(c.i, c.s); if (n && c.pin == null) list.push({ k: 'lec', cs: [c.i], n, txt: `${c.code}: ${n} طالباً لديهم محاضرة أخرى وقت الامتحان` }); });
     return list;
   }
   // every problem as one detailed, de-duplicated row: severity, type, when, which exams, who is affected, why, and a fix
   const KIND = {
     clash: ['حرج', 'تعارض طالب', 'bi-x-octagon-fill'], unseated: ['حرج', 'نقص مقاعد', 'bi-door-closed-fill'], ins: ['مرتفع', 'تعارض مدرّس', 'bi-person-x-fill'],
     short: ['مرتفع', 'نقص مراقبين', 'bi-person-dash-fill'], day: ['متوسط', 'ضغط يومي', 'bi-calendar-x-fill'], b2b: ['منخفض', 'امتحانان متتاليان', 'bi-arrow-left-right'],
-    soft: ['منخفض', 'تعارض محتمل', 'bi-question-circle-fill'], blk: ['حرج', 'خارج وقت الامتحانات', 'bi-slash-circle-fill'], room: ['مرتفع', 'نوع القاعة', 'bi-pc-display'] };
+    soft: ['منخفض', 'تعارض محتمل', 'bi-question-circle-fill'], blk: ['حرج', 'خارج وقت الامتحانات', 'bi-slash-circle-fill'], room: ['مرتفع', 'نوع القاعة', 'bi-pc-display'], lec: ['منخفض', 'محاضرة وقت الامتحان', 'bi-easel2'] };
   const SEV = { 'حرج': 0, 'مرتفع': 1, 'متوسط': 2, 'منخفض': 3 };
   function bestFix(cs) {
     const sl = SL(); let best = null;
@@ -439,15 +457,16 @@
     const slotOf = cs => [...new Set(cs.map(i => C[i].s))].map(slotLabel).join(' / ');
     const est = cs => Math.min(...cs.map(i => C[i].students));
     st.is.forEach(x => {
-      const exact = x.g && x.g.kind === 'students', n = x.k === 'ins' ? 0 : x.k === 'blk' ? C[x.cs[0]].students : exact ? x.g.w : est(x.cs);
-      const who = x.k === 'ins' ? U.shortName(x.txt.split(':')[0]) : x.g ? (exact ? 'طلبة من كشف التسجيل' : x.g.name) : '';
+      const exact = (x.g && x.g.kind === 'students') || x.k === 'lec', n = x.k === 'ins' ? 0 : x.k === 'lec' ? x.n : x.k === 'blk' ? C[x.cs[0]].students : exact ? x.g.w : est(x.cs);
+      const who = x.k === 'ins' ? U.shortName(x.txt.split(':')[0]) : x.k === 'lec' ? 'طلبة من كشف التسجيل' : x.g ? (exact ? 'طلبة من كشف التسجيل' : x.g.name) : '';
       const why = {
         clash: 'امتحانان أو أكثر في الفترة نفسها لطلبة يدرسون المقررات معاً — لا يمكن للطالب حضورهما.',
         soft: 'المقرران من سنتين متتاليتين في التخصص نفسه؛ قد يجمعهما بعض الطلبة المتأخرين أو المتقدمين.',
         day: `أكثر من ${S.maxDay} امتحان في اليوم نفسه للفئة نفسها من الطلبة.`,
         b2b: 'امتحانان في فترتين متتاليتين من اليوم نفسه بلا استراحة.',
         ins: 'المدرّس نفسه يدرّس المقررين وامتحاناهما في الوقت نفسه؛ لا يستطيع الحضور في القاعتين.',
-        blk: 'الفترة خارج وقت الامتحانات المحدد لهذا اليوم في «الإعداد ← الفترات اليومية».' }[x.k];
+        blk: 'الفترة خارج وقت الامتحانات المحدد لهذا اليوم في «الإعداد ← الفترات اليومية».',
+        lec: 'من كشف التسجيل: لهؤلاء الطلبة محاضرة وجاهية لمقرر آخر في وقت الامتحان (الامتحانات في أسابيع الدوام). يحضرون الامتحان ويُعذرون من المحاضرة، أو يُنقل الامتحان.' }[x.k];
       add(x.k, x.cs, x.k === 'day' || x.k === 'b2b' ? x.txt.replace(/^.*يوم /, '') : slotOf(x.cs), who, n, exact, why);
     });
     st.seat.unseated.forEach(u => add('unseated', [u.c.i], slotLabel(u.s), '', u.n, true, `لا تتسع القاعات المتاحة في هذه الفترة لكل الطلبة (${u.n} طالب بلا مقعد).`));
@@ -465,7 +484,7 @@
     const stu = k => is.filter(x => x.k === k && x.g && x.g.kind === 'students').reduce((a, x) => a + x.g.w, 0);
     return { is, seat, clash: is.filter(x => x.k === 'clash').length, day: is.filter(x => x.k === 'day').length, b2b: is.filter(x => x.k === 'b2b').length,
       ins: is.filter(x => x.k === 'ins').length, soft: is.filter(x => x.k === 'soft').length, unseated: seat.unseated.reduce((a, u) => a + u.n, 0), short: seat.short.reduce((a, u) => a + u.miss, 0),
-      stuClash: stu('clash'), stuDay: stu('day'), reg: reg.length, placed: C.filter(c => c.s >= 0).length };
+      stuClash: stu('clash'), stuDay: stu('day'), lec: is.filter(x => x.k === 'lec').reduce((a, x) => a + x.n, 0), reg: reg.length, placed: C.filter(c => c.s >= 0).length };
   }
 
   // ---------- views ----------
@@ -639,7 +658,7 @@
             <div class="pl">${xs.map(x => `<div class="ex-row${PROB.has(x.c.i) ? ' bad' : ''}${sel === x.c.i ? ' sel' : ''}" data-c="${x.c.i}" draggable="true" style="--c:${x.c.col[0]};--b:${x.c.col[1]}">
               <span class="cd">${esc(x.c.code)}</span><span class="nm">${esc(x.c.name)}<small>${esc(x.c.dept)} · ${LV(x.c.lv)}</small></span>
               <span class="bd"><i class="bi bi-people-fill"></i> ${x.c.students}</span>
-              <span class="rm">${x.rooms.map(r => `<i class="bi bi-door-open"></i> ${esc(r.room)} <small>(${r.n})</small>`).join(' ')}${x.left ? ` <span class="text-danger">+${x.left} بلا مقعد</span>` : ''}</span></div>`).join('') || '<span class="none">—</span>'}</div></div>`; }).join('')}
+              <span class="rm">${x.ext ? '<small>قاعاته من القسم المختص</small>' : ''}${x.rooms.map(r => `<i class="bi bi-door-open"></i> ${esc(r.room)} <small>(${r.n})</small>`).join(' ')}${x.left ? ` <span class="text-danger">+${x.left} بلا مقعد</span>` : ''}</span></div>`).join('') || '<span class="none">—</span>'}</div></div>`; }).join('')}
         ${list.length < all.length ? `<div class="more">+${all.length - list.length} خارج التصفية</div>` : ''}</section>`; }).join('')}</div>`;
   }
   let sortK = 's', sortD = 1;
@@ -651,7 +670,7 @@
     return `<div class="table-responsive ex-tbl"><table class="table align-middle"><thead><tr>${cols.map(([k, t]) => `<th data-sort="${k}" class="sortable">${t} ${sortK === k ? `<i class="bi bi-caret-${sortD > 0 ? 'up' : 'down'}-fill"></i>` : ''}</th>`).join('')}<th>القاعات</th><th>المدرسون</th><th>الحالة</th><th>نقل إلى</th></tr></thead>
       <tbody>${list.map(c => { const x = rooms[c.i]; return `<tr class="${PROB.has(c.i) ? 'bad' : ''}"><td><span class="ex-when">${esc(slotLabel(c.s))}</span></td><td><span class="ex-code" style="--c:${c.col[0]};--b:${c.col[1]}">${esc(c.code)}</span></td><td><b>${esc(c.name)}</b></td>
         <td>${esc(c.dept)}</td><td><span class="bdg">${LV(c.lv)}</span></td><td><span class="bdg blue"><i class="bi bi-people-fill"></i> ${c.students}</span></td><td>${c.secs}</td>
-        <td class="small">${x ? x.rooms.map(r => `${esc(r.room)} (${r.n})`).join('، ') : '—'}</td><td class="small">${esc(c.ins.map(U.shortName).join('، '))}</td>
+        <td class="small">${x ? (x.ext ? 'القسم المختص' : x.rooms.map(r => `${esc(r.room)} (${r.n})`).join('، ')) : '—'}</td><td class="small">${esc(c.ins.map(U.shortName).join('، '))}</td>
         <td>${PROB.has(c.i) ? '<span class="bdg red"><i class="bi bi-exclamation-triangle-fill"></i> ملاحظة</span>' : '<span class="bdg green"><i class="bi bi-check2"></i> سليم</span>'}${c.pin != null ? ' <span class="bdg"><i class="bi bi-pin-angle-fill"></i> مثبّت</span>' : ''}</td>
         <td><select class="form-select form-select-sm" data-mv="${c.i}">${opts(c)}</select></td></tr>`; }).join('')}</tbody></table></div>`;
   }
@@ -1595,8 +1614,8 @@
         const code = String(r[jc] || '').trim(); if (!/^\d{5,8}$/.test(code)) return;
         const tt = String(jt >= 0 ? r[jt] : ''), nn = String(jn >= 0 ? r[jn] : ''), note = String(jx >= 0 ? r[jx] : '').trim();
         const q = req[code] = req[code] || {};
-        q.type = /مختبر|محوسب/.test(tt + ' ' + note) ? LAB : /قاع|ورق/.test(tt + ' ' + note) ? HALL : q.type || '';
-        const m = nn.match(/\d+/); q.rooms = m ? +m[0] : /مختبرين|قاعتين/.test(nn + tt) ? 2 : 0;
+        q.type = /مختبر|محوسب|\blab/i.test(tt + ' ' + note) ? LAB : /قاع|ورق|\broom|\bhall/i.test(tt + ' ' + note) ? HALL : q.type || '';
+        const m = nn.match(/\d+/); q.rooms = m ? +m[0] : /مختبرين|قاعتين|\btwo\b/i.test(nn + tt) ? 2 : /\bone\b/i.test(nn) ? 1 : 0;
         const pm = note.match(/(\d+)\s*مراقب|مراقب\S*\s*(\d+)|زملاء\D*(\d+)/); if (pm) q.proc = +(pm[1] || pm[2] || pm[3]);
         if (jo >= 0 && r[jo]) q.coord = String(r[jo]).trim(); q.note = note; n++;
       });
