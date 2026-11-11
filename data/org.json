@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-10T20:52:59Z",
+"updated": "2026-11-11T07:50:53Z",
 "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
 "revision": "Rev.E",
 "revision_date": "2023-12-20",
@@ -1233,8 +1233,8 @@
 "unit": {
 "id": "1",
 "name": "كلية تكنولوجيا المعلومات",
-"count": 51,
-"academic": 43
+"count": 50,
+"academic": 42
 },
 "people": [
 {
@@ -1320,7 +1320,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "أمن المعلومات",
-"count": 6,
+"count": 5,
 "people": []
 },
 {
@@ -1458,7 +1458,7 @@
 "job": "رئيس قسم إدارة الاعمال وقسم إدارة سلاسل التوريد والعلوم اللوجستية",
 "role": "رئيس قسم",
 "type": "academic",
-"ext": "9304",
+"ext": "9100",
 "email": "mousa.alsheyab@uop.edu.jo",
 "photo": "assets/photos/5eeab9e00a88b85a.jpg",
 "faculty": 3

@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-11T01:24:01Z",
-"checked": "2026-11-11T01:24:01Z",
+"updated": "2026-11-11T07:55:12Z",
+"checked": "2026-11-11T07:55:12Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -4682,7 +4682,7 @@
 "department": "العلوم الأساسية / الرياضيات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 26,
+"registered": 27,
 "capacity": 40,
 "meetings": [
 {
@@ -7275,7 +7275,7 @@
 "department": "هندسة العمارة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 5,
+"registered": 4,
 "capacity": 20,
 "meetings": [
 {
@@ -13650,7 +13650,7 @@
 "department": "العلوم المالية والمصرفية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 26,
+"registered": 25,
 "capacity": 40,
 "meetings": [
 {
@@ -38917,7 +38917,7 @@
 "department": "أمن المعلومات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 42,
+"registered": 41,
 "capacity": 40,
 "meetings": [
 {
