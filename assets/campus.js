@@ -284,7 +284,8 @@
     const pt = o => `${(o.x * C.width).toFixed(1)},${(o.y * C.height).toFixed(1)}`;
     const line = (pts, cls) => `<polyline class="cm-case" points="${pts}"/><polyline class="${cls}" points="${pts}"/>`;
     if (showRoute()) s += line(`${pt(route.from)} ${pt(route.to.b)}`, 'cm-route');
-    if (day && day.filter(x => x.b).length > 1) s += line(day.filter(x => x.b).map(x => pt(x.b)).join(' '), 'cm-dayline');
+    const dp = day ? day.filter(x => x.b).map(x => x.b) : [], st0 = tool === 'day' && DT.tab === 'day' && DT.from;
+    if (dp.length && (dp.length > 1 || st0)) s += line([...(st0 ? [DT.from] : []), ...dp].map(pt).join(' '), 'cm-dayline');
     OV.lines.forEach(l => { const pts = l.pts.map(pt).join(' '); s += l.nocase ? `<polyline class="${l.cls}" points="${pts}"/>` : line(pts, l.cls); });
     $('#cm-svg').innerHTML = s;
   }
@@ -530,11 +531,17 @@
   // ---------------------------------------------------------------- «يومي»: a student's day from «مخطط جدولي» (or course codes typed here)
   const PLAN = 'uopstaff-planner', MINE = 'uop-campus-mine';
   const store = { get: k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage unavailable */ } } };
+  // the student's sections: «مخطط جدولي» on this device + those added here, minus those removed here (?plan= from a link: as is)
+  const HIDE = 'uop-campus-hide';
   function myKeys() {
     if (P.get('plan')) return P.get('plan').split('~');
-    const pl = store.get(PLAN), mine = store.get(MINE) || [];
-    return [...new Set([...(pl ? Object.values(pl.pick || {}) : []), ...mine])];
+    const pl = store.get(PLAN), mine = store.get(MINE) || [], hide = new Set(store.get(HIDE) || []);
+    return [...new Set([...(pl ? Object.values(pl.pick || {}) : []), ...mine])].filter(k => !hide.has(k));
   }
+  const planKeys = () => new Set(P.get('plan') ? [] : Object.values((store.get(PLAN) || {}).pick || {}));
+  function addKey(k) { store.set(MINE, [...new Set([...(store.get(MINE) || []), k])]); store.set(HIDE, (store.get(HIDE) || []).filter(x => x !== k)); }
+  // removed here: taken off what was added here; one from «مخطط جدولي» is only hidden on this page (the planner keeps it)
+  function removeKey(k) { store.set(MINE, (store.get(MINE) || []).filter(x => x !== k)); if (planKeys().has(k)) store.set(HIDE, [...new Set([...(store.get(HIDE) || []), k])]); }
   // adding sections here: one box finds them by course name, code, instructor or room (or «الرمز-الشعبة»), with
   // options for what to search in and «only the chosen day»; each result has its days and times and a + button
   const find = { q: '', by: 'all', today: false };
@@ -559,59 +566,77 @@
   }
   const dayList = (secs, d) => secs.flatMap(s => s.meetings.filter(m => m.day === d && live(m)).map(m => ({ s, m, a: toMin(m.start), z: toMin(m.end), b: inRoom(m) ? byTT[s.building] : null, room: clean(s.room), online: !inRoom(m) })))
     .sort((x, y) => x.a - y.a);
+  const secsN = n => U.count(n, 'شعبة واحدة', 'شعبتان', 'شعب', 'شعبة');
+  // DT.d: the day shown (its own buttons, so all the week is one tap away); DT.from: where the day's path starts
+  const DT = { d: '', from: null, tab: '' };
   function dayTool(n) {
-    const BY = BYKEY(), keys = myKeys().filter(k => BY[k]), secs = keys.map(k => BY[k]), d = n.day, mine = new Set(store.get(MINE) || []);
-    const fromPlan = new Set(P.get('plan') ? [] : Object.values((store.get(PLAN) || {}).pick || {}));
+    const BY = BYKEY(), keys = myKeys().filter(k => BY[k]), secs = keys.map(k => BY[k]), mine = new Set(store.get(MINE) || []), fromPlan = planKeys(), link = !!P.get('plan');
+    const DAYS = Object.keys(U.DAYS).filter(k => k !== 'ج'), per = Object.fromEntries(DAYS.map(k => [k, dayList(secs, k).length]));
+    if (!DT.d || !DAYS.includes(DT.d)) { const order = [...DAYS.slice(DAYS.indexOf(n.day)), ...DAYS.slice(0, Math.max(0, DAYS.indexOf(n.day)))]; DT.d = order.find(k => per[k]) || n.day; }
+    if (!DT.from) DT.from = here || (C.gates || [])[0];
+    const d = DT.d;
     day = dayList(secs, d);
-    const steps = day.map((x, i) => {
+    const dayRow = (x, i) => {
       const prev = day[i - 1], gap = prev ? x.a - prev.z : 0;
       // walking between two buildings: is the break long enough?
       const wk = prev && prev.b && x.b && prev.b !== x.b ? walkMin(meters(prev.b, x.b)) : 0;
-      const walk = wk && gap >= 0 ? (gap < wk ? `<div class="cm-gap bad"><i class="bi bi-person-walking"></i> تحتاج نحو ${wk} د مشياً من مبنى ${esc(prev.b.id)} إلى مبنى ${esc(x.b.id)}، والفاصل ${gap ? gap + ' د' : 'صفر'}: قد تتأخر</div>`
-        : `<div class="cm-gap"><i class="bi bi-person-walking"></i> ${wk} د مشياً إلى مبنى ${esc(x.b.id)}</div>`) : '';
+      const walk = wk && gap >= 0 ? (gap < wk ? `<div class="cm-gap bad"><i class="bi bi-person-walking"></i> تحتاج نحو ${U.mins(wk)} مشياً من مبنى ${esc(prev.b.id)} إلى مبنى ${esc(x.b.id)}، والفاصل ${gap ? U.mins(gap) : 'صفر'}: قد تتأخر</div>`
+        : `<div class="cm-gap"><i class="bi bi-person-walking"></i> ${U.mins(wk)} مشياً إلى مبنى ${esc(x.b.id)}</div>`) : '';
       return `${prev && gap > 0 ? `<div class="cm-gap"><i class="bi bi-cup-hot"></i> فراغ ${U.mins(gap)}${gap >= 60 ? ' — يمكنك قضاؤه في المكتبة (22) أو الكافيتريا (11)' : ''}</div>` : ''}${prev && gap < 0 ? '<div class="cm-gap bad"><i class="bi bi-exclamation-triangle"></i> تعارض مع المحاضرة السابقة</div>' : ''}${walk}
-        <button type="button" class="cm-daystep ${x.a <= n.min && n.min < x.z ? 'now' : ''}" data-center="${esc(x.b ? x.b.id : '')}"><span class="cm-stepno">${i + 1}</span><span class="cm-t"><b>${esc(x.s.name)}</b><small>${esc(x.m.start)}–${esc(x.m.end)} · ${x.online ? 'إلكتروني' : `قاعة ${esc(x.room)}${x.b ? ' · ' + esc(x.b.name) : ''}`} · ${esc(U.shortName(x.s.instructor))}</small></span>${x.b ? `<span class="cm-no sm">${esc(x.b.id)}</span>` : ''}</button>`;
-    }).join('');
-    const chips = keys.map(k => { const s = BY[k]; return `<span class="cm-chip" title="${esc(s.name)} · ${esc(U.shortName(s.instructor))} · ${esc(when(s))}"><span>${esc(s.name)} <small>ش${esc(s.section)}</small></span>${mine.has(k) ? `<button type="button" data-rm="${esc(k)}" aria-label="احذف"><i class="bi bi-x"></i></button>` : fromPlan.has(k) ? '<i class="bi bi-calendar2-check" title="من «مخطط جدولي»"></i>' : ''}</span>`; }).join('');
-    const tabs = [['day', 'bi-signpost-2', 'محاضرات اليوم'], ['add', 'bi-plus-circle', 'أضف مقرراتي'], ['mine', 'bi-list-check', `شعبي <small>${keys.length}</small>`]];
-    if (!dayTool.tab) dayTool.tab = keys.length ? 'day' : 'add';
+        <div class="cm-dayrow"><button type="button" class="cm-daystep ${d === n.day && x.a <= n.min && n.min < x.z ? 'now' : ''}" data-center="${esc(x.b ? x.b.id : '')}"><span class="cm-stepno">${i + 1}</span><span class="cm-t"><b>${esc(x.s.name)}</b><small>${esc(x.m.start)}–${esc(x.m.end)} · ${x.online ? 'إلكتروني' : `قاعة ${esc(x.room)}${x.b ? ' · ' + esc(x.b.name) : ''}`} · ${esc(U.shortName(x.s.instructor))}</small></span>${x.b ? `<span class="cm-no sm">${esc(x.b.id)}</span>` : ''}</button>
+          ${link ? '' : `<button type="button" class="cm-x" data-rm="${esc(U.sectionKey(x.s))}" title="احذف هذا المقرر من يومي" aria-label="احذف"><i class="bi bi-x-lg"></i></button>`}</div>`;
+    };
+    const other = secs.filter(s => !day.some(x => x.s === s));
+    const tabs = [['day', 'bi-signpost-2', 'محاضراتي'], ['add', 'bi-plus-circle', 'أضف مقرراتي'], ['mine', 'bi-list-check', `شعبي <small>${keys.length}</small>`]];
+    if (!DT.tab) DT.tab = keys.length ? 'day' : 'add';
     let body;
-    if (dayTool.tab === 'add') {
-      body = `<p class="cm-note">ابحث باسم المقرر أو رمزه أو اسم المدرس أو رقم القاعة، ثم اضغط <b>+</b> بجانب شعبتك.</p>
+    if (DT.tab === 'add') {
+      body = `<p class="cm-note">ابحث باسم المقرر أو رمزه أو اسم المدرس أو رقم القاعة، ثم اضغط <b>+</b> بجانب شعبتك. اضغط <b>✓</b> لإزالتها.</p>
         <div class="cm-search sm"><i class="bi bi-search"></i><input id="cm-add" type="search" placeholder="مثل: برمجة، 1001211، أحمد، 7419" value="${esc(find.q)}" aria-label="ابحث عن مقرر"></div>
         <div class="cm-by" role="group" aria-label="ابحث في">${[['all', 'الكل'], ['name', 'اسم المقرر'], ['code', 'الرمز'], ['ins', 'المدرس'], ['room', 'القاعة']].map(([k, t]) => `<button type="button" data-by="${k}" class="${find.by === k ? 'on' : ''}">${t}</button>`).join('')}</div>
         <label class="cm-chk"><input type="checkbox" id="cm-today" ${find.today ? 'checked' : ''}> فقط ما له محاضرة يوم ${esc(U.DAYS[d] || '')}</label>
         <div id="cm-found"></div>`;
-    } else if (dayTool.tab === 'mine') {
-      body = keys.length ? `<p class="cm-note">${P.get('plan') ? 'الشعب من الرابط.' : 'ما أضفته هنا (يُحذف بـ ×) وما اخترته في «مخطط جدولي» (<i class="bi bi-calendar2-check"></i>).'}</p><div class="cm-chips">${chips}</div>
+    } else if (DT.tab === 'mine') {
+      const hidden = (store.get(HIDE) || []).filter(k => BY[k] && fromPlan.has(k)).length;
+      body = keys.length ? `<p class="cm-note">${link ? 'الشعب من الرابط.' : 'ما أضفته هنا وما اخترته في «مخطط جدولي». «حذف» يزيلها من يومي هنا فقط.'}</p>
+        <div class="cm-found">${secs.map(s => { const k = U.sectionKey(s), b = byTT[s.building];
+          return `<div class="cm-sec"><span class="cm-t"><b>${esc(s.name)} <small>ش${esc(s.section)}</small></b><small>${esc(s.code)} · ${esc(U.shortName(s.instructor) || '—')} · ${link ? 'من الرابط' : mine.has(k) ? 'أضفته هنا' : 'من «مخطط جدولي»'}</small><small><i class="bi bi-clock"></i> ${esc(when(s))}</small></span>
+            ${b ? `<span class="cm-no sm">${esc(b.id)}</span>` : ''}${link ? '' : `<button type="button" class="cm-del" data-rm="${esc(k)}"><i class="bi bi-trash3"></i> حذف</button>`}</div>`; }).join('')}</div>
         <div class="cm-links"><a class="btn btn-sm btn-outline-secondary" href="planner.html"><i class="bi bi-pencil"></i> مخطط جدولي</a>
           <button type="button" class="btn btn-sm btn-outline-secondary" data-copy="${esc(SITE + 'campus.html?tool=day&plan=' + encodeURIComponent(keys.join('~')))}"><i class="bi bi-link-45deg"></i> رابط يومي</button>
-          ${mine.size ? '<button type="button" class="btn btn-sm btn-outline-danger" id="cm-clear">امسح ما أضفته هنا</button>' : ''}</div>`
-        : empty('لم تختر شعباً بعد. اذهب إلى «أضف مقرراتي».');
+          ${!link ? '<button type="button" class="btn btn-sm btn-outline-danger" id="cm-clear"><i class="bi bi-trash3"></i> احذف الكل</button>' : ''}
+          ${hidden ? `<button type="button" class="btn btn-sm btn-outline-secondary" id="cm-unhide">أعد ${secsN(hidden)} من «مخطط جدولي»</button>` : ''}</div>`
+        : `${empty('لم تختر شعباً بعد. اذهب إلى «أضف مقرراتي».')}${hidden ? `<div class="cm-links"><button type="button" class="btn btn-sm btn-outline-secondary" id="cm-unhide">أعد ${secsN(hidden)} من «مخطط جدولي»</button></div>` : ''}`;
     } else {
       body = !keys.length ? `<p class="cm-note">لا جدول محفوظاً على هذا الجهاز. أضف مقرراتك من «أضف مقرراتي» (بالاسم أو الرمز أو المدرس)، أو اخترها في <a href="planner.html">«مخطط جدولي»</a> وتظهر هنا تلقائياً.</p>`
-        : `<p class="cm-note">الأرقام على الخريطة ترتيب محاضراتك يوم ${esc(U.DAYS[d] || '')}. لتغيير اليوم استعمل شريط الوقت.</p>${day.length ? steps : empty('لا محاضرات لك في هذا اليوم.')}`;
+        : `<div class="cm-days" role="group" aria-label="اليوم">${DAYS.map(k => `<button type="button" data-dd="${k}" class="${k === d ? 'on' : ''} ${per[k] ? '' : 'none'}">${esc(U.DAYS[k] || k)}${per[k] ? ` <small>${per[k]}</small>` : ''}${k === n.day ? '<i title="اليوم"></i>' : ''}</button>`).join('')}</div>
+          ${fromSel('cm-dfrom', DT.from, 'أبدأ يومي من')}
+          ${day.length ? `<p class="cm-note mt-2">الخط على الخريطة طريقك يوم ${esc(U.DAYS[d] || '')}: من نقطة البداية إلى محاضراتك بالترتيب.</p>${day.map(dayRow).join('')}` : empty(`لا محاضرات لك يوم ${esc(U.DAYS[d] || '')}.`)}
+          ${other.length ? `<div class="cm-other"><b><i class="bi bi-calendar3"></i> ${other.length === secs.length ? 'كل شعبك في أيام أخرى' : 'شعب ليس لها محاضرة هذا اليوم'}</b>${other.map(s => `<span>${esc(s.name)} <small>· ${esc([...new Set(s.meetings.filter(live).map(m => U.DAYS[m.day] || m.day))].join('، ') || 'بلا موعد')}</small></span>`).join('')}</div>` : ''}`;
     }
-    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'يومي على الخريطة', `${esc(U.DAYS[d] || '')} · ${keys.length} شعبة`)}
-      <div class="cm-tabs" role="tablist">${tabs.map(([k, i, t]) => `<button type="button" role="tab" data-dt="${k}" class="${k === dayTool.tab ? 'on' : ''}"><i class="bi ${i}"></i> ${t}</button>`).join('')}</div>
+    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'يومي على الخريطة', `${esc(U.DAYS[d] || '')} · ${secsN(keys.length)}`)}
+      <div class="cm-tabs" role="tablist">${tabs.map(([k, i, t]) => `<button type="button" role="tab" data-dt="${k}" class="${k === DT.tab ? 'on' : ''}"><i class="bi ${i}"></i> ${t}</button>`).join('')}</div>
       <div class="cm-body">${body}</div></div>`;
-    bind(() => { day = null; dayTool.tab = ''; setTool(''); });
+    bind(() => { day = null; DT.tab = ''; setTool(''); });
     const c = $('#cm-card');
-    c.querySelectorAll('[data-dt]').forEach(x => x.onclick = () => { dayTool.tab = x.dataset.dt; dayTool(now()); });
-    c.querySelectorAll('[data-rm]').forEach(x => x.onclick = () => { store.set(MINE, [...mine].filter(k => k !== x.dataset.rm)); draw(); });
-    if ($('#cm-clear')) $('#cm-clear').onclick = () => { store.set(MINE, []); draw(); };
-    if (dayTool.tab === 'add') {
+    c.querySelectorAll('[data-dt]').forEach(x => x.onclick = () => { DT.tab = x.dataset.dt; dayTool(now()); });
+    c.querySelectorAll('[data-dd]').forEach(x => x.onclick = () => { DT.d = x.dataset.dd; dayTool(now()); const f = day.find(y => y.b); if (f) center(f.b); });
+    c.querySelectorAll('[data-rm]').forEach(x => x.onclick = () => { removeKey(x.dataset.rm); dayTool(now()); });
+    if ($('#cm-dfrom')) $('#cm-dfrom').onchange = e => { DT.from = fromGet(e.target.value); dayTool(now()); };
+    if ($('#cm-clear')) $('#cm-clear').onclick = e => { if (!e.currentTarget.dataset.sure) { e.currentTarget.dataset.sure = 1; e.currentTarget.innerHTML = 'تأكيد الحذف؟'; return; } keys.forEach(removeKey); dayTool(now()); };
+    if ($('#cm-unhide')) $('#cm-unhide').onclick = () => { store.set(HIDE, []); dayTool(now()); };
+    if (DT.tab === 'add') {
       const list = () => {
-        const r = findSections(d), have = new Set(keys);
+        const r = findSections(d), have = new Set(myKeys());
         $('#cm-found').innerHTML = r == null ? '' : !r.length ? '<div class="cm-none">لا شعب مطابقة. جرّب كلمة أخرى أو «الكل».</div>'
-          : `<div class="cm-res-h"><span>${r.length} شعبة${r.length > 40 ? ' — أول 40؛ زد كلمات البحث' : ''}</span></div><div class="cm-found">${r.slice(0, 40).map(s => { const k = U.sectionKey(s), b = byTT[s.building];
-            return `<div class="cm-sec ${have.has(k) ? 'in' : ''}"><span class="cm-t"><b>${esc(s.name)} <small>ش${esc(s.section)}</small></b><small>${esc(s.code)} · ${esc(U.shortName(s.instructor) || '—')}</small><small><i class="bi bi-clock"></i> ${esc(when(s))}${clean(s.room) && clean(s.room) !== '0' ? ` · <i class="bi bi-door-open"></i> ${esc(clean(s.room))}` : ''}</small></span>
-              ${b ? `<span class="cm-no sm">${esc(b.id)}</span>` : ''}${have.has(k) ? '<span class="cm-added"><i class="bi bi-check-lg"></i></span>' : `<button type="button" class="cm-plus" data-add="${esc(k)}" aria-label="أضف"><i class="bi bi-plus-lg"></i></button>`}</div>`; }).join('')}</div>`;
-        $('#cm-found').querySelectorAll('[data-add]').forEach(x => x.onclick = () => {
-          store.set(MINE, [...new Set([...(store.get(MINE) || []), x.dataset.add])]);
-          x.outerHTML = '<span class="cm-added"><i class="bi bi-check-lg"></i></span>'; keys.push(x.dataset.add);
-          c.querySelector('[data-dt="mine"] small').textContent = keys.length; c.querySelector('.cm-h small').textContent = `${U.DAYS[d] || ''} · ${keys.length} شعبة`;
-          day = dayList(keys.map(k => BY[k]), d); pins();
+          : `<div class="cm-res-h"><span>${secsN(r.length)}${r.length > 40 ? ' — أول 40؛ زد كلمات البحث' : ''}</span></div><div class="cm-found">${r.slice(0, 40).map(s => { const k = U.sectionKey(s), b = byTT[s.building], on = have.has(k);
+            return `<div class="cm-sec ${on ? 'in' : ''}"><span class="cm-t"><b>${esc(s.name)} <small>ش${esc(s.section)}</small></b><small>${esc(s.code)} · ${esc(U.shortName(s.instructor) || '—')}</small><small><i class="bi bi-clock"></i> ${esc(when(s))}${clean(s.room) && clean(s.room) !== '0' ? ` · <i class="bi bi-door-open"></i> ${esc(clean(s.room))}` : ''}</small></span>
+              ${b ? `<span class="cm-no sm">${esc(b.id)}</span>` : ''}<button type="button" class="${on ? 'cm-added' : 'cm-plus'}" data-tg="${esc(k)}" title="${on ? 'مضافة — اضغط للإزالة' : 'أضف'}" aria-label="${on ? 'أزل' : 'أضف'}"><i class="bi bi-${on ? 'check-lg' : 'plus-lg'}"></i></button></div>`; }).join('')}</div>`;
+        $('#cm-found').querySelectorAll('[data-tg]').forEach(x => x.onclick = () => {
+          const k = x.dataset.tg; if (myKeys().includes(k)) removeKey(k); else addKey(k);
+          const ks = myKeys().filter(y => BY[y]); DT.d = ''; list();
+          c.querySelector('[data-dt="mine"] small').textContent = ks.length; c.querySelector('.cm-h small').textContent = `${U.DAYS[d] || ''} · ${secsN(ks.length)}`;
+          day = dayList(ks.map(y => BY[y]), d); pins();
         });
       };
       const inp = $('#cm-add');
@@ -620,6 +645,7 @@
       $('#cm-today').onchange = e => { find.today = e.target.checked; list(); };
       list();
     }
+    OV = { lines: [], marks: DT.tab === 'day' && day.some(x => x.b) && DT.from !== here ? `<span class="cm-rt-a" style="left:${DT.from.x * 100}%;top:${DT.from.y * 100}%" title="البداية"><i></i></span>` : '' };
     pins();
   }
 
@@ -1435,6 +1461,15 @@
     .cm-sec { min-width: 0; } .cm-sec .cm-t b, .cm-sec .cm-t small { white-space: normal; overflow-wrap: anywhere; }
     .cm-plus, .cm-added { flex: none; width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center; border: 0; }
     .cm-plus { background: #901d23; color: #fff; font-size: 1rem; } .cm-added { background: #16a34a; color: #fff; }
+    .cm-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); gap: .25rem; margin-bottom: .2rem; }
+    .cm-days button { position: relative; border: 1px solid var(--bs-border-color); background: var(--bs-body-bg); color: var(--bs-body-color); border-radius: 10px; padding: .3rem .1rem; font-size: .78rem; font-weight: 700; }
+    .cm-days button small { background: #901d23; color: #fff; border-radius: 999px; padding: 0 .35rem; font-size: .66rem; } .cm-days button.on { background: #901d23; color: #fff; border-color: #901d23; } .cm-days button.on small { background: #fff; color: #901d23; }
+    .cm-days button.none { color: var(--bs-secondary-color); opacity: .7; } .cm-days button i { position: absolute; top: 3px; inset-inline-start: 4px; width: 6px; height: 6px; border-radius: 50%; background: #16a34a; }
+    .cm-dayrow { display: flex; gap: .3rem; align-items: stretch; margin-top: .3rem; } .cm-dayrow .cm-daystep { margin-top: 0; flex: 1; min-width: 0; }
+    .cm-x { flex: none; width: 2rem; border: 1px solid var(--bs-border-color); background: var(--bs-body-bg); color: #b91c1c; border-radius: 10px; } .cm-x:hover { background: #fef2f2; border-color: #fca5a5; }
+    .cm-del { flex: none; border: 1px solid #fecaca; background: #fff; color: #b91c1c; border-radius: 999px; padding: .15rem .55rem; font-size: .76rem; font-weight: 700; } .cm-del:hover { background: #fef2f2; }
+    button.cm-added { border: 0; cursor: pointer; } button.cm-added:hover { background: #b91c1c; }
+    .cm-other { margin-top: .6rem; background: var(--bs-tertiary-bg); border-radius: 10px; padding: .45rem .6rem; font-size: .8rem; display: grid; gap: .15rem; } .cm-other b { font-size: .82rem; } .cm-other small { color: var(--bs-secondary-color); }
     .cm-chips { display: flex; flex-wrap: wrap; gap: .3rem; }
     .cm-chip { display: inline-flex; align-items: center; gap: .3rem; background: var(--bs-tertiary-bg); border-radius: 999px; padding: .15rem .3rem .15rem .6rem; font-size: .78rem; max-width: 100%; }
     .cm-chip > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .cm-chip small { color: #901d23; font-weight: 700; } .cm-chip > i { color: #16a34a; padding: 0 .2rem; }
