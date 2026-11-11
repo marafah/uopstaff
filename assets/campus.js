@@ -139,7 +139,7 @@
           <button type="button" id="cm-layers-b" title="الطبقات: ما يظهر على الخريطة"><i class="bi bi-layers"></i></button>
           <button type="button" id="cm-sos" class="sos" title="الطوارئ ونقاط التجمع"><i class="bi bi-exclamation-octagon-fill"></i></button>
           <button type="button" id="cm-tour" title="جولة تلقائية على المباني (لشاشات العرض)"><i class="bi bi-play-circle"></i></button>
-          <button type="button" id="cm-panel" class="cm-fs-only" title="إظهار اللوحة أو إخفاؤها"><i class="bi bi-layout-sidebar-inset-reverse"></i></button></div>
+          <button type="button" id="cm-panel" class="cm-fs-only" title="إخفاء القائمة"><i class="bi bi-layout-sidebar-inset-reverse"></i></button></div>
         <div class="cm-layers" id="cm-layers" hidden><b>ما يظهر على الخريطة</b>${[['nums', 'bi-123', 'أرقام المباني'], ['names', 'bi-fonts', 'أسماء المباني'], ['heat', 'bi-thermometer-half', 'ألوان الانشغال'], ['count', 'bi-broadcast', 'عدد المحاضرات الجارية'], ['faces', 'bi-people', 'وجوه القيادات على المباني'],
           ['oh', 'bi-person-raised-hand', 'في الساعات المكتبية الآن'], ['exams', 'bi-clipboard-check', 'الامتحانات'], ['events', 'bi-calendar-event', 'الفعاليات'],
           ['gardens', 'bi-tree', 'الحدائق'], ['services', 'bi-signpost-2', 'الخدمات والمواقف'], ['gates', 'bi-door-closed', 'البوابات'], ['safety', 'bi-people-fill', 'نقاط التجمع (مقترحة)']].map(([k, i, t]) =>
@@ -173,7 +173,9 @@
     $('#cm-fs').onclick = fullscreen;
     $('#cm-sos').onclick = () => setTool('emergency');
     $('#cm-tour').onclick = () => tour ? stopTour() : startTour();
-    $('#cm-panel').onclick = () => { app.querySelector('.cm').classList.toggle('cm-nopanel'); setTimeout(apply, 50); };
+    // the panel (on the right): hide it for a bigger map, show it again; remembered on this device
+    $('#cm-panel').onclick = () => panel(app.querySelector('.cm').classList.contains('cm-nopanel'), true);
+    try { if (localStorage.getItem('uop-campus-panel') === 'off') panel(false); } catch (e) { /* storage unavailable */ }
     document.addEventListener('fullscreenchange', () => { app.querySelector('.cm').classList.toggle('cm-full', !!document.fullscreenElement); fsIcon(); setTimeout(apply, 50); });
     document.addEventListener('keydown', e => {
       if (e.key !== 'Escape' || e.target.matches('input, select, textarea')) return;
@@ -181,7 +183,17 @@
     });
     panzoom();
   }
+  function panel(show, keep) {
+    const el = app.querySelector('.cm'); el.classList.toggle('cm-nopanel', !show);
+    $('#cm-panel').title = show ? 'إخفاء القائمة' : 'إظهار القائمة'; $('#cm-panel').classList.toggle('on', !show);
+    $('#cm-panel').innerHTML = `<i class="bi bi-layout-sidebar-inset${show ? '-reverse' : ''}"></i>`;
+    if (keep) try { localStorage.setItem('uop-campus-panel', show ? 'on' : 'off'); } catch (e) { /* storage unavailable */ }
+    setTimeout(apply, 60);
+  }
+  // a building or a person chosen on the map while the panel is hidden: show it, so its card can be read
+  const needPanel = () => { if (app.querySelector('.cm.cm-nopanel')) panel(true); };
   function setTool(t) {
+    if (t) needPanel();
     tool = t; url('tool', t);
     if (t) { sel = ''; who = ''; url('b', ''); url('p', ''); }
     if (t !== 'route' && !(route && route.keep)) route = null;
@@ -305,6 +317,7 @@
 
   // ---------------------------------------------------------------- the panel
   function open(id, focus) {
+    if (id && !tour) needPanel();
     sel = id; unitF = ''; tab = '';
     if (id) { who = ''; url('p', ''); if (tool) { tool = ''; url('tool', ''); route = null; day = null; } }
     url('b', id);
@@ -313,6 +326,7 @@
     if (innerWidth < 992 && id && !app.querySelector('.cm.cm-full')) $('#cm-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   function openPerson(id, focus) {
+    if (id) needPanel();
     who = id; if (id && tool) { tool = ''; url('tool', ''); route = null; day = null; }
     url('p', id);
     draw();
@@ -1141,6 +1155,7 @@
     (C.gardens || []).forEach(g => { if (has(g.name)) hit.push({ g, ic: 'bi-tree', t: g.name, s: 'حديقة' }); });
     (C.services || []).forEach(s => { if (has(s.name)) hit.push({ sv: s, ic: s.icon, t: s.name, s: s.kind === 'parking' ? 'موقف' : 'خدمة' }); });
     search.hits = hit.slice(0, 80);
+    needPanel();
     $('#cm-res').innerHTML = hit.length ? `<div class="cm-res"><div class="cm-res-h"><span>${hit.length} نتيجة</span><button type="button" class="btn-close" id="cm-res-x" aria-label="إغلاق النتائج"></button></div>${hit.slice(0, 40).map((h, i) => `<button type="button" data-i="${i}">${h.p ? face(h.p) : `<i class="bi ${h.ic}"></i>`}<span><b>${esc(h.t)}</b><small>${esc(h.s)}</small></span>${h.b ? `<span class="cm-no sm">${esc(h.b.id)}</span>` : ''}</button>`).join('')}
       ${more(hit.length - 40, 'نتيجة أخرى؛ زد كلمات البحث')}</div>` : '<div class="cm-none">لا نتائج</div>';
     if ($('#cm-res-x')) $('#cm-res-x').onclick = () => { q = ''; $('#cm-q').value = ''; search(); };
@@ -1253,7 +1268,9 @@
 
   // ---------------------------------------------------------------- style and start
   document.head.insertAdjacentHTML('beforeend', `<style>
-    .cm { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 410px); gap: 1rem; align-items: start; }
+    .cm { display: grid; grid-template-columns: minmax(0, 410px) minmax(0, 1fr); gap: 1rem; align-items: start; }
+    /* wide screens: the panel on the right (first in Arabic order), the map beside it; «إخفاء القائمة» gives the map the whole width */
+    @media (min-width: 992px) { .cm-side { order: -1; } .cm .cm-fs-only { display: block; } .cm.cm-nopanel { grid-template-columns: minmax(0, 1fr); } }
     @media (max-width: 991.98px) { .cm { grid-template-columns: minmax(0, 1fr); } }
     .cm-map { position: relative; aspect-ratio: 1848 / 1080; max-height: 80vh; width: 100%; min-height: 300px; border-radius: 16px; overflow: hidden; background: #f3f6f4; touch-action: none; cursor: grab; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); direction: ltr; }
     .cm-map:active { cursor: grabbing; }
