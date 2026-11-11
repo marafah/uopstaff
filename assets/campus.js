@@ -21,8 +21,11 @@
   let here = null;           // {x, y, label} from ?here=
   let route = null;          // {from, to: {b, room, label}} drawn on the map
   let day = null;            // «يومي»: the chosen day's lectures in order
-  const L = { heat: true, faces: P.has('faces'), oh: false, events: true, exams: true, gardens: false, services: false, gates: true };
+  const L = { heat: true, nums: true, names: P.has('names'), count: !P.has('nocount'), size: 1, faces: P.has('faces'), oh: false, events: true, exams: true, gardens: false, services: false, gates: true };
   const view = { s: 1, x: 0, y: 0 };
+  const L0 = Object.assign({}, L), LKEY = 'uop-campus-layers';
+  try { const kept = JSON.parse(localStorage.getItem(LKEY) || 'null'); if (kept && !P.has('names') && !P.has('nocount') && !P.has('faces')) Object.keys(L).forEach(k => { if (k in kept) L[k] = kept[k]; }); } catch (e) { /* storage unavailable */ }
+  const saveL = () => { try { localStorage.setItem(LKEY, JSON.stringify(L)); } catch (e) { /* storage unavailable */ } };
   const clean = r => String(r || '').replace(/[ً-ْ​-‏]/g, '').trim();
   const inRoom = m => live(m) && m.mode !== 'الكتروني كامل';
   const KIND = { faculty: ['كلية', '#9e1f27'], admin: ['إدارة وخدمات', '#0b4a66'], service: ['مرافق', '#6d28d9'], center: ['مركز', '#0f766e'], parking: ['موقف', '#475569'] };
@@ -128,21 +131,23 @@
   // ---------------------------------------------------------------- the page
   function shell() {
     app.innerHTML = `<div class="cm">
-      <div class="cm-map" id="cm-map"><div class="cm-stage" id="cm-stage"><img src="${esc(C.image)}" alt="مخطط حرم جامعة البترا" draggable="false" id="cm-img">
-          <svg id="cm-svg" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg><div id="cm-pins"></div></div>
+      <div class="cm-mapwrap"><div class="cm-map" id="cm-map"><div class="cm-stage" id="cm-stage"><img src="${esc(C.image)}" alt="مخطط حرم جامعة البترا" draggable="false" id="cm-img"><div id="cm-tiles"></div>
+          <svg id="cm-svg" viewBox="0 0 ${C.width} ${C.height}" preserveAspectRatio="none"></svg><div id="cm-pins"></div></div>
         <div class="cm-tools"><button type="button" data-z="1.4" title="تكبير"><i class="bi bi-plus-lg"></i></button><button type="button" data-z="0.7" title="تصغير"><i class="bi bi-dash-lg"></i></button>
           <button type="button" data-z="0" title="الخريطة كاملة"><i class="bi bi-aspect-ratio"></i></button>
           <button type="button" id="cm-fs" title="ملء الشاشة"><i class="bi bi-fullscreen"></i></button>
           <button type="button" id="cm-layers-b" title="الطبقات: ما يظهر على الخريطة"><i class="bi bi-layers"></i></button>
           <button type="button" id="cm-tour" title="جولة تلقائية على المباني (لشاشات العرض)"><i class="bi bi-play-circle"></i></button>
           <button type="button" id="cm-panel" class="cm-fs-only" title="إظهار اللوحة أو إخفاؤها"><i class="bi bi-layout-sidebar-inset-reverse"></i></button></div>
-        <div class="cm-layers" id="cm-layers" hidden><b>ما يظهر على الخريطة</b>${[['heat', 'bi-thermometer-half', 'ألوان الانشغال'], ['faces', 'bi-people', 'وجوه القيادات على المباني'],
+        <div class="cm-layers" id="cm-layers" hidden><b>ما يظهر على الخريطة</b>${[['nums', 'bi-123', 'أرقام المباني'], ['names', 'bi-fonts', 'أسماء المباني'], ['heat', 'bi-thermometer-half', 'ألوان الانشغال'], ['count', 'bi-broadcast', 'عدد المحاضرات الجارية'], ['faces', 'bi-people', 'وجوه القيادات على المباني'],
           ['oh', 'bi-person-raised-hand', 'في الساعات المكتبية الآن'], ['exams', 'bi-clipboard-check', 'الامتحانات'], ['events', 'bi-calendar-event', 'الفعاليات'],
           ['gardens', 'bi-tree', 'الحدائق'], ['services', 'bi-signpost-2', 'الخدمات والمواقف'], ['gates', 'bi-door-closed', 'البوابات']].map(([k, i, t]) =>
-          `<label><input type="checkbox" data-l="${k}" ${L[k] ? 'checked' : ''}> <i class="bi ${i}"></i> ${t}</label>`).join('')}</div>
+          `<label><input type="checkbox" data-l="${k}" ${L[k] ? 'checked' : ''}> <i class="bi ${i}"></i> ${t}</label>`).join('')}
+          <label class="cm-size"><i class="bi bi-type"></i> الحجم <input type="range" id="cm-size" min="0.7" max="1.6" step="0.1" value="${L.size}" aria-label="حجم الأرقام والأسماء"></label>
+          <button type="button" class="cm-reset" id="cm-reset">الإعدادات الأصلية</button></div>
+        <div class="cm-key" id="cm-key"></div></div>
         <div class="cm-time"><select id="cm-day" class="form-select form-select-sm" aria-label="اليوم"></select><input type="range" id="cm-min" min="420" max="1260" step="15" aria-label="الوقت"><b id="cm-clock"></b>
           <button type="button" class="btn btn-sm btn-light" id="cm-now"><i class="bi bi-clock"></i> الآن</button></div>
-        <div class="cm-key" id="cm-key"></div>
       </div>
       <aside class="cm-side"><div class="cm-search"><i class="bi bi-search"></i><input id="cm-q" type="search" placeholder="ابحث: مدرس، موظف، قاعة، مقرر، وحدة، مبنى…" value="${esc(q)}"></div>
         <nav class="cm-modes" role="tablist">${[['', 'bi-buildings', 'المباني'], ['route', 'bi-signpost-split', 'طريقي'], ['day', 'bi-calendar-week', 'يومي'], ['week', 'bi-grid-3x3-gap', 'الإشغال'], ['qr', 'bi-qr-code', 'ملصقات QR']]
@@ -156,7 +161,9 @@
     $('#cm-day').onchange = setAt; $('#cm-min').oninput = setAt;
     $('#cm-now').onclick = () => { at = null; const m = U.amman(P.get('at')); $('#cm-day').value = m.day; $('#cm-min').value = Math.min(1260, Math.max(420, m.min)); draw(); };
     $('#cm-layers-b').onclick = e => { e.stopPropagation(); $('#cm-layers').hidden = !$('#cm-layers').hidden; };
-    $('#cm-layers').onchange = e => { const k = e.target.dataset.l; if (k) { L[k] = e.target.checked; draw(); } };
+    $('#cm-layers').onchange = e => { const k = e.target.dataset.l; if (k) { L[k] = e.target.checked; saveL(); draw(); } };
+    $('#cm-size').oninput = e => { L.size = +e.target.value; saveL(); apply(); };
+    $('#cm-reset').onclick = () => { Object.assign(L, L0); syncLayers(); $('#cm-size').value = L.size; saveL(); draw(); apply(); };
     $('#cm-layers').addEventListener('pointerdown', e => e.stopPropagation());
     document.addEventListener('click', e => { if (!e.target.closest('#cm-layers, #cm-layers-b')) $('#cm-layers').hidden = true; });
     $('#cm-q').oninput = e => { q = e.target.value; search(); };
@@ -188,6 +195,7 @@
   function legend() {
     const items = [];
     if (L.heat) items.push(['#16a34a', 'هادئ'], ['#f59e0b', 'متوسط'], ['#dc2626', 'مزدحم'], ['#64748b', 'بلا قاعات تدريس']);
+    if (L.count) items.push(['#111827', 'محاضرات جارية', 'cnt']);
     if (L.oh) items.push(['#16a34a', 'ساعة مكتبية الآن', 'ring']);
     if (L.exams && EX) items.push(['#1d4ed8', 'امتحانات', 'sq']);
     if (L.gardens) items.push(['#f08a24', 'حديقة', 'dia']);
@@ -201,31 +209,70 @@
     let h = C.buildings.map(b => {
       const st = status(b, n), c = color(st, b), ex = L.exams ? examsAt(b, n) : [], exNow = ex.filter(e => toMin(e.from) <= n.min && n.min < toMin(e.to)).length;
       const ohHere = oh.filter(x => x.b === b);
-      return `<button type="button" class="cm-pin ${b.id === sel ? 'on' : ''} ${hits.has(b.id) ? 'hit' : ''}" data-b="${esc(b.id)}" style="${pos(b)};--c:${c}" title="${esc(b.name)}">
-        <b>${esc(b.id)}</b>${st.run.length ? `<small title="محاضرات جارية">${st.run.length}</small>` : ''}
+      return `<button type="button" class="cm-pin ${L.nums ? '' : 'nonum'} ${b.id === sel ? 'on' : ''} ${hits.has(b.id) ? 'hit' : ''}" data-b="${esc(b.id)}" style="${pos(b)};--c:${c}" title="${esc(b.name)}">
+        <b>${esc(b.id)}</b>${L.count && st.run.length ? `<small class="cm-cnt" title="${st.run.length} محاضرة جارية الآن">${st.run.length}</small>` : ''}
         ${ex.length ? `<em class="cm-exb" title="امتحانات اليوم${exNow ? ' (' + exNow + ' الآن)' : ''}"><i class="bi bi-clipboard-check"></i>${ex.length}</em>` : ''}
         ${L.faces && !ohHere.length ? stack(b) : ''}${ohHere.length ? `<span class="cm-stack oh">${ohHere.slice(0, 3).map(x => face(x.m)).join('')}${ohHere.length > 3 ? `<i>+${ohHere.length - 3}</i>` : ''}</span>` : ''}</button>`;
     }).join('');
+    if (L.names) h += C.buildings.map(b => `<span class="cm-name" data-nb="${esc(b.id)}" style="${pos(b)}">${esc(b.short || b.name)}</span>`).join('');
     if (L.gates) h += (C.gates || []).map(g => `<span class="cm-gate" style="${pos(g)}" title="${esc(g.name)}">${esc(g.id)}</span>`).join('');
     if (L.gardens) h += (C.gardens || []).map(g => `<button type="button" class="cm-gdn" data-g="${esc(g.id)}" style="${pos(g)}" title="${esc(g.name)}"><b><span>${esc(g.id)}</span></b><em>${esc(g.name)}</em></button>`).join('');
     if (L.services) h += (C.services || []).map(s => `<span class="cm-svc ${s.kind}" style="${pos(s)}" title="${esc(s.name)}"><i class="bi ${esc(s.icon)}"></i><span>${esc(s.name)}</span></span>`).join('');
     h += ev.map(({ p, b }) => `<span class="cm-ev" style="left:${b.x * 100}%;top:${b.y * 100}%" title="${esc(p.title)} — ${esc(p.place)}"><i class="bi bi-calendar-event"></i> ${esc(evWhen(p, n))}</span>`).join('');
     if (here) h += `<span class="cm-here" style="${pos(here)}"><i></i><b>أنت هنا</b></span>`;
-    h += bubbles(n);
+    h += bubbles(n) + routeMarks();
     if (day && day.length) { const seen = {}; h += day.map((x, i) => { if (!x.b) return ''; const k = seen[x.b.id] = (seen[x.b.id] || 0) + 1; return `<span class="cm-step" style="left:${x.b.x * 100}%;top:${x.b.y * 100}%;--i:${k - 1}">${i + 1}</span>`; }).join(''); }
     $('#cm-pins').innerHTML = h;
     $('#cm-pins').querySelectorAll('.cm-pin').forEach(p => p.onclick = e => { e.stopPropagation(); if (tool === 'route') { pickTo({ b: B(p.dataset.b) }); return; } open(p.dataset.b); });
     $('#cm-pins').querySelectorAll('.cm-gdn').forEach(p => p.onclick = e => { e.stopPropagation(); garden(p.dataset.g); });
-    lines(); legend();
+    lines(); legend(); names();
+  }
+  // building names that never overlap: each name tries below, above, beside its pin, and is left out (until zoomed in)
+  // when every place is taken by another name or pin; the selected building and teaching buildings go first
+  function names() {
+    const els = [...$('#cm-pins').querySelectorAll('.cm-name')];
+    if (!els.length) return;
+    const m = $('#cm-map'), mr = m.getBoundingClientRect(), taken = [];
+    const hit = (a, b) => a.l < b.r && b.l < a.r && a.t < b.b && b.t < a.b;
+    const pinR = {};
+    $('#cm-pins').querySelectorAll('.cm-pin').forEach(p => { const r = p.getBoundingClientRect(); pinR[p.dataset.b] = r; taken.push({ l: r.left - 2, r: r.right + 2, t: r.top - 2, b: r.bottom + 2 }); });
+    app.querySelectorAll('.cm-tools, .cm-key:not([hidden])').forEach(x => { const r = x.getBoundingClientRect(); if (r.width) taken.push({ l: r.left - 4, r: r.right + 4, t: r.top - 4, b: r.bottom + 4 }); });
+    const rank = el => { const b = B(el.dataset.nb); return (b.id === sel ? -100 : 0) + ((b.tt || []).length ? 0 : 10) + b.y; };
+    els.sort((x, y) => rank(x) - rank(y)).forEach(el => {
+      el.className = 'cm-name'; el.style.setProperty('--dx', '0px'); el.style.setProperty('--dy', '0px');
+      const p = pinR[el.dataset.nb]; if (!p) return;
+      const er = el.getBoundingClientRect(), w = er.width, h = er.height, cx = (p.left + p.right) / 2, cy = (p.top + p.bottom) / 2, rx = (p.right - p.left) / 2 + 3, ry = (p.bottom - p.top) / 2 + 2;
+      const spots = [[0, ry + h / 2], [0, -ry - h / 2], [rx + w / 2, 0], [-rx - w / 2, 0], [rx + w / 2 - 6, ry + h / 2 - 4], [-rx - w / 2 + 6, ry + h / 2 - 4]];
+      for (const [dx, dy] of spots) {
+        const box = { l: cx + dx - w / 2, r: cx + dx + w / 2, t: cy + dy - h / 2, b: cy + dy + h / 2 };
+        if (box.l < mr.left + 2 || box.r > mr.right - 2 || box.t < mr.top + 2 || box.b > mr.bottom - 2) continue;
+        if (taken.some(o => hit(o, box))) continue;
+        taken.push({ l: box.l - 3, r: box.r + 3, t: box.t - 2, b: box.b + 2 });
+        el.style.setProperty('--dx', dx + 'px'); el.style.setProperty('--dy', dy + 'px'); el.classList.add('on');
+        return;
+      }
+    });
   }
   const evWhen = (p, n) => { const d = Math.round((Date.parse(p.at.slice(0, 10)) - Date.parse(n.iso)) / 864e5); return d > 1 ? `بعد ${d} أيام` : d === 1 ? 'غداً ' + p.at.slice(11) : 'اليوم ' + p.at.slice(11); };
-  // the route (a straight dashed line: the plan has no paths drawn to follow) and the day's path
+  // the route (a straight line: the plan has no paths drawn to follow) and the day's path: a white casing under a
+  // bold dashed line, so it stands out on any part of the plan; arrows, the start and the destination are pins
+  const showRoute = () => tool === 'route' && route && route.from && route.to && route.to.b;
   function lines() {
     let s = '';
-    const pt = o => `${(o.x * 1000).toFixed(1)},${(o.y * 1000).toFixed(1)}`;
-    if (tool === 'route' && route && route.from && route.to && route.to.b) s += `<polyline class="cm-route" points="${pt(route.from)} ${pt(route.to.b)}"/>`;
-    if (day && day.filter(x => x.b).length > 1) s += `<polyline class="cm-dayline" points="${day.filter(x => x.b).map(x => pt(x.b)).join(' ')}"/>`;
+    const pt = o => `${(o.x * C.width).toFixed(1)},${(o.y * C.height).toFixed(1)}`;
+    const line = (pts, cls) => `<polyline class="cm-case" points="${pts}"/><polyline class="${cls}" points="${pts}"/>`;
+    if (showRoute()) s += line(`${pt(route.from)} ${pt(route.to.b)}`, 'cm-route');
+    if (day && day.filter(x => x.b).length > 1) s += line(day.filter(x => x.b).map(x => pt(x.b)).join(' '), 'cm-dayline');
     $('#cm-svg').innerHTML = s;
+  }
+  function routeMarks() {
+    if (!showRoute()) return '';
+    const a = route.from, b = route.to.b, deg = Math.atan2((b.y - a.y) * C.height, (b.x - a.x) * C.width) * 180 / Math.PI;
+    const at = f => `left:${(a.x + (b.x - a.x) * f) * 100}%;top:${(a.y + (b.y - a.y) * f) * 100}%`;
+    const far = Math.hypot((b.x - a.x) * C.width, (b.y - a.y) * C.height) > 120;
+    return (far ? [0.3, 0.55, 0.8] : [0.55]).map(f => `<span class="cm-arrow" style="${at(f)};--r:${deg}deg"><i class="bi bi-chevron-right"></i></span>`).join('')
+      + (route.from === here ? '' : `<span class="cm-rt-a" style="${at(0)}" title="من"><i></i></span>`)
+      + `<span class="cm-rt-b" style="${at(1)}"><i class="bi bi-geo-alt-fill"></i><b>${esc(route.to.label || '')}</b></span>`;
   }
   function stack(b) {
     const list = STAFF.filter(m => m.photo && staffB(m) === b).sort((x, y) => lead(x) - lead(y)).slice(0, 3);
@@ -445,33 +492,87 @@
     const pl = store.get(PLAN), mine = store.get(MINE) || [];
     return [...new Set([...(pl ? Object.values(pl.pick || {}) : []), ...mine])];
   }
+  // adding sections here: one box finds them by course name, code, instructor or room (or «الرمز-الشعبة»), with
+  // options for what to search in and «only the chosen day»; each result has its days and times and a + button
+  const find = { q: '', by: 'all', today: false };
+  const BYKEY = () => { if (!BYKEY.m) { BYKEY.m = {}; S.forEach(s => { BYKEY.m[U.sectionKey(s)] = s; }); } return BYKEY.m; };
+  const when = s => [...new Set(s.meetings.filter(live).map(m => `${U.DAYS[m.day] || m.day} ${m.start}`))].join('، ') || 'بلا موعد';
+  function findSections(d) {
+    const raw = find.q.trim(), t = U.norm(raw);
+    if (t.length < 2) return null;
+    const [code, sec] = raw.split(/[-–\s/]+/);
+    let out;
+    if (/^\d{5,}$/.test(code) && sec && /^\d+$/.test(sec)) out = S.filter(s => s.code === code && String(s.section) === sec);
+    else {
+      const has = v => U.norm(v || '').includes(t);
+      const by = { all: s => U.norm(s.code).startsWith(t) || has(s.name) || has(s.instructor) || U.norm(clean(s.room)) === t,
+        name: s => has(s.name), code: s => U.norm(s.code).startsWith(t), ins: s => has(s.instructor), room: s => U.norm(clean(s.room)).startsWith(t) }[find.by];
+      out = S.filter(by);
+    }
+    if (find.today) out = out.filter(s => s.meetings.some(m => m.day === d && live(m)));
+    const seen = new Set();
+    return out.filter(s => { const k = U.sectionKey(s); if (seen.has(k)) return false; seen.add(k); return true; })
+      .sort((x, y) => x.name.localeCompare(y.name, 'ar') || String(x.section).localeCompare(String(y.section), 'en', { numeric: true }));
+  }
+  const dayList = (secs, d) => secs.flatMap(s => s.meetings.filter(m => m.day === d && live(m)).map(m => ({ s, m, a: toMin(m.start), z: toMin(m.end), b: inRoom(m) ? byTT[s.building] : null, room: clean(s.room), online: !inRoom(m) })))
+    .sort((x, y) => x.a - y.a);
   function dayTool(n) {
-    const BY = {}; S.forEach(s => { BY[U.sectionKey(s)] = s; });
-    const keys = myKeys().filter(k => BY[k]), secs = keys.map(k => BY[k]), d = n.day;
-    day = secs.flatMap(s => s.meetings.filter(m => m.day === d && live(m)).map(m => ({ s, m, a: toMin(m.start), z: toMin(m.end), b: inRoom(m) ? byTT[s.building] : null, room: clean(s.room), online: !inRoom(m) })))
-      .sort((x, y) => x.a - y.a);
+    const BY = BYKEY(), keys = myKeys().filter(k => BY[k]), secs = keys.map(k => BY[k]), d = n.day, mine = new Set(store.get(MINE) || []);
+    const fromPlan = new Set(P.get('plan') ? [] : Object.values((store.get(PLAN) || {}).pick || {}));
+    day = dayList(secs, d);
     const steps = day.map((x, i) => {
       const prev = day[i - 1], gap = prev ? x.a - prev.z : 0;
       return `${prev && gap > 0 ? `<div class="cm-gap"><i class="bi bi-cup-hot"></i> فراغ ${U.mins(gap)}${gap >= 60 ? ' — يمكنك قضاؤه في المكتبة (22) أو الكافيتريا (11)' : ''}</div>` : ''}${prev && gap < 0 ? '<div class="cm-gap bad"><i class="bi bi-exclamation-triangle"></i> تعارض مع المحاضرة السابقة</div>' : ''}
         <button type="button" class="cm-daystep ${x.a <= n.min && n.min < x.z ? 'now' : ''}" data-center="${esc(x.b ? x.b.id : '')}"><span class="cm-stepno">${i + 1}</span><span class="cm-t"><b>${esc(x.s.name)}</b><small>${esc(x.m.start)}–${esc(x.m.end)} · ${x.online ? 'إلكتروني' : `قاعة ${esc(x.room)}${x.b ? ' · ' + esc(x.b.name) : ''}`} · ${esc(U.shortName(x.s.instructor))}</small></span>${x.b ? `<span class="cm-no sm">${esc(x.b.id)}</span>` : ''}</button>`;
     }).join('');
-    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'يومي على الخريطة', `${esc(U.DAYS[d] || '')} · لتغيير اليوم استعمل شريط الوقت أسفل الخريطة`)}
-      ${!keys.length ? `<p class="cm-note">لا جدول محفوظاً على هذا الجهاز. اختر شعبك في <a href="planner.html">«مخطط جدولي»</a> وتظهر هنا تلقائياً، أو أضف مقرراتك هنا:</p>`
-        : `<p class="cm-note">${keys.length} شعبة من ${P.get('plan') ? 'الرابط' : '«مخطط جدولي» على هذا الجهاز'}. الأرقام على الخريطة ترتيب محاضراتك في اليوم.</p>`}
-      <div class="cm-to"><input id="cm-add" class="form-control form-control-sm" placeholder="أضف مقرراً: الرمز-الشعبة، مثل 1001211-2" aria-label="أضف مقرراً"><button type="button" class="btn btn-sm btn-outline-secondary" id="cm-add-go">أضف</button></div><div id="cm-add-err"></div>
-      ${day.length ? steps : keys.length ? empty('لا محاضرات لك في هذا اليوم.') : ''}
-      ${keys.length ? `<div class="cm-links"><a class="btn btn-sm btn-outline-secondary" href="planner.html"><i class="bi bi-pencil"></i> عدّل في مخطط جدولي</a>
-        <button type="button" class="btn btn-sm btn-outline-secondary" data-copy="${esc(SITE + 'campus.html?tool=day&plan=' + encodeURIComponent(keys.join('~')))}"><i class="bi bi-link-45deg"></i> رابط يومي</button>
-        ${(store.get(MINE) || []).length ? '<button type="button" class="btn btn-sm btn-outline-danger" id="cm-clear">امسح ما أضفته هنا</button>' : ''}</div>` : ''}</div>`;
-    bind(() => { day = null; setTool(''); });
-    const add = () => {
-      const [code, sec] = $('#cm-add').value.trim().split(/[-–\s/]+/);
-      const found = S.filter(s => s.code === code && (!sec || String(s.section) === sec));
-      if (!found.length) { $('#cm-add-err').innerHTML = '<div class="cm-none">لم أجد هذا المقرر أو الشعبة.</div>'; return; }
-      store.set(MINE, [...new Set([...(store.get(MINE) || []), ...found.map(U.sectionKey)])]); draw();
-    };
-    $('#cm-add-go').onclick = add; $('#cm-add').onkeydown = e => { if (e.key === 'Enter') add(); };
+    const chips = keys.map(k => { const s = BY[k]; return `<span class="cm-chip" title="${esc(s.name)} · ${esc(U.shortName(s.instructor))} · ${esc(when(s))}"><span>${esc(s.name)} <small>ش${esc(s.section)}</small></span>${mine.has(k) ? `<button type="button" data-rm="${esc(k)}" aria-label="احذف"><i class="bi bi-x"></i></button>` : fromPlan.has(k) ? '<i class="bi bi-calendar2-check" title="من «مخطط جدولي»"></i>' : ''}</span>`; }).join('');
+    const tabs = [['day', 'bi-signpost-2', 'يومي على الخريطة'], ['add', 'bi-plus-circle', 'أضف مقرراتي'], ['mine', 'bi-list-check', `شعبي <small>${keys.length}</small>`]];
+    if (!dayTool.tab) dayTool.tab = keys.length ? 'day' : 'add';
+    let body;
+    if (dayTool.tab === 'add') {
+      body = `<p class="cm-note">ابحث باسم المقرر أو رمزه أو اسم المدرس أو رقم القاعة، ثم اضغط <b>+</b> بجانب شعبتك.</p>
+        <div class="cm-search sm"><i class="bi bi-search"></i><input id="cm-add" type="search" placeholder="مثل: برمجة، 1001211، أحمد، 7419" value="${esc(find.q)}" aria-label="ابحث عن مقرر"></div>
+        <div class="cm-by" role="group" aria-label="ابحث في">${[['all', 'الكل'], ['name', 'اسم المقرر'], ['code', 'الرمز'], ['ins', 'المدرس'], ['room', 'القاعة']].map(([k, t]) => `<button type="button" data-by="${k}" class="${find.by === k ? 'on' : ''}">${t}</button>`).join('')}</div>
+        <label class="cm-chk"><input type="checkbox" id="cm-today" ${find.today ? 'checked' : ''}> فقط ما له محاضرة يوم ${esc(U.DAYS[d] || '')}</label>
+        <div id="cm-found"></div>`;
+    } else if (dayTool.tab === 'mine') {
+      body = keys.length ? `<p class="cm-note">${P.get('plan') ? 'الشعب من الرابط.' : 'ما أضفته هنا (يُحذف بـ ×) وما اخترته في «مخطط جدولي» (<i class="bi bi-calendar2-check"></i>).'}</p><div class="cm-chips">${chips}</div>
+        <div class="cm-links"><a class="btn btn-sm btn-outline-secondary" href="planner.html"><i class="bi bi-pencil"></i> مخطط جدولي</a>
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-copy="${esc(SITE + 'campus.html?tool=day&plan=' + encodeURIComponent(keys.join('~')))}"><i class="bi bi-link-45deg"></i> رابط يومي</button>
+          ${mine.size ? '<button type="button" class="btn btn-sm btn-outline-danger" id="cm-clear">امسح ما أضفته هنا</button>' : ''}</div>`
+        : empty('لم تختر شعباً بعد. اذهب إلى «أضف مقرراتي».');
+    } else {
+      body = !keys.length ? `<p class="cm-note">لا جدول محفوظاً على هذا الجهاز. أضف مقرراتك من «أضف مقرراتي» (بالاسم أو الرمز أو المدرس)، أو اخترها في <a href="planner.html">«مخطط جدولي»</a> وتظهر هنا تلقائياً.</p>`
+        : `<p class="cm-note">الأرقام على الخريطة ترتيب محاضراتك يوم ${esc(U.DAYS[d] || '')}. لتغيير اليوم استعمل شريط الوقت.</p>${day.length ? steps : empty('لا محاضرات لك في هذا اليوم.')}`;
+    }
+    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'يومي على الخريطة', `${esc(U.DAYS[d] || '')} · ${keys.length} شعبة`)}
+      <div class="cm-tabs" role="tablist">${tabs.map(([k, i, t]) => `<button type="button" role="tab" data-dt="${k}" class="${k === dayTool.tab ? 'on' : ''}"><i class="bi ${i}"></i> ${t}</button>`).join('')}</div>
+      <div class="cm-body">${body}</div></div>`;
+    bind(() => { day = null; dayTool.tab = ''; setTool(''); });
+    const c = $('#cm-card');
+    c.querySelectorAll('[data-dt]').forEach(x => x.onclick = () => { dayTool.tab = x.dataset.dt; dayTool(now()); });
+    c.querySelectorAll('[data-rm]').forEach(x => x.onclick = () => { store.set(MINE, [...mine].filter(k => k !== x.dataset.rm)); draw(); });
     if ($('#cm-clear')) $('#cm-clear').onclick = () => { store.set(MINE, []); draw(); };
+    if (dayTool.tab === 'add') {
+      const list = () => {
+        const r = findSections(d), have = new Set(keys);
+        $('#cm-found').innerHTML = r == null ? '' : !r.length ? '<div class="cm-none">لا شعب مطابقة. جرّب كلمة أخرى أو «الكل».</div>'
+          : `<div class="cm-res-h"><span>${r.length} شعبة${r.length > 40 ? ' — أول 40؛ زد كلمات البحث' : ''}</span></div><div class="cm-found">${r.slice(0, 40).map(s => { const k = U.sectionKey(s), b = byTT[s.building];
+            return `<div class="cm-sec ${have.has(k) ? 'in' : ''}"><span class="cm-t"><b>${esc(s.name)} <small>ش${esc(s.section)}</small></b><small>${esc(s.code)} · ${esc(U.shortName(s.instructor) || '—')}</small><small><i class="bi bi-clock"></i> ${esc(when(s))}${clean(s.room) && clean(s.room) !== '0' ? ` · <i class="bi bi-door-open"></i> ${esc(clean(s.room))}` : ''}</small></span>
+              ${b ? `<span class="cm-no sm">${esc(b.id)}</span>` : ''}${have.has(k) ? '<span class="cm-added"><i class="bi bi-check-lg"></i></span>' : `<button type="button" class="cm-plus" data-add="${esc(k)}" aria-label="أضف"><i class="bi bi-plus-lg"></i></button>`}</div>`; }).join('')}</div>`;
+        $('#cm-found').querySelectorAll('[data-add]').forEach(x => x.onclick = () => {
+          store.set(MINE, [...new Set([...(store.get(MINE) || []), x.dataset.add])]);
+          x.outerHTML = '<span class="cm-added"><i class="bi bi-check-lg"></i></span>'; keys.push(x.dataset.add);
+          c.querySelector('[data-dt="mine"] small').textContent = keys.length; c.querySelector('.cm-h small').textContent = `${U.DAYS[d] || ''} · ${keys.length} شعبة`;
+          day = dayList(keys.map(k => BY[k]), d); pins();
+        });
+      };
+      const inp = $('#cm-add');
+      inp.oninput = () => { find.q = inp.value; list(); };
+      c.querySelectorAll('[data-by]').forEach(x => x.onclick = () => { find.by = x.dataset.by; c.querySelectorAll('[data-by]').forEach(y => y.classList.toggle('on', y === x)); list(); inp.focus(); });
+      $('#cm-today').onchange = e => { find.today = e.target.checked; list(); };
+      list();
+    }
     pins();
   }
 
@@ -572,31 +673,61 @@
   }
   function stopTour() { clearInterval(tour); tour = null; $('#cm-tour').innerHTML = '<i class="bi bi-play-circle"></i>'; $('#cm-tour').classList.remove('on'); }
 
-  // ---------------------------------------------------------------- pan and zoom (the whole plan fits at first; it never shows empty space beyond its edges)
+  // ---------------------------------------------------------------- pan and zoom
+  // view.s = 1 shows the whole plan. On a phone the map opens filled (no empty bands; drag to see the sides), and
+  // «الخريطة كاملة» shows all of it. The deeper the zoom, the sharper the copy: the plan (1x), twice its size (2x),
+  // then four times its size in tiles, only the tiles in view (C.tiles).
+  const narrow = () => innerWidth < 576 && !app.querySelector('.cm.cm-full');
+  function dims() {
+    const m = $('#cm-map'), w = m.clientWidth, h = m.clientHeight, fit = Math.min(1, (h / w) * (C.width / C.height));
+    const cover = Math.max(1, (h * C.width / C.height) / (w * fit));
+    return { m, w, h, fit, cover, max: Math.min(10, Math.max(4, 4 * C.width / (w * fit))) };
+  }
   function apply() {
     const m = $('#cm-map'); if (!m) return;
-    const w = m.clientWidth, h = m.clientHeight, fit = Math.min(1, (h / w) * (C.width / C.height)), iw = w * view.s * fit, ih = iw * C.height / C.width;
+    const { w, h, fit, max } = dims();
+    view.s = Math.min(max, Math.max(1, view.s));
+    const iw = w * view.s * fit, ih = iw * C.height / C.width;
     view.x = iw <= w ? (w - iw) / 2 : Math.min(0, Math.max(w - iw, view.x));
     view.y = ih <= h ? (h - ih) / 2 : Math.min(0, Math.max(h - ih, view.y));
     const st = $('#cm-stage'); st.style.width = iw + 'px'; st.style.transform = `translate(${view.x}px, ${view.y}px)`;
-    // the sharper copy (twice the size) once the plan is shown larger than its own pixels: zoomed in, full screen or a dense screen
-    if (C.image_2x && !apply.hd && iw * (window.devicePixelRatio || 1) > C.width * 1.05) { apply.hd = true; const hd = new Image(); hd.onload = () => { $('#cm-img').src = C.image_2x; }; hd.src = C.image_2x; }
-    m.style.setProperty('--pin', Math.max(0.75, Math.min(1.3, view.s * fit * 0.9)));
+    const px = iw * (window.devicePixelRatio || 1);
+    if (C.image_2x && !apply.hd && px > C.width * 1.05) { apply.hd = true; const hd = new Image(); hd.onload = () => { $('#cm-img').src = C.image_2x; }; hd.src = C.image_2x; }
+    tiles(px > C.width * 2.2, iw, ih, w, h);
+    const { cover } = dims();
+    m.style.setProperty('--pin', L.size * (narrow() ? Math.max(0.55, Math.min(1.1, 0.62 * view.s / cover)) : Math.max(0.75, Math.min(1.3, view.s * fit * 0.9))));
+    if (L.names && !apply.raf) apply.raf = requestAnimationFrame(() => { apply.raf = 0; names(); });
+  }
+  function tiles(on, iw, ih, w, h) {
+    const T = C.tiles, box = $('#cm-tiles');
+    if (!T) return;
+    box.hidden = !on;
+    if (!on) return;
+    for (let r = 0; r < T.rows; r++) for (let c = 0; c < T.cols; c++) {
+      const id = `t${r}-${c}`, x0 = view.x + iw * c / T.cols, y0 = view.y + ih * r / T.rows;
+      if (box.querySelector('#' + id) || x0 > w || y0 > h || x0 + iw / T.cols < 0 || y0 + ih / T.rows < 0) continue;
+      const im = new Image(); im.id = id; im.alt = ''; im.draggable = false; im.decoding = 'async';
+      im.style.cssText = `left:${c * 100 / T.cols}%;top:${r * 100 / T.rows}%;width:${100 / T.cols + 0.02}%;height:${100 / T.rows + 0.02}%`;
+      im.onload = () => im.classList.add('on'); im.src = T.path.replace('{r}', r).replace('{c}', c);
+      box.appendChild(im);
+    }
   }
   function zoom(f, cx, cy) {
-    const m = $('#cm-map'), w = m.clientWidth, h = m.clientHeight;
+    const { w, h, max } = dims();
     if (!f) { view.s = 1; apply(); return; }
     cx = cx == null ? w / 2 : cx; cy = cy == null ? h / 2 : cy;
-    const s = Math.max(1, Math.min(6, view.s * f)), k = s / view.s;
+    const s = Math.max(1, Math.min(max, view.s * f)), k = s / view.s;
     view.x = cx - (cx - view.x) * k; view.y = cy - (cy - view.y) * k; view.s = s; apply();
   }
   function center(o) {
     if (!o) return;
-    const m = $('#cm-map'), w = m.clientWidth, h = m.clientHeight, fit = Math.min(1, (h / w) * (C.width / C.height));
-    if (view.s < 2) view.s = 2.2;
+    const { w, h, fit, cover } = dims();
+    if (view.s < Math.max(2, cover * 1.3)) view.s = Math.max(2.2, cover * 1.4);
     const iw = w * view.s * fit, ih = iw * C.height / C.width;
     view.x = w / 2 - o.x * iw; view.y = h / 2 - o.y * ih; apply();
   }
+  // the first view: the whole plan, or filled on a phone
+  function home() { const d = dims(); view.s = narrow() ? d.cover : 1; const iw = d.w * view.s * d.fit; view.x = (d.w - iw) / 2; view.y = 0; apply(); }
   function panzoom() {
     const m = $('#cm-map'), ptr = new Map();
     let last = null, moved = 0, pinch = 0;
@@ -616,8 +747,9 @@
         if (navigator.clipboard) navigator.clipboard.writeText(`"x": ${x}, "y": ${y}`); $('#cm-res').innerHTML = `<div class="alert alert-info py-2" dir="ltr">"x": ${x}, "y": ${y} (copied)</div>`; } };
     m.addEventListener('pointerup', up); m.addEventListener('pointercancel', up);
     m.addEventListener('dblclick', e => { if (ui(e)) return; const r = m.getBoundingClientRect(); zoom(1.6, e.clientX - r.left, e.clientY - r.top); });
-    addEventListener('resize', apply);
-    apply();
+    let wasNarrow = narrow();
+    addEventListener('resize', () => { if (narrow() !== wasNarrow) { wasNarrow = narrow(); home(); } else apply(); });
+    home();
   }
 
   // ---------------------------------------------------------------- style and start
@@ -625,18 +757,36 @@
     .cm { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 410px); gap: 1rem; align-items: start; }
     @media (max-width: 991.98px) { .cm { grid-template-columns: minmax(0, 1fr); } }
     .cm-map { position: relative; aspect-ratio: 1848 / 1080; max-height: 80vh; width: 100%; min-height: 300px; border-radius: 16px; overflow: hidden; background: #f3f6f4; touch-action: none; cursor: grab; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); direction: ltr; }
-    @media (max-width: 575.98px) { .cm-map { aspect-ratio: 4 / 5; } }
     .cm-map:active { cursor: grabbing; }
     .cm-stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
     .cm-stage img { display: block; width: 100%; height: auto; user-select: none; pointer-events: none; image-rendering: auto; }
     #cm-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
-    .cm-route { fill: none; stroke: #2563eb; stroke-width: 5; stroke-dasharray: 14 9; vector-effect: non-scaling-stroke; stroke-linecap: round; animation: cmDash 1s linear infinite; }
-    .cm-dayline { fill: none; stroke: #901d23; stroke-width: 4; stroke-dasharray: 10 8; vector-effect: non-scaling-stroke; opacity: .85; }
-    @keyframes cmDash { to { stroke-dashoffset: -23; } }
+    #cm-svg polyline { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; }
+    #cm-svg .cm-case { stroke: #fff; stroke-width: 11; filter: drop-shadow(0 1px 3px rgba(0,0,0,.55)); }
+    #cm-svg .cm-route { stroke: #1d4ed8; stroke-width: 6; stroke-dasharray: 16 10; animation: cmDash 1s linear infinite; }
+    #cm-svg .cm-dayline { stroke: #901d23; stroke-width: 5; stroke-dasharray: 12 9; }
+    @keyframes cmDash { to { stroke-dashoffset: -26; } }
+    .cm-arrow { position: absolute; transform: translate(-50%, -50%) rotate(var(--r)) scale(var(--pin, 1)); width: 1.5rem; height: 1.5rem; border-radius: 50%; background: #1d4ed8; color: #fff; display: grid; place-items: center; font-size: .8rem; box-shadow: 0 0 0 2px #fff, 0 2px 6px rgba(0,0,0,.4); pointer-events: none; z-index: 4; }
+    .cm-arrow i { -webkit-text-stroke: 1px #fff; }
+    .cm-rt-a { position: absolute; transform: translate(-50%, -50%) scale(var(--pin, 1)); pointer-events: none; z-index: 4; }
+    .cm-rt-a i { display: block; width: 1.1rem; height: 1.1rem; border-radius: 50%; background: #fff; border: 4px solid #1d4ed8; box-shadow: 0 2px 6px rgba(0,0,0,.4); }
+    .cm-rt-b { position: absolute; transform: translate(-50%, -112%) scale(var(--pin, 1)); transform-origin: 50% 100%; display: grid; justify-items: center; pointer-events: none; z-index: 5; animation: cmDrop 1.4s ease-in-out infinite; }
+    .cm-rt-b i { font-size: 2.1rem; color: #1d4ed8; line-height: 1; filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 1.5px #fff) drop-shadow(0 3px 4px rgba(0,0,0,.45)); order: 2; }
+    .cm-rt-b b { order: 1; background: #1d4ed8; color: #fff; border-radius: 999px; padding: .05rem .5rem; font-size: .7rem; white-space: nowrap; direction: rtl; max-width: 14rem; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 0 0 2px #fff; }
+    @keyframes cmDrop { 50% { margin-top: -.35rem; } }
+    #cm-tiles { position: absolute; inset: 0; pointer-events: none; } #cm-tiles[hidden] { display: none; }
+    #cm-tiles img { position: absolute; display: block; max-width: none; opacity: 0; transition: opacity .25s; user-select: none; } #cm-tiles img.on { opacity: 1; }
+    .cm-mapwrap { position: relative; min-width: 0; }
     #cm-pins { position: absolute; inset: 0; }
     .cm-pin { position: absolute; transform: translate(-50%, -50%) scale(var(--pin, 1)); border: 3px solid #fff; background: var(--c); color: #fff; border-radius: 999px; min-width: 2.1rem; height: 2.1rem; padding: 0 .35rem;
       display: flex; align-items: center; gap: .2rem; justify-content: center; font-weight: 800; font-size: .85rem; box-shadow: 0 3px 10px rgba(0,0,0,.35); cursor: pointer; transition: transform .15s; }
-    .cm-pin small { background: rgba(0,0,0,.28); border-radius: 999px; padding: 0 .3rem; font-size: .7rem; }
+    .cm-pin .cm-cnt { position: absolute; top: -.6rem; inset-inline-end: -.7rem; min-width: 1.15rem; height: 1.15rem; padding: 0 .25rem; border-radius: 999px; background: #111827; color: #fff; font-size: .62rem; line-height: 1; display: grid; place-items: center; box-shadow: 0 0 0 2px #fff; }
+    .cm-pin.nonum { min-width: 1.05rem; width: 1.05rem; height: 1.05rem; padding: 0; border-width: 2px; } .cm-pin.nonum > b { display: none; }
+    .cm-pin.nonum .cm-cnt { top: -.75rem; inset-inline-end: -.85rem; }
+    .cm-name { position: absolute; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(calc(.6 + var(--pin, 1) * .4)); z-index: 2; pointer-events: none; visibility: hidden;
+      background: rgba(255,255,255,.95); color: #1f2937; border-radius: 6px; padding: .05rem .4rem; font-size: .68rem; font-weight: 800; line-height: 1.35; white-space: nowrap; direction: rtl;
+      max-width: 10rem; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 1px 4px rgba(0,0,0,.28); border: 1px solid rgba(144,29,35,.25); }
+    .cm-name.on { visibility: visible; }
     .cm-pin:hover, .cm-pin.on { transform: translate(-50%, -50%) scale(calc(var(--pin, 1) * 1.25)); z-index: 3; }
     .cm-pin.on { outline: 4px solid #fbbf24; } .cm-pin.hit { animation: cmHit 1s ease-in-out infinite; z-index: 2; }
     @keyframes cmHit { 50% { box-shadow: 0 0 0 10px rgba(251,191,36,.55); } }
@@ -660,13 +810,25 @@
     .cm-tools button { width: 2.2rem; height: 2.2rem; border: 0; border-radius: 10px; background: #fff; color: #111; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
     .cm-tools button.on { background: #901d23; color: #fff; } .cm-fs-only { display: none; }
     .cm-layers { position: absolute; top: .6rem; left: 3.2rem; z-index: 7; direction: rtl; background: #fff; color: #111; border-radius: 12px; padding: .6rem .8rem; box-shadow: 0 6px 22px rgba(0,0,0,.25); display: grid; gap: .3rem; font-size: .88rem; min-width: 14rem; }
-    .cm-layers[hidden] { display: none; } .cm-layers label { display: flex; gap: .4rem; align-items: center; cursor: pointer; } .cm-layers i { color: #901d23; }
+    .cm-layers[hidden] { display: none; } .cm-layers label { display: flex; gap: .4rem; align-items: center; cursor: pointer; }
+    .cm-layers .cm-size { border-top: 1px solid #e5e7eb; padding-top: .35rem; margin-top: .1rem; } .cm-size input { flex: 1; accent-color: #901d23; min-width: 5rem; }
+    .cm-reset { border: 0; background: none; color: #901d23; font-size: .78rem; text-decoration: underline; justify-self: start; padding: 0; } .cm-layers i { color: #901d23; }
     .cm-time { position: absolute; bottom: .6rem; left: .6rem; right: .6rem; direction: rtl; display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; background: rgba(255,255,255,.95); color: #111; border-radius: 12px; padding: .4rem .6rem; box-shadow: 0 2px 10px rgba(0,0,0,.15); z-index: 6; }
     .cm-time select { width: auto; } .cm-time input[type=range] { flex: 1; min-width: 110px; accent-color: #901d23; direction: ltr; } .cm-time b { font-variant-numeric: tabular-nums; min-width: 6.5rem; }
     .cm-key { position: absolute; top: .6rem; right: .6rem; direction: rtl; display: flex; flex-wrap: wrap; gap: .25rem .6rem; max-width: 60%; background: rgba(255,255,255,.94); color: #111; border-radius: 10px; padding: .25rem .6rem; font-size: .74rem; z-index: 6; }
     .cm-key[hidden] { display: none; } .cm-key i { display: inline-block; width: .7rem; height: .7rem; border-radius: 50%; background: var(--c); vertical-align: middle; }
-    .cm-key i.ring { background: #fff; box-shadow: 0 0 0 2px var(--c); } .cm-key i.sq { border-radius: 2px; } .cm-key i.dia { border-radius: 1px; transform: rotate(45deg); }
-    @media (max-width: 575.98px) { .cm-key { display: none; } }
+    .cm-key i.ring { background: #fff; box-shadow: 0 0 0 2px var(--c); } .cm-key i.sq { border-radius: 2px; } .cm-key i.dia { border-radius: 1px; transform: rotate(45deg); } .cm-key i.cnt { box-shadow: 0 0 0 2px #fff, 0 0 0 3px #111827; }
+    @media (max-width: 575.98px) { .cm-key { display: none; }
+      .cm-map { aspect-ratio: 4 / 3; min-height: 260px; border-radius: 12px; }
+      .cm-time { position: static; margin-top: .45rem; box-shadow: none; border: 1px solid var(--bs-border-color); background: var(--bs-body-bg); color: var(--bs-body-color); padding: .35rem .45rem; gap: .35rem; }
+      .cm-time select { flex: 1 1 45%; } .cm-time b { min-width: 0; font-size: .8rem; } .cm-time input[type=range] { order: 5; flex-basis: 100%; }
+      .cm-tools { grid-auto-flow: column; top: .45rem; left: .45rem; gap: .25rem; } .cm-tools button { width: 2rem; height: 2rem; border-radius: 9px; }
+      .cm-layers { top: 2.9rem; left: .45rem; right: .45rem; min-width: 0; max-height: calc(100% - 3.4rem); overflow: auto; font-size: .84rem; }
+      .cm-body, .cm-qrs { max-height: none; overflow: visible; }
+      .cm-tabs { overflow-x: auto; scrollbar-width: none; } .cm-tabs button { flex: 1 0 auto; font-size: .76rem; padding: .35rem .45rem; }
+      .cm-modes button { font-size: .64rem; padding: .3rem 0; } .cm-modes button span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+      .cm-card { padding: .7rem; } .cm-h h2 { font-size: 1rem; } .cm-faces { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); }
+      .cm-list small { display: none; } .cm-links .btn { flex: 1 1 auto; } .cm-rt-b b { max-width: 9rem; } }
     .cm-side { display: grid; grid-template-columns: minmax(0, 1fr); gap: .6rem; min-width: 0; box-sizing: border-box; }
     .cm-side *, .cm-side *::before, .cm-side *::after { box-sizing: border-box; }
     .cm-side > * { min-width: 0; }
@@ -741,6 +903,21 @@
     .cm-daystep { display: flex; gap: .55rem; align-items: center; width: 100%; text-align: start; border: 1px solid var(--bs-border-color); background: var(--bs-body-bg); color: var(--bs-body-color); border-radius: 10px; padding: .4rem .6rem; margin-top: .3rem; }
     .cm-daystep.now { border-color: #16a34a; background: #f0fdf4; } .cm-stepno { background: #901d23; color: #fff; width: 1.6rem; height: 1.6rem; border-radius: 50%; display: grid; place-items: center; font-weight: 800; flex: none; }
     .cm-gap { font-size: .76rem; color: var(--bs-secondary-color); padding: .2rem .6rem; } .cm-gap.bad { color: #b91c1c; font-weight: 700; }
+    .cm-search.sm input { padding: .45rem 2.1rem .45rem .6rem; font-size: .88rem; }
+    .cm-by { display: flex; flex-wrap: wrap; gap: .25rem; margin: .45rem 0 .3rem; }
+    .cm-by button { font-size: .76rem; border: 1px solid var(--bs-border-color); border-radius: 999px; padding: .12rem .6rem; background: var(--bs-body-bg); color: var(--bs-body-color); }
+    .cm-by button.on { background: #901d23; color: #fff; border-color: #901d23; }
+    .cm-chk { display: flex; gap: .35rem; align-items: center; font-size: .8rem; margin-bottom: .4rem; cursor: pointer; }
+    .cm-found { display: grid; gap: .3rem; margin-top: .25rem; }
+    .cm-sec { display: flex; gap: .5rem; align-items: center; border: 1px solid var(--bs-border-color); border-radius: 10px; padding: .4rem .55rem; }
+    .cm-sec.in { border-color: #16a34a; background: #f0fdf4; color: #14532d; } .cm-sec .cm-t b small { color: #901d23; font-size: .72rem; }
+    .cm-sec .cm-t small { white-space: normal; }
+    .cm-plus, .cm-added { flex: none; width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center; border: 0; }
+    .cm-plus { background: #901d23; color: #fff; font-size: 1rem; } .cm-added { background: #16a34a; color: #fff; }
+    .cm-chips { display: flex; flex-wrap: wrap; gap: .3rem; }
+    .cm-chip { display: inline-flex; align-items: center; gap: .3rem; background: var(--bs-tertiary-bg); border-radius: 999px; padding: .15rem .3rem .15rem .6rem; font-size: .78rem; max-width: 100%; }
+    .cm-chip > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .cm-chip small { color: #901d23; font-weight: 700; } .cm-chip > i { color: #16a34a; padding: 0 .2rem; }
+    .cm-chip button { border: 0; background: #fff; border-radius: 50%; width: 1.3rem; height: 1.3rem; display: grid; place-items: center; padding: 0; color: #b91c1c; }
     .cm-heatwrap { overflow-x: auto; } .cm-heat { border-collapse: separate; border-spacing: 2px; width: 100%; font-size: .7rem; }
     .cm-heat th { font-weight: 700; color: var(--bs-secondary-color); text-align: center; padding: .1rem; white-space: nowrap; } .cm-heat tbody th { text-align: start; }
     .cm-heat td { text-align: center; border-radius: 4px; padding: .25rem 0; background: color-mix(in srgb, #dc2626 calc(var(--v) * 100%), #ecfdf3); color: #111; font-weight: 700; }
@@ -753,8 +930,11 @@
     .cm.cm-full.cm-nopanel .cm-map { inset: 0; }
     .cm.cm-full .cm-side { position: absolute; top: .6rem; bottom: .6rem; right: .6rem; width: min(410px, 36vw); overflow-y: auto; overflow-x: hidden; z-index: 5; align-content: start;
       background: var(--bs-body-bg, #fff); color: var(--bs-body-color, #111); border-radius: 14px; padding: .6rem; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+    .cm.cm-full .cm-mapwrap { position: static; }
+    .cm.cm-full .cm-time { position: absolute; bottom: .6rem; left: .6rem; right: calc(min(410px, 36vw) + 1.8rem); margin: 0; }
+    .cm.cm-full.cm-nopanel .cm-time { right: .6rem; }
     .cm.cm-full .cm-body { max-height: none; } .cm.cm-full .cm-fs-only { display: block; } .cm.cm-nopanel .cm-side { display: none; }
-    @media (max-width: 767.98px) { .cm.cm-full .cm-map { inset: 0; } .cm.cm-full .cm-side { top: auto; bottom: 4.6rem; left: .5rem; right: .5rem; width: auto; max-height: 45%; } }
+    @media (max-width: 767.98px) { .cm.cm-full .cm-map { inset: 0; } .cm.cm-full .cm-time { right: .6rem; } .cm.cm-full .cm-side { top: auto; bottom: 4.6rem; left: .5rem; right: .5rem; width: auto; max-height: 45%; } }
   </style>`);
   const ohLoad = window.OH ? window.OH.load().catch(() => ({ map: {} })) : Promise.resolve({ map: {} });
   Promise.all([U.getJSON('data/campus.json'), U.getJSON('data/timetable.json'), U.getJSON('data/instructors.json').catch(() => null), U.getJSON('data/staff.json').catch(() => ({ members: [] })),
@@ -776,6 +956,6 @@
     else if (sel && B(sel)) center(B(sel));
     else if (route && route.to) center(route.to.b);
     else if (here) center(here);
-    setInterval(() => { if (!at) { Object.keys(cache).forEach(k => delete cache[k]); draw(); } }, 60000);
+    setInterval(() => { if (!at && !(document.activeElement && document.activeElement.closest('#cm-card'))) { Object.keys(cache).forEach(k => delete cache[k]); draw(); } }, 60000);
   }).catch(e => { app.innerHTML = `<div class="alert alert-danger mt-3">تعذّر التحميل (${esc(e.message)}).</div>`; });
 })();
