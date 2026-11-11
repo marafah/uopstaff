@@ -112,7 +112,7 @@
     $('#cm-faces').onchange = e => { faces = e.target.checked; pins(); };
     $('#cm-fs').onclick = fullscreen;
     $('#cm-tour').onclick = () => tour ? stopTour() : startTour();
-    $('#cm-panel').onclick = () => app.querySelector('.cm').classList.toggle('cm-nopanel');
+    $('#cm-panel').onclick = () => { app.querySelector('.cm').classList.toggle('cm-nopanel'); setTimeout(apply, 50); };
     document.addEventListener('fullscreenchange', () => { app.querySelector('.cm').classList.toggle('cm-full', !!document.fullscreenElement); fsIcon(); setTimeout(apply, 50); });
     document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if (who) openPerson(''); else if (sel) open(''); else if (app.querySelector('.cm.cm-full') && !document.fullscreenElement) fullscreen(); });
     $('#cm-q').oninput = e => { q = e.target.value; search(); };
@@ -256,7 +256,7 @@
     search.hits = hit.slice(0, 60);
     $('#cm-res').innerHTML = hit.length ? `<div class="cm-res">${hit.slice(0, 40).map((h, i) => `<button type="button" data-i="${i}" ${h.b || h.p ? '' : 'disabled'}>${h.p ? face(h.p) : `<i class="bi ${h.ic}"></i>`}<span><b>${esc(h.t)}</b><small>${esc(h.s)}</small></span>${h.b ? `<span class="cm-no sm">${esc(h.b.id)}</span>` : ''}</button>`).join('')}
       ${hit.length > 40 ? `<div class="cm-more">و${hit.length - 40} نتيجة أخرى؛ زد كلمات البحث</div>` : ''}</div>` : '<div class="cm-none">لا نتائج</div>';
-    $('#cm-res').querySelectorAll('[data-i]').forEach(x => x.onclick = () => { const h = search.hits[+x.dataset.i]; if (h.p) openPerson(h.p.id, true); else open(h.b.id, true); });
+    $('#cm-res').querySelectorAll('[data-i]').forEach(x => x.onclick = () => { const h = search.hits[+x.dataset.i]; $('#cm-res').innerHTML = ''; if (h.p) openPerson(h.p.id, true); else open(h.b.id, true); });
     pins();
   }
 
@@ -398,12 +398,13 @@
     .cm-bub.now .cm-face { box-shadow: 0 0 0 3px #16a34a, 0 4px 12px rgba(0,0,0,.35); } .cm-bub.now small { background: #16a34a; }
     .cm-tools button.on { background: #901d23; color: #fff; } .cm-fs-only { display: none; }
     .cm.cm-full { position: fixed; inset: 0; z-index: 2000; display: block; background: #0b1c22; }
-    .cm.cm-full .cm-map { position: absolute; inset: 0; aspect-ratio: auto; max-height: none; height: 100%; border-radius: 0; }
-    .cm.cm-full .cm-side { position: absolute; top: .6rem; right: .6rem; width: min(400px, 40vw); max-height: calc(100% - 5.2rem); overflow: auto; z-index: 5;
+    .cm.cm-full .cm-map { position: absolute; inset: 0 calc(min(400px, 36vw) + 1.2rem) 0 0; width: auto; aspect-ratio: auto; max-height: none; height: auto; border-radius: 0; }
+    .cm.cm-full.cm-nopanel .cm-map { inset: 0; }
+    .cm.cm-full .cm-side { position: absolute; top: .6rem; bottom: .6rem; right: .6rem; width: min(400px, 36vw); overflow: auto; z-index: 5; align-content: start;
       background: var(--bs-body-bg, #fff); color: var(--bs-body-color, #111); border-radius: 14px; padding: .6rem; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
     .cm.cm-full .cm-key { right: auto; left: 3.4rem; } .cm.cm-full .cm-fs-only { display: block; } .cm.cm-nopanel .cm-side { display: none; }
     .cm.cm-full .cm-faces { max-height: 300px; }
-    @media (max-width: 767.98px) { .cm.cm-full .cm-side { top: auto; bottom: 4.6rem; left: .5rem; right: .5rem; width: auto; max-height: 45%; } }
+    @media (max-width: 767.98px) { .cm.cm-full .cm-map { inset: 0; } .cm.cm-full .cm-side { top: auto; bottom: 4.6rem; left: .5rem; right: .5rem; width: auto; max-height: 45%; } }
     .cm-lead { display: flex; gap: .45rem; overflow-x: auto; padding: .1rem .1rem .5rem; } .cm-lead:empty { display: none; }
     .cm-lead button { border: 0; background: none; display: grid; justify-items: center; gap: .1rem; padding: 0; color: inherit; min-width: 3.6rem; }
     .cm-lead .cm-face { width: 2.8rem; height: 2.8rem; box-shadow: 0 0 0 2px #901d23; } .cm-lead small { font-size: .62rem; color: #901d23; font-weight: 700; max-width: 4.2rem; line-height: 1.15; }
