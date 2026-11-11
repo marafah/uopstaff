@@ -5,6 +5,30 @@
   "screens": {}
  },
  "alert": null,
- "posts": [],
- "updated": "2026-11-10T08:30:48Z"
+ "posts": [
+  {
+   "type": "ticker",
+   "title": "",
+   "text": "مركز التعلم الالكتروني",
+   "icon": "bi-megaphone",
+   "tone": "maroon",
+   "link": "",
+   "screens": [
+    "مبنى المكتبة"
+   ],
+   "start": "2026-11-11",
+   "end": "2026-11-17",
+   "days": [],
+   "from": "",
+   "to": "",
+   "pin": false,
+   "id": "p26111111257ffe",
+   "owner": "cce",
+   "ownerName": "مركز التعلم الإلكتروني",
+   "status": "live",
+   "updated": "2026-11-11T08:25:59Z",
+   "created": "2026-11-11T08:25:59Z"
+  }
+ ],
+ "updated": "2026-11-11T08:25:59Z"
 }
