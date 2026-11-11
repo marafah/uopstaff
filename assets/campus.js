@@ -1458,6 +1458,9 @@
     .cm-dot { display: inline-block; width: .7rem; height: .7rem; border-radius: 3px; background: #ecfdf3; border: 1px solid #16a34a; vertical-align: middle; } .cm-dot.part { background: #fffbeb; border-color: #d97706; } .cm-dot.busy { background: #fef2f2; border-color: #dc2626; }
     .cm-tools button.sos { background: #dc2626; color: #fff; }
     .cm-qr-c { display: flex; justify-content: center; gap: .3rem; } .cm-qr-c svg { width: 80px; height: 80px; }
+    /* scroll bars on the right edge (the start side in Arabic), not the left: the box scrolls left-to-right, its content stays right-to-left */
+    .cm-body, .cm-res, .cm-qrs, .cm.cm-full .cm-side { direction: ltr; } .cm-body > *, .cm-res > *, .cm-qrs > *, .cm.cm-full .cm-side > * { direction: rtl; }
+    .cm-body { padding-inline-end: 0; padding-right: .35rem; }
     .cm-heatwrap { overflow-x: auto; } .cm-heat { border-collapse: separate; border-spacing: 2px; width: 100%; font-size: .7rem; }
     .cm-heat th { font-weight: 700; color: var(--bs-secondary-color); text-align: center; padding: .1rem; white-space: nowrap; } .cm-heat tbody th { text-align: start; }
     .cm-heat td { text-align: center; border-radius: 4px; padding: .25rem 0; background: color-mix(in srgb, #dc2626 calc(var(--v) * 100%), #ecfdf3); color: #111; font-weight: 700; }
