@@ -24,7 +24,7 @@
   const TONES = { info: ['#0e7490', 'أزرق'], gold: ['#b7791f', 'ذهبي'], maroon: ['#9e1f27', 'عنابي'], green: ['#15803d', 'أخضر'], violet: ['#6d28d9', 'بنفسجي'] };
   const ICONS = ['bi-megaphone', 'bi-info-circle', 'bi-calendar-event', 'bi-mortarboard', 'bi-trophy', 'bi-people', 'bi-briefcase', 'bi-journal-text',
     'bi-mic', 'bi-easel', 'bi-heart-pulse', 'bi-lightbulb', 'bi-globe2', 'bi-award', 'bi-cash-coin', 'bi-exclamation-circle', 'bi-clock-history', 'bi-geo-alt'];
-  const DEF = { mode: 'on', every: 3, secs: 15, exams: false, map: false };
+  const DEF = { mode: 'on', every: 3, secs: 15, exams: false, map: false, lapse: false };
   const DAYL = ['ح', 'ن', 'ث', 'ر', 'خ', 'س', 'ج'];
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const toMin = t => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ''); return m ? +m[1] * 60 + +m[2] : null; };
@@ -121,6 +121,14 @@
       .pp-ap { background: #15803d; border-radius: 14px; padding: .6em .9em; margin-top: .4em; box-shadow: 0 0 0 3px #bbf7d0; } .pp-ap b { display: block; font-size: 1.6em; } .pp-ap span { display: block; font-size: 1.2em; } .pp-ap small { display: block; font-size: .95em; opacity: .9; }
       .pp-free { display: grid; gap: .25em; margin: .2em 0 .6em; } .pp-free > b { font-size: 1.1em; color: #bbf7d0; } .pp-free span { display: flex; justify-content: space-between; gap: .5em; background: rgba(255,255,255,.1); border-radius: 8px; padding: .15em .5em; font-size: 1.15em; font-weight: 800; }
       .pp-free small { font-weight: 500; color: #dbe4e9; font-size: .8em; }
+      .pp-lapse .pp-lg { transition: r .25s linear, fill .4s; stroke-width: 3; }
+      .pp-lclock { font-size: 4.2em; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; color: #fde68a; }
+      .pp-ltot b { display: block; font-size: 2.6em; line-height: 1.1; font-variant-numeric: tabular-nums; } .pp-ltot span { color: #dbe4e9; font-size: 1em; }
+      .pp-lbar { height: .45em; background: rgba(255,255,255,.15); border-radius: 999px; overflow: hidden; margin: .6em 0; } .pp-lbar i { display: block; height: 100%; background: #fde68a; transition: width .2s linear; }
+      .pp-lapse .pp-mapside { min-width: 0; } .pp-ltop { display: grid; grid-template-columns: minmax(0, 1fr); gap: .3em; min-width: 0; }
+      .pp-ltop > span { display: flex; align-items: center; gap: .4em; background: rgba(255,255,255,.08); border-radius: 8px; padding: .2em .4em; font-size: .95em; min-width: 0; }
+      .pp-ltop em { font-style: normal; font-weight: 800; color: #fff; border-radius: 999px; min-width: 1.9em; text-align: center; padding: 0 .3em; } .pp-ltop > span > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .pp-ltop b { font-variant-numeric: tabular-nums; }
+      .pp-lnote { font-size: .8em !important; color: #94a3b8 !important; margin-top: .6em; }
       .pp-mapbody { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 15em; gap: 1em; align-items: center; }
       .pp-map { width: 100%; height: 100%; display: block; background: #f6f8f7; border-radius: 12px; }
       .pp-pulse { fill: rgba(37,99,235,.45); transform-box: fill-box; transform-origin: center; animation: ppYou 1.6s ease-out infinite; }
@@ -151,6 +159,14 @@
           <rect x="-62" y="32" width="124" height="38" rx="19" fill="#2563eb"/><text y="58" text-anchor="middle" fill="#fff" font-size="24" font-weight="800">أنت هنا</text></g></svg>
           <div class="pp-mapside"><h3>أنت في ${esc(b.name)}</h3>${s.free && s.free.length ? `<div class="pp-free"><b><i class="bi bi-door-open"></i> قاعات شاغرة قريبة الآن</b>${s.free.map(f => `<span><bdi dir="ltr">${esc(f.r)}</bdi><small>${f.same ? 'في هذا المبنى' : `مبنى ${esc(f.b)} · ${f.min} د`}</small></span>`).join('')}</div>`
             : '<p>امسح الرمز: خريطة الحرم الحيّة، والطريق إلى أي قاعة أو مكتب، ومن في كل مبنى الآن.</p>'}${q ? `<div class="pp-qr">${q}<span>خريطة الحرم</span></div>` : ''}</div></div></div>`;
+    }
+    if (s.kind === 'lapse') {   // «يوم الحرم في دقيقة»: the day from 7:30 to 18:30, each building's students as a growing circle
+      const C = s.C, P2 = b => `${(b.x * C.width).toFixed(0)} ${(b.y * C.height).toFixed(0)}`;
+      return `<div class="pp-slide pp-mapslide pp-lapse"><div class="pp-head"><i class="bi bi-play-circle"></i> يوم الحرم في دقيقة · ${esc(s.dayName)}</div>${prog()}
+        <div class="pp-mapbody"><svg class="pp-map" viewBox="0 0 ${C.width} ${C.height}" preserveAspectRatio="xMidYMid meet"><image href="${esc(C.image)}" width="${C.width}" height="${C.height}"/>
+          ${C.buildings.filter(b => s.L.per[b.id]).map(b => `<g transform="translate(${P2(b)})"><circle class="pp-lg" data-b="${esc(b.id)}" r="0"/><circle r="17" fill="#091b22" stroke="#fff" stroke-width="4"/><text y="6" text-anchor="middle" fill="#fff" font-size="${b.id.length > 2 ? 13 : 17}" font-weight="800">${esc(b.id)}</text></g>`).join('')}</svg>
+          <div class="pp-mapside"><div class="pp-lclock" dir="ltr">07:30</div><div class="pp-ltot"><b>0</b><span>طالباً في القاعات الآن</span></div><div class="pp-lbar"><i></i></div>
+            <div class="pp-ltop"></div><p class="pp-lnote">من أعداد المسجلين في الشعب حسب الجدول الدراسي</p></div></div></div>`;
     }
     if (s.kind === 'poster') {
       const p = s.p, src = img || safeImg(p.image), q = qr(p.link);
@@ -221,6 +237,36 @@
   const now = () => window.UOP.amman(P.get('at'));
   const load = () => DEMO ? (() => { try { const x = JSON.parse(localStorage.getItem('uop-pp-demo') || 'null'); D = x && x.DATA; } catch (e) { D = null; } draw(); })()
     : fetch('data/screen_posts.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(x => { D = x; draw(); }).catch(() => {});
+  // «يوم الحرم في دقيقة»: students in each building's rooms every 5 minutes (each lecture once, in-person only)
+  const LAPSE = {};
+  function lapseData(day) {
+    if (LAPSE[day]) return LAPSE[day];
+    if (!TT || !TT.sections || !CAMPUS) return null;
+    const U = window.UOP, byTT = {}, seen = new Set(), T0 = 450, T1 = 1110, ST = 5, n = (T1 - T0) / ST, per = {}, tot = new Array(n + 1).fill(0);
+    CAMPUS.buildings.forEach(x => (x.tt || []).forEach(t => { byTT[t] = x; }));
+    TT.sections.forEach(s => { const b = byTT[s.building], r = String(s.room || '').trim(); if (!b || !r || r === '0') return;
+      s.meetings.forEach(m => { if (m.day !== day || !U.live(m) || m.mode === 'الكتروني كامل') return; const k = [r, s.code, s.section, m.start].join('|'); if (seen.has(k)) return; seen.add(k);
+        const a = U.toMin(m.start), z = U.toMin(m.end), v = +s.registered || 0, arr = per[b.id] = per[b.id] || new Array(n + 1).fill(0);
+        for (let i = 0; i <= n; i++) { const t = T0 + i * ST; if (a <= t && t < z) { arr[i] += v; tot[i] += v; } } }); });
+    return (LAPSE[day] = { T0, ST, n, per, tot, max: Math.max(1, ...Object.values(per).flat()) });
+  }
+  const lapseColor = v => v >= 400 ? '220,38,38' : v >= 150 ? '245,158,11' : '22,163,74';
+  function runLapse(el, L, C, ms) {
+    const k = 95 / Math.sqrt(L.max), steps = L.n, every = Math.max(60, (ms * 0.9) / steps), names = Object.fromEntries(C.buildings.map(b => [b.id, b.short || b.name]));
+    let i = 0;
+    const tick = () => {
+      if (!document.body.contains(el)) return clearInterval(tm);
+      const t = L.T0 + i * L.ST, U = window.UOP;
+      el.querySelectorAll('.pp-lg').forEach(c => { const v = L.per[c.dataset.b][i]; c.style.r = (v ? 18 + Math.sqrt(v) * k : 0).toFixed(1) + 'px'; c.style.fill = `rgba(${lapseColor(v)},.45)`; c.style.stroke = `rgb(${lapseColor(v)})`; });
+      el.querySelector('.pp-lclock').textContent = U.toTime(t);
+      el.querySelector('.pp-ltot b').textContent = L.tot[i].toLocaleString('en');
+      el.querySelector('.pp-lbar i').style.width = (i / steps * 100) + '%';
+      el.querySelector('.pp-ltop').innerHTML = Object.entries(L.per).map(([b, a]) => [b, a[i]]).filter(x => x[1]).sort((a, b) => b[1] - a[1]).slice(0, 3)
+        .map(([b, v]) => `<span><em style="background:rgb(${lapseColor(v)})">${esc(b)}</em><span>${esc(names[b])}</span><b>${v.toLocaleString('en')}</b></span>`).join('');
+      if (++i > steps) clearInterval(tm);
+    };
+    const tm = setInterval(tick, every); tick();
+  }
   // free rooms now in this building and the nearest others (for the map slide): rooms with no in-person lecture at this minute
   function freeNear(b, n) {
     if (!TT || !TT.sections || !CAMPUS) return [];
@@ -251,11 +297,12 @@
     tick = ads.filter(p => p.type === 'ticker');
     show = slides(ads);
     // «خريطة الحرم» on this screen (set by the admin per screen): one more slide in the rotation
-    const wantMap = set.map && set.mode !== 'off' && !(exams && !set.exams);
-    if ((wantMap || (al && al.evac)) && CAMPUS === undefined) { CAMPUS = null; fetch('data/campus.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(c => { CAMPUS = c || false; draw(); }).catch(() => { CAMPUS = false; }); }
+    const wantMap = set.map && set.mode !== 'off' && !(exams && !set.exams), wantLapse = set.lapse && set.mode !== 'off' && !(exams && !set.exams);
+    if ((wantMap || wantLapse || (al && al.evac)) && CAMPUS === undefined) { CAMPUS = null; fetch('data/campus.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(c => { CAMPUS = c || false; draw(); }).catch(() => { CAMPUS = false; }); }
     const here = CAMPUS && CAMPUS.buildings.find(x => x.screen === KEY);
+    if ((wantMap || wantLapse) && TT === undefined) { TT = null; window.UOP.getJSON('data/timetable.json').then(t => { TT = t; draw(); }).catch(() => { TT = false; }); }
+    if (wantLapse) { const L = lapseData(n.day); if (L && L.tot.some(Boolean)) show.push({ kind: 'lapse', L, C: CAMPUS, dayName: (window.UOP.DAYS || {})[n.day] || '' }); }
     if (wantMap) {
-      if (TT === undefined) { TT = null; window.UOP.getJSON('data/timetable.json').then(t => { TT = t; draw(); }).catch(() => { TT = false; }); }
       if (here) show.push({ kind: 'map', b: here, img: CAMPUS.image, w: CAMPUS.width, h: CAMPUS.height, site: location.origin + location.pathname.replace(/[^/]*$/, ''), free: freeNear(here, n) });
     }
     const old = { u: document.getElementById('pp-urg'), t: document.getElementById('pp-tick') };
@@ -291,8 +338,10 @@
     if (ov && ov.dataset.k === 'al') return;
     if (!ov && show.length && Date.now() >= nextAt) {
       const set = settingsFor(D, KEY), secs = Math.max(5, Math.min(60, +set.secs || 15));
-      cover(slideHTML(show[si++ % show.length], now()), secs, 's' + si);
-      nextAt = Date.now() + secs * 1000 + Math.max(1, Math.min(30, +set.every || 3)) * 60000;
+      const sl = show[si++ % show.length], dur = sl.kind === 'lapse' ? Math.max(secs, 40) : secs;
+      cover(slideHTML(sl, now()), dur, 's' + si);
+      if (sl.kind === 'lapse' && ov) runLapse(ov, sl.L, sl.C, dur * 1000);
+      nextAt = Date.now() + dur * 1000 + Math.max(1, Math.min(30, +set.every || 3)) * 60000;
     }
   }
   setInterval(second, 1000);

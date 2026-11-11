@@ -148,7 +148,8 @@
           <button type="button" class="cm-reset" id="cm-reset">الإعدادات الأصلية</button></div>
         <div class="cm-key" id="cm-key"></div></div>
         <div class="cm-time"><select id="cm-day" class="form-select form-select-sm" aria-label="اليوم"></select><input type="range" id="cm-min" min="420" max="1260" step="15" aria-label="الوقت"><b id="cm-clock"></b>
-          <button type="button" class="btn btn-sm btn-light" id="cm-now"><i class="bi bi-clock"></i> الآن</button></div>
+          <button type="button" class="btn btn-sm btn-light" id="cm-now"><i class="bi bi-clock"></i> الآن</button>
+          <button type="button" class="btn btn-sm btn-light" id="cm-play" title="يوم الحرم في دقيقة"><i class="bi bi-play-fill"></i> يوم الحرم</button></div>
       </div>
       <aside class="cm-side"><div class="cm-search"><i class="bi bi-search"></i><input id="cm-q" type="search" placeholder="ابحث: مدرس، موظف، قاعة، مقرر، وحدة، مبنى…" value="${esc(q)}"></div>
         <nav class="cm-modes" role="tablist">${[['', 'bi-buildings', 'المباني'], ['route', 'bi-signpost-split', 'طريقي'], ['free', 'bi-door-open', 'قاعة شاغرة'], ['day', 'bi-calendar-week', 'يومي'], ['exams', 'bi-clipboard-check', 'امتحاني'], ['more', 'bi-grid-3x3-gap', 'المزيد']]
@@ -158,8 +159,9 @@
     const n = U.amman(P.get('at'));
     $('#cm-day').innerHTML = Object.entries(U.DAYS).filter(([k]) => k !== 'ج').map(([k, v]) => `<option value="${k}" ${k === n.day ? 'selected' : ''}>${esc(v)}${k === n.day ? ' (اليوم)' : ''}</option>`).join('');
     $('#cm-min').value = Math.min(1260, Math.max(420, n.min));
-    const setAt = () => { at = { day: $('#cm-day').value, min: +$('#cm-min').value }; draw(); };
+    const setAt = () => { if (tool === 'lapse') setTool(''); at = { day: $('#cm-day').value, min: +$('#cm-min').value }; draw(); };
     $('#cm-day').onchange = setAt; $('#cm-min').oninput = setAt;
+    $('#cm-play').onclick = () => { if (tool !== 'lapse') setTool('lapse'); if (!LP.tm) lapsePlay(); };
     $('#cm-now').onclick = () => { at = null; const m = U.amman(P.get('at')); $('#cm-day').value = m.day; $('#cm-min').value = Math.min(1260, Math.max(420, m.min)); draw(); };
     $('#cm-layers-b').onclick = e => { e.stopPropagation(); $('#cm-layers').hidden = !$('#cm-layers').hidden; };
     $('#cm-layers').onchange = e => { const k = e.target.dataset.l; if (k) { L[k] = e.target.checked; saveL(); draw(); } };
@@ -199,6 +201,7 @@
     if (t !== 'route' && !(route && route.keep)) route = null;
     if (t !== 'day') day = null;
     OV = { lines: [], marks: '' }; mark = new Set(); exday = null;
+    if (t !== 'lapse' && (LP.tm || $('#cm-lov'))) { lapseStop(); if ($('#cm-lov')) $('#cm-lov').remove(); at = null; }
     if (t !== 'fix') FIX.out = null;
     draw();
     if (t === 'route' && route && route.to) center(route.to.b);
@@ -206,16 +209,17 @@
   function color(st, b) {
     if (!(b.tt || []).length || !st.rooms.length) return '#64748b';
     if (tool === 'crowd') return crowdColor(crowdNow(b, now()));
+    if (tool === 'lapse') return crowdColor(lapseNow(b));
     if (!L.heat) return KIND[b.kind][1];
     return st.load >= 0.66 ? '#dc2626' : st.load >= 0.33 ? '#f59e0b' : '#16a34a';
   }
   function legend() {
     const items = [];
-    if (tool === 'crowd') items.push(['#16a34a', 'أقل من 150 طالباً'], ['#f59e0b', '150–400'], ['#dc2626', 'أكثر من 400']);
+    if (tool === 'crowd' || tool === 'lapse') items.push(['#16a34a', 'أقل من 150 طالباً'], ['#f59e0b', '150–400'], ['#dc2626', 'أكثر من 400']);
     else if (L.heat) items.push(['#16a34a', 'هادئ'], ['#f59e0b', 'متوسط'], ['#dc2626', 'مزدحم'], ['#64748b', 'بلا قاعات تدريس']);
     if (mark.size && tool === 'free') items.push(['#16a34a', 'فيه قاعة مناسبة', 'ring']);
     if (L.safety || tool === 'emergency') items.push(['#15803d', 'نقطة تجمع' + (C.safety && C.safety.status !== 'official' ? ' (مقترحة)' : ''), 'sq']);
-    if (L.count && tool !== 'crowd') items.push(['#111827', 'محاضرات جارية', 'cnt']);
+    if (L.count && tool !== 'crowd' && tool !== 'lapse') items.push(['#111827', 'محاضرات جارية', 'cnt']);
     if (L.oh) items.push(['#16a34a', 'ساعة مكتبية الآن', 'ring']);
     if (L.exams && EX) items.push(['#1d4ed8', 'امتحانات', 'sq']);
     if (L.gardens) items.push(['#f08a24', 'حديقة', 'dia']);
@@ -226,12 +230,13 @@
   function pins() {
     const n = now(), hits = new Set((search.hits || []).map(h => h.b && h.b.id)), oh = L.oh ? inOfficeHours(n) : [], ev = L.events ? events(n) : [];
     const pos = o => `left:${o.x * 100}%;top:${o.y * 100}%`;
-    let h = C.buildings.map(b => {
+    let h = tool === 'lapse' ? C.buildings.filter(b => (b.tt || []).length).map(b => `<span class="cm-glow" data-b="${esc(b.id)}" style="${pos(b)}"></span>`).join('') : '';
+    h += C.buildings.map(b => {
       const st = status(b, n), c = color(st, b), ex = L.exams ? examsAt(b, n) : [], exNow = ex.filter(e => toMin(e.from) <= n.min && n.min < toMin(e.to)).length;
       const ohHere = oh.filter(x => x.b === b);
-      const cnt = tool === 'crowd' ? crowdNow(b, n) : st.run.length;
+      const cnt = tool === 'crowd' ? crowdNow(b, n) : tool === 'lapse' ? lapseNow(b) : st.run.length;
       return `<button type="button" class="cm-pin ${L.nums ? '' : 'nonum'} ${b.id === sel ? 'on' : ''} ${hits.has(b.id) ? 'hit' : ''} ${mark.has(b.id) ? 'mk' : ''}" data-b="${esc(b.id)}" style="${pos(b)};--c:${c}" title="${esc(b.name)}">
-        <b>${esc(b.id)}</b>${(L.count || tool === 'crowd') && cnt ? `<small class="cm-cnt" title="${tool === 'crowd' ? cnt + ' طالباً في قاعاته' : cnt + ' محاضرة جارية الآن'}">${cnt}</small>` : ''}
+        <b>${esc(b.id)}</b>${(L.count || tool === 'crowd' || tool === 'lapse') && cnt ? `<small class="cm-cnt" title="${tool === 'crowd' ? cnt + ' طالباً في قاعاته' : cnt + ' محاضرة جارية الآن'}">${cnt}</small>` : ''}
         ${ex.length ? `<em class="cm-exb" title="امتحانات اليوم${exNow ? ' (' + exNow + ' الآن)' : ''}"><i class="bi bi-clipboard-check"></i>${ex.length}</em>` : ''}
         ${L.faces && !ohHere.length ? stack(b) : ''}${ohHere.length ? `<span class="cm-stack oh">${ohHere.slice(0, 3).map(x => face(x.m)).join('')}${ohHere.length > 3 ? `<i>+${ohHere.length - 3}</i>` : ''}</span>` : ''}</button>`;
     }).join('');
@@ -310,6 +315,7 @@
     return out.join('');
   }
   function draw() {
+    if (tool !== 'lapse' && $('#cm-lov')) { lapseStop(); $('#cm-lov').remove(); at = null; }
     const n = now();
     $('#cm-clock').textContent = `${U.DAYS[n.day] || ''} ${n.clock}`;
     app.querySelectorAll('[data-tool]').forEach(x => x.classList.toggle('on', x.dataset.tool === tool || (x.dataset.tool === 'more' && MOREK.includes(tool))));
@@ -345,6 +351,7 @@
     if (tool === 'free') return freeTool(n);
     if (tool === 'exams') return examTool(n);
     if (tool === 'crowd') return crowdTool(n);
+    if (tool === 'lapse') return lapseTool(n);
     if (tool === 'tour') return tourTool();
     if (tool === 'emergency') return emergencyTool();
     if (tool === 'fix') return fixTool();
@@ -743,7 +750,7 @@
     ['للطلبة', [['tour', 'bi-flag', 'جولة الطلبة الجدد', 'محطات الحرم الأساسية بالترتيب، مع دليل للطباعة']]],
     ['السلامة والخدمات', [['emergency', 'bi-exclamation-octagon', 'الطوارئ ونقاط التجمع', 'أقرب نقطة تجمع وأرقام الطوارئ وخطة الإخلاء'],
       ['fix', 'bi-tools', 'بلاغ عطل', 'أبلغ عن عطل في قاعة أو مبنى ببلاغ رسمي مرقّم'], ['access', 'bi-universal-access', 'الوصول الميسّر', 'مسار مقترح والطوابق ومقترح رسمي للدراسة']]],
-    ['للإدارة والتخطيط', [['week', 'bi-bar-chart-line', 'الإشغال وتقرير القاعات', 'نسب الإشغال والتوصيات وتقرير رسمي'], ['crowd', 'bi-people', 'توقّع الازدحام', 'الذروة في المباني والبوابات من أعداد المسجلين'],
+    ['للإدارة والتخطيط', [['lapse', 'bi-play-circle', 'يوم الحرم في دقيقة', 'الازدحام متحركاً من 7:30 إلى 18:30، ورابط لشاشة عرض'], ['week', 'bi-bar-chart-line', 'الإشغال وتقرير القاعات', 'نسب الإشغال والتوصيات وتقرير رسمي'], ['crowd', 'bi-people', 'توقّع الازدحام', 'الذروة في المباني والبوابات من أعداد المسجلين'],
       ['qr', 'bi-qr-code', 'ملصقات QR', '«أنت هنا» و«بلاغ عطل» لكل بوابة ومبنى']]]];
   const MOREK = MORE.flatMap(g => g[1].map(x => x[0]));
   function moreTool() {
@@ -1144,6 +1151,76 @@
       sign: ['أعدّه', 'مدير التخطيط', 'اعتمده'] });
   }
 
+  // ---------------------------------------------------------------- «يوم الحرم في دقيقة»: the day from 7:30 to 18:30 played on the map (students in each building every 5 minutes)
+  // ?tool=lapse&play=1&loop=1&kiosk=1: a display screen (full window, plays and repeats by itself)
+  const LP = { d: '', i: 0, tm: null, speed: 1, loop: P.has('loop'), done: false }, LPD = {};
+  function lapseCalc(d) {
+    if (LPD[d]) return LPD[d];
+    const T0 = 450, T1 = 1110, ST = 5, n = (T1 - T0) / ST, per = {}, tot = new Array(n + 1).fill(0);
+    C.buildings.forEach(b => { if (!(b.tt || []).length) return; const arr = per[b.id] = new Array(n + 1).fill(0);
+      meetings(b, d).forEach(x => { const v = +x.s.registered || 0; for (let i = 0; i <= n; i++) { const t = T0 + i * ST; if (x.a <= t && t < x.z) { arr[i] += v; tot[i] += v; } } }); });
+    const max = Math.max(1, ...Object.values(per).flat()), pk = tot.indexOf(Math.max(...tot));
+    return (LPD[d] = { T0, ST, n, per, tot, max, pk });
+  }
+  const lapseNow = b => { const L = LPD[LP.d]; return L && L.per[b.id] ? L.per[b.id][LP.i] : 0; };
+  const glowSize = v => { const L = LPD[LP.d]; return v && L ? Math.round(26 + Math.sqrt(v / L.max) * 120) : 0; };
+  function lapseTool(n) {
+    const DAYS = Object.keys(U.DAYS).filter(k => k !== 'ج'), has = k => lapseCalc(k).tot.some(Boolean);
+    if (!LP.d || !DAYS.includes(LP.d)) LP.d = has(n.day) ? n.day : DAYS.find(has) || n.day;
+    const L = lapseCalc(LP.d), kiosk = SITE + `campus.html?tool=lapse&play=1&loop=1&kiosk=1`;
+    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'يوم الحرم في دقيقة', 'الطلبة في قاعات كل مبنى من 7:30 إلى 18:30، متحركاً على الخريطة')}
+      <div class="cm-days" role="group" aria-label="اليوم">${DAYS.map(k => `<button type="button" data-ld="${k}" class="${k === LP.d ? 'on' : ''} ${has(k) ? '' : 'none'}" ${has(k) ? '' : 'disabled'}>${esc(U.DAYS[k] || k)}</button>`).join('')}</div>
+      <div class="cm-lp-ctl"><button type="button" class="btn btn-maroon" id="cm-lplay"><i class="bi bi-${LP.tm ? 'pause' : 'play'}-fill"></i> ${LP.tm ? 'إيقاف مؤقت' : LP.i ? 'تابع' : 'شغّل'}</button>
+        <button type="button" class="btn btn-outline-secondary" id="cm-lre" title="من البداية"><i class="bi bi-skip-start-fill"></i></button>
+        <div class="cm-by">${[[1, 'دقيقة'], [2, 'نصف دقيقة']].map(([v, t]) => `<button type="button" data-ls="${v}" class="${LP.speed === v ? 'on' : ''}">${t}</button>`).join('')}</div>
+        <label class="cm-chk m-0"><input type="checkbox" id="cm-lloop" ${LP.loop ? 'checked' : ''}> تكرار</label></div>
+      <div class="cm-kpis"><div><b dir="ltr" id="cm-lck">${toTime(L.T0 + LP.i * L.ST)}</b><span>الوقت</span></div><div><b id="cm-lto">${L.tot[LP.i].toLocaleString('en')}</b><span>طالباً في القاعات</span></div><div><b dir="ltr">${toTime(L.T0 + L.pk * L.ST)}</b><span>الذروة: ${L.tot[L.pk].toLocaleString('en')}</span></div></div>
+      <div id="cm-lch">${lapseChart(L)}</div>
+      <h3><i class="bi bi-buildings"></i> الأكثر ازدحاماً الآن</h3><div id="cm-ltop"></div>
+      <h3><i class="bi bi-display"></i> لشاشة عرض</h3><p class="cm-note">رابط يفتح الخريطة على كامل الشاشة ويعرض اليوم ويكرره وحده. ولشاشات المباني: «يوم الحرم» في «إعدادات الشاشات».</p>
+      <div class="cm-links"><button type="button" class="btn btn-sm btn-outline-secondary" data-copy="${esc(kiosk)}"><i class="bi bi-link-45deg"></i> نسخ رابط الشاشة</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="cm-lfs"><i class="bi bi-fullscreen"></i> ملء الشاشة الآن</button></div></div>`;
+    bind(() => setTool(''));
+    $('#cm-card').querySelectorAll('[data-ld]').forEach(x => x.onclick = () => { LP.d = x.dataset.ld; LP.i = 0; lapseTool(now()); lapseFrame(); });
+    $('#cm-card').querySelectorAll('[data-ls]').forEach(x => x.onclick = () => { LP.speed = +x.dataset.ls; if (LP.tm) { lapseStop(); lapsePlay(); } else lapseTool(now()); });
+    $('#cm-lplay').onclick = () => LP.tm ? lapseStop() : lapsePlay();
+    $('#cm-lre').onclick = () => { LP.i = 0; lapseFrame(); };
+    $('#cm-lloop').onchange = e => { LP.loop = e.target.checked; };
+    $('#cm-lfs').onclick = () => { if (!app.querySelector('.cm.cm-full')) fullscreen(); if (!LP.tm) lapsePlay(); };
+    if (!$('#cm-lov')) $('#cm-map').insertAdjacentHTML('beforeend', '<div class="cm-lov" id="cm-lov"><b dir="ltr"></b><span></span><i><em></em></i></div>');
+    pins(); lapseFrame();
+  }
+  function lapseChart(L) {
+    const W = 380, H = 110, max = Math.max(1, ...L.tot), x = i => 26 + i * (W - 34) / L.n, y = v => H - 16 - v / max * (H - 26);
+    return `<svg viewBox="0 0 ${W} ${H}" class="cm-chart"><path d="M${x(0)},${y(0)} ${L.tot.map((v, i) => `L${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ')} L${x(L.n)},${y(0)} Z" fill="#901d23" fill-opacity=".18" stroke="#901d23" stroke-width="1.5"/>
+      ${[8, 10, 12, 14, 16, 18].map(h => { const i = (h * 60 - L.T0) / L.ST; return `<text x="${x(i)}" y="${H - 3}" font-size="9" text-anchor="middle" fill="#6b7280">${h}</text>`; }).join('')}
+      <line id="cm-lln" x1="${x(LP.i)}" x2="${x(LP.i)}" y1="6" y2="${y(0)}" stroke="#111" stroke-width="1.5"/><circle id="cm-ldot" cx="${x(LP.i)}" cy="${y(L.tot[LP.i])}" r="3.5" fill="#901d23"/></svg>`;
+  }
+  // one moment: the pins, the glow behind each building, the clock over the map, the panel's numbers (changed in place, so they move smoothly)
+  function lapseFrame() {
+    const L = LPD[LP.d]; if (!L || tool !== 'lapse') return;
+    const t = L.T0 + LP.i * L.ST, W = 380, H = 110, max = Math.max(1, ...L.tot), x = 26 + LP.i * (W - 34) / L.n, y = H - 16 - L.tot[LP.i] / max * (H - 26);
+    at = { day: LP.d, min: t }; $('#cm-day').value = LP.d; $('#cm-min').value = Math.min(1260, Math.max(420, t)); $('#cm-clock').textContent = `${U.DAYS[LP.d] || ''} ${toTime(t)}`;
+    app.querySelectorAll('#cm-pins .cm-pin').forEach(p => { const b = B(p.dataset.b), v = lapseNow(b), c = (b.tt || []).length ? crowdColor(v) : '#64748b';
+      p.style.setProperty('--c', c); let k = p.querySelector('.cm-cnt'); if (v) { if (!k) { k = document.createElement('small'); k.className = 'cm-cnt'; p.appendChild(k); } k.textContent = v; } else if (k) k.remove(); });
+    app.querySelectorAll('#cm-pins .cm-glow').forEach(g => { const v = lapseNow(B(g.dataset.b)); g.style.setProperty('--g', glowSize(v) + 'px'); g.style.setProperty('--c', crowdColor(v)); });
+    const ov = $('#cm-lov'); if (ov) { ov.querySelector('b').textContent = toTime(t); ov.querySelector('span').textContent = `${L.tot[LP.i].toLocaleString('en')} طالباً في القاعات · ${U.DAYS[LP.d] || ''}`; ov.querySelector('em').style.width = (LP.i / L.n * 100) + '%'; }
+    if ($('#cm-lck')) { $('#cm-lck').textContent = toTime(t); $('#cm-lto').textContent = L.tot[LP.i].toLocaleString('en');
+      $('#cm-lln').setAttribute('x1', x); $('#cm-lln').setAttribute('x2', x); $('#cm-ldot').setAttribute('cx', x); $('#cm-ldot').setAttribute('cy', y);
+      $('#cm-ltop').innerHTML = Object.entries(L.per).map(([b, a]) => [B(b), a[LP.i]]).filter(r => r[1]).sort((a, b) => b[1] - a[1]).slice(0, 5)
+        .map(([b, v]) => `<div class="cm-lrow"><span class="cm-no sm" style="--c:${crowdColor(v)}">${esc(b.id)}</span><span>${esc(b.short || b.name)}</span><span class="cm-bar"><i style="width:${Math.round(v / L.max * 100)}%;background:${crowdColor(v)}"></i></span><b>${v.toLocaleString('en')}</b></div>`).join('') || empty('لا محاضرات في هذه اللحظة.'); }
+  }
+  function lapsePlay() {
+    const L = lapseCalc(LP.d); if (LP.i >= L.n) LP.i = 0;
+    clearInterval(LP.tm); LP.tm = setInterval(() => {
+      if (tool !== 'lapse') return lapseStop();
+      if (LP.i >= L.n) { if (LP.loop) { clearInterval(LP.tm); LP.tm = setTimeout(() => { LP.i = 0; lapseFrame(); if (tool === 'lapse') lapsePlay(); }, 3000); } else lapseStop(); return; }
+      LP.i++; lapseFrame();
+    }, 60000 / L.n / LP.speed);
+    if ($('#cm-lplay')) $('#cm-lplay').innerHTML = '<i class="bi bi-pause-fill"></i> إيقاف مؤقت';
+  }
+  function lapseStop() { clearInterval(LP.tm); clearTimeout(LP.tm); LP.tm = null; if ($('#cm-lplay')) $('#cm-lplay').innerHTML = '<i class="bi bi-play-fill"></i> تابع'; }
+
   // ---------------------------------------------------------------- «ملصقات QR»: «أنت هنا» stickers for the gates and the building entrances
   function qrTool() {
     const qr = link => { if (!window.qrcode) return ''; const x = window.qrcode(0, 'M'); x.addData(link); x.make(); return x.createSvgTag({ cellSize: 4, margin: 1, scalable: true }); };
@@ -1519,6 +1596,14 @@
     .cm-body, .cm-res, .cm-qrs, .cm.cm-full .cm-side { direction: ltr; } .cm-body > *, .cm-res > *, .cm-qrs > *, .cm.cm-full .cm-side > * { direction: rtl; min-width: 0; max-width: 100%; }
     .cm-list, .cm-res, .cm-facts, .cm-more-g, .cm-floors { grid-template-columns: minmax(0, 1fr); } .cm-frow, .cm-exam, .cm-near, .cm-daystep { min-width: 0; }
     .cm-body { padding-inline-end: 0; padding-right: .35rem; }
+    .cm-glow { position: absolute; width: calc(var(--g, 0px) * var(--pin, 1)); height: calc(var(--g, 0px) * var(--pin, 1)); transform: translate(-50%, -50%); border-radius: 50%; pointer-events: none;
+      background: radial-gradient(circle, color-mix(in srgb, var(--c, #16a34a) 75%, transparent) 0%, color-mix(in srgb, var(--c, #16a34a) 40%, transparent) 55%, transparent 72%); transition: width .35s linear, height .35s linear; z-index: 0; }
+    .cm-lov { position: absolute; top: .6rem; left: 50%; transform: translateX(-50%); z-index: 7; background: rgba(9,27,34,.88); color: #fff; border-radius: 14px; padding: .35rem 1rem .5rem; text-align: center; min-width: 13rem; pointer-events: none; direction: rtl; box-shadow: 0 6px 20px rgba(0,0,0,.35); }
+    .cm-lov b { display: block; font-size: 2rem; line-height: 1.1; color: #fde68a; font-variant-numeric: tabular-nums; } .cm-lov span { font-size: .82rem; } .cm-lov i { display: block; height: 4px; background: rgba(255,255,255,.2); border-radius: 9px; margin-top: .3rem; overflow: hidden; } .cm-lov em { display: block; height: 100%; background: #fde68a; }
+    .cm.cm-full .cm-lov b { font-size: 3rem; } .cm.cm-full .cm-lov { padding: .5rem 1.6rem .7rem; } .cm.cm-full .cm-lov span { font-size: 1.05rem; }
+    .cm-lp-ctl { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin: .5rem 0; } .cm-lp-ctl .cm-by { margin: 0; }
+    .cm-lrow { display: flex; gap: .45rem; align-items: center; padding: .2rem 0; font-size: .84rem; } .cm-lrow > span:nth-child(2) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .cm-lrow b { font-variant-numeric: tabular-nums; min-width: 2.6rem; text-align: end; }
+    @media (max-width: 575.98px) { #cm-play { display: none; } .cm-lov { min-width: 0; padding: .2rem .7rem .35rem; } .cm-lov b { font-size: 1.4rem; } .cm-lov span { font-size: .7rem; } }
     .cm-heatwrap { overflow-x: auto; } .cm-heat { border-collapse: separate; border-spacing: 2px; width: 100%; font-size: .7rem; }
     .cm-heat th { font-weight: 700; color: var(--bs-secondary-color); text-align: center; padding: .1rem; white-space: nowrap; } .cm-heat tbody th { text-align: start; }
     .cm-heat td { text-align: center; border-radius: 4px; padding: .25rem 0; background: color-mix(in srgb, #dc2626 calc(var(--v) * 100%), #ecfdf3); color: #111; font-weight: 700; }
@@ -1557,6 +1642,7 @@
     else if (sel && B(sel)) center(B(sel));
     else if (route && route.to) center(route.to.b);
     else if (here) center(here);
+    if (tool === 'lapse' && P.has('play')) { if (P.has('kiosk')) { app.querySelector('.cm').classList.add('cm-full'); panel(!P.has('nopanel')); fsIcon(); setTimeout(apply, 80); } setTimeout(lapsePlay, 800); }
     setInterval(() => { if (!at && !(document.activeElement && document.activeElement.closest('#cm-card'))) { Object.keys(cache).forEach(k => delete cache[k]); draw(); } }, 60000);
   }).catch(e => { app.innerHTML = `<div class="alert alert-danger mt-3">تعذّر التحميل (${esc(e.message)}).</div>`; });
 })();
