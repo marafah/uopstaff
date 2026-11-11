@@ -1344,14 +1344,20 @@
     const K = R ? { whole: R.out.filter(x => x.kind === 'whole').length, split: R.out.filter(x => x.kind === 'split').length, bad: R.out.filter(x => x.kind === 'part' || x.kind === 'none').length } : null;
     $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'ماذا لو؟ — إغلاق مبنى', 'أين تذهب شعبه إلى قاعات شاغرة قريبة بالأوقات نفسها')}
       <label class="cm-lbl">المباني المغلقة <small class="text-muted fw-normal">(اضغط لاختيار مبنى أو أكثر، أو اضغطه على الخريطة)</small></label>
-      <div class="cm-by">${C.buildings.filter(b => (b.tt || []).length && roomsOf(b).length).map(b => `<button type="button" data-wc="${esc(b.id)}" class="${WI.closed.includes(b.id) ? 'on danger' : ''}" title="${esc(b.name)}">${esc(b.id)} · ${esc(b.short || b.name)}</button>`).join('')}</div>
+      <div class="cm-wb">${C.buildings.filter(b => (b.tt || []).length && roomsOf(b).length).map(b => { const on = WI.closed.includes(b.id);
+        return `<button type="button" data-wc="${esc(b.id)}" class="${on ? 'on' : ''}" title="${esc(b.name)}" aria-pressed="${on}"><span class="cm-no sm" style="--c:${on ? '#dc2626' : '#475569'}">${esc(b.id)}</span><span>${esc(b.short || b.name)}<small>${roomsOf(b).length} قاعة</small></span><i class="bi bi-${on ? 'x-circle-fill' : 'circle'}"></i></button>`; }).join('')}</div>
       <label class="cm-lbl">أيام الإغلاق</label><div class="cm-by">${DAYS.map(d => `<button type="button" data-wd="${d}" class="${(WI.days || DAYS).includes(d) ? 'on' : ''}">${esc(U.DAYS[d])}</button>`).join('')}</div>
       ${!R ? `<p class="cm-note mt-2">اختر مبنى لترى الأثر وخطة النقل.</p>` : !R.out.length ? empty('لا محاضرات وجاهية في المبنى المختار بهذه الأيام.') : `
       <div class="cm-kpis mt-2"><div><b>${R.out.length}</b><span>شعبة متأثرة</span></div><div><b>${R.students.toLocaleString('en')}</b><span>طالباً (تسجيلاً)</span></div><div><b>${R.meet}</b><span>محاضرة أسبوعياً</span></div></div>
       <div class="cm-wsum">${K.whole ? `<span class="ok"><b>${K.whole}</b> تنتقل كاملة إلى قاعة واحدة</span>` : ''}${K.split ? `<span class="mid"><b>${K.split}</b> تتوزع على أكثر من قاعة</span>` : ''}${K.bad ? `<span class="bad"><b>${K.bad}</b> بلا قاعة متاحة لبعض أوقاتها — تحتاج قراراً</span>` : '<span class="ok"><i class="bi bi-check2-circle"></i> كل الشعب لها قاعات بديلة</span>'}${R.small.length ? `<span class="mid"><b>${R.small.length}</b> قد تكون قاعتها الجديدة أصغر (تحقّق منها)</span>` : ''}</div>
-      <div class="cm-body"><div class="cm-found">${R.out.slice(0, 60).map(x => { const to = [...new Set(x.moves.filter(m => m.to).map(m => m.to.r))];
-        return `<div class="cm-sec cm-w ${x.kind}"><span class="cm-t"><b>${esc(x.s.name)} <small>ش${esc(x.s.section)} · ${x.reg} طالباً</small></b><small>${esc(U.shortName(x.s.instructor))} · ${esc(whenTxt(x.list))}</small>
-          <small>من <b dir="ltr">${esc(x.from)}</b> إلى ${to.length ? to.map(r => `<b dir="ltr">${esc(r)}</b>`).join('، ') : '<b class="text-danger">لا قاعة متاحة</b>'}${to.length === 1 ? ` · مبنى ${esc(x.moves.find(m => m.to).to.b.id)} (${meters(x.b, x.moves.find(m => m.to).to.b)} م)` : ''}${x.moves.some(m => m.to && (R.cap[m.to.r] || 0) < x.reg) ? ' · <span class="text-warning-emphasis">قد تكون أصغر</span>' : ''}</small></span></div>`; }).join('')}</div>${R.out.length > 60 ? `<div class="cm-more">و${R.out.length - 60} شعبة أخرى في التقرير</div>` : ''}</div>`}
+      <div class="cm-body"><div class="cm-wlist">${R.out.slice().sort((a, b) => ({ none: 0, part: 0, split: 1, whole: 2 })[a.kind] - ({ none: 0, part: 0, split: 1, whole: 2 })[b.kind]).slice(0, 60).map(x => { const first = x.moves.find(m => m.to), to = [...new Set(x.moves.filter(m => m.to).map(m => m.to.r))], small = x.moves.some(m => m.to && (R.cap[m.to.r] || 0) < x.reg);
+        const tag = { whole: ['ok', 'قاعة واحدة'], split: ['mid', 'أكثر من قاعة'], part: ['bad', 'تحتاج قراراً'], none: ['bad', 'تحتاج قراراً'] }[x.kind];
+        return `<article class="cm-wc ${tag[0]}"><header><b>${esc(x.s.name)}</b><span class="cm-wtag ${tag[0]}">${tag[1]}</span></header>
+          <div class="cm-wmeta"><span><i class="bi bi-hash"></i>شعبة ${esc(x.s.section)}</span><span><i class="bi bi-people"></i>${x.reg} طالباً</span><span><i class="bi bi-person"></i>${esc(U.shortName(x.s.instructor) || '—')}</span></div>
+          <div class="cm-wwhen"><i class="bi bi-clock"></i> ${esc(whenTxt(x.list))}</div>
+          <div class="cm-wmove"><div class="from"><small>القاعة الحالية</small><b dir="ltr">${esc(x.from)}</b><small>مبنى ${esc(x.b.id)}</small></div><i class="bi bi-arrow-left"></i>
+            <div class="to ${to.length ? '' : 'none'}"><small>المقترحة</small>${to.length ? `<b dir="ltr">${to.map(esc).join(' · ')}</b><small>${to.length === 1 ? `مبنى ${esc(first.to.b.id)} · ${meters(x.b, first.to.b)} م` : 'حسب اليوم (في التقرير)'}</small>` : '<b>لا قاعة شاغرة</b><small>تحتاج قراراً</small>'}</div></div>
+          ${small ? '<div class="cm-wwarn"><i class="bi bi-exclamation-triangle"></i> قد تكون القاعة المقترحة أصغر من عدد الطلبة — تحقّق منها</div>' : ''}</article>`; }).join('')}</div>${R.out.length > 60 ? `<div class="cm-more">و${R.out.length - 60} شعبة أخرى في التقرير</div>` : ''}</div>`}
       <div class="cm-links"><button type="button" class="btn btn-sm btn-maroon" id="cm-doc" ${R && R.out.length ? '' : 'disabled'}><i class="bi bi-file-earmark-text"></i> خطة النقل (تقرير رسمي)</button>
         ${WI.closed.length ? '<button type="button" class="btn btn-sm btn-outline-secondary" id="cm-wclr">ابدأ من جديد</button>' : ''}</div></div>`;
     bind(() => setTool(''));
@@ -1785,6 +1791,23 @@
     @media (max-width: 575.98px) { #cm-play { display: none; } .cm-lov { min-width: 0; padding: .2rem .7rem .35rem; } .cm-lov b { font-size: 1.4rem; } .cm-lov span { font-size: .7rem; } }
     .cm-wsum { display: grid; gap: .2rem; margin: .4rem 0; font-size: .82rem; } .cm-wsum span { border-radius: 8px; padding: .2rem .5rem; } .cm-wsum b { font-size: 1rem; }
     .cm-wsum .ok { background: #f0fdf4; color: #14532d; } .cm-wsum .mid { background: #fffbeb; color: #78350f; } .cm-wsum .bad { background: #fef2f2; color: #7f1d1d; }
+    .cm-wb { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .35rem; }
+    .cm-wb button { display: flex; align-items: center; gap: .45rem; text-align: start; border: 1px solid var(--bs-border-color); background: var(--bs-body-bg); color: var(--bs-body-color); border-radius: 10px; padding: .35rem .5rem; min-width: 0; }
+    .cm-wb button > span:nth-child(2) { flex: 1; min-width: 0; font-size: .82rem; font-weight: 700; line-height: 1.25; } .cm-wb small { display: block; font-weight: 500; font-size: .7rem; color: var(--bs-secondary-color); }
+    .cm-wb button > i { color: var(--bs-secondary-color); } .cm-wb button:hover { border-color: #dc2626; }
+    .cm-wb button.on { border-color: #dc2626; background: #fef2f2; color: #7f1d1d; } .cm-wb button.on > i { color: #dc2626; }
+    .cm-wlist { display: grid; grid-template-columns: minmax(0, 1fr); gap: .45rem; }
+    .cm-wc { border: 1px solid var(--bs-border-color); border-inline-start: 4px solid #16a34a; border-radius: 12px; padding: .55rem .65rem; display: grid; gap: .3rem; background: var(--bs-body-bg); min-width: 0; }
+    .cm-wc.mid { border-inline-start-color: #f59e0b; } .cm-wc.bad { border-inline-start-color: #dc2626; }
+    .cm-wc header { display: flex; align-items: flex-start; gap: .4rem; } .cm-wc header b { flex: 1; min-width: 0; font-size: .92rem; line-height: 1.35; }
+    .cm-wtag { flex: none; font-size: .68rem; font-weight: 700; border-radius: 999px; padding: .05rem .5rem; } .cm-wtag.ok { background: #dcfce7; color: #166534; } .cm-wtag.mid { background: #fef3c7; color: #92400e; } .cm-wtag.bad { background: #fee2e2; color: #991b1b; }
+    .cm-wmeta { display: flex; flex-wrap: wrap; gap: .2rem .7rem; font-size: .76rem; color: var(--bs-secondary-color); } .cm-wmeta i { margin-inline-end: .2rem; color: #901d23; }
+    .cm-wwhen { font-size: .76rem; color: var(--bs-secondary-color); } .cm-wwhen i { color: #901d23; }
+    .cm-wmove { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: .4rem; background: var(--bs-tertiary-bg); border-radius: 10px; padding: .35rem .5rem; }
+    .cm-wmove > i { color: #901d23; font-size: 1.1rem; } .cm-wmove > div { display: grid; min-width: 0; } .cm-wmove small { font-size: .68rem; color: var(--bs-secondary-color); }
+    .cm-wmove b { font-size: 1.05rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; } .cm-wmove .from b { color: #6b7280; text-decoration: line-through; text-decoration-thickness: 1px; }
+    .cm-wmove .to b { color: #166534; } .cm-wmove .to.none b { color: #b91c1c; font-size: .9rem; }
+    .cm-wwarn { font-size: .74rem; color: #92400e; background: #fffbeb; border-radius: 8px; padding: .2rem .45rem; }
     .cm-w { border-inline-start: 4px solid #16a34a; } .cm-w.split { border-inline-start-color: #f59e0b; } .cm-w.part, .cm-w.none { border-inline-start-color: #dc2626; } .cm-w .cm-t small b { color: #091b22; }
     .cm-closed { position: absolute; transform: translate(-50%, -50%) scale(var(--pin, 1)); width: 2.6rem; height: 2.6rem; border-radius: 50%; background: rgba(17,24,39,.75); color: #fff; display: grid; place-items: center; font-size: 1.3rem; z-index: 4; pointer-events: none; box-shadow: 0 0 0 3px #dc2626; }
     #cm-svg .cm-wline { stroke: #dc2626; stroke-width: 3; stroke-dasharray: 6 6; opacity: .75; }
