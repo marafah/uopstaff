@@ -453,6 +453,8 @@ def do(action, d, user, acc, posts, accs):
                 o["secs"] = max(5, min(60, int(s["secs"])))
             if "exams" in s:
                 o["exams"] = bool(s["exams"])
+            if "map" in s:
+                o["map"] = bool(s["map"])
             return o
         scr = d.get("screens") or {}
         if not isinstance(scr, dict) or any(not screen_ok(k, known) or k.startswith("g:") or k == "*" for k in scr):

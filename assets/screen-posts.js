@@ -24,7 +24,7 @@
   const TONES = { info: ['#0e7490', 'أزرق'], gold: ['#b7791f', 'ذهبي'], maroon: ['#9e1f27', 'عنابي'], green: ['#15803d', 'أخضر'], violet: ['#6d28d9', 'بنفسجي'] };
   const ICONS = ['bi-megaphone', 'bi-info-circle', 'bi-calendar-event', 'bi-mortarboard', 'bi-trophy', 'bi-people', 'bi-briefcase', 'bi-journal-text',
     'bi-mic', 'bi-easel', 'bi-heart-pulse', 'bi-lightbulb', 'bi-globe2', 'bi-award', 'bi-cash-coin', 'bi-exclamation-circle', 'bi-clock-history', 'bi-geo-alt'];
-  const DEF = { mode: 'on', every: 3, secs: 15, exams: false };
+  const DEF = { mode: 'on', every: 3, secs: 15, exams: false, map: false };
   const DAYL = ['ح', 'ن', 'ث', 'ر', 'خ', 'س', 'ج'];
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const toMin = t => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ''); return m ? +m[1] * 60 + +m[2] : null; };
@@ -116,6 +116,12 @@
       .pp-alert h3 { font-size: 3.4em; font-weight: 800; margin: 0; } .pp-alert p { font-size: 1.8em; margin: 0; color: #fee2e2; white-space: pre-line; max-width: 80%; }
       @keyframes ppBlink { 50% { opacity: .45; } }
       @media (prefers-reduced-motion: reduce) { .pp-urg, .pp-alert i { animation: none; } .pp-tt > span { transition: none; } }
+      .pp-mapbody { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 15em; gap: 1em; align-items: center; }
+      .pp-map { width: 100%; height: 100%; display: block; background: #f6f8f7; border-radius: 12px; }
+      .pp-pulse { fill: rgba(37,99,235,.45); transform-box: fill-box; transform-origin: center; animation: ppYou 1.6s ease-out infinite; }
+      @keyframes ppYou { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(4); opacity: 0; } }
+      .pp-mapside h3 { font-size: 1.7em; font-weight: 800; margin: 0 0 .3em; } .pp-mapside p { font-size: 1.05em; color: #dbe4e9; line-height: 1.5; }
+      .pp-mapside .pp-qr svg { width: 9em; height: 9em; }
       .pp-mockw { container-type: inline-size; }
       .scr.pp-mock, .scr.pp-mock * { box-sizing: border-box; }
       .scr.pp-mock { position: relative; inset: auto; width: 100%; aspect-ratio: 16 / 9; font-size: 1.15cqw; border-radius: 12px; overflow: hidden; z-index: 0; }
@@ -132,6 +138,14 @@
   const prog = () => '<div class="pp-prog"><em></em></div>';
   // a slide: {kind: 'notices', items} | {kind: 'event', p} | {kind: 'poster', p}; img overrides the poster's image (preview)
   function slideHTML(s, now, img) {
+    if (s.kind === 'map') {   // «أنت هنا»: the campus plan with this building, and a QR to the live map from here
+      const b = s.b, link = s.site + 'campus.html?here=' + encodeURIComponent('b:' + b.id), q = qr(link);
+      return `<div class="pp-slide pp-mapslide"><div class="pp-head"><i class="bi bi-map"></i> خريطة الحرم${''}</div>${prog()}
+        <div class="pp-mapbody"><svg class="pp-map" viewBox="0 0 ${s.w} ${s.h}" preserveAspectRatio="xMidYMid meet"><image href="${esc(s.img)}" width="${s.w}" height="${s.h}"/>
+          <g transform="translate(${(b.x * s.w).toFixed(0)} ${(b.y * s.h).toFixed(0)})"><circle class="pp-pulse" r="22"/><circle r="22" fill="#2563eb" stroke="#fff" stroke-width="7"/>
+          <rect x="-62" y="32" width="124" height="38" rx="19" fill="#2563eb"/><text y="58" text-anchor="middle" fill="#fff" font-size="24" font-weight="800">أنت هنا</text></g></svg>
+          <div class="pp-mapside"><h3>أنت في ${esc(b.name)}</h3><p>امسح الرمز: خريطة الحرم الحيّة، والطريق إلى أي قاعة أو مكتب، ومن في كل مبنى الآن.</p>${q ? `<div class="pp-qr">${q}<span>خريطة الحرم</span></div>` : ''}</div></div></div>`;
+    }
     if (s.kind === 'poster') {
       const p = s.p, src = img || safeImg(p.image), q = qr(p.link);
       return `<div class="pp-slide pp-poster">${src ? `<div class="pp-bg" style="background-image:url('${esc(src)}')"></div><img src="${esc(src)}" alt="">` : '<div class="pp-alert" style="flex:1"><i class="bi bi-image"></i><p>اختر صورة</p></div>'}
@@ -186,7 +200,7 @@
   if (P.get('posts') === 'off') return;   // this screen exactly as it was
   const KEY = (P.get('b') || '').replace(/^مينى\s/, 'مبنى ');
   if (!KEY) return;
-  let D = null, SCR = null, show = [], tick = [], tk = 0, si = 0, nextAt = Date.now() + 20000, ov = null, rowsWas = '';
+  let CAMPUS, D = null, SCR = null, show = [], tick = [], tk = 0, si = 0, nextAt = Date.now() + 20000, ov = null, rowsWas = '';
   const now = () => window.UOP.amman(P.get('at'));
   const load = () => DEMO ? (() => { try { const x = JSON.parse(localStorage.getItem('uop-pp-demo') || 'null'); D = x && x.DATA; } catch (e) { D = null; } draw(); })()
     : fetch('data/screen_posts.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(x => { D = x; draw(); }).catch(() => {});
@@ -208,6 +222,12 @@
     const al = D && D.alert && D.alert.title && (D.alert.screens || ['*']).some(t => inTarget(t, KEY)) && (!D.alert.until || D.alert.until > new Date().toISOString()) ? D.alert : null;
     tick = ads.filter(p => p.type === 'ticker');
     show = slides(ads);
+    // «خريطة الحرم» on this screen (set by the admin per screen): one more slide in the rotation
+    if (set.map && set.mode !== 'off' && !(exams && !set.exams)) {
+      if (CAMPUS === undefined) { CAMPUS = null; fetch('data/campus.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(c => { CAMPUS = c || false; draw(); }).catch(() => { CAMPUS = false; }); }
+      const b = CAMPUS && CAMPUS.buildings.find(x => x.screen === KEY);
+      if (b) show.push({ kind: 'map', b, img: CAMPUS.image, w: CAMPUS.width, h: CAMPUS.height, site: location.origin + location.pathname.replace(/[^/]*$/, '') });
+    }
     const old = { u: document.getElementById('pp-urg'), t: document.getElementById('pp-tick') };
     const uHTML = urg.length && set.mode !== 'off' ? urgentHTML(urg) : '', tHTML = tick.length ? tickerHTML(tick) : '';
     if (old.u && old.u.outerHTML !== uHTML) old.u.remove();

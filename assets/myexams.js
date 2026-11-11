@@ -39,7 +39,8 @@
     return `<article class="me-card ${k}"><div class="me-date"><b>${wd(e.date)}</b><span>${dm(e.date)}</span><small>${e.date.slice(0, 4)}</small></div>
       <div class="me-b"><div class="me-h"><span class="me-code" dir="ltr">${esc(e.code)}</span><b>${esc(e.name)}</b><span class="me-when ${k}">${label}</span></div>
         <div class="me-t"><i class="bi bi-clock"></i> <bdi dir="ltr">${e.from} – ${e.to}</bdi><span>· ${esc(e.dept)}</span></div>
-        ${mine.length ? `<div class="me-mine"><i class="bi bi-geo-alt-fill"></i> قاعتك: ${mine.map(r => `<b dir="ltr">${esc(r.room)}</b>${r.lab ? ' <small>(مختبر)</small>' : ''}`).join(' أو ')}</div>` : ''}
+        ${mine.length ? `<div class="me-mine"><i class="bi bi-geo-alt-fill"></i> قاعتك: ${mine.map(r => `<b dir="ltr">${esc(r.room)}</b>${r.lab ? ' <small>(مختبر)</small>' : ''}`).join(' أو ')}
+          <a class="me-map" href="campus.html?room=${encodeURIComponent(mine[0].room)}"><i class="bi bi-map"></i> أين القاعة؟</a></div>` : ''}
         <div class="me-rooms">${e.rooms.map(r => `<span class="${mine.includes(r) ? 'on' : ''}${r.lab ? ' lab' : ''}"><i class="bi ${r.lab ? 'bi-pc-display' : 'bi-door-open'}"></i> <b dir="ltr">${esc(r.room)}</b>${r.secs && r.secs.length ? `<small>شعبة ${esc(r.secs.join('، '))}</small>` : `<small>${r.n} طالب</small>`}</span>`).join('')}</div>
         ${secs.length > 1 && tab === 'mine' ? `<div class="me-sec"><small>شعبتي:</small>${secs.map(s => `<button class="${ST.sec[e.code] === s ? 'on' : ''}" data-sec="${esc(e.code)}|${esc(s)}">${esc(s)}</button>`).join('')}</div>` : ''}</div>
       ${tab === 'mine' ? `<button class="me-x" data-rm="${esc(e.code)}" aria-label="إزالة"><i class="bi bi-x-lg"></i></button>` : `<button class="me-add ${ST.codes.includes(e.code) ? 'on' : ''}" data-add="${esc(e.code)}" aria-label="إضافة إلى امتحاناتي"><i class="bi ${ST.codes.includes(e.code) ? 'bi-check2' : 'bi-plus-lg'}"></i></button>`}</article>`;
@@ -151,7 +152,7 @@
     .me-when { margin-inline-start: auto; border-radius: 999px; padding: .05rem .65rem; font-size: .82rem; font-weight: 800; background: #eef2f4; color: #26353c; }
     .me-when.now { background: #901d23; color: #fff; } .me-when.today { background: #fde2e3; color: #901d23; } .me-when.soon { background: #fff2d6; color: #7a4b00; }
     .me-t { color: #4a5a62; margin: .25rem 0; font-size: 1rem; } .me-t bdi { font-weight: 800; color: #091b22; } .me-t span { color: #6b7a82; font-size: .9rem; }
-    .me-mine { background: #e7f6ec; color: #14532d; border-radius: 10px; padding: .35rem .6rem; font-size: 1.05rem; margin: .3rem 0; } .me-mine b { font-size: 1.25rem; }
+    .me-mine { background: #e7f6ec; color: #14532d; border-radius: 10px; padding: .35rem .6rem; font-size: 1.05rem; margin: .3rem 0; } .me-mine b { font-size: 1.25rem; } .me-mine .me-map { font-size: .8rem; margin-inline-start: .5rem; color: #166534; font-weight: 700; white-space: nowrap; }
     .me-rooms { display: flex; flex-wrap: wrap; gap: .3rem; } .me-rooms span { background: #f4f6f8; border: 1px solid #e2e8ec; border-radius: 9px; padding: .15rem .5rem; font-size: .9rem; }
     .me-rooms span.lab { background: #e6f6f4; border-color: #99d5cf; } .me-rooms span.on { background: #15803d; border-color: #15803d; color: #fff; } .me-rooms small { color: inherit; opacity: .75; margin-inline-start: .25rem; }
     .me-sec { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem; margin-top: .4rem; } .me-sec small { color: #6b7a82; margin-inline-end: .2rem; }
