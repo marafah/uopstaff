@@ -211,6 +211,8 @@
         if (x.instructor) (busyI[s] = busyI[s] || new Set()).add(x.instructor);
       }
     }));
+    (S.block || []).forEach(b => { for (let s = 0; s < NS; s++) { const d = DAYS[dayOf(s)], p = S.periods[s % P];
+      if (d.iso === b.date && U.toMin(b.from) < U.toMin(p[1]) && U.toMin(p[0]) < U.toMin(b.to)) b.rooms.forEach(r => (busyR[s] = busyR[s] || new Set()).add(String(r))); } });
     AV = []; CAP = []; BUSYI = busyI; BLK = [];
     for (let s = 0; s < NS; s++) BLK[s] = outWin(DAYS[dayOf(s)].n, S.periods[s % P]);
     for (let s = 0; s < NS; s++) { AV[s] = rooms().filter(r => r.on && !(busyR[s] && busyR[s].has(r.n))); CAP[s] = AV[s].reduce((a, r) => a + r.c, 0); CAPL[s] = AV[s].filter(r => r.t === LAB).reduce((a, r) => a + r.c, 0); }
@@ -251,7 +253,7 @@
   const capOf = s => CAP[s] == null ? capTotal : CAP[s];
 
   // ---------- cost ----------
-  const W = { blocked: 20000, clash: 1000, softClash: 60, overDay: 45, sameDay: 4, backToBack: 12, ins: 150, seat: 80, spread: 0.08, early: 0.0005, lec: 6 };
+  const W = { blocked: 20000, clash: 1000, softClash: 60, overDay: 45, sameDay: 4, backToBack: 12, ins: 150, seat: 80, spread: 0.08, early: 0.0005, lec: 6, late: 30 };
   // students' own lectures at an exam's time (midterms run during teaching weeks). S.lec, from the registration report: per course,
   // per weekday, the lecture times of its students' OTHER in-person courses with how many of them ([from, to, students] in minutes);
   // counts only, no student. LEC[i][s] = students of exam i who would miss a lecture if it is at slot s.
@@ -262,6 +264,8 @@
       return a; });
   }
   const lecAt = (i, s) => s >= 0 && LEC[i] ? LEC[i][s] : 0;
+  // S.req[code].late: the committee wants this exam near the end of the period (each day earlier than the last costs W.late)
+  const lateAt = (i, s) => s >= 0 && REQ(C[i]).late ? (DAYS.length - 1 - dayOf(s)) * W.late : 0;
   const dayOf = s => Math.floor(s / P);
   function groupCost(g, sl) {
     const per = {}, day = {};
@@ -292,7 +296,7 @@
   function local(i, sl) {
     let cost = 0;
     C[i].g.forEach(g => { cost += groupCost(G[g], sl); });
-    return cost + (sl[i] >= 0 && BLK[sl[i]] ? W.blocked : 0) + insCost(i, sl) * 2 + (sl[i] >= 0 && S.early !== false ? C[i].students * dayOf(sl[i]) * W.early : 0) + lecAt(i, sl[i]) * W.lec;
+    return cost + (sl[i] >= 0 && BLK[sl[i]] ? W.blocked : 0) + insCost(i, sl) * 2 + (sl[i] >= 0 && S.early !== false ? C[i].students * dayOf(sl[i]) * W.early : 0) + lecAt(i, sl[i]) * W.lec + lateAt(i, sl[i]);
   }
   function delta(i, to, sl) {
     const from = sl[i]; if (from === to) return 0;
@@ -309,7 +313,7 @@
     let cost = 0;
     G.forEach(g => { cost += groupCost(g, sl); });
     for (let s = 0; s < NS; s++) cost += seatCost(s, sl) + labF(s, labAt(s, sl));
-    C.forEach(c => { cost += (sl[c.i] >= 0 && BLK[sl[c.i]] ? W.blocked : 0) + insCost(c.i, sl) + (sl[c.i] >= 0 && S.early !== false ? c.students * dayOf(sl[c.i]) * W.early : 0) + lecAt(c.i, sl[c.i]) * W.lec; });
+    C.forEach(c => { cost += (sl[c.i] >= 0 && BLK[sl[c.i]] ? W.blocked : 0) + insCost(c.i, sl) + (sl[c.i] >= 0 && S.early !== false ? c.students * dayOf(sl[c.i]) * W.early : 0) + lecAt(c.i, sl[c.i]) * W.lec + lateAt(c.i, sl[c.i]); });
     return cost;
   }
 
