@@ -21,7 +21,7 @@
   let here = null;           // {x, y, label} from ?here=
   let route = null;          // {from, to: {b, room, label}} drawn on the map
   let day = null;            // «يومي»: the chosen day's lectures in order
-  const L = { heat: true, nums: true, names: P.has('names'), count: !P.has('nocount'), size: 1, faces: P.has('faces'), oh: false, events: true, exams: true, gardens: false, services: false, gates: true };
+  const L = { heat: true, nums: true, names: P.has('names'), count: !P.has('nocount'), size: 1, faces: P.has('faces'), oh: false, events: true, exams: true, gardens: false, services: false, gates: true, safety: false };
   const view = { s: 1, x: 0, y: 0 };
   const L0 = Object.assign({}, L), LKEY = 'uop-campus-layers';
   try { const kept = JSON.parse(localStorage.getItem(LKEY) || 'null'); if (kept && !P.has('names') && !P.has('nocount') && !P.has('faces')) Object.keys(L).forEach(k => { if (k in kept) L[k] = kept[k]; }); } catch (e) { /* storage unavailable */ }
@@ -137,11 +137,12 @@
           <button type="button" data-z="0" title="الخريطة كاملة"><i class="bi bi-aspect-ratio"></i></button>
           <button type="button" id="cm-fs" title="ملء الشاشة"><i class="bi bi-fullscreen"></i></button>
           <button type="button" id="cm-layers-b" title="الطبقات: ما يظهر على الخريطة"><i class="bi bi-layers"></i></button>
+          <button type="button" id="cm-sos" class="sos" title="الطوارئ ونقاط التجمع"><i class="bi bi-exclamation-octagon-fill"></i></button>
           <button type="button" id="cm-tour" title="جولة تلقائية على المباني (لشاشات العرض)"><i class="bi bi-play-circle"></i></button>
           <button type="button" id="cm-panel" class="cm-fs-only" title="إظهار اللوحة أو إخفاؤها"><i class="bi bi-layout-sidebar-inset-reverse"></i></button></div>
         <div class="cm-layers" id="cm-layers" hidden><b>ما يظهر على الخريطة</b>${[['nums', 'bi-123', 'أرقام المباني'], ['names', 'bi-fonts', 'أسماء المباني'], ['heat', 'bi-thermometer-half', 'ألوان الانشغال'], ['count', 'bi-broadcast', 'عدد المحاضرات الجارية'], ['faces', 'bi-people', 'وجوه القيادات على المباني'],
           ['oh', 'bi-person-raised-hand', 'في الساعات المكتبية الآن'], ['exams', 'bi-clipboard-check', 'الامتحانات'], ['events', 'bi-calendar-event', 'الفعاليات'],
-          ['gardens', 'bi-tree', 'الحدائق'], ['services', 'bi-signpost-2', 'الخدمات والمواقف'], ['gates', 'bi-door-closed', 'البوابات']].map(([k, i, t]) =>
+          ['gardens', 'bi-tree', 'الحدائق'], ['services', 'bi-signpost-2', 'الخدمات والمواقف'], ['gates', 'bi-door-closed', 'البوابات'], ['safety', 'bi-people-fill', 'نقاط التجمع (مقترحة)']].map(([k, i, t]) =>
           `<label><input type="checkbox" data-l="${k}" ${L[k] ? 'checked' : ''}> <i class="bi ${i}"></i> ${t}</label>`).join('')}
           <label class="cm-size"><i class="bi bi-type"></i> الحجم <input type="range" id="cm-size" min="0.7" max="1.6" step="0.1" value="${L.size}" aria-label="حجم الأرقام والأسماء"></label>
           <button type="button" class="cm-reset" id="cm-reset">الإعدادات الأصلية</button></div>
@@ -150,7 +151,7 @@
           <button type="button" class="btn btn-sm btn-light" id="cm-now"><i class="bi bi-clock"></i> الآن</button></div>
       </div>
       <aside class="cm-side"><div class="cm-search"><i class="bi bi-search"></i><input id="cm-q" type="search" placeholder="ابحث: مدرس، موظف، قاعة، مقرر، وحدة، مبنى…" value="${esc(q)}"></div>
-        <nav class="cm-modes" role="tablist">${[['', 'bi-buildings', 'المباني'], ['route', 'bi-signpost-split', 'طريقي'], ['day', 'bi-calendar-week', 'يومي'], ['week', 'bi-grid-3x3-gap', 'الإشغال'], ['qr', 'bi-qr-code', 'ملصقات QR']]
+        <nav class="cm-modes" role="tablist">${[['', 'bi-buildings', 'المباني'], ['route', 'bi-signpost-split', 'طريقي'], ['free', 'bi-door-open', 'قاعة شاغرة'], ['day', 'bi-calendar-week', 'يومي'], ['exams', 'bi-clipboard-check', 'امتحاني'], ['more', 'bi-grid-3x3-gap', 'المزيد']]
           .map(([k, i, t]) => `<button type="button" role="tab" data-tool="${k}"><i class="bi ${i}"></i><span>${t}</span></button>`).join('')}</nav>
         <div id="cm-res"></div><div id="cm-card"></div></aside></div>
       <p class="small text-muted mt-2"><i class="bi bi-info-circle"></i> المخطط من <a href="${esc(C.source)}" target="_blank" rel="noopener">الموقع الرسمي للجامعة</a>؛ ما على المباني محسوب من الجدول الدراسي ودليل الموظفين والساعات المكتبية وجدول الامتحانات وإعلانات الشاشات، ويتحدّث وحده.</p>`;
@@ -170,6 +171,7 @@
     const top = $('#pg-q'); if (top) { top.value = q; top.oninput = e => { q = e.target.value; $('#cm-q').value = q; search(); }; }
     app.querySelectorAll('[data-tool]').forEach(x => x.onclick = () => setTool(x.dataset.tool));
     $('#cm-fs').onclick = fullscreen;
+    $('#cm-sos').onclick = () => setTool('emergency');
     $('#cm-tour').onclick = () => tour ? stopTour() : startTour();
     $('#cm-panel').onclick = () => { app.querySelector('.cm').classList.toggle('cm-nopanel'); setTimeout(apply, 50); };
     document.addEventListener('fullscreenchange', () => { app.querySelector('.cm').classList.toggle('cm-full', !!document.fullscreenElement); fsIcon(); setTimeout(apply, 50); });
@@ -184,18 +186,24 @@
     if (t) { sel = ''; who = ''; url('b', ''); url('p', ''); }
     if (t !== 'route' && !(route && route.keep)) route = null;
     if (t !== 'day') day = null;
+    OV = { lines: [], marks: '' }; mark = new Set(); exday = null;
+    if (t !== 'fix') FIX.out = null;
     draw();
     if (t === 'route' && route && route.to) center(route.to.b);
   }
   function color(st, b) {
     if (!(b.tt || []).length || !st.rooms.length) return '#64748b';
+    if (tool === 'crowd') return crowdColor(crowdNow(b, now()));
     if (!L.heat) return KIND[b.kind][1];
     return st.load >= 0.66 ? '#dc2626' : st.load >= 0.33 ? '#f59e0b' : '#16a34a';
   }
   function legend() {
     const items = [];
-    if (L.heat) items.push(['#16a34a', 'هادئ'], ['#f59e0b', 'متوسط'], ['#dc2626', 'مزدحم'], ['#64748b', 'بلا قاعات تدريس']);
-    if (L.count) items.push(['#111827', 'محاضرات جارية', 'cnt']);
+    if (tool === 'crowd') items.push(['#16a34a', 'أقل من 150 طالباً'], ['#f59e0b', '150–400'], ['#dc2626', 'أكثر من 400']);
+    else if (L.heat) items.push(['#16a34a', 'هادئ'], ['#f59e0b', 'متوسط'], ['#dc2626', 'مزدحم'], ['#64748b', 'بلا قاعات تدريس']);
+    if (mark.size && tool === 'free') items.push(['#16a34a', 'فيه قاعة مناسبة', 'ring']);
+    if (L.safety || tool === 'emergency') items.push(['#15803d', 'نقطة تجمع' + (C.safety && C.safety.status !== 'official' ? ' (مقترحة)' : ''), 'sq']);
+    if (L.count && tool !== 'crowd') items.push(['#111827', 'محاضرات جارية', 'cnt']);
     if (L.oh) items.push(['#16a34a', 'ساعة مكتبية الآن', 'ring']);
     if (L.exams && EX) items.push(['#1d4ed8', 'امتحانات', 'sq']);
     if (L.gardens) items.push(['#f08a24', 'حديقة', 'dia']);
@@ -209,8 +217,9 @@
     let h = C.buildings.map(b => {
       const st = status(b, n), c = color(st, b), ex = L.exams ? examsAt(b, n) : [], exNow = ex.filter(e => toMin(e.from) <= n.min && n.min < toMin(e.to)).length;
       const ohHere = oh.filter(x => x.b === b);
-      return `<button type="button" class="cm-pin ${L.nums ? '' : 'nonum'} ${b.id === sel ? 'on' : ''} ${hits.has(b.id) ? 'hit' : ''}" data-b="${esc(b.id)}" style="${pos(b)};--c:${c}" title="${esc(b.name)}">
-        <b>${esc(b.id)}</b>${L.count && st.run.length ? `<small class="cm-cnt" title="${st.run.length} محاضرة جارية الآن">${st.run.length}</small>` : ''}
+      const cnt = tool === 'crowd' ? crowdNow(b, n) : st.run.length;
+      return `<button type="button" class="cm-pin ${L.nums ? '' : 'nonum'} ${b.id === sel ? 'on' : ''} ${hits.has(b.id) ? 'hit' : ''} ${mark.has(b.id) ? 'mk' : ''}" data-b="${esc(b.id)}" style="${pos(b)};--c:${c}" title="${esc(b.name)}">
+        <b>${esc(b.id)}</b>${(L.count || tool === 'crowd') && cnt ? `<small class="cm-cnt" title="${tool === 'crowd' ? cnt + ' طالباً في قاعاته' : cnt + ' محاضرة جارية الآن'}">${cnt}</small>` : ''}
         ${ex.length ? `<em class="cm-exb" title="امتحانات اليوم${exNow ? ' (' + exNow + ' الآن)' : ''}"><i class="bi bi-clipboard-check"></i>${ex.length}</em>` : ''}
         ${L.faces && !ohHere.length ? stack(b) : ''}${ohHere.length ? `<span class="cm-stack oh">${ohHere.slice(0, 3).map(x => face(x.m)).join('')}${ohHere.length > 3 ? `<i>+${ohHere.length - 3}</i>` : ''}</span>` : ''}</button>`;
     }).join('');
@@ -220,7 +229,8 @@
     if (L.services) h += (C.services || []).map(s => `<span class="cm-svc ${s.kind}" style="${pos(s)}" title="${esc(s.name)}"><i class="bi ${esc(s.icon)}"></i><span>${esc(s.name)}</span></span>`).join('');
     h += ev.map(({ p, b }) => `<span class="cm-ev" style="left:${b.x * 100}%;top:${b.y * 100}%" title="${esc(p.title)} — ${esc(p.place)}"><i class="bi bi-calendar-event"></i> ${esc(evWhen(p, n))}</span>`).join('');
     if (here) h += `<span class="cm-here" style="${pos(here)}"><i></i><b>أنت هنا</b></span>`;
-    h += bubbles(n) + routeMarks();
+    h += bubbles(n) + routeMarks() + OV.marks;
+    if ((L.safety || tool === 'emergency') && C.safety) h += C.safety.assembly.map(a => `<span class="cm-ap" style="${pos(a)}" title="نقطة التجمع ${esc(a.id)}: ${esc(a.name)}${C.safety.status !== 'official' ? ' (مقترحة)' : ''}"><i class="bi bi-people-fill"></i><b>${esc(a.id)}</b></span>`).join('');
     if (day && day.length) { const seen = {}; h += day.map((x, i) => { if (!x.b) return ''; const k = seen[x.b.id] = (seen[x.b.id] || 0) + 1; return `<span class="cm-step" style="left:${x.b.x * 100}%;top:${x.b.y * 100}%;--i:${k - 1}">${i + 1}</span>`; }).join(''); }
     $('#cm-pins').innerHTML = h;
     $('#cm-pins').querySelectorAll('.cm-pin').forEach(p => p.onclick = e => { e.stopPropagation(); if (tool === 'route') { pickTo({ b: B(p.dataset.b) }); return; } open(p.dataset.b); });
@@ -263,6 +273,7 @@
     const line = (pts, cls) => `<polyline class="cm-case" points="${pts}"/><polyline class="${cls}" points="${pts}"/>`;
     if (showRoute()) s += line(`${pt(route.from)} ${pt(route.to.b)}`, 'cm-route');
     if (day && day.filter(x => x.b).length > 1) s += line(day.filter(x => x.b).map(x => pt(x.b)).join(' '), 'cm-dayline');
+    OV.lines.forEach(l => { const pts = l.pts.map(pt).join(' '); s += l.nocase ? `<polyline class="${l.cls}" points="${pts}"/>` : line(pts, l.cls); });
     $('#cm-svg').innerHTML = s;
   }
   function routeMarks() {
@@ -288,7 +299,7 @@
   function draw() {
     const n = now();
     $('#cm-clock').textContent = `${U.DAYS[n.day] || ''} ${n.clock}`;
-    app.querySelectorAll('[data-tool]').forEach(x => x.classList.toggle('on', x.dataset.tool === tool));
+    app.querySelectorAll('[data-tool]').forEach(x => x.classList.toggle('on', x.dataset.tool === tool || (x.dataset.tool === 'more' && MOREK.includes(tool))));
     pins(); card();
   }
 
@@ -315,11 +326,19 @@
     if (tool === 'day') return dayTool(n);
     if (tool === 'week') return weekTool();
     if (tool === 'qr') return qrTool();
+    if (tool === 'more') return moreTool();
+    if (tool === 'free') return freeTool(n);
+    if (tool === 'exams') return examTool(n);
+    if (tool === 'crowd') return crowdTool(n);
+    if (tool === 'tour') return tourTool();
+    if (tool === 'emergency') return emergencyTool();
+    if (tool === 'fix') return fixTool();
+    if (tool === 'access') return accessTool();
     if (who && person(who)) return personCard(person(who), n);
     if (B(sel)) return buildingCard(B(sel), n);
     overview(n);
   }
-  const head = (no, c, title, sub) => `<div class="cm-h">${no ? `<span class="cm-no" style="--c:${c}">${esc(no)}</span>` : ''}<div><h2>${esc(title)}</h2>${sub ? `<small>${sub}</small>` : ''}</div>
+  const head = (no, c, title, sub) => `${!no && MOREK.includes(tool) ? '<button type="button" class="cm-back" data-go="more"><i class="bi bi-chevron-right"></i> المزيد</button>' : ''}<div class="cm-h">${no ? `<span class="cm-no" style="--c:${c}">${esc(no)}</span>` : ''}<div><h2>${esc(title)}</h2>${sub ? `<small>${sub}</small>` : ''}</div>
     <button type="button" class="btn-close" data-close aria-label="إغلاق"></button></div>`;
   const row = (left, title, sub, right) => `<div class="cm-row">${left != null ? `<span class="cm-room" dir="ltr">${esc(left)}</span>` : ''}<span class="cm-t"><b>${esc(title)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</span>${right ? `<span class="cm-end">${right}</span>` : ''}</div>`;
   const more = (n, what) => n > 0 ? `<div class="cm-more">و${n} ${what}</div>` : '';
@@ -331,6 +350,7 @@
     c.querySelectorAll('[data-p]').forEach(x => x.onclick = () => openPerson(x.dataset.p, true));
     c.querySelectorAll('[data-b]').forEach(x => x.onclick = () => open(x.dataset.b, true));
     c.querySelectorAll('[data-center]').forEach(x => x.onclick = () => center(B(x.dataset.center)));
+    c.querySelectorAll('[data-go]').forEach(x => x.onclick = () => setTool(x.dataset.go));
     c.querySelectorAll('[data-copy]').forEach(x => x.onclick = () => navigator.clipboard.writeText(x.dataset.copy).then(() => { x.innerHTML = '<i class="bi bi-check2"></i> تم النسخ'; }));
   }
 
@@ -340,7 +360,7 @@
     const oh = inOfficeHours(n).filter(x => x.b === b), teach = (b.tt || []).length > 0;
     const units = [...new Set(staff.map(m => clean(m.office)).filter(o => !/^\d/.test(o)))];
     const leaders = staff.filter(m => lead(m) < 20).sort((x, y) => lead(x) - lead(y)).slice(0, 6);
-    const tabs = [teach && ['now', 'bi-broadcast', 'الآن', st.run.length], teach && ['rooms', 'bi-door-open', 'القاعات', st.free.length], staff.length && ['people', 'bi-people', 'الأشخاص', staff.length],
+    const tabs = [teach && ['now', 'bi-broadcast', 'الآن', st.run.length], teach && ['rooms', 'bi-door-open', 'القاعات', st.free.length], teach && ['floors', 'bi-layers', 'الطوابق', 0], staff.length && ['people', 'bi-people', 'الأشخاص', staff.length],
       ['today', 'bi-calendar-day', 'اليوم', ex.length + posts.length + ev.length]].filter(Boolean);
     if (!tabs.some(t => t[0] === tab)) tab = tabs[0][0];
     let body = '';
@@ -354,6 +374,14 @@
         ${all.length ? `<h3><i class="bi bi-door-open"></i> شاغرة بقية اليوم <small>${all.length}</small></h3><div class="cm-free">${all.map(f => `<a href="room.html?q=${encodeURIComponent(f.r)}" dir="ltr">${esc(f.r)}</a>`).join('')}</div>` : ''}
         ${part.length ? `<h3><i class="bi bi-hourglass-split"></i> شاغرة لفترة <small>${part.length}</small></h3><div class="cm-free">${part.map(f => `<a href="room.html?q=${encodeURIComponent(f.r)}" class="part" dir="ltr">${esc(f.r)}<small>حتى ${toTime(f.until)}</small></a>`).join('')}</div>` : ''}
         ${st.busy.size ? `<h3><i class="bi bi-person-video3"></i> مشغولة الآن <small>${st.busy.size}</small></h3><div class="cm-free">${[...st.busy].sort((x, y) => x.localeCompare(y, 'en', { numeric: true })).map(r => `<a href="room.html?q=${encodeURIComponent(r)}" class="busy" dir="ltr">${esc(r)}</a>`).join('')}</div>` : ''}`;
+    } else if (tab === 'floors') {
+      // a schematic from the room numbers (not an architectural plan): each floor's rooms, free or busy now
+      const fl = {}; st.rooms.forEach(r => { const f = floorOf(r); (fl[f == null ? 'x' : f] = fl[f == null ? 'x' : f] || []).push(r); });
+      const keys = Object.keys(fl).sort((a, b2) => (b2 === 'x' ? -1 : +b2) - (a === 'x' ? -1 : +a));
+      const cls = r => st.busy.has(r) ? 'busy' : (st.free.find(f => f.r === r) || {}).until ? 'part' : '';
+      body = `<div class="cm-floors">${keys.map(k => `<div class="cm-floor"><span class="cm-fl">${k === 'x' ? '؟' : k === '0' ? 'أرضي' : k}</span><div class="cm-free">${fl[k].map(r => `<a href="room.html?q=${encodeURIComponent(r)}" class="${cls(r)}" dir="ltr">${esc(r)}</a>`).join('')}</div></div>`).join('')}</div>
+        <p class="cm-note"><span class="cm-dot"></span> شاغرة · <span class="cm-dot part"></span> لفترة · <span class="cm-dot busy"></span> مشغولة الآن. مخطط تخطيطي من أرقام القاعات وليس مخططاً هندسياً؛ المصعد والمدخل الميسّر غير موثّقين.</p>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-acc="${esc(b.id)}"><i class="bi bi-universal-access"></i> الوصول الميسّر إلى هذا المبنى</button>`;
     } else if (tab === 'people') {
       const list = staff.filter(m => !unitF || clean(m.office) === unitF).sort((x, y) => lead(x) - lead(y));
       body = `${oh.length ? `<h3><i class="bi bi-person-raised-hand"></i> في ساعته المكتبية الآن <small>${oh.length}</small></h3><div class="cm-faces">${oh.map(x => tile(x.m)).join('')}</div>` : ''}
@@ -377,6 +405,7 @@
     bind(() => open(''));
     $('#cm-card').querySelectorAll('[data-tab]').forEach(x => x.onclick = () => { tab = x.dataset.tab; card(); });
     $('#cm-card').querySelectorAll('[data-u]').forEach(x => x.onclick = () => { unitF = x.dataset.u; card(); });
+    $('#cm-card').querySelectorAll('[data-acc]').forEach(x => x.onclick = () => { ACC.to = b; setTool('access'); });
     $('#cm-go').onclick = () => { route = { from: route && route.from, to: { b, label: b.name } }; setTool('route'); };
   }
   // a person: photo, job, office, where they teach now / next, office hours, contacts, colleagues
@@ -522,7 +551,11 @@
     day = dayList(secs, d);
     const steps = day.map((x, i) => {
       const prev = day[i - 1], gap = prev ? x.a - prev.z : 0;
-      return `${prev && gap > 0 ? `<div class="cm-gap"><i class="bi bi-cup-hot"></i> فراغ ${U.mins(gap)}${gap >= 60 ? ' — يمكنك قضاؤه في المكتبة (22) أو الكافيتريا (11)' : ''}</div>` : ''}${prev && gap < 0 ? '<div class="cm-gap bad"><i class="bi bi-exclamation-triangle"></i> تعارض مع المحاضرة السابقة</div>' : ''}
+      // walking between two buildings: is the break long enough?
+      const wk = prev && prev.b && x.b && prev.b !== x.b ? walkMin(meters(prev.b, x.b)) : 0;
+      const walk = wk && gap >= 0 ? (gap < wk ? `<div class="cm-gap bad"><i class="bi bi-person-walking"></i> تحتاج نحو ${wk} د مشياً من مبنى ${esc(prev.b.id)} إلى مبنى ${esc(x.b.id)}، والفاصل ${gap ? gap + ' د' : 'صفر'}: قد تتأخر</div>`
+        : `<div class="cm-gap"><i class="bi bi-person-walking"></i> ${wk} د مشياً إلى مبنى ${esc(x.b.id)}</div>`) : '';
+      return `${prev && gap > 0 ? `<div class="cm-gap"><i class="bi bi-cup-hot"></i> فراغ ${U.mins(gap)}${gap >= 60 ? ' — يمكنك قضاؤه في المكتبة (22) أو الكافيتريا (11)' : ''}</div>` : ''}${prev && gap < 0 ? '<div class="cm-gap bad"><i class="bi bi-exclamation-triangle"></i> تعارض مع المحاضرة السابقة</div>' : ''}${walk}
         <button type="button" class="cm-daystep ${x.a <= n.min && n.min < x.z ? 'now' : ''}" data-center="${esc(x.b ? x.b.id : '')}"><span class="cm-stepno">${i + 1}</span><span class="cm-t"><b>${esc(x.s.name)}</b><small>${esc(x.m.start)}–${esc(x.m.end)} · ${x.online ? 'إلكتروني' : `قاعة ${esc(x.room)}${x.b ? ' · ' + esc(x.b.name) : ''}`} · ${esc(U.shortName(x.s.instructor))}</small></span>${x.b ? `<span class="cm-no sm">${esc(x.b.id)}</span>` : ''}</button>`;
     }).join('');
     const chips = keys.map(k => { const s = BY[k]; return `<span class="cm-chip" title="${esc(s.name)} · ${esc(U.shortName(s.instructor))} · ${esc(when(s))}"><span>${esc(s.name)} <small>ش${esc(s.section)}</small></span>${mine.has(k) ? `<button type="button" data-rm="${esc(k)}" aria-label="احذف"><i class="bi bi-x"></i></button>` : fromPlan.has(k) ? '<i class="bi bi-calendar2-check" title="من «مخطط جدولي»"></i>' : ''}</span>`; }).join('');
@@ -576,30 +609,494 @@
     pins();
   }
 
-  // ---------------------------------------------------------------- «الإشغال»: the week by building, day and hour
-  const week = { b: '' };
-  function weekTool() {
-    const DAYS = Object.keys(U.DAYS).filter(k => k !== 'ج'), H0 = 8 * 60, H1 = 18 * 60;
+  // ---------------------------------------------------------------- shared: distances, floors, the path network, overlays
+  const meters = (a, b) => Math.round(Math.hypot(a.x - b.x, (a.y - b.y) * C.height / C.width) * (C.meters_wide || 750) * 1.3 / 10) * 10;
+  const walkMin = m => Math.max(1, Math.round(m / 80));
+  // the floor from the room number: 7419 → 4, 06101 / A24222 → the third digit; null when the number does not say
+  function floorOf(r) { const d = String(r || '').replace(/\D/g, ''); return d.length === 4 ? +d[1] : d.length === 5 ? +d[2] : null; }
+  const floorName = f => f == null ? 'طابق غير محدد' : f === 0 ? 'الطابق الأرضي' : 'الطابق ' + f;
+  let OV = { lines: [], marks: '' }, mark = new Set(), exday = null;
+  const ptS = o => `${(o.x * C.width).toFixed(1)},${(o.y * C.height).toFixed(1)}`;
+  const stepMarks = (list, cls) => { const seen = {}; return list.map((x, i) => { if (!x.b) return ''; const k = seen[x.b.id || x.b.name] = (seen[x.b.id || x.b.name] || 0) + 1; return `<span class="cm-step ${cls || ''}" style="left:${x.b.x * 100}%;top:${x.b.y * 100}%;--i:${k - 1}">${i + 1}</span>`; }).join(''); };
+  // the proposed path network (data/campus.json «paths»): the shortest way along it, from a point to a point
+  function pathTo(a, b) {
+    const P2 = C.paths; if (!P2) return null;
+    const nodes = P2.nodes, adj = {}, d = (p, q) => Math.hypot(p.x - q.x, (p.y - q.y) * C.height / C.width);
+    P2.edges.forEach(([u, v]) => { (adj[u] = adj[u] || []).push(v); (adj[v] = adj[v] || []).push(u); });
+    const near = o => Object.keys(nodes).sort((p, q) => d(nodes[p], o) - d(nodes[q], o))[0];
+    const s = near(a), t = near(b), dist = { [s]: 0 }, prev = {}, todo = new Set(Object.keys(nodes));
+    while (todo.size) {
+      let u = null; todo.forEach(k => { if (dist[k] != null && (u == null || dist[k] < dist[u])) u = k; });
+      if (u == null || u === t) break; todo.delete(u);
+      (adj[u] || []).forEach(v => { const nd = dist[u] + d(nodes[u], nodes[v]); if (dist[v] == null || nd < dist[v]) { dist[v] = nd; prev[v] = u; } });
+    }
+    if (dist[t] == null) return null;
+    const way = [t]; while (way[0] !== s) way.unshift(prev[way[0]]);
+    const pts = [a, ...way.map(k => nodes[k]), b];
+    let m = 0; for (let i = 1; i < pts.length; i++) m += d(pts[i - 1], pts[i]);
+    return { pts, m: Math.round(m * (C.meters_wide || 750) / 10) * 10 };
+  }
+  const fromList = () => [...(here ? [['here', 'أنت هنا: ' + here.label, here]] : []), ...(C.gates || []).map(g => ['gate:' + g.id, g.name, g]), ...C.buildings.map(b => ['b:' + b.id, `${b.id} · ${b.name}`, b])];
+  const fromSel = (id, cur, label) => { const F2 = fromList(), k = (F2.find(f => f[2] === cur) || F2[0])[0];
+    return `<label class="cm-lbl" for="${id}">${label || 'من'}</label><select id="${id}" class="form-select form-select-sm">${F2.map(([k2, l]) => `<option value="${esc(k2)}" ${k2 === k ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`; };
+  const fromGet = v => (fromList().find(f => f[0] === v) || [])[2];
+  const bSel = (id, cur, label, filter, blank) => `<label class="cm-lbl" for="${id}">${label}</label><select id="${id}" class="form-select form-select-sm">${blank ? `<option value="">${blank}</option>` : ''}${C.buildings.filter(filter || (() => true)).map(b => `<option value="${esc(b.id)}" ${b === cur ? 'selected' : ''}>${esc(b.id)} · ${esc(b.name)}</option>`).join('')}</select>`;
+  const proposed = t => `<div class="cm-prop"><i class="bi bi-exclamation-diamond-fill"></i><span><b>مقترح غير معتمد رسمياً.</b> ${t}</span></div>`;
+  const amDate = () => new Date().toLocaleDateString('ar-JO-u-nu-latn', { timeZone: 'Asia/Amman', year: 'numeric', month: 'long', day: 'numeric' });
+  const refNo = code => `UOP-${code}-${U.amman().iso.replace(/-/g, '')}-${String(1000 + Math.floor(Math.random() * 9000))}`;
+
+  // ---------------------------------------------------------------- formal documents: A4, the university's letterhead, a reference number, numbered sections, signatures
+  // (the same look as the exams committee's documents). Opens as its own page to review, then «طباعة / حفظ PDF».
+  function doc(o) {
+    const css = `@page { size: A4 ${o.landscape ? 'landscape' : 'portrait'}; margin: 13mm 12mm 15mm; }
+      * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; } body { margin: 0; font-family: Tajawal, 'Segoe UI', Tahoma, sans-serif; color: #1c2b31; font-size: 10.5pt; direction: rtl; line-height: 1.55; background: #e9ecef; }
+      .pg { background: #fff; max-width: ${o.landscape ? '297mm' : '210mm'}; margin: 0 auto; padding: 12mm 12mm 10mm; position: relative; min-height: 100vh; }
+      .hd { display: flex; align-items: center; gap: 12px; border-bottom: 3px solid #901d23; padding-bottom: 8px; } .hd img { height: 54px; } .hd .t { flex: 1; } .hd small { color: #6b7a82; font-size: 8.5pt; display: block; }
+      .hd h1 { margin: 2px 0 0; font-size: 16pt; color: #091b22; } .hd h2 { margin: 2px 0 0; font-size: 10.5pt; color: #901d23; font-weight: 700; }
+      .ref { font-size: 8.5pt; color: #4a5a62; text-align: left; line-height: 1.6; } .ref b { color: #091b22; }
+      .info { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0 4px; } .info div { border: 1px solid #e3dccb; border-top: 3px solid #091b22; border-radius: 7px; padding: 5px 8px; }
+      .info span { display: block; font-size: 8pt; color: #6b7a82; } .info b { font-size: 12pt; color: #091b22; } .info .w2 { grid-column: span 2; } .info .w4 { grid-column: span 4; }
+      h3 { font-size: 12pt; color: #901d23; margin: 14px 0 6px; padding-bottom: 3px; border-bottom: 1px solid #ecd5d7; break-after: avoid; }
+      p { margin: 4px 0 6px; } ul, ol { margin: 4px 0 8px; padding-inline-start: 20px; } li { margin: 2px 0; }
+      table { width: 100%; border-collapse: collapse; margin: 4px 0 8px; } thead { display: table-header-group; } th { background: #091b22; color: #fff; font-size: 8.8pt; padding: 5px; border: 1px solid #091b22; font-weight: 700; }
+      td { border: 1px solid #d9dfe3; padding: 4px 6px; font-size: 9.2pt; } tbody tr:nth-child(even) td { background: #f7f9fa; } tr { break-inside: avoid; }
+      td.c, th.c { text-align: center; } td.n { text-align: center; width: 28px; color: #6b7a82; } td.ltr { direction: ltr; text-align: center; font-variant-numeric: tabular-nums; }
+      td.h { text-align: center; font-weight: 700; color: #111; } td.blank { height: 26px; }
+      .note { background: #f6f3ec; border: 1px solid #e3dccb; border-radius: 8px; padding: 6px 10px; font-size: 9pt; color: #4a5a62; margin: 6px 0; }
+      .warn { background: #fdf2f2; border: 1px solid #f3c7ca; border-inline-start: 4px solid #901d23; border-radius: 6px; padding: 6px 10px; font-size: 9.5pt; color: #7a1a1f; margin: 8px 0; }
+      .fig { border: 1px solid #d9dfe3; border-radius: 8px; padding: 6px; margin: 6px 0 8px; break-inside: avoid; } .fig svg { width: 100%; height: auto; display: block; } .fig small { display: block; text-align: center; color: #6b7a82; font-size: 8pt; margin-top: 3px; }
+      .sig { display: grid; grid-template-columns: repeat(${(o.sign || []).length || 3}, 1fr); gap: 16px; margin-top: 22px; break-inside: avoid; } .sig div { border-top: 1px dashed #9aa6ac; padding-top: 5px; font-size: 9pt; color: #4a5a62; text-align: center; line-height: 1.9; } .sig b { color: #091b22; display: block; }
+      .ft { margin-top: 14px; padding-top: 6px; border-top: 1px solid #e3dccb; font-size: 7.5pt; color: #7a868c; display: flex; justify-content: space-between; gap: 10px; }
+      .wm { position: fixed; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 10; } .wm span { transform: rotate(-28deg); font-size: 64pt; font-weight: 800; color: rgba(144,29,35,.07); white-space: nowrap; }
+      .bar { position: sticky; top: 0; z-index: 5; background: #091b22; color: #fff; display: flex; gap: 8px; align-items: center; justify-content: center; padding: 8px; font-size: 10pt; }
+      .bar button { font: inherit; font-weight: 700; border: 0; border-radius: 8px; padding: 6px 16px; cursor: pointer; background: #901d23; color: #fff; } .bar button.l { background: #fff; color: #091b22; }
+      @media print { body { background: #fff; } .pg { padding: 0; max-width: none; min-height: 0; } .bar { display: none; } }`;
+    const ref = o.ref || refNo(o.code || 'CM');
+    const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${esc(o.title)} · ${ref}</title>
+      <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet"><style>${css}</style></head><body>
+      <div class="bar"><span>معاينة المستند</span><button onclick="print()">طباعة / حفظ PDF</button><button class="l" onclick="close()">إغلاق</button></div>
+      ${o.draft ? `<div class="wm"><span>${esc(o.draft)}</span></div>` : ''}
+      <div class="pg"><div class="hd"><img src="${SITE}assets/logo-print.png" alt="جامعة البترا"><div class="t"><small>جامعة البترا · ${esc(o.unit || 'خريطة الحرم الجامعي')}</small><h1>${esc(o.title)}</h1>${o.sub ? `<h2>${esc(o.sub)}</h2>` : ''}</div>
+        <div class="ref">الرقم: <b dir="ltr">${ref}</b><br>التاريخ: <b>${amDate()}</b>${o.status ? `<br>الحالة: <b>${esc(o.status)}</b>` : ''}</div></div>
+      ${o.info ? `<div class="info">${o.info.map(([l, v, w]) => `<div class="${w || ''}"><span>${esc(l)}</span><b>${esc(v)}</b></div>`).join('')}</div>` : ''}
+      ${o.draft && o.draftNote ? `<div class="warn">${o.draftNote}</div>` : ''}
+      ${o.sections.map(([h, b], i) => `<h3>${i + 1}. ${esc(h)}</h3>${b}`).join('')}
+      ${o.sign ? `<div class="sig">${o.sign.map(r => `<div><b>${esc(r)}</b>الاسم: ............................<br>التوقيع: .........................<br>التاريخ: ....../....../..........</div>`).join('')}</div>` : ''}
+      <div class="ft"><span>${esc(o.source || 'أُعدّ آلياً من بيانات بوصلة البترا (الجدول الدراسي ودليل الموظفين ومخطط الحرم)')}</span><span dir="ltr">${ref}</span></div></div></body></html>`;
+    const link = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+    const w = window.open(link, '_blank');
+    if (w) { setTimeout(() => URL.revokeObjectURL(link), 120000); return; }
+    const f = document.createElement('iframe'); f.style.cssText = 'position:fixed;width:0;height:0;border:0;left:-9999px'; document.body.appendChild(f);
+    f.contentDocument.open(); f.contentDocument.write(html); f.contentDocument.close();
+    setTimeout(() => { f.contentWindow.focus(); f.contentWindow.print(); setTimeout(() => f.remove(), 60000); }, 600);
+  }
+  const tbl = (heads, rows, cls) => `<table class="${cls || ''}"><thead><tr>${heads.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => Array.isArray(c) ? `<td class="${c[1]}">${c[0]}</td>` : `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  const pct = v => Math.round(v * 100) + '%';
+  const heatTd = v => [`<span style="display:block;background:color-mix(in srgb, #dc2626 ${Math.round(v * 100)}%, #ecfdf3);margin:-4px -6px;padding:4px 0">${Math.round(v * 100)}</span>`, 'h'];
+  // a picture of the plan for a document: the image with lines and numbered points over it
+  const docMap = (lines, pts, cap) => `<div class="fig"><svg viewBox="0 0 ${C.width} ${C.height}"><image href="${SITE}${esc(C.image_2x || C.image)}" width="${C.width}" height="${C.height}"/>
+    ${lines.map(l => `<polyline points="${l.pts.map(ptS).join(' ')}" fill="none" stroke="#fff" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/><polyline points="${l.pts.map(ptS).join(' ')}" fill="none" stroke="${l.c || '#1d4ed8'}" stroke-width="6" stroke-dasharray="${l.dash || '16 10'}" stroke-linejoin="round" stroke-linecap="round"/>`).join('')}
+    ${pts.map(p => `<g transform="translate(${(p.x * C.width).toFixed(0)} ${(p.y * C.height).toFixed(0)})"><circle r="19" fill="${p.c || '#901d23'}" stroke="#fff" stroke-width="5"/><text y="7" text-anchor="middle" fill="#fff" font-size="${String(p.t).length > 2 ? 15 : 20}" font-weight="800" font-family="Tajawal, sans-serif">${esc(p.t)}</text></g>`).join('')}</svg>${cap ? `<small>${cap}</small>` : ''}</div>`;
+
+  // ---------------------------------------------------------------- «المزيد»: the other tools, by who they are for
+  const MORE = [
+    ['للطلبة', [['tour', 'bi-flag', 'جولة الطلبة الجدد', 'محطات الحرم الأساسية بالترتيب، مع دليل للطباعة']]],
+    ['السلامة والخدمات', [['emergency', 'bi-exclamation-octagon', 'الطوارئ ونقاط التجمع', 'أقرب نقطة تجمع وأرقام الطوارئ وخطة الإخلاء'],
+      ['fix', 'bi-tools', 'بلاغ عطل', 'أبلغ عن عطل في قاعة أو مبنى ببلاغ رسمي مرقّم'], ['access', 'bi-universal-access', 'الوصول الميسّر', 'مسار مقترح والطوابق ومقترح رسمي للدراسة']]],
+    ['للإدارة والتخطيط', [['week', 'bi-bar-chart-line', 'الإشغال وتقرير القاعات', 'نسب الإشغال والتوصيات وتقرير رسمي'], ['crowd', 'bi-people', 'توقّع الازدحام', 'الذروة في المباني والبوابات من أعداد المسجلين'],
+      ['qr', 'bi-qr-code', 'ملصقات QR', '«أنت هنا» و«بلاغ عطل» لكل بوابة ومبنى']]]];
+  const MOREK = MORE.flatMap(g => g[1].map(x => x[0]));
+  function moreTool() {
+    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'المزيد', 'أدوات أخرى على الخريطة')}
+      ${MORE.map(([g, list]) => `<h3>${esc(g)}</h3><div class="cm-more-g">${list.map(([k, i, t, d]) => `<button type="button" data-go="${k}"><i class="bi ${i}"></i><span><b>${esc(t)}</b><small>${esc(d)}</small></span><i class="bi bi-chevron-left"></i></button>`).join('')}</div>`).join('')}</div>`;
+    bind(() => setTool(''));
+  }
+
+  // ---------------------------------------------------------------- «قاعة شاغرة»: the nearest free rooms, for as long as needed
+  const FREE = { need: 60, ground: false, from: null };
+  function freeTool(n) {
+    if (!FREE.from) FREE.from = here || B(sel) || (C.gates || [])[0];
+    const ok = teaching(n), END = 21 * 60, list = [];
+    if (n.min < END) C.buildings.forEach(b => {
+      if (!(b.tt || []).length) return;
+      const st = status(b, n), m = meters(FREE.from, b);
+      st.free.forEach(f => { if ((f.until || END) - n.min < FREE.need) return; if (FREE.ground && floorOf(f.r) !== 0) return; list.push({ b, r: f.r, until: f.until, m }); });
+    });
+    list.sort((x, y) => x.m - y.m || (y.until || 9999) - (x.until || 9999) || x.r.localeCompare(y.r, 'en', { numeric: true }));
+    const top = list.slice(0, 15);
+    mark = new Set(top.map(x => x.b.id));
+    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'أقرب قاعة شاغرة', `${esc(U.DAYS[n.day] || '')} ${esc(n.clock)} · حسب الجدول الدراسي`)}
+      ${fromSel('cm-ffrom', FREE.from, 'أنا عند')}
+      <label class="cm-lbl">أحتاجها لمدة</label><div class="cm-by">${[30, 60, 90, 120].map(v => `<button type="button" data-need="${v}" class="${FREE.need === v ? 'on' : ''}">${v < 60 ? v + ' دقيقة' : v === 60 ? 'ساعة' : v === 120 ? 'ساعتين' : 'ساعة ونصف'}</button>`).join('')}</div>
+      <label class="cm-chk"><input type="checkbox" id="cm-ground" ${FREE.ground ? 'checked' : ''}> الطابق الأرضي فقط (أسهل وصولاً)</label>
+      ${!ok ? '<div class="cm-note"><i class="bi bi-info-circle"></i> لا تدريس في هذا اليوم حسب التقويم؛ كل القاعات متاحة نظرياً، لكن تحقّق من فتح المباني.</div>' : ''}
+      ${n.min >= END ? empty('انتهى الدوام. اختر وقتاً آخر من شريط الوقت.') : top.length ? `<div class="cm-res-h"><span>${list.length} قاعة متاحة ${FREE.need >= 60 ? 'لساعة أو أكثر' : 'لنصف ساعة أو أكثر'} · الأقرب أولاً</span></div>
+        <div class="cm-found">${top.map((x, i) => `<button type="button" class="cm-frow" data-fr="${i}"><span class="cm-room" dir="ltr">${esc(x.r)}</span><span class="cm-t"><b>${esc(x.b.short || x.b.name)} <small>· ${esc(floorName(floorOf(x.r)))}</small></b>
+          <small>${x.m < 20 ? 'في المبنى نفسه' : `${x.m} م · ${walkMin(x.m)} د مشياً`} · ${x.until ? `شاغرة حتى <bdi dir="ltr">${toTime(x.until)}</bdi>` : 'شاغرة بقية اليوم'}</small></span><span class="cm-no sm">${esc(x.b.id)}</span></button>`).join('')}</div>
+        <p class="cm-note">اضغط القاعة لترى الطريق إليها. المباني المحاطة بحلقة خضراء على الخريطة فيها قاعات مناسبة.</p>` : empty('لا قاعة شاغرة بهذه المدة الآن. جرّب مدة أقصر.')}</div>`;
+    bind(() => setTool(''));
+    $('#cm-ffrom').onchange = e => { FREE.from = fromGet(e.target.value); card(); pins(); };
+    $('#cm-card').querySelectorAll('[data-need]').forEach(x => x.onclick = () => { FREE.need = +x.dataset.need; card(); pins(); });
+    $('#cm-ground').onchange = e => { FREE.ground = e.target.checked; card(); pins(); };
+    $('#cm-card').querySelectorAll('[data-fr]').forEach(x => x.onclick = () => { const f = top[+x.dataset.fr]; route = { from: FREE.from, to: { b: f.b, room: f.r, label: 'قاعة ' + f.r } }; setTool('route'); center(f.b); });
+    pins();
+  }
+
+  // ---------------------------------------------------------------- «امتحاني»: the student's exams from «امتحاناتي» (the same choice, kept on the phone), on the map
+  function examTool(n) {
+    const MY = Object.assign({ codes: [], sec: {} }, store.get('uop-myexams') || {});
+    (P.get('c') || '').split(/[,\s]+/).filter(Boolean).forEach(c => { if (!MY.codes.includes(c)) MY.codes.push(c); });
+    let body;
+    exday = null;
+    if (!EX) body = `${empty('لم يُنشر جدول الامتحانات بعد.')}<p class="cm-note">حين تنشره لجنة الامتحانات تظهر هنا امتحاناتك وقاعاتها والطريق إليها. اختر مقرراتك مسبقاً في «امتحاناتي».</p>`;
+    else {
+      const mine = EX.exams.filter(e => MY.codes.includes(e.code));
+      const rooms = e => { const s = MY.sec[e.code], r = s ? e.rooms.filter(x => (x.secs || []).includes(s)) : []; return { list: r.length ? r : e.rooms, exact: !!r.length }; };
+      const up = mine.filter(e => e.date > n.iso || (e.date === n.iso && toMin(e.to) > n.min)).sort((a, b) => a.date.localeCompare(b.date) || toMin(a.from) - toMin(b.from));
+      const d1 = up[0] && up[0].date, first = up.filter(e => e.date === d1), later = up.filter(e => e.date !== d1);
+      const dayLabel = iso => { const k = Math.round((Date.parse(iso) - Date.parse(n.iso)) / 864e5); return k === 0 ? 'اليوم' : k === 1 ? 'غداً' : `بعد ${k} أيام · ${+iso.slice(8)}/${+iso.slice(5, 7)}`; };
+      exday = first.map(e => ({ e, b: placeB(rooms(e).list[0].room) }));
+      body = !mine.length ? `<p class="cm-note">لم تختر مقرراتك بعد. اخترها مرة واحدة في «امتحاناتي» وتظهر هنا تلقائياً.</p>`
+        : !up.length ? empty('انتهت امتحاناتك المختارة.')
+        : `<h3><i class="bi bi-calendar-check"></i> ${esc(dayLabel(d1))} <small>${first.length} امتحان</small></h3>
+          ${first.map((e, i) => { const r = rooms(e), b = placeB(r.list[0].room), left = e.date === n.iso ? toMin(e.from) - n.min : null;
+            return `<div class="cm-exam"><span class="cm-stepno">${i + 1}</span><div class="cm-t"><b>${esc(e.name)}</b><small dir="ltr" class="text-end">${esc(e.from)} – ${esc(e.to)}</small>
+              <small>القاعة: ${r.list.map(x => `<b>${esc(x.room)}</b>`).join('، ')}${r.exact ? ' (حسب شعبتك)' : ' — اختر شعبتك في «امتحاناتي» لتعرف قاعتك بالضبط'}${b ? ' · ' + esc(b.name) : ''}</small>
+              ${left != null ? `<small class="${left <= 60 ? 'cm-soon' : ''}">${left > 0 ? `يبدأ بعد ${U.mins(left)} — كن في القاعة قبل 15 دقيقة` : 'جارٍ الآن'}</small>` : ''}</div>
+              ${b ? `<button type="button" class="btn btn-sm btn-maroon" data-exr="${i}"><i class="bi bi-signpost-split"></i> الطريق</button>` : ''}</div>`; }).join('')}
+          ${later.length ? `<h3><i class="bi bi-calendar3"></i> بعد ذلك</h3>${later.slice(0, 8).map(e => row(`${+e.date.slice(8)}/${+e.date.slice(5, 7)}`, e.name, `${e.from} · ${rooms(e).list.map(x => x.room).join('، ')}`)).join('')}` : ''}`;
+      setTimeout(() => $('#cm-card').querySelectorAll('[data-exr]').forEach(x => x.onclick = () => { const e = first[+x.dataset.exr], r = rooms(e).list[0]; route = { from: here || (C.gates || [])[0], to: { b: placeB(r.room), room: r.room, label: 'امتحان ' + e.name + ' · ' + r.room } }; setTool('route'); }), 0);
+    }
+    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'امتحاني على الخريطة', 'من اختيارك في «امتحاناتي» على هذا الجهاز')}${body}
+      <div class="cm-links"><a class="btn btn-sm btn-outline-secondary" href="myexams.html"><i class="bi bi-pencil"></i> اختر مقرراتي في «امتحاناتي»</a></div></div>`;
+    bind(() => setTool(''));
+    OV = { lines: exday && exday.filter(x => x.b).length > 1 ? [{ pts: exday.filter(x => x.b).map(x => x.b), cls: 'cm-dayline' }] : [], marks: exday ? stepMarks(exday) : '' };
+    pins();
+  }
+
+  // ---------------------------------------------------------------- «توقّع الازدحام»: students in lectures through the day (from the sections' registered numbers)
+  const CR = {};
+  function crowd(d) {
+    if (CR[d]) return CR[d];
+    const T0 = 7 * 60, T1 = 21 * 60, ST = 15, slots = []; for (let t = T0; t < T1; t += ST) slots.push(t);
+    const tot = slots.map(() => 0), starts = slots.map(() => 0), per = {};
+    C.buildings.forEach(b => { if (!(b.tt || []).length) return; const arr = per[b.id] = slots.map(() => 0);
+      meetings(b, d).forEach(x => { const r = +x.s.registered || 0; slots.forEach((t, i) => { if (x.a <= t && t < x.z) { arr[i] += r; tot[i] += r; } }); const si = Math.floor((x.a - T0) / ST); if (si >= 0 && si < slots.length) starts[si] += r; }); });
+    return (CR[d] = { slots, tot, starts, per, ST, T0 });
+  }
+  const crowdNow = (b, n) => { const c = crowd(n.day), i = Math.floor((n.min - c.T0) / c.ST); return c.per[b.id] && i >= 0 && i < c.slots.length ? c.per[b.id][i] : 0; };
+  const crowdColor = v => v >= 400 ? '#dc2626' : v >= 150 ? '#f59e0b' : '#16a34a';
+  function crowdChart(c, n, W, H) {
+    const max = Math.max(1, ...c.tot), x = i => 30 + i * (W - 40) / c.slots.length, y = v => H - 18 - v / max * (H - 30), bw = (W - 40) / c.slots.length;
+    const area = `M${x(0)},${y(0)} ` + c.tot.map((v, i) => `L${x(i)},${y(v)}`).join(' ') + ` L${x(c.slots.length - 1)},${y(0)} Z`;
+    const ni = Math.floor((n.min - c.T0) / c.ST);
+    return `<svg viewBox="0 0 ${W} ${H}" class="cm-chart" role="img" aria-label="الطلبة في المحاضرات خلال اليوم">
+      ${[0.5, 1].map(f => `<line x1="30" x2="${W - 10}" y1="${y(max * f)}" y2="${y(max * f)}" stroke="#e5e7eb"/><text x="26" y="${y(max * f) + 4}" font-size="9" text-anchor="end" fill="#6b7280">${Math.round(max * f)}</text>`).join('')}
+      <path d="${area}" fill="#901d23" fill-opacity=".18" stroke="#901d23" stroke-width="1.5"/>
+      ${c.starts.map((v, i) => v ? `<rect x="${x(i)}" y="${y(v)}" width="${Math.max(1, bw - 1)}" height="${y(0) - y(v)}" fill="#1d4ed8" fill-opacity=".75"/>` : '').join('')}
+      ${c.slots.map((t, i) => t % 120 === 0 ? `<text x="${x(i)}" y="${H - 4}" font-size="9" text-anchor="middle" fill="#6b7280">${t / 60}</text>` : '').join('')}
+      ${ni >= 0 && ni < c.slots.length ? `<line x1="${x(ni)}" x2="${x(ni)}" y1="8" y2="${y(0)}" stroke="#111" stroke-dasharray="3 3"/>` : ''}</svg>`;
+  }
+  function crowdFacts(n) {
+    const c = crowd(n.day), pk = c.tot.indexOf(Math.max(...c.tot));
+    const waves = c.starts.map((v, i) => ({ v, t: c.slots[i] })).filter(w => w.v).sort((a, b) => b.v - a.v).slice(0, 4).sort((a, b) => a.t - b.t);
+    const calm = c.slots.map((t, i) => ({ t, v: c.tot[i] })).filter(s => s.t >= 9 * 60 && s.t <= 15 * 60).sort((a, b) => a.v - b.v)[0];
+    const rows = C.buildings.filter(b => c.per[b.id]).map(b => { const a = c.per[b.id], m = Math.max(...a); return { b, m, t: c.slots[a.indexOf(m)], now: crowdNow(b, n) }; }).filter(r => r.m).sort((a, b) => b.m - a.m);
+    return { c, pk, waves, calm, rows };
+  }
+  function crowdTool(n) {
+    const f = crowdFacts(n), c = f.c;
+    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'توقّع الازدحام', `${esc(U.DAYS[n.day] || '')} · من أعداد الطلبة المسجلين في الشعب`)}
+      ${!c.tot.some(Boolean) ? empty('لا محاضرات في هذا اليوم.') : `<div class="cm-kpis"><div><b dir="ltr">${toTime(c.slots[f.pk])}</b><span>ذروة الحرم</span></div><div><b>${c.tot[f.pk].toLocaleString('en')}</b><span>طالباً في القاعات</span></div>
+        <div><b dir="ltr">${f.calm ? toTime(f.calm.t) : '—'}</b><span>أهدأ وقت (9–15)</span></div></div>
+        ${crowdChart(c, n, 380, 130)}<div class="cm-key2"><span><i style="background:#901d23;opacity:.4"></i> في القاعات</span><span><i style="background:#1d4ed8"></i> يبدؤون محاضرة (موجات الوصول)</span><span><i class="ln"></i> الوقت المختار</span></div>
+        <h3><i class="bi bi-door-open"></i> البوابات والمواقف</h3><p class="cm-note">يشتد الضغط قبل موجات الوصول الكبرى بـ15–30 دقيقة: ${f.waves.map(w => `<b dir="ltr">${toTime(w.t)}</b> (${w.v.toLocaleString('en')})`).join('، ')}.</p>
+        <h3><i class="bi bi-buildings"></i> ذروة كل مبنى <small>الطلبة في قاعاته</small></h3>
+        ${f.rows.slice(0, 12).map(r => `<button type="button" class="cm-near" data-b="${esc(r.b.id)}"><span class="cm-no sm" style="--c:${crowdColor(r.now)}">${esc(r.b.id)}</span><span><b>${esc(r.b.short || r.b.name)}</b><small>الذروة <bdi dir="ltr">${toTime(r.t)}</bdi>: ${r.m.toLocaleString('en')} طالباً · الآن ${r.now.toLocaleString('en')}</small></span></button>`).join('')}
+        <p class="cm-note">على الخريطة: لون المبنى وعدده = الطلبة في قاعاته في الوقت المختار. تقدير: الطالب يُحسب في كل محاضرة مسجّل فيها، والحضور الفعلي قد يقل.</p>`}
+      <div class="cm-links"><button type="button" class="btn btn-sm btn-maroon" id="cm-doc"><i class="bi bi-file-earmark-text"></i> تقرير رسمي</button></div></div>`;
+    bind(() => setTool(''));
+    $('#cm-doc').onclick = () => crowdDoc(n);
+    pins();
+  }
+  function crowdDoc(n) {
+    const f = crowdFacts(n), c = f.c, total = c.starts.reduce((a, b) => a + b, 0);
+    doc({ code: 'CR', title: 'تقرير توقّع الازدحام في الحرم الجامعي', sub: `يوم ${U.DAYS[n.day] || ''} · الفصل الدراسي الحالي`, unit: 'التخطيط والخدمات',
+      info: [['ذروة الحرم', toTime(c.slots[f.pk])], ['الطلبة في القاعات عند الذروة', c.tot[f.pk].toLocaleString('en')], ['مقاعد المحاضرات في اليوم', total.toLocaleString('en')], ['أهدأ وقت (9:00–15:00)', f.calm ? toTime(f.calm.t) : '—']],
+      sections: [
+        ['الغرض', '<p>يقدّر هذا التقرير أعداد الطلبة الموجودين في القاعات التدريسية خلال يوم الدوام، وموجات الوصول إلى المحاضرات، لمساعدة الأمن الجامعي والحركة والخدمات في توزيع الموظفين وتنظيم البوابات والمواقف والممرات.</p>'],
+        ['الطلبة في القاعات خلال اليوم', `<div class="fig">${crowdChart(c, { min: -1 }, 700, 220)}<small>المساحة: الطلبة في القاعات · الأعمدة: الطلبة الذين تبدأ محاضرتهم (كل 15 دقيقة) · المحور الأفقي: الساعة</small></div>`],
+        ['موجات الوصول والضغط على البوابات والمواقف', tbl(['#', 'وقت بدء المحاضرات', 'الطلبة الذين تبدأ محاضرتهم', 'فترة الضغط المتوقعة على البوابات'], f.waves.map((w, i) => [[i + 1, 'n'], [toTime(w.t), 'ltr'], [w.v.toLocaleString('en'), 'c'], [`${toTime(w.t - 30)} – ${toTime(w.t)}`, 'ltr']]))],
+        ['الذروة في كل مبنى', tbl(['المبنى', 'الاسم', 'وقت الذروة', 'الطلبة عند الذروة', 'مستوى الازدحام'], f.rows.map(r => [[r.b.id, 'c'], r.b.name, [toTime(r.t), 'ltr'], [r.m.toLocaleString('en'), 'c'], [r.m >= 400 ? 'مرتفع' : r.m >= 150 ? 'متوسط' : 'منخفض', 'c']]))],
+        ['التوصيات', `<ol>${[`تعزيز وجود الأمن الجامعي والحركة عند البوابات والمواقف في الفترات: ${f.waves.slice(0, 3).map(w => toTime(w.t - 30) + '–' + toTime(w.t)).join('، ')}.`,
+          f.rows[0] ? `متابعة الممرات والدرج والمصاعد في ${f.rows.slice(0, 3).map(r => r.b.name).join('، ')} حول أوقات ذروتها.` : '',
+          f.calm ? `جدولة أعمال الصيانة والتنظيف والفعاليات في الأوقات الأهدأ، مثل ${toTime(f.calm.t)}.` : '',
+          'توزيع بعض الشعب الكبيرة على أوقات بدء مختلفة لتخفيف موجات الوصول، بالتنسيق مع الكليات ودائرة القبول والتسجيل.'].filter(Boolean).map(t => `<li>${esc(t)}</li>`).join('')}</ol>`],
+        ['المنهجية والقيود', '<p>الأرقام محسوبة من الجدول الدراسي: لكل محاضرة وجاهية عدد الطلبة المسجلين في شعبتها، ويُحسب الطالب في كل محاضرة مسجّل فيها. لا تشمل الموظفين والزوار، والحضور الفعلي قد يقل عن التسجيل. الفترات كل 15 دقيقة.</p>']],
+      sign: ['أعدّه', 'الأمن الجامعي', 'اعتمده'] });
+  }
+
+  // ---------------------------------------------------------------- «جولة الطلبة الجدد»
+  const TOUR = { i: 0, fac: P.get('fac') || '', from: null };
+  const tourStops = () => (C.tour || []).map(s => { if (s.b === '@faculty') { const b = B(TOUR.fac); return b ? Object.assign({}, s, { b, title: b.name }) : null; } return B(s.b) ? Object.assign({}, s, { b: B(s.b) }) : null; }).filter(Boolean);
+  function tourTool() {
+    if (!TOUR.from) TOUR.from = here || (C.gates || [])[1] || (C.gates || [])[0];
+    const st = tourStops(), i = Math.min(TOUR.i, st.length - 1), s = st[i];
+    const people = s ? STAFF.filter(m => staffB(m) === s.b && lead(m) < 20).sort((x, y) => lead(x) - lead(y)).slice(0, 4) : [];
+    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'جولة الطلبة الجدد', `${st.length} محطات · ابدأ من البوابة أو من «أنت هنا»`)}
+      <div class="cm-two">${fromSel('cm-tfrom', TOUR.from, 'البداية')}<div>${bSel('cm-tfac', B(TOUR.fac), 'كليتك', b => b.kind === 'faculty', '— اختر كليتك —')}</div></div>
+      ${s ? `<div class="cm-stop"><div class="cm-stop-h"><span class="cm-stepno">${i + 1}</span><div><small>المحطة ${i + 1} من ${st.length}</small><h3>${esc(s.title)}</h3><small>مبنى ${esc(s.b.id)}${s.b.name !== s.title ? ' · ' + esc(s.b.name) : ''}</small></div></div>
+        <p>${esc(s.text)}</p>${people.length ? `<div class="cm-lead">${people.map(m => `<button type="button" data-p="${esc(m.id)}" title="${esc(m.name)}">${face(m)}<small>${esc(m.role)}</small></button>`).join('')}</div>` : ''}
+        <div class="cm-stop-nav"><button type="button" class="btn btn-sm btn-outline-secondary" data-ti="${i - 1}" ${i ? '' : 'disabled'}><i class="bi bi-arrow-right"></i> السابقة</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-center="${esc(s.b.id)}"><i class="bi bi-geo"></i> على الخريطة</button>
+          <button type="button" class="btn btn-sm btn-maroon" data-ti="${i + 1}" ${i < st.length - 1 ? '' : 'disabled'}>التالية <i class="bi bi-arrow-left"></i></button></div></div>` : ''}
+      <h3>كل المحطات</h3><div class="cm-list">${st.map((x, k) => `<button type="button" data-ti="${k}" class="${k === i ? 'on' : ''}"><span class="cm-stepno sm">${k + 1}</span><span>${esc(x.title)}</span><small>${k ? meters(st[k - 1].b, x.b) + ' م' : ''}</small></button>`).join('')}</div>
+      <div class="cm-links"><button type="button" class="btn btn-sm btn-maroon" id="cm-doc"><i class="bi bi-file-earmark-text"></i> دليل الجولة للطباعة</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-copy="${esc(SITE + 'campus.html?tool=tour' + (TOUR.fac ? '&fac=' + encodeURIComponent(TOUR.fac) : ''))}"><i class="bi bi-link-45deg"></i> رابط الجولة</button></div></div>`;
+    bind(() => setTool(''));
+    $('#cm-tfrom').onchange = e => { TOUR.from = fromGet(e.target.value); tourTool(); };
+    $('#cm-tfac').onchange = e => { TOUR.fac = e.target.value; url('fac', TOUR.fac); tourTool(); };
+    $('#cm-card').querySelectorAll('[data-ti]').forEach(x => x.onclick = () => { TOUR.i = +x.dataset.ti; tourTool(); const t = tourStops()[TOUR.i]; if (t) center(t.b); });
+    $('#cm-doc').onclick = tourDoc;
+    OV = { lines: [{ pts: [TOUR.from, ...st.map(x => x.b)], cls: 'cm-dayline' }], marks: stepMarks(st.map(x => ({ b: x.b }))) };
+    sel = s ? s.b.id : ''; pins(); sel = '';
+  }
+  function tourDoc() {
+    const st = tourStops(); let m = 0;
+    const rows = st.map((s, k) => { const d = k ? meters(st[k - 1].b, s.b) : meters(TOUR.from, s.b); m += d; return [[k + 1, 'n'], `<b>${esc(s.title)}</b>`, [s.b.id, 'c'], esc(s.text), [d + ' م', 'c']]; });
+    doc({ code: 'TR', title: 'دليل جولة الطلبة الجدد في الحرم الجامعي', sub: 'محطات الحرم الأساسية بالترتيب', unit: 'عمادة شؤون الطلبة',
+      info: [['عدد المحطات', String(st.length)], ['طول الجولة تقريباً', m + ' متر'], ['مدة المشي تقريباً', walkMin(m) + ' دقيقة'], ['البداية', TOUR.from.name || TOUR.from.label || 'البوابة']],
+      sections: [['المسار على مخطط الحرم', docMap([{ pts: [TOUR.from, ...st.map(x => x.b)], c: '#901d23' }], st.map((s, k) => ({ x: s.b.x, y: s.b.y, t: k + 1 })), 'الأرقام: ترتيب المحطات · الخط: اتجاه الجولة (المسافات تقديرية)')],
+        ['المحطات', tbl(['#', 'المحطة', 'المبنى', 'ماذا تجد هنا', 'من المحطة السابقة'], rows)],
+        ['معلومات مفيدة', `<ul><li>خريطة الحرم الحيّة: ${esc(SITE)}campus.html — تبيّن القاعات الشاغرة والطريق إلى أي قاعة أو مكتب.</li><li>جدولك الدراسي: «مخطط جدولي»، وامتحاناتك: «امتحاناتي» على الموقع نفسه.</li><li>في الطوارئ: اتصل بالأمن الجامعي أو 911، وتوجّه إلى أقرب نقطة تجمع.</li></ul>`]],
+      source: 'أُعدّ من مخطط الحرم ودليل الموظفين في بوصلة البترا' });
+  }
+
+  // ---------------------------------------------------------------- «الطوارئ ونقاط التجمع» (proposed until the university approves them)
+  const EMG = { from: null };
+  const SAFE = () => C.safety || { assembly: [], contacts: [] };
+  const apNear = o => SAFE().assembly.map(a => ({ a, m: meters(o, a) })).sort((x, y) => x.m - y.m);
+  function contacts() {
+    return SAFE().contacts.map(c => {
+      if (c.tel) return { name: c.name, tel: c.tel };
+      const ms = STAFF.filter(m => clean(m.office) === c.office && m.ext && (!c.job || (m.job || '').includes(c.job))).sort((x, y) => lead(x) - lead(y));
+      return { name: c.name, ext: [...new Set(ms.map(m => m.ext))].slice(0, 2).join(' / ') };
+    }).filter(c => c.tel || c.ext);
+  }
+  const STEPS = ['حافظ على هدوئك وأوقف ما تفعله فوراً عند سماع الإنذار أو طلب الإخلاء.', 'غادر من أقرب مخرج آمن، واستعمل الدرج لا المصعد.', 'ساعد من يحتاج المساعدة، خاصة ذوي الإعاقة، وأبلغ المسؤولين عن أي شخص بقي في الداخل.',
+    'توجّه إلى نقطة التجمع وابقَ فيها، ولا تعد إلى المبنى حتى يأذن الأمن الجامعي أو الدفاع المدني.', 'اتصل بالأمن الجامعي أو 911 وأعطِ مكانك بدقة (رقم المبنى والطابق والقاعة).'];
+  function emergencyTool() {
+    if (!EMG.from) EMG.from = here || B(sel) || C.buildings[0];
+    const S2 = SAFE(), near = apNear(EMG.from), a = near[0], alt = near[1], cs = contacts();
+    $('#cm-card').innerHTML = `<div class="cm-card cm-emg">${head('', '', 'الطوارئ ونقاط التجمع', 'في الخطر المباشر اتصل فوراً، ثم توجّه إلى نقطة التجمع')}
+      <div class="cm-calls">${cs.map(c => c.tel ? `<a href="tel:${esc(c.tel)}" class="sos"><i class="bi bi-telephone-fill"></i><span><b dir="ltr">${esc(c.tel)}</b><small>${esc(c.name)}</small></span></a>`
+        : `<div><i class="bi bi-telephone"></i><span><b dir="ltr">${esc(c.ext)}</b><small>${esc(c.name)} · فرعي</small></span></div>`).join('')}</div>
+      ${fromSel('cm-efrom', EMG.from, 'أنا في')}
+      ${a ? `<div class="cm-ap-box"><i class="bi bi-people-fill"></i><div><small>أقرب نقطة تجمع</small><b>${esc(a.a.id)} · ${esc(a.a.name)}</b><small>حوالي ${a.m} م · ${walkMin(a.m)} د مشياً${alt ? ` · البديلة: ${esc(alt.a.id)} (${alt.m} م)` : ''}</small></div></div>` : ''}
+      ${S2.status !== 'official' ? proposed(esc(S2.note || 'نقاط التجمع تحتاج اعتماد الأمن الجامعي.') + ' اتبع دائماً تعليمات الأمن الجامعي والدفاع المدني ولوحات الإخلاء في المبنى.') : ''}
+      <h3><i class="bi bi-list-ol"></i> عند الإخلاء</h3><ol class="cm-ol">${STEPS.map(t => `<li>${esc(t)}</li>`).join('')}</ol>
+      <div class="cm-links"><button type="button" class="btn btn-sm btn-maroon" id="cm-doc"><i class="bi bi-file-earmark-text"></i> خطة الإخلاء (مستند رسمي)</button></div></div>`;
+    bind(() => setTool(''));
+    $('#cm-efrom').onchange = e => { EMG.from = fromGet(e.target.value); emergencyTool(); if (apNear(EMG.from)[0]) center(apNear(EMG.from)[0].a); };
+    $('#cm-doc').onclick = emergencyDoc;
+    OV = { lines: a ? [{ pts: [EMG.from, a.a], cls: 'cm-evac' }] : [], marks: '' };
+    pins();
+  }
+  function emergencyDoc() {
+    const S2 = SAFE(), cs = contacts(), off = S2.status !== 'official';
+    doc({ code: 'EV', title: 'خطة الإخلاء ونقاط التجمع في الحرم الجامعي', sub: off ? 'مسودة مقترحة للدراسة والاعتماد' : 'معتمدة', unit: 'الأمن الجامعي والسلامة العامة', status: off ? 'مقترح غير معتمد' : 'معتمد',
+      draft: off ? 'مقترح — غير معتمد' : '', draftNote: off ? 'هذه مسودة مقترحة: نقاط التجمع اختيرت من الساحات والمواقف المفتوحة الظاهرة على مخطط الحرم، ولم تُعتمد بعد. لا تُستعمل للإخلاء الفعلي قبل الكشف الميداني واعتمادها من الأمن الجامعي والسلامة العامة.' : '',
+      info: [['نقاط التجمع', String(S2.assembly.length)], ['المباني المشمولة', String(C.buildings.length)], ['الطوارئ العامة', '911'], ['الأمن الجامعي', (cs.find(c => /الأمن/.test(c.name)) || {}).ext || '—']],
+      sections: [
+        ['نقاط التجمع على المخطط', docMap([], S2.assembly.map(a => ({ x: a.x, y: a.y, t: a.id, c: '#15803d' })), 'المربعات الخضراء: نقاط التجمع ' + (off ? 'المقترحة' : 'المعتمدة'))
+          + tbl(['الرقم', 'نقطة التجمع', 'المباني الأقرب إليها'], S2.assembly.map(a => [[a.id, 'c'], a.name, C.buildings.filter(b => apNear(b)[0].a === a).map(b => b.id).join('، ') || '—']))],
+        ['توزيع المباني على نقاط التجمع', tbl(['المبنى', 'الاسم', 'نقطة التجمع', 'المسافة', 'البديلة'], C.buildings.map(b => { const nn = apNear(b); return [[b.id, 'c'], b.name, [nn[0].a.id, 'c'], [nn[0].m + ' م', 'c'], [nn[1] ? nn[1].a.id + ' (' + nn[1].m + ' م)' : '—', 'c']]; }))],
+        ['أرقام الطوارئ', tbl(['الجهة', 'الرقم'], cs.map(c => [c.name, [c.tel || ('فرعي ' + c.ext), 'ltr']]))],
+        ['تعليمات الإخلاء العامة', `<ol>${STEPS.map(t => `<li>${esc(t)}</li>`).join('')}</ol>`],
+        ...(off ? [['متطلبات الاعتماد', `<ol>${['كشف ميداني لكل نقطة تجمع: المساحة، البعد الآمن عن المباني، خلوّها من العوائق وحركة السيارات.', 'تحديد مخارج الطوارئ ومسارات الإخلاء داخل كل مبنى وتركيب لوحاتها.',
+          'تسمية مسؤول إخلاء لكل مبنى وطابق، وتحديد طريقة إخلاء ذوي الإعاقة من الطوابق العليا.', 'تحديد أماكن أجهزة الإطفاء وصناديق الإسعاف الأولي وأجهزة الصدمات الكهربائية (AED) وإضافتها إلى الخريطة.',
+          'إجراء تمرين إخلاء وتوثيق نتائجه، ثم تعديل هذه الخطة واعتمادها.', 'بعد الاعتماد: تغيير حالة نقاط التجمع في بيانات الخريطة إلى «معتمدة» فتختفي عبارة «مقترح».'].map(t => `<li>${esc(t)}</li>`).join('')}</ol>`]] : [])],
+      sign: ['أعدّه', 'رئيس قسم الأمن الجامعي', 'اعتمده'] });
+  }
+
+  // ---------------------------------------------------------------- «بلاغ عطل»: a numbered, formal report to the unit that handles it (from the QR sticker: ?tool=fix&here=b:7)
+  const FIX = { b: null, cat: '', urg: 'عادي', room: P.get('room') || '', text: '', name: '', contact: '', out: null };
+  function fixTo(cat) {
+    const F2 = C.fix || {}, c = (F2.categories || []).find(x => x.id === cat) || {};
+    if (c.email) return { email: c.email, unit: c.name };
+    if (c.to) { const ms = STAFF.filter(m => m.email && (clean(m.office) === c.to || (c.to === 'الأمن' && /الأمن/.test(m.job || '')))).sort((x, y) => lead(x) - lead(y));
+      if (ms[0]) return { email: ms[0].email, unit: c.to === 'الأمن' ? 'الأمن الجامعي' : c.to, ext: ms[0].ext }; }
+    return F2.email ? { email: F2.email, unit: 'الخدمات والصيانة' } : { email: '', unit: 'الخدمات والصيانة' };
+  }
+  function fixTool() {
+    const F2 = C.fix || { categories: [] };
+    if (!FIX.b) FIX.b = (here && C.buildings.find(b => b.x === here.x && b.y === here.y)) || B(sel) || null;
+    if (FIX.out) return fixDone();
+    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'بلاغ عطل', 'يصل إلى الجهة المختصة ببلاغ رسمي مرقّم')}
+      <form id="cm-fix" class="cm-form">
+        ${bSel('cm-fb', FIX.b, 'المبنى', null, '— اختر المبنى —')}
+        <label class="cm-lbl" for="cm-froom">القاعة أو المكان</label><input id="cm-froom" class="form-control form-control-sm" maxlength="60" placeholder="مثل 7101، أو الممر في الطابق الثاني" value="${esc(FIX.room)}">
+        <label class="cm-lbl">نوع العطل</label><div class="cm-cats">${(F2.categories || []).map(c => `<label class="${FIX.cat === c.id ? 'on' : ''}"><input type="radio" name="cat" value="${esc(c.id)}" ${FIX.cat === c.id ? 'checked' : ''}> ${esc(c.name)}</label>`).join('')}</div>
+        <label class="cm-lbl">الأولوية</label><div class="cm-by">${['عادي', 'عاجل', 'خطر على السلامة'].map(u => `<button type="button" data-urg="${u}" class="${FIX.urg === u ? 'on' : ''} ${u === 'خطر على السلامة' ? 'danger' : ''}">${u}</button>`).join('')}</div>
+        ${FIX.urg === 'خطر على السلامة' ? `<div class="cm-prop danger"><i class="bi bi-exclamation-octagon-fill"></i><span><b>إن كان الخطر مباشراً فاتصل الآن:</b> ${contacts().map(c => `${esc(c.name)} <b dir="ltr">${esc(c.tel || c.ext)}</b>`).join(' · ')}</span></div>` : ''}
+        <label class="cm-lbl" for="cm-ftext">وصف العطل</label><textarea id="cm-ftext" class="form-control form-control-sm" rows="3" maxlength="600" placeholder="ماذا حدث؟ منذ متى؟ هل يمنع استعمال القاعة؟">${esc(FIX.text)}</textarea>
+        <div class="cm-two"><div><label class="cm-lbl" for="cm-fname">اسمك (اختياري)</label><input id="cm-fname" class="form-control form-control-sm" maxlength="60" value="${esc(FIX.name)}"></div>
+          <div><label class="cm-lbl" for="cm-fcon">هاتف أو بريد للتواصل (اختياري)</label><input id="cm-fcon" class="form-control form-control-sm" maxlength="60" dir="ltr" value="${esc(FIX.contact)}"></div></div>
+        <div id="cm-ferr"></div><button class="btn btn-maroon mt-2 w-100"><i class="bi bi-file-earmark-check"></i> أنشئ البلاغ</button></form></div>`;
+    bind(() => setTool(''));
+    const f = $('#cm-fix'), keep = () => { FIX.b = B($('#cm-fb').value); FIX.room = $('#cm-froom').value.trim(); FIX.text = $('#cm-ftext').value.trim(); FIX.name = $('#cm-fname').value.trim(); FIX.contact = $('#cm-fcon').value.trim(); const c = f.querySelector('[name=cat]:checked'); FIX.cat = c ? c.value : ''; };
+    f.querySelectorAll('[data-urg]').forEach(x => x.onclick = () => { keep(); FIX.urg = x.dataset.urg; fixTool(); });
+    f.onchange = e => { if (e.target.name === 'cat') f.querySelectorAll('.cm-cats label').forEach(l => l.classList.toggle('on', l.querySelector('input').checked)); if (e.target.id === 'cm-fb' && B(e.target.value)) center(B(e.target.value)); };
+    f.onsubmit = e => { e.preventDefault(); keep();
+      const bad = !FIX.b ? 'اختر المبنى' : !FIX.cat ? 'اختر نوع العطل' : FIX.text.length < 8 ? 'صف العطل بجملة على الأقل' : '';
+      if (bad) { $('#cm-ferr').innerHTML = `<div class="cm-none">${bad}</div>`; return; }
+      FIX.out = { ref: refNo('FX'), at: new Date(), to: fixTo(FIX.cat), catName: (F2.categories.find(c => c.id === FIX.cat) || {}).name }; fixTool(); };
+    if (FIX.b) { mark = new Set([FIX.b.id]); pins(); }
+  }
+  function fixText() {
+    const o = FIX.out, t = o.at.toLocaleString('ar-JO-u-nu-latn', { timeZone: 'Asia/Amman', dateStyle: 'long', timeStyle: 'short' });
+    return [`بلاغ عطل رقم ${o.ref}`, `التاريخ والوقت: ${t}`, `المبنى: ${FIX.b.id} · ${FIX.b.name}`, `القاعة أو المكان: ${FIX.room || 'غير محدد'}`, `نوع العطل: ${o.catName}`, `الأولوية: ${FIX.urg}`, '', `الوصف: ${FIX.text}`, '',
+      `المبلّغ: ${FIX.name || 'لم يذكر اسمه'}${FIX.contact ? ' · ' + FIX.contact : ''}`, `أُنشئ من خريطة الحرم: ${SITE}campus.html?b=${encodeURIComponent(FIX.b.id)}`].join('\n');
+  }
+  function fixDone() {
+    const o = FIX.out, mail = `mailto:${encodeURIComponent(o.to.email)}?subject=${encodeURIComponent(`بلاغ عطل ${o.ref} · مبنى ${FIX.b.id}${FIX.room ? ' · ' + FIX.room : ''} · ${FIX.urg}`)}&body=${encodeURIComponent(fixText())}`;
+    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'البلاغ جاهز', 'خطوة أخيرة: أرسله')}
+      <div class="cm-ticket"><div><small>رقم البلاغ</small><b dir="ltr">${esc(o.ref)}</b></div><div><small>إلى</small><b>${esc(o.to.unit)}</b></div>
+        <div><small>المكان</small><b>${esc(FIX.b.id)} · ${esc(FIX.room || FIX.b.short || FIX.b.name)}</b></div><div><small>النوع والأولوية</small><b>${esc(o.catName)} · ${esc(FIX.urg)}</b></div></div>
+      ${o.to.email ? '' : `<div class="cm-prop"><i class="bi bi-info-circle-fill"></i><span>لم يُحدَّد بعد بريد جهة الصيانة لهذا النوع في بيانات الخريطة؛ اكتب عنوان المستلم في بريدك، أو اطبع البلاغ وسلّمه.</span></div>`}
+      <div class="cm-links cm-col"><a class="btn btn-maroon" href="${esc(mail)}"><i class="bi bi-envelope"></i> أرسل بالبريد${o.to.email ? ' إلى ' + esc(o.to.unit) : ''}</a>
+        <button type="button" class="btn btn-outline-secondary" id="cm-fdoc"><i class="bi bi-file-earmark-text"></i> نموذج البلاغ الرسمي (طباعة / PDF)</button>
+        <button type="button" class="btn btn-outline-secondary" data-copy="${esc(fixText())}"><i class="bi bi-clipboard"></i> نسخ نص البلاغ</button>
+        <button type="button" class="btn btn-link" id="cm-fnew">بلاغ جديد</button></div></div>`;
+    bind(() => { FIX.out = null; setTool(''); });
+    $('#cm-fnew').onclick = () => { Object.assign(FIX, { out: null, text: '', room: '', cat: '' }); fixTool(); };
+    $('#cm-fdoc').onclick = () => doc({ ref: o.ref, title: 'نموذج بلاغ عطل', sub: `${FIX.b.name} · ${o.catName}`, unit: o.to.unit, status: 'جديد',
+      info: [['المبنى', FIX.b.id + ' · ' + (FIX.b.short || FIX.b.name), 'w2'], ['القاعة أو المكان', FIX.room || 'غير محدد'], ['الأولوية', FIX.urg], ['نوع العطل', o.catName, 'w2'], ['الجهة المختصة', o.to.unit, 'w2']],
+      sections: [['وصف العطل', `<p style="white-space:pre-line">${esc(FIX.text)}</p>`], ['بيانات المبلّغ', tbl(['الاسم', 'التواصل', 'وقت البلاغ'], [[esc(FIX.name || 'لم يذكر'), [esc(FIX.contact || '—'), 'ltr'], o.at.toLocaleString('ar-JO-u-nu-latn', { timeZone: 'Asia/Amman', dateStyle: 'medium', timeStyle: 'short' })]])],
+        ['للاستعمال الرسمي (الجهة المختصة)', tbl(['تاريخ الاستلام', 'المكلَّف بالإصلاح', 'الإجراء المتخذ', 'تاريخ الإنجاز', 'الحالة'], [[['', 'blank'], '', '', '', '']])]],
+      sign: ['المستلم', 'الفني المنفّذ', 'رئيس القسم المختص'], source: 'أُنشئ من «بلاغ عطل» في خريطة الحرم · بوصلة البترا' });
+  }
+
+  // ---------------------------------------------------------------- «الوصول الميسّر»: floors from the room numbers, a proposed path (not official), and a formal proposal to study
+  const ACC = { to: null, from: null };
+  function upper(b) { const rs = roomsOf(b), fl = rs.map(floorOf).filter(f => f != null), hours = {}; DAYS5().forEach(d => meetings(b, d).forEach(x => { const f = floorOf(x.room); if (f) hours.up = (hours.up || 0) + (x.z - x.a) / 60; }));
+    return { floors: fl.length ? Math.max(...fl) + 1 : null, up: rs.filter(r => floorOf(r) > 0).length, ground: rs.filter(r => floorOf(r) === 0).length, upHours: Math.round(hours.up || 0) }; }
+  const DAYS5 = () => Object.keys(U.DAYS).filter(k => k !== 'ج');
+  function accessTool() {
+    if (!ACC.to) ACC.to = B(sel) || C.buildings.find(b => (b.tt || []).length);
+    if (!ACC.from) ACC.from = here || (C.gates || [])[0];
+    const p = pathTo(ACC.from, ACC.to), u = upper(ACC.to);
+    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'الوصول الميسّر', 'لذوي الإعاقة وكبار السن ومن يحمل أمتعة')}
+      ${proposed('لا توجد لدينا بيانات رسمية عن المداخل الميسّرة والمنحدرات والمصاعد. المسار البنفسجي مقترح تقريبي على طرق المخطط الظاهرة؛ تحقّق منه قبل الاعتماد عليه.')}
+      <div class="cm-two">${fromSel('cm-afrom', ACC.from)}<div>${bSel('cm-ato', ACC.to, 'إلى')}</div></div>
+      ${p ? `<div class="cm-facts mt-2"><div><i class="bi bi-signpost-2"></i><span><small>المسار المقترح</small><b>حوالي ${p.m} م · ${Math.max(1, Math.round(p.m / 50))} دقيقة بالكرسي المتحرك</b><em>على الطرق الداخلية بدل الاختصار عبر الحدائق والدرج</em></span></div></div>` : ''}
+      <h3><i class="bi bi-building"></i> ${esc(ACC.to.name)}</h3>
+      <div class="cm-facts">${[['bi-layers', 'الطوابق (من أرقام القاعات)', u.floors ? `${u.floors} · ${u.ground} قاعة أرضية و${u.up} في الطوابق العليا` : 'غير معروفة'],
+        ['bi-door-open', 'المدخل الميسّر', 'غير موثّق'], ['bi-arrow-down-up', 'المصعد', 'غير موثّق'], ['bi-badge-wc', 'دورة مياه ميسّرة', 'غير موثّقة']].map(([i, t, v]) => `<div><i class="bi ${i}"></i><span><small>${t}</small><b>${esc(v)}</b></span></div>`).join('')}</div>
+      <p class="cm-note">لطالب لا يستطيع صعود الدرج: «قاعة شاغرة» مع «الطابق الأرضي فقط» تعرض القاعات الأرضية، ويمكن للقسم نقل الشعبة إليها.</p>
+      <div class="cm-links"><button type="button" class="btn btn-sm btn-maroon" id="cm-doc"><i class="bi bi-file-earmark-text"></i> مقترح رسمي للدراسة</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-go="free"><i class="bi bi-door-open"></i> قاعة أرضية شاغرة</button></div></div>`;
+    bind(() => setTool(''));
+    $('#cm-afrom').onchange = e => { ACC.from = fromGet(e.target.value); accessTool(); };
+    $('#cm-ato').onchange = e => { ACC.to = B(e.target.value); accessTool(); center(ACC.to); };
+    $('#cm-card').querySelector('[data-go="free"]').onclick = () => { FREE.ground = true; FREE.from = ACC.to; setTool('free'); };
+    $('#cm-doc').onclick = accessDoc;
+    const net = C.paths ? C.paths.edges.map(([a, b]) => ({ pts: [C.paths.nodes[a], C.paths.nodes[b]], cls: 'cm-net', nocase: true })) : [];
+    OV = { lines: [...net, ...(p ? [{ pts: p.pts, cls: 'cm-access' }] : [])], marks: '' };
+    mark = new Set([ACC.to.id]); pins();
+  }
+  function accessDoc() {
+    const gates = C.gates || [], list = C.buildings.map(b => { const u = upper(b), best = gates.map(g => ({ g, p: pathTo(g, b) })).filter(x => x.p).sort((x, y) => x.p.m - y.p.m)[0]; return { b, u, best }; });
+    const pr = list.filter(x => x.u.upHours).sort((a, b) => b.u.upHours - a.u.upHours);
+    doc({ code: 'AC', title: 'مقترح دراسة الوصول الميسّر في الحرم الجامعي', sub: 'مسودة للدراسة: أولويات الكشف الميداني ومسارات مقترحة', unit: 'التخطيط والخدمات الهندسية', status: 'مقترح غير معتمد',
+      draft: 'مقترح — غير معتمد', draftNote: 'لا تتوفر بيانات رسمية عن المداخل الميسّرة والمنحدرات والمصاعد ودورات المياه الميسّرة. المسارات والأرقام هنا تقديرية من مخطط الحرم وأرقام القاعات، للدراسة والكشف الميداني فقط.',
+      info: [['المباني', String(C.buildings.length)], ['قاعات في طوابق عليا', String(list.reduce((a, x) => a + x.u.up, 0))], ['ساعات تدريس أسبوعية في طوابق عليا', String(list.reduce((a, x) => a + x.u.upHours, 0)), 'w2']],
+      sections: [
+        ['الغرض', '<p>تحديد ما يلزم ليتمكن الطلبة والموظفون والزوار من ذوي الإعاقة من الوصول إلى القاعات والخدمات، وترتيب أولويات الكشف الميداني حسب حجم التدريس في الطوابق العليا.</p>'],
+        ['المسارات المقترحة على المخطط', docMap(C.paths ? C.paths.edges.map(([a, b]) => ({ pts: [C.paths.nodes[a], C.paths.nodes[b]], c: '#7c3aed', dash: '1 0' })) : [], (C.gates || []).map(g => ({ x: g.x, y: g.y, t: 'B' + g.id, c: '#1e3a8a' })), 'الخطوط البنفسجية: طرق داخلية مقترحة للمسارات الميسّرة (تقديرية) · B: البوابات')],
+        ['أولويات الكشف الميداني', tbl(['#', 'المبنى', 'الطوابق', 'قاعات عليا', 'ساعات تدريس أسبوعية في الطوابق العليا', 'أقرب بوابة بالمسار المقترح'], pr.map((x, i) => [[i + 1, 'n'], `${x.b.id} · ${esc(x.b.name)}`, [x.u.floors || '—', 'c'], [x.u.up, 'c'], [x.u.upHours, 'c'], x.best ? `${esc(x.best.g.name)} (${x.best.p.m} م)` : '—']))],
+        ['نموذج الكشف الميداني', tbl(['المبنى', 'مدخل ميسّر', 'منحدر', 'مصعد يعمل', 'دورة مياه ميسّرة', 'مواقف مخصصة قريبة', 'ملاحظات'], C.buildings.map(b => [`${b.id} · ${esc(b.short || b.name)}`, ['', 'blank'], '', '', '', '', '']))],
+        ['التوصيات', `<ol>${['إجراء الكشف الميداني بالنموذج أعلاه، بدءاً بالمباني الأعلى في جدول الأولويات.', 'إضافة نتائج الكشف إلى بيانات الخريطة فتظهر للجميع، وتحويل المسارات المؤكدة إلى «معتمدة».',
+          'تخصيص مواقف قريبة من البوابات والمداخل الميسّرة، ولوحات إرشادية واضحة.', 'سياسة جدولة: نقل الشعب التي فيها طلبة ذوو إعاقة إلى قاعات أرضية أو في مبانٍ بمصاعد عاملة.',
+          'خطة إخلاء خاصة لذوي الإعاقة من الطوابق العليا ضمن خطة الطوارئ.'].map(t => `<li>${esc(t)}</li>`).join('')}</ol>`],
+        ['المنهجية', '<p>الطوابق من أرقام القاعات في الجدول الدراسي (مثل 7419: المبنى 7، الطابق 4). ساعات التدريس في الطوابق العليا من المحاضرات الوجاهية الأسبوعية. المسارات خطوط تقريبية على طرق المخطط، والمسافة تقديرية.</p>']],
+      sign: ['أعدّه', 'الخدمات الهندسية', 'اعتمده'] });
+  }
+
+  // ---------------------------------------------------------------- «الإشغال وتقرير القاعات»: by building and day, hour by hour, the rooms, recommendations, and a formal report
+  const week = { b: '', tab: 'b' };
+  function utilStats() {
+    if (utilStats.c) return utilStats.c;
+    const DAYS = DAYS5(), H0 = 8 * 60, H1 = 18 * 60, hours = []; for (let h = 8; h < 18; h++) hours.push(h);
     const teach = C.buildings.filter(b => (b.tt || []).length && roomsOf(b).length);
     const occ = (b, d, a0, a1) => { const r = roomsOf(b).length, ms = meetings(b, d); let used = 0; ms.forEach(x => { used += Math.max(0, Math.min(x.z, a1) - Math.max(x.a, a0)); }); return r ? Math.min(1, used / (r * (a1 - a0))) : 0; };
-    const cell = v => `<td style="--v:${v.toFixed(2)}" title="${Math.round(v * 100)}%">${Math.round(v * 100)}</td>`;
-    const wb = B(week.b) || teach[0];
-    const hours = []; for (let h = 8; h < 18; h++) hours.push(h);
     const roomHours = {}; teach.forEach(b => roomsOf(b).forEach(r => { roomHours[r] = { b, h: 0 }; }));
     teach.forEach(b => DAYS.forEach(d => meetings(b, d).forEach(x => { if (roomHours[x.room]) roomHours[x.room].h += (x.z - x.a) / 60; })));
-    const low = Object.entries(roomHours).sort((a, b) => a[1].h - b[1].h).slice(0, 10);
-    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'الإشغال الأسبوعي', 'نسبة القاعات المشغولة بين 8:00 و 18:00 حسب الجدول الدراسي، للتخطيط')}
-      <div class="cm-heatwrap"><table class="cm-heat"><thead><tr><th>المبنى</th>${DAYS.map(d => `<th>${esc(U.DAYS[d] || d)}</th>`).join('')}</tr></thead>
-        <tbody>${teach.map(b => `<tr class="${b === wb ? 'on' : ''}" data-wb="${esc(b.id)}" title="${esc(b.name)}"><th><span class="cm-no sm">${esc(b.id)}</span></th>${DAYS.map(d => cell(occ(b, d, H0, H1))).join('')}</tr>`).join('')}</tbody></table></div>
-      <p class="cm-note">الأرقام نسب مئوية؛ الأحمر الأكثر ازدحاماً. اضغط صف مبنى لتراه ساعة بساعة.</p>
-      <h3><i class="bi bi-clock"></i> ${esc(wb.name)} ساعة بساعة</h3>
-      <div class="cm-heatwrap"><table class="cm-heat sm"><thead><tr><th></th>${hours.map(h => `<th>${h}</th>`).join('')}</tr></thead>
-        <tbody>${DAYS.map(d => `<tr><th>${esc(U.DAYS[d] || d)}</th>${hours.map(h => cell(occ(wb, d, h * 60, h * 60 + 60))).join('')}</tr>`).join('')}</tbody></table></div>
-      <h3><i class="bi bi-door-closed"></i> أقل القاعات استخداماً <small>ساعات تدريس في الأسبوع</small></h3>
-      ${low.map(([r, x]) => row(r, x.b.name, '', `${Math.round(x.h)} ساعة`)).join('')}
-      <div class="cm-links"><a class="btn btn-sm btn-outline-secondary" href="usage.html"><i class="bi bi-grid-3x3-gap-fill"></i> إشغال القاعات بالتفصيل</a></div></div>`;
+    // the averages count only the days with real in-person teaching (a day where the campus is under 5% busy is left out)
+    const nR0 = teach.reduce((a, b) => a + roomsOf(b).length, 0) || 1;
+    const TD = DAYS.filter(d => teach.reduce((a, b) => a + occ(b, d, H0, H1) * roomsOf(b).length, 0) / nR0 >= 0.05);
+    const rows = teach.map(b => { const byDay = DAYS.map(d => occ(b, d, H0, H1)); let pk = { v: 0 };
+      DAYS.forEach(d => hours.forEach(h => { const v = occ(b, d, h * 60, h * 60 + 60); if (v > pk.v) pk = { v, d, h }; }));
+      return { b, rooms: roomsOf(b).length, byDay, avg: byDay.filter((v, i) => TD.includes(DAYS[i])).reduce((a, v) => a + v, 0) / (TD.length || 1), pk, hrs: Math.round(Object.values(roomHours).filter(x => x.b === b).reduce((a, x) => a + x.h, 0)) }; });
+    const rooms = Object.entries(roomHours).map(([r, x]) => ({ r, b: x.b, h: Math.round(x.h * 10) / 10 })).sort((a, b) => a.h - b.h || a.r.localeCompare(b.r, 'en', { numeric: true }));
+    const nR = rows.reduce((a, r) => a + r.rooms, 0) || 1;
+    const campus = DAYS.map(d => hours.map(h => rows.reduce((a, r) => a + occ(r.b, d, h * 60, h * 60 + 60) * r.rooms, 0) / nR));
+    const dayAvg = DAYS.map((d, i) => campus[i].reduce((a, v) => a + v, 0) / hours.length);
+    const avg = rows.reduce((a, r) => a + r.avg * r.rooms, 0) / nR;
+    let peak = { v: -1 }, calm = { v: 2 };
+    DAYS.forEach((d, i) => hours.forEach((h, j) => { const v = campus[i][j]; if (v > peak.v) peak = { v, d, h }; if (h >= 9 && h <= 14 && v < calm.v) calm = { v, d, h }; }));
+    const low = rows.filter(r => r.avg < 0.25), rec = [];
+    rec.push(`أعلى إشغال للحرم يوم ${U.DAYS[peak.d]} الساعة ${peak.h}:00 (${pct(peak.v)})، وأقله في ساعات الذروة يوم ${U.DAYS[calm.d]} الساعة ${calm.h}:00 (${pct(calm.v)}): يُقترح توجيه الشعب الجديدة والإضافية إلى الأوقات الأقل إشغالاً.`);
+    const busy = rows.filter(r => r.pk.v >= 0.85).sort((a, b) => b.pk.v - a.pk.v);
+    busy.slice(0, 3).forEach(r => { const alt = low.filter(x => x !== r).sort((x, y) => meters(r.b, x.b) - meters(r.b, y.b))[0];
+      rec.push(`${r.b.name}: يبلغ إشغاله ${pct(r.pk.v)} يوم ${U.DAYS[r.pk.d]} الساعة ${r.pk.h}:00؛ يُقترح نقل بعض شعب تلك الساعة إلى ساعة أهدأ${alt ? ` أو إلى ${alt.b.name} القريب (متوسط إشغاله ${pct(alt.avg)})` : ''}.`); });
+    if (busy.length > 3) rec.push(`مبانٍ أخرى تتجاوز 85% في ساعة ذروتها: ${busy.slice(3).map(r => `${r.b.short || r.b.name} (${U.DAYS[r.pk.d]} ${r.pk.h}:00)`).join('، ')}.`);
+    if (low.length) rec.push(`مبانٍ متوسط إشغالها أقل من 25% بين 8:00 و18:00: ${low.map(r => `${r.b.short || r.b.name} (${pct(r.avg)})`).join('، ')}؛ متاحة لاستيعاب شعب إضافية أو للامتحانات والدورات وأنشطة الطلبة.`);
+    const idle = rooms.filter(x => x.h < 4);
+    if (idle.length) rec.push(`${idle.length} قاعة تُستعمل أقل من 4 ساعات تدريس أسبوعياً (منها ${idle.slice(0, 6).map(x => x.r).join('، ')}): يُقترح مراجعة تخصيصها أو تحويلها إلى قاعات دراسة أو اجتماعات أو مختبرات.`);
+    const tdAvg = dayAvg.map((v, i) => TD.includes(DAYS[i]) ? v : 9), dmin = tdAvg.indexOf(Math.min(...tdAvg));
+    rec.push(`يوم ${U.DAYS[DAYS[dmin]]} هو الأقل إشغالاً خلال الأسبوع (${pct(dayAvg[dmin])})؛ يمكن الاستفادة منه في جدولة المحاضرات التعويضية والفعاليات.`);
+    return (utilStats.c = { DAYS, TD, hours, teach, occ, rows, rooms, campus, dayAvg, avg, peak, calm, rec, idle });
+  }
+  function weekTool() {
+    const U2 = utilStats(), wb = B(week.b) || U2.teach[0], cell = v => `<td style="--v:${v.toFixed(2)}" title="${pct(v)}">${Math.round(v * 100)}</td>`;
+    const tabs = [['b', 'bi-buildings', 'المباني'], ['h', 'bi-clock', 'ساعة بساعة'], ['rooms', 'bi-door-closed', 'القاعات'], ['rec', 'bi-lightbulb', 'التوصيات']];
+    let body;
+    if (week.tab === 'b') body = `<div class="cm-heatwrap"><table class="cm-heat"><thead><tr><th>المبنى</th>${U2.DAYS.map(d => `<th>${esc(U.DAYS[d] || d)}</th>`).join('')}<th>المعدل</th></tr></thead>
+        <tbody>${U2.rows.map(r => `<tr class="${r.b === wb ? 'on' : ''}" data-wb="${esc(r.b.id)}" title="${esc(r.b.name)}"><th><span class="cm-no sm">${esc(r.b.id)}</span></th>${r.byDay.map(cell).join('')}${cell(r.avg)}</tr>`).join('')}</tbody></table></div>
+      <p class="cm-note">نسبة القاعات المشغولة بين 8:00 و18:00. الأحمر الأكثر ازدحاماً. اضغط مبنى لتراه ساعة بساعة.</p>`;
+    else if (week.tab === 'h') body = `${bSel('cm-wb', wb, 'المبنى', b => U2.teach.includes(b))}<div class="cm-heatwrap mt-2"><table class="cm-heat sm"><thead><tr><th></th>${U2.hours.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${U2.DAYS.map(d => `<tr><th>${esc(U.DAYS[d] || d)}</th>${U2.hours.map(h => cell(U2.occ(wb, d, h * 60, h * 60 + 60))).join('')}</tr>`).join('')}</tbody></table></div>`;
+    else if (week.tab === 'rooms') body = `<h3><i class="bi bi-arrow-down"></i> الأقل استخداماً <small>ساعات تدريس في الأسبوع</small></h3>${U2.rooms.slice(0, 10).map(x => row(x.r, x.b.name, floorName(floorOf(x.r)), `${x.h} ساعة`)).join('')}
+      <h3><i class="bi bi-arrow-up"></i> الأكثر استخداماً</h3>${U2.rooms.slice(-8).reverse().map(x => row(x.r, x.b.name, floorName(floorOf(x.r)), `${x.h} ساعة`)).join('')}`;
+    else body = `<p class="cm-note">توصيات آلية من الجدول الدراسي، للمراجعة قبل اتخاذ أي قرار.</p><ol class="cm-ol">${U2.rec.map(t => `<li>${esc(t)}</li>`).join('')}</ol>`;
+    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'الإشغال وتقرير القاعات', 'من الجدول الدراسي، للتخطيط')}
+      <div class="cm-kpis"><div><b>${U2.rooms.length}</b><span>قاعة تدريس</span></div><div><b>${pct(U2.avg)}</b><span>متوسط الإشغال</span></div><div><b>${U2.idle.length}</b><span>قاعة أقل من 4 س/أسبوع</span></div></div>
+      <div class="cm-tabs" role="tablist">${tabs.map(([k, i, t]) => `<button type="button" role="tab" data-wt="${k}" class="${k === week.tab ? 'on' : ''}"><i class="bi ${i}"></i> ${t}</button>`).join('')}</div>
+      <div class="cm-body">${body}</div>
+      <div class="cm-links"><button type="button" class="btn btn-sm btn-maroon" id="cm-doc"><i class="bi bi-file-earmark-text"></i> التقرير الرسمي</button>
+        <a class="btn btn-sm btn-outline-secondary" href="usage.html"><i class="bi bi-grid-3x3-gap-fill"></i> إشغال القاعات بالتفصيل</a></div></div>`;
     bind(() => setTool(''));
-    $('#cm-card').querySelectorAll('[data-wb]').forEach(x => x.onclick = () => { week.b = x.dataset.wb; weekTool(); center(B(week.b)); });
+    $('#cm-card').querySelectorAll('[data-wt]').forEach(x => x.onclick = () => { week.tab = x.dataset.wt; weekTool(); });
+    $('#cm-card').querySelectorAll('[data-wb]').forEach(x => x.onclick = () => { week.b = x.dataset.wb; week.tab = 'h'; weekTool(); center(B(week.b)); });
+    if ($('#cm-wb')) $('#cm-wb').onchange = e => { week.b = e.target.value; weekTool(); center(B(week.b)); };
+    $('#cm-doc').onclick = weekDoc;
+  }
+  function weekDoc() {
+    const U2 = utilStats(), D = U2.DAYS;
+    doc({ code: 'SU', title: 'تقرير استغلال القاعات التدريسية', sub: 'الإشغال الأسبوعي حسب الجدول الدراسي للفصل الحالي', unit: 'التخطيط والشؤون الأكاديمية',
+      info: [['قاعات التدريس', String(U2.rooms.length)], ['متوسط الإشغال (8:00–18:00)', pct(U2.avg)], ['ذروة الحرم', `${U.DAYS[U2.peak.d]} ${U2.peak.h}:00 · ${pct(U2.peak.v)}`], ['قاعات أقل من 4 ساعات أسبوعياً', String(U2.idle.length)]],
+      sections: [
+        ['الملخص', `<p>يبيّن هذا التقرير مدى استغلال القاعات التدريسية في ${U2.rows.length} مبنى خلال أيام الدوام بين الساعة 8:00 و18:00، من المحاضرات الوجاهية في الجدول الدراسي. متوسط الإشغال ${pct(U2.avg)}، وأعلاه يوم ${U.DAYS[U2.peak.d]} الساعة ${U2.peak.h}:00.</p>`],
+        ['الإشغال حسب المبنى', tbl(['المبنى', 'الاسم', 'القاعات', 'ساعات تدريس أسبوعية', 'متوسط الإشغال', 'الذروة'], U2.rows.slice().sort((a, b) => b.avg - a.avg).map(r => [[r.b.id, 'c'], esc(r.b.name), [r.rooms, 'c'], [r.hrs, 'c'], [pct(r.avg), 'c'], [`${U.DAYS[r.pk.d] || '—'} ${r.pk.h || ''}:00 · ${pct(r.pk.v)}`, 'c']]))],
+        ['الإشغال حسب المبنى واليوم (%)', tbl(['المبنى', ...D.map(d => U.DAYS[d]), 'المعدل'], U2.rows.map(r => [[r.b.id + ' · ' + esc(r.b.short || r.b.name), ''], ...r.byDay.map(heatTd), heatTd(r.avg)]))],
+        ['إشغال الحرم حسب اليوم والساعة (%)', tbl(['اليوم', ...U2.hours.map(h => h + ':00')], D.map((d, i) => [U.DAYS[d], ...U2.campus[i].map(heatTd)]))],
+        ['القاعات الأقل استخداماً', tbl(['#', 'القاعة', 'المبنى', 'الطابق', 'ساعات تدريس أسبوعية'], U2.rooms.slice(0, 15).map((x, i) => [[i + 1, 'n'], [x.r, 'ltr'], esc(x.b.name), floorName(floorOf(x.r)), [x.h, 'c']]))],
+        ['القاعات الأكثر استخداماً', tbl(['#', 'القاعة', 'المبنى', 'الطابق', 'ساعات تدريس أسبوعية'], U2.rooms.slice(-10).reverse().map((x, i) => [[i + 1, 'n'], [x.r, 'ltr'], esc(x.b.name), floorName(floorOf(x.r)), [x.h, 'c']]))],
+        ['التوصيات', `<ol>${U2.rec.map(t => `<li>${esc(t)}</li>`).join('')}</ol><div class="note">توصيات آلية مستخرجة من الأرقام، تحتاج مراجعة الكليات ودائرة القبول والتسجيل قبل التنفيذ.</div>`],
+        ['المنهجية', `<p>الإشغال = مجموع دقائق المحاضرات الوجاهية في قاعات المبنى ÷ (عدد قاعاته × دقائق الفترة). المحاضرة المكررة في الجدول تُحسب مرة واحدة. القاعات المعتبرة هي التي تظهر في الجدول الدراسي فقط، والطابق مأخوذ من رقم القاعة.
+          المتوسطات محسوبة على أيام التدريس الوجاهي الفعلية (${U2.TD.map(d => U.DAYS[d]).join('، ')})${U2.DAYS.length > U2.TD.length ? `؛ واستُبعد منها ${U2.DAYS.filter(d => !U2.TD.includes(d)).map(d => U.DAYS[d]).join(' و')} لأن الإشغال فيه أقل من 5%` : ''}.</p>`]],
+      sign: ['أعدّه', 'مدير التخطيط', 'اعتمده'] });
   }
 
   // ---------------------------------------------------------------- «ملصقات QR»: «أنت هنا» stickers for the gates and the building entrances
@@ -608,7 +1105,8 @@
     const items = [...(C.gates || []).map(g => ['gate:' + g.id, g.name, 'بوابة']), ...C.buildings.map(b => ['b:' + b.id, b.name, 'مبنى ' + b.id])];
     $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'ملصقات QR «أنت هنا»', 'لكل بوابة ومدخل مبنى: من يمسحه تفتح له الخريطة ومكانه عليها')}
       <div class="cm-links"><button type="button" class="btn btn-sm btn-maroon" id="cm-print"><i class="bi bi-printer"></i> اطبع كل الملصقات (${items.length})</button></div>
-      <div class="cm-qrs">${items.map(([k, name, kind]) => `<div class="cm-qr"><div class="cm-qr-c">${qr(SITE + 'campus.html?here=' + encodeURIComponent(k))}</div>
+      <p class="cm-note">لكل ملصق رمزان: «أنت هنا» (الخريطة والطريق من هذا المكان) و«بلاغ عطل» (بلاغ جاهز بالمبنى).</p>
+      <div class="cm-qrs">${items.map(([k, name, kind]) => `<div class="cm-qr"><div class="cm-qr-c">${qr(SITE + 'campus.html?here=' + encodeURIComponent(k))}${k.startsWith('b:') ? qr(SITE + 'campus.html?tool=fix&here=' + encodeURIComponent(k)) : ''}</div>
         <b>أنت هنا: ${esc(name)}</b><small>${esc(kind)}</small></div>`).join('')}</div></div>`;
     bind(() => setTool(''));
     $('#cm-print').onclick = () => {
@@ -616,8 +1114,9 @@
       if (!w) return;
       w.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>ملصقات خريطة الحرم</title><style>
         body{font-family:Tajawal,Tahoma,sans-serif;margin:0} .g{display:grid;grid-template-columns:repeat(3,1fr);gap:8mm;padding:8mm}
-        .s{border:1.5px dashed #999;border-radius:6mm;padding:5mm;text-align:center;break-inside:avoid} .s svg{width:42mm;height:42mm} .s b{display:block;font-size:13pt;margin-top:2mm;color:#901d23} .s small{font-size:9pt;color:#444}
-        .t{font-size:9pt;color:#901d23;font-weight:700}</style></head><body><div class="g">${items.map(([k, name]) => `<div class="s"><div class="t">جامعة البترا · خريطة الحرم</div>${qr(SITE + 'campus.html?here=' + encodeURIComponent(k))}<b>أنت هنا: ${esc(name)}</b><small>امسح الرمز للخريطة والطريق إلى قاعتك</small></div>`).join('')}</div>
+        .s{border:1.5px dashed #999;border-radius:6mm;padding:5mm;text-align:center;break-inside:avoid} .s svg{width:34mm;height:34mm;display:block;margin:auto} .s b{display:block;font-size:13pt;margin:1.5mm 0;color:#901d23} .s small{display:block;font-size:8pt;color:#444} .q{display:flex;justify-content:center;gap:4mm}
+        .t{font-size:9pt;color:#901d23;font-weight:700}</style></head><body><div class="g">${items.map(([k, name]) => `<div class="s"><div class="t">جامعة البترا · خريطة الحرم</div><b>أنت هنا: ${esc(name)}</b><div class="q"><div>${qr(SITE + 'campus.html?here=' + encodeURIComponent(k))}<small>الخريطة والطريق إلى قاعتك</small></div>
+          ${k.startsWith('b:') ? `<div>${qr(SITE + 'campus.html?tool=fix&here=' + encodeURIComponent(k))}<small>بلّغ عن عطل في هذا المبنى</small></div>` : ''}</div></div>`).join('')}</div>
         <script>window.onload=()=>window.print()<\/script></body></html>`);
       w.document.close();
     };
@@ -834,7 +1333,7 @@
     .cm-side > * { min-width: 0; }
     .cm-search { position: relative; } .cm-search i { position: absolute; inset-inline-start: .8rem; top: 50%; transform: translateY(-50%); color: #6b7280; }
     .cm-search input { width: 100%; border: 1px solid var(--bs-border-color); border-radius: 12px; padding: .6rem 2.3rem .6rem .8rem; background: var(--bs-body-bg); color: var(--bs-body-color); }
-    .cm-modes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .25rem; }
+    .cm-modes { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .25rem; }
     .cm-modes button { border: 1px solid var(--bs-border-color); background: var(--bs-body-bg); color: var(--bs-body-color); border-radius: 10px; padding: .35rem .1rem; display: grid; justify-items: center; gap: .05rem; font-size: .72rem; font-weight: 700; }
     .cm-modes button i { font-size: 1.05rem; color: #901d23; } .cm-modes button.on { background: #901d23; color: #fff; border-color: #901d23; } .cm-modes button.on i { color: #fff; }
     .cm-res { display: grid; gap: .25rem; max-height: 320px; overflow: auto; } .cm-res-h { display: flex; justify-content: space-between; align-items: center; font-size: .8rem; color: var(--bs-secondary-color); }
@@ -918,12 +1417,53 @@
     .cm-chip { display: inline-flex; align-items: center; gap: .3rem; background: var(--bs-tertiary-bg); border-radius: 999px; padding: .15rem .3rem .15rem .6rem; font-size: .78rem; max-width: 100%; }
     .cm-chip > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .cm-chip small { color: #901d23; font-weight: 700; } .cm-chip > i { color: #16a34a; padding: 0 .2rem; }
     .cm-chip button { border: 0; background: #fff; border-radius: 50%; width: 1.3rem; height: 1.3rem; display: grid; place-items: center; padding: 0; color: #b91c1c; }
+    .cm-back { border: 0; background: none; color: #901d23; font-weight: 700; font-size: .8rem; padding: 0; margin-bottom: .35rem; }
+    .cm-more-g { display: grid; gap: .35rem; }
+    .cm-more-g button { display: flex; gap: .7rem; align-items: center; text-align: start; border: 1px solid var(--bs-border-color); background: var(--bs-body-bg); color: var(--bs-body-color); border-radius: 12px; padding: .6rem .7rem; width: 100%; }
+    .cm-more-g button:hover { border-color: #901d23; } .cm-more-g button > i:first-child { font-size: 1.4rem; color: #901d23; width: 2.2rem; height: 2.2rem; border-radius: 10px; background: #f8e3e5; display: grid; place-items: center; flex: none; }
+    .cm-more-g span { flex: 1; min-width: 0; } .cm-more-g b { display: block; font-size: .92rem; } .cm-more-g small { display: block; color: var(--bs-secondary-color); font-size: .76rem; } .cm-more-g button > i:last-child { color: var(--bs-secondary-color); }
+    .cm-frow, .cm-exam { display: flex; gap: .55rem; align-items: center; width: 100%; text-align: start; border: 1px solid var(--bs-border-color); background: var(--bs-body-bg); color: var(--bs-body-color); border-radius: 10px; padding: .45rem .6rem; }
+    .cm-frow:hover { border-color: #16a34a; } .cm-frow .cm-t b small { color: var(--bs-secondary-color); font-weight: 500; } .cm-exam { margin-bottom: .35rem; align-items: flex-start; } .cm-exam .cm-t small { white-space: normal; } .cm-exam .cm-t small b { color: #901d23; }
+    .cm-soon { color: #b45309 !important; font-weight: 700; }
+    .cm-two { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; } @media (max-width: 400px) { .cm-two { grid-template-columns: 1fr; } }
+    .cm-prop { display: flex; gap: .5rem; align-items: flex-start; background: #fffbeb; color: #78350f; border: 1px solid #fde68a; border-radius: 10px; padding: .5rem .65rem; font-size: .8rem; margin: .5rem 0; }
+    .cm-prop i { color: #d97706; font-size: 1rem; } .cm-prop.danger { background: #fef2f2; color: #7f1d1d; border-color: #fecaca; } .cm-prop.danger i { color: #dc2626; }
+    .cm-calls { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: .35rem; margin-bottom: .4rem; }
+    .cm-calls > * { display: flex; gap: .5rem; align-items: center; border: 1px solid var(--bs-border-color); border-radius: 10px; padding: .45rem .6rem; text-decoration: none; color: var(--bs-body-color); }
+    .cm-calls .sos { background: #dc2626; border-color: #dc2626; color: #fff; } .cm-calls b { display: block; font-size: 1.05rem; } .cm-calls small { display: block; font-size: .7rem; opacity: .85; line-height: 1.25; } .cm-calls i { font-size: 1.15rem; }
+    .cm-ap-box { display: flex; gap: .6rem; align-items: center; background: #f0fdf4; border: 1px solid #86efac; color: #14532d; border-radius: 12px; padding: .6rem .7rem; margin-top: .6rem; }
+    .cm-ap-box > i { font-size: 1.6rem; color: #15803d; } .cm-ap-box b { display: block; font-size: 1rem; } .cm-ap-box small { display: block; font-size: .76rem; }
+    .cm-ol { padding-inline-start: 1.2rem; margin: .2rem 0; font-size: .84rem; } .cm-ol li { margin: .2rem 0; }
+    .cm-ap { position: absolute; transform: translate(-50%, -50%) scale(var(--pin, 1)); display: flex; align-items: center; gap: .1rem; background: #15803d; color: #fff; border: 2px solid #fff; border-radius: 6px; padding: .05rem .3rem; font-size: .7rem; font-weight: 800; box-shadow: 0 2px 6px rgba(0,0,0,.35); pointer-events: none; z-index: 3; }
+    #cm-svg .cm-evac { stroke: #15803d; stroke-width: 6; stroke-dasharray: 14 9; animation: cmDash 1s linear infinite; }
+    #cm-svg .cm-access { stroke: #7c3aed; stroke-width: 6; stroke-dasharray: 12 8; }
+    #cm-svg .cm-net { stroke: #7c3aed; stroke-width: 2; opacity: .45; }
+    .cm-pin.mk { box-shadow: 0 0 0 4px #22c55e, 0 3px 10px rgba(0,0,0,.35); }
+    .cm-stop { border: 1px solid #ecd5d7; background: #fdf7f7; border-radius: 12px; padding: .65rem .75rem; margin: .6rem 0; }
+    .cm-stop-h { display: flex; gap: .6rem; align-items: center; } .cm-stop-h h3 { margin: 0 !important; font-size: 1.02rem !important; } .cm-stop-h small { color: var(--bs-secondary-color); font-size: .75rem; }
+    .cm-stop p { font-size: .86rem; margin: .45rem 0; } .cm-stop-nav { display: flex; gap: .35rem; justify-content: space-between; margin-top: .4rem; }
+    .cm-stepno.sm { width: 1.35rem; height: 1.35rem; font-size: .72rem; } .cm-list button.on { border-color: #901d23; background: #fdf7f7; }
+    .cm-chart { width: 100%; height: auto; display: block; margin-top: .3rem; }
+    .cm-key2 { display: flex; flex-wrap: wrap; gap: .2rem .8rem; font-size: .72rem; color: var(--bs-secondary-color); } .cm-key2 i { display: inline-block; width: .8rem; height: .55rem; border-radius: 2px; vertical-align: middle; } .cm-key2 i.ln { border-top: 2px dashed #111; height: 0; }
+    .cm-form .cm-lbl { margin-top: .55rem; }
+    .cm-cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: .3rem; }
+    .cm-cats label { display: flex; gap: .35rem; align-items: center; border: 1px solid var(--bs-border-color); border-radius: 9px; padding: .3rem .5rem; font-size: .8rem; cursor: pointer; }
+    .cm-cats label.on { border-color: #901d23; background: #fdf7f7; color: #901d23; font-weight: 700; } .cm-cats input { accent-color: #901d23; }
+    .cm-by button.danger.on { background: #dc2626; border-color: #dc2626; }
+    .cm-ticket { display: grid; grid-template-columns: 1fr 1fr; gap: .35rem; margin-bottom: .5rem; } .cm-ticket div { background: var(--bs-tertiary-bg); border-radius: 10px; padding: .4rem .55rem; min-width: 0; }
+    .cm-ticket small { display: block; font-size: .7rem; color: var(--bs-secondary-color); } .cm-ticket b { display: block; font-size: .86rem; overflow-wrap: anywhere; }
+    .cm-links.cm-col { flex-direction: column; } .cm-links.cm-col > * { width: 100%; }
+    .cm-floors { display: grid; gap: .3rem; } .cm-floor { display: flex; gap: .45rem; align-items: flex-start; border-bottom: 1px dashed var(--bs-border-color); padding-bottom: .3rem; }
+    .cm-fl { flex: none; width: 2.6rem; text-align: center; background: #091b22; color: #fff; border-radius: 8px; font-weight: 800; font-size: .76rem; padding: .25rem 0; } .cm-floor .cm-free { flex: 1; }
+    .cm-dot { display: inline-block; width: .7rem; height: .7rem; border-radius: 3px; background: #ecfdf3; border: 1px solid #16a34a; vertical-align: middle; } .cm-dot.part { background: #fffbeb; border-color: #d97706; } .cm-dot.busy { background: #fef2f2; border-color: #dc2626; }
+    .cm-tools button.sos { background: #dc2626; color: #fff; }
+    .cm-qr-c { display: flex; justify-content: center; gap: .3rem; } .cm-qr-c svg { width: 80px; height: 80px; }
     .cm-heatwrap { overflow-x: auto; } .cm-heat { border-collapse: separate; border-spacing: 2px; width: 100%; font-size: .7rem; }
     .cm-heat th { font-weight: 700; color: var(--bs-secondary-color); text-align: center; padding: .1rem; white-space: nowrap; } .cm-heat tbody th { text-align: start; }
     .cm-heat td { text-align: center; border-radius: 4px; padding: .25rem 0; background: color-mix(in srgb, #dc2626 calc(var(--v) * 100%), #ecfdf3); color: #111; font-weight: 700; }
     .cm-heat tr[data-wb] { cursor: pointer; } .cm-heat tr.on th .cm-no { outline: 3px solid #fbbf24; } .cm-heat.sm td { font-size: .6rem; }
-    .cm-qrs { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: .5rem; max-height: 52vh; overflow: auto; margin-top: .5rem; }
-    .cm-qr { border: 1px dashed var(--bs-border-color); border-radius: 10px; padding: .5rem; text-align: center; } .cm-qr-c svg { width: 96px; height: 96px; background: #fff; }
+    .cm-qrs { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: .5rem; max-height: 52vh; overflow: auto; margin-top: .5rem; }
+    .cm-qr { border: 1px dashed var(--bs-border-color); border-radius: 10px; padding: .5rem; text-align: center; } .cm-qr-c svg { background: #fff; }
     .cm-qr b { display: block; font-size: .76rem; color: #901d23; } .cm-qr small { font-size: .66rem; color: var(--bs-secondary-color); }
     .cm.cm-full { position: fixed; inset: 0; z-index: 2000; display: block; background: #0b1c22; }
     .cm.cm-full .cm-map { position: absolute; inset: 0 calc(min(410px, 36vw) + 1.2rem) 0 0; width: auto; aspect-ratio: auto; max-height: none; height: auto; border-radius: 0; }

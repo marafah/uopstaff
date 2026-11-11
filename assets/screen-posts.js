@@ -116,6 +116,11 @@
       .pp-alert h3 { font-size: 3.4em; font-weight: 800; margin: 0; } .pp-alert p { font-size: 1.8em; margin: 0; color: #fee2e2; white-space: pre-line; max-width: 80%; }
       @keyframes ppBlink { 50% { opacity: .45; } }
       @media (prefers-reduced-motion: reduce) { .pp-urg, .pp-alert i { animation: none; } .pp-tt > span { transition: none; } }
+      .pp-evac { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.4fr); gap: 1em; text-align: start; align-items: center; padding: 1em; }
+      .pp-evac .pp-evt { display: grid; gap: .3em; justify-items: start; } .pp-evac .pp-evt i { font-size: 3.4em; } .pp-evac h3 { font-size: 2.6em; } .pp-evac p { font-size: 1.4em; max-width: none; }
+      .pp-ap { background: #15803d; border-radius: 14px; padding: .6em .9em; margin-top: .4em; box-shadow: 0 0 0 3px #bbf7d0; } .pp-ap b { display: block; font-size: 1.6em; } .pp-ap span { display: block; font-size: 1.2em; } .pp-ap small { display: block; font-size: .95em; opacity: .9; }
+      .pp-free { display: grid; gap: .25em; margin: .2em 0 .6em; } .pp-free > b { font-size: 1.1em; color: #bbf7d0; } .pp-free span { display: flex; justify-content: space-between; gap: .5em; background: rgba(255,255,255,.1); border-radius: 8px; padding: .15em .5em; font-size: 1.15em; font-weight: 800; }
+      .pp-free small { font-weight: 500; color: #dbe4e9; font-size: .8em; }
       .pp-mapbody { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 15em; gap: 1em; align-items: center; }
       .pp-map { width: 100%; height: 100%; display: block; background: #f6f8f7; border-radius: 12px; }
       .pp-pulse { fill: rgba(37,99,235,.45); transform-box: fill-box; transform-origin: center; animation: ppYou 1.6s ease-out infinite; }
@@ -144,7 +149,8 @@
         <div class="pp-mapbody"><svg class="pp-map" viewBox="0 0 ${s.w} ${s.h}" preserveAspectRatio="xMidYMid meet"><image href="${esc(s.img)}" width="${s.w}" height="${s.h}"/>
           <g transform="translate(${(b.x * s.w).toFixed(0)} ${(b.y * s.h).toFixed(0)})"><circle class="pp-pulse" r="22"/><circle r="22" fill="#2563eb" stroke="#fff" stroke-width="7"/>
           <rect x="-62" y="32" width="124" height="38" rx="19" fill="#2563eb"/><text y="58" text-anchor="middle" fill="#fff" font-size="24" font-weight="800">أنت هنا</text></g></svg>
-          <div class="pp-mapside"><h3>أنت في ${esc(b.name)}</h3><p>امسح الرمز: خريطة الحرم الحيّة، والطريق إلى أي قاعة أو مكتب، ومن في كل مبنى الآن.</p>${q ? `<div class="pp-qr">${q}<span>خريطة الحرم</span></div>` : ''}</div></div></div>`;
+          <div class="pp-mapside"><h3>أنت في ${esc(b.name)}</h3>${s.free && s.free.length ? `<div class="pp-free"><b><i class="bi bi-door-open"></i> قاعات شاغرة قريبة الآن</b>${s.free.map(f => `<span><bdi dir="ltr">${esc(f.r)}</bdi><small>${f.same ? 'في هذا المبنى' : `مبنى ${esc(f.b)} · ${f.min} د`}</small></span>`).join('')}</div>`
+            : '<p>امسح الرمز: خريطة الحرم الحيّة، والطريق إلى أي قاعة أو مكتب، ومن في كل مبنى الآن.</p>'}${q ? `<div class="pp-qr">${q}<span>خريطة الحرم</span></div>` : ''}</div></div></div>`;
     }
     if (s.kind === 'poster') {
       const p = s.p, src = img || safeImg(p.image), q = qr(p.link);
@@ -164,7 +170,18 @@
         <div class="pp-row"><span class="pp-ic"><i class="bi ${icon(p.icon)}"></i></span><h3>${esc(p.title)}</h3></div>${p.text ? `<p>${esc(p.text)}</p>` : ''}
         <div class="pp-foot">${from(p)}${q ? `<div class="pp-qr">${q}<span>امسح الرمز</span></div>` : ''}</div></div>`; }).join('')}</div></div>`;
   }
-  const alertHTML = a => `<div class="pp-slide pp-alert"><i class="bi bi-exclamation-octagon-fill"></i><h3>${esc(a.title)}</h3>${a.text ? `<p>${esc(a.text)}</p>` : ''}</div>`;
+  // the emergency message; with «evac» and the campus data: this building, the nearest assembly point and the way to it
+  function alertHTML(a, b, C) {
+    const sf = C && C.safety, ap = a.evac && b && sf && (sf.assembly || []).slice().sort((x, y) => Math.hypot(x.x - b.x, (x.y - b.y) * C.height / C.width) - Math.hypot(y.x - b.x, (y.y - b.y) * C.height / C.width))[0];
+    if (!ap) return `<div class="pp-slide pp-alert"><i class="bi bi-exclamation-octagon-fill"></i><h3>${esc(a.title)}</h3>${a.text ? `<p>${esc(a.text)}</p>` : ''}</div>`;
+    const P2 = o => `${(o.x * C.width).toFixed(0)},${(o.y * C.height).toFixed(0)}`;
+    return `<div class="pp-slide pp-alert pp-evac"><div class="pp-evt"><i class="bi bi-exclamation-octagon-fill"></i><h3>${esc(a.title)}</h3>${a.text ? `<p>${esc(a.text)}</p>` : ''}
+        <div class="pp-ap"><b>توجّه إلى نقطة التجمع ${esc(ap.id)}</b><span>${esc(ap.name)}</span>${sf.status !== 'official' ? '<small>واتبع تعليمات الأمن الجامعي</small>' : ''}</div></div>
+      <svg class="pp-map" viewBox="0 0 ${C.width} ${C.height}" preserveAspectRatio="xMidYMid meet"><image href="${esc(C.image)}" width="${C.width}" height="${C.height}"/>
+        <polyline points="${P2(b)} ${P2(ap)}" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round"/><polyline points="${P2(b)} ${P2(ap)}" fill="none" stroke="#15803d" stroke-width="9" stroke-dasharray="22 14" stroke-linecap="round"/>
+        <g transform="translate(${P2(b).replace(',', ' ')})"><circle class="pp-pulse" r="24"/><circle r="24" fill="#2563eb" stroke="#fff" stroke-width="7"/></g>
+        <g transform="translate(${P2(ap).replace(',', ' ')})"><rect x="-30" y="-30" width="60" height="60" rx="10" fill="#15803d" stroke="#fff" stroke-width="7"/><text y="13" text-anchor="middle" fill="#fff" font-size="38" font-weight="800">${esc(ap.id)}</text></g></svg></div>`;
+  }
   // the rotation: pinned first, notices two by two (one when long), each event and poster alone
   function slides(posts) {
     const L = posts.filter(p => ['notice', 'event', 'poster'].includes(p.type)).sort((a, b) => (b.pin ? 1 : 0) - (a.pin ? 1 : 0) || String(a.start).localeCompare(String(b.start)));
@@ -200,10 +217,21 @@
   if (P.get('posts') === 'off') return;   // this screen exactly as it was
   const KEY = (P.get('b') || '').replace(/^مينى\s/, 'مبنى ');
   if (!KEY) return;
-  let CAMPUS, D = null, SCR = null, show = [], tick = [], tk = 0, si = 0, nextAt = Date.now() + 20000, ov = null, rowsWas = '';
+  let CAMPUS, TT, D = null, SCR = null, show = [], tick = [], tk = 0, si = 0, nextAt = Date.now() + 20000, ov = null, rowsWas = '';
   const now = () => window.UOP.amman(P.get('at'));
   const load = () => DEMO ? (() => { try { const x = JSON.parse(localStorage.getItem('uop-pp-demo') || 'null'); D = x && x.DATA; } catch (e) { D = null; } draw(); })()
     : fetch('data/screen_posts.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(x => { D = x; draw(); }).catch(() => {});
+  // free rooms now in this building and the nearest others (for the map slide): rooms with no in-person lecture at this minute
+  function freeNear(b, n) {
+    if (!TT || !TT.sections || !CAMPUS) return [];
+    const U = window.UOP, byTT = {}; CAMPUS.buildings.forEach(x => (x.tt || []).forEach(t => { byTT[t] = x; }));
+    const rooms = {}, busy = new Set();
+    TT.sections.forEach(s => { const x = byTT[s.building], r = String(s.room || '').trim(); if (!x || !r || r === '0') return; rooms[r] = x;
+      s.meetings.forEach(m => { if (m.day === n.day && U.live(m) && m.mode !== 'الكتروني كامل' && U.toMin(m.start) <= n.min + 30 && n.min < U.toMin(m.end)) busy.add(r); }); });
+    const d = x => Math.round(Math.hypot(x.x - b.x, (x.y - b.y) * CAMPUS.height / CAMPUS.width) * (CAMPUS.meters_wide || 750) * 1.3 / 80);
+    return Object.entries(rooms).filter(([r]) => !busy.has(r)).map(([r, x]) => ({ r, b: x.id, same: x === b, min: Math.max(1, d(x)) }))
+      .sort((p, q) => (q.same - p.same) || p.min - q.min || p.r.localeCompare(q.r, 'en', { numeric: true })).slice(0, 5);
+  }
   // the strips go in the screen's own grid (the columns re-measure themselves); nothing at all when there is nothing to show
   function layout() {
     const kids = [...SCR.children].filter(e => e !== ov);
@@ -223,10 +251,12 @@
     tick = ads.filter(p => p.type === 'ticker');
     show = slides(ads);
     // «خريطة الحرم» on this screen (set by the admin per screen): one more slide in the rotation
-    if (set.map && set.mode !== 'off' && !(exams && !set.exams)) {
-      if (CAMPUS === undefined) { CAMPUS = null; fetch('data/campus.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(c => { CAMPUS = c || false; draw(); }).catch(() => { CAMPUS = false; }); }
-      const b = CAMPUS && CAMPUS.buildings.find(x => x.screen === KEY);
-      if (b) show.push({ kind: 'map', b, img: CAMPUS.image, w: CAMPUS.width, h: CAMPUS.height, site: location.origin + location.pathname.replace(/[^/]*$/, '') });
+    const wantMap = set.map && set.mode !== 'off' && !(exams && !set.exams);
+    if ((wantMap || (al && al.evac)) && CAMPUS === undefined) { CAMPUS = null; fetch('data/campus.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(c => { CAMPUS = c || false; draw(); }).catch(() => { CAMPUS = false; }); }
+    const here = CAMPUS && CAMPUS.buildings.find(x => x.screen === KEY);
+    if (wantMap) {
+      if (TT === undefined) { TT = null; window.UOP.getJSON('data/timetable.json').then(t => { TT = t; draw(); }).catch(() => { TT = false; }); }
+      if (here) show.push({ kind: 'map', b: here, img: CAMPUS.image, w: CAMPUS.width, h: CAMPUS.height, site: location.origin + location.pathname.replace(/[^/]*$/, ''), free: freeNear(here, n) });
     }
     const old = { u: document.getElementById('pp-urg'), t: document.getElementById('pp-tick') };
     const uHTML = urg.length && set.mode !== 'off' ? urgentHTML(urg) : '', tHTML = tick.length ? tickerHTML(tick) : '';
@@ -236,7 +266,7 @@
     if (tHTML && !document.getElementById('pp-tick')) { SCR.querySelector('.scr-foot').insertAdjacentHTML('beforebegin', tHTML); const t = document.getElementById('pp-tick'); t.dataset.k = tHTML.length + tick.map(p => p.id).join(); tk = 0; }
     if (uHTML || tHTML || al || show.length) css();
     layout();
-    if (al) { cover(alertHTML(al), 0, 'al'); return; }
+    if (al) { cover(alertHTML(al, here, CAMPUS), 0, 'al'); return; }
     if (ov && ov.dataset.k === 'al') hide();
   }
   // the middle area covered by a slide; secs = 0: until taken away

@@ -472,7 +472,7 @@ def do(action, d, user, acc, posts, accs):
         if not isinstance(scr, list) or any(not screen_ok(str(s), known) for s in scr):
             raise Refused("شاشات غير صالحة")
         hours = max(1, min(72, int(d.get("hours") or 12)))
-        posts["alert"] = {"title": text(d.get("title"), 80, need=True, what="العنوان"), "text": text(d.get("text"), 300, lines=4), "screens": scr,
+        posts["alert"] = {"title": text(d.get("title"), 80, need=True, what="العنوان"), "text": text(d.get("text"), 300, lines=4), "screens": scr, "evac": bool(d.get("evac")),
                           "by": user, "since": iso_now(),
                           "until": (dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=hours)).strftime("%Y-%m-%dT%H:%M:%SZ")}
         return {"note": "رسالة طوارئ: " + posts["alert"]["title"]}

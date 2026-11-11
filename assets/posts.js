@@ -517,7 +517,7 @@
   // ---------------------------------------------------------------- emergency message (admin)
   function alertTab() {
     const a = DATA.alert;
-    body().innerHTML = `${a && a.title ? `<div class="alert alert-danger"><b><i class="bi bi-exclamation-octagon-fill"></i> رسالة طوارئ معروضة الآن:</b> ${esc(a.title)}<div class="small">${esc(a.text || '')}</div>
+    body().innerHTML = `${a && a.title ? `<div class="alert alert-danger"><b><i class="bi bi-exclamation-octagon-fill"></i> رسالة طوارئ معروضة الآن:</b> ${esc(a.title)}<div class="small">${esc(a.text || '')}${a.evac ? ' · مع خريطة الإخلاء' : ''}</div>
         <div class="small">على: ${(a.screens || ['*']).map(label).map(esc).join('، ')} · حتى ${esc(new Date(a.until).toLocaleString('ar-JO', { timeZone: 'Asia/Amman' }))}</div>
         <button class="btn btn-light btn-sm mt-2" id="pp-aoff"><i class="bi bi-x-circle"></i> إلغاء رسالة الطوارئ</button></div>` : ''}
       <div class="row g-3"><div class="col-lg-6"><form id="pp-af" class="card"><div class="card-body d-grid gap-2">
@@ -525,6 +525,7 @@
         <input name="title" class="form-control" maxlength="80" placeholder="العنوان (مثال: إخلاء المبنى)" required>
         <textarea name="text" class="form-control" rows="3" maxlength="300" placeholder="التعليمات"></textarea>
         <div class="pp-scr"><label class="on"><input type="checkbox" name="screens" value="*" checked> كل الشاشات</label>${CONCRETE().map(k => `<label><input type="checkbox" name="screens" value="${esc(k)}"> ${esc(label(k))}</label>`).join('')}</div>
+        <label class="small d-flex gap-2 align-items-start"><input type="checkbox" name="evac" checked class="mt-1"> <span>أظهر معها <b>خريطة الإخلاء</b>: موقع كل مبنى وأقرب نقطة تجمع إليه (من «خريطة الحرم»)</span></label>
         <label class="small">تنتهي تلقائياً بعد <input name="hours" type="number" min="1" max="72" value="6" class="form-control form-control-sm d-inline-block" style="width:5em"> ساعات</label>
         <div id="pp-msg"></div><button class="btn btn-danger"><i class="bi bi-broadcast"></i> اعرضها الآن</button></div></form></div>
         <div class="col-lg-6" id="pp-aprev"></div></div>`;
@@ -534,7 +535,7 @@
       else if (e.target.checked) f.querySelector('[name=screens][value="*"]').checked = false; f.querySelectorAll('.pp-scr label').forEach(l => l.classList.toggle('on', l.querySelector('input').checked)); } };
     f.onsubmit = e => { e.preventDefault(); const scr = [...f.querySelectorAll('[name=screens]:checked')].map(x => x.value);
       if (!scr.length) return say('اختر الشاشات');
-      act(f.querySelector('button'), 'alert', { on: true, title: f.title.value, text: f.text.value, screens: scr, hours: +f.hours.value }, 'رسالة طوارئ'); };
+      act(f.querySelector('button'), 'alert', { on: true, title: f.title.value, text: f.text.value, screens: scr, hours: +f.hours.value, evac: f.evac.checked }, 'رسالة طوارئ'); };
     if ($('#pp-aoff')) $('#pp-aoff').onclick = e => act(e.currentTarget, 'alert', { on: false }, 'إلغاء رسالة الطوارئ');
   }
 
