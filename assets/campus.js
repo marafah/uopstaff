@@ -513,7 +513,7 @@
       const floor = t.room && /^\d{4}$/.test(t.room) ? t.room[1] : '';
       info = `<div class="cm-routebox"><div class="cm-dest"><i class="bi bi-geo-alt-fill"></i> <b>${esc(t.label)}</b></div>
         <div class="cm-facts">${t.b.name && t.b.id && B(t.b.id) === t.b ? `<button type="button" data-center="${esc(t.b.id)}"><i class="bi bi-building"></i><span><small>المبنى</small><b>${esc(t.b.name)}</b>${t.room ? `<em>قاعة ${esc(t.room)}${floor ? ' · الطابق ' + floor + ' غالباً (من رقم القاعة)' : ''}</em>` : ''}</span><span class="cm-no sm">${esc(t.b.id)}</span></button>` : ''}
-          <div><i class="bi bi-person-walking"></i><span><small>المسافة سيراً (تقدير)</small><b>${m < 20 ? 'أنت عنده' : `حوالي ${m} متر · ${Math.max(1, Math.round(m / 80))} دقيقة`}</b><em>الخط المتقطع على الخريطة اتجاه مباشر، لا مسار مرسوم</em></span></div>
+          <div><i class="bi bi-person-walking"></i><span><small>المسافة سيراً (تقدير)</small><b>${m < 20 ? 'أنت عنده' : `حوالي ${m} متر · ${U.mins(Math.max(1, Math.round(m / 80)))}`}</b><em>الخط المتقطع على الخريطة اتجاه مباشر، لا مسار مرسوم</em></span></div>
           ${gate ? `<div><i class="bi bi-door-open"></i><span><small>أقرب بوابة إليه</small><b>${esc(gate.name)}</b></span></div>` : ''}</div>
         <div class="cm-links"><button type="button" class="btn btn-sm btn-outline-secondary" data-copy="${esc(SITE + 'campus.html?tool=route&to=' + encodeURIComponent(t.room || (B(t.b.id) === t.b ? t.b.id : t.label)))}"><i class="bi bi-link-45deg"></i> رابط هذا الطريق</button></div></div>`;
     }
@@ -858,7 +858,7 @@
     const st = tourStops(), i = Math.min(TOUR.i, st.length - 1), s = st[i];
     const people = s ? STAFF.filter(m => staffB(m) === s.b && lead(m) < 20).sort((x, y) => lead(x) - lead(y)).slice(0, 4) : [];
     $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'جولة الطلبة الجدد', `${st.length} محطات · ابدأ من البوابة أو من «أنت هنا»`)}
-      <div class="cm-two">${fromSel('cm-tfrom', TOUR.from, 'البداية')}<div>${bSel('cm-tfac', B(TOUR.fac), 'كليتك', b => b.kind === 'faculty', '— اختر كليتك —')}</div></div>
+      <div class="cm-two"><div>${fromSel('cm-tfrom', TOUR.from, 'البداية')}</div><div>${bSel('cm-tfac', B(TOUR.fac), 'كليتك', b => b.kind === 'faculty', '— اختر كليتك —')}</div></div>
       ${s ? `<div class="cm-stop"><div class="cm-stop-h"><span class="cm-stepno">${i + 1}</span><div><small>المحطة ${i + 1} من ${st.length}</small><h3>${esc(s.title)}</h3><small>مبنى ${esc(s.b.id)}${s.b.name !== s.title ? ' · ' + esc(s.b.name) : ''}</small></div></div>
         <p>${esc(s.text)}</p>${people.length ? `<div class="cm-lead">${people.map(m => `<button type="button" data-p="${esc(m.id)}" title="${esc(m.name)}">${face(m)}<small>${esc(m.role)}</small></button>`).join('')}</div>` : ''}
         <div class="cm-stop-nav"><button type="button" class="btn btn-sm btn-outline-secondary" data-ti="${i - 1}" ${i ? '' : 'disabled'}><i class="bi bi-arrow-right"></i> السابقة</button>
@@ -879,7 +879,7 @@
     const st = tourStops(); let m = 0;
     const rows = st.map((s, k) => { const d = k ? meters(st[k - 1].b, s.b) : meters(TOUR.from, s.b); m += d; return [[k + 1, 'n'], `<b>${esc(s.title)}</b>`, [s.b.id, 'c'], esc(s.text), [d + ' م', 'c']]; });
     doc({ code: 'TR', title: 'دليل جولة الطلبة الجدد في الحرم الجامعي', sub: 'محطات الحرم الأساسية بالترتيب', unit: 'عمادة شؤون الطلبة',
-      info: [['عدد المحطات', String(st.length)], ['طول الجولة تقريباً', m + ' متر'], ['مدة المشي تقريباً', walkMin(m) + ' دقيقة'], ['البداية', TOUR.from.name || TOUR.from.label || 'البوابة']],
+      info: [['عدد المحطات', String(st.length)], ['طول الجولة تقريباً', m + ' متر'], ['مدة المشي تقريباً', U.mins(walkMin(m))], ['البداية', TOUR.from.name || TOUR.from.label || 'البوابة']],
       sections: [['المسار على مخطط الحرم', docMap([{ pts: [TOUR.from, ...st.map(x => x.b)], c: '#901d23' }], st.map((s, k) => ({ x: s.b.x, y: s.b.y, t: k + 1 })), 'الأرقام: ترتيب المحطات · الخط: اتجاه الجولة (المسافات تقديرية)')],
         ['المحطات', tbl(['#', 'المحطة', 'المبنى', 'ماذا تجد هنا', 'من المحطة السابقة'], rows)],
         ['معلومات مفيدة', `<ul><li>خريطة الحرم الحيّة: ${esc(SITE)}campus.html — تبيّن القاعات الشاغرة والطريق إلى أي قاعة أو مكتب.</li><li>جدولك الدراسي: «مخطط جدولي»، وامتحاناتك: «امتحاناتي» على الموقع نفسه.</li><li>في الطوارئ: اتصل بالأمن الجامعي أو 911، وتوجّه إلى أقرب نقطة تجمع.</li></ul>`]],
@@ -994,7 +994,11 @@
   // ---------------------------------------------------------------- «الوصول الميسّر»: floors from the room numbers, a proposed path (not official), and a formal proposal to study
   const ACC = { to: null, from: null };
   function upper(b) { const rs = roomsOf(b), fl = rs.map(floorOf).filter(f => f != null), hours = {}; DAYS5().forEach(d => meetings(b, d).forEach(x => { const f = floorOf(x.room); if (f) hours.up = (hours.up || 0) + (x.z - x.a) / 60; }));
-    return { floors: fl.length ? Math.max(...fl) + 1 : null, up: rs.filter(r => floorOf(r) > 0).length, ground: rs.filter(r => floorOf(r) === 0).length, upHours: Math.round(hours.up || 0) }; }
+    return { floors: fl.length ? Math.max(...fl) + 1 : null, lo: fl.length ? Math.min(...fl) : null, hi: fl.length ? Math.max(...fl) : null, up: rs.filter(r => floorOf(r) > 0).length, ground: rs.filter(r => floorOf(r) === 0).length, upHours: Math.round(hours.up || 0) }; }
+  // «قاعاته في الطوابق 1–4 · 8 قاعات في الطوابق العليا · لا قاعات أرضية»
+  const roomsN = n => U.count(n, 'قاعة واحدة', 'قاعتان', 'قاعات', 'قاعة');
+  const floorsText = u => u.hi == null ? 'غير معروفة' : [u.lo === u.hi ? (u.hi === 0 ? 'كل قاعاته في الطابق الأرضي' : `قاعاته في الطابق ${u.hi}`) : `قاعاته في الطوابق ${u.lo === 0 ? 'من الأرضي' : 'من ' + u.lo} إلى ${u.hi}`,
+    u.ground ? `${roomsN(u.ground)} في الأرضي` : 'لا قاعات أرضية', u.up ? `${roomsN(u.up)} في الطوابق العليا` : ''].filter(Boolean).join(' · ');
   const DAYS5 = () => Object.keys(U.DAYS).filter(k => k !== 'ج');
   function accessTool() {
     if (!ACC.to) ACC.to = B(sel) || C.buildings.find(b => (b.tt || []).length);
@@ -1002,10 +1006,10 @@
     const p = pathTo(ACC.from, ACC.to), u = upper(ACC.to);
     $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'الوصول الميسّر', 'لذوي الإعاقة وكبار السن ومن يحمل أمتعة')}
       ${proposed('لا توجد لدينا بيانات رسمية عن المداخل الميسّرة والمنحدرات والمصاعد. المسار البنفسجي مقترح تقريبي على طرق المخطط الظاهرة؛ تحقّق منه قبل الاعتماد عليه.')}
-      <div class="cm-two">${fromSel('cm-afrom', ACC.from)}<div>${bSel('cm-ato', ACC.to, 'إلى')}</div></div>
-      ${p ? `<div class="cm-facts mt-2"><div><i class="bi bi-signpost-2"></i><span><small>المسار المقترح</small><b>حوالي ${p.m} م · ${Math.max(1, Math.round(p.m / 50))} دقيقة بالكرسي المتحرك</b><em>على الطرق الداخلية بدل الاختصار عبر الحدائق والدرج</em></span></div></div>` : ''}
+      <div class="cm-two"><div>${fromSel('cm-afrom', ACC.from)}</div><div>${bSel('cm-ato', ACC.to, 'إلى')}</div></div>
+      ${p ? `<div class="cm-facts mt-2"><div><i class="bi bi-signpost-2"></i><span><small>المسار المقترح</small><b>حوالي ${p.m} م · ${U.mins(Math.max(1, Math.round(p.m / 50)))} بالكرسي المتحرك</b><em>على الطرق الداخلية بدل الاختصار عبر الحدائق والدرج</em></span></div></div>` : ''}
       <h3><i class="bi bi-building"></i> ${esc(ACC.to.name)}</h3>
-      <div class="cm-facts">${[['bi-layers', 'الطوابق (من أرقام القاعات)', u.floors ? `${u.floors} · ${u.ground} قاعة أرضية و${u.up} في الطوابق العليا` : 'غير معروفة'],
+      <div class="cm-facts">${[['bi-layers', 'الطوابق (من أرقام القاعات)', floorsText(u)],
         ['bi-door-open', 'المدخل الميسّر', 'غير موثّق'], ['bi-arrow-down-up', 'المصعد', 'غير موثّق'], ['bi-badge-wc', 'دورة مياه ميسّرة', 'غير موثّقة']].map(([i, t, v]) => `<div><i class="bi ${i}"></i><span><small>${t}</small><b>${esc(v)}</b></span></div>`).join('')}</div>
       <p class="cm-note">لطالب لا يستطيع صعود الدرج: «قاعة شاغرة» مع «الطابق الأرضي فقط» تعرض القاعات الأرضية، ويمكن للقسم نقل الشعبة إليها.</p>
       <div class="cm-links"><button type="button" class="btn btn-sm btn-maroon" id="cm-doc"><i class="bi bi-file-earmark-text"></i> مقترح رسمي للدراسة</button>
@@ -1028,7 +1032,7 @@
       sections: [
         ['الغرض', '<p>تحديد ما يلزم ليتمكن الطلبة والموظفون والزوار من ذوي الإعاقة من الوصول إلى القاعات والخدمات، وترتيب أولويات الكشف الميداني حسب حجم التدريس في الطوابق العليا.</p>'],
         ['المسارات المقترحة على المخطط', docMap(C.paths ? C.paths.edges.map(([a, b]) => ({ pts: [C.paths.nodes[a], C.paths.nodes[b]], c: '#7c3aed', dash: '1 0' })) : [], (C.gates || []).map(g => ({ x: g.x, y: g.y, t: 'B' + g.id, c: '#1e3a8a' })), 'الخطوط البنفسجية: طرق داخلية مقترحة للمسارات الميسّرة (تقديرية) · B: البوابات')],
-        ['أولويات الكشف الميداني', tbl(['#', 'المبنى', 'الطوابق', 'قاعات عليا', 'ساعات تدريس أسبوعية في الطوابق العليا', 'أقرب بوابة بالمسار المقترح'], pr.map((x, i) => [[i + 1, 'n'], `${x.b.id} · ${esc(x.b.name)}`, [x.u.floors || '—', 'c'], [x.u.up, 'c'], [x.u.upHours, 'c'], x.best ? `${esc(x.best.g.name)} (${x.best.p.m} م)` : '—']))],
+        ['أولويات الكشف الميداني', tbl(['#', 'المبنى', 'طوابق القاعات', 'قاعات عليا', 'ساعات تدريس أسبوعية في الطوابق العليا', 'أقرب بوابة بالمسار المقترح'], pr.map((x, i) => [[i + 1, 'n'], `${x.b.id} · ${esc(x.b.name)}`, [x.u.hi == null ? '—' : (x.u.lo === x.u.hi ? String(x.u.hi) : `${x.u.lo}–${x.u.hi}`), 'c'], [x.u.up, 'c'], [x.u.upHours, 'c'], x.best ? `${esc(x.best.g.name)} (${x.best.p.m} م)` : '—']))],
         ['نموذج الكشف الميداني', tbl(['المبنى', 'مدخل ميسّر', 'منحدر', 'مصعد يعمل', 'دورة مياه ميسّرة', 'مواقف مخصصة قريبة', 'ملاحظات'], C.buildings.map(b => [`${b.id} · ${esc(b.short || b.name)}`, ['', 'blank'], '', '', '', '', '']))],
         ['التوصيات', `<ol>${['إجراء الكشف الميداني بالنموذج أعلاه، بدءاً بالمباني الأعلى في جدول الأولويات.', 'إضافة نتائج الكشف إلى بيانات الخريطة فتظهر للجميع، وتحويل المسارات المؤكدة إلى «معتمدة».',
           'تخصيص مواقف قريبة من البوابات والمداخل الميسّرة، ولوحات إرشادية واضحة.', 'سياسة جدولة: نقل الشعب التي فيها طلبة ذوو إعاقة إلى قاعات أرضية أو في مبانٍ بمصاعد عاملة.',
