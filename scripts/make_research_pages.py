@@ -95,7 +95,8 @@ PAGES = [
 
 SITE = [  # the site's own menu (same as the other pages): href, icon, full label, short label, items (None = divider)
     ('./', 'bi-search', 'أين أجد؟', '', [('./', 'bi-search', 'أين أجد؟', 'بحث واحد في الأشخاص والمقررات والقاعات والوحدات والمواعيد'), None,
-                                     ('changes.html', 'bi-lightning-charge', 'ما الجديد؟', 'ما تغيّر في الجدول والدليل والتقويم، ساعة بساعة')]),
+                                     ('changes.html', 'bi-lightning-charge', 'ما الجديد؟', 'ما تغيّر في الجدول والدليل والتقويم، ساعة بساعة'),
+                                     ('campus.html', 'bi-map', 'خريطة الحرم', 'مخطط الجامعة حيّاً: ما يجري في كل مبنى، ومن فيه، وأين تجد أي شخص أو قاعة')]),
     ('directory.html', 'bi-person-lines-fill', 'دليل الموظفين', 'الدليل', [('directory.html', 'bi-person-lines-fill', 'دليل الموظفين', 'الهيئة التدريسية والكادر الإداري: الفرعي والمكتب والبريد'), None,
                                      ('phones.html', 'bi-telephone', 'دليل الفرعيات', 'الأرقام الفرعية حسب الكلية والقسم، للطباعة على المكاتب'),
                                      ('org.html', 'bi-diagram-3-fill', 'الهيكل التنظيمي', 'من يتبع لمن، ومن المسؤول عن كل وحدة')]),
