@@ -566,7 +566,7 @@
   }
   const dayList = (secs, d) => secs.flatMap(s => s.meetings.filter(m => m.day === d && live(m)).map(m => ({ s, m, a: toMin(m.start), z: toMin(m.end), b: inRoom(m) ? byTT[s.building] : null, room: clean(s.room), online: !inRoom(m) })))
     .sort((x, y) => x.a - y.a);
-  const secsN = n => U.count(n, 'شعبة واحدة', 'شعبتان', 'شعب', 'شعبة');
+  const secsN = n => n ? U.count(n, 'شعبة واحدة', 'شعبتان', 'شعب', 'شعبة') : 'لا شعب بعد';
   // DT.d: the day shown (its own buttons, so all the week is one tap away); DT.from: where the day's path starts
   const DT = { d: '', from: null, tab: '' };
   function dayTool(n) {
