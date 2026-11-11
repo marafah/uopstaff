@@ -573,7 +573,7 @@
         <button type="button" class="cm-daystep ${x.a <= n.min && n.min < x.z ? 'now' : ''}" data-center="${esc(x.b ? x.b.id : '')}"><span class="cm-stepno">${i + 1}</span><span class="cm-t"><b>${esc(x.s.name)}</b><small>${esc(x.m.start)}–${esc(x.m.end)} · ${x.online ? 'إلكتروني' : `قاعة ${esc(x.room)}${x.b ? ' · ' + esc(x.b.name) : ''}`} · ${esc(U.shortName(x.s.instructor))}</small></span>${x.b ? `<span class="cm-no sm">${esc(x.b.id)}</span>` : ''}</button>`;
     }).join('');
     const chips = keys.map(k => { const s = BY[k]; return `<span class="cm-chip" title="${esc(s.name)} · ${esc(U.shortName(s.instructor))} · ${esc(when(s))}"><span>${esc(s.name)} <small>ش${esc(s.section)}</small></span>${mine.has(k) ? `<button type="button" data-rm="${esc(k)}" aria-label="احذف"><i class="bi bi-x"></i></button>` : fromPlan.has(k) ? '<i class="bi bi-calendar2-check" title="من «مخطط جدولي»"></i>' : ''}</span>`; }).join('');
-    const tabs = [['day', 'bi-signpost-2', 'يومي على الخريطة'], ['add', 'bi-plus-circle', 'أضف مقرراتي'], ['mine', 'bi-list-check', `شعبي <small>${keys.length}</small>`]];
+    const tabs = [['day', 'bi-signpost-2', 'محاضرات اليوم'], ['add', 'bi-plus-circle', 'أضف مقرراتي'], ['mine', 'bi-list-check', `شعبي <small>${keys.length}</small>`]];
     if (!dayTool.tab) dayTool.tab = keys.length ? 'day' : 'add';
     let body;
     if (dayTool.tab === 'add') {
@@ -859,6 +859,7 @@
     const people = s ? STAFF.filter(m => staffB(m) === s.b && lead(m) < 20).sort((x, y) => lead(x) - lead(y)).slice(0, 4) : [];
     $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'جولة الطلبة الجدد', `${st.length} محطات · ابدأ من البوابة أو من «أنت هنا»`)}
       <div class="cm-two"><div>${fromSel('cm-tfrom', TOUR.from, 'البداية')}</div><div>${bSel('cm-tfac', B(TOUR.fac), 'كليتك', b => b.kind === 'faculty', '— اختر كليتك —')}</div></div>
+      ${!TOUR.fac ? '<p class="cm-note"><i class="bi bi-info-circle"></i> اختر كليتك لتُضاف إلى الجولة محطةً بعد عمادة شؤون الطلبة.</p>' : ''}
       ${s ? `<div class="cm-stop"><div class="cm-stop-h"><span class="cm-stepno">${i + 1}</span><div><small>المحطة ${i + 1} من ${st.length}</small><h3>${esc(s.title)}</h3><small>مبنى ${esc(s.b.id)}${s.b.name !== s.title ? ' · ' + esc(s.b.name) : ''}</small></div></div>
         <p>${esc(s.text)}</p>${people.length ? `<div class="cm-lead">${people.map(m => `<button type="button" data-p="${esc(m.id)}" title="${esc(m.name)}">${face(m)}<small>${esc(m.role)}</small></button>`).join('')}</div>` : ''}
         <div class="cm-stop-nav"><button type="button" class="btn btn-sm btn-outline-secondary" data-ti="${i - 1}" ${i ? '' : 'disabled'}><i class="bi bi-arrow-right"></i> السابقة</button>
@@ -1428,10 +1429,10 @@
     .cm-by button { font-size: .76rem; border: 1px solid var(--bs-border-color); border-radius: 999px; padding: .12rem .6rem; background: var(--bs-body-bg); color: var(--bs-body-color); }
     .cm-by button.on { background: #901d23; color: #fff; border-color: #901d23; }
     .cm-chk { display: flex; gap: .35rem; align-items: center; font-size: .8rem; margin-bottom: .4rem; cursor: pointer; }
-    .cm-found { display: grid; gap: .3rem; margin-top: .25rem; }
+    .cm-found { display: grid; grid-template-columns: minmax(0, 1fr); gap: .3rem; margin-top: .25rem; }
     .cm-sec { display: flex; gap: .5rem; align-items: center; border: 1px solid var(--bs-border-color); border-radius: 10px; padding: .4rem .55rem; }
     .cm-sec.in { border-color: #16a34a; background: #f0fdf4; color: #14532d; } .cm-sec .cm-t b small { color: #901d23; font-size: .72rem; }
-    .cm-sec .cm-t small { white-space: normal; }
+    .cm-sec { min-width: 0; } .cm-sec .cm-t b, .cm-sec .cm-t small { white-space: normal; overflow-wrap: anywhere; }
     .cm-plus, .cm-added { flex: none; width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center; border: 0; }
     .cm-plus { background: #901d23; color: #fff; font-size: 1rem; } .cm-added { background: #16a34a; color: #fff; }
     .cm-chips { display: flex; flex-wrap: wrap; gap: .3rem; }
@@ -1480,7 +1481,8 @@
     .cm-tools button.sos { background: #dc2626; color: #fff; }
     .cm-qr-c { display: flex; justify-content: center; gap: .3rem; } .cm-qr-c svg { width: 80px; height: 80px; }
     /* scroll bars on the right edge (the start side in Arabic), not the left: the box scrolls left-to-right, its content stays right-to-left */
-    .cm-body, .cm-res, .cm-qrs, .cm.cm-full .cm-side { direction: ltr; } .cm-body > *, .cm-res > *, .cm-qrs > *, .cm.cm-full .cm-side > * { direction: rtl; }
+    .cm-body, .cm-res, .cm-qrs, .cm.cm-full .cm-side { direction: ltr; } .cm-body > *, .cm-res > *, .cm-qrs > *, .cm.cm-full .cm-side > * { direction: rtl; min-width: 0; max-width: 100%; }
+    .cm-list, .cm-res, .cm-facts, .cm-more-g, .cm-floors { grid-template-columns: minmax(0, 1fr); } .cm-frow, .cm-exam, .cm-near, .cm-daystep { min-width: 0; }
     .cm-body { padding-inline-end: 0; padding-right: .35rem; }
     .cm-heatwrap { overflow-x: auto; } .cm-heat { border-collapse: separate; border-spacing: 2px; width: 100%; font-size: .7rem; }
     .cm-heat th { font-weight: 700; color: var(--bs-secondary-color); text-align: center; padding: .1rem; white-space: nowrap; } .cm-heat tbody th { text-align: start; }
