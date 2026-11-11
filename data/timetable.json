@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-11T07:55:12Z",
-"checked": "2026-11-11T07:55:12Z",
+"updated": "2026-11-11T16:26:06Z",
+"checked": "2026-11-11T16:26:06Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -6255,7 +6255,7 @@
 "department": "هندسة العمارة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 37,
+"registered": 36,
 "capacity": 38,
 "meetings": [
 {
@@ -6932,7 +6932,7 @@
 "name": "التجهيزات الفنية للمباني",
 "activity": "نظري",
 "time": "[ 08:00_10:00 ] ن وجاهي ر وجاهي",
-"room": "4320",
+"room": "4326",
 "section": "1",
 "status": "مفتوحة",
 "instructor": "د. ناصر ثابت احمد المغربي الحسني",
@@ -7573,14 +7573,14 @@
 "time": "[ 08:30_11:00 ] ح وجاهي ث وجاهي",
 "room": "4325",
 "section": "1",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "م. نورا مازن علي الطباع",
 "building": "مبنى كلية العمارة والتصميم",
 "faculty": "العمارة و التصميم",
 "department": "التصميم الداخلي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 22,
+"registered": 21,
 "capacity": 22,
 "meetings": [
 {
@@ -9062,7 +9062,7 @@
 "name": "تصميم حدائق",
 "activity": "نظري",
 "time": "[ 12:30_14:00 ] ن وجاهي ر وجاهي[ 13:00_14:00 ] س غير متزامن",
-"room": "4317",
+"room": "4326",
 "section": "1",
 "status": "مغلقة",
 "instructor": "د. ناصر ثابت احمد المغربي الحسني",
@@ -12217,7 +12217,7 @@
 "department": "ادارة الأعمال",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 31,
+"registered": 30,
 "capacity": 40,
 "meetings": [
 {
@@ -12550,7 +12550,7 @@
 "department": "ادارة الأعمال",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 20,
+"registered": 19,
 "capacity": 40,
 "meetings": [
 {
@@ -13180,14 +13180,14 @@
 "time": "[ 09:00_10:00 ] ح وجاهي ث وجاهي خ وجاهي",
 "room": "9419",
 "section": "1",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "د. عبدالكريم فواز بركات البطاينه",
 "building": "مبنى كلية العلوم الإدارية",
 "faculty": "العلوم الادارية والمالية",
 "department": "العلوم المالية والمصرفية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 60,
+"registered": 59,
 "capacity": 60,
 "meetings": [
 {
@@ -18059,14 +18059,14 @@
 "time": "[ 21:00_22:00 ] ح الكتروني كامل ث الكتروني كامل خ غير متزامن",
 "room": "0",
 "section": "1",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "د. خلف سهيل عيسى البقاعين",
 "building": "-",
 "faculty": "العلوم الادارية والمالية",
 "department": "التكنولوجيا المالية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 20,
+"registered": 19,
 "capacity": 20,
 "meetings": [
 {
@@ -18504,7 +18504,7 @@
 "department": "التسويق الرقمي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 23,
+"registered": 22,
 "capacity": 40,
 "meetings": [
 {
@@ -20918,14 +20918,14 @@
 "time": "[ 12:30_13:30 ] ن وجاهي ر وجاهي س غير متزامن",
 "room": "9215",
 "section": "1",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "د. سوزان سمير ذيب عيسى",
 "building": "مبنى كلية العلوم الإدارية",
 "faculty": "العلوم الادارية والمالية",
 "department": "التكنولوجيا المالية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 24,
+"registered": 23,
 "capacity": 24,
 "meetings": [
 {
@@ -43035,7 +43035,7 @@
 "department": "الإذاعة والتلفزيون",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 22,
+"registered": 21,
 "capacity": 30,
 "meetings": [
 {
@@ -43358,7 +43358,7 @@
 "degree": "البكالوريوس",
 "study_type": "صباحي",
 "registered": 12,
-"capacity": 30,
+"capacity": 20,
 "meetings": [
 {
 "day": "ن",
@@ -43381,7 +43381,7 @@
 "time": "[ 11:00_12:30 ] ن وجاهي ر وجاهي",
 "room": "4215",
 "section": "2",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "م. يوسف محمد عبدالله الحاج عبد",
 "building": "مبنى كلية العمارة والتصميم",
 "faculty": "الإعلام",
@@ -43389,7 +43389,7 @@
 "degree": "البكالوريوس",
 "study_type": "صباحي",
 "registered": 6,
-"capacity": 5,
+"capacity": 20,
 "meetings": [
 {
 "day": "ن",

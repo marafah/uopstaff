@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-11T07:50:53Z",
+"updated": "2026-11-11T16:16:00Z",
 "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
 "revision": "Rev.E",
 "revision_date": "2023-12-20",
@@ -1147,6 +1147,17 @@
 "email": "ali.nejadat@uop.edu.jo",
 "photo": "assets/photos/29d039ffb9a6a47b.jpg",
 "faculty": 11
+},
+{
+"id": "A:680061006400650065006C002E00730068007100610069007200400075006F0070002E006500640075002E006A006F00",
+"name": "د. هديل سمير مسعود شقير",
+"job": "عميد كلية الإعلام",
+"role": "عميد",
+"type": "academic",
+"ext": "3000",
+"email": "hadeel.shqair@uop.edu.jo",
+"photo": "assets/photos/e917bed7071dd377.jpg",
+"faculty": 11
 }
 ],
 "official_heads": [
@@ -1168,19 +1179,7 @@
 "from_directory": true,
 "dept": "الإذاعة والتلفزيون",
 "count": 5,
-"people": [
-{
-"id": "A:680061006400650065006C002E00730068007100610069007200400075006F0070002E006500640075002E006A006F00",
-"name": "د. هديل سمير مسعود شقير",
-"job": "رئيس قسم الإذاعة والتلفزيون",
-"role": "رئيس قسم",
-"type": "academic",
-"ext": "3100",
-"email": "hadeel.shqair@uop.edu.jo",
-"photo": "assets/photos/e917bed7071dd377.jpg",
-"faculty": 11
-}
-]
+"people": []
 },
 {
 "id": "f11-d1",

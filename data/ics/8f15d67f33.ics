@@ -24,7 +24,7 @@ DTSTART;TZID=Asia/Amman:20261019T080000
 DTEND;TZID=Asia/Amman:20261019T100000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:201349 التجهيزات الفنية للمباني – ش1
-LOCATION:4320 – مبنى كلية العمارة والتصميم
+LOCATION:4326 – مبنى كلية العمارة والتصميم
 DESCRIPTION:نظري · وجاهي · التصميم الداخلي – ا
  لعمارة و التصميم
 END:VEVENT
@@ -60,7 +60,7 @@ DTSTART;TZID=Asia/Amman:20261019T123000
 DTEND;TZID=Asia/Amman:20261019T140000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270119T205959Z
 SUMMARY:202430 تصميم حدائق – ش1
-LOCATION:4317 – مبنى كلية العمارة والتصميم
+LOCATION:4326 – مبنى كلية العمارة والتصميم
 DESCRIPTION:نظري · وجاهي · التصميم الداخلي – ا
  لعمارة و التصميم
 END:VEVENT
