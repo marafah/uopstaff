@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-11T22:54:15Z",
-"checked": "2026-11-11T22:54:15Z",
+"updated": "2026-11-12T12:58:33Z",
+"checked": "2026-11-12T12:58:33Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -5393,7 +5393,7 @@
 "department": "العلوم الأساسية / الرياضيات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 42,
+"registered": 41,
 "capacity": 43,
 "meetings": [
 {
@@ -9993,7 +9993,7 @@
 "department": "التصميم الجرافيكي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 22,
+"registered": 21,
 "capacity": 20,
 "meetings": [
 {
@@ -21664,7 +21664,7 @@
 "name": "علم البلاغة والأسلوبية",
 "activity": "نظري",
 "time": "[ 11:00_12:00 ] ح وجاهي ث وجاهي خ غير متزامن",
-"room": "06312",
+"room": "06309",
 "section": "1",
 "status": "مفتوحة",
 "instructor": "أ.د.أماني سليمان داود علي عبدالله",
@@ -21701,7 +21701,7 @@
 "name": "علم البلاغة والأسلوبية",
 "activity": "نظري",
 "time": "[ 11:00_12:00 ] ح وجاهي ث وجاهي خ غير متزامن",
-"room": "06312",
+"room": "06309",
 "section": "1",
 "status": "مفتوحة",
 "instructor": "أ.د.أماني سليمان داود علي عبدالله",
@@ -43165,7 +43165,7 @@
 "department": "الإذاعة والتلفزيون",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 18,
+"registered": 17,
 "capacity": 20,
 "meetings": [
 {

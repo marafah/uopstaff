@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-11T16:16:00Z",
+"updated": "2026-11-12T12:51:54Z",
 "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
 "revision": "Rev.E",
 "revision_date": "2023-12-20",
@@ -1046,7 +1046,7 @@
 "unit": {
 "id": "9",
 "name": "كلية الحقوق",
-"count": 17,
+"count": 18,
 "academic": 14
 },
 "people": [
@@ -2420,58 +2420,22 @@
 "unit": {
 "id": "financedepartment",
 "name": "دائرة الشؤون المالية",
-"count": 11,
+"count": 12,
 "academic": 0
 },
-"people": [
-{
-"id": "S:financedepartment:1",
-"name": "نائل الدحلة",
-"job": "مدير الشؤون المالية",
-"role": "مدير",
-"type": "admin",
-"ext": "5400",
-"email": "naldahleh@uop.edu.jo",
-"photo": "assets/photos/9f02d96844e33c2b.jpg",
-"faculty": "financedepartment"
-}
-],
+"people": [],
 "children": [
 {
 "id": "student-accounts",
 "name": "قسم محاسبة الطلبة",
 "kind": "section",
-"people": [
-{
-"id": "S:financedepartment:24",
-"name": "رائد عبد الحفيظ",
-"job": "رئيس قسم محاسبة الطلبة",
-"role": "رئيس قسم",
-"type": "admin",
-"ext": "5440",
-"email": "rahmad@uop.edu.jo",
-"photo": "",
-"faculty": "financedepartment"
-}
-]
+"people": []
 },
 {
 "id": "general-accounts",
 "name": "قسم المحاسبة العامة",
 "kind": "section",
-"people": [
-{
-"id": "S:financedepartment:19",
-"name": "مازن القنة",
-"job": "رئيس قسم المحاسبة العامة",
-"role": "رئيس قسم",
-"type": "admin",
-"ext": "5420",
-"email": "malqunneh@uop.edu.jo",
-"photo": "",
-"faculty": "financedepartment"
-}
-]
+"people": []
 },
 {
 "id": "payroll",
@@ -2485,25 +2449,25 @@
 "kind": "other",
 "people": [
 {
-"id": "S:financedepartment:27",
-"name": "زهير أبو خضرا",
-"job": "أمين صندوق",
-"role": "",
-"type": "admin",
-"ext": "5472",
-"email": "mohammad.albdairat@uop.edu.jo",
-"photo": "",
-"faculty": "financedepartment"
-},
-{
 "id": "S:financedepartment:28",
-"name": "محمد برهم",
+"name": "محمد أحمد يحيى برهم",
 "job": "أمين صندوق",
 "role": "",
 "type": "admin",
 "ext": "5471",
 "email": "mbarham@uop.edu.jo",
-"photo": "",
+"photo": "assets/photos/35fb2fa83dd95d8e.jpg",
+"faculty": "financedepartment"
+},
+{
+"id": "S:financedepartment:27",
+"name": "محمد فلاح أحمد البديرات",
+"job": "أمين صندوق",
+"role": "",
+"type": "admin",
+"ext": "5472",
+"email": "mohammad.albdairat@uop.edu.jo",
+"photo": "assets/photos/a98b1e8e62a6b4e9.jpg",
 "faculty": "financedepartment"
 }
 ]
@@ -2515,13 +2479,13 @@
 "people": [
 {
 "id": "S:financedepartment:23",
-"name": "تغريد الحباشنة",
-"job": "رئيس قسم المنح والخصومات",
+"name": "تغريد حمدي الحباشنة",
+"job": "رئيس قسم المنح",
 "role": "رئيس قسم",
 "type": "admin",
 "ext": "5463",
 "email": "thabashneh@uop.edu.jo",
-"photo": "",
+"photo": "assets/photos/f9a899be6b4095ec.jpg",
 "faculty": "financedepartment"
 }
 ]
