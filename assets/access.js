@@ -51,6 +51,10 @@
   function svg(route, opt = {}) {
     const poly = pts => pts.map(p => p.join(',')).join(' ');
     let s = `<g style="--k:${K}">${A.mask ? `<polygon class="ac-mask" points="${A.mask.map(p => p.join(',')).join(' ')}"/>` : ''}`;
+    // the plan is turned 180° (north down, like «خريطة الحرم»): its printed words would read upside down, so they are covered and written again upright
+    (A.texts || []).forEach(x => { const [cx, cy] = x.c;
+      s += `<g transform="rotate(${x.a} ${cx} ${cy})"><rect class="ac-mask ${x.dark ? 'dk' : ''}" x="${cx - x.w / 2}" y="${cy - x.h / 2}" width="${x.w}" height="${x.h}" rx="4"/>`
+        + (x.t ? `<text class="ac-tx ${x.dark ? 'dk' : ''}" x="${cx}" y="${cy}" style="font-size:${Math.min(x.h * .62, 16 * K / 1.6)}px">${esc(x.t)}</text>` : '') + '</g>'; });
     if (st.L.route || opt.print) A.edges.forEach(e => {
       const p = poly(e[2]);
       s += e[3] === 'link' ? `<polyline class="ac-link" points="${p}"/>` : `<polyline class="ac-case" points="${p}"/><polyline class="ac-net" points="${p}"/>`;
@@ -124,7 +128,7 @@
         <section class="ac-mapc"><div class="ac-map" id="ac-map" tabindex="0" aria-label="مخطط الحرم مع مسار ذوي الإعاقة">
             <div id="ac-in" class="${st.L.dim ? 'dim' : ''}"><img src="${A.image}" alt="مخطط الحرم الجامعي – مسار ذوي الاحتياجات الخاصة" width="${W}" height="${H}" draggable="false"><svg viewBox="0 0 ${W} ${H}" id="ac-svg">${svg(r)}</svg></div>
             <div class="ac-zoom no-print"><button type="button" data-z="in" title="تكبير" aria-label="تكبير"><i class="bi bi-plus-lg"></i></button><button type="button" data-z="out" title="تصغير" aria-label="تصغير"><i class="bi bi-dash-lg"></i></button><button type="button" data-z="fit" title="المخطط كاملاً" aria-label="المخطط كاملاً"><i class="bi bi-arrows-fullscreen"></i></button></div>
-            <div class="ac-north" title="الشمال"><i class="bi bi-arrow-up"></i><span>ش</span></div>
+            <div class="ac-north" title="الشمال"><i class="bi ${A.rotated === 180 ? 'bi-arrow-down' : 'bi-arrow-up'}"></i><span>ش</span></div>
             <div class="ac-tools no-print"><button type="button" id="ac-fs" title="ملء الشاشة" aria-label="ملء الشاشة"><i class="bi ${document.fullscreenElement ? 'bi-fullscreen-exit' : 'bi-fullscreen'}"></i></button><button type="button" id="ac-big" class="${st.L.big ? 'on' : ''}" title="خط أكبر" aria-label="خط أكبر"><i class="bi bi-type"></i></button><button type="button" id="ac-hc" class="${st.L.hc ? 'on' : ''}" title="تباين عالٍ" aria-label="تباين عالٍ"><i class="bi bi-circle-half"></i></button></div>
 </div>
           <div class="ac-legend">${[['ac-l-net', 'مسار ذوي الإعاقة (من المخطط)'], ['ac-l-route', 'مسارك'], ['ac-l-link', 'وصلة إلى المسار (ليست في المخطط)'], ['ac-l-ent', 'مدخل ميسّر'], ['ac-l-park', 'موقف ذوي الإعاقة'], ['ac-l-gate', 'بوابة'], ['ac-l-b', 'رقم المبنى في المخطط']].map(([c, t]) => `<span><i class="${c}"></i>${t}</span>`).join('')}</div>
@@ -252,7 +256,7 @@
     .ac-bn { width: 30px; height: 30px; border-radius: 50%; background: #901d23; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; }
     .ac-bt b { display: block; font-size: .92rem; } .ac-bt small { font-size: .76rem; } .ac-bs { text-align: end; font-size: .8rem; } .ac-bs small { display: block; }
     .ac-ok { color: #1d4ed8; font-weight: 700; } .ac-no { color: #6b7280; }
-    .ac-mask { fill: #fff; }
+    .ac-mask { fill: #fff; } .ac-tx { fill: #111; font-weight: 700; text-anchor: middle; dominant-baseline: central; } .ac-mask.dk { fill: #6b6b6b; } .ac-tx.dk { fill: #fff; }
     .ac-nm rect { fill: rgba(255,255,255,.95); stroke: #901d23; stroke-width: 1.2; } .ac-nm text { fill: #111 !important; font-size: 11px !important; font-weight: 700; } .ac-b.to .ac-nm rect { stroke: #15803d; fill: #f0fdf4; } .ac-b.hl .ac-nm rect { stroke: #f59e0b; }
     .ac-b.hl circle { fill: #f59e0b; stroke: #fff; stroke-width: 4; } .ac-b.hl { filter: drop-shadow(0 0 6px rgba(245,158,11,.9)); }
     .ac-tools { position: absolute; bottom: 10px; left: 10px; display: flex; gap: 6px; } .ac-tools button { width: 38px; height: 38px; border-radius: 10px; border: 1px solid #d9d3c3; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.1); } .ac-tools button.on { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
