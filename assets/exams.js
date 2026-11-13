@@ -747,16 +747,14 @@
   function poolView() {
     const by = pool(), all = Object.values(by).flat(), on = all.filter(p => !p.off).length, q = U.norm(F().pq || '');
     const deps = Object.entries(by).sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], 'ar'));
-    return `<div class="ex-pool2"><div class="h"><div class="t"><i class="bi bi-people-fill"></i> المراقبون المتاحون</div>
-        <span class="bdg green"><i class="bi bi-person-check-fill"></i> ${on} متاح</span>${all.length - on ? `<span class="bdg">${all.length - on} معفى</span>` : ''}<span class="bdg">${deps.length} أقسام</span>
+    return `<div class="ex-pool3"><div class="h"><b class="t"><i class="bi bi-people-fill"></i> المراقبون المتاحون</b>
+        <span class="bdg green">${on} متاح</span>${all.length - on ? `<span class="bdg">${all.length - on} معفى</span>` : ''}<span class="bdg">${deps.length} أقسام</span>
         <input class="form-control form-control-sm" data-f="pq" placeholder="ابحث عن اسم…" value="${esc(F().pq || '')}"></div>
-      <p class="hint"><i class="bi bi-hand-index"></i> الضغط على الاسم يعفيه من المراقبة أو يعيده. الرقم = عدد المقررات التي يدرّسها في هذه الدورة.</p>
-      <div class="grid">${deps.map(([d, ps]) => { const list = ps.filter(p => !q || U.norm(p.n).includes(q)).sort((a, b) => U.shortName(a.n).localeCompare(U.shortName(b.n), 'ar'));
-        if (!list.length) return '';
-        const n = ps.filter(p => !p.off).length;
-        return `<section class="dc"><header><b>${esc(d)}</b><span class="n" title="متاح من مجموع القسم">${n} من ${ps.length}</span>
-            <button class="btn btn-sm btn-link" data-exd="${esc(d)}">${n ? 'إعفاء الكل' : 'إعادة الكل'}</button></header>
-          <div class="ls">${list.map(p => `<button class="pr${p.off ? ' off' : ''}" data-exm="${esc(p.n)}" title="${esc(p.n)}${p.off ? ' — معفى' : ''}"><i class="bi ${p.off ? 'bi-slash-circle' : 'bi-check-circle-fill'}"></i><span class="nm">${esc(U.shortName(p.n))}${p.head && !p.off ? ' <small class="hd" title="يراقب مواده فقط">· مواده فقط</small>' : p.dean ? ' <small class="hd">· عميد</small>' : ''}</span><span class="k">${p.extra ? esc(p.tag || 'إضافي') : p.k}</span></button>`).join('')}</div></section>`; }).join('')}</div></div>`;
+      <p class="hint"><i class="bi bi-hand-index"></i> اضغط الاسم لإعفائه من المراقبة أو إعادته. الرقم = عدد مقرراته في هذه الدورة.</p>
+      <div class="rows">${deps.map(([d, ps]) => { const list = ps.filter(p => !q || U.norm(p.n).includes(q)).sort((a, b) => U.shortName(a.n).localeCompare(U.shortName(b.n), 'ar'));
+        if (!list.length) return ''; const n = ps.filter(p => !p.off).length;
+        return `<div class="dr"><div class="dh"><b>${esc(d)}</b><span class="n">${n} من ${ps.length}</span><button class="btn btn-sm btn-link p-0" data-exd="${esc(d)}">${n ? 'إعفاء الكل' : 'إعادة الكل'}</button></div>
+          <div class="nm">${list.map(p => `<button class="pc${p.off ? ' off' : ''}" data-exm="${esc(p.n)}" title="${esc(p.n)}${p.off ? ' — معفى' : ''}"><i class="bi ${p.off ? 'bi-slash-circle' : 'bi-check-circle-fill'}"></i>${esc(U.shortName(p.n))}${p.head && !p.off ? '<small>مواده فقط</small>' : p.dean ? '<small>عميد</small>' : ''}<span class="k">${p.extra ? esc(p.tag || 'إضافي') : p.k}</span></button>`).join('')}</div></div>`; }).join('')}</div></div>`;
   }
   // the add/swap lists are filled only when opened (thousands of rooms × hundreds of names would slow the page)
   let PV = null;
@@ -1479,27 +1477,25 @@
       </div>
       <div class="ex-calm">${calKpis()}${monthsView()}</div></div>`)}
     ${bx(3, 'bi-clock-fill', '#0f766e', 'الفترات اليومية', 'مواعيد الامتحانات في اليوم', `
-      <div class="ex-what"><details class="ex-fold"><summary class="q"><i class="bi bi-question-circle-fill"></i> ما هي «الفترة»؟</summary>
-        <p>الفترة <b>موعد امتحان ثابت يتكرر في كل يوم</b>، مثل: من الساعة 9:00 إلى 11:00. يأخذ كل امتحان فترة واحدة في يوم واحد، وكل الامتحانات التي تقع في الفترة نفسها تُعقد معاً في قاعات مختلفة.
-          فعدد المواعيد المتاحة = عدد الأيام × عدد الفترات. فترات أكثر في اليوم تعني أياماً أقل، لكن ضغطاً أكبر على الطالب والقاعات.</p>
-        <ul><li>طول الفترة = مدة الامتحان: ساعة للأول والثاني، ساعة ونصف للمنتصف، ساعتان للنهائي.</li><li>اترك 30 دقيقة على الأقل بين فترتين لتبديل القاعات والمراقبين.</li><li>إن ظهرت تعارضات كثيرة: زِد الأيام أو أضف فترة.</li></ul></details>
-        <div class="ex-cap"><span><b>${nDays(DAYS.length)}</b></span><i>×</i><span><b>${nPer(P)}</b> في اليوم</span><i>=</i><span class="t"><b>${BLK.filter(x => !x).length}</b> موعداً متاحاً</span><i>لـ</i><span><b>${C.length}</b> امتحاناً</span>
-          <span class="avg">≈ ${(C.length / Math.max(1, BLK.filter(x => !x).length)).toFixed(1)} امتحان في كل موعد</span></div>
-        ${P === 1 ? '<div class="ex-note1"><i class="bi bi-info-circle-fill"></i> فترة واحدة فقط: كل الامتحانات في الساعة نفسها من كل يوم، فيتوزّع ' + C.length + ' امتحاناً على ' + nDays(DAYS.length) + ' فقط. أضف فترة ثانية لتقليل الضغط على الأيام والقاعات.</div>' : ''}
-        ${S.periods.some(p => mins(p[0], p[1]) > 180) ? '<div class="ex-note1 warn"><i class="bi bi-exclamation-triangle-fill"></i> فترة أطول من 3 ساعات: هل هي مدة الامتحان فعلاً؟ الفترة = مدة امتحان واحد، لا يوم الامتحانات كله (وقت اليوم يُحدَّد في «وقت الامتحانات اليومي» أدناه).</div>' : ''}
-        ${timeline()}</div>
-      <div class="ex-win"><div class="ex-win-h"><i class="bi bi-clock-history"></i> وقت الامتحانات اليومي</div>
-        <div class="ex-win-g"><label><span>تبدأ الامتحانات من</span><input type="time" class="form-control" data-k="firstStart" value="${S.firstStart || ''}"></label>
-          <label><span>وتنتهي قبل</span><input type="time" class="form-control" data-k="lastEnd" value="${S.lastEnd || ''}"></label></div>
-        <details ${Object.keys(S.dayWin || {}).length ? 'open' : ''}><summary>وقت مختلف لبعض الأيام (مثلاً الخميس حتى 13:00)</summary>
-          <div class="ex-win-d">${[0, 1, 2, 3, 4, 6].filter(i => !S.off.includes(i)).map(i => { const w = (S.dayWin || {})[i] || {};
-            return `<div class="r${w.from || w.to ? ' on' : ''}"><b>${WD[i]}</b><input type="time" class="form-control" data-dw="${i}" data-e="from" value="${w.from || ''}" title="من"><span>–</span><input type="time" class="form-control" data-dw="${i}" data-e="to" value="${w.to || ''}" title="إلى">${w.from || w.to ? `<button class="btn btn-sm btn-link" data-dwclr="${i}">مسح</button>` : '<small>كالعام</small>'}</div>`; }).join('')}</div></details>
-        <small class="d-block mt-1">فترة لا تقع داخل وقت اليوم تُعطَّل في ذلك اليوم فقط، ولا يضع النظام فيها امتحاناً.</small></div>
-      ${S.periods.some(late) ? `<div class="alert alert-danger py-2 d-flex flex-wrap align-items-center gap-2"><i class="bi bi-exclamation-octagon-fill"></i> فترة أو أكثر خارج وقت الامتحانات (${S.firstStart || '—'}–${S.lastEnd || '—'}).<button class="btn btn-sm btn-danger" data-fixno>حذف الفترات الخارجة</button></div>` : ''}
-      <div class="ex-presets">${PRESETS.map(([t], k) => `<button class="btn btn-sm btn-outline-secondary" data-preset="${k}"><i class="bi bi-lightning-charge"></i> ${t}</button>`).join('')}</div>
-      <div class="ex-plist">${S.periods.map((p, k) => `<div class="ex-prow"><span class="bdg teal">الفترة ${k + 1}</span><input type="time" class="form-control" data-p="${k}" data-e="0" value="${p[0]}"><span>إلى</span><input type="time" class="form-control" data-p="${k}" data-e="1" value="${p[1]}">
-        <span class="bdg ${mins(p[0], p[1]) > 0 && !late(p) ? '' : 'red'}">${mins(p[0], p[1]) <= 0 ? 'وقت غير صحيح' : late(p) ? 'خارج وقت الامتحانات' : U.dur(mins(p[0], p[1]))}</span><button class="btn btn-sm btn-outline-danger" data-delp="${k}" ${P < 2 ? 'disabled' : ''} aria-label="حذف"><i class="bi bi-trash"></i></button></div>`).join('')}</div>
-      <button class="btn btn-outline-primary" data-addp><i class="bi bi-plus-lg"></i> إضافة فترة</button>`)}
+      <div class="ex-p4">
+        <div class="r1"><div class="ex-cap"><span><b>${nDays(DAYS.length)}</b></span><i>×</i><span><b>${nPer(P)}</b> في اليوم</span><i>=</i><span class="t"><b>${BLK.filter(x => !x).length}</b> موعداً متاحاً</span><i>لـ</i><span><b>${C.length}</b> امتحاناً</span>
+          <span class="avg">≈ ${(C.length / Math.max(1, BLK.filter(x => !x).length)).toFixed(1)} في كل موعد</span></div>
+          <details class="ex-help"><summary title="ما هي الفترة؟"><i class="bi bi-question-circle-fill"></i> ما هي «الفترة»؟</summary><div class="pop">
+            <p>الفترة <b>موعد امتحان ثابت يتكرر كل يوم</b> (مثلاً 9:00–11:00). كل امتحان يأخذ فترة واحدة في يوم واحد، والامتحانات في الفترة نفسها تُعقد معاً في قاعات مختلفة. المواعيد المتاحة = الأيام × الفترات.</p>
+            <ul><li>طول الفترة = مدة الامتحان.</li><li>اترك 30 دقيقة بين فترتين إن احتجت تبديل القاعات.</li><li>تعارضات كثيرة؟ زِد الأيام أو أضف فترة.</li></ul></div></details></div>
+        <div class="r2">${timeline()}</div>
+        <div class="r3"><i class="bi bi-clock-history"></i> <b>وقت الامتحانات اليومي</b> من <input type="time" class="form-control form-control-sm" data-k="firstStart" value="${S.firstStart || ''}"> إلى <input type="time" class="form-control form-control-sm" data-k="lastEnd" value="${S.lastEnd || ''}">
+          <details class="ex-dw" ${Object.keys(S.dayWin || {}).length ? 'open' : ''}><summary>وقت مختلف لبعض الأيام${Object.keys(S.dayWin || {}).length ? ` (${Object.keys(S.dayWin).length})` : ''}</summary>
+            <div class="ex-win-d">${[0, 1, 2, 3, 4, 6].filter(i => !S.off.includes(i)).map(i => { const w = (S.dayWin || {})[i] || {};
+              return `<div class="r${w.from || w.to ? ' on' : ''}"><b>${WD[i]}</b><input type="time" class="form-control form-control-sm" data-dw="${i}" data-e="from" value="${w.from || ''}" title="من"><span>–</span><input type="time" class="form-control form-control-sm" data-dw="${i}" data-e="to" value="${w.to || ''}" title="إلى">${w.from || w.to ? `<button class="btn btn-sm btn-link" data-dwclr="${i}">مسح</button>` : '<small>كالعام</small>'}</div>`; }).join('')}</div>
+            <small class="d-block">فترة خارج وقت اليوم تُعطَّل في ذلك اليوم فقط.</small></details></div>
+        <div class="r4">${S.periods.map((p, k) => `<span class="pp${mins(p[0], p[1]) > 0 && !late(p) ? '' : ' bad'}" title="${mins(p[0], p[1]) <= 0 ? 'وقت غير صحيح' : late(p) ? 'خارج وقت الامتحانات' : U.dur(mins(p[0], p[1]))}"><b>${k + 1}</b><input type="time" class="form-control form-control-sm" data-p="${k}" data-e="0" value="${p[0]}"><span>–</span><input type="time" class="form-control form-control-sm" data-p="${k}" data-e="1" value="${p[1]}"><button class="btn btn-sm" data-delp="${k}" ${P < 2 ? 'disabled' : ''} aria-label="حذف الفترة ${k + 1}"><i class="bi bi-x-lg"></i></button></span>`).join('')}
+          <button class="btn btn-sm btn-outline-primary" data-addp><i class="bi bi-plus-lg"></i> فترة</button>
+          <span class="dropdown"><button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-lightning-charge"></i> قوالب</button><ul class="dropdown-menu">${PRESETS.map(([t], k) => `<li><button class="dropdown-item" data-preset="${k}">${t}</button></li>`).join('')}</ul></span></div>
+      </div>
+      ${P === 1 ? '<div class="ex-note1"><i class="bi bi-info-circle-fill"></i> فترة واحدة فقط: كل الامتحانات في الساعة نفسها من كل يوم. أضف فترة ثانية لتقليل الضغط.</div>' : ''}
+      ${S.periods.some(p => mins(p[0], p[1]) > 180) ? '<div class="ex-note1 warn"><i class="bi bi-exclamation-triangle-fill"></i> فترة أطول من 3 ساعات: الفترة = مدة امتحان واحد، لا يوم الامتحانات كله.</div>' : ''}
+      ${S.periods.some(late) ? `<div class="alert alert-danger py-2 d-flex flex-wrap align-items-center gap-2 mt-2"><i class="bi bi-exclamation-octagon-fill"></i> فترة أو أكثر خارج وقت الامتحانات (${S.firstStart || '—'}–${S.lastEnd || '—'}).<button class="btn btn-sm btn-danger" data-fixno>حذف الفترات الخارجة</button></div>` : ''}`)}
     ${bx(4, 'bi-rulers', '#9a5b00', 'قواعد الجدولة', 'ما يمنعه النظام وما يحاول تجنّبه', `
       <div class="ex-rule hard"><i class="bi bi-shield-fill-check"></i> دائماً: لا يجتمع امتحانان لطالب في الفترة نفسها، ولا يتجاوز عدد الطلبة مقاعد القاعات.</div>
       <div class="row2">${num('maxDay', 'أقصى عدد امتحانات للطالب في اليوم', 1, 4)}<label class="ex-fld"><span>عمق البحث عن أفضل جدول</span><select class="form-select" data-k="depth">${[['quick', 'سريع (ثوانٍ)'], ['normal', 'متوازن'], ['deep', 'عميق (أبطأ وأدق)']].map(([k, t]) => `<option value="${k}" ${S.depth === k ? 'selected' : ''}>${t}</option>`).join('')}</select></label></div>
@@ -1530,24 +1526,27 @@
         <details class="ex-fold mt-2"><summary class="small fw-bold">إضافة قاعات دفعة واحدة</summary><textarea class="form-control mt-1" rows="2" id="ex-bulkr" placeholder="B101, 40&#10;مختبر 3, 25, مختبر"></textarea><button class="btn btn-sm btn-outline-primary mt-1" data-bulkr>إضافة</button> <small>سطر لكل قاعة: الاسم، السعة (واكتب «مختبر» للمختبر).</small></details>
       </div></div>`)}
     ${bx(7, 'bi-person-badge-fill', '#be185d', 'المراقبون', 'العدد والحدود والاستثناءات', `
-      <div class="ex-two"><aside class="ex-side">
-        <h6><i class="bi bi-sliders"></i> التوزيع والحدود</h6>
-        <div class="ex-opts">${[['room', 'مراقب واحد لكل قاعة', 'الافتراضي'], ['ratio', 'حسب عدد الطلبة', 'مراقب لكل عدد من الطلبة']]
-          .map(([k, t, d]) => `<label class="${S.procMode === k ? 'on' : ''}"><input type="radio" name="pm" data-pm="${k}" ${S.procMode === k ? 'checked' : ''}><span><b>${t}</b><small>${d}</small></span></label>`).join('')}</div>
-        ${S.procMode === 'ratio' ? `<div class="ex-sent">مراقب لكل <input type="number" class="form-control form-control-sm" data-k="perProc" min="10" max="80" value="${S.perProc}"> طالباً، وأقل <input type="number" class="form-control form-control-sm" data-k="minProc" min="1" max="5" value="${S.minProc || 1}"> في القاعة</div>` : ''}
-        <div class="ex-sent">أقصى <input type="number" class="form-control form-control-sm" data-k="maxDutyDay" min="0" max="6" value="${S.maxDutyDay ?? 2}"> مراقبات للشخص في اليوم، و<input type="number" class="form-control form-control-sm" data-k="maxDuty" min="0" max="60" value="${S.maxDuty || 0}"> في الدورة <small>(0 = بلا حد)</small></div>
-        <small class="d-block mt-1">رئيس القسم والعميد: في «قواعد الجدولة».</small>
-        <details class="ex-fold mt-2"><summary class="small fw-bold">إضافة أو إعفاء بالأسماء يدوياً${(S.extraProc || S.noProc) ? ' ●' : ''}</summary>
-          <label class="ex-fld mt-1"><span>مراقبون إضافيون (اسم في كل سطر)</span><textarea class="form-control" rows="2" data-k="extraProc">${esc(S.extraProc)}</textarea></label>
-          <label class="ex-fld mt-1"><span>معفَون من المراقبة (اسم في كل سطر)</span><textarea class="form-control" rows="2" data-k="noProc">${esc(S.noProc || '')}</textarea></label></details>
-      </aside><div class="ex-main2">
-        ${upCard('proc', 'bi-person-lines-fill', 'قائمة المراقبين (اختياري)', 'مشرفو المختبرات والإداريون، وحدود كل شخص وأيامه غير المتاحة والمعفَون', (S.procList || []).length ? S.procInfo || `${S.procList.length} اسماً` : '', 'proc')}
-        ${(S.procList || []).length ? `<div class="ex-acts my-1">${sw('procOnly', 'المراقبة من القائمة فقط', 'لا يراقب من ليس فيها، ولو كان مدرّس المقرر')}<button class="btn btn-sm btn-link text-danger" data-procclr>حذف القائمة</button></div>
-          <details class="ex-fold"><summary class="small fw-bold">عرض القائمة (${S.procList.length} اسماً)</summary><div class="ex-rooms mt-1"><table class="table table-sm align-middle"><thead><tr><th>الاسم</th><th>الصفة</th><th>القسم</th><th>أقصى/الدورة</th><th>أقصى/اليوم</th><th>غير متاح</th><th></th></tr></thead><tbody>
+      <div class="ex-pset">
+        <div class="f"><span>طريقة التوزيع</span><div class="seg">${[['room', 'مراقب لكل قاعة'], ['ratio', 'حسب عدد الطلبة']].map(([k, t]) => `<label class="${S.procMode === k ? 'on' : ''}"><input type="radio" name="pm" data-pm="${k}" ${S.procMode === k ? 'checked' : ''}>${t}</label>`).join('')}</div></div>
+        ${S.procMode === 'ratio' ? `<div class="f"><span>طالب لكل مراقب</span><input type="number" class="form-control form-control-sm" data-k="perProc" min="10" max="80" value="${S.perProc}"></div>
+          <div class="f"><span>أقل عدد في القاعة</span><input type="number" class="form-control form-control-sm" data-k="minProc" min="1" max="5" value="${S.minProc || 1}"></div>` : ''}
+        <div class="f"><span>أقصى في اليوم</span><input type="number" class="form-control form-control-sm" data-k="maxDutyDay" min="0" max="6" value="${S.maxDutyDay ?? 2}"></div>
+        <div class="f"><span>أقصى في الدورة</span><input type="number" class="form-control form-control-sm" data-k="maxDuty" min="0" max="60" value="${S.maxDuty || 0}" title="0 = بلا حد"></div>
+        <div class="f grow"><span>قائمة المراقبين <small>(اختياري: مشرفو المختبرات، الإداريون، الحدود الخاصة، المعفَون)</small></span>
+          <div class="up">${(S.procList || []).length ? `<span class="st ok"><i class="bi bi-check-circle-fill"></i> ${esc(S.procInfo || S.procList.length + ' اسماً')}</span>` : '<span class="st">لم تُرفع</span>'}
+            <button class="btn btn-sm btn-outline-primary" data-tpl="proc"><i class="bi bi-file-earmark-arrow-down"></i> النموذج</button>
+            <label class="btn btn-sm ${(S.procList || []).length ? 'btn-outline-secondary' : 'btn-ex'} mb-0"><i class="bi bi-upload"></i> ${(S.procList || []).length ? 'استبدال' : 'رفع'}<input type="file" data-up="proc" accept=".xlsx,.xls,.csv" hidden></label>
+            ${(S.procList || []).length ? '<button class="btn btn-sm btn-link text-danger p-0" data-procclr title="حذف القائمة"><i class="bi bi-trash"></i></button>' : ''}</div></div>
+      </div>
+      <div class="ex-pmore"><small><i class="bi bi-info-circle"></i> 0 = بلا حد · رئيس القسم والعميد في «قواعد الجدولة»</small>
+        ${(S.procList || []).length ? sw('procOnly', 'المراقبة من القائمة فقط', '') : ''}
+        <details class="ex-fold"><summary class="small fw-bold">إضافة أو إعفاء بالأسماء يدوياً${(S.extraProc || S.noProc) ? ' ●' : ''}</summary>
+          <div class="row2 mt-1"><label class="ex-fld"><span>مراقبون إضافيون (اسم في كل سطر)</span><textarea class="form-control" rows="2" data-k="extraProc">${esc(S.extraProc)}</textarea></label>
+          <label class="ex-fld"><span>معفَون من المراقبة (اسم في كل سطر)</span><textarea class="form-control" rows="2" data-k="noProc">${esc(S.noProc || '')}</textarea></label></div></details>
+        ${(S.procList || []).length ? `<details class="ex-fold"><summary class="small fw-bold">عرض القائمة المرفوعة (${S.procList.length})</summary><div class="ex-rooms mt-1"><table class="table table-sm align-middle"><thead><tr><th>الاسم</th><th>الصفة</th><th>القسم</th><th>أقصى/الدورة</th><th>أقصى/اليوم</th><th>غير متاح</th><th></th></tr></thead><tbody>
           ${S.procList.map(p => `<tr class="${p.ex ? 'off' : ''}"><td>${esc(p.n)}</td><td class="small">${esc(p.role || '')}</td><td class="small">${esc(p.dept || '')}</td><td>${p.max || '—'}</td><td>${p.maxDay || '—'}</td>
-            <td class="small">${(p.offW || []).map(i => WD[i]).concat((p.offD || []).map(d => dLong(d).replace(/\/\d{4}$/, ''))).join('، ') || '—'}</td><td>${p.ex ? '<span class="bdg">معفى</span>' : ''}</td></tr>`).join('')}</tbody></table></div></details>` : ''}
-        ${poolView()}
-      </div></div>`)}
+            <td class="small">${(p.offW || []).map(i => WD[i]).concat((p.offD || []).map(d => dLong(d).replace(/\/\d{4}$/, ''))).join('، ') || '—'}</td><td>${p.ex ? '<span class="bdg">معفى</span>' : ''}</td></tr>`).join('')}</tbody></table></div></details>` : ''}</div>
+      ${poolView()}`)}
     ${bx(8, 'bi-list-check', '#1d4ed8', 'المقررات', `${all.length - Object.keys(S.excl).filter(k => all.some(c => c.code === k)).length} من ${all.length} مقرراً لها امتحان`, `
       <div class="ex-reqbar"><label class="btn btn-sm btn-outline-primary mb-0"><i class="bi bi-file-earmark-arrow-up"></i> رفع قائمة المتطلبات<input type="file" data-up="req" accept=".xlsx,.xls,.csv" hidden></label>
         <button class="btn btn-sm btn-outline-secondary" data-tpl="req"><i class="bi bi-file-earmark-arrow-down"></i> النموذج</button>
@@ -2594,6 +2593,37 @@
   .ex-row2b .ex-chipset { display: flex; flex-wrap: wrap; gap: .3rem; } .ex-up .st { display: block !important; white-space: normal; }
   .ex-reqbar > * { flex: none; white-space: nowrap; } .ex-reqbar .tx { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: .85rem; color: #1f2a30; }
   @media (max-width: 760px) { .ex-reqbar { flex-wrap: wrap; } .ex-reqbar .tx { flex-basis: 100%; white-space: normal; } }
+  .ex-pset { display: flex; flex-wrap: wrap; gap: .6rem .9rem; align-items: flex-end; border: 1px solid #ecd3e0; background: #fdf8fb; border-radius: 12px; padding: .6rem .75rem; }
+  .ex-pset .f { display: flex; flex-direction: column; gap: .2rem; } .ex-pset .f > span { font-size: .8rem; font-weight: 800; color: #1f2a30; } .ex-pset .f > span small { font-weight: 400; }
+  .ex-pset .f input[type=number] { width: 5.5rem; } .ex-pset .f.grow { flex: 1 1 320px; } .ex-pset .up { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; min-height: 31px; }
+  .ex-pset .st { font-size: .85rem; color: #1f2a30; } .ex-pset .st.ok { color: #15803d; font-weight: 700; }
+  .ex-pset .seg { display: inline-flex; border: 1.5px solid #d6dee3; border-radius: 9px; overflow: hidden; background: #fff; } .ex-pset .seg label { margin: 0; padding: .28rem .7rem; font-size: .86rem; font-weight: 700; cursor: pointer; }
+  .ex-pset .seg label + label { border-inline-start: 1.5px solid #d6dee3; } .ex-pset .seg label.on { background: #be185d; color: #fff; } .ex-pset .seg input { display: none; }
+  .ex-pmore { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; align-items: center; margin: .45rem 0 .2rem; } .ex-pmore > details { flex: 1 1 100%; }
+  .ex-pool3 { border: 1px solid #ecd3e0; border-radius: 12px; margin-top: .6rem; overflow: hidden; }
+  .ex-pool3 .h { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; padding: .5rem .7rem; background: #fbf1f6; border-bottom: 1px solid #f0dde7; }
+  .ex-pool3 .h .t { color: #9d174d; font-size: 1.02rem; margin-inline-end: .3rem; } .ex-pool3 .h input { max-width: 14rem; margin-inline-start: auto; }
+  .ex-pool3 .hint { margin: 0; padding: .35rem .7rem; font-size: .82rem; color: #1f2a30; border-bottom: 1px solid #f3e7ee; }
+  .ex-pool3 .dr { display: grid; grid-template-columns: 210px minmax(0, 1fr); border-bottom: 1px solid #f3e7ee; } .ex-pool3 .dr:last-child { border-bottom: 0; }
+  .ex-pool3 .dh { padding: .5rem .7rem; background: #fff; border-inline-end: 3px solid #be185d; display: flex; flex-direction: column; gap: .15rem; } .ex-pool3 .dh b { font-size: .92rem; line-height: 1.3; }
+  .ex-pool3 .dh .n { font-size: .78rem; font-weight: 700; color: #9d174d; } .ex-pool3 .dh .btn { font-size: .78rem; align-self: flex-start; }
+  .ex-pool3 .nm { display: flex; flex-wrap: wrap; gap: .3rem; padding: .45rem .6rem; align-content: flex-start; background: #fffdfe; }
+  .ex-pool3 .pc { display: inline-flex; align-items: center; gap: .3rem; border: 1px solid #e6d5de; background: #fff; border-radius: 8px; padding: .2rem .45rem; font-size: .86rem; color: #1f2a30; }
+  .ex-pool3 .pc i { color: #15803d; font-size: .8rem; } .ex-pool3 .pc small { color: #9d174d; font-size: .72rem; } .ex-pool3 .pc .k { background: #eef2f4; border-radius: 5px; padding: 0 .3rem; font-size: .74rem; font-weight: 700; }
+  .ex-pool3 .pc.off { opacity: .55; text-decoration: line-through; } .ex-pool3 .pc.off i { color: #b42318; } .ex-pool3 .pc:hover { border-color: #be185d; }
+  @media (max-width: 700px) { .ex-pool3 .dr { grid-template-columns: 1fr; } .ex-pool3 .dh { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: .5rem; border-inline-end: 0; border-bottom: 2px solid #be185d; } }
+  .ex-p4 { border: 1px solid #b6e0da; background: #f6fcfb; border-radius: 12px; padding: .55rem .7rem; display: grid; gap: .45rem; }
+  .ex-p4 .r1 { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; } .ex-p4 .ex-cap { margin: 0; flex: 1 1 auto; } .ex-p4 .ex-tl { margin: 0; } .ex-p4 .ex-tl .lgd { display: none; } .ex-p4 .ex-tl .bar { height: 2.6rem; }
+  .ex-help { position: relative; } .ex-help > summary { list-style: none; cursor: pointer; color: #0f766e; font-weight: 800; font-size: .88rem; } .ex-help > summary::-webkit-details-marker { display: none; }
+  .ex-help .pop { position: absolute; inset-inline-end: 0; top: 1.6rem; z-index: 5; width: min(420px, 85vw); background: #fff; border: 1px solid #b6e0da; border-radius: 10px; padding: .6rem .8rem; box-shadow: 0 8px 24px rgba(0,0,0,.12); font-size: .86rem; }
+  .ex-help .pop p { margin: 0 0 .3rem; } .ex-help .pop ul { margin: 0; padding-inline-start: 1.1rem; }
+  .ex-p4 .r3 { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; font-size: .9rem; } .ex-p4 .r3 > i { color: #0f766e; } .ex-p4 .r3 input[type=time] { width: 7.2rem; }
+  .ex-dw { margin-inline-start: .6rem; } .ex-dw > summary { cursor: pointer; font-size: .85rem; font-weight: 700; color: #0b4a66; } .ex-dw[open] { flex: 1 1 100%; margin: 0; } .ex-dw .ex-win-d { display: flex; flex-wrap: wrap; gap: .3rem .8rem; margin: .3rem 0; }
+  .ex-dw .ex-win-d .r { display: inline-flex; gap: .3rem; align-items: center; } .ex-dw .ex-win-d input { width: 6.6rem; }
+  .ex-p4 .r4 { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+  .ex-p4 .pp { display: inline-flex; align-items: center; gap: .2rem; border: 1.5px solid #9fd3cb; background: #fff; border-radius: 9px; padding: .15rem .25rem .15rem .15rem; }
+  .ex-p4 .pp > b { background: #0f766e; color: #fff; border-radius: 6px; min-width: 1.4rem; text-align: center; font-size: .8rem; } .ex-p4 .pp input { width: 5.7rem; padding: .1rem .25rem; font-size: .85rem; }
+  .ex-p4 .pp .btn { padding: 0 .3rem; color: #b42318; } .ex-p4 .pp.bad { border-color: #b42318; background: #fff4f4; } .ex-p4 .pp.bad > b { background: #b42318; }
   .ex-cal2 { display: grid; grid-template-columns: minmax(250px, 330px) minmax(0, 1fr); gap: 1rem; align-items: start; }
   .ex-calf { display: grid; gap: .6rem; } .ex-calf section { border: 1px solid #e2e8ec; border-radius: 12px; padding: .55rem .7rem; background: #fbfcfd; }
   .ex-calf h6 { font-size: .9rem; font-weight: 800; margin: 0 0 .4rem; color: #0b4a66; } .ex-calf label { display: block; margin: 0; } .ex-calf label > span { font-size: .8rem; font-weight: 700; color: #1f2a30; }
