@@ -617,6 +617,8 @@
   .dm-t tbody .dm2-n { font-weight:700 !important; } .dm-t tbody td.dm2-c { font-family:ui-monospace,Consolas,monospace; font-weight:700 !important; color:#000 !important; } .dm-t tbody td.nm { color:#000 !important; } .dm2-bar i.g { background:#16a34a; } .dm2-bar i.b { background:#0b4a66; } .dm2-bar i.y { background:#f59e0b; } .dm-t tbody td { color:#111 !important; }
   .adv-t tbody td > .fb.code, .adv-t tbody td > .adv-code { background:none !important; border:0 !important; padding:0 !important; font-weight:700 !important; color:#000 !important; }
   .adv-t tbody td, .adv-t tbody td b { color:#000; } .adv-t tbody tr.adv-x td { opacity:1 !important; color:#000 !important; } .adv-t tbody tr.adv-x { opacity:1 !important; }
+  .adv-dash tr > :last-child { position:sticky; inset-inline-end:0; z-index:2; background:#fff; box-shadow:4px 0 6px -4px rgba(0,0,0,.12) inset; }
+  .adv-dash tbody tr.adv-row:hover > :last-child { background:#fafafa; } .adv-dash .adv-det > td { position:static; box-shadow:none; }
   .adv-dayc { white-space:nowrap; } .bd-nm { white-space:nowrap; } .bd-nm b { color:#111; } .bd-id { font-family:ui-monospace,Consolas,monospace; }
   .bd-st { white-space:nowrap; } .bd-st .fb + .fb { margin-inline-start:4px; }
   .bd-gpa { display:inline-block; min-width:48px; text-align:center; border-radius:6px; padding:1px 8px; border:1px solid; font-variant-numeric:tabular-nums; }
