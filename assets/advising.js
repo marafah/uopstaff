@@ -1209,7 +1209,10 @@
   }
 
   // ---------------------------------------------------------------- official reports (A4, the site's report layout)
-  const SIGN = (who) => `<div style="display:flex;gap:28px;margin-top:22px;font-size:10pt">${who.map(w => `<div style="flex:1;border-top:1px solid #1f2d33;padding-top:5px;text-align:center"><b>${w}</b><div style="color:#555;font-size:8.5pt;margin-top:10px">الاسم: ......................  التوقيع: ..............  التاريخ: ....../....../......</div></div>`).join('')}</div>`;
+  // signature block: one box per signer, each field on its own line with a writing line (prints cleanly, no wrapping)
+  const SIGN = (who) => `<div style="display:grid;grid-template-columns:repeat(${who.length},1fr);gap:18px;margin-top:22px;font-size:10pt;color:#000;page-break-inside:avoid">${who.map(w => `<div style="border:1px solid #1f2d33;border-radius:6px;padding:8px 12px 10px">
+    <div style="font-weight:700;text-align:center;border-bottom:1px solid #1f2d33;padding-bottom:5px;margin-bottom:8px">${w}</div>
+    ${['الاسم', 'التوقيع', 'التاريخ'].map(f => `<div style="display:flex;align-items:flex-end;gap:6px;margin-top:12px"><span style="white-space:nowrap;font-size:9pt">${f}:</span><span style="flex:1;border-bottom:1px dotted #000;height:1em;text-align:center;font-size:8.5pt;color:#555"></span></div>`).join('')}</div>`).join('')}</div>`;
   function advisorOf() { const c = {}; BOARD.forEach(s2 => { const a = (s2.head.advisor || '').trim(); if (a) c[a] = (c[a] || 0) + 1; }); return (Object.entries(c).sort((a, b) => b[1] - a[1])[0] || [''])[0]; }
   function printStudents(show, rows) {
     const F = { all: 'كل الطلبة', grad: 'المتوقع تخرجهم', miss: 'تنقصهم إجبارية غير مطروحة', warn: 'المنذرون', weak: 'المتعثرون', nogpa: 'الجدد بلا معدل' };
@@ -1352,11 +1355,11 @@
           rows: [...courses.map((c, i) => { const mine = sel.filter(x => x.code === (c.via || c.code));
             if (!mine.length) return [i + 1, c.code, c.name, c.hours, '—', offeredAs(c.code) ? 'تتعارض أو تتجاوز الساعات' : 'غير مطروحة هذا الفصل', '—', '—', '—'];
             return [i + 1, c.code + (c.via ? ` (برمز ${c.via})` : ''), c.name, c.hours, mine.map(x => x.section + (x.activity === 'عملي' ? ' عملي' : '')).join(' / '),
-              mine.map(x => x.meetings.map(m => live(m) ? `${DAYN(m.day)} ${m.start} – ${m.end}` : `${DAYN(m.day)} غير متزامن`).join('، ')).join(' / '),
+              { html: mine.map(x => { const g = {}; x.meetings.forEach(m => { const k = live(m) ? `<bdi dir="ltr">${m.start} – ${m.end}</bdi>` : 'غير متزامن'; (g[k] ||= []).push(DAYN(m.day)); }); return Object.entries(g).map(([k, d]) => `${esc(d.join(' و'))} ${k}`).join('<br>'); }).join('<br>') },
               mine.map(x => U.shortName(x.instructor || '—')).join(' / '), mine.map(x => x.room && x.room !== '0' ? x.room : 'افتراضية').join(' / '), mine.map(x => isOpen(x) ? `${seats(x)} شاغر` : 'مغلقة').join(' / ')]; }),
             ...slots.map(c => ['', c.code, c.name, c.hours || '', '—', 'يختارها الطالب من المجموعة', '—', '—', '—'])] },
         { title: 'برنامج الأسبوع', columns: ['اليوم', 'الوقت', 'الرمز', 'المادة', 'الشعبة', 'القاعة'], widths: ['12%', '16%', '11%', '39%', '9%', '13%'],
-          rows: byDay.flatMap(r => r.L.map((m, k) => [k ? '' : DAYN(r.d), `${m.a} – ${m.b}`, m.x.code, nm(m.x.code), m.x.section + (m.x.activity === 'عملي' ? ' عملي' : ''), m.x.room && m.x.room !== '0' ? m.x.room : 'افتراضية'])) }],
+          rows: byDay.flatMap(r => r.L.map((m, k) => [k ? '' : DAYN(r.d), { html: `<bdi dir="ltr">${m.a} – ${m.b}</bdi>` }, m.x.code, nm(m.x.code), m.x.section + (m.x.activity === 'عملي' ? ' عملي' : ''), m.x.room && m.x.room !== '0' ? m.x.room : 'افتراضية'])) }],
       raw: SIGN(['الطالب', 'المرشد الأكاديمي', 'رئيس القسم']),
       note: `المواد من الخطة الاسترشادية المنشورة للقسم${p.r.academic_year ? ' (' + p.r.academic_year + ')' : ''}، والشعب من الجدول الدراسي المنشور على بوابة الجامعة (${TT.term}) بلا تعارض، الأفضلية للشعب التي فيها مقاعد. المقترح للإرشاد؛ التسجيل الفعلي على بوابة الجامعة. رمز QR يفتح الجدول في «مخطط جدولي».` });
   }
