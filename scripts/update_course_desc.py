@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import advisory_parse  # noqa: E402
 import update_advisory  # noqa: E402
 
-VERSION = 4
+VERSION = 5
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 OUT = os.path.join(ROOT, "data", "course_descriptions.json")
 IMG = os.path.join(ROOT, "data", "coursedesc")
@@ -90,6 +90,11 @@ def parse(lines, known):
     def head(t):
         if len(t) > 160:
             return None
+        # a line that is only a prerequisite («متطلب سابق: 603391», read right to left) names no course of its own
+        if PRE.search(t):
+            rest = re.sub(r"(ال)?متطلب(ات)?|(ال)?سابق[ةه]?|prerequisites?|pre-?req\.?|لا يوجد|none|[\d\s+،,/:;()\[\].\-–و]", "", t, flags=re.I)
+            if len(rest) < 4:
+                return None
         for m in CODE.finditer(t):
             code = m.group(1)
             before, after = t[:m.start()], t[m.end():]
@@ -157,7 +162,7 @@ def crops(pdf_bytes, sha, got):
     for code, c in got.items():
         names = []
         for i, (page, top, bottom) in enumerate(c["seg"][:3]):
-            name = f"{sha[:12]}-{code}-{i}.webp"
+            name = f"{sha[:12]}-{VERSION}-{code}-{i}.webp"
             path = os.path.join(IMG, name)
             if not os.path.exists(path):
                 pg = doc[page - 1]
