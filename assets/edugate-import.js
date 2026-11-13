@@ -49,11 +49,15 @@
   let running = false, stop = false;
 
   if (!onPlanPage) {
-    const signedIn = /\/staff/.test(location.pathname) && !$('input[type=password]');
-    bd.innerHTML = steps(signedIn ? 1 : 0) + (signedIn
+    const onPortal = /(^|\.)edugate\.uop\.edu\.jo$/.test(location.hostname);
+    const signedIn = onPortal && /\/staff/.test(location.pathname) && !$('input[type=password]');
+    bd.innerHTML = steps(signedIn ? 1 : 0) + (!onPortal
+      ? `<p><b>هذا الزر يعمل داخل بوابة الجامعة، لا في هذه الصفحة.</b></p><ol style="margin:0 0 12px;padding-inline-start:20px;line-height:1.9"><li>افتح بوابة المدرس (الزر أدناه) وسجّل الدخول كالمعتاد.</li><li>من القائمة افتح «المرشد الأكاديمي ← خطة الطالب» (قائمة طلابك).</li><li>وأنت على تلك الصفحة اضغط «سحب الخطط» في شريط المفضلة.</li></ol><button class="btn go" id="portal">افتح بوابة المدرس</button>`
+      : signedIn
       ? `<p>أنت مسجّل الدخول. افتح قائمة طلابك في «الإرشاد الأكاديمي ← خطة الطالب» ثم اضغط زر «سحب الخطط» مرة أخرى.</p><button class="btn go" id="open">افتح قائمة طلابي</button>`
       : `<p>سجّل الدخول إلى البوابة باسم المستخدم وكلمة المرور كالمعتاد، ثم اضغط زر «سحب الخطط» مرة أخرى.</p><button class="btn ghost" id="close">حسناً</button>`) + privacy;
     const o = root.getElementById('open'); if (o) o.onclick = () => { location.href = '/staff/studentPlan'; };
+    const pt = root.getElementById('portal'); if (pt) pt.onclick = () => { window.open('https://edugate.uop.edu.jo/staff/studentPlan', '_blank', 'noopener'); host.remove(); window.__uopImport = null; };
     const c = root.getElementById('close'); if (c) c.onclick = () => { host.remove(); window.__uopImport = null; };
     window.__uopImport = { show() { document.body.appendChild(host); } };
     return;
