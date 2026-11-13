@@ -23,7 +23,9 @@
     return L.find(e => p && e.p === p.id) || L[0] || null;
   }
   function descHtml(code, p) {
-    if (!DESC || !realCode(code)) return '';
+    if (!realCode(code)) return '';
+    const link = p && (p.links || []).find(l => /وصف|description/i.test(l.label || '') && l.url);
+    if (!DESC) return link ? `<h4><i class="bi bi-card-text"></i> وصف المادة</h4><p class="small mb-0">الوصف يُقرأ من <a href="${esc(link.url)}" target="_blank" rel="noopener">ملف «وصف المواد» للقسم</a> مع التحديث الدوري للموقع، ويظهر هنا بعد أول قراءة.</p>` : '';
     const e = descOf(code, p);
     const doc = p && Object.entries(DESC.docs || {}).find(([, d]) => (d.programs || []).includes(p.id));
     if (!e) return doc ? `<h4><i class="bi bi-card-text"></i> وصف المادة</h4><p class="small text-muted mb-0">لم يُعثر على وصف لهذه المادة في <a href="${esc(doc[0])}" target="_blank" rel="noopener">ملف «وصف المواد» للقسم</a>${doc[1].courses ? '' : ' (الملف صور أو بتنسيق لم يُقرأ بعد)'}.</p>` : '';
