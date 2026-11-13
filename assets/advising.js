@@ -569,6 +569,8 @@
   .adv-dash tbody td, .adv-dash tbody td small, .adv-dash tbody td .adv-src { color:#111 !important; } .adv-dash tbody .bd-nm b { font-weight:700 !important; font-size:1rem; }
   .adv-dash .fb.reg { font-family:inherit !important; letter-spacing:0; font-size:.88rem; }
   .adv-t .fb, .dm-t .fb, .adv-t .bd-gpa, .adv-cc .fb, .dt .fb { border-radius:4px !important; }
+  .dm2-bar { display:inline-block; vertical-align:middle; width:110px; height:8px; background:#eee9dc; border-radius:2px; overflow:hidden; } .dm2-bar i { display:block; height:100%; background:#0b4a66; }
+  .dm-t tbody .nm b, .dm-t tbody .dm2-n { font-weight:700 !important; } .dm-t tbody td { color:#111 !important; }
   .adv-dayc { white-space:nowrap; } .bd-nm { white-space:nowrap; } .bd-nm b { color:#111; } .bd-id { font-family:ui-monospace,Consolas,monospace; }
   .bd-st { white-space:nowrap; } .bd-st .fb + .fb { margin-inline-start:4px; }
   .bd-gpa { display:inline-block; min-width:48px; text-align:center; border-radius:6px; padding:1px 8px; border:1px solid; font-variant-numeric:tabular-nums; }
@@ -1248,11 +1250,11 @@
       <div class="dm-f no-print">${[['all', 'كل المواد', 'bi-grid-3x3-gap-fill', 'b'], ['no', 'غير مطروحة الآن', 'bi-x-octagon-fill', 'r'], ['grad', 'يحتاجها متوقع تخرجهم', 'bi-mortarboard-fill', 'g'], ['req', 'إجبارية', 'bi-lock-fill', 'm']]
         .map(([k, l, ic, c]) => `<button type="button" class="dm-chip ${c} ${f === k ? 'on' : ''}" data-df="${k}"><i class="bi ${ic}"></i> ${l} <b>${cnt(k)}</b></button>`).join('')}</div>
       <div class="table-responsive"><table class="dm-t"><thead><tr><th>#</th><th>الرمز</th><th>المادة</th><th><i class="bi bi-people-fill"></i> يحق لهم</th><th><i class="bi bi-mortarboard-fill"></i> متوقع تخرجهم</th><th><i class="bi bi-lock-fill"></i> إجبارية لـ</th><th><i class="bi bi-calendar-week-fill"></i> هذا الفصل</th></tr></thead><tbody>
-      ${show.map((d, i) => `<tr class="${d.st.k === 'no' ? 'no' : ''}"><td class="n">${i + 1}</td><td><span class="dm-code">${d.code}</span></td><td class="nm">${esc(d.name)}</td>
-        <td><div class="dm-bar"><i style="width:${Math.round(100 * d.n / max)}%"></i><b>${d.n}</b></div></td>
-        <td>${d.grad ? `<span class="dm-b g"><i class="bi bi-mortarboard-fill"></i> ${d.grad}</span>` : '<span class="dm-z">—</span>'}</td>
-        <td>${d.req ? `<span class="dm-b m"><i class="bi bi-lock-fill"></i> ${d.req}</span>` : '<span class="dm-b el">اختيارية</span>'}</td>
-        <td><a class="dm-s ${d.st.k}" ${d.st.x ? `href="timetable.html?q=${d.st.x}" target="_blank" rel="noopener"` : ''}><i class="bi ${d.st.ic}"></i> ${d.st.t}${d.st.x && d.st.x !== d.code ? ` <small>برمز ${d.st.x}</small>` : ''}</a></td></tr>`).join('') || '<tr><td colspan="7" class="dm-empty">لا مواد بهذا التصفية.</td></tr>'}</tbody></table></div></div>`;
+      ${show.map((d, i) => `<tr><td class="n">${i + 1}</td><td><span class="fb code">${d.code}</span></td><td class="nm" style="white-space:nowrap"><b>${esc(d.name)}</b></td>
+        <td style="white-space:nowrap"><span class="dm2-bar"><i style="width:${Math.round(100 * d.n / max)}%"></i></span> <b class="dm2-n">${d.n}</b></td>
+        <td>${d.grad ? `<span class="fb ok"><i class="bi bi-mortarboard-fill"></i> ${d.grad}</span>` : '—'}</td>
+        <td>${d.req ? `<span class="fb day"><i class="bi bi-lock-fill"></i> ${d.req}</span>` : '<span class="fb sec">اختيارية</span>'}</td>
+        <td style="white-space:nowrap"><a class="fb ${d.st.k === 'open' ? 'ok' : d.st.k === 'closed' ? 'hrs' : 'no'}" style="text-decoration:none" ${d.st.x ? `href="timetable.html?q=${d.st.x}" target="_blank" rel="noopener"` : ''}><i class="bi ${d.st.ic}"></i> ${d.st.t}${d.st.x && d.st.x !== d.code ? ` · برمز ${d.st.x}` : ''}</a></tr>`).join('') || '<tr><td colspan="7" class="dm-empty">لا مواد بهذا التصفية.</td></tr>'}</tbody></table></div></div>`;
   }
 
 
