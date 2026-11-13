@@ -422,6 +422,14 @@
   .adv-term.sum { background:#fffaf0; border-style:dashed; } .adv-term.stuck { border-color:#e9a2a2; background:#fdf0f0; }
   .adv-term-h { display:flex; gap:6px; align-items:center; border-bottom:1px solid #e3ddcf; padding-bottom:4px; margin-bottom:4px; font-size:.92rem; }
   .adv-term-c { font-size:.85rem; line-height:1.6; } .adv-term-c code, .adv-t code, .adv-card code { color:#1f2328; } .adv-term-h b { white-space:nowrap; } .adv-term-c small { color:#3b4048; font-weight:700; }
+  .adv-imp { border-color: #d9c9a3; background: linear-gradient(180deg,#fffdf7,#fff); }
+  .adv-steps { list-style: none; padding: 0; margin: 0 0 10px; display: grid; gap: 8px; }
+  .adv-steps li { display: flex; gap: 10px; align-items: flex-start; font-size: .95rem; }
+  .adv-steps li > span { flex: none; width: 28px; height: 28px; border-radius: 50%; background: #901d23; color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .adv-bm { display: inline-flex; align-items: center; gap: 4px; background: #0f766e; color: #fff !important; text-decoration: none; padding: 4px 12px; border-radius: 99px; font-weight: 700; cursor: grab; margin: 0 4px; border: 2px dashed #8fd1c6; }
+  .adv-prog { border: 1px solid #e3ddcf; border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; background: #fff; }
+  .adv-pbar { height: 12px; border-radius: 99px; background: #eee9dc; overflow: hidden; margin: 6px 0; } .adv-pbar i { display: block; height: 100%; background: linear-gradient(90deg,#0f766e,#15803d); transition: width .4s; }
+  .adv-pbar i.run { background-image: repeating-linear-gradient(45deg,#0f766e 0 12px,#15803d 12px 24px); }
   .adv-law { border-inline-start:4px solid #901d23; padding:4px 12px; margin:6px 0; background:#fffdf7; font-size:.95rem; line-height:1.9; }
   @media (max-width: 640px) { .adv-g { grid-template-columns:1fr auto; } .adv-g .adv-bar { grid-column:1 / -1; order:3; } }
   @media print { .adv-tabs, .adv-ctl, .no-print { display:none !important; } }`;
@@ -446,8 +454,10 @@
   }
   const knownCodes = () => Object.keys(NAMES);
   async function readStudent(file) {
-    const items = await pdfItems(await file.arrayBuffer());
+    const buf = await file.arrayBuffer();
+    const items = await pdfItems(buf.slice(0));
     const s = parsePlan(items, knownCodes());
+    s._buf = buf;
     s.file = file.name;
     return s;
   }
@@ -665,6 +675,89 @@
     w.document.write(html); w.document.close();
   }
 
+  // ---------------------------------------------------------------- plans kept on this device (IndexedDB), and the import from the portal
+  const PV = 1;   // the reader's version: plans kept by an older reader are read again from their PDF
+  const PORTAL = 'https://edugate.uop.edu.jo';
+  const IMP = { on: P.get('from') === 'edugate', got: 0, ok: 0, warn: 0, bad: 0, last: '', done: null, list: [] };
+  function idb() {
+    return new Promise((res, rej) => { const r = indexedDB.open('uop-advising', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('plans', { keyPath: 'id' });
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+  }
+  async function store(rec) { const db = await idb(); return new Promise((res, rej) => { const t = db.transaction('plans', 'readwrite'); t.objectStore('plans').put(rec); t.oncomplete = res; t.onerror = () => rej(t.error); }); }
+  async function storedAll() { try { const db = await idb(); return await new Promise((res, rej) => { const r = db.transaction('plans').objectStore('plans').getAll(); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); } catch (e) { return []; } }
+  async function storedClear() { const db = await idb(); return new Promise(res => { const t = db.transaction('plans', 'readwrite'); t.objectStore('plans').clear(); t.oncomplete = res; }); }
+  // the PDF's own figures against the page's sums: [] when everything matches
+  function mismatches(s) {
+    const a = analyse(s, { assumeCurrent: false }), out = [];
+    if (s.remainingHours != null && a.remainingNow !== s.remainingHours) out.push(`المتبقية ${a.remainingNow}≠${s.remainingHours}`);
+    a.groups.forEach(g => { if (g.printedPassed != null && COUNTS(g.kind) && g.gotPassed !== g.printedPassed) out.push(`${g.name} ${g.gotPassed}≠${g.printedPassed}`); });
+    return out;
+  }
+  function addBoard(s) { BOARD = BOARD.filter(x => x.head.id !== s.head.id); BOARD.push(s); BOARD.sort((x, y) => String(x.head.name).localeCompare(String(y.head.name), 'ar')); }
+  async function loadStored() {
+    const recs = await storedAll();
+    for (const r of recs) {
+      let s = r.pv === PV && r.parsed ? r.parsed : null;
+      if (!s && r.pdf) { try { s = parsePlan(await pdfItems(r.pdf.slice(0)), knownCodes()); r.parsed = s; r.pv = PV; await store(r); } catch (e) { continue; } }
+      if (s && s.ok) { s.stored = r.importedAt; s.src = r.src; s.warn = r.warn; addBoard(s); }
+    }
+    return recs.length;
+  }
+  let dataReady; const DATA_READY = new Promise(r => { dataReady = r; });
+  let rT = 0;
+  const soon = () => { clearTimeout(rT); rT = setTimeout(() => { if (st.view === 'board') render(); }, 400); };
+  window.addEventListener('message', async e => {
+    if (e.origin !== PORTAL || !e.data || typeof e.data !== 'object') return;
+    const d = e.data, reply = m => { try { e.source.postMessage(m, PORTAL); } catch (x) { /* portal tab closed */ } };
+    await DATA_READY;
+    if (d.type === 'uop-hello') { IMP.on = true; if (st.view !== 'board') { st.view = 'board'; render(); } reply({ type: 'uop-ready' }); return; }
+    if (d.type === 'uop-plan') {
+      IMP.got++; IMP.last = d.meta && d.meta.name || '';
+      try {
+        const s = parsePlan(await pdfItems(d.pdf.slice(0)), knownCodes());
+        if (!s.ok) throw new Error('الملف ليس «تحليل خطة الطالب»');
+        if (String(s.head.id) !== String(d.id)) throw new Error(`رقم الطالب في الملف ${s.head.id} لا يطابق ${d.id}`);
+        const g = parseFloat(d.meta && d.meta.gpa);
+        if (!isNaN(g) && s.gpa != null && Math.abs(g - s.gpa) > 0.005) throw new Error(`المعدل في الملف ${s.gpa} لا يطابق القائمة ${g}`);
+        const warn = mismatches(s);
+        const rec = { id: String(d.id), meta: d.meta, pdf: d.pdf, parsed: s, pv: PV, importedAt: new Date().toISOString(), src: 'portal', warn };
+        await store(rec);
+        s.stored = rec.importedAt; s.src = 'portal'; s.warn = warn; addBoard(s);
+        IMP.ok++; if (warn.length) IMP.warn++;
+        reply({ type: 'uop-ack', id: d.id, ok: true, warn: warn.join('، ') });
+      } catch (err) {
+        IMP.bad++; IMP.list.push(`${d.meta && d.meta.name || d.id}: ${err.message}`);
+        reply({ type: 'uop-ack', id: d.id, ok: false, reason: err.message });
+      }
+      soon(); return;
+    }
+    if (d.type === 'uop-done') {
+      IMP.done = d; soon();
+      const body = `${BOARD.length} خطة محفوظة على هذا الجهاز${d.bad ? ` · تعذّرت ${d.bad}` : ''}`;
+      document.title = '✓ اكتمل سحب الخطط – مكتب الإرشاد';
+      try { if (window.Notification && Notification.permission === 'granted') new Notification('اكتمل سحب خطط الطلبة', { body, icon: 'assets/icons/icon-192.png' }); } catch (x) { /* no notifications */ }
+    }
+  });
+  const BM = () => `javascript:(function(){var s=document.createElement('script');s.src='${new URL('assets/edugate-import.js', location.href).href.split('?')[0]}?t='+Date.now();document.body.appendChild(s);})();`;
+  function importCard(saved) {
+    const run = IMP.on && !IMP.done;
+    const pct = IMP.done ? 100 : IMP.done === null && IMP.got ? Math.min(99, 100 * IMP.got / Math.max(IMP.got, (IMP.total || IMP.got))) : 0;
+    return `<div class="adv-card adv-imp"><h3><i class="bi bi-cloud-arrow-down"></i> سحب خطط طلابي من بوابة الجامعة ${saved ? `<span class="badge text-bg-light border">${saved} خطة محفوظة على هذا الجهاز</span>` : ''}</h3>
+      ${IMP.on ? `<div class="adv-prog"><div class="d-flex justify-content-between"><b>${IMP.done ? (IMP.done.stopped ? 'أُوقف السحب' : '✓ اكتمل السحب') : 'جارٍ السحب من البوابة…'}</b><span>${IMP.ok} مطابقة${IMP.warn ? ` · ${IMP.warn} بتنبيه` : ''}${IMP.bad ? ` · ${IMP.bad} تعذّرت` : ''}${IMP.done ? ` من ${IMP.done.total}` : ''}</span></div>
+        <div class="adv-pbar"><i style="width:${IMP.done ? 100 : Math.min(98, IMP.got * 1.2)}%" class="${IMP.done ? 'done' : 'run'}"></i></div>
+        <div class="adv-src">${run ? `آخر خطة: ${esc(IMP.last)} — تابع التقدم التفصيلي في تبويب البوابة.` : ''}${IMP.list.length ? `<details><summary>ما تعذّر (${IMP.list.length})</summary>${IMP.list.map(esc).join('<br>')}</details>` : ''}</div></div>` : ''}
+      <ol class="adv-steps">
+        <li><span>1</span><div><b>مرة واحدة فقط:</b> اسحب هذا الزر بالفأرة إلى شريط المفضلة في متصفحك <a class="adv-bm" href="${BM()}" title="اسحبه إلى شريط المفضلة"><i class="bi bi-bookmark-star"></i> سحب الخطط</a>
+          <div class="adv-src">لا يظهر شريط المفضلة؟ اضغط Ctrl+Shift+B (أو ⌘+Shift+B على Mac).</div></div></li>
+        <li><span>2</span><div>افتح <a href="${PORTAL}/staff/studentPlan" target="_blank" rel="noopener"><b>بوابة المدرس</b></a> وسجّل الدخول كالمعتاد باسم المستخدم وكلمة المرور.</div></li>
+        <li><span>3</span><div>اضغط «سحب الخطط» في شريط المفضلة، ثم <b>«تأكيد وابدأ السحب»</b>. تُسحب خطة كل طالب مسند إليك كما تطبعها البوابة، وتظهر هنا أولاً بأول مع شريط التقدم، ويصلك تنبيه عند الانتهاء.</div></li></ol>
+      <div class="adv-note"><i class="bi bi-shield-lock"></i> تسجيل الدخول يتم في بوابة الجامعة نفسها؛ لا يرى هذا الموقع اسم المستخدم ولا كلمة المرور ولا يحفظهما ولا يستخدمهما. تُنقل الخطط من صفحة البوابة إلى هذه الصفحة داخل متصفحك مباشرة، وتُحفظ على هذا الجهاز فقط فلا تحتاج إلى سحبها مرة أخرى. يُتحقق من كل خطة: رقم الطالب ومعدله يطابقان قائمة البوابة، وساعات كل مجموعة تطابق المطبوع في الخطة.</div>
+      ${saved ? `<div class="d-flex flex-wrap gap-2 mt-2 no-print"><button type="button" class="btn btn-sm btn-outline-danger" id="adv-clear"><i class="bi bi-trash"></i> حذف الخطط المحفوظة من هذا الجهاز</button>${!window.Notification || Notification.permission === 'granted' ? '' : '<button type="button" class="btn btn-sm btn-light border" id="adv-notif"><i class="bi bi-bell"></i> نبّهني عند انتهاء السحب</button>'}</div>`
+        : (!window.Notification || Notification.permission === 'granted' ? '' : '<button type="button" class="btn btn-sm btn-light border mt-2 no-print" id="adv-notif"><i class="bi bi-bell"></i> نبّهني عند انتهاء السحب</button>')}</div>`;
+  }
+  let SAVED = 0;
+
   // ---------------------------------------------------------------- view: the advisor's board (many students)
   function boardView() {
     const rows = BOARD.map(s => {
@@ -681,9 +774,9 @@
     const D = Object.values(demand).sort((x, y) => y.grad - x.grad || y.n - x.n);
     const filt = st.boardFilter || 'all';
     const show = filt === 'grad' ? grad : filt === 'warn' ? warned : filt === 'weak' ? weak : rows;
-    return `<div class="adv-card"><h3><i class="bi bi-people"></i> لوحة المرشد: عدة طلبة معاً</h3>
+    return `${importCard(SAVED || BOARD.filter(s => s.stored).length)}<div class="adv-card"><h3><i class="bi bi-people"></i> أو ارفع ملفات الخطط يدوياً</h3>
       <label class="adv-drop d-block" id="adv-drop"><i class="bi bi-files"></i><div class="fw-bold mt-1">اختر ملفات «تحليل خطة الطالب» لطلبتك (PDF، أكثر من ملف) أو اسحبها إلى هنا</div>
-        <div class="adv-note mt-1">تُقرأ في هذا المتصفح فقط، ولا تُحفظ: تختفي عند إغلاق الصفحة.</div><input type="file" accept="application/pdf,.pdf" id="adv-file" multiple hidden></label><div id="adv-msg" class="mt-2"></div></div>
+        <div class="adv-note mt-1">تُقرأ في هذا المتصفح فقط وتُحفظ على هذا الجهاز.</div><input type="file" accept="application/pdf,.pdf" id="adv-file" multiple hidden></label><div id="adv-msg" class="mt-2"></div></div>
       ${rows.length ? `<div class="adv-stats mb-3">
         <div class="adv-stat"><div class="v">${rows.length}</div><div class="l">طالباً</div></div>
         <div class="adv-stat good"><div class="v">${grad.length}</div><div class="l">متوقع تخرجهم (≤ 21 ساعة)</div></div>
@@ -696,7 +789,7 @@
         <div class="table-responsive"><table class="adv-t"><thead><tr><th>الطالب</th><th>التخصص</th><th>المعدل</th><th>مجتازة</th><th>متبقية</th><th>مسجلة الآن</th><th>الحالة</th><th>إجبارية غير مطروحة</th><th class="no-print"></th></tr></thead><tbody>
         ${show.map(r => `<tr><td><b>${esc(r.s.head.name || '')}</b><div class="adv-src">${esc(r.s.head.id || '')}</div></td><td><small>${esc(r.s.head.major || '')} (${esc(r.s.version)})</small></td>
           <td class="${r.a.warned ? 'adv-bad fw-bold' : ''}">${r.s.gpa != null ? r.s.gpa.toFixed(2) : '—'}</td><td>${r.s.passedHours ?? ''}</td><td>${r.a0.remainingNow}</td><td>${r.a.current.size}</td>
-          <td>${r.lim.grad ? '<span class="adv-chip unlock">متوقع تخرجه</span>' : ''}${r.a.warned ? '<span class="adv-chip retake">منذر</span>' : ''}${r.weak ? '<span class="adv-chip req">متعثر</span>' : ''}${r.failedNow ? `<span class="adv-chip closed">${r.failedNow} مادة لم ينجح بها بعد</span>` : ''}</td>
+          <td>${r.lim.grad ? '<span class="adv-chip unlock">متوقع تخرجه</span>' : ''}${r.a.warned ? '<span class="adv-chip retake">منذر</span>' : ''}${r.weak ? '<span class="adv-chip req">متعثر</span>' : ''}${(r.s.warn || []).length ? `<span class="adv-chip closed" title="${esc(r.s.warn.join('، '))}">⚠ رقم لا يطابق الكشف</span>` : ''}${r.failedNow ? `<span class="adv-chip closed">${r.failedNow} مادة لم ينجح بها بعد</span>` : ''}</td>
           <td>${r.reqNotOff.map(c => `<code title="${esc(c.name)}">${c.code}</code>`).join(' ') || '—'}</td>
           <td class="no-print"><button type="button" class="btn btn-sm btn-light" data-open="${esc(r.s.head.id)}">افتح</button></td></tr>`).join('')}</tbody></table></div></div>
       <div class="adv-card"><h3><i class="bi bi-bar-chart-line"></i> الطلب المتوقع على المواد في الفصل القادم <span class="badge text-bg-light border">${D.length}</span></h3>
@@ -845,6 +938,9 @@
     document.querySelectorAll('[data-bf]').forEach(b => b.addEventListener('click', () => { st.boardFilter = b.dataset.bf; render(); }));
     document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => { STUD = BOARD.find(s => s.head.id === b.dataset.open) || STUD; st.view = 'student'; st.force.clear(); st.drop.clear(); st.cap = null; render(); scrollTo(0, 0); }));
     on('#adv-bcsv', 'click', boardCsv);
+    on('#adv-clear', 'click', async () => { if (!confirm('حذف كل الخطط المحفوظة على هذا الجهاز؟')) return; await storedClear(); BOARD = []; SAVED = 0; render(); });
+    on('#adv-notif', 'click', async () => { try { await Notification.requestPermission(); } catch (e) { /* not supported */ } render(); });
+    document.querySelectorAll('.adv-bm').forEach(a => a.addEventListener('click', ev => { ev.preventDefault(); U.modal('اسحب الزر، لا تضغطه', '<p>هذا الزر يعمل من شريط المفضلة وهو في صفحة بوابة المدرس. اسحبه بالفأرة (اضغط عليه مطولاً ثم حرّكه) إلى شريط المفضلة أعلى المتصفح، ثم افتح البوابة وسجّل الدخول واضغطه هناك.</p>'); }));
     on('#adv-prog', 'change', e => { st.fresh.prog = e.target.value; render(); });
     document.querySelectorAll('[data-rem]').forEach(b => b.addEventListener('change', () => { st.fresh[b.dataset.rem] = b.checked; render(); }));
     const dq = $('#adv-dq');
@@ -866,7 +962,9 @@
       try {
         const s = await readStudent(f);
         if (!s.ok) { bad.push(f.name); continue; }
-        if (st.view === 'board') { BOARD = BOARD.filter(x => x.head.id !== s.head.id); BOARD.push(s); } else { STUD = s; st.force.clear(); st.drop.clear(); st.cap = null; st.summer = null; st.mode = 'next'; }
+        try { await store({ id: String(s.head.id), meta: { name: s.head.name }, pdf: s._buf, parsed: { ...s, _buf: undefined }, pv: PV, importedAt: new Date().toISOString(), src: 'file', warn: mismatches(s) }); } catch (e) { /* storage unavailable */ }
+        delete s._buf; s.stored = new Date().toISOString(); SAVED = (await storedAll()).length;
+        if (st.view === 'board') addBoard(s); else { STUD = s; st.force.clear(); st.drop.clear(); st.cap = null; st.summer = null; st.mode = 'next'; }
       } catch (e) { bad.push(`${f.name} (${e.message})`); }
     }
     render();
@@ -924,7 +1022,10 @@
       indexData();
       $('#foot-count').textContent = `${S.length} شعبة · ${tt.term}`;
       U.updatedLine(tt.updated, 'الشعب من الجدول الدراسي المنشور، تتحدّث كل ساعة');
+      if (IMP.on) { st.view = 'board'; try { if (window.Notification && Notification.permission === 'default') Notification.requestPermission(); } catch (e) { /* not supported */ } }
       render();
+      dataReady();
+      loadStored().then(n => { SAVED = n; if (n) render(); });
       const top = $('#pg-q');
       if (top) top.addEventListener('keydown', e => { if (e.key === 'Enter') { st.view = 'dict'; st.q = top.value; render(); } });
     }).catch(e => { $('#adv-app').innerHTML = `<div class="alert alert-danger mt-3">تعذّر التحميل (${esc(e.message)}).</div>`; });
