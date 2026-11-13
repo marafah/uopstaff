@@ -1089,7 +1089,10 @@
   }
   // who sits in which room: each room's share of each section, in name order
   function roomStudents(c, rooms) {
-    const mine = (REGMEM && REGMEM.mine[c.code]) || {}, who = (REGMEM && REGMEM.who) || {};
+    const M = (REGMEM && REGMEM.mine) || {}, who = (REGMEM && REGMEM.who) || {};
+    // a part of a course (sat in several sessions by sections): the students of its own sections
+    let mine = M[c.code]; if (!mine && c.base && M[c.base]) { const secs = new Set(c.sl.map(x => String(x.s))); mine = Object.fromEntries(Object.entries(M[c.base]).filter(([, sc]) => secs.has(String(sc)))); }
+    mine = mine || {};
     const pool = {}; Object.entries(mine).forEach(([id, sec]) => (pool[sec] = pool[sec] || []).push(id));
     const byName = (a, b) => (who[a] && who[a].name || '').localeCompare(who[b] && who[b].name || '', 'ar') || a.localeCompare(b);
     Object.values(pool).forEach(v => v.sort(byName));
@@ -2015,6 +2018,7 @@
     }).then(({ by, sec, fac, who, mine, lec }) => {
       sec = sec || {};
       REGMEM = who && mine && Object.keys(who).length ? { who, mine, file: file.name } : null;   // names stay in this page's memory only
+      if (WANT === 'lists') { WANT = null; if (note) note.textContent = ''; if (!REGMEM) throw new Error('لم أجد أسماء طلبة في الملف.'); render(); setTimeout(printLists, 200); return; }   // for the lists: the names only, the plan unchanged
       const studs = Object.keys(by); if (!studs.length) throw new Error('لم أجد طلبة ومقررات معروفة في الملف.');
       // per student the courses with his section («601222#2»): a course sat in parts counts only his part
       const agg = {}, n = {}; let pairs = 0;
@@ -2178,7 +2182,12 @@
       if (t.id === 'ex-rprint' || t.id === 'ex-rxlsx') return repExport(t.id === 'ex-rxlsx');
       if (t.id === 'ex-xlsx') return doXLSX();
       if (t.id === 'ex-csv') return doCSV();
-      if (t.id === 'ex-plists') { if (!REGMEM) { WANT = 'lists'; $('#ex-reg2').click(); } else printLists(); return; }
+      if (t.id === 'ex-plists') { if (REGMEM) { printLists(); return; }
+        U.modal('<i class="bi bi-people-fill"></i> قوائم الطلبة لكل قاعة', `<p>القوائم تُطبع بأسماء الطلبة، والأسماء لا تُحفظ في الخطة. اختر ملف <b>كشف تسجيل الطلبة</b> (الملف نفسه الذي يُرفع في «الإعداد ← بيانات الطلبة»).</p>
+          <p class="small">يُقرأ الملف للأسماء فقط، في هذه الصفحة، ولا يغيّر شيئاً في الخطة. بعد قراءته تُفتح القوائم للطباعة: ورقة لكل قاعة بأسماء طلبتها وشعبهم ومراقبيها.</p>
+          <div class="d-flex gap-2"><button class="btn btn-ex" data-pick><i class="bi bi-file-earmark-arrow-up"></i> اختيار ملف الكشف</button><button class="btn btn-outline-secondary" data-bs-dismiss="modal">إلغاء</button></div>`);
+        document.getElementById('pgModalB').onclick = e => { if (!e.target.closest('[data-pick]')) return; WANT = 'lists'; $('#ex-reg2').click(); bootstrap.Modal.getInstance(document.getElementById('pgModal')).hide(); };
+        return; }
       if (t.id === 'ex-psheets') return printProctors();
       if (t.id === 'ex-prep') return procReport();
       if (t.id === 'ex-publish') return publish();
