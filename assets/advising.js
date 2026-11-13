@@ -1164,6 +1164,7 @@
 
   // ---------------------------------------------------------------- page frame and events
   function render() {
+    if (st.view === 'student' && !STUD) st.view = 'board';   // a student's analysis opens from the students list
     const nDemand = BOARD.length ? new Set(dashRows().flatMap(r => r.ready.map(c => c.code))).size : 0;
     const tabs = [['board', 'bi-people', `الطلاب${BOARD.length ? ` <em>${BOARD.length}</em>` : ''}`], ['demand', 'bi-bar-chart-line', `المواد المطلوبة${nDemand ? ` <em>${nDemand}</em>` : ''}`],
       ['fresh', 'bi-stars', 'طالب جديد'], ['dict', 'bi-book-half', 'قاموس المواد'], ['rules', 'bi-bank', 'القواعد الرسمية']];
