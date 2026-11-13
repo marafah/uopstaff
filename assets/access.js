@@ -1,4 +1,4 @@
-/* «المسار الميسّر» (access.html): the university's official accessible route on campus.
+/* «مسار ذوي الإعاقة» (access.html): the university's official accessible route on campus.
    data/campus_access.json holds the route the university drew on its campus plan for people with disabilities (the red
    «Disable arrow towards buildings»), read into a network of points and lines on the plan image, with each numbered
    building and its accessible entrance, the gates and the parking for disabilities. Lines marked «link» join a gate or a
@@ -82,7 +82,7 @@
   function steps(r) {
     const out = [], fr = placeOf(st.from), to = placeOf(st.to);
     out.push(['bi-geo-alt-fill', 'ابدأ من', fr.ar + (fr.kind === 'b' ? ' (مدخله الميسّر)' : '')]);
-    if (r.link) out.push(['bi-signpost', 'اتجه إلى', 'أقرب نقطة على المسار الميسّر (الوصلة المنقّطة ليست مرسومة في المخطط)']);
+    if (r.link) out.push(['bi-signpost', 'اتجه إلى', 'أقرب نقطة على مسار ذوي الإعاقة (الوصلة المنقّطة ليست مرسومة في المخطط)']);
     const passed = []; r.nodes.slice(1, -1).forEach(n => A.buildings.filter(b => b.node === n && b !== (to && to.b)).forEach(b => passed.push(b)));
     if (passed.length) out.push(['bi-arrow-left-circle', 'تمرّ بمداخل', passed.map(b => `${b.n} ${b.ar}`).join('، ')]);
     out.push(['bi-flag-fill', 'تصل إلى', `المدخل الميسّر لـ ${to.ar}`]);
@@ -98,11 +98,11 @@
     const q = U.norm(st.q || ''), list = A.buildings.filter(b => !q || U.norm(b.ar + ' ' + b.en + ' ' + b.n).includes(q));
     app.classList.toggle('ac-bigt', !!st.L.big); app.classList.toggle('ac-hc', !!st.L.hc);   // keep the page's own classes (container, padding)
     app.innerHTML = `<div class="ac-head">
-        <div class="ac-title"><span class="ac-ico">♿</span><div><h2>المسار الميسّر في الحرم</h2><p>مسار ذوي الإعاقة الذي اعتمدته الجامعة على مخطط الحرم: من البوابات ومواقف ذوي الإعاقة إلى المدخل الميسّر لكل مبنى.</p></div></div>
+        <div class="ac-title"><span class="ac-ico">♿</span><div><h2>مسار ذوي الإعاقة في الحرم</h2><p>مسار ذوي الإعاقة الذي اعتمدته الجامعة على مخطط الحرم: من البوابات ومواقف ذوي الإعاقة إلى المدخل الميسّر لكل مبنى.</p></div></div>
         <div class="ac-kpis">${[['bi-building-check', A.buildings.filter(served).length + ' من ' + A.buildings.length, 'مبنى يخدمه المسار'], ['bi-rulers', 'حوالي ' + (Math.round(total * A.mpp / 50) * 50) + ' م', 'طول المسار'], ['bi-p-square', A.points.filter(p => p.kind === 'park').length, 'موقفان لذوي الإعاقة'], ['bi-door-open', A.points.filter(p => p.kind === 'gate').length, 'بوابات']].map(([i, v, l]) => `<div><i class="bi ${i}"></i><b>${v}</b><span>${l}</span></div>`).join('')}</div></div>
       <div class="ac-grid">
         <aside class="ac-side">
-          <section class="ac-card"><h3><i class="bi bi-signpost-split-fill"></i> خطّط مساراً ميسّراً</h3>
+          <section class="ac-card"><h3><i class="bi bi-signpost-split-fill"></i> خطّط مساراً لذوي الإعاقة</h3>
             <label>من<select class="form-select" id="ac-from">${opts(st.from, true, true)}</select></label>
             <button type="button" class="ac-swap" id="ac-swap" title="عكس الاتجاه" aria-label="عكس الاتجاه"><i class="bi bi-arrow-down-up"></i></button>
             <label>إلى<select class="form-select" id="ac-to"><option value="">— اختر المبنى —</option>${opts(st.to, true, false)}</select></label>
@@ -110,7 +110,7 @@
               <ol class="ac-steps">${steps(r).map(([i, t, v]) => `<li><i class="bi ${i}"></i><span><small>${t}</small>${esc(v)}</span></li>`).join('')}</ol>
               <div class="ac-acts no-print"><button type="button" class="btn btn-sm btn-maroon" id="ac-print"><i class="bi bi-printer"></i> طباعة المسار</button><button type="button" class="btn btn-sm btn-light border" id="ac-copy"><i class="bi bi-link-45deg"></i> نسخ الرابط</button>${'speechSynthesis' in window ? '<button type="button" class="btn btn-sm btn-light border" id="ac-say"><i class="bi bi-volume-up"></i> اقرأ المسار</button>' : ''}
                 ${to && to.b ? `<a class="btn btn-sm btn-light border" href="campus.html?b=${encodeURIComponent(to.b.site)}"><i class="bi bi-map"></i> المبنى على خريطة الحرم</a><a class="btn btn-sm btn-light border" href="campus.html?b=${encodeURIComponent(to.b.site)}&tool=access"><i class="bi bi-layers"></i> طوابقه وقاعاته الأرضية</a>` : ''}</div>`
-              : st.to && fr && to ? '<div class="ac-warn"><i class="bi bi-exclamation-triangle-fill"></i> لا يصل المسار الميسّر بين النقطتين في المخطط.</div>' : '<p class="ac-hint">اختر المبنى الذي تريده؛ يُرسم أقصر طريق على المسار الميسّر من نقطة البداية إلى مدخله الميسّر.</p>'}</section>
+              : st.to && fr && to ? '<div class="ac-warn"><i class="bi bi-exclamation-triangle-fill"></i> لا يصل مسار ذوي الإعاقة بين النقطتين في المخطط.</div>' : '<p class="ac-hint">اختر المبنى الذي تريده؛ يُرسم أقصر طريق على مسار ذوي الإعاقة من نقطة البداية إلى مدخله الميسّر.</p>'}</section>
           <section class="ac-card"><h3><i class="bi bi-buildings"></i> المباني على المسار <span class="ac-n">${A.buildings.length}</span></h3>
             <input type="search" class="form-control form-control-sm mb-2" id="ac-q" placeholder="ابحث عن مبنى…" value="${esc(st.q)}">
             <div class="ac-blist">${list.map(b => { const g = served(b) && nearestGate(b);
@@ -121,13 +121,13 @@
             <p>الوصلات المنقّطة من البوابات والمواقف إلى المسار ليست في المخطط، وتدل على أقرب نقطة فقط. للطوابق والقاعات الأرضية في كل مبنى: <a href="campus.html?tool=access">الوصول الميسّر في خريطة الحرم</a>.</p>
             <div class="ac-acts no-print"><a class="btn btn-sm btn-light border" href="campus.html?tool=fix"><i class="bi bi-tools"></i> أبلغ عن عائق على المسار</a><button type="button" class="btn btn-sm btn-light border" id="ac-sheet"><i class="bi bi-file-earmark-text"></i> مخطط المسار للطباعة</button><button type="button" class="btn btn-sm btn-light border" id="ac-qr"><i class="bi bi-qr-code"></i> ملصقات QR «أنت هنا»</button></div></section>
         </aside>
-        <section class="ac-mapc"><div class="ac-map" id="ac-map" tabindex="0" aria-label="مخطط الحرم مع المسار الميسّر">
+        <section class="ac-mapc"><div class="ac-map" id="ac-map" tabindex="0" aria-label="مخطط الحرم مع مسار ذوي الإعاقة">
             <div id="ac-in" class="${st.L.dim ? 'dim' : ''}"><img src="${A.image}" alt="مخطط الحرم الجامعي – مسار ذوي الاحتياجات الخاصة" width="${W}" height="${H}" draggable="false"><svg viewBox="0 0 ${W} ${H}" id="ac-svg">${svg(r)}</svg></div>
             <div class="ac-zoom no-print"><button type="button" data-z="in" title="تكبير" aria-label="تكبير"><i class="bi bi-plus-lg"></i></button><button type="button" data-z="out" title="تصغير" aria-label="تصغير"><i class="bi bi-dash-lg"></i></button><button type="button" data-z="fit" title="المخطط كاملاً" aria-label="المخطط كاملاً"><i class="bi bi-arrows-fullscreen"></i></button></div>
             <div class="ac-north" title="الشمال"><i class="bi bi-arrow-up"></i><span>ش</span></div>
             <div class="ac-tools no-print"><button type="button" id="ac-fs" title="ملء الشاشة" aria-label="ملء الشاشة"><i class="bi ${document.fullscreenElement ? 'bi-fullscreen-exit' : 'bi-fullscreen'}"></i></button><button type="button" id="ac-big" class="${st.L.big ? 'on' : ''}" title="خط أكبر" aria-label="خط أكبر"><i class="bi bi-type"></i></button><button type="button" id="ac-hc" class="${st.L.hc ? 'on' : ''}" title="تباين عالٍ" aria-label="تباين عالٍ"><i class="bi bi-circle-half"></i></button></div>
 </div>
-          <div class="ac-legend">${[['ac-l-net', 'المسار الميسّر (من المخطط)'], ['ac-l-route', 'مسارك'], ['ac-l-link', 'وصلة إلى المسار (ليست في المخطط)'], ['ac-l-ent', 'مدخل ميسّر'], ['ac-l-park', 'موقف ذوي الإعاقة'], ['ac-l-gate', 'بوابة'], ['ac-l-b', 'رقم المبنى في المخطط']].map(([c, t]) => `<span><i class="${c}"></i>${t}</span>`).join('')}</div>
+          <div class="ac-legend">${[['ac-l-net', 'مسار ذوي الإعاقة (من المخطط)'], ['ac-l-route', 'مسارك'], ['ac-l-link', 'وصلة إلى المسار (ليست في المخطط)'], ['ac-l-ent', 'مدخل ميسّر'], ['ac-l-park', 'موقف ذوي الإعاقة'], ['ac-l-gate', 'بوابة'], ['ac-l-b', 'رقم المبنى في المخطط']].map(([c, t]) => `<span><i class="${c}"></i>${t}</span>`).join('')}</div>
           <div class="ac-layers no-print">${[['names', 'أسماء المباني'], ['route', 'المسار'], ['ent', 'المداخل'], ['pts', 'المواقف والبوابات'], ['nums', 'أرقام المباني'], ['dim', 'تخفيف خلفية المخطط']].map(([k, t]) => `<label><input type="checkbox" data-l="${k}" ${st.L[k] || (k === 'names' && st.L.names !== false) ? 'checked' : ''}> ${t}</label>`).join('')}</div></section></div>`;
     bind(r);
     const url = new URL(location.href); url.searchParams.set('from', st.from); if (st.to) url.searchParams.set('to', st.to); else url.searchParams.delete('to'); history.replaceState(null, '', url);
@@ -159,7 +159,7 @@
     $('#ac-hc').onclick = () => { st.L.hc = !st.L.hc; saveL(); render(); };
     $('#ac-fs').onclick = () => { const c = $('.ac-mapc'); if (document.fullscreenElement) document.exitFullscreen(); else if (c.requestFullscreen) c.requestFullscreen(); };
     const say = $('#ac-say'); if (say) say.onclick = () => { speechSynthesis.cancel(); const fr = placeOf(st.from), to = placeOf(st.to);
-      const u = new SpeechSynthesisUtterance(`المسار الميسّر من ${fr.ar} إلى ${to.ar}: حوالي ${M(r.px)} متر، ${mins(M(r.px))} دقائق بالكرسي المتحرك. ` + steps(r).map(([, t, v]) => `${t} ${v}`).join('. '));
+      const u = new SpeechSynthesisUtterance(`مسار ذوي الإعاقة من ${fr.ar} إلى ${to.ar}: حوالي ${M(r.px)} متر، ${mins(M(r.px))} دقائق بالكرسي المتحرك. ` + steps(r).map(([, t, v]) => `${t} ${v}`).join('. '));
       u.lang = 'ar'; speechSynthesis.speak(u); };
     $('#ac-qr').onclick = qrSheet;
     $('#ac-sheet').onclick = () => sheet(null);
@@ -174,12 +174,12 @@
   function sheet(r) {
     const fr = placeOf(st.from), to = placeOf(st.to);
     const map = `<div style="position:relative;border:1px solid #c9c1ae;border-radius:6px;overflow:hidden"><svg viewBox="${A.view[0]} ${A.view[1]} ${A.view[2] - A.view[0]} ${A.view[3] - A.view[1]}" style="width:100%;display:block"><image href="${SITE + A.image}" width="${W}" height="${H}"/>${svg(r, { print: true })}</svg></div>
-      <style>.ac-net{fill:none;stroke:#6d28d9;stroke-width:4;stroke-dasharray:9 6}.ac-case{fill:none;stroke:#fff;stroke-width:8}.ac-link{fill:none;stroke:#64748b;stroke-width:2.5;stroke-dasharray:2 5}.ac-route{fill:none;stroke:#1d4ed8;stroke-width:6}.ac-rcase{fill:none;stroke:#fff;stroke-width:11}
+      <style>.ac-net{fill:none;stroke:#dc2626;stroke-width:4;stroke-dasharray:9 6}.ac-case{fill:none;stroke:#fff;stroke-width:8}.ac-link{fill:none;stroke:#64748b;stroke-width:2.5;stroke-dasharray:2 5}.ac-route{fill:none;stroke:#991b1b;stroke-width:6}.ac-rcase{fill:none;stroke:#fff;stroke-width:11}
       .ac-ent circle{fill:#1d4ed8;stroke:#fff;stroke-width:2}.ac-ent text{fill:#fff;font-size:10px;text-anchor:middle}.ac-park rect{fill:#0b4a66;stroke:#fff;stroke-width:2}.ac-park text{fill:#fff;font-size:9px;font-weight:700;text-anchor:middle}
       .ac-gate path{fill:#1e3a8a;stroke:#fff;stroke-width:2}.ac-gate text{fill:#fff;font-size:10px;font-weight:700;text-anchor:middle}.ac-b circle{fill:#901d23;stroke:#fff;stroke-width:2.5}.ac-b text{fill:#fff;font-size:13px;font-weight:700;text-anchor:middle}.ac-b.to circle{fill:#15803d}.ac-nm rect{fill:#fff;stroke:#901d23;stroke-width:1.2}.ac-nm text{fill:#111!important;font-size:11px!important}.ac-pin.a circle{fill:#15803d;stroke:#fff;stroke-width:3}.ac-pin.z path{fill:#b42318;stroke:#fff;stroke-width:2}</style>`;
-    const legend = '<p style="font-size:9pt;margin:6px 0 0">الخط البنفسجي المتقطّع: المسار الميسّر كما في مخطط الجامعة · الأزرق: المسار المختار · ♿ مدخل ميسّر · P♿ موقف ذوي الإعاقة · ▲ بوابة · الدوائر الخمرية: أرقام المباني في المخطط · المنقّط الرمادي: وصلة إلى المسار ليست في المخطط.</p>';
+    const legend = '<p style="font-size:9pt;margin:6px 0 0">الخط الأحمر المتقطّع: مسار ذوي الإعاقة كما في مخطط الجامعة · الأحمر الداكن المتصل: المسار المختار · ♿ مدخل ميسّر · P♿ موقف ذوي الإعاقة · ▲ بوابة · الدوائر الخمرية: أرقام المباني في المخطط · المنقّط الرمادي: وصلة إلى المسار ليست في المخطط.</p>';
     const rows = A.buildings.map(b => { const g = served(b) && nearestGate(b); return [b.n, b.ar, b.en, served(b) ? 'نعم' : 'لا', g ? `${M(g.r.px)} م من ${g.g.ar}` : '—']; });
-    window.printReport({ title: r ? 'المسار الميسّر: ' + fr.ar + ' ← ' + to.ar : 'المسار الميسّر لذوي الإعاقة في الحرم الجامعي', subtitle: A.source, orientation: 'landscape', fit: true, url: location.href, qrLabel: 'المسار على الموقع',
+    window.printReport({ title: r ? 'مسار ذوي الإعاقة: ' + fr.ar + ' ← ' + to.ar : 'مسار ذوي الإعاقة في الحرم الجامعي', subtitle: A.source, orientation: 'landscape', fit: true, url: location.href, qrLabel: 'المسار على الموقع',
       stats: r ? [['طول المسار', M(r.px) + ' م'], ['بالكرسي المتحرك', mins(M(r.px)) + ' دقائق'], ['مشياً', walk(M(r.px)) + ' دقائق']] : [['مبانٍ يخدمها المسار', A.buildings.filter(served).length], ['مواقف ذوي الإعاقة', A.points.filter(p => p.kind === 'park').length], ['البوابات', A.points.filter(p => p.kind === 'gate').length]],
       raw: map + legend + (r ? `<h3 class="sec">خطوات المسار</h3><ol>${steps(r).map(([, t, v]) => `<li><b>${t}:</b> ${esc(v)}</li>`).join('')}</ol>` : ''),
       sections: r ? [] : [{ title: 'المباني والمداخل الميسّرة', columns: ['الرقم', 'المبنى', 'Building', 'مدخل على المسار', 'أقرب بوابة'], widths: ['7%', '30%', '33%', '12%', '18%'], numCols: [0], rows }],
@@ -189,10 +189,10 @@
   function qrSheet() {
     const qr = link => { if (!window.qrcode) return ''; const x = window.qrcode(0, 'M'); x.addData(link); x.make(); return x.createSvgTag({ cellSize: 5, margin: 1, scalable: true }); };
     const items = A.points.map(p => [p.kind + ':' + p.id, p.ar, p.kind === 'park' ? 'P♿' : '▲ ' + p.id]);
-    window.printReport({ title: 'ملصقات «أنت هنا» على المسار الميسّر', subtitle: 'تُثبَّت عند البوابات ومواقف ذوي الإعاقة: مسح الرمز يفتح المسار الميسّر من هذه النقطة إلى أي مبنى', orientation: 'portrait', fit: false, qr: false,
+    window.printReport({ title: 'ملصقات «أنت هنا» على مسار ذوي الإعاقة', subtitle: 'تُثبَّت عند البوابات ومواقف ذوي الإعاقة: مسح الرمز يفتح مسار ذوي الإعاقة من هذه النقطة إلى أي مبنى', orientation: 'portrait', fit: false, qr: false,
       raw: `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px">${items.map(([k, n, ic]) => `<div style="border:2px solid #1d4ed8;border-radius:12px;padding:14px;text-align:center;page-break-inside:avoid">
         <div style="font-size:30pt;color:#1d4ed8">♿</div><div style="font-size:15pt;font-weight:800">أنت هنا: ${esc(n)}</div><div style="width:52%;margin:10px auto">${qr(SITE + 'access.html?from=' + encodeURIComponent(k))}</div>
-        <div style="font-size:11pt">امسح الرمز لأقصر مسار ميسّر إلى المدخل الميسّر لأي مبنى</div><div style="font-size:9pt;color:#555;margin-top:4px">${esc(ic)} · ${esc(SITE)}access.html</div></div>`).join('')}</div>`,
+        <div style="font-size:11pt">امسح الرمز لأقصر مسار لذوي الإعاقة إلى المدخل الميسّر لأي مبنى</div><div style="font-size:9pt;color:#555;margin-top:4px">${esc(ic)} · ${esc(SITE)}access.html</div></div>`).join('')}</div>`,
       note: 'المسار من مخطط الجامعة لمسار ذوي الاحتياجات الخاصة.' });
   }
   U.getJSON('data/campus_access.json').then(d => {
@@ -220,9 +220,9 @@
     #ac-in { position: absolute; top: 0; left: 0; width: 100%; transform-origin: 0 0; } #ac-in img { width: 100%; height: auto; display: block; user-select: none; } #ac-in.dim img { opacity: .45; filter: grayscale(.6); }
     #ac-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
     #ac-svg polyline { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-    .ac-case { stroke: #fff; stroke-width: calc(7px * var(--k,1)); } .ac-net { stroke: #6d28d9; stroke-width: calc(3.5px * var(--k,1)); stroke-dasharray: 9 6; animation: acDash 1.6s linear infinite; }
+    .ac-case { stroke: #fff; stroke-width: calc(7px * var(--k,1)); } .ac-net { stroke: #dc2626; stroke-width: calc(3.5px * var(--k,1)); stroke-dasharray: 9 6; animation: acDash 1.6s linear infinite; }
     .ac-link { stroke: #64748b; stroke-width: calc(2.5px * var(--k,1)); stroke-dasharray: 2 5; }
-    .ac-rcase { stroke: #fff; stroke-width: calc(11px * var(--k,1)); filter: drop-shadow(0 1px 3px rgba(0,0,0,.5)); } .ac-route { stroke: #1d4ed8; stroke-width: calc(6px * var(--k,1)); stroke-dasharray: 14 8; animation: acDash .9s linear infinite; }
+    .ac-rcase { stroke: #fff; stroke-width: calc(11px * var(--k,1)); filter: drop-shadow(0 1px 3px rgba(0,0,0,.5)); } .ac-route { stroke: #991b1b; stroke-width: calc(7px * var(--k,1)); stroke-dasharray: none; animation: acDash .9s linear infinite; }
     @keyframes acDash { to { stroke-dashoffset: -30; } }
     @media (prefers-reduced-motion: reduce) { .ac-net, .ac-route { animation: none; } }
     .ac-ent circle { fill: #1d4ed8; stroke: #fff; stroke-width: 2; } .ac-ent text { fill: #fff; font-size: 9.5px; text-anchor: middle; pointer-events: none; } .ac-ent.on circle { fill: #15803d; }
@@ -234,7 +234,7 @@
     .ac-zoom { position: absolute; top: 10px; left: 10px; display: grid; gap: 6px; } .ac-zoom button { width: 38px; height: 38px; border-radius: 10px; border: 1px solid #d9d3c3; background: #fff; font-size: 1.05rem; box-shadow: 0 2px 6px rgba(0,0,0,.1); }
     .ac-north { position: absolute; top: 10px; right: 10px; background: #fff; border: 1px solid #d9d3c3; border-radius: 10px; padding: 4px 8px; text-align: center; line-height: 1.1; font-weight: 700; }
     .ac-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: .86rem; } .ac-legend span { display: inline-flex; gap: 6px; align-items: center; }
-    .ac-legend i { display: inline-block; width: 26px; height: 0; border-top: 4px dashed #6d28d9; } .ac-legend i.ac-l-route { border-top: 5px solid #1d4ed8; } .ac-legend i.ac-l-link { border-top: 3px dotted #64748b; }
+    .ac-legend i { display: inline-block; width: 26px; height: 0; border-top: 4px dashed #dc2626; } .ac-legend i.ac-l-route { border-top: 6px solid #991b1b; } .ac-legend i.ac-l-link { border-top: 3px dotted #64748b; }
     .ac-legend i.ac-l-ent, .ac-legend i.ac-l-park, .ac-legend i.ac-l-gate, .ac-legend i.ac-l-b { width: 16px; height: 16px; border: 0; border-radius: 50%; background: #1d4ed8; }
     .ac-legend i.ac-l-park { border-radius: 4px; background: #0b4a66; } .ac-legend i.ac-l-gate { border-radius: 0; background: #1e3a8a; clip-path: polygon(50% 0, 100% 100%, 0 100%); } .ac-legend i.ac-l-b { background: #901d23; }
     .ac-layers { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #eee; font-size: .88rem; } .ac-layers input { accent-color: #901d23; }
@@ -268,7 +268,7 @@
     .ac-mapc:fullscreen { padding: 0; border-radius: 0; } .ac-mapc:fullscreen .ac-map { height: 100vh; border-radius: 0; } .ac-mapc:fullscreen .ac-legend, .ac-mapc:fullscreen .ac-layers { display: none; }
     #ac-app.ac-bigt { font-size: 1.15rem; } #ac-app.ac-bigt .ac-card label, #ac-app.ac-bigt .ac-steps li, #ac-app.ac-bigt .ac-key-b b { font-size: 1.05rem; }
     #ac-app.ac-hc .ac-card, #ac-app.ac-hc .ac-mapc, #ac-app.ac-hc .ac-key { border: 2px solid #000; } #ac-app.ac-hc #ac-in img { filter: grayscale(1) contrast(.8) brightness(1.15); }
-    #ac-app.ac-hc .ac-net { stroke: #000; stroke-width: calc(5px * var(--k,1)); } #ac-app.ac-hc .ac-route { stroke: #0033ff; stroke-width: calc(8px * var(--k,1)); } #ac-app.ac-hc .ac-ok { color: #0033ff; }
+    #ac-app.ac-hc .ac-net { stroke: #000; stroke-width: calc(5px * var(--k,1)); } #ac-app.ac-hc .ac-route { stroke: #7f1d1d; stroke-width: calc(8px * var(--k,1)); } #ac-app.ac-hc .ac-ok { color: #0033ff; }
     .ac-note p { font-size: .9rem; line-height: 1.8; margin-bottom: 8px; }
     @media print { .ac-zoom, .ac-layers { display: none !important; } }
   </style>`);

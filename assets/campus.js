@@ -150,7 +150,7 @@
           <button type="button" id="cm-panel" class="cm-fs-only" title="إخفاء القائمة"><i class="bi bi-layout-sidebar-inset-reverse"></i></button></div>
         <div class="cm-layers" id="cm-layers" hidden><b>ما يظهر على الخريطة</b>${[['nums', 'bi-123', 'أرقام المباني'], ['names', 'bi-fonts', 'أسماء المباني'], ['heat', 'bi-thermometer-half', 'ألوان الانشغال'], ['count', 'bi-broadcast', 'عدد المحاضرات الجارية'], ['faces', 'bi-people', 'وجوه القيادات على المباني'],
           ['oh', 'bi-person-raised-hand', 'في الساعات المكتبية الآن'], ['exams', 'bi-clipboard-check', 'الامتحانات'], ['events', 'bi-calendar-event', 'الفعاليات'],
-          ['gardens', 'bi-tree', 'الحدائق'], ['services', 'bi-signpost-2', 'الخدمات والمواقف'], ['gates', 'bi-door-closed', 'البوابات'], ['acc', 'bi-universal-access', 'المسار الميسّر'], ['safety', 'bi-people-fill', 'نقاط التجمع (مقترحة)']].map(([k, i, t]) =>
+          ['gardens', 'bi-tree', 'الحدائق'], ['services', 'bi-signpost-2', 'الخدمات والمواقف'], ['gates', 'bi-door-closed', 'البوابات'], ['acc', 'bi-universal-access', 'مسار ذوي الإعاقة'], ['safety', 'bi-people-fill', 'نقاط التجمع (مقترحة)']].map(([k, i, t]) =>
           `<label><input type="checkbox" data-l="${k}" ${L[k] ? 'checked' : ''}> <i class="bi ${i}"></i> ${t}</label>`).join('')}
           <label class="cm-size"><i class="bi bi-type"></i> الحجم <input type="range" id="cm-size" min="0.7" max="1.6" step="0.1" value="${L.size}" aria-label="حجم الأرقام والأسماء"></label>
           <button type="button" class="cm-reset" id="cm-reset">الإعدادات الأصلية</button></div>
@@ -1070,8 +1070,8 @@
     if (!ACC.from) ACC.from = here || (C.gates || [])[0];
     const p = C.access ? accPath(ACC.from, ACC.to) : pathTo(ACC.from, ACC.to), u = upper(ACC.to);
     $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'الوصول الميسّر', 'لذوي الإعاقة وكبار السن ومن يحمل أمتعة')}
-      <a class="cm-official" href="access.html?site=${encodeURIComponent(ACC.to.id)}"><span>♿</span><div><b>المسار الميسّر المعتمد من الجامعة</b><small>مسار ذوي الإعاقة على مخطط الحرم: من البوابات ومواقف ذوي الإعاقة إلى المدخل الميسّر لكل مبنى، مع أقصر طريق ووقته</small></div><i class="bi bi-chevron-left"></i></a>
-      ${C.access ? `<p class="cm-note"><i class="bi bi-patch-check-fill" style="color:#1d4ed8"></i> ${esc(C.access.note)}</p>` : proposed('المسار البنفسجي أدناه تقريبي على طرق هذه الخريطة؛ المسار المعتمد في صفحة «المسار الميسّر».')}
+      <a class="cm-official" href="access.html?site=${encodeURIComponent(ACC.to.id)}"><span>♿</span><div><b>مسار ذوي الإعاقة المعتمد من الجامعة</b><small>مسار ذوي الإعاقة على مخطط الحرم: من البوابات ومواقف ذوي الإعاقة إلى المدخل الميسّر لكل مبنى، مع أقصر طريق ووقته</small></div><i class="bi bi-chevron-left"></i></a>
+      ${C.access ? `<p class="cm-note"><i class="bi bi-patch-check-fill" style="color:#1d4ed8"></i> ${esc(C.access.note)}</p>` : proposed('المسار البنفسجي أدناه تقريبي على طرق هذه الخريطة؛ المسار المعتمد في صفحة «مسار ذوي الإعاقة».')}
       <div class="cm-two"><div>${fromSel('cm-afrom', ACC.from)}</div><div>${bSel('cm-ato', ACC.to, 'إلى')}</div></div>
       ${p ? `<div class="cm-facts mt-2"><div><i class="bi bi-signpost-2"></i><span><small>المسار المقترح</small><b>حوالي ${p.m} م · ${U.mins(Math.max(1, Math.round(p.m / 50)))} بالكرسي المتحرك</b><em>على الطرق الداخلية بدل الاختصار عبر الحدائق والدرج</em></span></div></div>` : ''}
       <h3><i class="bi bi-building"></i> ${esc(ACC.to.name)}</h3>
@@ -1788,10 +1788,10 @@
     #cm-svg .cm-evac { stroke: #15803d; stroke-width: 6; stroke-dasharray: 14 9; animation: cmDash 1s linear infinite; }
     .cm-official { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; background: #eff6ff; border: 1px solid #93c5fd; border-radius: 12px; padding: 10px 12px; margin: 8px 0; color: #0f172a; text-decoration: none; }
     .cm-official > span { width: 44px; height: 44px; border-radius: 12px; background: #1d4ed8; color: #fff; font-size: 1.6rem; display: flex; align-items: center; justify-content: center; } .cm-official b { display: block; color: #1d4ed8; } .cm-official small { font-size: .82rem; }
-    #cm-svg .cm-accnet { stroke: #7c3aed; stroke-width: 4; stroke-dasharray: 10 6; } #cm-svg .cm-accspur { stroke: #1d4ed8; stroke-width: 2.5; stroke-dasharray: 3 4; }
+    #cm-svg .cm-accnet { stroke: #dc2626; stroke-width: 4; stroke-dasharray: 10 6; } #cm-svg .cm-accspur { stroke: #1d4ed8; stroke-width: 2.5; stroke-dasharray: 3 4; }
     .cm-accent, .cm-accpark { position: absolute; transform: translate(-50%, -50%); z-index: 3; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; box-shadow: 0 1px 4px rgba(0,0,0,.4); border: 2px solid #fff; pointer-events: auto; }
     .cm-accent { width: 1.35rem; height: 1.35rem; border-radius: 50%; background: #1d4ed8; font-size: .78rem; } .cm-accpark { padding: 0 .3rem; height: 1.35rem; border-radius: 5px; background: #0b4a66; font-size: .66rem; }
-    #cm-svg .cm-access { stroke: #1d4ed8; stroke-width: 6; stroke-dasharray: 12 8; }
+    #cm-svg .cm-access { stroke: #991b1b; stroke-width: 7; stroke-dasharray: none; }
     #cm-svg .cm-net { stroke: #7c3aed; stroke-width: 2; opacity: .45; }
     .cm-pin.mk { box-shadow: 0 0 0 4px #22c55e, 0 3px 10px rgba(0,0,0,.35); }
     .cm-stop { border: 1px solid #ecd5d7; background: #fdf7f7; border-radius: 12px; padding: .65rem .75rem; margin: .6rem 0; }
