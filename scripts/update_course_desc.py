@@ -327,6 +327,15 @@ def main():
     if not docs:
         print("no course description files found; keeping the previous file", file=sys.stderr)
         return
+    # descriptions read from the printed page, also from files read in earlier runs: transcribed exactly by Claude when a key is set
+    for code, L in courses.items():
+        for e in L:
+            if not e.get("clean") and not e.get("ai") and e.get("img") and all(os.path.exists(os.path.join(IMG, n)) for n in e["img"]):
+                sha = (docs.get(e["url"]) or {}).get("sha", "")
+                t = ai_text(e["img"], f"{sha[:12]}-{code}")
+                if t:
+                    e["text"], e["ai"] = t, True
+                    e.pop("ocr", None)
     data = {"updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "parser": VERSION,
             "source": "ملفات «وصف المواد» المنشورة على صفحات الأقسام في مواقع الكليات", "failed": failed,
             "docs": docs, "courses": dict(sorted(courses.items())),
