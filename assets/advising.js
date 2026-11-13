@@ -441,6 +441,31 @@
   .adv-pickst { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
   .adv-pickst button { display: grid; grid-template-columns: 1fr auto; text-align: start; background: #fff; border: 1px solid #e6e1d3; border-radius: 12px; padding: 10px 12px; color: #1f2328; }
   .adv-pickst button:hover { border-color: #901d23; background: #fbf2f3; } .adv-pickst b { grid-column: 1; } .adv-pickst small { grid-column: 1; color: #3b4048; font-size: .78rem; } .adv-pickst span { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-weight: 800; color: #0b4a66; }
+  .dm { color: #111; } .dm-h { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; } .dm-h h3 { margin: 0; color: #111; } .dm-h h3 i { color: #901d23; } .dm-h .btn { margin-inline-start: auto; }
+  .dm-sub { color: #111; font-size: .92rem; margin: 6px 0 10px; }
+  .dm-f { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .dm-chip { border: 2px solid; border-radius: 99px; padding: 5px 14px; font-weight: 700; font-size: .9rem; background: #fff; }
+  .dm-chip b { margin-inline-start: 4px; border-radius: 99px; padding: 0 8px; color: #fff; }
+  .dm-chip.b { border-color: #0b4a66; color: #0b4a66; } .dm-chip.b b { background: #0b4a66; } .dm-chip.b.on { background: #0b4a66; color: #fff; } .dm-chip.b.on b { background: #fff; color: #0b4a66; }
+  .dm-chip.r { border-color: #b42318; color: #b42318; } .dm-chip.r b { background: #b42318; } .dm-chip.r.on { background: #b42318; color: #fff; } .dm-chip.r.on b { background: #fff; color: #b42318; }
+  .dm-chip.g { border-color: #15803d; color: #15803d; } .dm-chip.g b { background: #15803d; } .dm-chip.g.on { background: #15803d; color: #fff; } .dm-chip.g.on b { background: #fff; color: #15803d; }
+  .dm-chip.m { border-color: #901d23; color: #901d23; } .dm-chip.m b { background: #901d23; } .dm-chip.m.on { background: #901d23; color: #fff; } .dm-chip.m.on b { background: #fff; color: #901d23; }
+  .dm-t { width: 100%; border-collapse: separate; border-spacing: 0; font-size: .95rem; color: #111; }
+  .dm-t thead th { background: #0b4a66; color: #fff; font-weight: 800; padding: 10px 10px; white-space: nowrap; text-align: start; }
+  .dm-t thead th:first-child { border-start-start-radius: 10px; } .dm-t thead th:last-child { border-start-end-radius: 10px; }
+  .dm-t td { padding: 9px 10px; border-bottom: 1px solid #e9e4d6; vertical-align: middle; color: #111; }
+  .dm-t tbody tr:nth-child(even) td { background: #fbfaf6; } .dm-t tbody tr:hover td { background: #eef6fb; }
+  .dm-t tr.no td { background: #fff5f4; } .dm-t tr.no:nth-child(even) td { background: #fdeeec; }
+  .dm-t td.n { color: #111; font-weight: 700; width: 36px; } .dm-t td.nm { font-weight: 700; }
+  .dm-code { display: inline-block; font-family: ui-monospace, Consolas, monospace; font-weight: 800; background: #e8f1f7; color: #0b4a66; border: 1px solid #b9d3e4; border-radius: 6px; padding: 1px 8px; }
+  .dm-bar { position: relative; min-width: 120px; height: 24px; background: #edf3ee; border-radius: 6px; overflow: hidden; } .dm-bar i { position: absolute; inset-block: 0; inset-inline-start: 0; background: linear-gradient(90deg,#86efac,#4ade80); }
+  .dm-bar b { position: relative; z-index: 1; padding: 0 8px; line-height: 24px; color: #111; font-weight: 800; }
+  .dm-b { display: inline-flex; align-items: center; gap: 4px; border-radius: 99px; padding: 2px 10px; font-weight: 800; font-size: .85rem; }
+  .dm-b.g { background: #dcfce7; color: #14532d; border: 1px solid #86efac; } .dm-b.m { background: #fde8e8; color: #7a1414; border: 1px solid #f3b4b4; } .dm-b.el { background: #ede9fe; color: #4c1d95; border: 1px solid #c4b5fd; }
+  .dm-z { color: #111; }
+  .dm-s { display: inline-flex; align-items: center; gap: 5px; border-radius: 8px; padding: 3px 10px; font-weight: 700; font-size: .85rem; text-decoration: none; white-space: nowrap; }
+  .dm-s.open { background: #dcfce7; color: #14532d; border: 1px solid #86efac; } .dm-s.closed { background: #ffedd5; color: #7c2d12; border: 1px solid #fdba74; } .dm-s.no { background: #fee2e2; color: #7f1d1d; border: 1px solid #fca5a5; }
+  .dm-s small { font-weight: 600; } .dm-empty { text-align: center; padding: 16px; }
   .adv-cb { width: 34px; text-align: center; } .adv-cb input { width: 17px; height: 17px; accent-color: #901d23; cursor: pointer; }
   .adv-row.sel td { background: #fbf2f3; }
   .adv-bulk { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; background: #fbf2f3; border-bottom: 1px solid #ecd4d6; }
@@ -718,39 +743,27 @@
 
   // ---------------------------------------------------------------- the advising form for printing
   function printForm() {
-    const s = STUD, h = s.head, a = analyse(s, { assumeCurrent: st.mode === 'next' });
+    const s = STUD, h = s.head, a = analyse(s, { assumeCurrent: st.mode === 'next' }), a0 = analyse(s, { assumeCurrent: false });
     const summer = st.summer != null ? st.summer : (ttTerm() > s.term ? ttTerm() % 10 === 3 : false);
     const lim = limits(a, summer), cap = st.cap || lim.max;
     const sug = suggest(a, S, { max: cap, force: st.force, drop: st.drop, alts: altCodes });
     const sel = sug.best.combo;
     const link = new URL('planner.html?plan=' + sel.map(x => encodeURIComponent(U.sectionKey(x))).join('~'), location.href).href;
-    let qr = '';
-    try { const q = root.qrcode(0, 'M'); q.addData(link); q.make(); qr = q.createSvgTag({ cellSize: 3, margin: 0, scalable: true }); } catch (e) { qr = ''; }
-    const rows = sug.take.map(t => { const mine = sel.filter(x => x.code === (t.c.via || t.c.code));
-      return `<tr><td>${t.c.code}</td><td>${esc(t.c.name || nm(t.c.code))}</td><td>${t.c.hours}</td><td>${mine.map(x => `ش ${esc(x.section)}${x.activity === 'عملي' ? ' (عملي)' : ''}: ${x.meetings.filter(live).map(m => `${(TT.days || {})[m.day] || m.day} ${m.start}–${m.end}`).join('، ') || 'غير متزامن'}`).join('<br>')}</td><td>${esc(t.c.why.map(w => w[1]).join('، '))}</td></tr>`; }).join('');
-    const waiting = a.open.filter(c => !c.ready && !c.inProgress).slice(0, 12);
-    const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>نموذج إرشاد – ${esc(h.name || '')}</title>
-      <style>@page{size:A4;margin:12mm} body{font-family:Tajawal,Arial,sans-serif;color:#000;font-size:12px} h1{font-size:18px;margin:0} h2{font-size:14px;margin:12px 0 6px;border-bottom:2px solid #901d23;padding-bottom:2px}
-      table{width:100%;border-collapse:collapse} th,td{border:1px solid #555;padding:4px 6px;text-align:right;vertical-align:top} th{background:#eee} .kv{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 12px}
-      .kv b{font-weight:700} .top{display:flex;justify-content:space-between;align-items:center;gap:12px} .qr{width:92px;text-align:center;font-size:10px} .qr svg{width:92px;height:92px}
-      .sig{display:flex;gap:30px;margin-top:26px} .sig div{flex:1;border-top:1px solid #000;padding-top:4px;text-align:center} .small{font-size:10.5px}</style></head><body>
-      <div class="top"><div><h1>نموذج الإرشاد الأكاديمي</h1><div>جامعة البترا · ${esc(h.faculty || '')} · ${esc(h.major || '')} (إصدار ${esc(s.version || '')})</div></div>
-        <div class="qr">${qr}<div>المقترح في «مخطط جدولي»</div></div></div>
-      <h2>الطالب</h2><div class="kv"><div><b>الاسم:</b> ${esc(h.name || '')}</div><div><b>الرقم:</b> ${esc(h.id || '')}</div><div><b>المستوى:</b> ${esc(s.level || '')}</div>
-        <div><b>المعدل التراكمي:</b> ${s.gpa != null ? s.gpa.toFixed(2) : '—'}${a.warned ? ' (منذر)' : ''}</div><div><b>الساعات المجتازة:</b> ${s.passedHours ?? '—'}</div><div><b>المتبقية:</b> ${a.remainingNow} من ${s.planHours ?? '—'}</div>
-        <div><b>المرشد:</b> ${esc(h.advisor || '')}</div><div><b>كشف:</b> ${esc(s.termLabel || '')}</div><div><b>تاريخ الإرشاد:</b> ${U.numDate(new Date().toISOString())}</div></div>
-      <h2>الجدول المقترح (${sug.hours} ساعة؛ الحد الأعلى ${lim.max} وفق المادة ${lim.rule} من تعليمات منح درجة البكالوريوس 2023)</h2>
-      <table><thead><tr><th>الرمز</th><th>المادة</th><th>س</th><th>الشعبة والموعد</th><th>سبب الأولوية</th></tr></thead><tbody>${rows || '<tr><td colspan="5">—</td></tr>'}</tbody></table>
-      ${sug.skipped.length ? `<p class="small"><b>بدائل إن تعذّر التسجيل:</b> ${sug.skipped.slice(0, 8).map(x => `${x.c.code} ${esc(x.c.name || '')}`).join('، ')}</p>` : ''}
-      ${waiting.length ? `<h2>مواد متبقية بانتظار متطلب سابق</h2><p class="small">${waiting.map(c => `${c.code} ${esc(c.name || '')} ← ${c.missing.join(' و ')}`).join(' · ')}</p>` : ''}
-      ${(() => { const pp = paths(s, { load: 18, summer: false }); return pp.terms.length ? `<h2>مسار التخرج المنتظم (18 ساعة، بلا صيفي): التخرج المتوقع ${esc(termName(pp.end))}</h2><table><tbody>${pp.terms.map(tm => `<tr><td style="white-space:nowrap"><b>${esc(termName(tm.term))}</b><br>${tm.hours} س</td><td class="small">${tm.take.map(x => `${x.code} ${esc(x.name || '')}`).join('، ')}</td></tr>`).join('')}</tbody></table>` : ''; })()}
-      <h2>ملاحظات المرشد</h2><div style="height:70px;border:1px solid #555"></div>
-      <div class="sig"><div>توقيع الطالب</div><div>توقيع المرشد الأكاديمي</div><div>رئيس القسم</div></div>
-      <p class="small" style="margin-top:14px">الشعب من الجدول الدراسي المنشور على بوابة الجامعة (${esc(TT.term)})؛ المواد والمتطلبات من «تحليل خطة الطالب». المقترح للإرشاد، والتسجيل الفعلي على بوابة الجامعة. بوصلة البترا · مكتب الإرشاد</p>
-      <script>window.onload=function(){setTimeout(function(){window.print()},200)}<\/script></body></html>`;
-    const w = window.open('', '_blank');
-    if (!w) { U.modal('نموذج الإرشاد', 'اسمح بالنوافذ المنبثقة لهذه الصفحة لطباعة النموذج.'); return; }
-    w.document.write(html); w.document.close();
+    const waiting = a.open.filter(c => !c.ready && !c.inProgress);
+    let path = null; try { path = paths(s, { load: 18, summer: false }); } catch (e) { /* none */ }
+    const when = x => x.meetings.filter(live).map(m => `${(TT.days || {})[m.day] || m.day} ${m.start}–${m.end}`).join('، ') || 'غير متزامن';
+    printReport({ title: 'نموذج الإرشاد الأكاديمي', subtitle: `${h.name || ''} · ${h.id || ''}`, orientation: 'portrait', fit: false, url: link, qrLabel: 'الجدول المقترح للطالب',
+      filters: [['الكلية', h.faculty || ''], ['التخصص', `${h.major || ''} (إصدار ${s.version})`], ['المستوى', s.level || '—'], ['المرشد', h.advisor || '—'], ['الفصل', TT.term]],
+      stats: [['المعدل التراكمي', s.gpa != null ? s.gpa.toFixed(2) + (a.warned ? ' (منذر)' : '') : '—'], ['الساعات المجتازة', s.passedHours ?? '—'], ['المتبقية', `${a0.remainingNow} من ${s.planHours ?? '—'}`],
+        ['ساعات الجدول المقترح', `${sug.hours} (الحد ${lim.max})`], ['التخرج المتوقع', path && path.end ? termName(path.end) : '—']],
+      sections: [
+        { title: `الجدول المقترح (${sug.hours} ساعة؛ الحد الأعلى ${lim.max} وفق المادة ${lim.rule} من تعليمات منح درجة البكالوريوس 2023)`, columns: ['الرمز', 'المادة', 'س', 'الشعبة والموعد', 'سبب الأولوية'], widths: ['10%', '27%', '5%', '33%', '25%'],
+          rows: sug.take.map(t => { const mine = sel.filter(x => x.code === (t.c.via || t.c.code)); return [t.c.code + (t.c.via ? ` (برمز ${t.c.via})` : ''), t.c.name || nm(t.c.code), t.c.hours, mine.map(x => `ش ${x.section}${x.activity === 'عملي' ? ' (عملي)' : ''}: ${when(x)}`).join(' | '), t.c.why.map(w => w[1]).join('، ')]; }) },
+        ...(sug.skipped.length ? [{ title: 'بدائل إن تعذّر التسجيل', columns: ['الرمز', 'المادة', 'س', 'لماذا لم تدخل المقترح'], widths: ['12%', '43%', '6%', '39%'], rows: sug.skipped.slice(0, 10).map(x => [x.c.code, x.c.name || nm(x.c.code), x.c.hours, x.why]) }] : []),
+        ...(waiting.length ? [{ title: 'مواد متبقية بانتظار متطلب سابق', columns: ['الرمز', 'المادة', 'س', 'تنتظر'], widths: ['12%', '50%', '6%', '32%'], rows: waiting.map(c => [c.code, c.name || nm(c.code), c.hours, c.missing.join(c.preOr ? ' أو ' : ' و ')]) }] : []),
+        ...(path && path.terms.length ? [{ title: 'مسار التخرج المنتظم (18 ساعة في الفصل الاعتيادي)', columns: ['الفصل', 'الساعات', 'المواد'], widths: ['16%', '8%', '76%'], rows: path.terms.map(t => [termName(t.term), t.hours, t.take.map(x => `${x.code} ${x.name || nm(x.code)}`).join('، ')]) }] : [])],
+      raw: `<h3 class="sec">ملاحظات المرشد</h3><div style="height:80px;border:1px solid #c9c1ae;border-radius:6px"></div>` + SIGN(['الطالب', 'المرشد الأكاديمي', 'رئيس القسم']),
+      note: 'المواد والعلامات والمتطلبات من «تحليل خطة الطالب» كما تطبعه بوابة الجامعة، والشعب من الجدول الدراسي المنشور. المقترح للإرشاد؛ التسجيل الفعلي على بوابة الجامعة. رمز QR يفتح الجدول المقترح في «مخطط جدولي».' });
   }
 
   // ---------------------------------------------------------------- plans kept on this device (IndexedDB), and the import from the portal
@@ -983,7 +996,7 @@
   }
 
   // ---------------------------------------------------------------- page: the dashboard of every imported plan
-  let ROWS = null;
+  let ROWS = null, LAST = null;
   function dashRows() {
     if (ROWS && ROWS.n === BOARD.length) return ROWS.list;
     const list = BOARD.map(s => {
@@ -1030,6 +1043,7 @@
             <button type="button" class="btn btn-sm btn-outline-danger" data-del="${esc(s.head.id)}"><i class="bi bi-trash"></i> حذف</button></div>
           <div class="adv-src mt-1">${s.src === 'portal' ? 'سُحب من البوابة' : s.src === 'manual' ? 'أُدخل يدوياً' : 'من ملف مرفوع'}${s.stored ? ` · ${U.numDate(s.stored)}` : ''}</div></div>
         </div></td></tr>`; };
+    LAST = { show, rows, D };
     if (st.view === 'demand') return demandHtml(D);
     return `      <div class="adv-kpis">
         ${[['all', rows.length, 'كل الطلبة', 'bi-people', ''], ['grad', cnt('grad'), 'متوقع تخرجهم', 'bi-mortarboard', 'g'], ['miss', cnt('miss'), 'تنقصهم إجبارية غير مطروحة', 'bi-exclamation-diamond', 'r'], ['warn', cnt('warn'), 'منذرون (معدل < 2.00)', 'bi-exclamation-octagon', 'r'], ['weak', cnt('weak'), 'متعثرون', 'bi-graph-down-arrow', 'y'], ['nogpa', cnt('nogpa'), 'جدد بلا معدل', 'bi-stars', '']]
@@ -1039,9 +1053,10 @@
           <select class="form-select form-select-sm" id="adv-bm"><option value="">كل التخصصات</option>${majors.map(m => `<option ${m === mj ? 'selected' : ''}>${esc(m)}</option>`).join('')}</select>
           <span class="adv-src ms-auto">${show.length} من ${rows.length}</span>
           <div class="dropdown"><button type="button" class="btn btn-sm btn-light border dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-box-arrow-up"></i> تصدير</button>
-            <ul class="dropdown-menu"><li><a class="dropdown-item" href="#" id="adv-bak-all"><i class="bi bi-file-earmark-zip"></i> نسخة احتياطية لكل الطلبة (للرجوع إليها أو نقلها لجهاز آخر)</a></li><li><a class="dropdown-item" href="#" id="adv-bcsv2"><i class="bi bi-filetype-csv"></i> جدول CSV (Excel)</a></li><li><a class="dropdown-item" href="#" onclick="window.print();return false"><i class="bi bi-printer"></i> طباعة القائمة</a></li></ul></div>
+            <ul class="dropdown-menu"><li><a class="dropdown-item" href="#" id="adv-bak-all"><i class="bi bi-file-earmark-zip"></i> نسخة احتياطية لكل الطلبة (للرجوع إليها أو نقلها لجهاز آخر)</a></li><li><a class="dropdown-item" href="#" id="adv-bcsv2"><i class="bi bi-filetype-csv"></i> جدول CSV (Excel)</a></li><li><a class="dropdown-item" href="#" id="adv-lprint"><i class="bi bi-printer"></i> تقرير رسمي للطباعة أو PDF</a></li></ul></div>
+          <button type="button" class="btn btn-sm btn-light border" id="adv-lprint2"><i class="bi bi-printer"></i> طباعة</button>
           <button type="button" class="btn btn-sm btn-light border" id="adv-trash"><i class="bi bi-trash"></i> المحذوفون${TRASH ? ` (${TRASH})` : ''}</button></div>
-        ${SEL.size ? `<div class="adv-bulk no-print"><b>${SEL.size} محدد</b><button type="button" class="btn btn-sm btn-light border" id="adv-sel-bak"><i class="bi bi-download"></i> نسخة احتياطية</button><button type="button" class="btn btn-sm btn-light border" id="adv-sel-csv"><i class="bi bi-filetype-csv"></i> CSV</button><button type="button" class="btn btn-sm btn-outline-danger" id="adv-sel-del"><i class="bi bi-trash"></i> حذف المحدد</button><button type="button" class="btn btn-sm btn-link" id="adv-sel-none">إلغاء التحديد</button></div>` : ''}
+        ${SEL.size ? `<div class="adv-bulk no-print"><b>${SEL.size} محدد</b><button type="button" class="btn btn-sm btn-light border" id="adv-sel-bak"><i class="bi bi-download"></i> نسخة احتياطية</button><button type="button" class="btn btn-sm btn-light border" id="adv-sel-csv"><i class="bi bi-filetype-csv"></i> CSV</button><button type="button" class="btn btn-sm btn-light border" id="adv-sel-print"><i class="bi bi-printer"></i> طباعة</button><button type="button" class="btn btn-sm btn-outline-danger" id="adv-sel-del"><i class="bi bi-trash"></i> حذف المحدد</button><button type="button" class="btn btn-sm btn-link" id="adv-sel-none">إلغاء التحديد</button></div>` : ''}
         <div class="table-responsive"><table class="adv-t adv-dash"><thead><tr><th class="no-print adv-cb"><input type="checkbox" id="adv-all" ${show.length && show.every(r => SEL.has(String(r.s.head.id))) ? 'checked' : ''} title="تحديد الكل"></th>${th('name', 'الطالب')}<th>التخصص</th>${th('gpa', 'المعدل')}${th('passed', 'مجتازة')}${th('rem', 'متبقية')}${th('pct', 'الإنجاز')}<th>مسجلة الآن</th>${th('grad', 'التخرج المتوقع')}<th>الحالة</th><th>إجبارية غير مطروحة</th><th class="no-print"></th></tr></thead><tbody>
         ${show.map(r => { const s = r.s; return `<tr class="adv-row ${open === s.head.id ? 'open' : ''} ${SEL.has(String(s.head.id)) ? 'sel' : ''}" data-row="${esc(s.head.id)}"><td class="no-print adv-cb"><input type="checkbox" data-sel="${esc(s.head.id)}" ${SEL.has(String(s.head.id)) ? 'checked' : ''}></td><td><b>${esc(s.head.name || '')}</b><div class="adv-src">${esc(s.head.id || '')} · ${esc(s.level || '')}</div></td>
           <td><small>${esc(s.head.major || '')}</small><div class="adv-src">إصدار ${esc(s.version)}</div></td>
@@ -1053,12 +1068,55 @@
           <td class="no-print"><button type="button" class="btn btn-sm btn-maroon" data-open="${esc(s.head.id)}">التحليل</button></td></tr>${open === s.head.id ? detail(r) : ''}`; }).join('') || '<tr><td colspan="12" class="text-center adv-src py-3">لا طلبة بهذا التصفية.</td></tr>'}</tbody></table></div></div>`;
   }
 
-  function demandHtml(D) {
-    return `<div class="adv-card"><h3><i class="bi bi-bar-chart-line"></i> الطلب المتوقع على المواد في الفصل القادم <span class="badge text-bg-light border">${D.length}</span></h3>
-        <p class="adv-src">عدد الطلبة الذين يحق لهم تسجيل كل مادة (متطلباتها مجتازة أو مسجلة الآن)، ومنهم المتوقع تخرجهم — لتخطيط الشعب. المظللة غير مطروحة الآن.</p>
-        <div class="table-responsive"><table class="adv-t"><thead><tr><th>الرمز</th><th>المادة</th><th>يحق لهم</th><th>متوقع تخرجهم</th><th>إجبارية لـ</th><th>هذا الفصل</th></tr></thead><tbody>
-        ${D.map(d => `<tr class="${offered(d.code).length ? '' : 'table-warning'}"><td><code>${d.code}</code></td><td>${esc(d.name)}</td><td><b>${d.n}</b></td><td>${d.grad || ''}</td><td>${d.req || ''}</td><td>${sectionsLine(d.code)}</td></tr>`).join('')}</tbody></table></div></div>`;
+  // ---------------------------------------------------------------- official reports (A4, the site's report layout)
+  const SIGN = (who) => `<div style="display:flex;gap:28px;margin-top:22px;font-size:10pt">${who.map(w => `<div style="flex:1;border-top:1px solid #1f2d33;padding-top:5px;text-align:center"><b>${w}</b><div style="color:#555;font-size:8.5pt;margin-top:10px">الاسم: ......................  التوقيع: ..............  التاريخ: ....../....../......</div></div>`).join('')}</div>`;
+  function advisorOf() { const c = {}; BOARD.forEach(s2 => { const a = (s2.head.advisor || '').trim(); if (a) c[a] = (c[a] || 0) + 1; }); return (Object.entries(c).sort((a, b) => b[1] - a[1])[0] || [''])[0]; }
+  function printStudents(show, rows) {
+    const F = { all: 'كل الطلبة', grad: 'المتوقع تخرجهم', miss: 'تنقصهم إجبارية غير مطروحة', warn: 'المنذرون', weak: 'المتعثرون', nogpa: 'الجدد بلا معدل' };
+    const fac = [...new Set(show.map(r => r.s.head.faculty).filter(Boolean))].join('، ');
+    const chips = r => [r.lim.grad ? 'متوقع تخرجه' : '', r.a.warned ? 'منذر' : '', r.weak ? 'متعثر' : '', r.failedNow ? `${r.failedNow} لم ينجح بها` : ''].filter(Boolean).join('، ') || '—';
+    printReport({ title: 'تقرير الإرشاد الأكاديمي: قائمة الطلبة', subtitle: [advisorOf() && 'المرشد: ' + advisorOf(), fac].filter(Boolean).join(' · '), orientation: 'landscape', fit: false, qr: false,
+      filters: [['الفصل', TT.term], ['الطلبة', F[st.bf || 'all']], ...(st.bm ? [['التخصص', st.bm]] : []), ...(st.bq ? [['بحث', st.bq]] : []), ['العدد', `${show.length} من ${rows.length}`]],
+      stats: [['طالباً', show.length], ['متوقع تخرجهم', show.filter(r => r.lim.grad).length], ['منذرون (معدل أقل من 2.00)', show.filter(r => r.a.warned).length], ['متعثرون', show.filter(r => r.weak).length],
+        ['متوسط المعدل', (() => { const g = show.map(r => r.s.gpa).filter(x => x != null); return g.length ? (g.reduce((a, b) => a + b, 0) / g.length).toFixed(2) : '—'; })()]],
+      sections: [{ columns: ['#', 'الرقم الجامعي', 'اسم الطالب', 'التخصص', 'المستوى', 'المعدل', 'المجتازة', 'المتبقية', 'الإنجاز', 'المسجلة الآن', 'التخرج المتوقع', 'الحالة', 'إجبارية غير مطروحة'],
+        widths: ['3%', '8%', '15%', '13%', '7%', '5%', '5.5%', '5.5%', '5%', '7%', '8%', '9%', '9%'], numCols: [0, 5, 6, 7, 8],
+        rows: show.map((r, i) => { const s2 = r.s; return [i + 1, s2.head.id, s2.head.name, `${s2.head.major || ''} (إصدار ${s2.version})`, s2.level || '—', s2.gpa != null ? s2.gpa.toFixed(2) : '—', s2.passedHours ?? '', r.a0.remainingNow, r.pct + '%',
+          r.a0.current.size ? `${r.a0.current.size} (${r.curH} س)` : '—', r.path && r.path.end ? termName(r.path.end) : '—', chips(r), r.reqNotOff.map(c => c.code).join('، ') || '—']; }) }],
+      raw: SIGN(['المرشد الأكاديمي', 'رئيس القسم']),
+      note: 'البيانات من «تحليل خطة الطالب» كما تطبعه بوابة الجامعة لكل طالب؛ «المتوقع تخرجه»: الساعات المتبقية بعد نجاح ما سجّله الآن لا تزيد على 21 ساعة (م 7/ب من تعليمات منح درجة البكالوريوس 2023)؛ «منذر»: معدل تراكمي أقل من 2.00 (م 12/أ)؛ التخرج المتوقع حسب المسار المنتظم 18 ساعة في الفصل الاعتيادي.' });
   }
+  function printDemand(D) {
+    printReport({ title: 'تقرير الإرشاد الأكاديمي: الطلب المتوقع على المواد', subtitle: [advisorOf() && 'المرشد: ' + advisorOf(), `${BOARD.length} طالباً`].filter(Boolean).join(' · '), orientation: 'portrait', fit: false, qr: false,
+      filters: [['الفصل', TT.term], ['المواد', D.length]],
+      stats: [['مادة يحق تسجيلها', D.length], ['منها غير مطروحة الآن', D.filter(d => !offeredAs(d.code)).length], ['يحق لهم أكثر مادة', D.length ? Math.max(...D.map(d => d.n)) : 0]],
+      sections: [{ columns: ['#', 'الرمز', 'المادة', 'يحق لهم تسجيلها', 'منهم متوقع تخرجهم', 'إجبارية لـ', 'هذا الفصل'], widths: ['5%', '10%', '37%', '11%', '12%', '10%', '15%'], numCols: [0, 3, 4, 5],
+        rows: D.map((d, i) => { const x = offeredAs(d.code), L = offered(x || d.code); return [i + 1, d.code, d.name, d.n, d.grad || '', d.req || '', x ? `${L.length} شعبة${x !== d.code ? ` (برمز ${x})` : ''}` : 'غير مطروحة']; }) }],
+      raw: SIGN(['المرشد الأكاديمي', 'رئيس القسم']),
+      note: `عدد طلبة المرشد الذين اجتازوا متطلبات كل مادة (أو سجّلوها الآن)؛ «هذا الفصل» من الجدول الدراسي المنشور (${TT.term}).` });
+  }
+  function demandHtml(D) {
+    const f = st.df || 'all', max = Math.max(1, ...D.map(d => d.n));
+    const stat = d => { const x = offeredAs(d.code), L = offered(x || d.code), open = L.filter(isOpen).length;
+      return !x ? { k: 'no', t: 'غير مطروحة', ic: 'bi-x-octagon-fill' } : !open ? { k: 'closed', t: `${L.length} شعبة · مغلقة`, ic: 'bi-lock-fill', x }
+        : { k: 'open', t: `${L.length} شعبة · ${open} مفتوحة`, ic: 'bi-check-circle-fill', x }; };
+    const R = D.map(d => ({ ...d, st: stat(d) }));
+    const is = { all: () => true, no: d => d.st.k === 'no', grad: d => d.grad > 0, req: d => d.req > 0 };
+    const show = R.filter(is[f] || is.all);
+    const cnt = k => R.filter(is[k]).length;
+    return `<div class="adv-card dm"><div class="dm-h"><h3><i class="bi bi-bar-chart-line-fill"></i> الطلب المتوقع على المواد في الفصل القادم</h3>
+        <button type="button" class="btn btn-sm btn-maroon no-print" id="adv-dprint"><i class="bi bi-printer"></i> طباعة التقرير</button></div>
+      <p class="dm-sub">كم طالباً من طلبتك يحق له تسجيل كل مادة (اجتاز متطلباتها أو سجّلها الآن)، ومنهم المتوقع تخرجهم — لتخطيط الشعب مع القسم.</p>
+      <div class="dm-f no-print">${[['all', 'كل المواد', 'bi-grid-3x3-gap-fill', 'b'], ['no', 'غير مطروحة الآن', 'bi-x-octagon-fill', 'r'], ['grad', 'يحتاجها متوقع تخرجهم', 'bi-mortarboard-fill', 'g'], ['req', 'إجبارية', 'bi-lock-fill', 'm']]
+        .map(([k, l, ic, c]) => `<button type="button" class="dm-chip ${c} ${f === k ? 'on' : ''}" data-df="${k}"><i class="bi ${ic}"></i> ${l} <b>${cnt(k)}</b></button>`).join('')}</div>
+      <div class="table-responsive"><table class="dm-t"><thead><tr><th>#</th><th>الرمز</th><th>المادة</th><th><i class="bi bi-people-fill"></i> يحق لهم</th><th><i class="bi bi-mortarboard-fill"></i> متوقع تخرجهم</th><th><i class="bi bi-lock-fill"></i> إجبارية لـ</th><th><i class="bi bi-calendar-week-fill"></i> هذا الفصل</th></tr></thead><tbody>
+      ${show.map((d, i) => `<tr class="${d.st.k === 'no' ? 'no' : ''}"><td class="n">${i + 1}</td><td><span class="dm-code">${d.code}</span></td><td class="nm">${esc(d.name)}</td>
+        <td><div class="dm-bar"><i style="width:${Math.round(100 * d.n / max)}%"></i><b>${d.n}</b></div></td>
+        <td>${d.grad ? `<span class="dm-b g"><i class="bi bi-mortarboard-fill"></i> ${d.grad}</span>` : '<span class="dm-z">—</span>'}</td>
+        <td>${d.req ? `<span class="dm-b m"><i class="bi bi-lock-fill"></i> ${d.req}</span>` : '<span class="dm-b el">اختيارية</span>'}</td>
+        <td><a class="dm-s ${d.st.k}" ${d.st.x ? `href="timetable.html?q=${d.st.x}" target="_blank" rel="noopener"` : ''}><i class="bi ${d.st.ic}"></i> ${d.st.t}${d.st.x && d.st.x !== d.code ? ` <small>برمز ${d.st.x}</small>` : ''}</a></td></tr>`).join('') || '<tr><td colspan="7" class="dm-empty">لا مواد بهذا التصفية.</td></tr>'}</tbody></table></div></div>`;
+  }
+
 
   // ---------------------------------------------------------------- view: a new student
   function freshView() {
@@ -1224,17 +1282,22 @@
     document.querySelectorAll('[data-undrop]').forEach(b => b.addEventListener('click', e => { e.preventDefault(); st.drop.delete(b.dataset.undrop); render(); }));
     document.querySelectorAll('[data-force]').forEach(b => b.addEventListener('click', () => { st.force.add(b.dataset.force); st.drop.delete(b.dataset.force); render(); }));
     document.querySelectorAll('[data-path]').forEach(b => b.addEventListener('click', () => { st.path = b.dataset.path; render(); }));
+    document.querySelectorAll('[data-df]').forEach(b => b.addEventListener('click', () => { st.df = b.dataset.df; render(); }));
     document.querySelectorAll('[data-bf]').forEach(b => b.addEventListener('click', () => { st.boardFilter = b.dataset.bf; render(); }));
     document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => { STUD = BOARD.find(s => s.head.id === b.dataset.open) || STUD; st.view = 'student'; st.force.clear(); st.drop.clear(); st.cap = null; render(); scrollTo(0, 0); }));
     on('#adv-bcsv', 'click', () => boardCsv());
     on('#adv-bcsv2', 'click', e => { e.preventDefault(); boardCsv(); });
     on('#adv-bak-all', 'click', e => { e.preventDefault(); backup(); });
     on('#adv-trash', 'click', trashModal);
+    on('#adv-lprint', 'click', e => { e.preventDefault(); if (LAST) printStudents(LAST.show, LAST.rows); });
+    on('#adv-lprint2', 'click', () => { if (LAST) printStudents(LAST.show, LAST.rows); });
+    on('#adv-dprint', 'click', () => { if (LAST) printDemand(LAST.D); });
     on('#adv-trash2', 'click', e => { e.preventDefault(); trashModal(); });
     on('#adv-all', 'change', e => { document.querySelectorAll('[data-sel]').forEach(b => { if (e.target.checked) SEL.add(b.dataset.sel); else SEL.delete(b.dataset.sel); }); render(); });
     document.querySelectorAll('[data-sel]').forEach(b => b.addEventListener('change', () => { if (b.checked) SEL.add(b.dataset.sel); else SEL.delete(b.dataset.sel); const y = scrollY; render(); scrollTo(0, y); }));
     on('#adv-sel-bak', 'click', () => backup([...SEL]));
     on('#adv-sel-csv', 'click', () => boardCsv([...SEL]));
+    on('#adv-sel-print', 'click', () => { if (LAST) printStudents(LAST.rows.filter(r => SEL.has(String(r.s.head.id))), LAST.rows); });
     on('#adv-sel-del', 'click', () => { if (confirm(`نقل ${SEL.size} طالباً إلى «المحذوفون»؟`)) removeStudents([...SEL]); });
     on('#adv-sel-none', 'click', () => { SEL.clear(); render(); });
     document.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => removeStudents([b.dataset.del])));
