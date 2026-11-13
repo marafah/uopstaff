@@ -542,6 +542,32 @@
   .adv-kpi span { font-size:.95rem !important; color:#111 !important; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .adv-kpi b { font-size:1.6rem !important; }
   .adv-t td small, .adv-t td .adv-src, .adv-t td .text-muted, .adv-t td .text-secondary, .adv-t td .small, .adv-tools, .adv-tools small, .adv-cci dt, .adv-dayc .adv-src { color:#111 !important; opacity:1 !important; }
+  /* official rules */
+  .rl-f { display:grid; gap:10px; } .rl-q { display:flex; align-items:center; gap:8px; margin:0; } .rl-q input { max-width:560px; }
+  .rl-nav { display:flex; gap:6px; flex-wrap:wrap; } .rl-nav a { text-decoration:none; } .rl-nav a.off { opacity:.4; }
+  .rl-grid { display:grid; gap:14px; }
+  .rl { background:#fff; border:1px solid #e3ddcf; border-inline-start:5px solid #901d23; border-radius:12px; padding:14px 16px; color:#111; scroll-margin-top:90px; }
+  .rl header { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; } .rl header h4 { margin:0; font-size:1.1rem; font-weight:700; color:#111; }
+  .rl-n { min-width:44px; height:34px; padding:0 8px; border-radius:8px; background:#901d23; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:700; }
+  .rl-t { list-style:none; margin:0; padding:0; display:grid; gap:6px; }
+  .rl-t li { display:grid; grid-template-columns:30px 1fr; gap:10px; align-items:start; background:#fbfaf6; border:1px solid #f0ead9; border-radius:8px; padding:8px 10px; line-height:1.9; font-size:.97rem; }
+  .rl-k { width:26px; height:26px; border-radius:50%; background:#fbf2f3; color:#901d23; border:1px solid #ecc7ca; display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; margin-top:4px; }
+  .rl footer { margin-top:10px; padding-top:8px; border-top:1px dashed #eee; font-size:.9rem; }
+  .rl mark, .rl-top mark { background:#fde68a; padding:0 2px; border-radius:3px; }
+  /* course dictionary */
+  .dc-f { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; align-items:end; }
+  .dc-f label { display:flex; flex-direction:column; gap:4px; font-size:.88rem; font-weight:600; color:#111; margin:0; } .dc-f label i { margin-inline-end:4px; }
+  .dc-f .dc-x { flex-direction:row; align-items:center; gap:6px; padding-bottom:8px; } .dc-f .dc-x input { width:17px; height:17px; accent-color:#901d23; }
+  .dc-sum { display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 12px; }
+  .dc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(420px,1fr)); gap:14px; }
+  @media (max-width: 600px) { .dc-grid { grid-template-columns:1fr; } }
+  .dc { background:#fff; border:1px solid #e3ddcf; border-top:4px solid #901d23; border-radius:12px; padding:12px 14px; display:flex; flex-direction:column; gap:8px; color:#111; }
+  .dc header { display:grid; grid-template-columns:auto 1fr; gap:4px 10px; align-items:baseline; } .dc header h4 { margin:0; font-size:1.05rem; font-weight:700; color:#111 !important; }
+  .dc header .sv-code { font-size:1rem; color:#901d23; } .dc-b { grid-column:1 / -1; display:flex; gap:6px; flex-wrap:wrap; }
+  .dc-g { font-size:.85rem; } .dc-d { background:#fbfaf6; border:1px solid #eee7d6; border-radius:8px; padding:10px 12px; font-size:.92rem; line-height:1.85; }
+  .dc-d p { margin:0 0 6px; white-space:pre-line; } .dc-d img { max-width:100%; border-radius:6px; margin-bottom:6px; } .dc-pre { margin-bottom:6px; }
+  .dc-src { font-size:.82rem; text-decoration:none; color:#901d23; } .dc-none { color:#111; background:#f8fafc; border-color:#e2e8f0; }
+  .dc footer { display:grid; gap:4px; font-size:.84rem; border-top:1px dashed #eee; padding-top:8px; } .dc footer:empty { display:none; }
   /* student analysis page */
   .sv-head { padding:18px 20px !important; }
   .sv-top { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
@@ -1471,23 +1497,50 @@
 
   // ---------------------------------------------------------------- view: the course dictionary
   function dictView() {
-    const q = clean(st.q);
+    const q = clean(st.q), nq = norm(q);
     const same = sameName();
-    let hits = [];
-    if (q) {
-      const nq = norm(q);
-      hits = Object.keys(NAMES).filter(c => c.includes(q) || norm(NAMES[c]).includes(nq)).slice(0, 60);
-    }
-    const plansOf = code => (SP ? SP.plans : []).filter(p => p.groups.some(g => g.courses.some(c => c.code === code))).map(p => `${p.major} (${p.version})`);
-    return `<div class="adv-card"><h3><i class="bi bi-book-half"></i> قاموس المواد</h3>
-      <div class="adv-ctl"><input type="search" class="form-control" id="adv-dq" placeholder="رمز أو اسم مادة…" value="${esc(st.q)}" style="max-width:360px"></div>
-      <p class="adv-src mt-2 mb-0">لكل مادة: وصفها كما في ملف «وصف المواد» للقسم، اسمها، الخطط الدراسية التي تضمها، شعبها هذا الفصل، الرموز الأخرى بالاسم نفسه في الخطط والخطط الاسترشادية المنشورة (رمز قديم أو جديد — للتحقق لا للمعادلة التلقائية)، والمواد المكافئة من القائمة المرفوعة.</p></div>
-      ${hits.map(c => { const sm = same[c] || [], eq = eqOf(c), pl = plansOf(c);
-        return `<div class="adv-card"><h3><code>${c}</code> ${esc(NAMES[c])} ${sectionsLine(c)}</h3>
-          ${(DESC && DESC.courses && DESC.courses[c] || []).slice().sort((x, y) => (pfxOf(y.url) === c.slice(0, 3)) - (pfxOf(x.url) === c.slice(0, 3))).slice(0, 1).map(e => `<div class="adv-law mb-2">${e.clean || e.ocr || e.ai || !(e.img || []).length ? esc(e.text) : e.img.map(n => `<img src="data/coursedesc/${esc(n)}" alt="وصف المادة كما في الملف المنشور" loading="lazy" style="width:100%;max-width:820px;display:block;border:1px solid #ece6d6;border-radius:6px;margin-bottom:2px">`).join('')}<div class="adv-src mt-1"><i class="bi bi-file-earmark-pdf"></i> من <a href="${esc(e.url)}#page=${e.page || 1}" target="_blank" rel="noopener">«وصف المواد» – ${esc((DESC.docs[e.url] || {}).program || '')}</a>، صفحة ${e.page || 1}${e.pre ? ` · ${esc(e.pre)}` : ''}${DESC.courses[c].length > 1 ? ` · ووصفها كذلك ${DESC.courses[c].length - 1} ملف آخر` : ''}</div></div>`).join('')}
-          ${pl.length ? `<div class="adv-note"><b>في الخطط الدراسية:</b> ${pl.slice(0, 12).map(esc).join('، ')}${pl.length > 12 ? ` و${pl.length - 12} غيرها` : ''}</div>` : ''}
-          ${sm.length ? `<div class="adv-note mt-1"><b>الاسم نفسه برمز آخر:</b> ${sm.map(x => `<code>${x.code}</code> <small>(${[...x.where].slice(0, 3).map(esc).join('، ')})</small> ${sectionsLine(x.code)}`).join(' · ')}</div>` : ''}
-          ${eq.length ? `<div class="adv-note mt-1"><b>مكافئة لها:</b> ${eq.map(x => `<code>${x.code}</code> ${esc(nm(x.code))} ${x.note ? `<small>(${esc(x.note)})</small>` : ''} ${sectionsLine(x.code)}`).join(' · ')}</div>` : ''}</div>`; }).join('') || (q ? '<p class="adv-note">لا نتائج.</p>' : '')}
+    const plans = SP ? SP.plans.filter(p => p.faculty && p.faculty !== 'زائر') : [];
+    const facs = [...new Set(plans.map(p => p.faculty))].sort((x, y) => x.localeCompare(y, 'ar'));
+    const fac = st.df || '', deps = [...new Set(plans.filter(p => !fac || p.faculty === fac).map(p => p.dept || p.major))].sort((x, y) => x.localeCompare(y, 'ar'));
+    const dep = deps.includes(st.dd) ? st.dd : '';
+    // the courses of the chosen faculty / department: every course in their published study plans (newest version first)
+    const info = {};
+    plans.filter(p => (!fac || p.faculty === fac) && (!dep || (p.dept || p.major) === dep)).sort((x, y) => (+y.version || 0) - (+x.version || 0))
+      .forEach(p => p.groups.forEach(g => g.courses.forEach(c => { const o = info[c.code] ||= { code: c.code, name: c.name, hours: c.hours, kind: g.kind, group: g.name, plans: new Set() }; o.plans.add(`${p.major} (${p.version})`); })));
+    let list;
+    if (fac || dep) list = Object.values(info);
+    else list = q ? Object.keys(NAMES).map(c => ({ code: c, name: NAMES[c] })) : [];
+    if (q) list = list.filter(c => c.code.includes(q) || norm(c.name || NAMES[c.code] || '').includes(nq));
+    const descOf = c => (DESC && DESC.courses && DESC.courses[c] || []).slice().sort((x, y) => (pfxOf(y.url) === c.slice(0, 3)) - (pfxOf(x.url) === c.slice(0, 3)))[0];
+    if (st.dx) list = list.filter(c => descOf(c.code));
+    list.sort((x, y) => (x.kind === 'required' ? 0 : 1) - (y.kind === 'required' ? 0 : 1) || x.code.localeCompare(y.code));
+    const withD = list.filter(c => descOf(c.code)).length, lim = st.dl || 30;
+    const offB = c => { const n = offered(c).length, o = offered(c).filter(isOpen).length; if (n) return `<a class="fb ${o ? 'ok' : 'hrs'}" style="text-decoration:none" href="timetable.html?q=${c}" target="_blank" rel="noopener"><i class="bi bi-calendar-check"></i> ${n} شعبة · ${o} مفتوحة</a>`;
+      const x = offeredAs(c); return x ? `<a class="fb sec" style="text-decoration:none" href="timetable.html?q=${x}" target="_blank" rel="noopener">مطروحة برمز ${x}</a>` : '<span class="fb no">غير مطروحة هذا الفصل</span>'; };
+    const card = c => { const e = descOf(c.code), sm = same[c.code] || [], eq = eqOf(c.code);
+      const pl = c.plans ? [...c.plans] : (SP ? SP.plans.filter(p => p.groups.some(g => g.courses.some(x => x.code === c.code))).map(p => `${p.major} (${p.version})`) : []);
+      return `<article class="dc">
+        <header><b class="sv-code">${c.code}</b><h4>${esc(c.name || NAMES[c.code] || '')}</h4>
+          <div class="dc-b">${c.hours != null ? `<span class="fb hrs">${c.hours} س</span>` : ''}${c.kind ? `<span class="fb ${c.kind === 'required' ? 'day' : 'sec'}">${c.kind === 'required' ? 'إجبارية' : 'اختيارية'}</span>` : ''}${offB(c.code)}</div></header>
+        ${c.group ? `<div class="dc-g"><i class="bi bi-diagram-3 ic-b"></i> ${esc(c.group)}</div>` : ''}
+        ${e ? `<div class="dc-d">${e.pre ? `<div class="dc-pre"><i class="bi bi-link-45deg ic-o"></i> <b>متطلب سابق:</b> ${esc(e.pre)}</div>` : ''}
+            ${e.clean || e.ocr || e.ai || !(e.img || []).length ? `<p>${esc(e.text)}</p>` : e.img.map(n => `<img src="data/coursedesc/${n}" alt="وصف ${c.code}" loading="lazy">`).join('')}
+            <a class="dc-src" href="${esc(e.url)}${e.page ? '#page=' + e.page : ''}" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf ic-r"></i> ملف وصف المواد الرسمي${e.page ? ` · صفحة ${e.page}` : ''}</a></div>`
+          : '<div class="dc-d dc-none"><i class="bi bi-info-circle"></i> لا وصف منشوراً لهذه المادة في ملفات «وصف المواد» للأقسام.</div>'}
+        <footer>${pl.length ? `<div><i class="bi bi-journal-text ic-b"></i> <b>في الخطط:</b> ${pl.slice(0, 6).map(esc).join('، ')}${pl.length > 6 ? ` و${pl.length - 6} غيرها` : ''}</div>` : ''}
+          ${sm.length ? `<div><i class="bi bi-shuffle ic-p"></i> <b>الاسم نفسه برمز آخر:</b> ${sm.map(x => `<b class="sv-code">${x.code}</b>`).join(' · ')}</div>` : ''}
+          ${eq.length ? `<div><i class="bi bi-arrow-left-right ic-g"></i> <b>مكافئة لها:</b> ${eq.map(x => `<b class="sv-code">${x.code}</b> ${esc(nm(x.code))}`).join(' · ')}</div>` : ''}</footer></article>`; };
+    return `<div class="adv-card dc-top"><h3><i class="bi bi-book-half"></i> قاموس المواد <span class="ms-auto d-flex gap-1">${DESC ? `<span class="fb ok">${Object.keys(DESC.courses || {}).length} مادة لها وصف</span>` : ''}${DESC && DESC.updated ? `<span class="fb reg">حُدّث ${U.ago(DESC.updated)}</span>` : ''}</span></h3>
+        <div class="dc-f no-print">
+          <label><i class="bi bi-building ic-r"></i> الكلية <select class="form-select" id="dc-fac"><option value="">كل الكليات</option>${facs.map(f => `<option ${f === fac ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select></label>
+          <label><i class="bi bi-diagram-3 ic-b"></i> القسم / التخصص <select class="form-select" id="dc-dep"><option value="">${fac ? 'كل أقسام الكلية' : 'كل الأقسام'}</option>${deps.map(d => `<option ${d === dep ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select></label>
+          <label class="dc-q"><i class="bi bi-search ic-g"></i> بحث <input type="search" class="form-control" id="adv-dq" placeholder="رمز أو اسم مادة…" value="${esc(st.q)}"></label>
+          <label class="dc-x"><input type="checkbox" id="dc-only" ${st.dx ? 'checked' : ''}> لها وصف فقط</label></div>
+        <p class="adv-src mt-2 mb-0">اختر الكلية والقسم لعرض كل مواد خططه الدراسية مع وصفها الكامل من ملف «وصف المواد» الرسمي للقسم، وحالتها في الجدول الدراسي الحالي (${esc(TT.term)})، والرموز الأخرى بالاسم نفسه، والمواد المكافئة. الوصف يُسحب من مواقع الكليات ويتحدّث تلقائياً.</p></div>
+      ${list.length ? `<div class="dc-sum"><span class="fb reg">${list.length} مادة</span><span class="fb ok">${withD} لها وصف</span>${list.length - withD ? `<span class="fb hrs">${list.length - withD} بلا وصف منشور</span>` : ''}${fac ? `<span class="fb sec">${esc(fac)}${dep ? ' · ' + esc(dep) : ''}</span>` : ''}</div>
+        <div class="dc-grid">${list.slice(0, lim).map(card).join('')}</div>
+        ${list.length > lim ? `<div class="text-center my-3 no-print"><button type="button" class="btn btn-light border" id="dc-more">عرض المزيد (${list.length - lim} مادة)</button></div>` : ''}`
+        : `<div class="adv-empty"><i class="bi bi-book"></i><h3>${q || fac ? 'لا مواد بهذا البحث' : 'اختر كلية وقسماً، أو ابحث برمز مادة أو اسمها'}</h3></div>`}
       <div class="adv-card"><h3><i class="bi bi-arrow-left-right"></i> قائمة المواد المكافئة <span class="badge text-bg-light border">${EQ.length}</span>
         <span class="ms-auto d-flex flex-wrap gap-2 no-print"><label class="btn btn-sm btn-maroon mb-0"><i class="bi bi-upload"></i> رفع قائمة (Excel أو CSV)<input type="file" id="adv-eqf" accept=".csv,.xlsx,.xls,text/csv" hidden></label>
         <button type="button" class="btn btn-sm btn-outline-secondary" id="adv-eqt"><i class="bi bi-file-earmark-arrow-down"></i> نموذج فارغ</button>
@@ -1506,13 +1559,22 @@
     return PFX[url];
   }
   function rulesView() {
-    return `<div class="adv-card"><h3><i class="bi bi-bank"></i> القواعد الرسمية التي تطبقها الصفحة</h3>
-      <p class="adv-note">منقولة بنصها من <a href="${BACH_URL}" target="_blank" rel="noopener"><b>تعليمات منح درجة البكالوريوس في جامعة البترا</b> (تعليمات رقم 17 لسنة 2023)</a> المنشورة في
-        <a href="${REGS_PAGE}" target="_blank" rel="noopener">دليل القوانين والأنظمة والتعليمات</a> على موقع الجامعة. إن تعارض شيء هنا مع الوثيقة الرسمية فالمعتمد الوثيقة.</p></div>
-      ${RULES.map(r => `<div class="adv-card"><h3>${esc(r.title)} <a class="adv-rule ms-auto" href="${BACH_URL}#page=${r.page}" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> الوثيقة، صفحة ${r.page}</a></h3>
-        ${r.text.map(t => `<div class="adv-law">${esc(t)}</div>`).join('')}<p class="adv-src mt-2 mb-0"><i class="bi bi-gear"></i> في الصفحة: ${esc(r.uses)}</p></div>`).join('')}
+    const q = clean(st.rq || ''), nq = norm(q);
+    const hl = t => { const e = esc(t); if (!q) return e; const i = norm(t).indexOf(nq); return i < 0 ? e : esc(t.slice(0, i)) + `<mark>${esc(t.slice(i, i + q.length))}</mark>` + esc(t.slice(i + q.length)); };
+    const L = RULES.filter(r => !q || norm(r.title + ' ' + r.uses + ' ' + r.text.join(' ')).includes(nq));
+    const num = r => (r.title.match(/\(([^)]+)\)/) || [, ''])[1];
+    return `<div class="adv-card rl-top"><h3><i class="bi bi-bank"></i> القواعد الرسمية التي تطبقها الصفحة <span class="ms-auto d-flex gap-1"><span class="fb reg">${RULES.length} مواد</span><a class="fb day" style="text-decoration:none" href="${BACH_URL}" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> الوثيقة الرسمية</a></span></h3>
+        <p class="mb-2">منقولة بنصها من <a href="${BACH_URL}" target="_blank" rel="noopener"><b>تعليمات منح درجة البكالوريوس في جامعة البترا</b> (رقم 17 لسنة 2023)</a> المنشورة في <a href="${REGS_PAGE}" target="_blank" rel="noopener">دليل القوانين والأنظمة والتعليمات</a>. إن تعارض شيء هنا مع الوثيقة فالمعتمد الوثيقة.</p>
+        <div class="rl-f no-print"><label class="rl-q"><i class="bi bi-search ic-g"></i><input type="search" class="form-control" id="rl-q" placeholder="ابحث في نص التعليمات: الإنذار، العبء، الصيفي، البديلة…" value="${esc(q)}"></label>
+          <div class="rl-nav">${RULES.map((r, i) => `<a href="#rl-${i}" class="fb ${L.includes(r) ? 'reg' : 'off'}">م ${esc(num(r) || i + 1)}</a>`).join('')}</div></div></div>
+      ${L.length ? `<div class="rl-grid">${L.map(r => { const i = RULES.indexOf(r); return `<article class="rl" id="rl-${i}"><header><span class="rl-n">${esc(num(r) || i + 1)}</span><h4>${hl(r.title.replace(/^المادة\s*\([^)]*\)\s*:?\s*/, ''))}</h4>
+          <a class="fb day ms-auto" style="text-decoration:none" href="${BACH_URL}#page=${r.page}" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> صفحة ${r.page}</a></header>
+          <ol class="rl-t">${r.text.map(t => { const m = t.match(/^\s*([أ-ي]|\d+)\s*[.\-)]\s*/); return `<li>${m ? `<span class="rl-k">${esc(m[1])}</span>` : '<span class="rl-k">•</span>'}<span>${hl(m ? t.slice(m[0].length) : t)}</span></li>`; }).join('')}</ol>
+          <footer><i class="bi bi-gear-fill ic-b"></i> <b>كيف تطبقها الصفحة:</b> ${hl(r.uses)}</footer></article>`; }).join('')}</div>`
+        : `<div class="adv-empty"><i class="bi bi-search"></i><h3>لا نص يطابق «${esc(q)}»</h3></div>`}
       <div class="adv-card"><h3><i class="bi bi-info-circle"></i> ما لا تحدده التعليمات</h3><p class="adv-note mb-0">لا تعرّف التعليمات «الطالب المتوقع تخرجه» بعدد ساعات؛ تعدّه الصفحة كذلك إذا كانت ساعاته المتبقية (بعد نجاح ما سجّله الآن) لا تزيد على الحد الأعلى للمتوقع تخرجه (21 في الفصل الاعتيادي، 13 في الصيفي)، أي يمكنه إنهاؤها في الفصل نفسه. ترتيب الأولويات اجتهاد إرشادي معلن السبب بجانب كل مادة.</p></div>`;
   }
+
 
   // ---------------------------------------------------------------- page frame and events
   function render() {
@@ -1608,6 +1670,12 @@
     document.querySelectorAll('[data-sv]').forEach(b => b.addEventListener('click', () => { st.sv = b.dataset.sv; render(); }));
     document.querySelectorAll('[data-fv]').forEach(b => b.addEventListener('click', () => { st.fresh.fv = b.dataset.fv; render(); }));
     document.querySelectorAll('[data-rem]').forEach(b => b.addEventListener('change', () => { st.fresh[b.dataset.rem] = b.checked; render(); }));
+    on('#dc-fac', 'change', e => { st.df = e.target.value; st.dd = ''; st.dl = 30; render(); });
+    on('#dc-dep', 'change', e => { st.dd = e.target.value; st.dl = 30; render(); });
+    on('#dc-only', 'change', e => { st.dx = e.target.checked; render(); });
+    on('#dc-more', 'click', () => { st.dl = (st.dl || 30) + 30; render(); });
+    const rq = $('#rl-q');
+    if (rq) { let t; rq.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { st.rq = rq.value; const pos = rq.selectionStart; render(); const n = $('#rl-q'); n.focus(); n.setSelectionRange(pos, pos); }, 250); }); }
     const dq = $('#adv-dq');
     if (dq) { let t; dq.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { st.q = dq.value; const pos = dq.selectionStart; render(); const n = $('#adv-dq'); n.focus(); n.setSelectionRange(pos, pos); }, 250); }); }
     on('#adv-eqf', 'change', e => readEq(e.target.files[0]));
