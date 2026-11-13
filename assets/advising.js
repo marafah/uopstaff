@@ -385,7 +385,7 @@
   // ================================================================ the page
   const U = root.UOP, { $, esc } = U;
   const P = new URLSearchParams(location.search);
-  const st = { view: P.get('view') || 'student', q: P.get('q') || '', mode: 'next', summer: null, cap: null, force: new Set(), drop: new Set(), fresh: { prog: '', ar: false, en: false, pc: false } };
+  const st = { view: P.get('view') || 'board', q: P.get('q') || '', mode: 'next', summer: null, cap: null, force: new Set(), drop: new Set(), fresh: { prog: '', ar: false, en: false, pc: false } };
   let TT, S = [], SP, AP, MAN = {}, NAMES = {}, OFFER = {}, STUD = null, BOARD = [], EQ = [], DESC = null;
   const PDFJS = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/legacy/build/';
   const EQ_KEY = 'adv-equivalents-v1';
@@ -397,9 +397,12 @@
   const hrsWord = n => n === 1 ? 'ساعة' : n === 2 ? 'ساعتان' : n <= 10 ? `${n} ساعات` : `${n} ساعة`;
 
   const css = `
-  .adv-tabs { display:flex; flex-wrap:wrap; gap:6px; margin:14px 0 12px; }
-  .adv-tabs button { border:1px solid #d9d3c3; background:#fff; color:#1f2328; border-radius:10px; padding:7px 14px; font-weight:700; font-size:.95rem; }
-  .adv-tabs button.on { background:#901d23; border-color:#901d23; color:#fff; }
+  .adv-tabs { display:flex; flex-wrap:wrap; gap:4px; margin:14px 0 14px; border-bottom: 2px solid #e6e1d3; align-items: flex-end; }
+  .adv-tabs button { border:0; border-bottom:3px solid transparent; margin-bottom:-2px; background:none; color:#3b4048; padding:9px 14px; font-weight:700; font-size:1rem; }
+  .adv-tabs button:hover { color:#901d23; } .adv-tabs button.on { color:#901d23; border-bottom-color:#901d23; }
+  .adv-tabs button em { font-style:normal; font-size:.78rem; background:#f3f1ea; color:#3b4048; border-radius:99px; padding:1px 8px; margin-inline-start:4px; } .adv-tabs button.on em { background:#901d23; color:#fff; }
+  .adv-tabs .adv-add { margin-inline-start:auto; background:#901d23; color:#fff; border-radius:10px 10px 0 0; } .adv-tabs .adv-add:hover { color:#fff; background:#7a171d; } .adv-tabs .adv-add.on { border-bottom-color:#5b0f14; }
+  .adv-tabs .adv-ref { padding:9px 10px; color:#3b4048; }
   .adv-drop { border:2px dashed #c9bfa6; border-radius:14px; background:#fffdf7; padding:26px 16px; text-align:center; cursor:pointer; color:#1f2328; }
   .adv-drop.over { background:#f7efe0; border-color:#901d23; }
   .adv-drop i { font-size:2rem; color:#901d23; }
@@ -435,6 +438,9 @@
   .adv-term.sum { background:#fffaf0; border-style:dashed; } .adv-term.stuck { border-color:#e9a2a2; background:#fdf0f0; }
   .adv-term-h { display:flex; gap:6px; align-items:center; border-bottom:1px solid #e3ddcf; padding-bottom:4px; margin-bottom:4px; font-size:.92rem; }
   .adv-term-c { font-size:.85rem; line-height:1.6; } .adv-term-c code, .adv-t code, .adv-card code { color:#1f2328; } .adv-term-h b { white-space:nowrap; } .adv-term-c small { color:#3b4048; font-weight:700; }
+  .adv-pickst { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+  .adv-pickst button { display: grid; grid-template-columns: 1fr auto; text-align: start; background: #fff; border: 1px solid #e6e1d3; border-radius: 12px; padding: 10px 12px; color: #1f2328; }
+  .adv-pickst button:hover { border-color: #901d23; background: #fbf2f3; } .adv-pickst b { grid-column: 1; } .adv-pickst small { grid-column: 1; color: #3b4048; font-size: .78rem; } .adv-pickst span { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-weight: 800; color: #0b4a66; }
   .adv-cb { width: 34px; text-align: center; } .adv-cb input { width: 17px; height: 17px; accent-color: #901d23; cursor: pointer; }
   .adv-row.sel td { background: #fbf2f3; }
   .adv-bulk { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; background: #fbf2f3; border-bottom: 1px solid #ecd4d6; }
@@ -532,11 +538,13 @@
     OFFER = {};
     S.forEach(s => { if (s.degree === 'البكالوريوس') (OFFER[s.code] ||= []).push(s); if (s.name) NAMES[s.code] ||= s.name.replace(/\s*-\s*(نظري|عملي)$/, ''); });
     (SP ? SP.plans : []).forEach(p => p.groups.forEach(g => g.courses.forEach(c => { NAMES[c.code] ||= c.name; })));
+    Object.values(READS()).forEach(r => (r.years || []).forEach(y => y.terms.forEach(t => t.courses.forEach(c => { if (/^\d{6,7}$/.test(c.code) && /[\u0600-\u06ff]{3}/.test(c.name || '')) NAMES[c.code] ||= clean(c.name).replace(/\s*\(متطلب.*$|\s+\d$/, ''); }))));
   }
   const offered = code => (OFFER[code] || []);
   // the same course under another number: an uploaded equivalent, or the same name in the published plans (a renumbered course)
   const altCodes = code => [...new Set([...eqOf(code).map(x => x.code), ...((sameName()[code] || []).map(x => x.code))])];
   const offeredAs = code => offered(code).length ? code : altCodes(code).find(x => offered(x).length) || '';
+  root.ADVDBG = () => ({ alt: altCodes('9400109'), as: offeredAs('9400109') });
   const sectionsLine = code => { const L = offered(code); if (!L.length) { const x = offeredAs(code); return x ? `<a class="adv-chip unlock" href="timetable.html?q=${x}" target="_blank" rel="noopener" title="الاسم نفسه برمز آخر في الجدول الدراسي">مطروحة برمز ${x}</a>` : '<span class="adv-chip off">غير مطروحة</span>'; }
     const open = L.filter(isOpen).length; return `<a class="adv-chip" href="timetable.html?q=${code}" target="_blank" rel="noopener">${L.length} شعبة${open < L.length ? ` · ${open} مفتوحة` : ''}</a>`; };
 
@@ -565,16 +573,15 @@
 
   // ---------------------------------------------------------------- view: one student
   function studentView() {
-    if (!STUD) return `<div class="adv-card"><h3><i class="bi bi-person-vcard"></i> تحليل خطة طالب</h3>
-      <label class="adv-drop d-block" id="adv-drop"><i class="bi bi-file-earmark-pdf"></i><div class="fw-bold mt-1">اختر ملف «تحليل خطة الطالب» (PDF) أو اسحبه إلى هنا</div>
-        <div class="adv-note mt-1">الملف الذي يطبعه نظام التسجيل للمرشد أو الطالب. يُقرأ في هذا المتصفح فقط ولا يُرفع إلى أي مكان.</div>
-        <input type="file" accept="application/pdf,.pdf" id="adv-file" hidden></label>
-      <div id="adv-msg" class="mt-2"></div></div>
-      <div class="adv-card"><h3><i class="bi bi-info-circle"></i> ماذا تحصل عليه</h3><ul class="adv-note mb-0">
-        <li>موقع الطالب في كل مجموعة متطلبات، مطابقاً لأرقام كشف الجامعة نفسه (ويُبيَّن إن اختلف شيء).</li>
-        <li>المواد التي يحق له تسجيلها (المتطلبات السابقة من الكشف نفسه)، مرتبة حسب أولويتها مع سبب كل أولوية.</li>
-        <li>جدول مقترح بلا تعارض من شعب الجدول الدراسي المنشور الآن (يتحدّث كل ساعة)، ضمن الحد الأعلى الرسمي للساعات ${ruleLink('7', 'م 7')}.</li>
-        <li>المواد غير المطروحة وبدائلها، ونموذج إرشاد للطباعة مع رمز QR يفتح المقترح للطالب في «مخطط جدولي».</li></ul></div>`;
+    if (!STUD) {   // choose one of the saved students
+      if (!BOARD.length) return `<div class="adv-empty"><i class="bi bi-person-vcard"></i><h3>اختر طالباً لتحليل خطته</h3><p>لا طلبة محفوظين بعد. أضف طلبتك أولاً (من البوابة، أو بملف «تحليل خطة الطالب»، أو يدوياً)، ثم اختر أحدهم هنا.</p><button type="button" class="btn btn-maroon" data-view="import"><i class="bi bi-plus-lg"></i> إضافة طلاب</button></div>`;
+      const q = norm(st.pq || '');
+      const L = BOARD.filter(x => !q || norm(x.head.name + ' ' + x.head.id + ' ' + (x.head.major || '')).includes(q));
+      return `<div class="adv-panel"><h3 class="adv-step"><span><i class="bi bi-search"></i></span> اختر طالباً لتحليل خطته</h3>
+        <p class="adv-src">التحليل: موقع الطالب في كل مجموعة، المواد التي يحق له تسجيلها بأولويتها، جدول مقترح بلا تعارض ضمن الحد الأعلى للساعات، مسارات التخرج، ونموذج إرشاد للطباعة.</p>
+        <input type="search" class="form-control mb-3" id="adv-pq" placeholder="ابحث باسم الطالب أو رقمه أو تخصصه…" value="${esc(st.pq || '')}" style="max-width:420px">
+        <div class="adv-pickst">${L.slice(0, 120).map(x => `<button type="button" data-open="${esc(x.head.id)}"><b>${esc(x.head.name || '')}</b><small>${esc(x.head.id)} · ${esc(x.head.major || '')}</small><span>${x.gpa != null ? x.gpa.toFixed(2) : '—'}</span></button>`).join('') || '<p class="adv-src">لا نتائج.</p>'}</div></div>`;
+    }
     const s = STUD, h = s.head;
     const pdfTerm = s.term, tt = ttTerm();
     const later = tt > pdfTerm;
@@ -619,7 +626,7 @@
     const lawWarn = a.warned ? `<div class="alert alert-danger py-2 mb-2"><b><i class="bi bi-exclamation-octagon-fill"></i> المعدل التراكمي ${s.gpa.toFixed(2)} أقل من 2.00:</b> الطالب على قائمة الإنذار ${ruleLink('12', 'م 12/أ')} — عليه رفع معدله إلى 2.00 خلال فصلين اعتياديين ${ruleLink('12', 'م 12/ب')}${(s.passedHours || 0) >= 99 ? '، ولا يُفصل لأنه أتمّ 99 ساعة بنجاح (م 12/ج)' : ''}. الأولوية في المقترح لإعادة المواد الإجبارية التي رسب فيها، فتُحسب له أعلى علامة ${ruleLink('11', 'م 11/ب')}.</div>`
       : s.gpa != null && s.gpa < 2.2 ? `<div class="alert alert-warning py-2 mb-2"><b><i class="bi bi-exclamation-triangle-fill"></i> المعدل التراكمي ${s.gpa.toFixed(2)} قريب من حد الإنذار (2.00)</b> ${ruleLink('12', 'م 12/أ')}: يحسن تخفيف العبء وإعادة المواد ذات العلامات المتدنية.</div>` : '';
     return `<div class="adv-card"><h3><i class="bi bi-person-vcard"></i> ${esc(h.name || '')} <span class="badge text-bg-light border">${esc(h.id || '')}</span>
-        <span class="ms-auto d-flex gap-2 no-print">${BOARD.length ? '<button type="button" class="btn btn-sm btn-light border" id="adv-back"><i class="bi bi-arrow-right"></i> لوحة التحكم</button>' : ''}<button type="button" class="btn btn-sm btn-outline-secondary" id="adv-other"><i class="bi bi-arrow-repeat"></i> طالب آخر</button>
+        <span class="ms-auto d-flex gap-2 no-print">${BOARD.length ? '<button type="button" class="btn btn-sm btn-light border" id="adv-back"><i class="bi bi-arrow-right"></i> الطلاب</button>' : ''}<button type="button" class="btn btn-sm btn-outline-secondary" id="adv-other"><i class="bi bi-people"></i> اختر طالباً آخر</button>
         <button type="button" class="btn btn-sm btn-maroon" id="adv-print"><i class="bi bi-printer"></i> نموذج الإرشاد</button></span></h3>
       <div class="adv-kv"><div><b>التخصص</b>${esc(h.major || '')}</div><div><b>الكلية</b>${esc(h.faculty || '')}</div><div><b>إصدار الخطة</b>${esc(s.version || '')}</div>
         <div><b>فصل الالتحاق</b>${esc(termName(+h.entry) || h.entry || '')}</div><div><b>نوع الدراسة</b>${esc(h.studyType || '')}</div><div><b>المرشد</b>${esc(h.advisor || '')}</div>
@@ -1152,17 +1159,17 @@
 
   // ---------------------------------------------------------------- page frame and events
   function render() {
-    const mine = ['board', 'demand', 'import'].includes(st.view);
-    const tabs = [['board', 'bi-people', 'طلابي'], ['student', 'bi-person-vcard', 'تحليل طالب'], ['fresh', 'bi-stars', 'طالب جديد'], ['dict', 'bi-book-half', 'قاموس المواد'], ['rules', 'bi-bank', 'القواعد الرسمية']];
-    const nDemand = mine && BOARD.length ? new Set(dashRows().flatMap(r => r.ready.map(c => c.code))).size : 0;
-    const sub = mine ? `<div class="adv-mine"><h2>طلابي</h2><nav>${[['board', `الطلاب (${BOARD.length})`], ['demand', `المواد المطلوبة (${nDemand})`]].map(([k, l]) => `<button type="button" class="${st.view === k ? 'on' : ''}" data-view="${k}">${l}</button>`).join('')}
-        <button type="button" class="add ${st.view === 'import' ? 'on' : ''}" data-view="import"><i class="bi bi-plus-lg"></i> إضافة طالب</button></nav></div>` : '';
+    const nDemand = BOARD.length ? new Set(dashRows().flatMap(r => r.ready.map(c => c.code))).size : 0;
+    const tabs = [['board', 'bi-people', `الطلاب${BOARD.length ? ` <em>${BOARD.length}</em>` : ''}`], ['student', 'bi-person-vcard', 'تحليل طالب'], ['demand', 'bi-bar-chart-line', `المواد المطلوبة${nDemand ? ` <em>${nDemand}</em>` : ''}`],
+      ['fresh', 'bi-stars', 'طالب جديد'], ['dict', 'bi-book-half', 'قاموس المواد'], ['rules', 'bi-bank', 'القواعد الرسمية']];
+    const sub = '';
     const body = sub + (st.view === 'import' ? importView() : st.view === 'board' || st.view === 'demand' ? boardView() : st.view === 'fresh' ? freshView() : st.view === 'dict' ? dictView() : st.view === 'rules' ? rulesView() : studentView());
-    $('#adv-app').innerHTML = `<div class="adv-tabs">${tabs.map(([k, ic, l]) => `<button type="button" class="${st.view === k || (k === 'board' && mine) ? 'on' : ''}" data-view="${k}"><i class="bi ${ic}"></i> ${l}</button>`).join('')}
-      <button type="button" class="btn btn-sm btn-light ms-auto" id="adv-refresh" title="أعد قراءة الجدول الدراسي المنشور الآن"><i class="bi bi-arrow-clockwise"></i> تحديث الشعب</button></div>${body}`;
+    $('#adv-app').innerHTML = `<div class="adv-tabs">${tabs.map(([k, ic, l]) => `<button type="button" class="${st.view === k ? 'on' : ''}" data-view="${k}"><i class="bi ${ic}"></i> ${l}</button>`).join('')}
+      <button type="button" class="adv-add ${st.view === 'import' ? 'on' : ''}" data-view="import"><i class="bi bi-plus-lg"></i> إضافة طلاب</button>
+      <button type="button" class="adv-ref" id="adv-refresh" title="أعد قراءة الجدول الدراسي المنشور الآن (يتحدّث كل ساعة)"><i class="bi bi-arrow-clockwise"></i></button></div>${body}`;
     const url = new URL(location.href);
     url.searchParams.delete('view'); url.searchParams.delete('q');
-    if (st.view !== 'student') url.searchParams.set('view', st.view);
+    if (st.view !== 'board') url.searchParams.set('view', st.view);
     if (st.view === 'dict' && st.q) url.searchParams.set('q', st.q);
     history.replaceState(null, '', url);
     bind();
@@ -1174,6 +1181,7 @@
     document.querySelectorAll('[data-sort]').forEach(t => t.addEventListener('click', () => { if (st.bs === t.dataset.sort) st.bd = -(st.bd || 1); else { st.bs = t.dataset.sort; st.bd = 1; } render(); }));
     document.querySelectorAll('[data-pdf]').forEach(b => b.addEventListener('click', async () => { const r = (await storedAll()).find(x => x.id === b.dataset.pdf); if (r && r.pdf) window.open(URL.createObjectURL(new Blob([r.pdf], { type: 'application/pdf' })), '_blank'); else U.modal('الخطة الأصلية', 'هذا الطالب أُدخل يدوياً، فلا ملف أصلي له.'); }));
     const bq = $('#adv-bq'); if (bq) { let t; bq.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { st.bq = bq.value; const pos = bq.selectionStart; render(); const n = $('#adv-bq'); n.focus(); n.setSelectionRange(pos, pos); }, 250); }); }
+    const pq = $('#adv-pq'); if (pq) { let t; pq.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { st.pq = pq.value; const pos = pq.selectionStart; render(); const n = $('#adv-pq'); n.focus(); n.setSelectionRange(pos, pos); }, 200); }); }
     const bm = $('#adv-bm'); if (bm) bm.addEventListener('change', () => { st.bm = bm.value; render(); });
     document.querySelectorAll('[data-am]').forEach(b => b.addEventListener('click', () => { st.am = b.dataset.am; render(); }));
     const mset = (id, k) => { const el = $(id); if (el) el.addEventListener('input', () => { st.man[k] = el.value; }); };
@@ -1256,7 +1264,7 @@
       } catch (e) { bad.push(`${f.name} (${e.message})`); }
     }
     render();
-    if (st.view === 'import' && files.length) { const m = $('#adv-msg'); if (m && !bad.length) m.innerHTML = `<div class="alert alert-success py-2 mb-0">أُضيف ${files.length - bad.length} خطة. <a href="#" data-view="board">افتح لوحة التحكم</a></div>`; m && m.querySelectorAll('[data-view]').forEach(a => a.onclick = e => { e.preventDefault(); st.view = 'board'; render(); }); }
+    if (st.view === 'import' && files.length) { const m = $('#adv-msg'); if (m && !bad.length) m.innerHTML = `<div class="alert alert-success py-2 mb-0">أُضيف ${files.length - bad.length} خطة. <a href="#" data-view="board">عرض الطلاب</a></div>`; m && m.querySelectorAll('[data-view]').forEach(a => a.onclick = e => { e.preventDefault(); st.view = 'board'; render(); }); }
     if (bad.length) { const m = $('#adv-msg'); if (m) m.innerHTML = `<div class="alert alert-warning py-2">لم يُقرأ: ${bad.map(esc).join('، ')} — هل هو ملف «تحليل خطة الطالب» من نظام التسجيل؟</div>`; }
   }
   function boardCsv(ids) {
