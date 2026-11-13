@@ -199,7 +199,7 @@
         <div style="font-size:11pt">امسح الرمز لأقصر مسار لذوي الإعاقة إلى المدخل الميسّر لأي مبنى</div><div style="font-size:9pt;color:#555;margin-top:4px">${esc(ic)} · ${esc(SITE)}access.html</div></div>`).join('')}</div>`,
       note: 'المسار من مخطط الجامعة لمسار ذوي الاحتياجات الخاصة.' });
   }
-  U.getJSON('data/campus_access.json').then(d => {
+  U.getJSON('data/campus_access.json?v=3').then(d => {
     A = d; W = d.w; H = d.h; K = W / 1280; build();
     const here = P.get('here'); if (here && placeOf(here)) st.from = here;   // a «أنت هنا» sticker
     const site = P.get('site') && d.buildings.find(b => b.site === P.get('site')); if (site) st.to = 'b:' + site.n;   // from «خريطة الحرم»: ?site=<its building number>
