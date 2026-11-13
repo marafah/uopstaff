@@ -514,6 +514,9 @@
   #adv-app .wk-ev { font-size:.95rem; line-height:1.45; padding:6px 10px; color:#111; }
   #adv-app .wk-ev b { font-size:1.02rem; font-weight:800; } #adv-app .wk-ev span { white-space:normal; font-weight:700; font-size:.92rem; line-height:1.3; }
   #adv-app .wk-ev small { font-size:.88rem; opacity:1; font-weight:700; direction:ltr; text-align:right; }
+  /* no bold inside tables, cards or the week grid */
+  .adv-t tbody, .adv-t tbody *, .dm-t tbody, .dm-t tbody *, #adv-app .wk-ev, #adv-app .wk-ev *, .adv-cc, .adv-cc * { font-weight:400 !important; }
+  .adv-t thead th, .dm-t thead th { font-weight:600 !important; }
   .adv-sl { padding:3px 0; white-space:nowrap; } .adv-sl + .adv-sl { border-top:1px dashed #e5e5e5; } .adv-sl small { color:#3b4048; }
   .adv-cb { width: 34px; text-align: center; } .adv-cb input { width: 17px; height: 17px; accent-color: #901d23; cursor: pointer; }
   .adv-row.sel td { background: #fbf2f3; }
