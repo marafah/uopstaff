@@ -54,10 +54,50 @@
   };
   const WD = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
   const today = () => new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 10);
-  function fresh(type) {
+  const hourly = (a, b) => Array.from({ length: b - a }, (_, k) => [U.toTime((a + k) * 60), U.toTime((a + k + 1) * 60)]);
+  // A faculty's standing answers (what its exams committee decided once), applied to every new plan of that faculty alone so
+  // they are not asked again; each stays editable in «الإعداد». all: every exam type; <type>: that type only.
+  // halls / labs: the rooms suggested (hall capacity fixed; a lab's = its largest lab section); cal: the exam days from the
+  // university calendar, from its first Sunday, without its last day.
+  const PROFILES = {
+    'تكنولوجيا المعلومات': {
+      halls: { bld: ['مبنى كلية تكنولوجيا المعلومات'], re: /^7[0-3]\d\d$/, cap: 24, label: 'قاعات 7000–7399 في مبنى الكلية، 24 طالباً في القاعة' },
+      labs: { bld: ['مبنى كلية تكنولوجيا المعلومات', 'مبنى المكتبة'], label: 'مختبرات مبنى الكلية ومبنى المكتبة' },
+      all: { splitOver: 30, splitPer: 24, blankHall: true, practical: true, near: false, off: [5, 6] },
+      midterm: { periods: hourly(8, 16), firstStart: '08:00', lastEnd: '16:00', maxDay: 2, b2b: false, insClash: false, busy: true, depth: 'deep', labelT: 'جدول امتحانات MID', cal: { sunday: true, dropLast: true } },
+    } };
+  const profOf = o => (o.facs || []).length === 1 ? PROFILES[o.facs[0]] || null : null;
+  // the exam window of a type in the university calendar (data/calendar.json)
+  let CALJ = null;
+  const CALRE = { midterm: /منتصف الفصل/, mid1: /الامتحان الأول/, mid2: /الاختبار الثاني|الامتحان الثاني/, final: /الامتحانات النهائية/ };
+  function calWin(type, rule) {
+    if (!CALJ || !CALRE[type]) return null;
+    const evs = (CALJ.semesters || []).flatMap(s => s.events || []), t = today();
+    const ev = evs.filter(e => e.category === 'exams' && CALRE[type].test(e.title) && e.end >= t).sort((a, b) => a.start.localeCompare(b.start))[0];
+    if (!ev) return null;
+    const d = new Date(ev.start + 'T12:00:00Z'), e = new Date(ev.end + 'T12:00:00Z');
+    if (rule && rule.sunday) while (d.getUTCDay() !== 0 && d < e) d.setUTCDate(d.getUTCDate() + 1);
+    if (rule && rule.dropLast) e.setUTCDate(e.getUTCDate() - 1);
+    const start = d.toISOString().slice(0, 10), end = e.toISOString().slice(0, 10);
+    const hol = evs.filter(x => x.category === 'holiday' && x.start <= end && x.end >= start).map(x => x.start).filter(x => x >= start && x <= end);
+    return { start, end, hol: [...new Set(hol)].join(' '), title: ev.title, from: ev.start, to: ev.end };
+  }
+  // the type's own defaults, then the faculty's answers for it, then its days from the calendar
+  function typeSet(o, type) {
+    const t = TYPES[type], pr = profOf(o), p = pr ? Object.assign({}, pr.all || {}, pr[type] || {}) : {};
+    Object.assign(o, { type, periods: t.periods.map(x => x.slice()), days: t.days, busy: type === 'mid1' || type === 'mid2' || type === 'midterm' });
+    Object.entries(p).forEach(([k, v]) => { if (k !== 'labelT' && k !== 'cal') o[k] = JSON.parse(JSON.stringify(v)); });
+    const w = calWin(type, p.cal);
+    if (w) Object.assign(o, { start: w.start, end: w.end, hol: w.hol, calNote: `${w.title}: ${dLong(w.from)} – ${dLong(w.to)}` }); else o.calNote = '';
+    if (pr) { o.profile = o.facs[0]; if ((!o.label || o.labelAuto || o.label === 'خطة جديدة') && p.labelT) { o.label = `${p.labelT} – ${o.facs[0]}${CALJ && CALJ.year ? ' ' + CALJ.year : ''}`; o.labelAuto = true; } }
+    return o;
+  }
+  function fresh(type, facs) {
     const t = TYPES[type || 'final'];   // the default exam is the final
-    return { type: type || 'final', start: today(), days: t.days, off: [5, 6], hol: '', end: '', procMode: 'room', procFix: {}, firstStart: '08:00', lastEnd: '16:00', dayWin: {}, periods: t.periods.map(p => p.slice()), maxDay: 2, perProc: 30, minProc: 1, maxDuty: 0, maxDutyDay: 2, busy: type === 'mid1' || type === 'mid2' || type === 'midterm', b2b: true, near: true, insClash: true, early: true, depth: 'normal', noProc: '', label: '', gview: 'matrix', setupDone: false,
-      faculty: 'تكنولوجيا المعلومات', facs: ['تكنولوجيا المعلومات'], flt: {}, practical: false, grad: true, src: 'plans', rooms: null, excl: {}, pins: {}, slot: {}, reg: null, regInfo: '', extraProc: '', drafts: [], approved: null };
+    const o = { type: type || 'final', start: today(), days: t.days, off: [5, 6], hol: '', end: '', procMode: 'room', procFix: {}, firstStart: '08:00', lastEnd: '16:00', dayWin: {}, periods: t.periods.map(p => p.slice()), maxDay: 2, perProc: 30, minProc: 1, maxDuty: 0, maxDutyDay: 2, busy: type === 'mid1' || type === 'mid2' || type === 'midterm', b2b: true, near: true, insClash: true, early: true, depth: 'normal', noProc: '', label: '', gview: 'matrix', setupDone: false,
+      faculty: facs ? facs[0] || '' : 'تكنولوجيا المعلومات', facs: facs || ['تكنولوجيا المعلومات'], flt: {}, practical: false, grad: true, src: 'plans', rooms: null, excl: {}, pins: {}, slot: {}, reg: null, regInfo: '', extraProc: '', drafts: [], approved: null,
+      splitOver: 0, splitPer: 24, blankHall: false, fixed: [], procList: [], procOnly: false, roomPolicy: 'ownFirst' };
+    return typeSet(o, o.type);
   }
   let S;
   try { S = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { S = null; }
@@ -67,6 +107,7 @@
     if (!S.off.includes(5)) S.off.push(5);   // Friday is the official weekly holiday
     if (!S.procMode) S.procMode = 'room'; if (!S.procFix) S.procFix = {};
     if (S.firstStart == null) S.firstStart = '08:00'; if (!S.dayWin) S.dayWin = {}; if (S.end == null) S.end = '';
+    if (S.splitPer == null) { S.splitPer = 24; S.splitOver = S.splitOver || 0; } if (!Array.isArray(S.fixed)) S.fixed = []; if (!Array.isArray(S.procList)) S.procList = []; if (!S.roomPolicy) S.roomPolicy = 'free';
     if (S.lastEnd == null) { S.lastEnd = '16:00'; delete S.noFrom; delete S.noTo;
       if (S.type === 'midterm' && S.periods.map(p => p.join('-')).join(',') === OLDMID) { S.periods = TYPES.midterm.periods.map(p => p.slice()); S.slot = {}; S.pins = {}; } } };
   // a period that ends after the latest allowed time (a user setting, 16:00 by default)
@@ -115,7 +156,7 @@
   let TT, PLANS, tab = new URLSearchParams(location.search).get('tab') || (S.setupDone ? 'grid' : 'set'), sel = null, outView = 'all', undo = [];
 
   // ---------- model ----------
-  let C = [], BY = {}, G = [], INS = {}, NS = 0, P = 0, DAYS = [], PARTS = {};
+  let C = [], BY = {}, G = [], INS = {}, NS = 0, P = 0, DAYS = [], PARTS = {}, PARTOF = {}, RQ = [];
   const level = c => {
     if (c.degree === 'الماجستير') return 5;
     const d = String(c.code).replace(/\D/g, ''), l = /^[1-8]\d{5}$/.test(d) ? +d[3] : /^1001\d{3}$/.test(d) ? +d[4] : 0;
@@ -136,10 +177,52 @@
     }
     return out;
   }
+  // a time of an exam day → its slot (the period it starts in), or -1 when the day is not an exam day
+  function slotAt(date, from) {
+    const di = DAYS.findIndex(d => d.iso === date); if (di < 0 || !from) return -1;
+    const t = U.toMin(from); let k = S.periods.findIndex(p => U.toMin(p[0]) <= t && t < U.toMin(p[1]));
+    if (k < 0) k = S.periods.findIndex(p => U.toMin(p[1]) > t);
+    return k < 0 ? -1 : di * P + k;
+  }
+  // exams other departments hold at fixed times (S.fixed: the basic sciences' maths, the university requirements…): one row per
+  // course and sections at a date and time, with the rooms they take. In the exam days, each joins the plan at its time (a course
+  // sat at several times becomes one part per time, by sections), keeps its students from other exams then, takes no seats or
+  // proctors here, and its rooms are taken at that time. Only those that share students with this plan's courses join.
+  let FX = { codes: new Set(), parts: {}, pin: {}, until: {}, out: [], blocks: [], inPlan: new Set() };
+  function fixedPrep() {
+    const F = { codes: new Set(), parts: {}, pin: {}, until: {}, out: [], blocks: [] }, by = {};
+    (S.fixed || []).forEach(x => (by[x.code] = by[x.code] || []).push(x));
+    Object.entries(by).forEach(([code, L]) => {
+      const ses = {};
+      L.filter(x => DAYS.some(d => d.iso === x.date)).forEach(x => { const k = x.date + ' ' + x.from, o = ses[k] = ses[k] || { date: x.date, from: x.from, to: x.to, secs: [], all: false };
+        if (!x.secs || !x.secs.length) o.all = true; else o.secs.push(...x.secs.map(String)); if (U.toMin(x.to || x.from) > U.toMin(o.to || o.from)) o.to = x.to; });
+      const list = Object.values(ses).sort((a, b) => (a.date + a.from).localeCompare(b.date + b.from));
+      if (!list.length) { F.out.push(code); return; }
+      F.codes.add(code);
+      const whole = list.find(o => o.all) || (L.length === 1 ? list[0] : null);
+      if (whole) { F.pin[code] = slotAt(whole.date, whole.from); F.until[code] = whole.to; return; }
+      F.parts[code] = list.map(o => [...new Set(o.secs)]);
+      list.forEach((o, k) => { const pc = list.length > 1 ? `${code}/${k + 1}` : code; F.pin[pc] = slotAt(o.date, o.from); F.until[pc] = o.to; });
+    });
+    const bl = {}; (S.fixed || []).forEach(x => { if (!x.rooms || !x.rooms.length || !x.date) return; const k = [x.date, x.from, x.to || x.from].join('|'); (bl[k] = bl[k] || new Set()); x.rooms.forEach(r => bl[k].add(String(r))); });
+    F.blocks = Object.entries(bl).map(([k, set]) => { const [date, from, to] = k.split('|'); return { date, from, to, rooms: [...set] }; });
+    return F;
+  }
   function build() {
     const MK = S.type === 'makeup' && S.mk && S.mk.n ? S.mk : null;   // make-up: only the courses (and students) of the uploaded list
     const ONLY = !MK && S.only && S.only.length ? new Set(S.only) : null;
-    const secs = merged(TT.sections.filter(s => (MK ? !!MK.n[s.code] : ONLY ? ONLY.has(s.code) : inFac(s.faculty)) && (MK || S.practical || s.activity === 'نظري') && (MK || S.grad || s.degree !== 'الماجستير')));
+    DAYS = examDays(); P = S.periods.length; NS = DAYS.length * P;
+    FX = MK ? { codes: new Set(), parts: {}, pin: {}, until: {}, out: [], blocks: [] } : fixedPrep();
+    // a fixed exam joins only when some student of this plan's own courses sits it (with a registration list); else all do
+    let FXIN = FX.codes;
+    if (FX.codes.size && S.reg && S.src !== 'plans') {
+      const facOf = {}; TT.sections.forEach(s => { facOf[s.code] = s.faculty; });
+      const core = k => !FX.codes.has(k) && (ONLY ? ONLY.has(k) : inFac(facOf[k])), linked = new Set();
+      S.reg.forEach(g => { const b = g.c.map(k => k.split('#')[0]); if (b.some(core)) b.forEach(k => linked.add(k)); });
+      FXIN = new Set([...FX.codes].filter(k => linked.has(k)));
+    }
+    FX.inPlan = FXIN;
+    const secs = merged(TT.sections.filter(s => (MK ? !!MK.n[s.code] : FXIN.has(s.code) || (ONLY ? ONLY.has(s.code) : inFac(s.faculty))) && (MK || S.practical || s.activity === 'نظري') && (MK || S.grad || s.degree !== 'الماجستير')));
     const m = {};
     secs.forEach(s => {
       const c = m[s.code] || (m[s.code] = { code: s.code, name: s.name.replace(/\s*-\s*(نظري|عملي)$/, ''), dept: s.department, fac: s.faculty, degree: s.degree, students: 0, secs: 0, ins: new Set(), sl: [] });
@@ -154,28 +237,37 @@
     // a registration report gives the real number of students per course and per section (it replaces the timetable's counts)
     else if (S.regN && S.src !== 'plans') Object.values(m).forEach(c => { const n = S.regN[c.code]; if (!n) return; c.students = n; c.fromReg = true;
       const sec = S.regSec && S.regSec[c.code]; if (sec) { const old = Object.fromEntries(c.sl.map(x => [String(x.s), x.ins])); c.sl = Object.entries(sec).map(([k, v]) => ({ s: k, n: v, ins: old[k] || '' })); } });
-    PARTS = {};
-    if (!MK && S.parts) Object.entries(S.parts).forEach(([code, list]) => { const c = m[code]; if (!c || !Array.isArray(list) || list.length < 2) return;
+    // courses sat in parts (by sections, each part its own exam): the committee's (S.parts) and the fixed exams' (one part per time)
+    PARTS = {}; PARTOF = {};
+    const PL = MK ? {} : Object.assign({}, S.parts || {}, FX.parts);
+    Object.entries(PL).forEach(([code, list]) => { const c = m[code], fx = !!FX.parts[code]; if (!c || !Array.isArray(list) || !list.length || (list.length < 2 && !fx)) return;
+      const po = PARTOF[code] = {};
+      if (list.length === 1) {   // a fixed exam for some sections only (the others sit it outside the exam days)
+        const set = new Set(list[0].map(String)), sl = c.sl.filter(x => set.has(String(x.s))); set.forEach(x => { po[x] = code; });
+        if (sl.length) Object.assign(c, { sl, students: sl.reduce((a, x) => a + x.n, 0), secs: sl.length, ins: new Set(sl.map(x => x.ins).filter(Boolean)) }); return; }
       delete m[code]; PARTS[code] = [];
-      list.forEach((secs, k) => { const set = new Set(secs.map(String)), sl = c.sl.filter(x => set.has(String(x.s))); if (!sl.length) return;
-        const pc = `${code}/${k + 1}`; PARTS[code].push(pc);
+      list.forEach((secs, k) => { const set = new Set(secs.map(String)), sl = c.sl.filter(x => set.has(String(x.s))), pc = `${code}/${k + 1}`; set.forEach(x => { po[x] = pc; }); if (!sl.length && !fx) return;
+        PARTS[code].push(pc);
         m[pc] = { ...c, code: pc, base: code, part: k + 1, parts: list.length, name: `${c.name} (${k + 1} من ${list.length})`, baseName: c.name, sl, students: sl.reduce((a, x) => a + x.n, 0), secs: sl.length, ins: new Set(sl.map(x => x.ins).filter(Boolean)) }; }); });
     C = Object.values(m).filter(c => !S.excl[c.code] && !S.excl[c.base]).sort((a, b) => a.code.localeCompare(b.code));
     C.forEach((c, i) => { c.i = i; c.lv = level(c); c.ins = [...c.ins]; });
     BY = Object.fromEntries(C.map(c => [c.code, c]));
-    DAYS = examDays(); P = S.periods.length; NS = DAYS.length * P;
     // a slot is day × period: when periods are added or removed, each exam keeps its day and period number (or is unscheduled)
     if (S.slotP && S.slotP !== P) { const re = v => { if (!Number.isInteger(v) || v < 0) return v; const d = Math.floor(v / S.slotP), k = v % S.slotP; return k < P ? d * P + k : -1; };
       Object.keys(S.slot).forEach(c => { S.slot[c] = re(S.slot[c]); if (S.slot[c] < 0) delete S.slot[c]; }); Object.keys(S.pins).forEach(c => { S.pins[c] = re(S.pins[c]); if (S.pins[c] < 0) delete S.pins[c]; }); }
     S.slotP = P;
+    RQ = C.map(effReq);
     const multi = new Set(C.map(c => c.fac)).size > 1, keys = [...new Set(C.map(c => multi ? c.fac : c.dept))].sort();
     C.forEach(c => { c.col = U.PALETTE[keys.indexOf(multi ? c.fac : c.dept) % U.PALETTE.length]; });
     COLBY = multi ? 'fac' : 'dept';
     // instructors → their courses
     INS = {}; C.forEach(c => c.ins.forEach(n => (INS[n] = INS[n] || []).push(c.i)));
-    // who sits together
+    // who sits together. A registration group lists «code#section» (or the code alone): a course sat in parts counts only the
+    // part of the student's section; a section outside every fixed time has no exam in these days
     G = [];
-    const add = (name, codes, w, hard, kind) => { const ix = [...new Set(codes.flatMap(k => PARTS[k] || [k]))].filter(k => BY[k]).map(k => BY[k].i); if (ix.length > 1) G.push({ name, c: ix, w, hard, kind }); };
+    const exOf = k => { const h = k.indexOf('#'), code = h < 0 ? k : k.slice(0, h), sec = h < 0 ? '' : k.slice(h + 1), po = PARTOF[code];
+      if (!po) return [code]; if (!sec) return PARTS[code] || [code]; return po[sec] ? [po[sec]] : FX.parts[code] ? [] : PARTS[code] || [code]; };
+    const add = (name, codes, w, hard, kind) => { const ix = [...new Set(codes.flatMap(exOf))].filter(k => BY[k]).map(k => BY[k].i); if (ix.length > 1) G.push({ name, c: ix, w, hard, kind }); };
     if (MK) MK.reg.forEach(g => add(`${g.w} طالب (قائمة التكميلي)`, g.c, g.w, true, 'students'));
     else if (S.src !== 'reg' || !S.reg) {
       const inPlan = new Set();
@@ -196,9 +288,12 @@
     G.forEach((g, i) => { g.i = i; });
     C.forEach(c => { c.g = []; });
     G.forEach(g => g.c.forEach(i => C[i].g.push(g.i)));
-    // slots: keep the saved ones that still exist
-    C.forEach(c => { const s = S.slot[c.code]; c.s = Number.isInteger(s) && s >= 0 && s < NS ? s : -1; const p = S.pins[c.code]; c.pin = Number.isInteger(p) && p < NS ? p : null; if (c.pin != null) c.s = c.pin; });
-    capTotal = rooms().filter(r => r.on).reduce((a, r) => a + r.c, 0);
+    // slots: keep the saved ones that still exist. Pinned: a fixed exam at its time, then the committee's pins, then a course's
+    // fixed time from its requirements (S.req[code].at)
+    C.forEach(c => { const s = S.slot[c.code]; c.s = Number.isInteger(s) && s >= 0 && s < NS ? s : -1;
+      const at = RQ[c.i].at, fp = FX.pin[c.code], p = fp != null && fp >= 0 ? fp : Number.isInteger(S.pins[c.code]) ? S.pins[c.code] : at ? slotAt(at.date, at.from) : null;
+      c.pin = Number.isInteger(p) && p >= 0 && p < NS ? p : null; if (c.pin != null) c.s = c.pin; });
+    capTotal = rooms().filter(r => r.on && usable(r)).reduce((a, r) => a + r.c, 0);
     // rooms and instructors taken by lectures at an exam's time (when exams run during teaching weeks, e.g. midterms)
     const busyR = {}, busyI = {};
     if (S.busy) TT.sections.forEach(x => x.meetings.forEach(m => {
@@ -211,11 +306,11 @@
         if (x.instructor) (busyI[s] = busyI[s] || new Set()).add(x.instructor);
       }
     }));
-    (S.block || []).forEach(b => { for (let s = 0; s < NS; s++) { const d = DAYS[dayOf(s)], p = S.periods[s % P];
+    (S.block || []).concat(FX.blocks || []).forEach(b => { for (let s = 0; s < NS; s++) { const d = DAYS[dayOf(s)], p = S.periods[s % P];
       if (d.iso === b.date && U.toMin(b.from) < U.toMin(p[1]) && U.toMin(p[0]) < U.toMin(b.to)) b.rooms.forEach(r => (busyR[s] = busyR[s] || new Set()).add(String(r))); } });
     AV = []; CAP = []; BUSYI = busyI; BLK = [];
     for (let s = 0; s < NS; s++) BLK[s] = outWin(DAYS[dayOf(s)].n, S.periods[s % P]);
-    for (let s = 0; s < NS; s++) { AV[s] = rooms().filter(r => r.on && !(busyR[s] && busyR[s].has(r.n))); CAP[s] = AV[s].reduce((a, r) => a + r.c, 0); CAPL[s] = AV[s].filter(r => r.t === LAB).reduce((a, r) => a + r.c, 0); }
+    for (let s = 0; s < NS; s++) { AV[s] = rooms().filter(r => r.on && usable(r) && !(busyR[s] && busyR[s].has(r.n))); CAP[s] = AV[s].reduce((a, r) => a + r.c, 0); CAPO[s] = AV[s].filter(r => mineR(r.n)).reduce((a, r) => a + r.c, 0); CAPL[s] = AV[s].filter(r => r.t === LAB).reduce((a, r) => a + r.c, 0); }
     lecPrep();
   }
   // rooms: by default the rooms the faculty teaches in, with an exam capacity of half the largest class seen there
@@ -230,7 +325,20 @@
     TT.sections.filter(s => inFac(s.faculty) && s.room && s.room !== '0' && s.activity === 'عملي').forEach(s => { m[s.room] = Math.max(m[s.room] || 0, s.registered || 0); });
     return Object.entries(m).filter(([n, c]) => c >= 8 && !have.has(n) && kindOf(n) === LAB).sort((a, b) => b[1] - a[1]).slice(0, S.facs.length === 1 ? 16 : 200).map(([n, c]) => ({ n, c: Math.max(10, c), on: true, t: LAB }));
   }
+  // the rooms of a faculty's profile: its halls (fixed capacity) and the labs of its buildings (a lab's largest lab section)
+  function profRooms(pr) {
+    KINDS = KINDS || roomKinds(); const bld = {}, th = {};
+    TT.sections.forEach(s => { if (!s.room || s.room === '0') return; bld[s.room] = s.building; if (s.activity !== 'عملي') th[s.room] = Math.max(th[s.room] || 0, s.registered || 0); });
+    const labs = Object.entries(KINDS).filter(([n, o]) => o.l > 0 && pr.labs.bld.includes(bld[n])).sort((a, b) => b[1].ml - a[1].ml || a[0].localeCompare(b[0]))
+      .map(([n, o]) => ({ n, c: Math.max(10, o.ml), on: true, t: LAB }));
+    const isLab = new Set(labs.map(r => r.n));
+    const halls = Object.keys(th).filter(n => pr.halls.bld.includes(bld[n]) && pr.halls.re.test(n) && th[n] >= 10 && !isLab.has(n) && kindOf(n) === HALL).sort()
+      .map(n => ({ n, c: pr.halls.cap, on: true, t: HALL }));
+    return halls.concat(labs);
+  }
   function rooms() {
+    const pr = !S.rooms && profOf(S);
+    if (pr && pr.halls) S.rooms = profRooms(pr);
     if (!S.rooms) {
       const m = {};
       TT.sections.filter(s => inFac(s.faculty) && s.room && s.room !== '0' && s.activity === 'نظري').forEach(s => { m[s.room] = Math.max(m[s.room] || 0, s.registered || 0); });
@@ -242,18 +350,40 @@
     return S.rooms;
   }
   // what the exams coordinator asked for each course: room type, number of rooms, proctors, notes
-  const REQ = c => (S.req || {})[c.code] || {};
+  // (a part of a course: the course's entry, with the part's own on top)
+  const rawReq = c => { const R = S.req || {}; return c.base ? Object.assign({}, R[c.base] || {}, R[c.code] || {}) : R[c.code] || {}; };
+  // what applies to an exam: the coordinator's entry, with the plan's rules filled in (a course with no room type sits in halls;
+  // a hall exam over S.splitOver students is spread over halls of S.splitPer each), and a fixed exam's time. Worked out once per
+  // build (RQ), as the solver asks for it at every move.
+  function effReq(c) {
+    const q = Object.assign({}, rawReq(c));
+    if (FX.codes.has(c.base || c.code)) { q.ext = true; q.until = FX.until[c.code] || q.until; q.fixedBy = ((S.fixed || []).find(x => x.code === (c.base || c.code)) || {}).who || ''; return q; }
+    if (q.ext) return q;
+    if (q.at && q.at.to) q.until = q.at.to;
+    if (!q.type && S.blankHall) q.type = HALL;
+    if (q.type === HALL && S.splitOver > 0 && S.splitPer > 0 && c.students > S.splitOver) { q.rooms = Math.ceil(c.students / S.splitPer); q.split = true; }
+    return q;
+  }
+  const REQ = c => (c && c.i != null && C[c.i] === c && RQ[c.i]) || effReq(c);
   const needLab = c => REQ(c).type === LAB;
   // an exam another department holds at a fixed time (e.g. the basic sciences' maths exams): it keeps its students from other
-  // exams at that time, but takes no seats, rooms or proctors here (S.req[code].ext)
-  const EXT = c => !!((S.req || {})[c.base || c.code] || {}).ext;
+  // exams at that time, but takes no seats, rooms or proctors here (S.req[code].ext, or a fixed exam of S.fixed)
+  const EXT = c => !!REQ(c).ext;
   // an exam longer than its period (S.req[code].until, e.g. 2:00–3:30 in hourly periods) also takes the next period from its students
   const overrun = (i, s) => { const u = REQ(C[i]).until; if (!u || s < 0) return -1; const k = s % P; return k + 1 < P && U.toMin(S.periods[k + 1][0]) < U.toMin(u) ? s + 1 : -1; };
-  let capTotal = 0, AV = [], CAP = [], CAPL = [], BUSYI = {}, BLK = [], COLBY = 'dept';
+  let capTotal = 0, AV = [], CAP = [], CAPL = [], CAPO = [], BUSYI = {}, BLK = [], COLBY = 'dept';
+  // whose a room is: the faculty that teaches most in it (the timetable). Rooms of another faculty in the same building (e.g. the
+  // sciences' halls in the IT building) are used by S.roomPolicy: 'ownFirst' (default: this faculty's rooms first, another's only
+  // when needed and free), 'own' (never), 'free' (like any room, when free)
+  let OWNER = null;
+  const ownerOf = n => { if (!OWNER) { const m = {}; TT.sections.forEach(x => { if (!x.room || x.room === '0') return; const o = m[x.room] = m[x.room] || {}; o[x.faculty] = (o[x.faculty] || 0) + 1; });
+    OWNER = {}; Object.entries(m).forEach(([r, o]) => { OWNER[r] = Object.entries(o).sort((a, b) => b[1] - a[1])[0][0]; }); } return OWNER[n] || ''; };
+  const mineR = n => { const o = ownerOf(n); return !o || !S.facs.length || !!S.only && !S.reqOnly || S.facs.includes(o); };
+  const usable = r => S.roomPolicy !== 'own' || mineR(r.n);
   const capOf = s => CAP[s] == null ? capTotal : CAP[s];
 
   // ---------- cost ----------
-  const W = { blocked: 20000, clash: 1000, softClash: 60, overDay: 45, sameDay: 4, backToBack: 12, ins: 150, seat: 80, spread: 0.08, early: 0.0005, lec: 6, late: 30 };
+  const W = { blocked: 20000, clash: 1000, softClash: 60, overDay: 45, sameDay: 4, backToBack: 12, ins: 150, seat: 80, spread: 0.08, early: 0.0005, lec: 6, late: 30, borrow: 1 };
   // students' own lectures at an exam's time (midterms run during teaching weeks). S.lec, from the registration report: per course,
   // per weekday, the lecture times of its students' OTHER in-person courses with how many of them ([from, to, students] in minutes);
   // counts only, no student. LEC[i][s] = students of exam i who would miss a lecture if it is at slot s.
@@ -281,7 +411,7 @@
     }
     return cost * g.w;
   }
-  const seatF = (s, n) => { if (s < 0) return 0; const cap = capOf(s); return Math.max(0, n - cap) * W.seat + (cap ? n * n / cap * W.spread : n * W.spread); };
+  const seatF = (s, n) => { if (s < 0) return 0; const cap = capOf(s); return Math.max(0, n - cap) * W.seat + (cap ? n * n / cap * W.spread : n * W.spread) + (S.roomPolicy === 'ownFirst' && CAPO[s] != null ? Math.max(0, n - CAPO[s]) * W.borrow : 0); };
   let WORK = null, SEAT = [], SEATL = [];
   const labF = (s, n) => s < 0 || !n ? 0 : Math.max(0, n - (CAPL[s] || 0)) * W.seat;
   const labAt = (s, sl) => { if (s < 0) return 0; if (sl === WORK) return SEATL[s]; let n = 0; for (const c of C) if (sl[c.i] === s && needLab(c)) n += c.students; return n; };
@@ -353,16 +483,30 @@
   const SL = () => C.map(c => c.s);
 
   // ---------- rooms & proctors ----------
+  // who proctors, with their limits: the instructors of this plan's own exams (not those whose only exams here are other
+  // departments' fixed ones), the extra names and the uploaded proctors list (S.procList: a person's own limits and days off),
+  // minus the exempted (or, with «من القائمة فقط», everyone not on the list). A listed name is matched to the timetable's name.
+  const nameKeys = n => { const t = U.norm(U.shortName(n)).replace(/\s+/g, ' ').trim().split(' '); return [t.join(' '), t.length > 1 ? t[0] + ' ' + t[t.length - 1] : '']; };
+  function procRules() {
+    const own = Object.keys(INS).filter(n => INS[n].some(i => !EXT(C[i]))), km = {};
+    own.forEach(n => nameKeys(n).forEach((k, j) => { if (!k) return; const key = j + k; km[key] = km[key] === undefined ? n : km[key] === n ? n : null; }));
+    const canon = n => { const [a, b] = nameKeys(n); return own.includes(n) ? n : km['0' + a] || (b && km['1' + b]) || (b && km['1' + a]) || n; };
+    const L = (S.procList || []).map(p => Object.assign({}, p, { n: canon(p.n) })), info = {}; L.forEach(p => { info[p.n] = p; });
+    const exempt = new Set((S.noProc || '').split(/\n/).map(x => x.trim()).filter(Boolean));
+    const isEx = n => exempt.has(n) || exempt.has(U.shortName(n)) || !!(info[n] || {}).ex || (!!S.procOnly && L.length > 0 && !info[n]);
+    const names = [...new Set(own.concat((S.extraProc || '').split(/\n/).map(x => x.trim()).filter(Boolean).map(canon), L.map(p => p.n)))];
+    const offOn = (n, dd) => { const p = info[n], d = DAYS[dd]; return !!p && !!d && ((p.offD || []).includes(d.iso) || (p.offW || []).includes(d.n)); };
+    return { info, isEx, offOn, names, pool: names.filter(n => !isEx(n)), maxOf: n => (info[n] && info[n].max) || S.maxDuty, dayOf: n => (info[n] && info[n].maxDay) || S.maxDutyDay };
+  }
   function seating() {
     const out = {}, load = {}, unseated = [], short = [], dayLoad = {}, roomReq = [];
-    const exempt = new Set((S.noProc || '').split(/\n/).map(x => x.trim()).filter(Boolean));
-    const isEx = n => exempt.has(n) || exempt.has(U.shortName(n));
-    const pool = [...new Set(Object.keys(INS).concat(S.extraProc.split(/\n/).map(x => x.trim()).filter(Boolean)))].filter(n => !isEx(n));
+    const R = procRules(), isEx = R.isEx, pool = R.pool;
     pool.forEach(n => { load[n] = 0; });
     for (let s = 0; s < NS; s++) {
       const list = C.filter(c => c.s === s).sort((a, b) => b.students - a.students);
       const freeR = (AV[s] || rooms().filter(r => r.on)).slice().sort((a, b) => b.c - a.c), busy = new Set(BUSYI[s] || []), dd = dayOf(s);
-      const can = n => !busy.has(n) && (!S.maxDuty || (load[n] || 0) < S.maxDuty) && (!S.maxDutyDay || ((dayLoad[n] || {})[dd] || 0) < S.maxDutyDay);
+      DAYS[dd] && pool.forEach(n => { if (R.offOn(n, dd)) busy.add(n); });   // a day the person is not available
+      const can = n => !busy.has(n) && (!R.maxOf(n) || (load[n] || 0) < R.maxOf(n)) && (!R.dayOf(n) || ((dayLoad[n] || {})[dd] || 0) < R.dayOf(n));
       const take = n => { load[n] = (load[n] || 0) + 1; (dayLoad[n] = dayLoad[n] || {})[dd] = ((dayLoad[n] || {})[dd] || 0) + 1; };
       out[s] = list.map(c => {
         if (EXT(c)) return { c, rooms: [], left: 0, ext: true };
@@ -372,8 +516,9 @@
         let left = 0;
         const fits = r => !q.type || r.t === q.type;
         const put = (r, x, k) => { r.n += k; r.free -= k; r.parts.push({ s: x.s, k }); r.secs.push(x.s ? x.s + (k < x.n ? ` (${k} من ${x.n})` : '') : ''); if (x.ins && !r.ins.includes(x.ins)) r.ins.push(x.ins); };
-        const open = (cap, lim) => { const k = freeR.reduce((b, r, j) => fits(r) && (cap == null ? b < 0 : r.c >= cap && (b < 0 || r.c < freeR[b].c)) ? j : b, -1); if (k < 0) return null;
-          const r = freeR.splice(k, 1)[0], o = { room: r.n, t: r.t, n: 0, cap: r.c, free: Math.min(r.c, lim || r.c), proc: [], secs: [], parts: [], ins: [] }; got.push(o); return o; };
+        const pick = (cap, pref) => freeR.reduce((b, r, j) => fits(r) && (!pref || mineR(r.n)) && (cap == null ? b < 0 : r.c >= cap && (b < 0 || r.c < freeR[b].c)) ? j : b, -1);
+        const open = (cap, lim) => { let k = S.roomPolicy === 'ownFirst' ? pick(cap, true) : -1; if (k < 0) k = pick(cap, false); if (k < 0) return null;   // this faculty's rooms first
+          const r = freeR.splice(k, 1)[0], o = { room: r.n, t: r.t, n: 0, cap: r.c, free: Math.min(r.c, lim || r.c), proc: [], secs: [], parts: [], ins: [], borrow: mineR(r.n) ? '' : ownerOf(r.n) }; got.push(o); return o; };
         // the coordinator asked for N rooms: spread the students evenly over N rooms of the asked type (e.g. 80 students → 4 × 20)
         if (q.rooms > 1) { const per = Math.ceil(c.students / q.rooms); for (let k = 0; k < q.rooms; k++) if (!open(per, per) && !open(null, per)) break; }
         parts.forEach(x => {
@@ -570,10 +715,10 @@
   }
   // the proctor pool before generation: everyone who can proctor, by department (a click exempts or brings back)
   function pool() {
-    const ex = new Set((S.noProc || '').split(/\n/).map(x => x.trim()).filter(Boolean)), by = {};
-    Object.keys(INS).forEach(n => { const ix = INS[n], m = {}; ix.forEach(i => { m[C[i].dept] = (m[C[i].dept] || 0) + 1; }); const d = Object.entries(m).sort((a, b) => b[1] - a[1])[0][0];
-      (by[d] = by[d] || []).push({ n, k: ix.length, off: ex.has(n) || ex.has(U.shortName(n)) }); });
-    (S.extraProc || '').split(/\n/).map(x => x.trim()).filter(Boolean).forEach(n => (by['مراقبون إضافيون'] = by['مراقبون إضافيون'] || []).push({ n, k: 0, off: ex.has(n), extra: true }));
+    const R = procRules(), by = {};
+    R.names.forEach(n => { const ix = (INS[n] || []).filter(i => !EXT(C[i])), p = R.info[n], m = {}; ix.forEach(i => { m[C[i].dept] = (m[C[i].dept] || 0) + 1; });
+      const d = ix.length ? Object.entries(m).sort((a, b) => b[1] - a[1])[0][0] : p ? p.dept || p.role || 'من قائمة المراقبين' : 'مراقبون إضافيون';
+      (by[d] = by[d] || []).push({ n, k: ix.length, off: R.isEx(n), extra: !ix.length, tag: p ? p.role || 'من القائمة' : '' }); });
     return by;
   }
   function poolView() {
@@ -588,7 +733,7 @@
         const n = ps.filter(p => !p.off).length;
         return `<section class="dc"><header><b>${esc(d)}</b><span class="n" title="متاح من مجموع القسم">${n} من ${ps.length}</span>
             <button class="btn btn-sm btn-link" data-exd="${esc(d)}">${n ? 'إعفاء الكل' : 'إعادة الكل'}</button></header>
-          <div class="ls">${list.map(p => `<button class="pr${p.off ? ' off' : ''}" data-exm="${esc(p.n)}" title="${esc(p.n)}${p.off ? ' — معفى' : ''}"><i class="bi ${p.off ? 'bi-slash-circle' : 'bi-check-circle-fill'}"></i><span class="nm">${esc(U.shortName(p.n))}</span><span class="k">${p.extra ? 'إضافي' : p.k}</span></button>`).join('')}</div></section>`; }).join('')}</div></div>`;
+          <div class="ls">${list.map(p => `<button class="pr${p.off ? ' off' : ''}" data-exm="${esc(p.n)}" title="${esc(p.n)}${p.off ? ' — معفى' : ''}"><i class="bi ${p.off ? 'bi-slash-circle' : 'bi-check-circle-fill'}"></i><span class="nm">${esc(U.shortName(p.n))}</span><span class="k">${p.extra ? esc(p.tag || 'إضافي') : p.k}</span></button>`).join('')}</div></section>`; }).join('')}</div></div>`;
   }
   // the add/swap lists are filled only when opened (thousands of rooms × hundreds of names would slow the page)
   let PV = null;
@@ -702,6 +847,7 @@
     const tips = [
       st.unseated ? `<li><i class="bi bi-door-closed"></i> <span>المقاعد في كل الفترات <b>${have.toLocaleString('en-US')}</b>${S.busy && have < full ? ` (من ${full.toLocaleString('en-US')} لولا المحاضرات القائمة)` : ''} مقابل <b>${need.toLocaleString('en-US')}</b> مطلوباً: زد الأيام أو الفترات، أو أضف قاعات أو ارفع سعتها${S.busy ? '، أو ألغِ «مراعاة المحاضرات القائمة» إن كانت المحاضرات معلّقة' : ''}.</span></li>` : '',
       st.short ? '<li><i class="bi bi-person-dash"></i> <span>لنقص المراقبين: أضف مراقبين إضافيين في «الإعداد ← المراقبون» أو ارفع حد المراقبات اليومي.</span></li>' : '',
+      (b => b.length ? `<li><i class="bi bi-building-exclamation"></i> <span><b>${b.length}</b> جلسة امتحان في قاعات كليات أخرى (${[...new Set(b.map(r => r.room))].map(esc).join('، ')}): نسّق حجزها مع ${[...new Set(b.map(r => r.borrow))].map(esc).join('، ')}.</span></li>` : '')(Object.values(st.seat.out).flat().flatMap(x => x.rooms.filter(r => r.borrow))),
       S.src === 'plans' || !S.reg ? '<li><i class="bi bi-info-circle"></i> <span>تعارض الطلبة مقدّر من الخطط الدراسية (التخصص × السنة)؛ لنتيجة دقيقة لكل طالب ارفع كشف التسجيل من «الإعداد».</span></li>' : ''].filter(Boolean);
     return `<div class="ex-qrow">${k(st.clash, 'تعارض إلزامي', 'bi-x-octagon')}${k(st.unseated, 'طالب بلا مقعد', 'bi-door-closed')}${k(st.ins, 'تعارض مدرّس', 'bi-person-x', 1)}
       ${k(st.day, `يوم بأكثر من ${S.maxDay} امتحان`, 'bi-calendar-x', 1)}${k(st.b2b, 'امتحانان متتاليان', 'bi-arrow-left-right', 1)}${k(st.soft, 'تعارض محتمل', 'bi-question-circle', 1)}
@@ -1227,6 +1373,46 @@
       ${row('bi-list-check', 'المقررات', `${Object.keys(base).length} مقرراً · ${C.length} امتحاناً · ${C.reduce((a, c) => a + c.students, 0).toLocaleString('en-US')} طالباً${Object.values(base).some(b => b.parts.length) ? `<div class="ex-sum-b"><div><b>مقسومة على أكثر من فترة:</b> ${Object.entries(base).filter(([, b]) => b.parts.length).map(([k, b]) => `<span class="ex-sum-c">${esc(k)} ${esc(b.name)} <small>${b.parts.map(c => c.students).join(' + ')}</small></span>`).join(' ')}</div></div>` : ''}`, 8)}
     </details>`;
   }
+  // one file the committee uploads: what it is, its state, its template
+  const upCard = (k, ic, t, desc, state, tpl) => `<div class="ex-up${state ? ' ok' : ''}"><i class="bi ${ic} ic"></i><div class="tx"><b>${t}</b><small>${desc}</small>
+      ${state ? `<span class="st"><i class="bi bi-check-circle-fill"></i> ${esc(state)}</span>` : '<span class="st no"><i class="bi bi-circle"></i> لم يُرفع بعد</span>'}</div>
+    <div class="ac">${tpl ? `<button class="btn btn-sm btn-outline-primary" data-tpl="${tpl}"><i class="bi bi-file-earmark-arrow-down"></i> النموذج</button>` : ''}<label class="btn btn-sm ${state ? 'btn-outline-secondary' : 'btn-ex'} mb-0"><i class="bi bi-upload"></i> ${state ? 'استبدال' : 'رفع'}<input type="file" data-up="${k}" accept=".xlsx,.xls,.csv,.htm,.html" hidden></label></div></div>`;
+  const fixedInfo = () => { const f = S.fixed || []; if (!f.length) return ''; const srcs = [...new Set(f.map(x => x.src))]; return `${new Set(f.map(x => x.code)).size} مقرراً، ${f.length} موعداً (${srcs.length} ${srcs.length === 1 ? 'ملف' : 'ملفات'})`; };
+  function filesPanel() {
+    return `<div class="ex-files"><div class="h"><i class="bi bi-folder2-open"></i> ملفات الدورة <small>ترفعها اللجنة مرة لكل دورة؛ كل ما عداها محفوظ</small></div>
+      ${upCard('reg', 'bi-people-fill', 'كشف تسجيل الطلبة', 'كما يخرج من نظام التسجيل (Excel): الطلبة ومقرراتهم وشعبهم وأوقات محاضراتهم', S.reg ? S.regInfo : '', 'reg')}
+      ${upCard('req', 'bi-list-check', 'متطلبات المقررات', 'قائمة المنسق: مواد الخطة، قاعة/مختبر، عدد القاعات والمراقبين، الموعد الثابت، «في آخر الجدول» (أو صف مظلل بالبرتقالي)', Object.keys(S.req || {}).length ? S.reqInfo || `${Object.keys(S.req).length} مقرراً` : '', 'req')}
+      ${upCard('fixed', 'bi-pin-angle-fill', 'المواعيد الثابتة للجهات الأخرى', 'امتحانات الرياضيات ومتطلبات الجامعة…: الشعب والتاريخ والوقت والقاعات (يُقبل جدول الجهة كما هو)', fixedInfo(), 'fixed')}
+      ${upCard('proc', 'bi-person-badge-fill', 'المراقبون (اختياري)', 'مشرفو المختبرات والإداريون، وحدود كل شخص وأيامه غير المتاحة والمعفَون', (S.procList || []).length ? S.procInfo || `${S.procList.length} اسماً` : '', 'proc')}</div>`;
+  }
+  function profBox() {
+    const pr = profOf(S); if (!pr) return '';
+    const p = Object.assign({}, pr.all || {}, pr[S.type] || {}), bits = [];
+    if (p.periods) bits.push(`الفترات: ${nPer(p.periods.length)} من ${p.periods[0][0]} إلى ${p.periods[p.periods.length - 1][1]}`);
+    if (p.maxDay) bits.push(`حتى ${p.maxDay === 2 ? 'امتحانين' : p.maxDay} للطالب في اليوم`);
+    if (p.busy) bits.push('مراعاة المحاضرات القائمة');
+    if (pr.halls) bits.push(pr.halls.label); if (pr.labs) bits.push(pr.labs.label);
+    if (p.splitOver) bits.push(`امتحان القاعة فوق ${p.splitOver} طالباً يتوزع على قاعات بـ${p.splitPer}`);
+    if (p.blankHall) bits.push('المقرر بلا نوع قاعة يُمتحن في قاعة');
+    if (p.cal) bits.push('الأيام من التقويم الجامعي، الأحد–الخميس');
+    return `<div class="ex-prof"><i class="bi bi-bookmark-check-fill"></i><div><b>إعدادات ${esc(S.facs[0])} المحفوظة${pr[S.type] ? '' : ' (العامة)'} مطبّقة على الخطط الجديدة</b><small>${bits.map(esc).join(' · ')}</small></div>
+      <button class="btn btn-sm btn-outline-primary" data-profapply title="يعيد الفترات والقواعد والقاعات والتواريخ إلى المحفوظ">إعادة تطبيقها</button></div>`;
+  }
+  function fixedView() {
+    const by = {}; (S.fixed || []).forEach(x => (by[x.code] = by[x.code] || []).push(x));
+    const nm = {}; TT.sections.forEach(x => { nm[x.code] = nm[x.code] || x.name.replace(/\s*-\s*(نظري|عملي)$/, ''); });
+    const srcs = [...new Set((S.fixed || []).map(x => x.src))], blocked = (FX.blocks || []).filter(b => DAYS.some(d => d.iso === b.date));
+    const tag = c => FX.inPlan.has(c) ? '<span class="bdg green">في الجدول بموعده</span>' : FX.codes.has(c) ? '<span class="bdg">لا طلبة مشتركون</span>' : '<span class="bdg">خارج أيام الامتحانات</span>';
+    return `<p class="small">امتحانات تعقدها جهات أخرى بمواعيد محددة (الرياضيات والعلوم الأساسية، متطلبات الجامعة…). كل مقرر منها يشترك طلبته مع مواد الخطة يدخل الجدول <b>بموعده الثابت</b>
+        فيمنع وضع امتحان آخر لطلبته في ذلك الوقت، ولا يأخذ مقاعد ولا مراقبين من الكلية؛ والقاعات المكتوبة له تُحجز في وقته.</p>
+      ${upCard('fixed', 'bi-pin-angle-fill', 'رفع جدول مواعيد ثابتة', 'نموذج الموقع، أو جدول الجهة كما هو إن كان فيه رقم المادة والشعبة والتاريخ والوقت. يمكن رفع أكثر من ملف؛ رفع الملف نفسه مرة أخرى يستبدله', fixedInfo(), 'fixed')}
+      ${srcs.length ? `<div class="ex-chipset my-2">${srcs.map(f => `<span class="ex-tagx"><i class="bi bi-file-earmark-spreadsheet"></i> ${esc(f)}<button data-fxdel="${esc(f)}" aria-label="حذف"><i class="bi bi-x"></i></button></span>`).join('')}
+        <span class="bdg"><i class="bi bi-door-closed"></i> ${blocked.length} حجز قاعات في أيام الامتحانات</span></div>
+      <div class="ex-rooms tall"><table class="table table-sm align-middle"><thead><tr><th>الرمز</th><th>المقرر</th><th>المواعيد (الشعب · القاعات)</th><th>الجهة</th><th>الحالة</th></tr></thead><tbody>
+        ${Object.entries(by).sort((a, b) => a[0].localeCompare(b[0])).map(([c, L]) => `<tr><td><b>${esc(c)}</b></td><td>${esc(nm[c] || '—')}</td>
+          <td class="small">${L.map(x => `${dLong(x.date).replace(/\/\d{4}$/, '')} ${x.from}–${x.to}${x.secs.length ? ` · ش ${x.secs.join('، ')}` : ''}${x.rooms.length ? ` · ${x.rooms.length > 4 ? x.rooms.length + ' قاعات' : x.rooms.join('، ')}` : ''}`).join('<br>')}</td>
+          <td class="small">${esc(L[0].who || '')}</td><td>${tag(c)}</td></tr>`).join('')}</tbody></table></div>` : ''}`;
+  }
   function setView() {
     const facs = [...new Set(TT.sections.map(s => s.faculty))].sort();
     const ONLY = S.only && S.only.length ? new Set(S.only) : null;
@@ -1255,6 +1441,7 @@
           <label class="btn btn-ex mb-0"><i class="bi bi-upload"></i> رفع القائمة<input type="file" id="ex-mk" accept=".xlsx,.xls,.csv" hidden></label>
           ${S.mk ? '<button class="btn btn-sm btn-link text-danger" data-clrmk>حذف القائمة</button>' : ''}</div>
         ${S.mk ? `<div class="ex-rule ok mt-2"><i class="bi bi-check-circle-fill"></i> ${esc(S.mk.info)}${REGMEM ? '' : ' · <span class="text-muted">لطباعة كشوف الحضور بالأسماء أعد رفع القائمة (الأسماء لا تُحفظ)</span>'}</div>` : '<div class="ex-rule mt-2"><i class="bi bi-info-circle-fill"></i> لم تُرفع قائمة بعد: بدونها يُعامل التكميلي كامتحان لكل مقررات الكليات المختارة.</div>'}</div>` : ''}
+      ${profBox()}${filesPanel()}
       <label class="ex-fld"><span>عنوان الجدول (يظهر في الطباعة)</span><input class="form-control" data-k="label" placeholder="${esc(TYPES[S.type].name)} – ${esc(TT.term)}" value="${esc(S.label || '')}"></label>
       <div class="ex-fld"><span>الكليات المشمولة</span><div class="ex-chipset ex-facs"><label class="ex-chk${!S.facs.length ? ' on' : ''}"><input type="checkbox" data-facall ${!S.facs.length ? 'checked' : ''}> <i class="bi bi-buildings-fill"></i> كل الكليات</label>
         ${facs.map(x => `<label class="ex-chk${S.facs.includes(x) ? ' on' : ''}"><input type="checkbox" data-fac="${esc(x)}" ${S.facs.includes(x) ? 'checked' : ''}> ${esc(x)}</label>`).join('')}</div>
@@ -1272,6 +1459,7 @@
           <div class="ex-add"><input type="date" class="form-control" id="ex-holin"><button class="btn btn-outline-primary" data-addhol><i class="bi bi-plus-lg"></i> إضافة</button></div>
           <div class="ex-chipset mt-1">${(S.hol.match(/\d{4}-\d{2}-\d{2}/g) || []).map(h => `<span class="ex-tagx">${dLong(h)}<button data-delhol="${h}" aria-label="حذف"><i class="bi bi-x"></i></button></span>`).join('') || '<small>لا عطل. أو اضغط أي يوم في التقويم.</small>'}</div></section>
       </div>
+      ${S.calNote ? `<div class="ex-rule ok"><i class="bi bi-calendar-check"></i> الأيام مقترحة من التقويم الجامعي (${esc(S.calNote)}). <button class="btn btn-sm btn-link p-0" data-calset>إعادتها من التقويم</button></div>` : ''}
       ${calKpis()}
       <div class="ex-calbody">${monthsView()}${daysList()}</div>`)}
     ${bx(3, 'bi-clock-fill', '#0f766e', 'الفترات اليومية', 'مواعيد الامتحانات في اليوم', `
@@ -1310,10 +1498,15 @@
     ${bx(6, 'bi-door-open-fill', '#15803d', 'القاعات', `${on.length} قاعة مفعّلة · ${capTotal} مقعد في الفترة`, `
       <div class="ex-acts mb-2"><button class="btn btn-sm btn-outline-primary" data-addr><i class="bi bi-plus-lg"></i> قاعة</button><button class="btn btn-sm btn-outline-secondary" data-allr="1">تفعيل الكل</button><button class="btn btn-sm btn-outline-secondary" data-allr="0">تعطيل الكل</button>
         <button class="btn btn-sm btn-outline-secondary" data-scaler="1.1">السعة +10%</button><button class="btn btn-sm btn-outline-secondary" data-scaler="0.9">السعة −10%</button><button class="btn btn-sm btn-outline-success" data-addlabs><i class="bi bi-pc-display"></i> إضافة مختبرات الكلية</button><button class="btn btn-sm btn-link" data-resetr>إعادة الاقتراح</button></div>
+      <div class="ex-fld"><span>قاعات كليات أخرى (تدرّس فيها كلية أخرى أكثر من كليتك)</span><div class="ex-srcs">${[['ownFirst', 'bi-sort-down', 'قاعات الكلية أولاً ثم غيرها', 'الافتراضي: لا تُستعمل قاعة كلية أخرى إلا عند الحاجة وفي وقت فراغها'], ['own', 'bi-shield-lock', 'قاعات الكلية وحدها', 'لا تُستعمل قاعات الكليات الأخرى أبداً'], ['free', 'bi-door-open', 'كأي قاعة', 'كل القاعات المفعّلة سواء، في أوقات فراغها']]
+        .map(([k, ic, t, d]) => `<label class="ex-type${S.roomPolicy === k ? ' on' : ''}"><input type="radio" name="rp" data-rp="${k}" ${S.roomPolicy === k ? 'checked' : ''}><i class="bi ${ic}"></i><b>${t}</b><small>${d}</small></label>`).join('')}</div></div>
+      ${(o => o.length && S.roomPolicy !== 'own' ? `<div class="ex-rule ${S.busy ? '' : 'warn'}"><i class="bi bi-info-circle-fill"></i> ${o.length} من القاعات المفعّلة تابعة لكليات أخرى (${[...new Set(o.map(r => ownerOf(r.n)))].map(esc).join('، ')}). تُعدّ مشغولة في أوقات محاضراتها${S.busy ? '' : ' (هذا الخيار متوقف الآن)'} وفي أوقات الامتحانات المرفوعة في «المواعيد الثابتة»؛ ${S.busy ? 'ولامتحانات تلك الكليات خارج المحاضرات' : 'وفي الامتحانات النهائية لا محاضرات، لذا'} ارفع جدول امتحانات الكلية المالكة وقاعاته في «المواعيد الثابتة» ليُتجنّب التداخل.</div>` : '')(on.filter(r => !mineR(r.n)))}
+      <div class="ex-split"><div class="row2">${num('splitOver', 'امتحان القاعة الذي يزيد طلبته على (طالباً)', 0, 500, '0 = حسب سعة القاعات فقط', 0)}${num('splitPer', 'يتوزع على قاعات، في كل قاعة (طالباً)', 5, 200, '', 24)}</div>
+        ${sw('blankHall', 'المقرر الذي لم يحدد منسقه نوع القاعة يُمتحن في قاعة', 'لا في مختبر')}</div>
       <div class="ex-chipset mb-2"><span class="bdg"><i class="bi bi-easel2"></i> ${on.filter(r => r.t !== LAB).length} قاعة · ${on.filter(r => r.t !== LAB).reduce((a, r) => a + r.c, 0)} مقعد</span><span class="bdg teal"><i class="bi bi-pc-display"></i> ${on.filter(r => r.t === LAB).length} مختبر · ${on.filter(r => r.t === LAB).reduce((a, r) => a + r.c, 0)} جهاز</span></div>
-      <div class="ex-rooms"><table class="table table-sm align-middle"><thead><tr><th>مفعّلة</th><th>القاعة</th><th>النوع</th><th>السعة الامتحانية</th><th></th></tr></thead><tbody>
+      <div class="ex-rooms"><table class="table table-sm align-middle"><thead><tr><th>مفعّلة</th><th>القاعة</th><th>النوع</th><th>السعة الامتحانية</th><th>تابعة لـ</th><th></th></tr></thead><tbody>
         ${R.map((r, k) => `<tr class="${r.on ? '' : 'off'}"><td><input type="checkbox" class="form-check-input" data-ron="${k}" ${r.on ? 'checked' : ''}></td><td><input class="form-control form-control-sm" data-rn="${k}" value="${esc(r.n)}"></td>
-          <td><select class="form-select form-select-sm ex-rt ${r.t === LAB ? 'lab' : ''}" data-rt="${k}"><option ${r.t !== LAB ? 'selected' : ''}>${HALL}</option><option ${r.t === LAB ? 'selected' : ''}>${LAB}</option></select></td><td><input type="number" class="form-control form-control-sm" data-rc="${k}" value="${r.c}" min="1"></td><td><button class="btn btn-sm btn-outline-danger" data-delr="${k}" aria-label="حذف"><i class="bi bi-trash"></i></button></td></tr>`).join('')}</tbody></table></div>
+          <td><select class="form-select form-select-sm ex-rt ${r.t === LAB ? 'lab' : ''}" data-rt="${k}"><option ${r.t !== LAB ? 'selected' : ''}>${HALL}</option><option ${r.t === LAB ? 'selected' : ''}>${LAB}</option></select></td><td><input type="number" class="form-control form-control-sm" data-rc="${k}" value="${r.c}" min="1"></td><td class="small">${mineR(r.n) ? '<span class="text-muted">الكلية</span>' : `<span class="bdg amber">${esc(ownerOf(r.n))}</span>`}</td><td><button class="btn btn-sm btn-outline-danger" data-delr="${k}" aria-label="حذف"><i class="bi bi-trash"></i></button></td></tr>`).join('')}</tbody></table></div>
       <label class="ex-fld"><span>إضافة قاعات دفعة واحدة (سطر لكل قاعة: الاسم، السعة)</span><textarea class="form-control" rows="2" id="ex-bulkr" placeholder="B101, 40&#10;مختبر 3, 25, مختبر"></textarea><button class="btn btn-sm btn-outline-primary mt-1" data-bulkr>إضافة</button></label>
       <small class="text-muted">السعة المقترحة ≈ 60% من أكبر شعبة دُرّست في القاعة (مقعد فارغ بين الطلبة).</small>`)}
     ${bx(7, 'bi-person-badge-fill', '#be185d', 'المراقبون', 'العدد والحدود والاستثناءات', `
@@ -1321,26 +1514,35 @@
         .map(([k, ic, t, d]) => `<label class="ex-type${S.procMode === k ? ' on' : ''}"><input type="radio" name="pm" data-pm="${k}" ${S.procMode === k ? 'checked' : ''}><i class="bi ${ic}"></i><b>${t}</b><small>${d}</small></label>`).join('')}</div>
       ${S.procMode === 'ratio' ? `<div class="row2">${num('perProc', 'عدد الطلبة لكل مراقب', 10, 80)}${num('minProc', 'أقل عدد مراقبين في القاعة', 1, 5, '', 1)}</div>` : ''}
       <div class="row2">${num('maxDutyDay', 'أقصى مراقبات للشخص في اليوم', 0, 6, '0 = بلا حد', 2)}${num('maxDuty', 'أقصى مراقبات للشخص في الدورة', 0, 60, '0 = بلا حد', 0)}</div>
+      ${upCard('proc', 'bi-person-lines-fill', 'قائمة المراقبين (اختياري)', 'من يراقب غير مدرّسي المقررات (مشرفو المختبرات، الإداريون)، وحدود كل شخص، وأيامه غير المتاحة، والمعفَون', (S.procList || []).length ? S.procInfo || `${S.procList.length} اسماً` : '', 'proc')}
+      ${(S.procList || []).length ? `<div class="ex-acts my-1">${sw('procOnly', 'المراقبة من القائمة فقط', 'لا يراقب من ليس في القائمة، ولو كان مدرّس المقرر')}<button class="btn btn-sm btn-link text-danger" data-procclr>حذف القائمة</button></div>
+        <div class="ex-rooms"><table class="table table-sm align-middle"><thead><tr><th>الاسم</th><th>الصفة</th><th>القسم</th><th>أقصى في الدورة</th><th>أقصى في اليوم</th><th>غير متاح</th><th></th></tr></thead><tbody>
+        ${S.procList.map(p => `<tr class="${p.ex ? 'off' : ''}"><td>${esc(p.n)}</td><td class="small">${esc(p.role || '')}</td><td class="small">${esc(p.dept || '')}</td><td>${p.max || '—'}</td><td>${p.maxDay || '—'}</td>
+          <td class="small">${(p.offW || []).map(i => WD[i]).concat((p.offD || []).map(d => dLong(d).replace(/\/\d{4}$/, ''))).join('، ') || '—'}</td><td>${p.ex ? '<span class="bdg">معفى</span>' : ''}</td></tr>`).join('')}</tbody></table></div>` : ''}
       <label class="ex-fld"><span>مراقبون إضافيون من غير المدرسين (اسم في كل سطر)</span><textarea class="form-control" rows="2" data-k="extraProc">${esc(S.extraProc)}</textarea></label>
       <label class="ex-fld"><span>معفَون من المراقبة (اسم في كل سطر، مثل العميد ورؤساء الأقسام)</span><textarea class="form-control" rows="2" data-k="noProc">${esc(S.noProc || '')}</textarea></label>
       <div class="ex-rule"><i class="bi bi-info-circle-fill"></i> لا تحتاج معرفة المراقبين مسبقاً: يقترح النظام مدرّس الشعبة لقاعة شعبته، ثم يوزّع الباقين بالعدل حسب أقل عدد مراقبات. بعد التوليد يمكنك تغيير أي مراقب من عرض <b>«المراقبون»</b> في الخطوة 2.</div>
       ${poolView()}`)}
     ${bx(8, 'bi-list-check', '#1d4ed8', 'المقررات', `${all.length - Object.keys(S.excl).filter(k => all.some(c => c.code === k)).length} من ${all.length} مقرراً لها امتحان`, `
-      <div class="ex-reqbar"><label class="btn btn-outline-primary mb-0"><i class="bi bi-file-earmark-arrow-up"></i> رفع قائمة متطلبات المقررات<input type="file" id="ex-req" accept=".xlsx,.xls,.csv" hidden></label>
-        <span class="small text-muted">ملف Excel بأعمدة: رمز المادة، المنسق، قاعة / مختبر، عدد القاعات أو المختبرات، ملاحظات (كالقائمة التي تُرسل لمنسق الامتحانات).</span>
+      <div class="ex-reqbar"><label class="btn btn-outline-primary mb-0"><i class="bi bi-file-earmark-arrow-up"></i> رفع قائمة متطلبات المقررات<input type="file" data-up="req" accept=".xlsx,.xls,.csv" hidden></label>
+        <button class="btn btn-sm btn-outline-secondary" data-tpl="req"><i class="bi bi-file-earmark-arrow-down"></i> النموذج</button>
+        <span class="small text-muted">رمز المادة، المنسق، قاعة / مختبر، عدد القاعات، عدد المراقبين، موعد ثابت، في آخر الجدول (أو تظليل الصف بالبرتقالي)، ملاحظات.</span>
+        ${S.reqOnly && !S.listMax ? `<label class="ex-chk${S.only && S.only.length ? ' on' : ''}"><input type="checkbox" data-reqonly ${S.only && S.only.length ? 'checked' : ''}> جدولة مواد القائمة فقط</label>` : ''}
         ${Object.keys(S.req || {}).length ? `<span class="bdg green"><i class="bi bi-check2-circle"></i> ${Object.keys(S.req).length} مقرراً لها متطلبات</span><button class="btn btn-sm btn-link text-danger" data-clrreq>مسح المتطلبات</button>` : ''}</div>
       <div class="ex-add"><input class="form-control" data-f="cq" placeholder="ابحث في المقررات…" value="${esc(f.cq || '')}"><button class="btn btn-sm btn-outline-secondary" data-inclall="1">تضمين الكل</button><button class="btn btn-sm btn-outline-secondary" data-inclall="0">استبعاد الكل</button></div>
-      <div class="ex-rooms tall"><table class="table table-sm align-middle"><thead><tr><th>امتحان</th><th>الرمز</th><th>المقرر</th><th>القسم</th><th>الطلبة</th><th>الشعب</th><th>نوع القاعة</th><th title="0 = حسب عدد الطلبة">عدد القاعات</th><th>مراقبون</th><th>ملاحظات المنسق</th><th>موعد ثابت</th></tr></thead><tbody>
+      <div class="ex-rooms tall"><table class="table table-sm align-middle"><thead><tr><th>امتحان</th><th>الرمز</th><th>المقرر</th><th>القسم</th><th>الطلبة</th><th>الشعب</th><th>نوع القاعة</th><th title="0 = حسب عدد الطلبة">عدد القاعات</th><th>مراقبون</th><th title="قرب نهاية أيام الامتحانات">آخر الجدول</th><th>ملاحظات المنسق</th><th>موعد ثابت</th></tr></thead><tbody>
         ${shown.map(c => `<tr class="${S.excl[c.code] ? 'off' : ''}"><td><input type="checkbox" class="form-check-input" data-incl="${esc(c.code)}" ${S.excl[c.code] ? '' : 'checked'}></td><td><b>${esc(c.code)}</b></td><td>${esc(c.name)}</td><td class="small">${esc(c.dept)}</td><td>${c.n}</td><td>${c.k}</td>
-          ${(q => `<td><select class="form-select form-select-sm ex-rt ${q.type === LAB ? 'lab' : q.type ? 'hall' : ''}" data-qt="${esc(c.code)}"><option value="">أي قاعة</option><option ${q.type === HALL ? 'selected' : ''}>${HALL}</option><option ${q.type === LAB ? 'selected' : ''}>${LAB}</option></select></td>
-          <td><input type="number" min="0" max="20" class="form-control form-control-sm ex-qn" data-qn="${esc(c.code)}" value="${q.rooms || ''}" placeholder="تلقائي"></td>
+          ${(q => `<td><select class="form-select form-select-sm ex-rt ${q.type === LAB ? 'lab' : q.type ? 'hall' : ''}" data-qt="${esc(c.code)}"><option value="">${S.blankHall ? 'قاعة (تلقائي)' : 'أي قاعة'}</option><option ${q.type === HALL ? 'selected' : ''}>${HALL}</option><option ${q.type === LAB ? 'selected' : ''}>${LAB}</option></select></td>
+          <td><input type="number" min="0" max="20" class="form-control form-control-sm ex-qn" data-qn="${esc(c.code)}" value="${q.rooms || ''}" placeholder="${(e => e && e.split ? e.rooms + ' تلقائياً' : 'تلقائي')(BY[c.code] && REQ(BY[c.code]))}"></td>
           <td><input type="number" min="0" max="20" class="form-control form-control-sm ex-qn" data-qp="${esc(c.code)}" value="${q.proc || ''}" placeholder="تلقائي"></td>
+          <td class="text-center"><input type="checkbox" class="form-check-input" data-ql="${esc(c.code)}" ${q.late ? 'checked' : ''}></td>
           <td><input class="form-control form-control-sm ex-qnote" data-qx="${esc(c.code)}" value="${esc(q.note || '')}" placeholder="${q.coord ? esc(q.coord) : ''}"></td>`)((S.req || {})[c.code] || {})}
-          <td><select class="form-select form-select-sm" data-pinc="${esc(c.code)}" ${S.excl[c.code] ? 'disabled' : ''}><option value="">تلقائي</option>${slots.map(([s, l]) => `<option value="${s}" ${S.pins[c.code] === s ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></td></tr>`).join('')}</tbody></table></div>
+          <td>${((S.req || {})[c.code] || {}).at && S.pins[c.code] == null ? (a => `<span class="bdg amber" title="من قائمة المتطلبات">${esc(dLong(a.date).replace(/\/\d{4}$/, ''))} ${a.from}–${a.to}</span><button class="btn btn-sm btn-link p-0" data-qat="${esc(c.code)}">إلغاء</button>`)(S.req[c.code].at) : `<select class="form-select form-select-sm" data-pinc="${esc(c.code)}" ${S.excl[c.code] ? 'disabled' : ''}><option value="">تلقائي</option>${slots.map(([s, l]) => `<option value="${s}" ${S.pins[c.code] === s ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`}</td></tr>`).join('')}</tbody></table></div>
       <small class="text-muted">أزل علامة المقرر الذي لا امتحان له (مشروع، تدريب…). «نوع القاعة» و«عدد القاعات» كما يطلبها المدرّس أو المنسق: مثلاً 80 طالباً في 4 مختبرات = 20 في كل مختبر. «موعد ثابت» يثبّت المقرر في موعد لا يغيّره التوليد.</small>`, true)}
+    ${bx(9, 'bi-pin-angle-fill', '#9a3412', 'المواعيد الثابتة', 'امتحانات الجهات الأخرى بمواعيدها', fixedView())}
     </div>`;
     const sum = [`${TYPES[S.type].name} · ${facLabel()}`, `${nDays(DAYS.length)} من ${DAYS[0] ? DAYS[0].label : '—'}`, `${nPer(P)} يومياً`, `حتى ${S.maxDay} امتحان/يوم`,
-      S.reg && S.src !== 'plans' ? 'كشف التسجيل' : S.regN && S.src !== 'plans' ? 'أعداد من ملف' : 'الخطط الدراسية', `${on.length} قاعة · ${capTotal} مقعد`, (S.procMode === 'ratio' ? `طالب/مراقب: ${S.perProc}` : 'مراقب لكل قاعة'), `${C.length} من ${all.length} مقرراً`];
+      S.reg && S.src !== 'plans' ? 'كشف التسجيل' : S.regN && S.src !== 'plans' ? 'أعداد من ملف' : 'الخطط الدراسية', `${on.length} قاعة · ${capTotal} مقعد`, (S.procMode === 'ratio' ? `طالب/مراقب: ${S.perProc}` : 'مراقب لكل قاعة'), `${C.length} من ${all.length} مقرراً`, (S.fixed || []).length ? `${FX.inPlan.size} في الجدول بموعده` : 'لا مواعيد ثابتة'];
     const k = Math.min(parts.length - 1, Math.max(0, (S.setTab || 1) - 1)), [n, ic, color, ti, sub, bodyHtml] = parts[k];
     return `<div class="ex-intro"><i class="bi bi-1-circle-fill"></i><div><b>الخطوة 1: الإعداد.</b> اختر قسماً من القائمة، أو تنقّل بزرّي «القسم التالي/السابق». الإعدادات كلها مقترحة مسبقاً ويمكن تركها كما هي، ثم اضغط <b>«التالي: التوليد والتعديل»</b>. كل تغيير يُحفظ تلقائياً.</div></div>
       <div class="ex-setwrap"><nav class="ex-setnav" aria-label="أقسام الإعداد">${parts.map((p, x) => `<button class="ex-sn${x === k ? ' on' : ''}" data-st="${x + 1}" style="--a:${p[2]}"><span class="bn">${p[0]}</span><i class="bi ${p[1]}"></i><span class="tx"><b>${p[3]}</b><small>${esc(sum[x] || '')}</small></span></button>`).join('')}</nav>
@@ -1464,7 +1666,7 @@
     return null;
   }
   function fromTable(rows, H, known) {
-    const by = {}, who = {}, mine = {}, sec = {}, names = {};
+    const by = {}, who = {}, mine = {}, sec = {}, names = {}, lec = {}, labOf = new Set();
     rows.forEach(r => {
       const id = String(r[H.id] == null ? '' : r[H.id]).trim(), code = String(r[H.code] == null ? '' : r[H.code]).trim().replace(/\.0$/, '');
       if (!/^\d{4,12}$/.test(id) || !/^\d{4,8}$/.test(code) || (known && !known.has(code))) return;
@@ -1472,15 +1674,145 @@
       const w = who[id] = who[id] || { name: '' };
       if (H.name >= 0 && r[H.name]) w.name = String(r[H.name]).trim();
       if (H.major >= 0 && r[H.major]) w.major = String(r[H.major]).trim();
+      if (H.fac >= 0 && r[H.fac]) w.fac = String(r[H.fac]).trim();
       const sn = H.sec >= 0 && r[H.sec] != null && String(r[H.sec]).trim() !== '' ? String(+r[H.sec] || String(r[H.sec]).trim()) : '';
-      (mine[code] = mine[code] || {})[id] = sn;
-      if (sn) { const o = sec[code] = sec[code] || {}; o[sn] = (o[sn] || 0) + 1; }
+      // a course with a lecture and a lab: the student's section is the lecture's
+      const lab = H.act >= 0 && /عملي/.test(String(r[H.act] || '')), key = id + '|' + code, o = mine[code] = mine[code] || {}, prev = o[id];
+      if (prev === undefined || (!prev && sn) || (sn && labOf.has(key) && !lab)) {
+        if (prev && sec[code] && sec[code][prev]) { sec[code][prev]--; if (!sec[code][prev]) delete sec[code][prev]; }
+        o[id] = sn; if (sn) { const so = sec[code] = sec[code] || {}; so[sn] = (so[sn] || 0) + 1; }
+        if (lab) labOf.add(key); else labOf.delete(key);
+      }
+      // «( 08:00_09:30 , ن وجاهي, ر وجاهي )»: the in-person meetings of this course
+      if (H.time >= 0 && r[H.time]) for (const m of String(r[H.time]).matchAll(/\(\s*(\d{1,2}:\d{2})\s*_\s*(\d{1,2}:\d{2})\s*,([^)]*)\)/g))
+        for (const d of m[3].matchAll(/([حنثرخسج])\s+(وجاهي|مدمج)/g)) (lec[id] = lec[id] || []).push([d[1], U.toMin(m[1]), U.toMin(m[2]), code]);
       if (H.cname >= 0 && r[H.cname]) names[code] = names[code] || String(r[H.cname]).trim();
     });
-    return { by, sec, fac: {}, who, mine, names };
+    const fac = {}; Object.entries(who).forEach(([id, w]) => { if (w.fac) fac[id] = w.fac; });
+    return { by, sec, fac, who, mine, names, lec };
   }
-  const tableOf = (file, buf) => /\.(csv|txt)$/i.test(file.name) ? Promise.resolve(decode(buf).replace(/^﻿/, '').split(/\r?\n/).map(l => l.split(/[,;\t]/).map(v => v.replace(/^"|"$/g, ''))))
-    : loadXLSX().then(() => { const wb = XLSX.read(buf, { type: 'array' }); return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false, defval: '' }); });
+  // the registration system's «كشف تسجيل الطلبة» saved as Excel: one row per student and course, the labels repeated in each
+  // row (رقم المقرر … إسم المدرس) and the values right after them; the student's name, number, major and faculty first
+  function flatHeader(rows) {
+    for (let i = 0; i < Math.min(20, rows.length); i++) {
+      const r = rows[i] || [], h = r.map(v => String(v || '').replace(/\s+/g, ' ').trim());
+      const j = h.findIndex(x => /^(رقم|رمز)\s*(المقرر|المادة)$/.test(x)); if (j < 0) continue;
+      const k = h.findIndex((x, n) => n > j && /[إا]سم\s*المدرس|^المدرس$/.test(x)); if (k < 0) continue;
+      const L = k - j + 1, lab = h.slice(j, k + 1), at = re => { const x = lab.findIndex(y => re.test(y)); return x < 0 ? -1 : j + L + x; };
+      if (!/^\d{4,8}$/.test(String(r[j + L] || '').trim())) continue;
+      const id = r.findIndex((v, n) => n < j && /^\d{6,12}$/.test(String(v).trim())); if (id < 0) continue;
+      const txt = n => n >= 0 && n < j && /[؀-ۿ]/.test(String(r[n] || '')) && !/[:：]$|^:$|التخص|الكل/.test(String(r[n]).trim());
+      return { row: i, id, name: txt(id - 1) ? id - 1 : -1, major: txt(id + 1) ? id + 1 : -1, fac: txt(id + 2) ? id + 2 : -1, code: j + L,
+        cname: at(/[إا]سم\s*(المقرر|المادة)/), sec: at(/الشعبة/), act: at(/النشاط/), time: at(/الوقت/) };
+    }
+    return null;
+  }
+  // dates and times as committees write them: 2026/12/10, 10/12/2026, a date cell; «10.00 - 10.50», «2-3:30» (afternoon), 14:00
+  const digits = v => String(v == null ? '' : v).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim();
+  function pDate(v, yr) {
+    const x = digits(v), z = n => String(n).padStart(2, '0'), ok = (y, m, d) => +m >= 1 && +m <= 12 && +d >= 1 && +d <= 31 ? `${y}-${z(+m)}-${z(+d)}` : '';
+    let m;
+    if ((m = x.match(/(\d{4})[/\-.](\d{1,2})[/\-.](\d{1,2})/))) return ok(m[1], m[2], m[3]);
+    if ((m = x.match(/(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{4})/))) return ok(m[3], m[2], m[1]);
+    if ((m = x.match(/(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2})\b/))) return ok('20' + m[3], m[2], m[1]);
+    if (/^\d{5}(\.\d+)?$/.test(x)) return new Date(Date.UTC(1899, 11, 30) + Math.floor(+x) * 864e5).toISOString().slice(0, 10);
+    if (yr && (m = x.match(/^(\d{1,2})[/\-.](\d{1,2})$/))) return ok(yr, m[2], m[1]);
+    return '';
+  }
+  const hm = (h, mi) => { h = +h; if (h <= 7) h += 12; return h * 60 + (+mi || 0); };   // an hour before 8 is in the afternoon
+  function pTimes(v) {
+    const x = digits(v); if (/^0?\.\d+$/.test(x)) { const t = Math.round(+x * 1440); return [U.toTime(t), U.toTime(t + 60)]; }
+    const ts = [...x.matchAll(/(\d{1,2})(?:[:.](\d{2}))?/g)].map(m => hm(m[1], m[2])).filter(t => t >= 420 && t <= 1380);
+    if (!ts.length) return null;
+    const a = Math.min(...ts), b = ts.length > 1 ? Math.max(...ts) : a + 60;
+    return [U.toTime(a), U.toTime(b > a ? b : a + 60)];
+  }
+  // a date and a time range written in a note, e.g. «Tues. (2-3:30)-22/12/2026»
+  function noteAt(note, yr) {
+    const x = digits(note), dm = x.match(/\d{1,4}[/\-.]\d{1,2}[/\-.]\d{2,4}/); if (!dm) return null;
+    const date = pDate(dm[0], yr), rest = x.replace(dm[0], ' '), tm = rest.match(/(\d{1,2})(?:[:.](\d{2}))?\s*[-–]\s*(\d{1,2})(?:[:.](\d{2}))?/);
+    if (!date || !tm) return null;
+    const a = hm(tm[1], tm[2]), b = hm(tm[3], tm[4]);
+    return { date, from: U.toTime(Math.min(a, b)), to: U.toTime(Math.max(a, b)) };
+  }
+  const secList = v => { const x = digits(v); if (!x || /كل|جميع|all/i.test(x)) return [];
+    const m = x.match(/^(\d+)\s*[-–]\s*(\d+)$/); if (m && +m[2] > +m[1] && +m[2] - +m[1] < 40) return Array.from({ length: +m[2] - +m[1] + 1 }, (_, k) => String(+m[1] + k));
+    return [...new Set((x.match(/\d+/g) || []).map(n => String(+n)))]; };
+  const yes = v => /^(نعم|ن|✓|✔|x|yes|y|1|true|صح)$/i.test(String(v == null ? '' : v).trim());
+  // ---------- reading Excel files here (no library needed): the first sheet's cells as text, dates as YYYY-MM-DD, times as HH:MM,
+  // and which rows are filled orange (the committee marks courses that way) ----------
+  async function unzip(buf, want) {
+    const v = new DataView(buf), u8 = new Uint8Array(buf), out = {};
+    let e = buf.byteLength - 22; while (e >= 0 && v.getUint32(e, true) !== 0x06054b50) e--;
+    if (e < 0) throw new Error('not a zip');
+    let p = v.getUint32(e + 16, true); const n = v.getUint16(e + 10, true), td = new TextDecoder();
+    for (let k = 0; k < n; k++) {
+      if (v.getUint32(p, true) !== 0x02014b50) break;
+      const method = v.getUint16(p + 10, true), size = v.getUint32(p + 20, true), nl = v.getUint16(p + 28, true), xl = v.getUint16(p + 30, true), cl = v.getUint16(p + 32, true), off = v.getUint32(p + 42, true);
+      const name = td.decode(u8.subarray(p + 46, p + 46 + nl)); p += 46 + nl + xl + cl;
+      if (!want.test(name)) continue;
+      const at = off + 30 + v.getUint16(off + 26, true) + v.getUint16(off + 28, true), data = u8.subarray(at, at + size);
+      out[name] = method === 0 ? td.decode(data) : await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
+    }
+    return out;
+  }
+  const xmlT = x => String(x || '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'")
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16))).replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(+d)).replace(/&amp;/g, '&');
+  const runs = x => xmlT((String(x).replace(/<rPh\b[\s\S]*?<\/rPh>/g, '').match(/<t(?:\s[^>]*)?>[\s\S]*?<\/t>/g) || []).map(t => t.replace(/<[^>]+>/g, '')).join(''));
+  const attr = (tag, a) => { const m = tag.match(new RegExp('\\b' + a + '="([^"]*)"')); return m ? m[1] : null; };
+  // orange: hue 15°–45°, clearly coloured (Excel's «orange, accent 2» and its lighter tints)
+  function orangeHex(hex, tint) {
+    if (!hex || hex.length < 6) return false; hex = hex.slice(-6);
+    let [r, g, b] = [0, 2, 4].map(i => parseInt(hex.slice(i, i + 2), 16)); const t = +tint || 0;
+    if (t) [r, g, b] = [r, g, b].map(c => t > 0 ? c + (255 - c) * t : c * (1 + t));
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 510, d = (mx - mn) / 255; if (!d) return false;
+    const sat = d / (1 - Math.abs(2 * l - 1)), h = mx === r ? 60 * (((g - b) / (mx - mn)) % 6) : mx === g ? 60 * ((b - r) / (mx - mn) + 2) : 60 * ((r - g) / (mx - mn) + 4);
+    return sat > 0.4 && l < 0.95 && h >= 15 && h <= 45;
+  }
+  async function readXlsx(buf) {
+    const F = await unzip(buf, /^xl\/(workbook\.xml|_rels\/workbook\.xml\.rels|sharedStrings\.xml|styles\.xml|theme\/theme1\.xml)$/i);
+    const wbx = F['xl/workbook.xml']; if (!wbx) throw new Error('not xlsx');
+    let target = 'worksheets/sheet1.xml'; const rid = attr((wbx.match(/<sheet\b[^>]*>/) || [''])[0], 'r:id'), rels = F['xl/_rels/workbook.xml.rels'] || '';
+    const rel = rid && (rels.match(new RegExp('<Relationship\\b[^>]*\\bId="' + rid + '"[^>]*>')) || [])[0]; if (rel && attr(rel, 'Target')) target = attr(rel, 'Target').replace(/^\/?xl\//, '');
+    const sheet = Object.values(await unzip(buf, new RegExp('^xl/' + target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i')))[0];
+    if (sheet == null) throw new Error('no sheet');
+    const sst = (F['xl/sharedStrings.xml'] || '').match(/<si\b[\s\S]*?<\/si>/g) || [], SST = sst.map(runs);
+    const st = F['xl/styles.xml'] || '', part = tag => (st.match(new RegExp('<' + tag + '\\b[^>]*>([\\s\\S]*?)</' + tag + '>')) || [])[1] || '';
+    const fmts = {}; (part('numFmts').match(/<numFmt\b[^>]*>/g) || []).forEach(x => { fmts[+attr(x, 'numFmtId')] = xmlT(attr(x, 'formatCode')); });
+    const theme = {}, TH = ['lt1', 'dk1', 'lt2', 'dk2', 'accent1', 'accent2', 'accent3', 'accent4', 'accent5', 'accent6', 'hlink', 'folHlink'];
+    TH.forEach((k, j) => { const m = (F['xl/theme/theme1.xml'] || '').match(new RegExp('<a:' + k + '>[\\s\\S]*?(?:val|lastClr)="([0-9A-Fa-f]{6})"')); theme[j] = m ? m[1] : ''; });
+    const fills = (part('fills').match(/<fill\b[^>]*\/>|<fill\b[\s\S]*?<\/fill>/g) || []).map(f => { const fg = (f.match(/<fgColor\b[^>]*>/) || [])[0];
+      if (!fg || !/patternType="solid"/.test(f)) return false; const th = attr(fg, 'theme'); return orangeHex(attr(fg, 'rgb') || (th != null ? theme[+th] : ''), attr(fg, 'tint')); });
+    const xfs = (part('cellXfs').match(/<xf\b[^>]*>/g) || []).map(x => { const id = +(attr(x, 'numFmtId') || 0), code = (fmts[id] || '').replace(/"[^"]*"|\[[^\]]*\]/g, '');
+      return { orange: !!fills[+(attr(x, 'fillId') || 0)], date: (id >= 14 && id <= 22) || (id >= 45 && id <= 47) || /[dmyhs]/i.test(code), dayless: (id >= 18 && id <= 21) || (id >= 45 && id <= 47) || (/[hs]/i.test(code) && !/[dy]/i.test(code)) }; });
+    const col = r => { let n = 0; for (const ch of r.replace(/\d+$/, '')) n = n * 26 + ch.charCodeAt(0) - 64; return n - 1; };
+    const rows = [], orange = new Set(), reRow = /<row\b([^>]*?)(?:\/>|>([\s\S]*?)<\/row>)/g, reC = /<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g;
+    let m, ri = 0;
+    while ((m = reRow.exec(sheet))) {
+      const rr = attr(m[1], 'r'); ri = rr ? +rr - 1 : ri; const row = []; let ci = 0, c;
+      reC.lastIndex = 0;
+      while (m[2] && (c = reC.exec(m[2]))) {
+        const a = c[1], ref = attr(a, 'r'), t = attr(a, 't'), x = xfs[+(attr(a, 's') || 0)] || {}, body = c[2] || '';
+        ci = ref ? col(ref) : ci; const vv = (body.match(/<v>([\s\S]*?)<\/v>/) || [])[1];
+        let val = '';
+        if (t === 's') val = SST[+vv] || ''; else if (t === 'inlineStr') val = runs(body); else if (t === 'b') val = vv === '1' ? 'TRUE' : 'FALSE';
+        else if (t === 'str' || t === 'e' || t === 'd') val = xmlT(vv);
+        else if (vv != null && vv !== '') { const n = +vv;
+          if (x.date && !isNaN(n)) { const mins = Math.round((n % 1) * 1440); val = x.dayless || n < 1 ? U.toTime(mins % 1440) : new Date(Date.UTC(1899, 11, 30) + Math.floor(n) * 864e5).toISOString().slice(0, 10); }
+          else val = String(n); }
+        if (x.orange && val !== '') orange.add(ri);
+        while (row.length < ci) row.push(''); row[ci] = val; ci++;
+      }
+      while (rows.length < ri) rows.push([]); rows[ri] = row; ri++;
+    }
+    return { rows, orange };
+  }
+  const csvRows = buf => decode(buf).replace(/^\ufeff/, '').split(/\r?\n/).map(l => l.split(/[,;\t]/).map(v => v.replace(/^"|"$/g, '')));
+  // any uploaded table: CSV, .xlsx (read here), else the Excel library (.xls…)
+  const sheetOf = (file, buf) => /\.(csv|txt)$/i.test(file.name) ? Promise.resolve({ rows: csvRows(buf), orange: new Set() })
+    : readXlsx(buf).catch(() => loadXLSX().then(() => { const wb = XLSX.read(buf, { type: 'array', cellDates: true }); const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: true, defval: '' });
+      return { rows: rows.map(r => r.map(v => v instanceof Date ? (v.getFullYear() < 1901 ? U.toTime(v.getHours() * 60 + v.getMinutes()) : new Date(v.getTime() + 12 * 3600e3).toISOString().slice(0, 10)) : v == null ? '' : String(v))), orange: new Set() }; }));
+  const tableOf = (file, buf) => sheetOf(file, buf).then(x => x.rows);
   // templates with clear column names (Excel; the instructions sheet explains each column)
   const TPL = {
     reg: { file: 'نموذج_كشف_التسجيل.xlsx', cols: ['رقم الطالب', 'اسم الطالب', 'رمز المادة', 'اسم المادة', 'الشعبة', 'التخصص'],
@@ -1497,7 +1829,34 @@
         ['3', '9900202', '1', 'مادة تجريبية ب (مثال)', 'د. مدرس ثالث (مثال)', '90'], ['4', '9900303', '1', 'مادة تجريبية ج (مثال)', 'د. مدرس أول (مثال)', '42']],
       help: [['التسلسل', 'اختياري', 'رقم الصف'], ['رقم المادة', 'إجباري', 'رمز المقرر كما في الجدول الدراسي، مثل 9400107'], ['ش', 'مُستحسن', 'رقم الشعبة؛ صف لكل شعبة'],
         ['اسم المادة', 'اختياري', 'للتوضيح'], ['اسم المحاضر', 'اختياري', 'للتوضيح (المدرسون من الجدول الدراسي)'], ['عدد الطلبة', 'إجباري', 'عدد طلبة الشعبة؛ يحل محل عدد الجدول الدراسي']],
-      note: 'العينة غير حقيقية: احذف صفوف المثال واكتب موادك، صف لكل شعبة. لا تغيّر أسماء الأعمدة.' } };
+      note: 'العينة غير حقيقية: احذف صفوف المثال واكتب موادك، صف لكل شعبة. لا تغيّر أسماء الأعمدة.' },
+    // what each course's coordinator asks for (one row per course); the list is also the plan's courses
+    req: { file: 'نموذج_متطلبات_امتحانات_المقررات.xlsx', sheet: 'المقررات', cols: ['رمز المادة', 'اسم المادة', 'المنسق', 'قاعة / مختبر', 'عدد القاعات أو المختبرات', 'عدد المراقبين', 'موعد ثابت: التاريخ', 'موعد ثابت: من', 'موعد ثابت: إلى', 'في آخر الجدول', 'ملاحظات'],
+      ex: [['9900101', 'مادة تجريبية أ (مثال)', 'د. منسق أول (مثال)', 'قاعة', '', '', '', '', '', 'نعم', 'ورقي'], ['9900202', 'مادة تجريبية ب (مثال)', 'د. منسق ثانٍ (مثال)', 'مختبر', '2', '3', '', '', '', '', 'محوسب'],
+        ['9900303', 'مادة تجريبية ج (مثال)', 'د. منسق ثالث (مثال)', 'قاعة', '', '', '2026-12-22', '14:00', '15:30', '', 'بطلب المنسق']],
+      help: [['رمز المادة', 'إجباري', 'رمز المقرر كما في الجدول الدراسي. مواد الملف هي مواد الخطة (يمكن إلغاء ذلك من «المقررات»)'], ['اسم المادة', 'اختياري', 'للتوضيح'], ['المنسق', 'اختياري', 'يظهر للجنة'],
+        ['قاعة / مختبر', 'مُستحسن', '«قاعة» (ورقي) أو «مختبر» (محوسب). الفارغ يُعامل حسب إعداد «القاعات» (قاعة في كلية تكنولوجيا المعلومات)'],
+        ['عدد القاعات أو المختبرات', 'اختياري', 'رقم. الفارغ = حسب عدد الطلبة؛ امتحان القاعة الكبير يتوزع تلقائياً حسب قاعدة «القاعات» (مثلاً فوق 30 طالباً: 24 في كل قاعة)'],
+        ['عدد المراقبين', 'اختياري', 'مجموع مراقبي الامتحان. الفارغ = مراقب لكل قاعة'], ['موعد ثابت: التاريخ', 'اختياري', 'إن طلب المنسق موعداً محدداً، مثل 2026-12-22'],
+        ['موعد ثابت: من / إلى', 'اختياري', 'مثل 14:00 و15:30 (أو 2:00 و3:30 تُفهم بعد الظهر)'], ['في آخر الجدول', 'اختياري', '«نعم» ليكون الامتحان قرب نهاية الأيام. تظليل صف المادة باللون البرتقالي يعني الشيء نفسه'],
+        ['ملاحظات', 'اختياري', 'أي ملاحظة (مثلاً «محوسب» أو «ورقي» أو «3 مراقبين»)']],
+      note: 'العينة غير حقيقية: احذف صفوف المثال واكتب موادك، صف لكل مقرر. لا تغيّر أسماء الأعمدة.' },
+    // exams other departments hold at fixed times (maths, university requirements…): one row per course, sections and time
+    fixed: { file: 'نموذج_المواعيد_الثابتة.xlsx', sheet: 'المواعيد', cols: ['رمز المادة', 'اسم المادة', 'الشعب', 'التاريخ', 'من', 'إلى', 'القاعات', 'الجهة'],
+      ex: [['9900101', 'مادة تجريبية أ (مثال)', '1، 2', '2026-12-10', '10:00', '10:50', '7419-7420', 'متطلبات الجامعة'], ['9900101', 'مادة تجريبية أ (مثال)', '3', '2026-12-10', '11:00', '11:50', '7422', 'متطلبات الجامعة'],
+        ['9900202', 'مادة تجريبية ب (مثال)', '', '2026-12-13', '15:00', '16:00', '7201-7202', 'قسم الرياضيات']],
+      help: [['رمز المادة', 'إجباري', 'رمز المقرر كما في الجدول الدراسي'], ['اسم المادة', 'اختياري', 'للتوضيح'], ['الشعب', 'اختياري', 'الشعب التي تمتحن في هذا الموعد، مثل «1، 2» أو «1-5». الفارغ = كل الشعب'],
+        ['التاريخ', 'إجباري', 'مثل 2026-12-10 أو 10/12/2026'], ['من / إلى', 'إجباري', 'وقت الامتحان، مثل 10:00 و10:50 (أو عمود واحد «الوقت»: 10.00 - 10.50)'],
+        ['القاعات', 'مُستحسن', 'القاعات أو المختبرات التي يأخذها الامتحان، مفصولة بـ - أو ،: تُحجز في وقته فلا يوضع فيها امتحان آخر'], ['الجهة', 'اختياري', 'القسم الذي يعقده (قاعاته ومراقبوه منه)']],
+      note: 'العينة غير حقيقية. يُقبل أيضاً جدول الجهة كما هو إن كان فيه رقم المادة والشعبة والتاريخ والوقت (مثل جدول متطلبات الجامعة). صف بلا تاريخ ووقت يأخذ تاريخ ووقت الصف الذي فوقه.' },
+    // the proctors: who may proctor and each one's limits (the course instructors are added by themselves)
+    proc: { file: 'نموذج_المراقبين.xlsx', sheet: 'المراقبون', cols: ['الاسم', 'الصفة', 'القسم', 'أقصى مراقبات في الدورة', 'أقصى مراقبات في اليوم', 'أيام غير متاح', 'معفى من المراقبة', 'ملاحظات'],
+      ex: [['د. مثال أول', 'عضو هيئة تدريس', 'علم الحاسوب', '6', '2', '', '', ''], ['م. مثال ثانٍ', 'مشرف مختبر', 'تكنولوجيا المعلومات', '', '3', 'الخميس', '', ''],
+        ['أ. مثال ثالث', 'إداري', 'عمادة الكلية', '4', '1', '2026-12-10، 2026-12-17', '', ''], ['د. مثال رابع', 'رئيس قسم', 'هندسة البرمجيات', '', '', '', 'نعم', '']],
+      help: [['الاسم', 'إجباري', 'كما في الجدول الدراسي إن كان مدرّساً (يكفي الاسم الأول والأخير)'], ['الصفة', 'اختياري', 'عضو هيئة تدريس، مشرف مختبر، إداري…'], ['القسم', 'اختياري', 'لتجميع الأسماء'],
+        ['أقصى مراقبات في الدورة', 'اختياري', 'فارغ = الحد العام في «المراقبون»'], ['أقصى مراقبات في اليوم', 'اختياري', 'فارغ = الحد العام'],
+        ['أيام غير متاح', 'اختياري', 'تواريخ أو أيام أسبوع مفصولة بـ ،  (مثل «الخميس» أو «2026-12-10»)'], ['معفى من المراقبة', 'اختياري', '«نعم» = لا يراقب (العميد، رؤساء الأقسام…)'], ['ملاحظات', 'اختياري', '']],
+      note: 'مدرّسو المقررات يُضافون تلقائياً من الجدول الدراسي؛ اكتب هنا من يُضاف إليهم (مشرفو المختبرات، الإداريون) ومن له حدود خاصة أو معفى. العينة غير حقيقية.' } };
   function downloadTemplate(k) {
     const t = TPL[k];
     loadXLSX().then(() => {
@@ -1545,7 +1904,7 @@
       const inTT = new Set(TT.sections.map(x => x.code)), miss = codes.filter(c => !inTT.has(c));
       const secs = codes.reduce((a, c) => a + Object.keys(regSec[c]).length, 0), tot = codes.reduce((a, c) => a + regN[c], 0);
       leaveCur(() => {
-        const o = fresh('midterm'); o.planId = 'p' + Date.now(); o.label = 'متطلبات الجامعة'; o.facs = []; o.faculty = ''; o.only = codes; o.regN = regN; o.regSec = regSec; o.src = 'both'; o.b2b = false;
+        const o = fresh('midterm', []); o.planId = 'p' + Date.now(); o.label = 'متطلبات الجامعة'; o.facs = []; o.faculty = ''; o.only = codes; o.regN = regN; o.regSec = regSec; o.src = 'both'; o.b2b = false;
         o.listMax = 400; o.parts = autoParts(regSec, codes, o.listMax); o.drafts = [];
         o.regInfo = `${file.name}: ${codes.length} مقرراً · ${secs} شعبة · ${tot.toLocaleString('en-US')} طالباً`;
         S = o; migrate(); SWAPPED = true; tab = 'set'; S.setTab = 1; build(); render(); DIRTY = true; savebar();
@@ -1577,11 +1936,10 @@
     file.arrayBuffer().then(buf => {
       const head = new TextDecoder('latin1').decode(buf.slice(0, 2000)).toLowerCase();
       if (head.includes('<html') || head.includes('<table')) return parseReport(decode(buf), known);
-      const rowsP = /\.(csv|txt)$/i.test(file.name) ? Promise.resolve(decode(buf).replace(/^﻿/, '').split(/\r?\n/).map(l => l.split(/[,;\t]/).map(v => v.replace(/^"|"$/g, ''))))
-        : loadXLSX().then(() => { const wb = XLSX.read(buf, { type: 'array' }); return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false }); });
-      return rowsP.then(rows => {
+      return tableOf(file, buf).then(rows => {
         const H = headerMap(rows);
         if (H && H.id >= 0 && H.code >= 0) return fromTable(rows.slice(H.row + 1), H, known);
+        const FH = flatHeader(rows); if (FH) return fromTable(rows.slice(FH.row), FH, known);
         const w = Math.max(...rows.slice(0, 50).map(r => r.length)); let codeCol = -1, best = 0;
         for (let j = 0; j < w; j++) { const n = rows.slice(0, 300).filter(r => known.has(String(r[j] || '').trim())).length; if (n > best) { best = n; codeCol = j; } }
         if (codeCol < 0) throw new Error('لم أجد عموداً فيه رموز مواد معروفة. استخدم النموذج (زر «تنزيل النموذج»).');
@@ -1590,41 +1948,124 @@
         if (stuCol < 0) stuCol = codeCol === 0 ? 1 : 0;
         return fromTable(rows, { id: stuCol, code: codeCol, name: -1, sec: -1, major: -1, cname: -1 }, known);
       });
-    }).then(({ by, sec, fac, who, mine }) => {
+    }).then(({ by, sec, fac, who, mine, lec }) => {
       sec = sec || {};
       REGMEM = who && mine && Object.keys(who).length ? { who, mine, file: file.name } : null;   // names stay in this page's memory only
       const studs = Object.keys(by); if (!studs.length) throw new Error('لم أجد طلبة ومقررات معروفة في الملف.');
+      // per student the courses with his section («601222#2»): a course sat in parts counts only his part
       const agg = {}, n = {}; let pairs = 0;
-      studs.forEach(st => { const set = by[st]; pairs += set.size; set.forEach(c => { n[c] = (n[c] || 0) + 1; }); if (set.size < 2) return; const k = [...set].sort().join(','); agg[k] = (agg[k] || 0) + 1; });
+      studs.forEach(st => { const set = by[st]; pairs += set.size; set.forEach(c => { n[c] = (n[c] || 0) + 1; }); if (set.size < 2) return;
+        const k = [...set].map(c => { const x = mine && mine[c] && mine[c][st]; return x ? c + '#' + x : c; }).sort().join(','); agg[k] = (agg[k] || 0) + 1; });
       S.reg = Object.entries(agg).map(([k, w]) => ({ c: k.split(','), w })); S.regN = n; S.regSec = sec;
+      // the students' other in-person lectures at each time, per course of this plan (counts only, no student)
+      S.lec = null;
+      if (lec && Object.keys(lec).length) {
+        const scope = new Set(C.map(c => c.base || c.code).concat(S.only || [])), L = {};
+        studs.forEach(st => { const ls = lec[st]; if (!ls) return; by[st].forEach(c => { if (!scope.has(c)) return; const seen = new Set(), o = L[c] = L[c] || {};
+          ls.forEach(([d, a, b, oc]) => { if (oc === c) return; const k = d + '|' + a + '|' + b; if (seen.has(k)) return; seen.add(k); o[k] = (o[k] || 0) + 1; }); }); });
+        S.lec = {}; Object.entries(L).forEach(([c, o]) => { const per = {}; Object.keys(o).sort().forEach(k => { const [d, a, b] = k.split('|'); (per[d] = per[d] || []).push([+a, +b, o[k]]); }); S.lec[c] = per; });
+      }
       const fc = {}; Object.values(fac).forEach(f => { fc[f] = (fc[f] || 0) + 1; });
       const facs = Object.entries(fc).sort((a, b) => b[1] - a[1]);
-      S.regInfo = `${file.name}: ${studs.length.toLocaleString('ar')} طالباً، ${pairs.toLocaleString('ar')} تسجيلاً في ${Object.keys(n).length} مقرراً` + (facs.length ? ` · ${facs.length === 1 ? 'كلية ' + facs[0][0] : facs.length + ' كليات'}` : '');
+      S.regInfo = `${file.name}: ${studs.length.toLocaleString('ar')} طالباً، ${pairs.toLocaleString('ar')} تسجيلاً في ${Object.keys(n).length} مقرراً` + (facs.length ? ` · ${facs.length === 1 ? 'كلية ' + facs[0][0] : facs.length + ' كليات'}` : '') + (S.lec ? ' · مع أوقات المحاضرات' : '');
       S.regAt = new Date().toISOString().slice(0, 10);
       if (WANT === 'lists') { WANT = null; setTimeout(printLists, 300); }
-      if (S.src === 'plans') S.src = 'both';
+      if (S.src === 'plans') S.src = 'reg';
       rebuild();
     }).catch(e => { if (note) note.textContent = ''; alert('تعذّرت قراءة الكشف: ' + (e.message || e)); });
   }
-  // the coordinator's list (one row per course): رمز المادة | اسم المادة | المنسق | قاعة / مختبر | عدد القاعات او المختبرات | ملاحظات
+  // the coordinator's list (one row per course): رمز المادة | اسم المادة | المنسق | قاعة / مختبر | عدد القاعات | عدد المراقبين |
+  // موعد ثابت (التاريخ، من، إلى) | في آخر الجدول | ملاحظات. A row filled orange = «في آخر الجدول». The list is the plan's courses.
   function readReq(file) {
-    file.arrayBuffer().then(buf => /\.(csv|txt)$/i.test(file.name) ? decode(buf).replace(/^﻿/, '').split(/\r?\n/).map(l => l.split(/[,;\t]/).map(v => v.replace(/^"|"$/g, '')))
-      : loadXLSX().then(() => { const wb = XLSX.read(buf, { type: 'array' }); return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: false, defval: '' }); })).then(rows => {
-      const hi = rows.findIndex(r => r.some(v => /رمز/.test(String(v)))); if (hi < 0) throw new Error('لم أجد صف العناوين (عمود «رمز المادة»).');
+    file.arrayBuffer().then(buf => sheetOf(file, buf)).then(({ rows, orange }) => {
+      const hi = rows.findIndex(r => r.some(v => /رمز|رقم\s*الماد/.test(String(v)))); if (hi < 0) throw new Error('لم أجد صف العناوين (عمود «رمز المادة»).');
       const H = rows[hi].map(v => String(v || '').replace(/\s+/g, ' ').trim()), col = re => H.findIndex(h => re.test(h));
-      const jc = col(/رمز/), jo = col(/منسق|مدرس/), jt = col(/قاعة\s*\/\s*مختبر|نوع/), jn = col(/عدد/), jx = col(/ملاحظ/);
-      const req = S.req = S.req || {}; let n = 0;
-      rows.slice(hi + 1).forEach(r => {
-        const code = String(r[jc] || '').trim(); if (!/^\d{5,8}$/.test(code)) return;
-        const tt = String(jt >= 0 ? r[jt] : ''), nn = String(jn >= 0 ? r[jn] : ''), note = String(jx >= 0 ? r[jx] : '').trim();
-        const q = req[code] = req[code] || {};
-        q.type = /مختبر|محوسب|\blab/i.test(tt + ' ' + note) ? LAB : /قاع|ورق|\broom|\bhall/i.test(tt + ' ' + note) ? HALL : q.type || '';
-        const m = nn.match(/\d+/); q.rooms = m ? +m[0] : /مختبرين|قاعتين|\btwo\b/i.test(nn + tt) ? 2 : /\bone\b/i.test(nn) ? 1 : 0;
-        const pm = note.match(/(\d+)\s*مراقب|مراقب\S*\s*(\d+)|زملاء\D*(\d+)/); if (pm) q.proc = +(pm[1] || pm[2] || pm[3]);
-        if (jo >= 0 && r[jo]) q.coord = String(r[jo]).trim(); q.note = note; n++;
+      const jc = col(/رمز|رقم\s*الماد/), jo = col(/منسق|مدرس/), jt = col(/قاعة\s*\/\s*مختبر|نوع/), jp = col(/مراقب/), jn = H.findIndex(h => /عدد/.test(h) && !/مراقب|طلب|طالب/.test(h)),
+        jx = col(/ملاحظ/), jd = col(/تاريخ/), jf = col(/(^|\s|:)من(\s|$)/), jto = col(/(^|\s|:)(إلى|الى)(\s|$)/), jl = col(/(آخر|اخر)\s*الجدول/);
+      const req = S.req = S.req || {}, yr = (S.start || today()).slice(0, 4), codes = []; let nl = 0, na = 0;
+      rows.slice(hi + 1).forEach((r, k) => {
+        const code = String(r[jc] || '').replace(/\D/g, ''); if (!/^\d{5,8}$/.test(code)) return;
+        const tt = String(jt >= 0 ? r[jt] : ''), nn = String(jn >= 0 ? r[jn] : ''), note = String(jx >= 0 ? r[jx] : '').replace(/ /g, ' ').trim();
+        const q = req[code] = { ...(req[code] && req[code].ext ? { ext: true } : {}) }; codes.push(code);
+        q.type = /مختبر|محوسب|\blab/i.test(tt + ' ' + note) ? LAB : /قاع|ورق|\broom|\bhall/i.test(tt + ' ' + note) ? HALL : '';
+        const m = digits(nn).match(/\d+/); q.rooms = m ? +m[0] : /مختبرين|قاعتين|\btwo\b/i.test(nn + tt) ? 2 : /\bone\b/i.test(nn) ? 1 : 0;
+        const pv = jp >= 0 ? digits(r[jp]).match(/\d+/) : null, pm = note.match(/(\d+)\s*مراقب|مراقب\S*\s*(\d+)|زملاء\D*(\d+)/);
+        if (pv) q.proc = +pv[0]; else if (pm) q.proc = +(pm[1] || pm[2] || pm[3]);
+        if (jo >= 0 && r[jo]) q.coord = String(r[jo]).replace(/ /g, ' ').trim(); q.note = note;
+        // a fixed time: its own columns, else a date and hours written in the note
+        const d = jd >= 0 ? pDate(r[jd], yr) : '', t1 = jf >= 0 ? pTimes(r[jf]) : null, t2 = jto >= 0 ? pTimes(r[jto]) : null;
+        const at = d && t1 ? { date: d, from: t1[0], to: t2 ? t2[0] : t1[1] } : noteAt(note, yr);
+        if (at) { q.at = at; na++; }
+        if ((jl >= 0 && yes(r[jl])) || orange.has(hi + 1 + k)) { q.late = true; nl++; }
+        if (!q.type && !q.rooms && !q.proc && !q.note && !q.coord && !q.at && !q.late) delete req[code];
       });
-      if (!n) throw new Error('لا توجد صفوف برموز مواد.');
-      alert(`قُرئت متطلبات ${n} مقرراً من ${file.name}.`); rebuild();
+      if (!codes.length) throw new Error('لا توجد صفوف برموز مواد.');
+      if (codes.every(c => /^99/.test(c))) throw new Error('هذه صفوف المثال من النموذج (غير حقيقية). اكتب موادك مكانها ثم ارفع الملف.');
+      // the list is the plan's courses (unless this plan is a list of its own, e.g. the university requirements)
+      const scoped = !S.listMax && S.reqOnly !== false;
+      if (scoped) { S.only = [...new Set(codes)]; S.reqOnly = true; }
+      S.reqInfo = `${file.name}: ${codes.length} مقرراً${nl ? ` · ${nl} في آخر الجدول` : ''}${na ? ` · ${na} بموعد ثابت` : ''}`;
+      const inTT = new Set(TT.sections.map(x => x.code)), miss = codes.filter(c => !inTT.has(c));
+      rebuild();
+      alert(`قُرئت متطلبات ${codes.length} مقرراً من ${file.name}.${nl ? `\n${nl} مقرراً في آخر الجدول (مظللة بالبرتقالي أو «نعم»).` : ''}${na ? `\n${na} مقرراً بموعد ثابت.` : ''}${scoped ? '\nالخطة الآن لمواد هذه القائمة (ومعها الامتحانات الثابتة للجهات الأخرى).' : ''}${miss.length ? `\n\n${miss.length} مقرراً غير موجود في الجدول الدراسي: ${miss.join('، ')}` : ''}`);
+    }).catch(e => alert('تعذّرت قراءة الملف: ' + (e.message || e)));
+  }
+  // exams of other departments at fixed times: the site's template, or the department's own table (رقم المادة، ش، التاريخ،
+  // الوقت، المختبرات…). A row without a date or time takes the row above's; a session's rooms are often on its first row only.
+  function readFixed(file) {
+    file.arrayBuffer().then(buf => sheetOf(file, buf)).then(({ rows }) => {
+      let H = null;
+      for (let i = 0; i < Math.min(15, rows.length) && !H; i++) {
+        const h = (rows[i] || []).map(v => String(v || '').replace(/\s+/g, ' ').trim()), f = re => h.findIndex(x => re.test(x));
+        const m = { row: i, code: f(/(رمز|رقم)\s*(الماد|المقرر)|^الرمز$/), sec: f(/^ش\.?$|الشعب|^شعبة/), date: f(/التاريخ/), time: f(/^الوقت|^الساعة/), from: f(/^من(\s|$)|وقت البد|البداية/), to: f(/^(إلى|الى)(\s|$)|وقت الانتهاء|النهاية/),
+          rooms: f(/القاعات|المختبرات|^القاعة|^المختبر/), who: f(/الجهة|القسم المسؤول/), name: f(/(اسم|عنوان)\s*(الماد|المقرر)/) };
+        if (m.code >= 0 && m.date >= 0 && (m.time >= 0 || m.from >= 0)) H = m;
+      }
+      if (!H) throw new Error('لم أجد أعمدة «رمز المادة» و«التاريخ» و«الوقت» (أو «من»). استخدم النموذج.');
+      const yr = (S.start || today()).slice(0, 4), base = file.name.replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ').trim(), out = [], roomsAt = {};
+      let last = null;
+      rows.slice(H.row + 1).forEach(r => {
+        const code = String(r[H.code] || '').replace(/\D/g, ''); if (!/^\d{5,8}$/.test(code)) return;
+        let date = pDate(r[H.date], yr), tt = H.time >= 0 ? pTimes(r[H.time]) : null;
+        if (H.from >= 0 && String(r[H.from] || '').trim()) { const x = pTimes(r[H.from]), y = H.to >= 0 ? pTimes(r[H.to]) : null; if (x) tt = [x[0], y ? y[0] : x[1]]; }
+        if (!date && last) date = last.date; if (!tt && last && date === last.date) tt = [last.from, last.to];
+        if (!date || !tt) return;
+        const rm = H.rooms >= 0 ? String(r[H.rooms] || '').split(/[-–,،+/\s]+/).map(x => x.trim()).filter(x => /\d/.test(x)) : [];
+        if (rm.length) roomsAt[date + ' ' + tt[0]] = rm;
+        out.push({ code, secs: H.sec >= 0 ? secList(r[H.sec]) : [], date, from: tt[0], to: tt[1], rooms: rm, who: (H.who >= 0 && String(r[H.who] || '').trim()) || base, src: file.name });
+        last = { date, from: tt[0], to: tt[1] };
+      });
+      out.forEach(x => { if (!x.rooms.length) x.rooms = roomsAt[x.date + ' ' + x.from] || []; });
+      if (!out.length) throw new Error('لا صفوف فيها رمز مادة وتاريخ ووقت.');
+      if (out.every(x => /^99/.test(x.code))) throw new Error('هذه صفوف المثال من النموذج (غير حقيقية). اكتب المواعيد مكانها ثم ارفع الملف.');
+      S.fixed = (S.fixed || []).filter(x => x.src !== file.name).concat(out);
+      rebuild();
+      const codes = new Set(out.map(x => x.code)), inW = [...codes].filter(c => FX.codes.has(c)), joined = inW.filter(c => FX.inPlan.has(c));
+      alert(`قُرئ ${out.length} موعداً لـ${codes.size} مقرراً من ${file.name}.\n${inW.length} مقرراً في أيام الامتحانات، منها ${joined.length} يشترك طلبتها مع مواد الخطة فدخلت الجدول بمواعيدها الثابتة.\nقاعاتها محجوزة في أوقاتها.`);
+    }).catch(e => alert('تعذّرت قراءة الملف: ' + (e.message || e)));
+  }
+  // the proctors list: names (with role and department), each one's own limits and days off, the exempted
+  const WDN = ['احد', 'اثنين', 'ثلاثاء', 'اربعاء', 'خميس', 'جمعه', 'سبت'];
+  function readProc(file) {
+    file.arrayBuffer().then(buf => sheetOf(file, buf)).then(({ rows }) => {
+      let H = null;
+      for (let i = 0; i < Math.min(15, rows.length) && !H; i++) {
+        const h = (rows[i] || []).map(v => String(v || '').replace(/\s+/g, ' ').trim()), f = re => h.findIndex(x => re.test(x));
+        const m = { row: i, n: f(/^الاسم|اسم\s*المراقب|^name/i), role: f(/الصفة|الوظيفة|المسمى/), dept: f(/القسم|الجهة|الوحدة/), max: f(/(أقصى|الحد).*(الدورة|المجموع)/), day: f(/(أقصى|الحد).*اليوم/), off: f(/غير\s*متاح|اعتذار/), ex: f(/معف/) };
+        if (m.n >= 0) H = m;
+      }
+      if (!H) throw new Error('لم أجد عمود «الاسم». استخدم النموذج.');
+      const yr = (S.start || today()).slice(0, 4), list = [];
+      rows.slice(H.row + 1).forEach(r => {
+        const n = String(r[H.n] || '').replace(/\s+/g, ' ').trim(); if (!n || /مثال/.test(n)) return;
+        const num = j => { const m = j >= 0 ? digits(r[j]).match(/\d+/) : null; return m ? +m[0] : 0; }, offD = [], offW = [];
+        (H.off >= 0 ? String(r[H.off] || '') : '').split(/[,،;\n]+|\s+و/).map(x => x.trim()).filter(Boolean).forEach(x => { const d = pDate(x, yr); if (d) { offD.push(d); return; }
+          const k = WDN.findIndex(w => U.norm(x).replace(/^ال/, '').includes(w)); if (k >= 0) offW.push(k); });
+        list.push({ n, role: H.role >= 0 ? String(r[H.role] || '').trim() : '', dept: H.dept >= 0 ? String(r[H.dept] || '').trim() : '', max: num(H.max), maxDay: num(H.day), offD, offW, ex: H.ex >= 0 && yes(r[H.ex]) });
+      });
+      if (!list.length) throw new Error('لا أسماء في الملف (صفوف المثال لا تُقرأ).');
+      S.procList = list; S.procInfo = `${file.name}: ${list.length} اسماً`; rebuild();
+      alert(`قُرئ ${list.length} اسماً من ${file.name}: ${list.filter(p => p.ex).length} معفى، ${list.filter(p => p.max || p.maxDay).length} بحدود خاصة، ${list.filter(p => p.offD.length || p.offW.length).length} لهم أيام غير متاحين فيها.`);
     }).catch(e => alert('تعذّرت قراءة الملف: ' + (e.message || e)));
   }
   function wire() {
@@ -1694,11 +2135,17 @@
       if (t.dataset.scaler) { rooms().forEach(r => { r.c = Math.max(1, Math.round(r.c * +t.dataset.scaler)); }); rebuild(); return; }
       if (t.hasAttribute('data-bulkr')) { $('#ex-bulkr').value.split('\n').forEach(l => { const [n, c] = l.split(/[,،\t;]/).map(x => x.trim()); if (n) rooms().push({ n, c: Math.max(1, +c || 30), on: true, t: /مختبر|lab/i.test(l) ? LAB : HALL }); }); rebuild(); return; }
       if (t.hasAttribute('data-resetr')) { S.rooms = null; rebuild(); return; }
-      if (t.hasAttribute('data-addlabs')) { const add = labRooms(new Set(rooms().map(r => r.n))); if (!add.length) alert('كل مختبرات الكلية موجودة في القائمة.'); else { S.rooms = rooms().concat(add); rebuild(); } return; }
+      if (t.hasAttribute('data-addlabs')) { const have = new Set(rooms().map(r => r.n)), pr = profOf(S), add = pr && pr.labs ? profRooms(pr).filter(r => r.t === LAB && !have.has(r.n)) : labRooms(have); if (!add.length) alert('كل مختبرات الكلية موجودة في القائمة.'); else { S.rooms = rooms().concat(add); rebuild(); } return; }
       if (t.dataset.inclall != null) { const on = t.dataset.inclall === '1'; TT.sections.filter(s => inFac(s.faculty)).forEach(s => { if (on) delete S.excl[s.code]; else S.excl[s.code] = 1; }); rebuild(); return; }
       if (t.dataset.tpl) return downloadTemplate(t.dataset.tpl);
+      if (t.hasAttribute('data-profapply')) { if (!confirm('إعادة الفترات والقواعد والقاعات والتواريخ إلى إعدادات الكلية المحفوظة؟ (المقررات والملفات المرفوعة تبقى)')) return; typeSet(S, S.type); S.rooms = null; rebuild(); return; }
+      if (t.hasAttribute('data-calset')) { const pr = profOf(S), w = calWin(S.type, pr && Object.assign({}, pr.all || {}, pr[S.type] || {}).cal); if (w) { Object.assign(S, { start: w.start, end: w.end, hol: w.hol }); rebuild(); } return; }
+      if (t.dataset.qat) { const q = (S.req || {})[t.dataset.qat]; if (q) delete q.at; rebuild(); return; }
+      if (t.dataset.fxdel) { S.fixed = (S.fixed || []).filter(x => x.src !== t.dataset.fxdel); rebuild(); return; }
+      if (t.hasAttribute('data-procclr')) { if (confirm('حذف قائمة المراقبين؟')) { S.procList = []; S.procInfo = ''; S.procOnly = false; rebuild(); } return; }
       if (t.dataset.exd) { const ps = pool()[t.dataset.exd] || [], L = (S.noProc || '').split(/\n/).map(x => x.trim()).filter(Boolean), anyOn = ps.some(p => !p.off);
         ps.forEach(p => { const i = L.indexOf(p.n); if (anyOn && i < 0) L.push(p.n); if (!anyOn && i >= 0) L.splice(i, 1); }); S.noProc = L.join('\n'); rebuild(); return; }
+      if (t.dataset.exm && (S.procList || []).some(p => p.ex && p.n === t.dataset.exm)) { S.procList.forEach(p => { if (p.n === t.dataset.exm) p.ex = false; }); rebuild(); return; }
       if (t.dataset.exm) { const n = t.dataset.exm, L = (S.noProc || '').split(/\n/).map(x => x.trim()).filter(Boolean), i = L.indexOf(n); i >= 0 ? L.splice(i, 1) : L.push(n); S.noProc = L.join('\n'); rebuild(); return; }
       if (t.dataset.pfrm) { const [code, room, n] = t.dataset.pfrm.split('|'), key = code + '|' + room, cur = curProc(key); S.procFix[key] = cur.filter(x => x !== n); save(); render(); return; }
       if (t.dataset.pfauto) { delete S.procFix[t.dataset.pfauto]; save(); render(); return; }
@@ -1724,27 +2171,31 @@
       const t = e.target, k = t.dataset.k;
       if (t.dataset.f && t.dataset.f !== 'q' && t.dataset.f !== 'cq' && t.dataset.f !== 'pq') { F()[t.dataset.f] = t.type === 'checkbox' ? t.checked : t.value; if (t.dataset.f === 'fac') F().dept = ''; save(); render(); return; }
       if (t.dataset.mv != null) { move(+t.dataset.mv, +t.value); return; }
-      if (t.dataset.ty) { const d = S.drafts, f = fresh(t.dataset.ty); Object.assign(S, { type: t.dataset.ty, periods: f.periods, days: f.days, busy: f.busy, slot: {}, pins: {}, approved: null }); S.drafts = d; rebuild(); return; }
+      if (t.dataset.ty) { typeSet(S, t.dataset.ty); Object.assign(S, { slot: {}, pins: {}, approved: null }); if (profOf(S)) S.rooms = null; rebuild(); return; }
       if (t.hasAttribute('data-facall')) { S.facs = t.checked ? [] : ['تكنولوجيا المعلومات']; S.rooms = null; S.slot = {}; S.pins = {}; S.flt = {}; rebuild(); return; }
       if (t.dataset.fac) { const x = t.dataset.fac; S.facs = t.checked ? [...new Set(S.facs.concat(x))] : S.facs.filter(y => y !== x); S.rooms = null; S.slot = {}; S.pins = {}; S.flt = {}; rebuild(); return; }
       if (t.dataset.pfadd != null && t.value) { const key = t.dataset.pfadd; S.procFix[key] = curProc(key).concat(t.value); save(); render(); return; }
       if (t.dataset.pfswap != null && t.value) { const key = t.dataset.pfswap, cur = curProc(key); cur[0] = t.value; S.procFix[key] = cur; save(); render(); return; }
       if (t.dataset.pinc) { const v = t.value; if (v === '') delete S.pins[t.dataset.pinc]; else { S.pins[t.dataset.pinc] = +v; S.slot[t.dataset.pinc] = +v; } rebuild(); return; }
-      if (k) { S[k] = t.type === 'checkbox' ? t.checked : t.type === 'number' ? Math.max(+t.min || 0, +t.value || 0) : t.value; rebuild(); return; }
+      if (k) { if (k === 'label') S.labelAuto = false; S[k] = t.type === 'checkbox' ? t.checked : t.type === 'number' ? Math.max(+t.min || 0, +t.value || 0) : t.value; rebuild(); return; }
       if (t.dataset.off != null) { const i = +t.dataset.off; S.off = t.checked ? S.off.concat(i) : S.off.filter(x => x !== i); rebuild(); return; }
       if (t.dataset.dw != null) { const w = S.dayWin[t.dataset.dw] = S.dayWin[t.dataset.dw] || {}; w[t.dataset.e] = t.value; if (!w.from && !w.to) delete S.dayWin[t.dataset.dw]; rebuild(); return; }
       if (t.dataset.p != null) { S.periods[+t.dataset.p][+t.dataset.e] = t.value; rebuild(); return; }
       if (t.dataset.pm) { S.procMode = t.dataset.pm; rebuild(); return; }
+      if (t.dataset.rp) { S.roomPolicy = t.dataset.rp; rebuild(); return; }
       if (t.dataset.src) { S.src = t.dataset.src; rebuild(); return; }
       if (t.dataset.ron != null) { rooms()[+t.dataset.ron].on = t.checked; rebuild(); return; }
       if (t.dataset.rn != null) { rooms()[+t.dataset.rn].n = t.value.trim(); rebuild(); return; }
       if (t.dataset.qt != null || t.dataset.qn != null || t.dataset.qp != null || t.dataset.qx != null) {
         const code = t.dataset.qt ?? t.dataset.qn ?? t.dataset.qp ?? t.dataset.qx, q = (S.req = S.req || {})[code] = (S.req || {})[code] || {};
         if (t.dataset.qt != null) q.type = t.value; else if (t.dataset.qn != null) q.rooms = Math.max(0, +t.value || 0); else if (t.dataset.qp != null) q.proc = Math.max(0, +t.value || 0); else q.note = t.value.trim();
-        if (!q.type && !q.rooms && !q.proc && !q.note && !q.coord) delete S.req[code]; rebuild(); return; }
+        if (!q.type && !q.rooms && !q.proc && !q.note && !q.coord && !q.late && !q.at) delete S.req[code]; rebuild(); return; }
       if (t.dataset.rt != null) { rooms()[+t.dataset.rt].t = t.value; rebuild(); return; }
       if (t.dataset.rc != null) { rooms()[+t.dataset.rc].c = Math.max(1, +t.value || 1); rebuild(); return; }
       if (t.dataset.incl) { if (t.checked) delete S.excl[t.dataset.incl]; else S.excl[t.dataset.incl] = 1; rebuild(); return; }
+      if (t.dataset.up && t.files[0]) { const f = t.files[0]; ({ reg: readReg, req: readReq, fixed: readFixed, proc: readProc })[t.dataset.up](f); t.value = ''; return; }
+      if (t.hasAttribute('data-reqonly')) { S.only = t.checked ? Object.keys(S.req || {}).filter(k => !(S.req[k] || {}).ext) : null; S.reqOnly = true; rebuild(); return; }
+      if (t.dataset.ql) { const q = (S.req = S.req || {})[t.dataset.ql] = (S.req || {})[t.dataset.ql] || {}; if (t.checked) q.late = true; else delete q.late; rebuild(); return; }
       if (t.id === 'ex-reg' && t.files[0]) { readReg(t.files[0]); return; }
       if (t.id === 'ex-mk' && t.files[0]) { readMk(t.files[0]); t.value = ''; return; }
       if (t.id === 'ex-list' && t.files[0]) { readList(t.files[0]); t.value = ''; return; }
@@ -2076,7 +2527,7 @@
   .ex-sw { display: grid; grid-template-columns: auto 1fr; gap: .6rem; align-items: center; margin: 0; cursor: pointer; } .ex-sw input { display: none; }
   .ex-sw .tg { width: 44px; height: 24px; border-radius: 999px; background: #cbd5da; position: relative; transition: .2s; } .ex-sw .tg::after { content: ''; position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
   .ex-sw input:checked + .tg { background: #15803d; } .ex-sw input:checked + .tg::after { right: 23px; } .ex-sw b { display: block; font-size: .95rem; } .ex-sw small { display: block; color: #5b6b72; font-size: .84rem; }
-  .ex-rule { background: #f1f6f9; border-radius: 10px; padding: .5rem .7rem; font-size: .92rem; } .ex-rule.hard { background: #e4f5e9; color: #14532d; font-weight: 600; } .ex-rule.ok { background: #e4f5e9; color: #15803d; }
+  .ex-rule { background: #f1f6f9; border-radius: 10px; padding: .5rem .7rem; font-size: .92rem; } .ex-rule.hard { background: #e4f5e9; color: #14532d; font-weight: 600; } .ex-rule.ok { background: #e4f5e9; color: #15803d; } .ex-rule.warn { background: #fff4e0; color: #8a4b00; }
   .ex-rooms { max-height: 320px; overflow: auto; border: 1px solid #e2e8ec; border-radius: 10px; } .ex-rooms.tall { max-height: 460px; } .ex-rooms table { margin: 0; font-size: .92rem; } .ex-rooms thead th { position: sticky; top: 0; background: #eef2f4; z-index: 1; } .ex-rooms tr.off td { opacity: .55; }
   .ex-drafts { list-style: none; padding: 0; margin: 0; display: grid; gap: .4rem; } .ex-drafts li { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; border: 1px solid #e2e8ec; border-radius: 12px; padding: .5rem .7rem; }
   .ex-drafts li > i { font-size: 1.4rem; color: #0b4a66; } .ex-drafts li.app { border-color: #15803d; background: #f2faf5; } .ex-drafts li.app > i { color: #15803d; } .ex-drafts li span small { display: block; color: #5b6b72; } .ex-drafts .acts { margin-inline-start: auto; display: flex; gap: .3rem; flex-wrap: wrap; } .ex-drafts li.empty { color: #6b7a80; }
@@ -2091,11 +2542,22 @@
     .ex-card { padding: 3px 4px; } .ex-card .n, .ex-card .m { display: none; } .ex-card .t b { font-size: .82rem; } .ex-cell { height: 56px; } .ex-cell .cap { display: none; }
     .ex-prow { grid-template-columns: auto 1fr auto 1fr; } .ex-prow > .bdg:not(.teal) { grid-column: 1 / 4; } .ex-prow > .btn { grid-column: 4; } .ex-per { grid-template-columns: 1fr; } .ex-filter .form-select { flex: 1 1 45%; }
   }
+  .ex-files { border: 1px solid #e2e8ec; border-radius: 14px; padding: .7rem; margin: .7rem 0; background: #fbfcfd; display: grid; gap: .45rem; }
+  .ex-files > .h { font-weight: 800; display: flex; flex-wrap: wrap; gap: .4rem; align-items: baseline; } .ex-files > .h small { font-weight: 400; color: #5b6b72; }
+  .ex-up { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .6rem; align-items: center; background: #fff; border: 1px solid #e2e8ec; border-inline-start: 4px solid #c8d2d7; border-radius: 10px; padding: .5rem .7rem; margin: .35rem 0; }
+  .ex-up.ok { border-inline-start-color: #15803d; } .ex-up .ic { font-size: 1.35rem; color: #0b4a66; } .ex-up .tx b { display: block; } .ex-up .tx small { display: block; color: #5b6b72; font-size: .82rem; }
+  .ex-up .st { display: inline-flex; gap: .3rem; align-items: center; font-size: .82rem; font-weight: 700; color: #15803d; margin-top: .15rem; } .ex-up .st.no { color: #8a959a; font-weight: 400; }
+  .ex-up .ac { display: flex; flex-wrap: wrap; gap: .3rem; justify-content: flex-end; }
+  .ex-prof { display: flex; gap: .6rem; align-items: center; background: #eef6f2; border: 1px solid #cfe3dc; border-radius: 12px; padding: .55rem .75rem; margin: .5rem 0; }
+  .ex-prof > i { font-size: 1.4rem; color: #15803d; } .ex-prof > div { flex: 1; min-width: 0; } .ex-prof b { display: block; } .ex-prof small { color: #355; font-size: .82rem; }
+  .ex-split { border: 1px dashed #cfd8dc; border-radius: 10px; padding: .5rem .7rem; margin-bottom: .6rem; background: #fcfcfa; }
+  @media (max-width: 640px) { .ex-up { grid-template-columns: auto minmax(0, 1fr); } .ex-up .ac { grid-column: 1 / -1; justify-content: flex-start; } .ex-prof { flex-wrap: wrap; } }
   @media print { .ex-steps, .ex-status, .ex-toolbar, .ex-filter, .ex-hint, .ex-nav { display: none; } }`;
   document.head.insertAdjacentHTML('beforeend', `<style id="ex-css">${CSS}</style>`);
 
-  gate.then(() => Promise.all([U.getJSON('data/timetable.json'), U.getJSON('data/study_plans.json')])).then(([tt, plans]) => {
-    TT = tt; PLANS = plans; setTimeout(liveCheck, 500);
+  gate.then(() => Promise.all([U.getJSON('data/timetable.json'), U.getJSON('data/study_plans.json'), U.getJSON('data/calendar.json').catch(() => null)])).then(([tt, plans, cal]) => {
+    TT = tt; PLANS = plans; CALJ = cal; setTimeout(liveCheck, 500);
+    if (!HAS && !S.setupDone) S = fresh(S.type);   // a first plan: the faculty's settings and the calendar's days
     U.updatedLine(tt.updated, tt.term);
     const q = $('#pg-q');
     if (q) q.addEventListener('input', () => { F().q = q.value; if (tab !== 'grid' && tab !== 'out') tab = 'grid'; clearTimeout(window.__exq); window.__exq = setTimeout(render, 250); });
