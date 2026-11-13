@@ -1614,8 +1614,9 @@
       <button type="button" class="adv-add ${st.view === 'import' ? 'on' : ''}" data-view="import"><i class="bi bi-plus-lg"></i> إضافة طلاب</button>
       <button type="button" class="adv-ref" id="adv-refresh" title="أعد قراءة الجدول الدراسي المنشور الآن (يتحدّث كل ساعة)"><i class="bi bi-arrow-clockwise"></i></button></div>${body}`;
     const url = new URL(location.href);
-    url.searchParams.delete('view'); url.searchParams.delete('q');
+    url.searchParams.delete('view'); url.searchParams.delete('q'); url.searchParams.delete('from'); url.searchParams.delete('id');   // «from=edugate» is only for the tab the portal opens: a reload must not restart the import screen
     if (st.view !== 'board') url.searchParams.set('view', st.view);
+    if (st.view === 'student' && STUD) url.searchParams.set('id', STUD.head.id);   // a reload reopens the same student
     if (st.view === 'dict' && st.q) url.searchParams.set('q', st.q);
     history.replaceState(null, '', url);
     bind();
@@ -1785,7 +1786,10 @@
       if (IMP.on) { st.view = 'import'; try { if (window.Notification && Notification.permission === 'default') Notification.requestPermission(); } catch (e) { /* not supported */ } }
       render();
       dataReady();
-      loadStored().then(async n => { SAVED = n; TRASH = (await dbAll('trash')).length; if (n || TRASH) render(); });
+      const WANT = P.get('view') === 'student' && P.get('id');
+      loadStored().then(async n => { SAVED = n; TRASH = (await dbAll('trash')).length;
+        const w = WANT && !IMP.on && BOARD.find(x => String(x.head.id) === String(WANT)); if (w) { STUD = w; st.view = 'student'; }
+        if (n || TRASH || w) render(); });
       const top = $('#pg-q');
       if (top) top.addEventListener('keydown', e => { if (e.key === 'Enter') { st.view = 'dict'; st.q = top.value; render(); } });
     }).catch(e => { $('#adv-app').innerHTML = `<div class="alert alert-danger mt-3">تعذّر التحميل (${esc(e.message)}).</div>`; });
