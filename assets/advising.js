@@ -548,8 +548,8 @@
   .sv-av { width:54px; height:54px; border-radius:50%; background:#fbf2f3; color:#901d23; display:flex; align-items:center; justify-content:center; font-size:1.7rem; flex:none; }
   .sv-who h2 { font-size:1.45rem; font-weight:800; margin:0 0 4px; color:#111; } .sv-who .fb + .fb { margin-inline-start:4px; }
   .sv-act { margin-inline-start:auto; display:flex; gap:8px; flex-wrap:wrap; }
-  .sv-info-g { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:8px 18px; margin-top:14px; padding-top:12px; border-top:1px solid #eee; }
-  .sv-info-g div { display:grid; grid-template-columns:22px auto 1fr; gap:6px; align-items:baseline; font-size:.93rem; color:#111; } .sv-info-g i { color:#901d23; } .sv-info-g span { color:#111; white-space:nowrap; } .sv-info-g b { font-weight:700; }
+  .sv-info-g { display:flex; flex-wrap:nowrap; overflow-x:auto; justify-content:space-between; gap:8px 20px; margin-top:14px; padding-top:12px; border-top:1px solid #eee; }
+  .sv-info-g div { display:flex; gap:5px; align-items:baseline; font-size:.88rem; color:#111; white-space:nowrap; flex:none; } .sv-info-g b { white-space:nowrap; } .sv-info-g i { color:#901d23; } .sv-info-g span { color:#111; white-space:nowrap; } .sv-info-g b { font-weight:700; }
   .sv-tabs { margin:16px 0 12px !important; background:#fff; border:1px solid #e3ddcf !important; border-radius:12px; padding:4px 6px; position:sticky; top:0; z-index:5; }
   .sv-tabs button { font-size:1rem; }
   .sv-two { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:14px; } .sv-col { display:grid; gap:14px; align-content:start; }
