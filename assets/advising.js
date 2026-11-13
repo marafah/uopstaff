@@ -501,6 +501,8 @@
   .adv-mt { background:none !important; border:0 !important; padding:0 !important; color:#111 !important; font-weight:600; }
   .adv-t thead th.adv-sort, .adv-t thead th.adv-sort.on { color:#111 !important; } .adv-sort-i { font-size:.7rem; color:#111; margin-inline-start:4px; }
   .adv-t thead th input { accent-color:#901d23; }
+  .adv-card h3 { color:#111 !important; }
+  .adv-sl { padding:3px 0; white-space:nowrap; } .adv-sl + .adv-sl { border-top:1px dashed #e5e5e5; } .adv-sl small { color:#3b4048; }
   .adv-cb { width: 34px; text-align: center; } .adv-cb input { width: 17px; height: 17px; accent-color: #901d23; cursor: pointer; }
   .adv-row.sel td { background: #fbf2f3; }
   .adv-bulk { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; background: #fbf2f3; border-bottom: 1px solid #ecd4d6; }
@@ -609,6 +611,17 @@
       ${x.meetings.map(m => live(m) ? `<span class="adv-mt"><i class="bi bi-clock"></i> ${esc(DAYN(m.day))} من ${m.start} إلى ${m.end}</span>` : `<span class="adv-mt async"><i class="bi bi-laptop"></i> ${esc(DAYN(m.day))} غير متزامن</span>`).join('')}</div>
       <div class="adv-who"><i class="bi bi-person-fill"></i> ${esc(U.shortName(x.instructor || '—'))} &nbsp; <i class="bi bi-door-open-fill"></i> ${esc(x.room && x.room !== '0' ? x.room : 'افتراضية')} &nbsp;
         ${isOpen(x) ? `<span class="adv-seat ok"><i class="bi bi-check-circle-fill"></i> ${seats(x)} مقعد شاغر</span>` : '<span class="adv-seat no"><i class="bi bi-x-circle-fill"></i> مغلقة/ممتلئة</span>'}</div></div>`;
+  // a section split into readable columns: section | days and times | instructor | room | seats (one line per section inside each cell)
+  const SEC_TH = '<th>الشعبة</th><th>الأيام والوقت</th><th>المدرس</th><th>القاعة</th><th>المقاعد</th>';
+  const secTds = mine => {
+    const col = f => `<td>${mine.map(x => `<div class="adv-sl">${f(x)}</div>`).join('')}</td>`;
+    return col(x => `<b>${esc(x.section)}</b>${x.activity === 'عملي' ? ' <small>عملي</small>' : ''}`)
+      + col(x => { const g = {}; x.meetings.forEach(m => { const k = live(m) ? `من ${m.start} إلى ${m.end}` : 'غير متزامن'; (g[k] ||= []).push(DAYN(m.day)); });
+          return Object.entries(g).map(([k, d]) => `${esc(d.join(' و'))} <b>${k === 'غير متزامن' ? '<small>غير متزامن</small>' : k}</b>`).join('، '); })
+      + col(x => esc(U.shortName(x.instructor || '—')))
+      + col(x => esc(x.room && x.room !== '0' ? x.room : 'افتراضية'))
+      + col(x => isOpen(x) ? `<span class="adv-seat ok">${seats(x)} شاغر</span>` : '<span class="adv-seat no">مغلقة</span>');
+  };
   const sectionsLine = code => { const L = offered(code); if (!L.length) { const x = offeredAs(code); return x ? `<a class="adv-chip unlock" href="timetable.html?q=${x}" target="_blank" rel="noopener" title="الاسم نفسه برمز آخر في الجدول الدراسي">مطروحة برمز ${x}</a>` : '<span class="adv-chip off">غير مطروحة</span>'; }
     const open = L.filter(isOpen).length; return `<a class="adv-chip" href="timetable.html?q=${code}" target="_blank" rel="noopener">${L.length} شعبة${open < L.length ? ` · ${open} مفتوحة` : ''}</a>`; };
 
@@ -682,7 +695,7 @@
     const secRows = sug.take.map(t => {
       const mine = sel.filter(x => x.code === (t.c.via || t.c.code));
       return `<tr><td><code>${t.c.code}</code>${t.c.via ? `<div class="adv-src">تُسجَّل برمز <code>${t.c.via}</code></div>` : ''}</td><td>${esc(t.c.name || nm(t.c.code))}<div>${t.c.why.map(([k, l]) => `<span class="adv-chip ${k}">${esc(l)}</span>`).join('')}</div></td><td><span class="adv-hrs">${t.c.hours}</span></td>
-        <td>${mine.map(secCell).join('')}</td>
+        ${secTds(mine)}
         <td class="no-print"><button type="button" class="btn btn-sm btn-light" data-drop="${t.c.code}" title="أخرجها من المقترح"><i class="bi bi-x-lg"></i></button></td></tr>`;
     }).join('');
     const notOff = a.open.filter(c => c.ready && !offeredAs(c.code));
@@ -719,7 +732,7 @@
         <p class="adv-note mb-2"><i class="bi bi-bookmark-check"></i> الحد الأعلى ${hrsWord(lim.max)} ${ruleLink(lim.rule, 'م ' + lim.rule)}${lim.grad ? ' لأن ساعاته المتبقية لا تزيد على ' + (summer ? 13 : 21) + ' ساعة، فيمكنه إنهاؤها في هذا الفصل (الطالب المتوقع تخرجه)' : ''}${!summer && !lim.grad ? `، والحد الأدنى 12 ساعة ${ruleLink('7', 'م 7/ج')}` : lim.grad ? ' — ولا يتقيد بالحد الأدنى في فصل التخرج (م 7/د)' : ''}.
           ${cap > lim.max ? '<b class="adv-bad">العدد المختار فوق الحد الأعلى في التعليمات.</b>' : ''} ${sug.hours && sug.hours < lim.min ? `<b class="adv-bad">المقترح أقل من الحد الأدنى (12) لأن المتاح محدود؛ يلزم موافقة العميد (م 7/ج).</b>` : ''}</p>
         <p class="adv-src">${ttNote} المواد مرتبة حسب أولويتها؛ تُضاف ما دامت الساعات تسمح ولها شعب بلا تعارض، والأفضلية للشعب التي فيها مقاعد ثم أقل أيام دوام وفراغات.</p>
-        ${sug.take.length ? `<div class="table-responsive"><table class="adv-t"><thead><tr><th>الرمز</th><th>المادة ولماذا</th><th>س</th><th>الشعبة والموعد</th><th class="no-print"></th></tr></thead><tbody>${secRows}</tbody></table></div>
+        ${sug.take.length ? `<div class="table-responsive"><table class="adv-t"><thead><tr><th>الرمز</th><th>المادة ولماذا</th><th>س</th>${SEC_TH}<th class="no-print"></th></tr></thead><tbody>${secRows}</tbody></table></div>
           <div class="mt-3">${grid}</div>
           <div class="d-flex flex-wrap gap-2 mt-2 no-print"><a class="btn btn-sm btn-maroon" href="${planner}" target="_blank" rel="noopener"><i class="bi bi-calendar2-week"></i> افتح المقترح في «مخطط جدولي» (للطالب)</a>
             <button type="button" class="btn btn-sm btn-outline-secondary" id="adv-copy"><i class="bi bi-link-45deg"></i> انسخ رابط المقترح للطالب</button>
@@ -1188,11 +1201,11 @@
         <p class="adv-src">من الخطة الاسترشادية المنشورة للقسم${p.r.academic_year || p.r.edition ? ` (${[p.r.academic_year, p.r.edition ? 'إصدار ' + p.r.edition : ''].filter(Boolean).join(' · ')})` : ''}، السنة الأولى – ${termNo === 'first' ? 'الفصل الأول' : 'الفصل الثاني'}، مع شعب الجدول الدراسي ${esc(TT.term)}.
           <a href="advisory.html?p=${encodeURIComponent(p.prog.id)}" target="_blank" rel="noopener">الخطة كاملة</a></p>
         <div class="adv-ctl mb-2">${REM.map(([k, , , l]) => `<label class="adv-pick"><input type="checkbox" data-rem="${k}" ${st.fresh[k] ? 'checked' : ''}>لم ينجح في امتحان مستوى ${l}</label>`).join('')}</div>
-        <div class="table-responsive"><table class="adv-t"><thead><tr><th>الرمز</th><th>المادة</th><th>س</th><th>الشعبة والموعد والمدرس</th></tr></thead><tbody>
+        <div class="table-responsive"><table class="adv-t"><thead><tr><th>الرمز</th><th>المادة</th><th>س</th>${SEC_TH}</tr></thead><tbody>
         ${courses.map(c => { const mine = sel.filter(x => x.code === (c.via || c.code));
-          return `<tr class="${mine.length ? '' : 'adv-x'}"><td><span class="adv-code">${c.code}</span>${c.via ? `<div class="adv-src">برمز ${c.via}</div>` : ''}</td><td><b>${esc(c.name)}</b>${c.why[0][0] === 'retake' ? ' <span class="adv-chip retake">استدراكية</span>' : ''}</td><td><span class="adv-hrs">${c.hours}</span></td><td>${mine.length ? mine.map(secCell).join('')
-            : offeredAs(c.code) ? '<span class="adv-seat no"><i class="bi bi-exclamation-triangle-fill"></i> تتعارض شعبها أو تتجاوز الساعات</span>' : '<span class="adv-seat no"><i class="bi bi-x-octagon-fill"></i> غير مطروحة هذا الفصل</span>'}</td></tr>`; }).join('')}
-        ${slots.map(c => `<tr><td><span class="adv-code">${esc(c.code)}</span></td><td><b>${esc(c.name)}</b><div class="adv-src">يختارها الطالب من المجموعة</div></td><td><span class="adv-hrs">${c.hours || ''}</span></td><td>انظر المطروح منها في <a href="plans.html" target="_blank" rel="noopener">الخطط الدراسية</a></td></tr>`).join('')}</tbody></table></div>
+          return `<tr class="${mine.length ? '' : 'adv-x'}"><td><span class="adv-code">${c.code}</span>${c.via ? `<div class="adv-src">برمز ${c.via}</div>` : ''}</td><td><b>${esc(c.name)}</b>${c.why[0][0] === 'retake' ? ' <span class="adv-chip retake">استدراكية</span>' : ''}</td><td><span class="adv-hrs">${c.hours}</span></td>${mine.length ? secTds(mine)
+            : `<td colspan="5">${offeredAs(c.code) ? '<span class="adv-seat no">تتعارض شعبها أو تتجاوز الساعات</span>' : '<span class="adv-seat no">غير مطروحة هذا الفصل</span>'}</td>`}</tr>`; }).join('')}
+        ${slots.map(c => `<tr><td><span class="adv-code">${esc(c.code)}</span></td><td><b>${esc(c.name)}</b><div class="adv-src">يختارها الطالب من المجموعة</div></td><td><span class="adv-hrs">${c.hours || ''}</span></td><td colspan="5">انظر المطروح منها في <a href="plans.html" target="_blank" rel="noopener">الخطط الدراسية</a></td></tr>`).join('')}</tbody></table></div>
         ${sel.length ? `<div class="mt-3">${U.weekGrid(sel.flatMap(x => x.meetings.map(m => ({ day: m.day, start: live(m) ? m.start : '', end: m.end, title: x.code, line: nm(x.code), sub: `ش ${x.section}`, style: `background:${colour[x.code][1]};border-inline-start-color:${colour[x.code][0]}` }))), { compact: true, px: 78 })}</div>
           <a class="btn btn-sm btn-light border mt-2" href="${planner}" target="_blank" rel="noopener"><i class="bi bi-calendar2-week"></i> افتح في «مخطط جدولي»</a>` : ''}</div>`;
     }
