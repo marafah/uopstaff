@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import advisory_parse  # noqa: E402
 import update_advisory  # noqa: E402
 
-VERSION = 8
+VERSION = 9
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 OUT = os.path.join(ROOT, "data", "course_descriptions.json")
 IMG = os.path.join(ROOT, "data", "coursedesc")
@@ -175,8 +175,24 @@ def ocr_text(pg, top, bottom, code="", lang="ara"):
     # drop the course's own title and prerequisite lines, which the page shows apart
     lines = [l.strip() for l in t.splitlines() if l.strip()]
     lines = [l for l in lines if not re.match(r"^\W*(ال)?متطلب(ات)?\s*(ال)?سابق|^\W*prereq", l, re.I)
-             and not (code and code in l) and not re.search(r"[()]\s*\d\s*-\s*\d\s*[:：]\s*\d\s*[()]", l)]
+             and not (len(l) < 90 and ((code and code in l) or re.search(r"[()]\s*\d\s*-\s*\d\s*[:：]\s*\d\s*[()]", l)))]
     return " ".join(lines)
+
+
+def latin_back(ocr, layer):
+    """The Arabic reading turns English terms (HTML, CSS, CAPM…) into stray signs; the file's own text keeps those terms
+    intact, so they are put back in the same order."""
+    terms = re.findall(r"[A-Za-z][A-Za-z0-9.+#/&-]*[A-Za-z0-9+#]|[A-Za-z]", layer)
+    if not terms:
+        return ocr
+    it = iter(terms)
+    nums = set(re.findall(r"\d+(?:[.,]\d+)?", layer))
+    def swap(m):
+        tok = m.group(0)
+        if re.search(r"[\u0600-\u06ff]", tok) or tok in nums:   # a number printed in the file is a real number
+            return tok
+        return next(it, tok)
+    return re.sub(r"(?<=[(\s])[^\s\u0600-\u06ff()]{2,}(?=[)\s،.])", swap, ocr)
 
 
 def crops(pdf_bytes, sha, got):
@@ -204,7 +220,7 @@ def crops(pdf_bytes, sha, got):
         if not c["clean"] and any(ocr):
             # the file's own text drops letters: the text is read from the printed page instead (Tesseract, Arabic + English)
             text = re.sub(r"\s+", " ", " ".join(ocr)).strip()
-            c["text"], c["ocr"] = text, True
+            c["text"], c["ocr"] = latin_back(text, c["text"]), True
         c.pop("seg", None)
 
 
