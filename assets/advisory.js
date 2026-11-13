@@ -15,7 +15,61 @@
   const U = window.UOP, { $, esc, norm } = U;
   const P = new URLSearchParams(location.search);
   const st = { fac: P.get('fac') || '', p: P.get('p') || '', d: P.get('d') || '', v: P.get('v') || '', view: P.get('view') || 'plan', b: P.get('b') || '', q: '', sel: P.get('c') || '', ml: P.get('ml') || 'plan', mf: 'all', no: false, pt: 'info', po: false, ma: true, pl: (() => { try { return localStorage.getItem('uop-ad-pl') || 'board'; } catch (e) { return 'board'; } })(), pc: 'type' };
-  let A, PROGS, DOCS, READS, TTERM = '', TT = {}, SP = null, CODE_NAME = {};
+  let A, PROGS, DOCS, READS, TTERM = '', TT = {}, SP = null, CODE_NAME = {}, DESC = null, PMC = null;
+  // ---------------------------------------------------------------- from the official sources, per department
+  // the course's description as the department publishes it («وصف المواد»), word for word, with its file and page
+  function descOf(code, p) {
+    const L = (DESC && DESC.courses && DESC.courses[code]) || [];
+    return L.find(e => p && e.p === p.id) || L[0] || null;
+  }
+  function descHtml(code, p) {
+    if (!DESC || !realCode(code)) return '';
+    const e = descOf(code, p);
+    const doc = p && Object.entries(DESC.docs || {}).find(([, d]) => (d.programs || []).includes(p.id));
+    if (!e) return doc ? `<h4><i class="bi bi-card-text"></i> وصف المادة</h4><p class="small text-muted mb-0">لم يُعثر على وصف لهذه المادة في <a href="${esc(doc[0])}" target="_blank" rel="noopener">ملف «وصف المواد» للقسم</a>${doc[1].courses ? '' : ' (الملف صور أو بتنسيق لم يُقرأ بعد)'}.</p>` : '';
+    const d = (DESC.docs || {})[e.url] || {};
+    return `<h4><i class="bi bi-card-text"></i> وصف المادة</h4><p class="am-desc">${esc(e.text)}</p>
+      ${e.pre ? `<p class="am-asis"><i class="bi bi-quote"></i> كما في الوصف: ${esc(e.pre)}</p>` : ''}
+      <p class="small text-muted mb-0"><i class="bi bi-file-earmark-pdf"></i> من <a href="${esc(e.url)}#page=${e.page || 1}" target="_blank" rel="noopener">«وصف المواد»${d.program ? ' – ' + esc(d.program) : ''}</a>، صفحة ${e.page || 1}، منقول كما هو.</p>`;
+  }
+  // the groups of the portal's study plan a choice slot («متطلب تخصص اختياري», «مادة حرة»…) is filled from
+  function slotGroups(n, pm) {
+    if (!pm) return [];
+    const t = norm(n.name || ''), code = String(n.code || '');
+    const G = pm.pl.groups.filter(g => g.kind !== 'required' || /اختيار|حرة/.test(g.name));
+    const has = (g, w) => norm(g.name).includes(norm(w));
+    if (/حره/.test(t)) return G.filter(g => g.kind === 'free' || has(g, 'حرة'));
+    if (/جامعه/.test(t) || /^9/.test(code)) return G.filter(g => has(g, 'جامعة') && g.kind !== 'free');
+    if (/كليه/.test(t)) return G.filter(g => has(g, 'كلية') && g.kind !== 'free');
+    if (/مسانده/.test(t)) return G.filter(g => has(g, 'مساندة') && g.kind !== 'free');
+    return G.filter(g => has(g, 'تخصص') && g.kind !== 'free');
+  }
+  function slotCount(n, pm) {
+    const L = slotGroups(n, pm).flatMap(g => g.courses);
+    return { n: L.length, off: L.filter(c => secs(c.code).length).length };
+  }
+  function slotHtml(n, p, pm) {
+    const groups = slotGroups(n, pm);
+    if (!pm) return '<p class="small text-muted">لم تُربط هذه الخطة الاسترشادية بخطة دراسية على البوابة، فلا قائمة مواد لهذه الخانة.</p>';
+    if (/حره/.test(norm(n.name || ''))) return `<div class="am-note go"><i class="bi bi-stars"></i><div><b>مادة حرة</b>يختارها الطالب مما تطرحه أقسام الجامعة (خارج مواد خطته)${groups[0] ? `، ${groups[0].required_hours ?? ''} ساعات حسب الخطة الدراسية على البوابة` : ''}.</div></div>`;
+    if (!groups.length) return '<p class="small text-muted">لم أجد مجموعة مقابلة لهذه الخانة في الخطة الدراسية على البوابة.</p>';
+    return groups.map(g => { const L = g.courses.slice().sort((a, b) => (secs(b.code).length > 0) - (secs(a.code).length > 0) || a.code.localeCompare(b.code));
+      return `<h4><i class="bi bi-ui-checks-grid"></i> ${esc(g.name)} <small class="text-muted">— ${g.required_hours ?? '—'} ساعات من ${L.length} مادة</small></h4>
+      <div class="am-slot">${L.map(c => { const S = secs(c.code), open = S.filter(isOpen), e = descOf(c.code, p);
+        const k = S.length ? (open.length ? 'open' : 'closed') : 'none';
+        return `<details class="am-slc"><summary><span class="am-dot2" style="background:${AV[k][1]}"></span><code>${esc(c.code)}</code> ${esc(c.name)} <small>${c.hours} س · ${S.length ? `${open.length}/${S.length} مفتوحة` : 'غير مطروحة'}</small></summary>
+          ${e ? `<p class="am-desc">${esc(e.text)}</p>` : '<p class="small text-muted mb-1">لا وصف منشور لهذه المادة في ملفات «وصف المواد».</p>'}
+          <div class="d-flex gap-2 small">${S.length ? `<a href="timetable.html?q=${c.code}">الشعب</a>` : ''}<a href="plans.html?plan=${encodeURIComponent(pm.pl.id)}&q=${c.code}">الخطة الدراسية</a></div></details>`; }).join('')}</div>`; }).join('')
+      + `<p class="small text-muted mt-2 mb-0"><i class="bi bi-journal-text"></i> من الخطة الدراسية «${esc(pm.pl.major)}» (إصدار ${esc(pm.pl.version)}) على بوابة الجامعة، تتحدّث كل ساعة؛ «مطروحة» من الجدول الدراسي المنشور.</p>`;
+  }
+  // the guidance plan against the portal's study plan: courses in one and not the other
+  function compareLists(x, pm) {
+    const mine = flat(x.r), pc = new Map();
+    pm.pl.groups.forEach(g => g.courses.forEach(c => { if (!pc.has(c.code)) pc.set(c.code, { ...c, g }); }));
+    const onlyHere = [...mine.values()].filter(c => !pc.has(c.code));
+    const onlyPortal = [...pc.values()].filter(c => !mine.has(c.code) && c.g.kind !== 'free' && !(c.g.kind === 'elective' || /اختيار/.test(c.g.name)) && !/استدراك/.test(c.g.name));
+    return { onlyHere, onlyPortal };
+  }
   const TERM = { first: 'الفصل الأول', second: 'الفصل الثاني', summer: 'الفصل الصيفي', null: 'فصل غير محدد', req: 'مواد إجبارية', opt: 'يُختار منها', fld: 'مواد المجال' };
   const YEAR = ['', 'السنة الأولى', 'السنة الثانية', 'السنة الثالثة', 'السنة الرابعة', 'السنة الخامسة', 'السنة السادسة'];
   const KIND = { advisory: ['الخطة الاسترشادية', 'bi-signpost-split'], handbook: ['كتيّب القسم', 'bi-book'], tree: ['شجرة المواد', 'bi-diagram-3'], studyplan: ['الخطة الدراسية', 'bi-journal-text'] };
@@ -455,12 +509,14 @@
     const head = k => { if (st.ml === 'chain') return `<b>المرحلة ${k}</b><small>${k === 1 ? 'بلا متطلب في الخطة' : `بعد ${k - 1} ${k - 1 === 1 ? 'مادة' : 'مواد'} متتالية`}</small>`;
       const y = Math.floor(k / 10), t = ['', 'first', 'second', 'summer'][k % 10]; return `<b>${YEAR[y] || 'سنة'}</b><small>${TERM[t] || ''}</small>`; };
     const node = n => { const av = avail(n.code), d = G.desc.get(n.key).size, np = (G.pre.get(n.key) || []).length, crit = realCode(n.code) && G.level(n.key) + G.chain(n.key) - 1 === G.longest;
-      const st_ = av.k === 'open' ? ['bi-door-open-fill', `${av.open.length}/${av.s.length} مفتوحة`] : av.k === 'closed' ? ['bi-door-closed-fill', 'مغلقة'] : av.k === 'slot' ? ['bi-ui-checks-grid', 'اختياري'] : ['bi-slash-circle', 'غير مطروحة'];
+      const sc = av.k === 'slot' && PMC ? slotCount(n, PMC) : null;
+      const st_ = av.k === 'open' ? ['bi-door-open-fill', `${av.open.length}/${av.s.length} مفتوحة`] : av.k === 'closed' ? ['bi-door-closed-fill', 'مغلقة'] : av.k === 'slot' ? ['bi-ui-checks-grid', sc && sc.n ? `اختياري · ${sc.off}/${sc.n} مطروحة` : 'اختياري'] : ['bi-slash-circle', 'غير مطروحة'];
+      const notPortal = PMC && realCode(n.code) && PMC.missing.includes(n.code);
       return `<button type="button" class="am-n av-${av.k} ${crit ? 'crit' : ''} ${done.has(n.code) ? 'done' : ''} ${done.size && ready.has(n.code) ? 'ready' : ''} ${hit(n) ? '' : 'faded'}" data-k="${esc(n.key)}" aria-label="${esc((n.name || CODE_NAME[n.code] || '') + ' · ' + av.t)}">
         <span class="am-n-top"><code>${esc(n.code)}</code>${crit ? '<span class="am-tag-crit" title="على أطول سلسلة متطلبات"><i class="bi bi-lightning-charge-fill"></i> حرجة</span>' : ''}<span class="am-hr">${n.hours ?? '—'} <small>س</small></span></span>
         <span class="am-nm">${esc(n.name || CODE_NAME[n.code] || '')}</span>
         <span class="am-n-ft"><span class="am-stp s-${av.k}"><i class="bi ${st_[0]}"></i>${st_[1]}</span>
-          ${d ? `<span class="am-meta"><span class="un" title="تفتح ${d} مادة بعدها في الخطة"><i class="bi bi-unlock-fill"></i>تفتح ${d}</span></span>` : ''}</span></button>`; };
+          ${d ? `<span class="am-meta"><span class="un" title="تفتح ${d} مادة بعدها في الخطة"><i class="bi bi-unlock-fill"></i>تفتح ${d}</span></span>` : ''}${notPortal ? '<span class="am-np" title="ليست في الخطة الدراسية المقابلة على بوابة الجامعة">ليست في البوابة</span>' : ''}${DESC && realCode(n.code) && descOf(n.code, p) ? '<i class="bi bi-card-text am-hasd" title="لها وصف منشور"></i>' : ''}</span></button>`; };
     const keyCourses = G.nodes.filter(n => realCode(n.code)).sort((a, b) => G.desc.get(b.key).size - G.desc.get(a.key).size || ORDER(a) - ORDER(b)).slice(0, 8);
     const counts = Object.fromEntries(Object.keys(AV).map(k => [k, G.nodes.filter(n => avail(n.code).k === k).length]));
     const flt = [['all', 'كل المواد'], ['seats', 'فيها مقاعد الآن'], ['offered', 'المطروحة الآن'], ['key', 'المفتاحية (تفتح 3+)'], ...(done.size ? [['ready', 'يمكن تسجيلها']] : [])];
@@ -561,6 +617,12 @@
     .am-n-ft { justify-content: space-between; margin-top: .1rem; }
     .am-stp { display: inline-flex; align-items: center; gap: .25rem; border-radius: 99px; padding: .05rem .45rem; font-size: .66rem; font-weight: 800; white-space: nowrap; }
     .am-stp i { font-size: .7rem; }
+    .am-desc { font-size: .9rem; line-height: 1.85; color: #1f2328; background: #fbfaf6; border: 1px solid #ece6d6; border-radius: 10px; padding: .5rem .7rem; margin: .3rem 0; }
+    .am-np { font-size: .66rem; font-weight: 700; color: #6d28d9; background: #f3efff; border: 1px solid #d8ccf5; border-radius: 99px; padding: 0 .35rem; margin-inline-start: .2rem; }
+    .am-hasd { color: #0b4a66; font-size: .75rem; margin-inline-start: .2rem; }
+    .am-slot { display: grid; gap: 4px; } .am-slc { border: 1px solid #e6e1d3; border-radius: 9px; padding: .3rem .55rem; background: #fff; }
+    .am-slc summary { cursor: pointer; font-size: .86rem; color: #1f2328; } .am-slc summary small { color: #3b4048; margin-inline-start: .3rem; } .am-slc code { color: #1f2328; font-weight: 700; }
+    .ad-kpb { border: 0; background: transparent; cursor: pointer; text-decoration: underline dotted; }
     .am-stp.s-open { background: #dcfce7; color: #166534; } .am-stp.s-closed { background: #ffedd5; color: #9a3412; } .am-stp.s-none { background: #f1f5f9; color: #64748b; } .am-stp.s-slot { background: #ede9fe; color: #5b21b6; }
     .am-meta { display: inline-flex; gap: .3rem; } .am-meta span { display: inline-flex; align-items: center; gap: .15rem; background: #f1f5f9; color: #334155; border-radius: 6px; padding: 0 .3rem; font-size: .66rem; font-weight: 800; }
     .am-meta span.un { background: #fde8ea; color: #901d23; } .am-meta i { font-size: .66rem; }
@@ -858,6 +920,7 @@
       ${realCode(n.code) && done.size ? (done.has(n.code) ? '<div class="am-note ok"><i class="bi bi-check-circle-fill"></i><div><b>مجتازة</b>معلّمة من اختيارات المرشد على هذا الجهاز.</div></div>'
         : missing.length ? `<div class="am-note wait"><i class="bi bi-hourglass-split"></i><div><b>تنتظر متطلباً</b>${missing.map(c => `<code>${c}</code> ${nm(c)}`).join('، ')}</div></div>`
         : `<div class="am-note go"><i class="bi bi-check2-circle"></i><div><b>يمكن تسجيلها</b>متطلباتها المذكورة في الخطة مجتازة${S.length ? (open.length ? ` و${open.length} شعبة مفتوحة الآن` : '، لكن كل شعبها مغلقة الآن') : '، وهي غير مطروحة هذا الفصل'}.</div></div>`) : ''}
+      ${realCode(n.code) ? descHtml(n.code, p) : slotHtml(n, p, pm)}
       <div class="am-tt"><div class="am-tt-h"><h4><i class="bi bi-calendar-week"></i> الجدول المطروح لهذه المادة</h4><small>${esc(TTERM || '')}</small></div>
         ${S.length ? `${weekMini(S)}
           <div class="am-cap"><div class="am-cap-bar"><i style="width:${Math.min(100, cap ? 100 * reg / cap : 100)}%"></i></div><span><b>${reg}</b>/${cap} مسجّلاً في ${S.length} شعبة · <b class="text-success">${free}</b> مقعداً متاحاً</span></div>
@@ -1097,7 +1160,7 @@
     if (p) st.p = p.id;
     const { vs, x } = p ? choose(p) : { vs: [], x: null };
     if (x) st.v = x.v.sha;
-    const pm = portalMatch(x);
+    const pm = portalMatch(x); PMC = pm;
     const views = [['plan', 'الخطة', 'bi-grid-3x3', 'الخطة سنةً بسنة'], ['map', 'الخريطة', 'bi-diagram-3', 'خريطة المتطلبات'], ['now', 'المطروح', 'bi-calendar-check', 'المطروح هذا الفصل'], ['original', 'الأصل', 'bi-file-earmark-image', 'الأصل كما نُشر'],
       ['versions', `الإصدارات (${vs.length})`, 'bi-clock-history', 'الإصدارات والمقارنة بينها'], ['advisor', 'المرشد', 'bi-person-check', 'المرشد الأكاديمي'], ['files', 'الوثائق', 'bi-folder2-open', 'كل الوثائق']];
     const okN = PROGS.filter(q => planVersions(q).some(v => v.current && v.r.ok)).length;
@@ -1120,8 +1183,8 @@
             ${x ? (x.r.manual ? '<span class="badge rounded-pill text-bg-info" title="أُدخلت يدوياً من صفحات الخطة المنشورة لأن ملفها صور"><i class="bi bi-pencil-square"></i> مُدخلة من الأصل</span>' : x.r.ok ? '<span class="badge rounded-pill text-bg-success" title="قُرئت ومجاميع كل فصل تطابق المطبوع في الخطة"><i class="bi bi-check2-all"></i> مطابقة للمطبوع</span>' : '<span class="badge rounded-pill text-bg-secondary"><i class="bi bi-image"></i> صفحات أصلية</span>') : '<span class="badge rounded-pill text-bg-warning">لا خطة منشورة</span>'}
             ${x ? `<small class="text-muted ad-vt-s" title="${esc(x.d.name)}">${esc(vTitle(x))}</small>` : ''}
             ${x && x.r.ok ? [[flat(x.r).size, 'مادة', '#0b4a66'], [x.r.years.reduce((a, y) => a + y.read_hours, 0), 'ساعة', '#901d23'], [x.r.years.length, x.r.bycat ? (x.r.fields ? 'مجالات' : 'فئات') : 'سنوات', '#b8892b'],
-              [[...flat(x.r).keys()].filter(k => secs(k).length).length, 'مطروحة', '#15803d'], ...(pm ? [[pm.missing.length, 'ليست في خطة البوابة', '#6d28d9']] : [])]
-              .map(([v, l, c]) => `<span class="ad-kp" style="--c:${c}"><b>${v}</b> ${l}</span>`).join('') : ''}
+              [[...flat(x.r).keys()].filter(k => secs(k).length).length, 'مطروحة', '#15803d'], ...(pm ? [[pm.missing.length, 'ليست في خطة البوابة', '#6d28d9', 'here'], [compareLists(x, pm).onlyPortal.length, 'إجبارية في البوابة وليست هنا', '#b42318', 'portal']] : [])]
+              .map(([v, l, c, cmp]) => cmp ? `<button type="button" class="ad-kp ad-kpb" data-cmp="${cmp}" style="--c:${c}" title="اعرض القائمة"><b>${v}</b> ${l}</button>` : `<span class="ad-kp" style="--c:${c}"><b>${v}</b> ${l}</span>`).join('') : ''}
             <span class="ms-auto d-inline-flex gap-1 no-print flex-none">
               ${x ? `<a class="btn btn-sm btn-light border ad-sb" href="${esc(x.v.url)}" target="_blank" rel="noopener" title="الملف الأصلي على موقع الجامعة"><i class="bi bi-file-earmark-pdf"></i><span> الأصل</span></a>` : ''}
               <a class="btn btn-sm btn-light border ad-sb" href="${esc(p.url_ar)}" target="_blank" rel="noopener" title="صفحة القسم"><i class="bi bi-box-arrow-up-left"></i><span> القسم</span></a>
@@ -1178,6 +1241,12 @@
       const r = $('#ad-adv-reset'); if (r) r.onclick = () => { if (confirm('مسح كل المواد المعلَّمة؟')) { setDone(p, new Set()); render(); } };
       const pr = $('#ad-adv-print'); if (pr) pr.onclick = () => printAdvisor(p, x);
     }
+    document.querySelectorAll('[data-cmp]').forEach(b => b.onclick = () => { const pm = portalMatch(x); if (!pm) return;
+      const { onlyHere, onlyPortal } = compareLists(x, pm), here = b.dataset.cmp === 'here', L = here ? onlyHere : onlyPortal;
+      const row = c => `<tr><td><code>${esc(c.code)}</code></td><td>${esc(c.name || CODE_NAME[c.code] || '')}</td><td>${c.hours ?? ''}</td><td><small>${here ? `${YEAR[c.year] || ''} · ${TERM[c.term] || ''}` : esc(c.g.name)}</small></td><td>${secs(c.code).length ? '<span class="text-success">مطروحة</span>' : '<span class="text-muted">غير مطروحة</span>'}</td></tr>`;
+      U.modal(here ? '<i class="bi bi-journal-x"></i> في الخطة الاسترشادية وليست في الخطة الدراسية على البوابة' : '<i class="bi bi-journal-plus"></i> إجبارية في الخطة الدراسية على البوابة وليست في الخطة الاسترشادية',
+        `<p class="small">المقارنة مع «${esc(pm.pl.major)}» (إصدار ${esc(pm.pl.version)}) على بوابة الجامعة، وتتحدّث كل ساعة. ${here ? 'قد تكون رمزاً قديماً تغيّر في الخطة الحالية، أو مادة حُذفت.' : 'قد تكون رمزاً جديداً لمادة في الخطة الاسترشادية برمز قديم، أو مادة أُضيفت للخطة بعد نشر الخطة الاسترشادية.'}</p>
+        ${L.length ? `<table class="table table-sm"><thead><tr><th>الرمز</th><th>المادة</th><th>س</th><th>${here ? 'موقعها في الخطة' : 'المجموعة'}</th><th>هذا الفصل</th></tr></thead><tbody>${L.map(row).join('')}</tbody></table>` : '<p>لا شيء — الخطتان متطابقتان في هذا الجانب.</p>'}`); });
     $('#ad-csv').onclick = () => { if (!x || !x.r.ok) return;
       const q = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
       const rows = [['السنة', 'الفصل', 'رقم المادة', 'اسم المادة', 'المتطلب السابق', 'العلامة', 'الساعات', 'شعب هذا الفصل']];
@@ -1232,7 +1301,8 @@
       note: 'كشف استرشادي من اختيارات المرشد على جهازه؛ المرجع المعتمد هو كشف العلامات والخطة الرسمية.' });
   }
 
-  Promise.all([U.getJSON('data/advisory_plans.json'), U.getJSON('data/timetable.json').catch(() => ({ sections: [] })), U.getJSON('data/study_plans.json').catch(() => null), U.getJSON('data/advisory_manual.json').catch(() => ({}))]).then(([a, tt, sp, man]) => {
+  Promise.all([U.getJSON('data/advisory_plans.json'), U.getJSON('data/timetable.json').catch(() => ({ sections: [] })), U.getJSON('data/study_plans.json').catch(() => null), U.getJSON('data/advisory_manual.json').catch(() => ({})), U.getJSON('data/course_descriptions.json').catch(() => null)]).then(([a, tt, sp, man, desc]) => {
+    DESC = desc;
     A = a; DOCS = a.docs; READS = a.reads;
     // plans published as scanned pages, entered by hand from those pages (data/advisory_manual.json, keyed by the file's sha;
     // "<sha>__2" is the second track printed in the same file)

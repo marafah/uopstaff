@@ -33,6 +33,10 @@ jobs:
         # any failure keeps the previous plans; a faculty that cannot be reached keeps what was read before
         continue-on-error: true
         run: python scripts/update_advisory.py
+      - name: Course descriptions («وصف المواد») from the department pages
+        # a file that cannot be downloaded keeps what was read from it before
+        continue-on-error: true
+        run: python scripts/update_course_desc.py
       - name: Advisory plans the text reader could not read (scanned pages), read by Claude
         # needs the repository secret ANTHROPIC_API_KEY; without it this step does nothing. A reading is published only
         # when every semester adds up to the total printed in the plan.

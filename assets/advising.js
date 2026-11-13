@@ -373,7 +373,7 @@
   const U = root.UOP, { $, esc } = U;
   const P = new URLSearchParams(location.search);
   const st = { view: P.get('view') || 'student', q: P.get('q') || '', mode: 'next', summer: null, cap: null, force: new Set(), drop: new Set(), fresh: { prog: '', ar: false, en: false, pc: false } };
-  let TT, S = [], SP, AP, MAN = {}, NAMES = {}, OFFER = {}, STUD = null, BOARD = [], EQ = [];
+  let TT, S = [], SP, AP, MAN = {}, NAMES = {}, OFFER = {}, STUD = null, BOARD = [], EQ = [], DESC = null;
   const PDFJS = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/legacy/build/';
   const EQ_KEY = 'adv-equivalents-v1';
   try { EQ = JSON.parse(localStorage.getItem(EQ_KEY) || '[]'); } catch (e) { EQ = []; }
@@ -774,9 +774,10 @@
     const plansOf = code => (SP ? SP.plans : []).filter(p => p.groups.some(g => g.courses.some(c => c.code === code))).map(p => `${p.major} (${p.version})`);
     return `<div class="adv-card"><h3><i class="bi bi-book-half"></i> قاموس المواد</h3>
       <div class="adv-ctl"><input type="search" class="form-control" id="adv-dq" placeholder="رمز أو اسم مادة…" value="${esc(st.q)}" style="max-width:360px"></div>
-      <p class="adv-src mt-2 mb-0">لكل مادة: اسمها، الخطط الدراسية التي تضمها، شعبها هذا الفصل، الرموز الأخرى بالاسم نفسه في الخطط والخطط الاسترشادية المنشورة (رمز قديم أو جديد — للتحقق لا للمعادلة التلقائية)، والمواد المكافئة من القائمة المرفوعة.</p></div>
+      <p class="adv-src mt-2 mb-0">لكل مادة: وصفها كما في ملف «وصف المواد» للقسم، اسمها، الخطط الدراسية التي تضمها، شعبها هذا الفصل، الرموز الأخرى بالاسم نفسه في الخطط والخطط الاسترشادية المنشورة (رمز قديم أو جديد — للتحقق لا للمعادلة التلقائية)، والمواد المكافئة من القائمة المرفوعة.</p></div>
       ${hits.map(c => { const sm = same[c] || [], eq = eqOf(c), pl = plansOf(c);
         return `<div class="adv-card"><h3><code>${c}</code> ${esc(NAMES[c])} ${sectionsLine(c)}</h3>
+          ${(DESC && DESC.courses && DESC.courses[c] || []).slice(0, 1).map(e => `<div class="adv-law mb-2">${esc(e.text)}<div class="adv-src mt-1"><i class="bi bi-file-earmark-pdf"></i> من <a href="${esc(e.url)}#page=${e.page || 1}" target="_blank" rel="noopener">«وصف المواد» – ${esc((DESC.docs[e.url] || {}).program || '')}</a>، صفحة ${e.page || 1}${e.pre ? ` · ${esc(e.pre)}` : ''}${DESC.courses[c].length > 1 ? ` · ووصفها كذلك ${DESC.courses[c].length - 1} ملف آخر` : ''}</div></div>`).join('')}
           ${pl.length ? `<div class="adv-note"><b>في الخطط الدراسية:</b> ${pl.slice(0, 12).map(esc).join('، ')}${pl.length > 12 ? ` و${pl.length - 12} غيرها` : ''}</div>` : ''}
           ${sm.length ? `<div class="adv-note mt-1"><b>الاسم نفسه برمز آخر:</b> ${sm.map(x => `<code>${x.code}</code> <small>(${[...x.where].slice(0, 3).map(esc).join('، ')})</small> ${sectionsLine(x.code)}`).join(' · ')}</div>` : ''}
           ${eq.length ? `<div class="adv-note mt-1"><b>مكافئة لها:</b> ${eq.map(x => `<code>${x.code}</code> ${esc(nm(x.code))} ${x.note ? `<small>(${esc(x.note)})</small>` : ''} ${sectionsLine(x.code)}`).join(' · ')}</div>` : ''}</div>`; }).join('') || (q ? '<p class="adv-note">لا نتائج.</p>' : '')}
@@ -907,9 +908,9 @@
 
   // ---------------------------------------------------------------- start
   document.head.insertAdjacentHTML('beforeend', `<style>${css}</style>`);
-  Promise.all([U.getJSON('data/timetable.json'), U.getJSON('data/study_plans.json').catch(() => null), U.getJSON('data/advisory_plans.json').catch(() => null), U.getJSON('data/advisory_manual.json').catch(() => ({}))])
-    .then(([tt, sp, ap, man]) => {
-      TT = tt; SP = sp; AP = ap; MAN = {};
+  Promise.all([U.getJSON('data/timetable.json'), U.getJSON('data/study_plans.json').catch(() => null), U.getJSON('data/advisory_plans.json').catch(() => null), U.getJSON('data/advisory_manual.json').catch(() => ({})), U.getJSON('data/course_descriptions.json').catch(() => null)])
+    .then(([tt, sp, ap, man, desc]) => {
+      DESC = desc; TT = tt; SP = sp; AP = ap; MAN = {};
       Object.entries(man || {}).forEach(([k, r]) => { if ((r.years || []).length) MAN[k] = r; });
       if (AP) AP.programs.forEach(p => p.docs.forEach(id => { const d = AP.docs[id]; if (d) d.versions.forEach(v => { if (v.sha) PROG_OF[v.sha] = p.ar; }); }));
       Object.keys(MAN).forEach(k => { const b = k.split('__')[0]; if (PROG_OF[b]) PROG_OF[k] = PROG_OF[b]; });
