@@ -2,12 +2,12 @@
    fetched fresh when online and the last copy is used when offline or when the network is too slow; libraries,
    fonts and photos are kept once used. VERSION changes with every release of the site (the same ?v= the pages use),
    which replaces the kept pages and scripts. */
-const VERSION = '202611196300';  // advising: one clear table style
+const VERSION = '202611200000';  // advising: one clear table style
 const CORE = 'uop-core-' + VERSION, DATA = 'uop-data', LIBS = 'uop-libs', ASSETS = 'uop-assets';
 const PAGES = ['./', 'index.html', 'directory.html', 'timetable.html', 'calendar.html', 'now.html', 'notes.html', 'changes.html', 'makeup.html', 'load.html',
-  'phones.html', 'together.html', 'instructor.html', 'planner.html', 'room.html', 'office-hours.html', 'usage.html', 'screen.html', 'screen-posts.html', 'campus.html', 'trends.html', 'org.html', 'plans.html', 'advisory.html', 'advising.html',
+  'phones.html', 'together.html', 'instructor.html', 'planner.html', 'room.html', 'office-hours.html', 'usage.html', 'screen.html', 'screen-posts.html', 'campus.html', 'access.html', 'trends.html', 'org.html', 'plans.html', 'advisory.html', 'advising.html',
   'research.html', 'researchers.html', 'researcher.html', 'publications.html', 'compare.html', 'universities.html', 'network.html', 'publication.html', 'jordan.html', 'journals.html', 'experts.html', 'simulator.html', 'reports.html', 'projects.html', 'regulations.html', 'promotion.html', 'reward.html', 'award.html', 'sabbatical.html', 'publish.html', 'annual.html', 'dept.html', 'goals.html', 'intl.html', 'impact.html', 'integrity.html', 'fees.html', 'tuition.html', 'grants.html', 'payments.html', 'staff-finance.html'];
-const SCRIPTS = ['app', 'calendar', 'changes', 'common', 'find', 'instructor', 'load', 'makeup', 'notes', 'now', 'officehours', 'oh-list', 'org', 'phones',
+const SCRIPTS = ['app', 'access', 'calendar', 'changes', 'common', 'find', 'instructor', 'load', 'makeup', 'notes', 'now', 'officehours', 'oh-list', 'org', 'phones',
   'planner', 'report', 'room', 'screen', 'screen-posts', 'posts', 'share', 'site', 'timetable', 'together', 'trends', 'usage', 'finance', 'advising'].map(n => `assets/${n}.js?v=${VERSION}`);
 const CORE_FILES = PAGES.concat(SCRIPTS, [`assets/app.css?v=${VERSION}`, 'assets/logo.png', 'manifest.webmanifest', 'assets/icons/icon-192.png']);
 const DATA_FILES = ['data/staff.json', 'data/timetable.json', 'data/instructors.json', 'data/calendar.json', 'data/org.json', 'data/org_structure.json', 'data/changes.json', 'data/finance.json'];

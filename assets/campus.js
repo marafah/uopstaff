@@ -1042,7 +1042,8 @@
     if (!ACC.from) ACC.from = here || (C.gates || [])[0];
     const p = pathTo(ACC.from, ACC.to), u = upper(ACC.to);
     $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'الوصول الميسّر', 'لذوي الإعاقة وكبار السن ومن يحمل أمتعة')}
-      ${proposed('لا توجد لدينا بيانات رسمية عن المداخل الميسّرة والمنحدرات والمصاعد. المسار البنفسجي مقترح تقريبي على طرق المخطط الظاهرة؛ تحقّق منه قبل الاعتماد عليه.')}
+      <a class="cm-official" href="access.html?site=${encodeURIComponent(ACC.to.id)}"><span>♿</span><div><b>المسار الميسّر المعتمد من الجامعة</b><small>مسار ذوي الإعاقة على مخطط الحرم: من البوابات ومواقف ذوي الإعاقة إلى المدخل الميسّر لكل مبنى، مع أقصر طريق ووقته</small></div><i class="bi bi-chevron-left"></i></a>
+      ${proposed('المسار البنفسجي أدناه تقريبي على طرق هذه الخريطة؛ المسار المعتمد في صفحة «المسار الميسّر».')}
       <div class="cm-two"><div>${fromSel('cm-afrom', ACC.from)}</div><div>${bSel('cm-ato', ACC.to, 'إلى')}</div></div>
       ${p ? `<div class="cm-facts mt-2"><div><i class="bi bi-signpost-2"></i><span><small>المسار المقترح</small><b>حوالي ${p.m} م · ${U.mins(Math.max(1, Math.round(p.m / 50)))} بالكرسي المتحرك</b><em>على الطرق الداخلية بدل الاختصار عبر الحدائق والدرج</em></span></div></div>` : ''}
       <h3><i class="bi bi-building"></i> ${esc(ACC.to.name)}</h3>
@@ -1755,6 +1756,8 @@
     .cm-ol { padding-inline-start: 1.2rem; margin: .2rem 0; font-size: .84rem; } .cm-ol li { margin: .2rem 0; }
     .cm-ap { position: absolute; transform: translate(-50%, -50%) scale(var(--pin, 1)); display: flex; align-items: center; gap: .1rem; background: #15803d; color: #fff; border: 2px solid #fff; border-radius: 6px; padding: .05rem .3rem; font-size: .7rem; font-weight: 800; box-shadow: 0 2px 6px rgba(0,0,0,.35); pointer-events: none; z-index: 3; }
     #cm-svg .cm-evac { stroke: #15803d; stroke-width: 6; stroke-dasharray: 14 9; animation: cmDash 1s linear infinite; }
+    .cm-official { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; background: #eff6ff; border: 1px solid #93c5fd; border-radius: 12px; padding: 10px 12px; margin: 8px 0; color: #0f172a; text-decoration: none; }
+    .cm-official > span { width: 44px; height: 44px; border-radius: 12px; background: #1d4ed8; color: #fff; font-size: 1.6rem; display: flex; align-items: center; justify-content: center; } .cm-official b { display: block; color: #1d4ed8; } .cm-official small { font-size: .82rem; }
     #cm-svg .cm-access { stroke: #7c3aed; stroke-width: 6; stroke-dasharray: 12 8; }
     #cm-svg .cm-net { stroke: #7c3aed; stroke-width: 2; opacity: .45; }
     .cm-pin.mk { box-shadow: 0 0 0 4px #22c55e, 0 3px 10px rgba(0,0,0,.35); }
