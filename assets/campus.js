@@ -392,7 +392,7 @@
     const st = status(b, n), staff = STAFF.filter(m => staffB(m) === b), ex = examsAt(b, n), posts = postsOn(b, n), ev = events(n).filter(x => x.b === b);
     const oh = inOfficeHours(n).filter(x => x.b === b), teach = (b.tt || []).length > 0;
     const units = [...new Set(staff.map(m => clean(m.office)).filter(o => !/^\d/.test(o)))];
-    const leaders = staff.filter(m => lead(m) < 20).sort((x, y) => lead(x) - lead(y)).slice(0, 6);
+    const leaders = staff.filter(m => lead(m) < 20).sort((x, y) => lead(x) - lead(y)).slice(0, 16);   // every leader of the building (deans, assistants, directors, heads of department)
     const tabs = [teach && ['now', 'bi-broadcast', 'الآن', st.run.length], teach && ['rooms', 'bi-door-open', 'القاعات', st.free.length], teach && ['floors', 'bi-layers', 'الطوابق', 0], staff.length && ['people', 'bi-people', 'الأشخاص', staff.length],
       ['today', 'bi-calendar-day', 'اليوم', ex.length + posts.length + ev.length]].filter(Boolean);
     if (!tabs.some(t => t[0] === tab)) tab = tabs[0][0];
