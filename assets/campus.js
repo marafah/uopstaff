@@ -49,7 +49,13 @@
     const d = o.replace(/\D/g, '');
     return d.length >= 3 && PREFIX[d[0]] ? B(PREFIX[d[0]]) : null;
   }
-  const staffB = m => placeB(m.office);
+  // a person's building: a dean of student affairs works in its building; a faculty member in the faculty's building
+  // (the office number alone misleads: engineering's 22xx rooms share the «2» of the library and dentistry); the board
+  // and the president in the presidency; anyone else by the office named in the directory
+  const FACB = { 1: '7', 2: '8A', 3: '9', 4: '4', 5: '6', 9: '3', 11: '3', 12: '2', 13: '24A' };
+  const staffB = m => /(^|[^ل])عميد شؤون الطلبة/.test(m.job || '') && m.type === 'academic' ? B('14')
+    : m.type === 'academic' && FACB[m.faculty] ? (placeB(m.office) && placeB(m.office).id === FACB[m.faculty] ? placeB(m.office) : B(FACB[m.faculty]))
+    : m.faculty === 'boardoftrustees' ? B('1') : placeB(m.office);
   // a free text place («المسرح», «القاعة 7101», «ساحة الجامعة») → a building, when it names one
   function textB(t) {
     const n = U.norm(t || '');
@@ -106,7 +112,9 @@
   const lead = m => { const i = LEAD.indexOf(m.role); return i < 0 ? 20 + (m.rank_order || 50) / 100 : i; };
   const person = id => STAFF.find(m => m.id === id);
   const ini = m => esc(nameKey(m.name).split(' ').slice(0, 2).map(w => w[0]).join(''));
-  const face = (m, cls) => m.photo ? `<img class="cm-face ${cls || ''}" src="${esc(m.photo)}" alt="" loading="lazy">` : `<span class="cm-face ${cls || ''} cm-ini">${ini(m)}</span>`;
+  // the round photos use a square crop around the face (assets/photos/face/), the full photo if it is missing
+  const faceSrc = m => m.photo.replace(/^assets\/photos\//, 'assets/photos/face/');
+  const face = (m, cls) => m.photo ? `<img class="cm-face ${cls || ''}" src="${esc(faceSrc(m))}" alt="${esc(m.name)}" title="${esc(m.name)}" loading="lazy" onerror="this.onerror=null;this.src='${esc(m.photo)}'">` : `<span class="cm-face ${cls || ''} cm-ini">${ini(m)}</span>`;
   const insOf = m => INS[nameKey(m.name)] || null;
   function lessons(insName, d) {
     const out = [];
@@ -1682,7 +1690,7 @@
     .cm-units { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .45rem; }
     .cm-units button { font-size: .76rem; border: 1px solid var(--bs-border-color); border-radius: 999px; padding: .1rem .55rem; background: var(--bs-body-bg); color: var(--bs-body-color); }
     .cm-units button.on { background: #901d23; color: #fff; border-color: #901d23; } .cm-units small { opacity: .7; }
-    .cm-face { width: 2.4rem; height: 2.4rem; border-radius: 50%; object-fit: cover; object-position: top; flex: none; background: #e5e7eb; box-shadow: 0 0 0 2px #fff; }
+    .cm-face { width: 2.4rem; height: 2.4rem; border-radius: 50%; object-fit: cover; object-position: center; flex: none; background: #e5e7eb; box-shadow: 0 0 0 2px #fff; }
     .cm-face.xl { width: 5.5rem; height: 5.5rem; box-shadow: 0 0 0 3px #fff, 0 4px 14px rgba(0,0,0,.2); }
     .cm-ini { display: inline-grid; place-items: center; color: #901d23; font-weight: 800; font-size: .85rem; background: #f8e3e5; }
     .cm-faces { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: .4rem; padding: .15rem; }

@@ -114,7 +114,7 @@ def fetch_academic(s, faculties, log):
         people[enc] = {
             "id": f"A:{enc}", "type": "academic", "faculty": fid if fac else None,
             "name": clean(d.get("FullNameAr")) or clean(d.get("FullNameEn")), "name_en": clean(d.get("FullNameEn")),
-            "job": job_ar, "rank": rank, "rank_order": RANK_ORDER.get(rank, 9), "role": role, "sort": order,
+            "job": job_ar, "job_en": job_en, "rank": rank, "rank_order": RANK_ORDER.get(rank, 9), "role": role, "sort": order,
             "department": dept,
             "specialization": " – ".join(x for x in [clean(d.get("GeneralSpecializationArabic")), clean(d.get("SpecificSpecializationArabic"))] if x),
             "qualification": "", "ext": clean(d.get("Extention")), "office": clean(d.get("OfficeNumber")),
@@ -124,6 +124,20 @@ def fetch_academic(s, faculties, log):
             "source": "academic_api",
         }
     log(f"academic staff: {len(people)}")
+    # the portal sometimes keeps an old title in one language: two «deans» of one faculty. Keep the one whose Arabic and
+    # English titles both say dean; the other takes the role its English title gives (e.g. «Head of the Department …»).
+    deans = {}
+    for p in people.values():
+        if p["role"] == "عميد" and "شؤون" not in p["job"] and p["faculty"]:
+            deans.setdefault(p["faculty"], []).append(p)
+    for fid, L in deans.items():
+        both = [p for p in L if re.search(r"dean", p.get("job_en", ""), flags=re.I) and not re.search(r"vice|assist", p.get("job_en", ""), flags=re.I)]
+        if len(L) > 1 and len(both) == 1:
+            for p in L:
+                if p is not both[0]:
+                    p["role"], p["sort"] = role_of(p["job_en"]) if p.get("job_en") else ("", 10)
+    for p in people.values():
+        p.pop("job_en", None)
     return list(people.values())
 
 
@@ -301,15 +315,47 @@ def apply_corrections(members, log):
     return fixes
 
 
+def is_blank(path):
+    from PIL import Image, ImageStat
+    return max(ImageStat.Stat(Image.open(path).convert("L")).stddev) < 8
+
+
+def face_crop(path, out, size=160):
+    """A square crop around the face (for the small round photos on the campus map); without a detected face, the top centre."""
+    from PIL import Image
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    img = Image.open(path).convert("RGB")
+    w, h = img.size
+    box = None
+    try:
+        import cv2
+        import numpy as np
+        casc = cv2.CascadeClassifier(os.path.join(cv2.data.haarcascades, "haarcascade_frontalface_default.xml"))
+        g = cv2.equalizeHist(cv2.cvtColor(np.array(img), cv2.COLOR_RGB2GRAY))
+        found = [r for r in casc.detectMultiScale(g, 1.08, 6, minSize=(max(24, w // 14),) * 2) if r[1] + r[3] / 2 < h * 0.6]
+        if len(found):
+            x, y, fw, fh = max(found, key=lambda r: r[2] * r[3])
+            box = (x + fw / 2, y + fh * 0.6, fw * 2.0)
+    except Exception:
+        pass
+    cx, cy, side = box or (w / 2, min(w, h * 0.7) / 2 + h * 0.02, min(w, h * 0.7))
+    side = min(side, w, h)
+    x0, y0 = max(0, min(w - side, cx - side / 2)), max(0, min(h - side, cy - side / 2))
+    img.crop((int(x0), int(y0), int(x0 + side), int(y0 + side))).resize((size, size), Image.LANCZOS).save(out, "JPEG", quality=84, optimize=True)
+
+
 def cache_photos(s, members, log):
     """Store each photo once as a small JPEG named after its source URL; drop files nobody uses any more."""
     from PIL import Image
-    os.makedirs(PHOTOS, exist_ok=True)
+    os.makedirs(os.path.join(PHOTOS, "face"), exist_ok=True)
     used, fetched, failed = set(), 0, 0
     for m in members:
         src = m.get("photo_src") or (m["photo"] if m["photo"].startswith("http") else "")
         m["photo_src"] = src
         if not src:
+            m["photo"] = ""
+            continue
+        if re.search(r"logo", src, flags=re.I):   # the portal's placeholder (the university logo) is not a photo
             m["photo"] = ""
             continue
         name = hashlib.sha1(src.encode("utf-8")).hexdigest()[:16] + ".jpg"
@@ -326,13 +372,22 @@ def cache_photos(s, members, log):
                 failed += 1
                 m["photo"] = ""  # initials instead of a broken or off-site image
                 continue
+        if is_blank(path):   # an empty (one-colour) image: initials instead
+            m["photo"] = ""
+            continue
         used.add(name)
         m["photo"] = f"assets/photos/{name}"
+        face = os.path.join(PHOTOS, "face", name)
+        if not os.path.exists(face):
+            face_crop(path, face)
     removed = 0
     for f in os.listdir(PHOTOS):
         if f.endswith(".jpg") and f not in used:
             os.remove(os.path.join(PHOTOS, f))
             removed += 1
+    for f in os.listdir(os.path.join(PHOTOS, "face")):
+        if f.endswith(".jpg") and f not in used:
+            os.remove(os.path.join(PHOTOS, "face", f))
     log(f"photos: {len(used)} stored ({fetched} new, {removed} removed, {failed} unavailable)")
 
 

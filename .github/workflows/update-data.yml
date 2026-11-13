@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-ara >/dev/null
-      - run: pip install requests pillow pdfplumber pypdfium2 pytesseract
+      - run: pip install requests pillow pdfplumber pypdfium2 pytesseract opencv-python-headless
       - name: Staff directory from uop.edu.jo
         run: python scripts/update_data.py
       - name: Academic calendar from uop.edu.jo
