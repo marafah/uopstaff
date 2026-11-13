@@ -963,7 +963,7 @@
     const secs = outData(), n = secs.reduce((a, s) => a + s.rows.length, 0);
     return `${versBar()}<div class="ex-outbar"><div class="ex-views">${Object.entries(OUT).map(([k, t]) => `<button class="ex-vbtn${outView === k ? ' on' : ''}" data-ov="${k}"><i class="bi ${OUTIC[k]}"></i> ${t}</button>`).join('')}</div>
       <div class="ex-acts"><button class="btn btn-ex" id="ex-print" title="الطباعة والتصدير تأخذ العرض والتصفية الحاليين؛ في Excel كل جدول في ورقة"><i class="bi bi-printer-fill"></i> طباعة / PDF</button><button class="btn btn-success" id="ex-xlsx"><i class="bi bi-file-earmark-excel-fill"></i> Excel</button>
-      <button class="btn btn-outline-secondary" id="ex-csv" title="ملف بيانات خام لنظام آخر (بلا تنسيق ولا عرض أعمدة). للقراءة والطباعة استخدم Excel."><i class="bi bi-filetype-csv"></i> CSV</button></div></div>
+      <button class="btn btn-outline-success" id="ex-data" title="جدول واحد منسّق: صف لكل قاعة، عناوين ثابتة وتصفية على كل عمود، من اليمين لليسار"><i class="bi bi-table"></i> جدول بيانات</button><button class="btn btn-sm btn-link" id="ex-csv" title="ملف نصي خام لإدخاله في نظام آخر (بلا تنسيق)">CSV</button></div></div>
       <div class="ex-o2">${pubPanel()}
       <div class="ex-docs"><b><i class="bi bi-folder2-open"></i> كشوف ومستندات</b>
         <button class="btn btn-outline-primary" id="ex-plists"><i class="bi bi-people-fill"></i> قوائم الطلبة لكل قاعة <small>QR</small></button>
@@ -1335,17 +1335,39 @@
       } catch (x) { btn.disabled = false; say('text-danger', '<i class="bi bi-x-octagon-fill"></i> ' + (x.message === 'denied' ? 'المفتاح لا يملك صلاحية Actions: Read and write على marafah/uopstaff. أنشئه من جديد بالخطوات أعلاه.' : x.message === 'expired' ? 'المفتاح غير صحيح. انسخه كاملاً من GitHub.' : keyErr(x))); }
     };
   }
-  // CSV: one tidy table (one header row, no blank or title rows): the group of each row (the day, department, room…) is its first
-  // column, and every room row repeats its course, so the file can be sorted and filtered as it is
-  function doCSV() {
-    const q = v => { let t = String(v == null ? '' : v); if (/^\d{4}-\d{2}-\d{2}$/.test(t)) t = `${+t.slice(8)}/${+t.slice(5, 7)}/${t.slice(0, 4)}`;
-      if (t && !/^\d+$/.test(t)) t = '‏' + t; return `"${t.replace(/"/g, '""')}"`; };
+  // the data as one tidy table (one header row, no blank or title rows): the group of each row (the day, department, room…) is its
+  // first column, and every room row repeats its course, so it can be sorted and filtered as it is
+  function tidy() {
     const secs = outData().map(expandRooms), G = { day: 'اليوم', dept: 'القسم', cohort: 'التخصص والسنة', room: 'القاعة', ins: 'المدرّس / المراقب' }[outView];
-    const cols = secs.length ? secs[0].columns : [], lines = [(G ? [G] : []).concat(cols).map(q).join(',')];
-    secs.forEach(sec => { let prev = null; const g = G ? String(sec.title || '').replace(/^القاعة\s*/, '') : null;
+    const cols = (G && G !== 'اليوم' ? [G] : []).concat(secs.length ? secs[0].columns : []), rows = [];
+    secs.forEach(sec => { let prev = null; const g = String(sec.title || '').replace(/^القاعة\s*/, '');
       sec.rows.forEach(r => { const row = r.slice(); if (sec.expanded && r.first === false && prev) row.forEach((v, j) => { if (v === '' && (j < sec.nhead || j >= row.length - sec.ntail)) row[j] = prev[j]; });
-        if (r.first !== false) prev = row; lines.push((G ? [g] : []).concat(row).map(q).join(',')); }); });
-    U.download(`${title()}_${OUT[outView]}.csv`.replace(/\s+/g, '_'), '﻿' + lines.join('\r\n'), 'text/csv;charset=utf-8');
+        if (r.first !== false) prev = row;
+        const out = (G && G !== 'اليوم' ? [g] : []).concat(row);
+        if (G === 'اليوم') { /* the day view has no date column: the group title holds it */ const iso = (g.match(/\d{4}-\d{2}-\d{2}/) || [''])[0]; out.unshift(g.replace(iso, '').trim(), iso); }
+        rows.push(out.map((v, j) => { const t = String(v == null ? '' : v); return /^\d{4}-\d{2}-\d{2}$/.test(t) ? `${+t.slice(8)}/${+t.slice(5, 7)}/${t.slice(0, 4)}` : v; })); }); });
+    if (G === 'اليوم') cols.unshift('اليوم', 'التاريخ');
+    return { cols, rows };
+  }
+  // CSV (raw data for another system): Arabic text right-to-left (a leading RLM), dates kept as text; times and codes as they are
+  function doCSV() {
+    const { cols, rows } = tidy(), q = v => { let t = String(v == null ? '' : v); if (/[؀-ۿ]/.test(t) || /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(t)) t = '‏' + t; return `"${t.replace(/"/g, '""')}"`; };
+    U.download(`${title()}_${OUT[outView]}.csv`.replace(/\s+/g, '_'), '﻿' + [cols].concat(rows).map(r => r.map(q).join(',')).join('\r\n'), 'text/csv;charset=utf-8');
+  }
+  // the same table as a formatted Excel sheet: right-to-left, widths to fit, a filter on every column, borders, for printing too
+  function doData() {
+    loadXLSX().then(() => {
+      const { cols, rows } = tidy(), E = XLSX.utils.encode_cell, ws = XLSX.utils.aoa_to_sheet([cols].concat(rows.map(r => r.map(v => /^\d+$/.test(String(v)) ? +v : v))));
+      const B = { style: 'thin', color: { rgb: 'C9D2D8' } }, BOX = { top: B, bottom: B, left: B, right: B };
+      cols.forEach((h, j) => { const a = E({ r: 0, c: j }); ws[a].s = { font: { bold: true, sz: 11, color: { rgb: 'FFFFFF' } }, fill: { fgColor: { rgb: '0B4A66' } }, alignment: { horizontal: 'center', vertical: 'center', wrapText: true }, border: BOX }; });
+      let z = 0, last = null;
+      rows.forEach((r, i) => { const key = r.slice(0, 5).join('|'); if (key !== last) { z++; last = key; }
+        r.forEach((v, j) => { const a = E({ r: i + 1, c: j }); if (!ws[a]) ws[a] = { t: 's', v: '' }; ws[a].s = { font: { sz: 10.5, color: { rgb: '0F1F26' } }, fill: { fgColor: { rgb: z % 2 ? 'FFFFFF' : 'F3F6F8' } }, alignment: { horizontal: /^[\d/:–\s-]+$/.test(String(v)) ? 'center' : 'right', vertical: 'center', wrapText: true }, border: BOX }; }); });
+      ws['!cols'] = cols.map((h, j) => ({ wch: Math.min(45, Math.max(String(h).length + 2, ...rows.slice(0, 400).map(r => String(r[j] == null ? '' : r[j]).length + 1))) }));
+      ws['!rows'] = [{ hpt: 26 }]; ws['!views'] = [{ RTL: true }]; ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length, c: cols.length - 1 } }) };
+      ws['!margins'] = { left: 0.3, right: 0.3, top: 0.4, bottom: 0.4, header: 0.2, footer: 0.2 };
+      const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'البيانات'); XLSX.writeFile(wb, `${title()}_${OUT[outView]}_بيانات.xlsx`.replace(/\s+/g, '_'));
+    }).catch(e => { console.error(e); alert('تعذّر تحميل مكتبة Excel؛ تحقق من الاتصال.'); });
   }
   function repExport(xl) {
     const st = stats(), rep = report(st), rows = rep.map(repLine);
@@ -2204,6 +2226,7 @@
       if (t.id === 'ex-rprint' || t.id === 'ex-rxlsx') return repExport(t.id === 'ex-rxlsx');
       if (t.id === 'ex-xlsx') return doXLSX();
       if (t.id === 'ex-csv') return doCSV();
+      if (t.id === 'ex-data') return doData();
       if (t.id === 'ex-plists') { if (REGMEM) { printLists(); return; }
         U.modal('<i class="bi bi-people-fill"></i> قوائم الطلبة لكل قاعة', `<p>القوائم تُطبع بأسماء الطلبة، والأسماء لا تُحفظ في الخطة. اختر ملف <b>كشف تسجيل الطلبة</b> (الملف نفسه الذي يُرفع في «الإعداد ← بيانات الطلبة»).</p>
           <p class="small">يُقرأ الملف للأسماء فقط، في هذه الصفحة، ولا يغيّر شيئاً في الخطة. بعد قراءته تُفتح القوائم للطباعة: ورقة لكل قاعة بأسماء طلبتها وشعبهم ومراقبيها.</p>
