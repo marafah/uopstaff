@@ -542,6 +542,28 @@
   .adv-kpi span { font-size:.95rem !important; color:#111 !important; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .adv-kpi b { font-size:1.6rem !important; }
   .adv-t td small, .adv-t td .adv-src, .adv-t td .text-muted, .adv-t td .text-secondary, .adv-t td .small, .adv-tools, .adv-tools small, .adv-cci dt, .adv-dayc .adv-src { color:#111 !important; opacity:1 !important; }
+  /* student details panel */
+  .adv-det > td { padding:14px 12px 16px !important; background:#f7f5f0 !important; }
+  .dt { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+  @media (max-width: 1100px) { .dt { grid-template-columns:1fr; } }
+  .dt-c { background:#fff; border:1px solid #e3ddcf; border-radius:12px; padding:12px 14px; }
+  .dt-c h4 { display:flex; align-items:center; gap:8px; font-size:1rem !important; font-weight:700 !important; color:#111; margin:0 0 10px !important; padding-bottom:8px; border-bottom:1px solid #eee; }
+  .dt-c h4 .fb { font-weight:400 !important; }
+  .dt-g { display:grid; grid-template-columns:minmax(0,1fr) 90px 48px; gap:10px; align-items:center; padding:4px 0; font-size:.92rem; color:#111; }
+  .dt-gn { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .dt-gv { text-align:end; font-variant-numeric:tabular-nums; } .dt-gv small { color:#111 !important; }
+  .dt-bar { height:8px; background:#eee9dc; border-radius:99px; overflow:hidden; } .dt-bar i { display:block; height:100%; border-radius:99px; }
+  .dt-bar i.ok { background:#16a34a; } .dt-bar i.mid { background:#f59e0b; } .dt-bar i.low { background:#dc2626; }
+  .dt-i { display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:8px; align-items:center; padding:5px 0; border-bottom:1px dashed #eee; font-size:.92rem; color:#111; }
+  .dt-in { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .dt-e { color:#111; font-size:.9rem; padding:4px 0; }
+  .dt-al { margin-top:10px; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:8px 10px; color:#7f1d1d; font-size:.9rem; display:grid; gap:4px; }
+  .dt-al b { font-weight:700 !important; }
+  .dt-tl { list-style:none; margin:0; padding:0 18px 0 0; position:relative; } .dt-tl::before { content:''; position:absolute; inset-block:6px; right:5px; width:2px; background:#d9d3c3; }
+  .dt-tl li { position:relative; display:flex; justify-content:space-between; align-items:center; padding:5px 0; font-size:.92rem; color:#111; }
+  .dt-tl li::before { content:''; position:absolute; right:-17px; width:10px; height:10px; border-radius:50%; background:#fff; border:2px solid #0f766e; }
+  .dt-tl li.end::before { background:#16a34a; border-color:#16a34a; } .dt-tl li.end span:first-child { color:#15803d; }
+  .dt-act { grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .dt-src { margin-inline-start:auto; font-size:.88rem; color:#111; }
   .adv-sl { padding:3px 0; white-space:nowrap; } .adv-sl + .adv-sl { border-top:1px dashed #e5e5e5; } .adv-sl small { color:#3b4048; }
   .adv-cb { width: 34px; text-align: center; } .adv-cb input { width: 17px; height: 17px; accent-color: #901d23; cursor: pointer; }
   .adv-row.sel td { background: #fbf2f3; }
@@ -1123,17 +1145,27 @@
     const D = Object.values(demand).sort((x, y) => y.grad - x.grad || y.n - x.n);
     const open = st.bo || '';
     const detail = r => { const s = r.s;
-      return `<tr class="adv-det"><td colspan="12"><div class="adv-det-g">
-        <div><h4>مجموعات المتطلبات</h4>${r.a0.groups.filter(g => g.kind !== 'outside' && g.kind !== 'incomplete').map(g => `<div class="adv-mini"><span>${esc(g.name.replace(/متطلبات?\s*/, ''))}</span><i><b style="width:${g.req ? 100 * g.gotPassed / g.req : 100}%"></b></i><em>${g.gotPassed}/${g.req}</em></div>`).join('')}</div>
-        <div><h4>يحق له تسجيلها الآن (${r.ready.length})</h4>${r.ready.slice(0, 8).map(c => `<div class="adv-src"><code>${c.code}</code> ${esc(c.name || nm(c.code))} ${offered(c.code).length ? '' : sectionsLine(c.code)}</div>`).join('') || '<div class="adv-src">—</div>'}
-          ${r.reqNotOff.length ? `<h4 class="mt-2">إجبارية غير مطروحة</h4><div class="adv-src">${r.reqNotOff.map(c => `<code>${c.code}</code> ${esc(c.name)}`).join('، ')}</div>` : ''}</div>
-        <div><h4>مسار التخرج المنتظم (18 س)</h4>${r.path && r.path.terms.length ? r.path.terms.map(t => `<div class="adv-src"><b>${esc(termName(t.term))}</b> · ${t.hours} س</div>`).join('') + `<div class="adv-ok small fw-bold mt-1">التخرج المتوقع ${esc(termName(r.path.end))}</div>` : '<div class="adv-src">—</div>'}
-          ${(s.warn || []).length ? `<div class="adv-check no mt-2">⚠ ${esc(s.warn.join('، '))}</div>` : ''}
-          <div class="d-flex flex-wrap gap-2 mt-2"><button type="button" class="btn btn-sm btn-maroon" data-open="${esc(s.head.id)}"><i class="bi bi-person-vcard"></i> التحليل الكامل والجدول المقترح</button>
-            <button type="button" class="btn btn-sm btn-light border" data-pdf="${esc(s.head.id)}"><i class="bi bi-file-earmark-pdf"></i> الخطة الأصلية</button>
-            <button type="button" class="btn btn-sm btn-light border" data-bak="${esc(s.head.id)}"><i class="bi bi-download"></i> نسخة</button>
-            <button type="button" class="btn btn-sm btn-outline-danger" data-del="${esc(s.head.id)}"><i class="bi bi-trash"></i> حذف</button></div>
-          <div class="adv-src mt-1">${s.src === 'portal' ? 'سُحب من البوابة' : s.src === 'manual' ? 'أُدخل يدوياً' : 'من ملف مرفوع'}${s.stored ? ` · ${U.numDate(s.stored)}` : ''}</div></div>
+      const gs = r.a0.groups.filter(g => g.kind !== 'outside' && g.kind !== 'incomplete');
+      const gRow = g => { const pc = g.req ? Math.min(100, Math.round(100 * g.gotPassed / g.req)) : 100, done = g.gotPassed >= g.req;
+        return `<div class="dt-g"><span class="dt-gn">${done ? '<i class="bi bi-check-circle-fill ic-g"></i>' : '<i class="bi bi-circle-half ic-o"></i>'} ${esc(g.name.replace(/متطلبات?\s*/, ''))}</span>
+          <span class="dt-bar"><i class="${done ? 'ok' : pc >= 50 ? 'mid' : 'low'}" style="width:${pc}%"></i></span><span class="dt-gv">${g.gotPassed}<small>/${g.req}</small></span></div>`; };
+      const cStat = c => { const n = offered(c.code).length; if (n) return `<span class="fb ok">مطروحة · ${n} شعبة</span>`; const x = offeredAs(c.code);
+        return x ? `<span class="fb sec">برمز ${x}</span>` : '<span class="fb no">غير مطروحة</span>'; };
+      const done = gs.filter(g => g.gotPassed >= g.req).length;
+      return `<tr class="adv-det"><td colspan="12"><div class="dt">
+        <section class="dt-c"><h4><i class="bi bi-diagram-3-fill ic-b"></i> مجموعات المتطلبات <span class="fb ok ms-auto">${done} من ${gs.length} مكتملة</span></h4>${gs.map(gRow).join('')}</section>
+        <section class="dt-c"><h4><i class="bi bi-journal-check ic-g"></i> يحق له تسجيلها الآن <span class="fb sec ms-auto">${r.ready.length} مادة</span></h4>
+          ${r.ready.slice(0, 10).map(c => `<div class="dt-i"><span class="fb code">${c.code}</span><span class="dt-in">${esc(c.name || nm(c.code))}</span>${cStat(c)}</div>`).join('') || '<div class="dt-e">لا مواد متاحة الآن</div>'}
+          ${r.ready.length > 10 ? `<div class="dt-e">و${r.ready.length - 10} مادة أخرى في «التحليل الكامل»</div>` : ''}
+          ${r.reqNotOff.length ? `<div class="dt-al"><b><i class="bi bi-exclamation-triangle-fill"></i> إجبارية غير مطروحة هذا الفصل</b>${r.reqNotOff.map(c => `<div><span class="fb code">${c.code}</span> ${esc(c.name)}</div>`).join('')}</div>` : ''}</section>
+        <section class="dt-c"><h4><i class="bi bi-signpost-split-fill ic-t"></i> مسار التخرج المنتظم <span class="fb hrs ms-auto">18 س للفصل</span></h4>
+          ${r.path && r.path.terms.length ? `<ol class="dt-tl">${r.path.terms.map(t => `<li><span>${esc(termName(t.term))}</span><span class="fb hrs">${t.hours} س</span></li>`).join('')}<li class="end"><span><i class="bi bi-mortarboard-fill"></i> التخرج المتوقع</span><span class="fb ok">${esc(termName(r.path.end))}</span></li></ol>` : '<div class="dt-e">—</div>'}
+          ${(s.warn || []).length ? `<div class="dt-al">⚠ ${esc(s.warn.join('، '))}</div>` : ''}</section>
+        <div class="dt-act"><button type="button" class="btn btn-sm btn-maroon" data-open="${esc(s.head.id)}"><i class="bi bi-person-vcard"></i> التحليل الكامل والجدول المقترح</button>
+          <button type="button" class="btn btn-sm btn-light border" data-pdf="${esc(s.head.id)}"><i class="bi bi-file-earmark-pdf ic-r"></i> الخطة الأصلية</button>
+          <button type="button" class="btn btn-sm btn-light border" data-bak="${esc(s.head.id)}"><i class="bi bi-download ic-b"></i> نسخة</button>
+          <button type="button" class="btn btn-sm btn-outline-danger" data-del="${esc(s.head.id)}"><i class="bi bi-trash"></i> حذف</button>
+          <span class="dt-src"><i class="bi bi-cloud-check ic-g"></i> ${s.src === 'portal' ? 'سُحب من البوابة' : s.src === 'manual' ? 'أُدخل يدوياً' : 'من ملف مرفوع'}${s.stored ? ` · ${U.numDate(s.stored)}` : ''}</span></div>
         </div></td></tr>`; };
     LAST = { show, rows, D };
     if (st.view === 'demand') return demandHtml(D);
@@ -1165,7 +1197,10 @@
   function advisorOf() { const c = {}; BOARD.forEach(s2 => { const a = (s2.head.advisor || '').trim(); if (a) c[a] = (c[a] || 0) + 1; }); return (Object.entries(c).sort((a, b) => b[1] - a[1])[0] || [''])[0]; }
   function printStudents(show, rows) {
     const F = { all: 'كل الطلبة', grad: 'المتوقع تخرجهم', miss: 'تنقصهم إجبارية غير مطروحة', warn: 'المنذرون', weak: 'المتعثرون', nogpa: 'الجدد بلا معدل' };
-    const fac = [...new Set(show.map(r => r.s.head.faculty).filter(Boolean))].join('، ');
+    // the advisor's faculty is the one most students belong to; a student from another faculty (e.g. a business-analytics student) is named with the count, not mixed into the title
+    const fc = {}; show.forEach(r => { const f = r.s.head.faculty; if (f) fc[f] = (fc[f] || 0) + 1; });
+    const fl = Object.entries(fc).sort((a, b) => b[1] - a[1]);
+    const fac = fl.length ? 'كلية ' + fl[0][0].replace(/^كلية\s*/, '') + (fl.length > 1 ? ` (و${fl.slice(1).map(([f, n]) => `${n} من ${f.replace(/^كلية\s*/, '')}`).join('، ')})` : '') : '';
     const chips = r => [r.lim.grad ? 'متوقع تخرجه' : '', r.a.warned ? 'منذر' : '', r.weak ? 'متعثر' : '', r.failedNow ? `${r.failedNow} لم ينجح بها` : ''].filter(Boolean).join('، ') || '—';
     printReport({ title: 'تقرير الإرشاد الأكاديمي: قائمة الطلبة', subtitle: [advisorOf() && 'المرشد: ' + advisorOf(), fac].filter(Boolean).join(' · '), orientation: 'landscape', fit: false, qr: false,
       filters: [['الفصل', TT.term], ['الطلبة', F[st.bf || 'all']], ...(st.bm ? [['التخصص', st.bm]] : []), ...(st.bq ? [['بحث', st.bq]] : []), ['العدد', `${show.length} من ${rows.length}`]],
