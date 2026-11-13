@@ -761,7 +761,7 @@
   const MORE = [
     ['للطلبة', [['tour', 'bi-flag', 'جولة الطلبة الجدد', 'محطات الحرم الأساسية بالترتيب، مع دليل للطباعة']]],
     ['السلامة والخدمات', [['emergency', 'bi-exclamation-octagon', 'الطوارئ ونقاط التجمع', 'أقرب نقطة تجمع وأرقام الطوارئ وخطة الإخلاء'],
-      ['fix', 'bi-tools', 'بلاغ عطل', 'أبلغ عن عطل في قاعة أو مبنى ببلاغ رسمي مرقّم'], ['access', 'bi-universal-access', 'الوصول الميسّر', 'مسار مقترح والطوابق ومقترح رسمي للدراسة']]],
+      ['fix', 'bi-tools', 'بلاغ عطل', 'أبلغ عن عطل في قاعة أو مبنى ببلاغ رسمي مرقّم'], ['access', 'bi-universal-access', 'مسار ذوي الإعاقة', 'المسار المعتمد إلى المدخل الميسّر لكل مبنى، والطوابق والقاعات الأرضية']]],
     ['للإدارة والتخطيط', [['board', 'bi-tv', 'لوحة «الحرم الآن»', 'أرقام اللحظة على شاشة كبيرة، تتحدّث وحدها'], ['whatif', 'bi-cone-striped', 'ماذا لو؟ إغلاق مبنى', 'أين تذهب شعبه، مع خطة نقل رسمية'], ['lapse', 'bi-play-circle', 'يوم الحرم في دقيقة', 'الازدحام متحركاً من 7:30 إلى 18:30، ورابط لشاشة عرض'], ['week', 'bi-bar-chart-line', 'الإشغال وتقرير القاعات', 'نسب الإشغال والتوصيات وتقرير رسمي'], ['crowd', 'bi-people', 'توقّع الازدحام', 'الذروة في المباني والبوابات من أعداد المسجلين'],
       ['qr', 'bi-qr-code', 'ملصقات QR', '«أنت هنا» و«بلاغ عطل» لكل بوابة ومبنى']]]];
   const MOREK = MORE.flatMap(g => g[1].map(x => x[0]));
@@ -1069,7 +1069,7 @@
     if (!ACC.to) ACC.to = B(sel) || C.buildings.find(b => (b.tt || []).length);
     if (!ACC.from) ACC.from = here || (C.gates || [])[0];
     const p = C.access ? accPath(ACC.from, ACC.to) : pathTo(ACC.from, ACC.to), u = upper(ACC.to);
-    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'الوصول الميسّر', 'لذوي الإعاقة وكبار السن ومن يحمل أمتعة')}
+    $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'مسار ذوي الإعاقة', 'لذوي الإعاقة وكبار السن ومن يحمل أمتعة')}
       <a class="cm-official" href="access.html?site=${encodeURIComponent(ACC.to.id)}"><span>♿</span><div><b>مسار ذوي الإعاقة المعتمد من الجامعة</b><small>مسار ذوي الإعاقة على مخطط الحرم: من البوابات ومواقف ذوي الإعاقة إلى المدخل الميسّر لكل مبنى، مع أقصر طريق ووقته</small></div><i class="bi bi-chevron-left"></i></a>
       ${C.access ? `<p class="cm-note"><i class="bi bi-patch-check-fill" style="color:#1d4ed8"></i> ${esc(C.access.note)}</p>` : proposed('المسار البنفسجي أدناه تقريبي على طرق هذه الخريطة؛ المسار المعتمد في صفحة «مسار ذوي الإعاقة».')}
       <div class="cm-two"><div>${fromSel('cm-afrom', ACC.from)}</div><div>${bSel('cm-ato', ACC.to, 'إلى')}</div></div>

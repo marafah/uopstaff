@@ -15,7 +15,8 @@
   const KIND = { section: ['الجدول الدراسي', 'bi-table', '#0b4a66'], staff: ['دليل الموظفين', 'bi-person-lines-fill', '#901d23'], calendar: ['التقويم الجامعي', 'bi-calendar3', '#0f766e'] };
   const OP = { add: ['جديد', 'bi-plus-circle-fill', 'ok'], remove: ['حُذف', 'bi-dash-circle-fill', 'no'], change: ['تغيّر', 'bi-arrow-left-right', 'ch'] };
   const AREA = { timetable: ['الجدول والخطط', '#0b4a66', 'bi-table'], directory: ['دليل الموظفين', '#901d23', 'bi-person-lines-fill'], research: ['البحث العلمي', '#6d28d9', 'bi-mortarboard'],
-    students: ['للطلبة', '#15803d', 'bi-backpack'], site: ['الموقع', '#0f766e', 'bi-stars'] };
+    students: ['للطلبة', '#15803d', 'bi-backpack'], advising: ['الإرشاد', '#b45309', 'bi-compass'], campus: ['خريطة الحرم', '#0369a1', 'bi-map'],
+    exams: ['الامتحانات', '#be123c', 'bi-clipboard-check'], finance: ['المالية', '#4d7c0f', 'bi-cash-coin'], site: ['الموقع', '#0f766e', 'bi-stars'] };
   const PERIOD = [['1', 'اليوم'], ['2', 'أمس واليوم'], ['7', 'آخر 7 أيام'], ['30', 'آخر 30 يوماً'], ['all', 'كل السجل']];
   const PAGE = 60;
   // pages behind the research section's sign-in (assets/research.js): their features show a lock
