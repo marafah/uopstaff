@@ -900,7 +900,7 @@
   function tourTool() {
     if (!TOUR.from) TOUR.from = here || (C.gates || [])[1] || (C.gates || [])[0];
     const st = tourStops(), i = Math.min(TOUR.i, st.length - 1), s = st[i];
-    const people = s ? STAFF.filter(m => staffB(m) === s.b && lead(m) < 20).sort((x, y) => lead(x) - lead(y)).slice(0, 4) : [];
+    const people = s ? STAFF.filter(m => staffB(m) === s.b && lead(m) < 20).sort((x, y) => lead(x) - lead(y)).slice(0, 16) : [];
     $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'جولة الطلبة الجدد', `${st.length} محطات · ابدأ من البوابة أو من «أنت هنا»`)}
       <div class="cm-two"><div>${fromSel('cm-tfrom', TOUR.from, 'البداية')}</div><div>${bSel('cm-tfac', B(TOUR.fac), 'كليتك', b => b.kind === 'faculty', '— اختر كليتك —')}</div></div>
       ${!TOUR.fac ? '<p class="cm-note"><i class="bi bi-info-circle"></i> اختر كليتك لتُضاف إلى الجولة محطةً بعد عمادة شؤون الطلبة.</p>' : ''}

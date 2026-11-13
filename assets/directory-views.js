@@ -41,7 +41,7 @@
       <ul class="ot-units">${U.map(u => `<li><details class="ot-unit" ${open || U.length <= 2 ? 'open' : ''}>
         <summary><i class="bi bi-chevron-left ot-chev"></i><i class="bi ${/^\d+$/.test(u.id) ? 'bi-mortarboard-fill' : 'bi-building'} ot-ic"></i><b>${esc(u.name)}</b>
           <span class="ot-cs">${cnt(u.all)}${u.depts.size ? `<span class="ot-c">${u.depts.size} أقسام</span>` : ''}</span>
-          <span class="ot-mini">${u.lead.slice(0, 4).map(m => ctx.avatar(m, 'sm')).join('')}</span></summary>
+          <span class="ot-mini">${u.lead.slice(0, 4).map(m => ctx.avatar(m, 'sm')).join('')}${u.lead.length > 4 ? `<small class="ot-more">+${u.lead.length - 4}</small>` : ''}</span></summary>
         <div class="ot-body">
           ${u.lead.length ? `<div class="ot-lead">${u.lead.map(m => person(m, true)).join('')}</div>` : ''}
           ${u.depts.size ? `<ul class="ot-depts">${[...u.depts.values()].sort((a, b) => a.name.localeCompare(b.name, 'ar')).map(d => `<li><details class="ot-dept" ${open ? 'open' : ''}>
@@ -145,7 +145,7 @@
         row.forEach((b, i) => pill(s, (i - (row.length - 1) / 2) * 74, dir > 0 ? -(r + 38) : r + 38, b[0], b[1], b[2]).classed('small', true));
       });
       node.on('mouseenter', (e, u) => { node.classed('dim', x => x !== u); tipShow(e, `<b>${esc(u.name)}</b><span>${KC[unitKind(u)][2]} · ${u.all.length} موظفاً</span>
-          ${u.lead.slice(0, 4).map(m => `<span><i class="bi bi-star-fill" style="color:#f5b301"></i> ${esc(nm(m.name))} – ${esc(m.role || ctx.jobText(m))}</span>`).join('')}
+          ${u.lead.map(m => `<span><i class="bi bi-star-fill" style="color:#f5b301"></i> ${esc(nm(m.name))} – ${esc(m.role || ctx.jobText(m))}</span>`).join('')}
           ${u.depts.size ? `<span><i class="bi bi-diagram-3"></i> ${[...u.depts.keys()].slice(0, 6).map(esc).join('، ')}</span>` : ''}<span class="og-hint">انقر للتفاصيل</span>`); })
         .on('mousemove', tipMove).on('mouseleave', () => { node.classed('dim', false); tipHide(); })
         .on('click', (e, u) => { tipHide(); current = focus(u); });
@@ -282,7 +282,7 @@
     .ot-cs { display: inline-flex; gap: .3rem; flex-wrap: wrap; }
     .ot-c { font-size: .72rem; font-weight: 700; border-radius: 999px; padding: .05rem .5rem; background: #eef1f4; color: #33424a; }
     .ot-c.a { background: #fbecec; color: #901d23; } .ot-c.d { background: #e4f0f6; color: #0b4a66; }
-    .ot-mini { margin-inline-start: auto; display: inline-flex; } .ot-mini .avatar { margin-inline-start: -.45rem; border: 2px solid #fff; }
+    .ot-mini { margin-inline-start: auto; display: inline-flex; } .ot-mini .avatar { margin-inline-start: -.45rem; border: 2px solid #fff; } .ot-mini .ot-more { align-self: center; margin-inline-start: .3rem; font-size: .72rem; font-weight: 700; color: #901d23; }
     .ot-body { padding: 0 .9rem .8rem; }
     .ot-lead { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .6rem; padding: .6rem; background: #fdf7e9; border: 1px dashed #e5c97a; border-radius: 12px; }
     .ot-depts { margin-inline-start: 1rem; border-inline-start: 2px dashed #d6dde3; padding-inline-start: 1rem; }
