@@ -559,9 +559,10 @@
   .dt-al { margin-top:10px; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:8px 10px; color:#7f1d1d; font-size:.9rem; display:grid; gap:4px; }
   .dt-al b { font-weight:700 !important; }
   .dt-tl { list-style:none; margin:0; padding:0 18px 0 0; position:relative; } .dt-tl::before { content:''; position:absolute; inset-block:6px; right:5px; width:2px; background:#d9d3c3; }
-  .dt-tl li { position:relative; display:flex; justify-content:flex-start; gap:10px; align-items:center; padding:5px 0; font-size:.92rem; color:#111; }
+  .dt-tl li { position:relative; display:grid; grid-template-columns:10.5em auto; justify-items:start; gap:10px; align-items:center; padding:5px 0; font-size:.92rem; color:#111; }
   .dt-tl li::before { content:''; position:absolute; right:-17px; width:10px; height:10px; border-radius:50%; background:#fff; border:2px solid #0f766e; }
   .dt-tl li.end::before { background:#16a34a; border-color:#16a34a; } .dt-tl li.end span:first-child { color:#15803d; }
+  .dt-tl li .fb { min-width:4.2em; justify-content:center; font-variant-numeric:tabular-nums; } .dt-tl li.end .fb { min-width:0; }
   .dt-act { grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
   .dt-src { margin-inline-start:auto; font-size:.88rem; color:#111; }
   .adv-dash th, .adv-dash td, .adv-dash td * { white-space:nowrap; } .adv-dash .adv-det td, .adv-dash .adv-det td * { white-space:normal; } .adv-dash .adv-det .dt-gn, .adv-dash .adv-det .dt-in, .adv-dash .adv-det .fb { white-space:nowrap; }
