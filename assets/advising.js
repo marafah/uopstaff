@@ -385,7 +385,7 @@
   // ================================================================ the page
   const U = root.UOP, { $, esc } = U;
   const P = new URLSearchParams(location.search);
-  const st = { view: P.get('view') || 'board', q: P.get('q') || '', mode: 'next', summer: null, cap: null, force: new Set(), drop: new Set(), fresh: { prog: '', ar: false, en: false, pc: false } };
+  const st = { view: P.get('view') || 'board', q: P.get('q') || '', mode: 'next', summer: null, cap: null, force: new Set(), drop: new Set(), fresh: { prog: '', fac: '', name: '', id: '', ar: false, en: false, pc: false } };
   let TT, S = [], SP, AP, MAN = {}, NAMES = {}, OFFER = {}, STUD = null, BOARD = [], EQ = [], DESC = null;
   const PDFJS = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/legacy/build/';
   const EQ_KEY = 'adv-equivalents-v1';
@@ -461,12 +461,9 @@
   .dm { color: #111; } .dm-h { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; } .dm-h h3 { margin: 0; color: #111; } .dm-h h3 i { color: #901d23; } .dm-h .btn { margin-inline-start: auto; }
   .dm-sub { color: #111; font-size: .92rem; margin: 6px 0 10px; }
   .dm-f { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-  .dm-chip { border: 2px solid; border-radius: 99px; padding: 5px 14px; font-weight: 700; font-size: .9rem; background: #fff; }
-  .dm-chip b { margin-inline-start: 4px; border-radius: 99px; padding: 0 8px; color: #fff; }
-  .dm-chip.b { border-color: #0b4a66; color: #0b4a66; } .dm-chip.b b { background: #0b4a66; } .dm-chip.b.on { background: #0b4a66; color: #fff; } .dm-chip.b.on b { background: #fff; color: #0b4a66; }
-  .dm-chip.r { border-color: #b42318; color: #b42318; } .dm-chip.r b { background: #b42318; } .dm-chip.r.on { background: #b42318; color: #fff; } .dm-chip.r.on b { background: #fff; color: #b42318; }
-  .dm-chip.g { border-color: #15803d; color: #15803d; } .dm-chip.g b { background: #15803d; } .dm-chip.g.on { background: #15803d; color: #fff; } .dm-chip.g.on b { background: #fff; color: #15803d; }
-  .dm-chip.m { border-color: #901d23; color: #901d23; } .dm-chip.m b { background: #901d23; } .dm-chip.m.on { background: #901d23; color: #fff; } .dm-chip.m.on b { background: #fff; color: #901d23; }
+  .dm-chip { border:1px solid #e3ddcf; border-radius:99px; padding:5px 14px; font-weight:600; font-size:.9rem; background:#fff; color:#111; }
+  .dm-chip i { color:#901d23; } .dm-chip b { margin-inline-start:4px; font-weight:800; }
+  .dm-chip.on { border-color:#901d23; background:#fbf2f3; color:#901d23; }
   .dm-t { width: 100%; border-collapse: separate; border-spacing: 0; font-size: .95rem; color: #111; }
   .dm-t thead th { background: #0b4a66; color: #fff; font-weight: 800; padding: 10px 10px; white-space: nowrap; text-align: start; }
   .dm-t thead th:first-child { border-start-start-radius: 10px; } .dm-t thead th:last-child { border-start-end-radius: 10px; }
@@ -483,6 +480,20 @@
   .dm-s { display: inline-flex; align-items: center; gap: 5px; border-radius: 8px; padding: 3px 10px; font-weight: 700; font-size: .85rem; text-decoration: none; white-space: nowrap; }
   .dm-s.open { background: #dcfce7; color: #14532d; border: 1px solid #86efac; } .dm-s.closed { background: #ffedd5; color: #7c2d12; border: 1px solid #fdba74; } .dm-s.no { background: #fee2e2; color: #7f1d1d; border: 1px solid #fca5a5; }
   .dm-s small { font-weight: 600; } .dm-empty { text-align: center; padding: 16px; }
+
+  /* one table style for every advising table (same as the students list): beige header, white rows, thin lines, small soft badges */
+  .adv-t thead th, .dm-t thead th { background:#f6f2ea !important; color:#111 !important; font-weight:800; border-bottom:1px solid #e6e1d3; border-radius:0 !important; padding:11px 10px; }
+  .adv-t tbody tr > td, .dm-t tbody tr > td, .dm-t tr.no td, .adv-t tbody tr:nth-child(even) > td, .dm-t tbody tr:nth-child(even) td { background:#fff !important; border-bottom:1px solid #eee9dc; padding:12px 10px; }
+  .adv-t tbody tr:hover > td, .dm-t tbody tr:hover td { background:#fbf8f1 !important; }
+  .adv-row.open td { background:#f7efe0 !important; } .adv-row.sel td { background:#fbf2f3 !important; } .adv-det td { background:#fffdf8 !important; }
+  .adv-t code, .adv-code, .dm-code { background:none !important; border:0 !important; color:#111 !important; padding:0 !important; font-weight:700; }
+  .adv-hrs { background:none !important; color:#111 !important; padding:0 !important; font-weight:700; min-width:0 !important; }
+  .dm-bar { background:none !important; min-width:110px !important; height:auto !important; display:flex; align-items:center; gap:6px; overflow:visible !important; }
+  .dm-bar i { position:static !important; display:block; height:7px; border-radius:99px; background:#0f766e !important; order:2; } .dm-bar b { padding:0 !important; line-height:inherit !important; font-weight:700; }
+  .dm-b, .dm-s, .adv-seat { border-radius:6px !important; padding:1px 8px !important; font-size:.8rem !important; font-weight:600 !important; }
+  .dm-b.el { background:#fff !important; border:1px solid #d9d3c3 !important; color:#111 !important; }
+  .adv-sn { background:none !important; color:#901d23 !important; padding:0 !important; }
+  .adv-mt { background:none !important; border:0 !important; padding:0 !important; color:#111 !important; font-weight:600; }
   .adv-cb { width: 34px; text-align: center; } .adv-cb input { width: 17px; height: 17px; accent-color: #901d23; cursor: pointer; }
   .adv-row.sel td { background: #fbf2f3; }
   .adv-bulk { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; background: #fbf2f3; border-bottom: 1px solid #ecd4d6; }
@@ -1165,6 +1176,7 @@
       const sel = sug.best.combo;
       const colour = {}; sug.take.forEach((x, i) => { colour[x.c.via || x.c.code] = U.PALETTE[i % U.PALETTE.length]; });
       const planner = 'planner.html?plan=' + sel.map(x => encodeURIComponent(U.sectionKey(x))).join('~');
+      FRESH = { p, courses, slots, sug, sel, planner, termNo };
       body = `<div class="adv-card"><h3><i class="bi bi-backpack"></i> حزمة الفصل الأول: ${esc(p.label)} <span class="badge text-bg-light border">${sug.hours} ساعة</span></h3>
         <p class="adv-src">من الخطة الاسترشادية المنشورة للقسم${p.r.academic_year || p.r.edition ? ` (${[p.r.academic_year, p.r.edition ? 'إصدار ' + p.r.edition : ''].filter(Boolean).join(' · ')})` : ''}، السنة الأولى – ${termNo === 'first' ? 'الفصل الأول' : 'الفصل الثاني'}، مع شعب الجدول الدراسي ${esc(TT.term)}.
           <a href="advisory.html?p=${encodeURIComponent(p.prog.id)}" target="_blank" rel="noopener">الخطة كاملة</a></p>
@@ -1175,12 +1187,47 @@
             : offeredAs(c.code) ? '<span class="adv-seat no"><i class="bi bi-exclamation-triangle-fill"></i> تتعارض شعبها أو تتجاوز الساعات</span>' : '<span class="adv-seat no"><i class="bi bi-x-octagon-fill"></i> غير مطروحة هذا الفصل</span>'}</td></tr>`; }).join('')}
         ${slots.map(c => `<tr><td><span class="adv-code">${esc(c.code)}</span></td><td><b>${esc(c.name)}</b><div class="adv-src">يختارها الطالب من المجموعة</div></td><td><span class="adv-hrs">${c.hours || ''}</span></td><td>انظر المطروح منها في <a href="plans.html" target="_blank" rel="noopener">الخطط الدراسية</a></td></tr>`).join('')}</tbody></table></div>
         ${sel.length ? `<div class="mt-3">${U.weekGrid(sel.flatMap(x => x.meetings.map(m => ({ day: m.day, start: live(m) ? m.start : '', end: m.end, title: x.code, line: nm(x.code), sub: `ش ${x.section}`, style: `background:${colour[x.code][1]};border-inline-start-color:${colour[x.code][0]}` }))), { compact: true, px: 78 })}</div>
-          <a class="btn btn-sm btn-maroon mt-2" href="${planner}" target="_blank" rel="noopener"><i class="bi bi-calendar2-week"></i> افتح في «مخطط جدولي»</a>` : ''}</div>`;
+          <a class="btn btn-sm btn-light border mt-2" href="${planner}" target="_blank" rel="noopener"><i class="bi bi-calendar2-week"></i> افتح في «مخطط جدولي»</a>` : ''}</div>`;
     }
-    return `<div class="adv-card"><h3><i class="bi bi-stars"></i> طالب جديد</h3>
-      <div class="adv-ctl"><label>البرنامج <select class="form-select form-select-sm" id="adv-prog"><option value="">— اختر —</option>
-        ${progs.map(x => `<option value="${esc(x.key)}" ${x.key === st.fresh.prog ? 'selected' : ''}>${esc(x.label)}</option>`).join('')}</select></label></div>
-      <p class="adv-src mt-2 mb-0">البرامج التي قُرئت خطتها الاسترشادية المنشورة بمطابقة كاملة (${progs.length}). لغيرها انظر <a href="advisory.html" target="_blank" rel="noopener">الخطط الاسترشادية</a>.</p></div>${body}`;
+    const facs = [...new Set(progs.map(x => x.prog.faculty))].sort((a, b) => a.localeCompare(b, 'ar'));
+    const F = st.fresh, inFac = progs.filter(x => !F.fac || x.prog.faculty === F.fac);
+    if (!p) FRESH = null;
+    return `<div class="adv-panel"><h3 class="adv-step"><span>1</span> بيانات الطالب الجديد</h3>
+      <div class="adv-form">
+        <label><span>اسم الطالب</span><input class="form-control" id="fr-name" value="${esc(F.name)}" placeholder="اختياري" autocomplete="off"></label>
+        <label><span>الرقم الجامعي</span><input class="form-control" id="fr-id" value="${esc(F.id)}" inputmode="numeric" placeholder="اختياري" autocomplete="off"></label>
+        <label><span>الكلية</span><select class="form-select" id="fr-fac"><option value="">— كل الكليات —</option>${facs.map(f => `<option ${f === F.fac ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select></label>
+        <label><span>التخصص</span><select class="form-select" id="adv-prog"><option value="">— اختر التخصص —</option>${inFac.map(x => `<option value="${esc(x.key)}" ${x.key === F.prog ? 'selected' : ''}>${esc(x.prog.ar)}${F.fac ? '' : ` – ${esc(x.prog.faculty)}`}</option>`).join('')}</select></label></div>
+      <p class="adv-src mt-2 mb-0"><i class="bi bi-info-circle"></i> التخصصات التي قُرئت خطتها الاسترشادية المنشورة بمطابقة كاملة (${progs.length}). لغيرها انظر <a href="advisory.html" target="_blank" rel="noopener">الخطط الاسترشادية</a>. الاسم والرقم يظهران في التقرير فقط ولا يُحفظان.</p>
+      ${p ? `<hr class="adv-hr"><div class="d-flex flex-wrap align-items-center gap-2"><h3 class="adv-step m-0"><span>2</span> الجدول المقترح للفصل الأول</h3>
+        <button type="button" class="btn btn-maroon ms-auto" id="fr-print"><i class="bi bi-printer"></i> تصدير التقرير (طباعة أو PDF)</button></div>` : ''}</div>${body}`;
+  }
+  let FRESH = null;
+  function printFresh() {
+    if (!FRESH) return;
+    const { p, courses, slots, sug, sel, planner, termNo } = FRESH, F = st.fresh;
+    const link = new URL(planner, location.href).href;
+    const days = ['ح', 'ن', 'ث', 'ر', 'خ', 'س'];
+    const meet = [];
+    sel.forEach(x => x.meetings.forEach(m => { if (live(m)) meet.push({ d: m.day, a: m.start, b: m.end, x }); }));
+    const byDay = days.map(d => ({ d, L: meet.filter(m => m.d === d).sort((u, v) => u.a.localeCompare(v.a)) })).filter(r => r.L.length);
+    const rem = [['ar', 'اللغة العربية'], ['en', 'اللغة الإنجليزية'], ['pc', 'المهارات الحاسوبية']].filter(([k]) => F[k]).map(([, l]) => l);
+    printReport({ title: 'الجدول المقترح لطالب جديد', subtitle: [F.name, F.id].filter(Boolean).join(' · ') || p.prog.ar, orientation: 'portrait', fit: false, url: link, qrLabel: 'الجدول في «مخطط جدولي»',
+      filters: [['الكلية', p.prog.faculty], ['التخصص', p.prog.ar], ['الفصل', TT.term], ...(F.name ? [['الطالب', F.name]] : []), ...(F.id ? [['الرقم الجامعي', F.id]] : []), ['امتحانات المستوى', rem.length ? 'لم ينجح في: ' + rem.join('، ') : 'ناجح فيها جميعها']],
+      stats: [['الساعات المعتمدة', sug.hours], ['المواد', sug.take.length], ['أيام الدوام', byDay.length], ['شعب فيها مقاعد', sel.filter(isOpen).length + ' من ' + sel.length]],
+      sections: [
+        { title: `المواد والشعب (السنة الأولى – ${termNo === 'first' ? 'الفصل الأول' : 'الفصل الثاني'} من الخطة الاسترشادية)`, columns: ['#', 'الرمز', 'المادة', 'س', 'الشعبة', 'المواعيد', 'المدرس', 'القاعة', 'المقاعد'],
+          widths: ['4%', '9%', '22%', '4%', '7%', '24%', '15%', '7%', '8%'], numCols: [0, 3],
+          rows: [...courses.map((c, i) => { const mine = sel.filter(x => x.code === (c.via || c.code));
+            if (!mine.length) return [i + 1, c.code, c.name, c.hours, '—', offeredAs(c.code) ? 'تتعارض أو تتجاوز الساعات' : 'غير مطروحة هذا الفصل', '—', '—', '—'];
+            return [i + 1, c.code + (c.via ? ` (برمز ${c.via})` : ''), c.name, c.hours, mine.map(x => x.section + (x.activity === 'عملي' ? ' عملي' : '')).join(' / '),
+              mine.map(x => x.meetings.map(m => live(m) ? `${DAYN(m.day)} من ${m.start} إلى ${m.end}` : `${DAYN(m.day)} غير متزامن`).join('، ')).join(' / '),
+              mine.map(x => U.shortName(x.instructor || '—')).join(' / '), mine.map(x => x.room && x.room !== '0' ? x.room : 'افتراضية').join(' / '), mine.map(x => isOpen(x) ? `${seats(x)} شاغر` : 'مغلقة').join(' / ')]; }),
+            ...slots.map(c => ['', c.code, c.name, c.hours || '', '—', 'يختارها الطالب من المجموعة', '—', '—', '—'])] },
+        { title: 'برنامج الأسبوع', columns: ['اليوم', 'من', 'إلى', 'الرمز', 'المادة', 'الشعبة', 'القاعة'], widths: ['12%', '9%', '9%', '11%', '37%', '9%', '13%'],
+          rows: byDay.flatMap(r => r.L.map((m, k) => [k ? '' : DAYN(r.d), m.a, m.b, m.x.code, nm(m.x.code), m.x.section + (m.x.activity === 'عملي' ? ' عملي' : ''), m.x.room && m.x.room !== '0' ? m.x.room : 'افتراضية'])) }],
+      raw: SIGN(['الطالب', 'المرشد الأكاديمي', 'رئيس القسم']),
+      note: `المواد من الخطة الاسترشادية المنشورة للقسم${p.r.academic_year ? ' (' + p.r.academic_year + ')' : ''}، والشعب من الجدول الدراسي المنشور على بوابة الجامعة (${TT.term}) بلا تعارض، الأفضلية للشعب التي فيها مقاعد. المقترح للإرشاد؛ التسجيل الفعلي على بوابة الجامعة. رمز QR يفتح الجدول في «مخطط جدولي».` });
   }
   function guidancePrograms() {
     if (!AP) return [];
@@ -1327,7 +1374,11 @@
     on('#adv-clear', 'click', async () => { if (!confirm('نقل كل الطلبة إلى «المحذوفون»؟ يمكنك استعادتهم من هناك.')) return; await removeStudents(BOARD.map(s => String(s.head.id))); });
     on('#adv-notif', 'click', async () => { try { await Notification.requestPermission(); } catch (e) { /* not supported */ } render(); });
     document.querySelectorAll('.adv-bm').forEach(a => a.addEventListener('click', ev => { ev.preventDefault(); U.modal('اسحب الزر، لا تضغطه', '<p>هذا الزر يعمل من شريط المفضلة وهو في صفحة بوابة المدرس. اسحبه بالفأرة (اضغط عليه مطولاً ثم حرّكه) إلى شريط المفضلة أعلى المتصفح، ثم افتح البوابة وسجّل الدخول واضغطه هناك.</p>'); }));
-    on('#adv-prog', 'change', e => { st.fresh.prog = e.target.value; render(); });
+    on('#adv-prog', 'change', e => { st.fresh.prog = e.target.value; const g = guidancePrograms().find(x => x.key === st.fresh.prog); if (g) st.fresh.fac = g.prog.faculty; render(); });
+    on('#fr-fac', 'change', e => { st.fresh.fac = e.target.value; const g = guidancePrograms().find(x => x.key === st.fresh.prog); if (g && st.fresh.fac && g.prog.faculty !== st.fresh.fac) st.fresh.prog = ''; render(); });
+    on('#fr-name', 'input', e => { st.fresh.name = e.target.value; });
+    on('#fr-id', 'input', e => { st.fresh.id = e.target.value; });
+    on('#fr-print', 'click', printFresh);
     document.querySelectorAll('[data-rem]').forEach(b => b.addEventListener('change', () => { st.fresh[b.dataset.rem] = b.checked; render(); }));
     const dq = $('#adv-dq');
     if (dq) { let t; dq.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { st.q = dq.value; const pos = dq.selectionStart; render(); const n = $('#adv-dq'); n.focus(); n.setSelectionRange(pos, pos); }, 250); }); }
