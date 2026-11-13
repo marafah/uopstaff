@@ -312,7 +312,8 @@
     const forced = ready.filter(c => o.force && o.force.has(c.code));
     const order = forced.concat(ready.filter(c => !forced.includes(c)));
     order.forEach(c => {
-      const parts = partsOf(sections, c.code, studyType);
+      let parts = partsOf(sections, c.code, studyType);
+      if (!parts.length && o.alts) for (const x of o.alts(c.code)) { parts = partsOf(sections, x, studyType); if (parts.length) { c.via = x; break; } }
       if (!parts.length) { notOffered.push(c); return; }
       const h = c.hours || 0;
       if (!c.g.fixed && (budget[c.g.name] || 0) < h) { skipped.push({ c, why: c.g.kind === 'free' ? 'اكتملت ساعات المواد الحرة' : 'اكتمل المطلوب من مجموعتها' }); return; }
@@ -533,7 +534,10 @@
     (SP ? SP.plans : []).forEach(p => p.groups.forEach(g => g.courses.forEach(c => { NAMES[c.code] ||= c.name; })));
   }
   const offered = code => (OFFER[code] || []);
-  const sectionsLine = code => { const L = offered(code); if (!L.length) return '<span class="adv-chip off">غير مطروحة</span>';
+  // the same course under another number: an uploaded equivalent, or the same name in the published plans (a renumbered course)
+  const altCodes = code => [...new Set([...eqOf(code).map(x => x.code), ...((sameName()[code] || []).map(x => x.code))])];
+  const offeredAs = code => offered(code).length ? code : altCodes(code).find(x => offered(x).length) || '';
+  const sectionsLine = code => { const L = offered(code); if (!L.length) { const x = offeredAs(code); return x ? `<a class="adv-chip unlock" href="timetable.html?q=${x}" target="_blank" rel="noopener" title="الاسم نفسه برمز آخر في الجدول الدراسي">مطروحة برمز ${x}</a>` : '<span class="adv-chip off">غير مطروحة</span>'; }
     const open = L.filter(isOpen).length; return `<a class="adv-chip" href="timetable.html?q=${code}" target="_blank" rel="noopener">${L.length} شعبة${open < L.length ? ` · ${open} مفتوحة` : ''}</a>`; };
 
   // equivalents uploaded by the user, both ways
@@ -579,7 +583,7 @@
     const summer = st.summer != null ? st.summer : (later ? tt % 10 === 3 : nextTerm(pdfTerm) % 10 === 3 && false);
     const lim = limits(a, summer);
     const cap = st.cap || lim.max;
-    const sug = suggest(a, S, { max: cap, force: st.force, drop: st.drop });
+    const sug = suggest(a, S, { max: cap, force: st.force, drop: st.drop, alts: altCodes });
     const chk = consistency(s);
     const curHrs = s.groups.filter(g => g.kind !== 'outside').flatMap(g => g.courses).filter(c => a.current.has(c.code)).reduce((x, c) => x + (c.hours || 0), 0);
     const planner = 'planner.html?plan=' + sug.best.combo.map(x => encodeURIComponent(U.sectionKey(x))).join('~');
@@ -595,17 +599,17 @@
     const inSug = new Set(sug.take.map(t => t.c.code));
     const sel = sug.best.combo;
     const colour = {};
-    sug.take.forEach((t, i) => { colour[t.c.code] = U.PALETTE[i % U.PALETTE.length]; });
+    sug.take.forEach((t, i) => { colour[t.c.via || t.c.code] = U.PALETTE[i % U.PALETTE.length]; });
     const grid = sel.length ? U.weekGrid(sel.flatMap(x => x.meetings.map(m => ({ day: m.day, start: live(m) ? m.start : '', end: m.end, title: x.code, line: nm(x.code), sub: `ش ${x.section}${x.activity === 'عملي' ? ' عملي' : ''}`,
       style: `background:${colour[x.code][1]};border-inline-start-color:${colour[x.code][0]}`, cls: isOpen(x) ? '' : 'clash' }))), { compact: true }) : '';
     const secRows = sug.take.map(t => {
-      const mine = sel.filter(x => x.code === t.c.code);
-      return `<tr><td><code>${t.c.code}</code></td><td>${esc(t.c.name || nm(t.c.code))}<div>${t.c.why.map(([k, l]) => `<span class="adv-chip ${k}">${esc(l)}</span>`).join('')}</div></td><td>${t.c.hours}</td>
+      const mine = sel.filter(x => x.code === (t.c.via || t.c.code));
+      return `<tr><td><code>${t.c.code}</code>${t.c.via ? `<div class="adv-src">تُسجَّل برمز <code>${t.c.via}</code></div>` : ''}</td><td>${esc(t.c.name || nm(t.c.code))}<div>${t.c.why.map(([k, l]) => `<span class="adv-chip ${k}">${esc(l)}</span>`).join('')}</div></td><td>${t.c.hours}</td>
         <td>${mine.map(x => `<div><b>ش ${esc(x.section)}</b>${x.activity === 'عملي' ? ' (عملي)' : ''} · ${x.meetings.map(m => `${(TT.days || {})[m.day] || m.day} ${live(m) ? `<span dir="ltr">${m.start}–${m.end}</span>` : '(غير متزامن)'}`).join('، ')}
           <div class="adv-src">${esc(U.shortName(x.instructor || ''))} · ${esc(x.room || '')} · ${isOpen(x) ? `<span class="adv-ok">${seats(x)} مقعد شاغر</span>` : '<span class="adv-bad">مغلقة/ممتلئة</span>'}</div></div>`).join('')}</td>
         <td class="no-print"><button type="button" class="btn btn-sm btn-light" data-drop="${t.c.code}" title="أخرجها من المقترح"><i class="bi bi-x-lg"></i></button></td></tr>`;
     }).join('');
-    const notOff = a.open.filter(c => c.ready && !offered(c.code).length);
+    const notOff = a.open.filter(c => c.ready && !offeredAs(c.code));
     const altFor = c => {
       const same = (sameName()[c.code] || []).filter(x => offered(x.code).length);
       const eq = eqOf(c.code).filter(x => offered(x.code).length);
@@ -705,12 +709,12 @@
     const s = STUD, h = s.head, a = analyse(s, { assumeCurrent: st.mode === 'next' });
     const summer = st.summer != null ? st.summer : (ttTerm() > s.term ? ttTerm() % 10 === 3 : false);
     const lim = limits(a, summer), cap = st.cap || lim.max;
-    const sug = suggest(a, S, { max: cap, force: st.force, drop: st.drop });
+    const sug = suggest(a, S, { max: cap, force: st.force, drop: st.drop, alts: altCodes });
     const sel = sug.best.combo;
     const link = new URL('planner.html?plan=' + sel.map(x => encodeURIComponent(U.sectionKey(x))).join('~'), location.href).href;
     let qr = '';
     try { const q = root.qrcode(0, 'M'); q.addData(link); q.make(); qr = q.createSvgTag({ cellSize: 3, margin: 0, scalable: true }); } catch (e) { qr = ''; }
-    const rows = sug.take.map(t => { const mine = sel.filter(x => x.code === t.c.code);
+    const rows = sug.take.map(t => { const mine = sel.filter(x => x.code === (t.c.via || t.c.code));
       return `<tr><td>${t.c.code}</td><td>${esc(t.c.name || nm(t.c.code))}</td><td>${t.c.hours}</td><td>${mine.map(x => `ش ${esc(x.section)}${x.activity === 'عملي' ? ' (عملي)' : ''}: ${x.meetings.filter(live).map(m => `${(TT.days || {})[m.day] || m.day} ${m.start}–${m.end}`).join('، ') || 'غير متزامن'}`).join('<br>')}</td><td>${esc(t.c.why.map(w => w[1]).join('، '))}</td></tr>`; }).join('');
     const waiting = a.open.filter(c => !c.ready && !c.inProgress).slice(0, 12);
     const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>نموذج إرشاد – ${esc(h.name || '')}</title>
@@ -973,7 +977,7 @@
     const list = BOARD.map(s => {
       const a = analyse(s, { assumeCurrent: true }), a0 = analyse(s, { assumeCurrent: false });
       const lim = limits(a, false);
-      const reqNotOff = a.open.filter(c => c.ready && c.required && !offered(c.code).length);
+      const reqNotOff = a.open.filter(c => c.ready && c.required && (c.hours || 0) > 0 && !offeredAs(c.code));
       const failedNow = Object.values(a.tries).filter(L => L.some(t => t.result === 'راسب') && !a.passed.has(L[0].code)).length;
       const curH = s.groups.filter(g => g.kind !== 'outside').flatMap(g => g.courses).filter(c => a0.current.has(c.code)).reduce((x, c) => x + (c.hours || 0), 0);
       let path = null; try { path = paths(s, { load: 18, summer: false }); } catch (e) { /* no path */ }
@@ -1004,7 +1008,7 @@
     const detail = r => { const s = r.s;
       return `<tr class="adv-det"><td colspan="12"><div class="adv-det-g">
         <div><h4>مجموعات المتطلبات</h4>${r.a0.groups.filter(g => g.kind !== 'outside' && g.kind !== 'incomplete').map(g => `<div class="adv-mini"><span>${esc(g.name.replace(/متطلبات?\s*/, ''))}</span><i><b style="width:${g.req ? 100 * g.gotPassed / g.req : 100}%"></b></i><em>${g.gotPassed}/${g.req}</em></div>`).join('')}</div>
-        <div><h4>يحق له تسجيلها الآن (${r.ready.length})</h4>${r.ready.slice(0, 8).map(c => `<div class="adv-src"><code>${c.code}</code> ${esc(c.name || nm(c.code))} ${offered(c.code).length ? '' : '<span class="adv-chip off">غير مطروحة</span>'}</div>`).join('') || '<div class="adv-src">—</div>'}
+        <div><h4>يحق له تسجيلها الآن (${r.ready.length})</h4>${r.ready.slice(0, 8).map(c => `<div class="adv-src"><code>${c.code}</code> ${esc(c.name || nm(c.code))} ${offered(c.code).length ? '' : sectionsLine(c.code)}</div>`).join('') || '<div class="adv-src">—</div>'}
           ${r.reqNotOff.length ? `<h4 class="mt-2">إجبارية غير مطروحة</h4><div class="adv-src">${r.reqNotOff.map(c => `<code>${c.code}</code> ${esc(c.name)}`).join('، ')}</div>` : ''}</div>
         <div><h4>مسار التخرج المنتظم (18 س)</h4>${r.path && r.path.terms.length ? r.path.terms.map(t => `<div class="adv-src"><b>${esc(termName(t.term))}</b> · ${t.hours} س</div>`).join('') + `<div class="adv-ok small fw-bold mt-1">التخرج المتوقع ${esc(termName(r.path.end))}</div>` : '<div class="adv-src">—</div>'}
           ${(s.warn || []).length ? `<div class="adv-check no mt-2">⚠ ${esc(s.warn.join('، '))}</div>` : ''}
@@ -1066,7 +1070,7 @@
       courses = courses.filter(c => /^\d{6,7}$/.test(c.code));
       const slots = list.filter(c => !/^\d{6,7}$/.test(c.code));
       const a = { st: { head: { studyType: 'صباحي' } }, groups: [], open: courses };
-      const sug = suggest(a, S, { max: 18 });
+      const sug = suggest(a, S, { max: 18, alts: altCodes });
       const sel = sug.best.combo;
       const colour = {}; sug.take.forEach((x, i) => { colour[x.c.code] = U.PALETTE[i % U.PALETTE.length]; });
       const planner = 'planner.html?plan=' + sel.map(x => encodeURIComponent(U.sectionKey(x))).join('~');
@@ -1259,7 +1263,7 @@
     const q = v => { v = String(v == null ? '' : v); return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v; };
     const lines = [['رقم الطالب', 'الاسم', 'التخصص', 'الإصدار', 'المعدل', 'المجتازة', 'المتبقية', 'متوقع تخرجه', 'منذر', 'إجبارية غير مطروحة'].join(',')];
     BOARD.filter(s => !ids || ids.includes(String(s.head.id))).forEach(s => { const a = analyse(s, { assumeCurrent: true }), a0 = analyse(s, { assumeCurrent: false }), lim = limits(a, false);
-      lines.push([s.head.id, s.head.name, s.head.major, s.version, s.gpa, s.passedHours, a0.remainingNow, lim.grad ? 'نعم' : '', a.warned ? 'نعم' : '', a.open.filter(c => c.ready && c.required && !offered(c.code).length).map(c => c.code).join(' ')].map(q).join(',')); });
+      lines.push([s.head.id, s.head.name, s.head.major, s.version, s.gpa, s.passedHours, a0.remainingNow, lim.grad ? 'نعم' : '', a.warned ? 'نعم' : '', a.open.filter(c => c.ready && c.required && (c.hours || 0) > 0 && !offeredAs(c.code)).map(c => c.code).join(' ')].map(q).join(',')); });
     U.download('لوحة_المرشد.csv', '﻿' + lines.join('\n') + '\n', 'text/csv');
   }
   // equivalents: a CSV or an Excel sheet; the first two columns holding course numbers are the pair
