@@ -572,6 +572,8 @@
   .adv-t .fb, .dm-t .fb, .adv-t .bd-gpa, .adv-cc .fb, .dt .fb { border-radius:4px !important; }
   .dm2-bar { display:inline-block; vertical-align:middle; width:110px; height:8px; background:#eee9dc; border-radius:2px; overflow:hidden; } .dm2-bar i { display:block; height:100%; background:#0b4a66; }
   .dm-t tbody .dm2-n { font-weight:700 !important; } .dm-t tbody td.dm2-c { font-family:ui-monospace,Consolas,monospace; font-weight:700 !important; color:#000 !important; } .dm-t tbody td.nm { color:#000 !important; } .dm2-bar i.g { background:#16a34a; } .dm2-bar i.b { background:#0b4a66; } .dm2-bar i.y { background:#f59e0b; } .dm-t tbody td { color:#111 !important; }
+  .adv-t tbody td > .fb.code, .adv-t tbody td > .adv-code { background:none !important; border:0 !important; padding:0 !important; font-weight:700 !important; color:#000 !important; }
+  .adv-t tbody td, .adv-t tbody td b { color:#000; } .adv-t tbody tr.adv-x td { opacity:1 !important; color:#000 !important; } .adv-t tbody tr.adv-x { opacity:1 !important; }
   .adv-dayc { white-space:nowrap; } .bd-nm { white-space:nowrap; } .bd-nm b { color:#111; } .bd-id { font-family:ui-monospace,Consolas,monospace; }
   .bd-st { white-space:nowrap; } .bd-st .fb + .fb { margin-inline-start:4px; }
   .bd-gpa { display:inline-block; min-width:48px; text-align:center; border-radius:6px; padding:1px 8px; border:1px solid; font-variant-numeric:tabular-nums; }
