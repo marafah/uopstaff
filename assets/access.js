@@ -12,7 +12,7 @@
   const P = new URLSearchParams(location.search);
   const app = $('#ac-app');
   const SITE = location.origin + location.pathname.replace(/[^/]*$/, '');
-  let A, W, H, G = [];
+  let A, W, H, G = [], K = 1;   // K: marker size for the plan image's resolution
   const st = { from: P.get('from') || 'gate:1', to: P.get('to') || '', q: '', L: { route: true, ent: true, pts: true, nums: true, dim: false }, s: 1, x: 0, y: 0 };
   try { Object.assign(st.L, JSON.parse(localStorage.getItem('uop-access-layers') || '{}')); } catch (e) { /* storage unavailable */ }
   const saveL = () => { try { localStorage.setItem('uop-access-layers', JSON.stringify(st.L)); } catch (e) { /* storage unavailable */ } };
@@ -49,7 +49,7 @@
   // ---------------------------------------------------------------- the plan, the route and the markers
   function svg(route, opt = {}) {
     const poly = pts => pts.map(p => p.join(',')).join(' ');
-    let s = '';
+    let s = `<g style="--k:${K}">`;
     if (st.L.route || opt.print) A.edges.forEach(e => {
       const p = poly(e[2]);
       s += e[3] === 'link' ? `<polyline class="ac-link" points="${p}"/>` : `<polyline class="ac-case" points="${p}"/><polyline class="ac-net" points="${p}"/>`;
@@ -57,15 +57,15 @@
     if (route) { const p = poly(route.pts); s += `<polyline class="ac-rcase" points="${p}"/><polyline class="ac-route" points="${p}"/>`; }
     const to = route && placeOf(st.to), fr = route && placeOf(st.from);
     if (st.L.ent || opt.print) A.buildings.forEach(b => { const n = A.nodes[b.node]; if (!served(b)) return;
-      const on = to && to.b === b; s += `<g class="ac-ent ${on ? 'on' : ''}" transform="translate(${n[0]},${n[1]})"><circle r="${on ? 9 : 7}"/><text y="${on ? 4 : 3.2}">♿</text><title>المدخل الميسّر: ${esc(b.ar)}</title></g>`; });
+      const on = to && to.b === b; s += `<g class="ac-ent ${on ? 'on' : ''}" transform="translate(${n[0]},${n[1]}) scale(${K})"><circle r="${on ? 9 : 7}"/><text y="${on ? 4 : 3.2}">♿</text><title>المدخل الميسّر: ${esc(b.ar)}</title></g>`; });
     if (st.L.pts || opt.print) A.points.forEach(p => { s += p.kind === 'park'
-      ? `<g class="ac-park" transform="translate(${p.x},${p.y})"><rect x="-11" y="-11" width="22" height="22" rx="4"/><text y="4">P♿</text><title>${esc(p.ar)}</title></g>`
-      : `<g class="ac-gate" transform="translate(${p.x},${p.y})"><path d="M0,-12 L11,8 L-11,8 Z"/><text y="5">${esc(p.id)}</text><title>${esc(p.ar)}</title></g>`; });
+      ? `<g class="ac-park" transform="translate(${p.x},${p.y}) scale(${K})"><rect x="-11" y="-11" width="22" height="22" rx="4"/><text y="4">P♿</text><title>${esc(p.ar)}</title></g>`
+      : `<g class="ac-gate" transform="translate(${p.x},${p.y}) scale(${K})"><path d="M0,-12 L11,8 L-11,8 Z"/><text y="5">${esc(p.id)}</text><title>${esc(p.ar)}</title></g>`; });
     if (st.L.nums || opt.print) A.buildings.forEach(b => { const on = to && to.b === b, fo = fr && fr.b === b;
-      s += `<g class="ac-b ${on ? 'to' : fo ? 'from' : ''} ${served(b) ? '' : 'off'}" data-b="${b.n}" transform="translate(${b.x},${b.y})"><circle r="13"/><text y="5">${b.n}</text><title>${esc(b.ar)} — ${esc(b.en)}</title></g>`; });
+      s += `<g class="ac-b ${on ? 'to' : fo ? 'from' : ''} ${served(b) ? '' : 'off'}" data-b="${b.n}" transform="translate(${b.x},${b.y}) scale(${K})"><circle r="13"/><text y="5">${b.n}</text><title>${esc(b.ar)} — ${esc(b.en)}</title></g>`; });
     if (route) { const a = route.pts[0], z = route.pts[route.pts.length - 1];
-      s += `<g class="ac-pin a" transform="translate(${a[0]},${a[1]})"><circle r="8"/></g><g class="ac-pin z" transform="translate(${z[0]},${z[1]})"><path d="M0,0 C-9,-11 -9,-22 0,-24 C9,-22 9,-11 0,0Z"/><circle cy="-15" r="3.5" fill="#fff"/></g>`; }
-    return s;
+      s += `<g class="ac-pin a" transform="translate(${a[0]},${a[1]}) scale(${K})"><circle r="8"/></g><g class="ac-pin z" transform="translate(${z[0]},${z[1]}) scale(${K})"><path d="M0,0 C-9,-11 -9,-22 0,-24 C9,-22 9,-11 0,0Z"/><circle cy="-15" r="3.5" fill="#fff"/></g>`; }
+    return s + '</g>';
   }
   function apply() { const m = $('#ac-in'); if (m) m.style.transform = `translate(${st.x}px,${st.y}px) scale(${st.s})`; }
   function fit(box) {
@@ -173,7 +173,7 @@
   }
 
   U.getJSON('data/campus_access.json').then(d => {
-    A = d; W = d.w; H = d.h; build();
+    A = d; W = d.w; H = d.h; K = W / 1280; build();
     const site = P.get('site') && d.buildings.find(b => b.site === P.get('site')); if (site) st.to = 'b:' + site.n;   // from «خريطة الحرم»: ?site=<its building number>
     if (st.to && !placeOf(st.to)) st.to = ''; if (!placeOf(st.from)) st.from = 'gate:1';
     render(); if (st.to) setTimeout(focusRoute, 50);
@@ -195,9 +195,9 @@
     #ac-in { position: absolute; top: 0; left: 0; width: 100%; transform-origin: 0 0; } #ac-in img { width: 100%; height: auto; display: block; user-select: none; } #ac-in.dim img { opacity: .45; filter: grayscale(.6); }
     #ac-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
     #ac-svg polyline { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-    .ac-case { stroke: #fff; stroke-width: 7; } .ac-net { stroke: #6d28d9; stroke-width: 3.5; stroke-dasharray: 9 6; animation: acDash 1.6s linear infinite; }
-    .ac-link { stroke: #64748b; stroke-width: 2.5; stroke-dasharray: 2 5; }
-    .ac-rcase { stroke: #fff; stroke-width: 11; filter: drop-shadow(0 1px 3px rgba(0,0,0,.5)); } .ac-route { stroke: #1d4ed8; stroke-width: 6; stroke-dasharray: 14 8; animation: acDash .9s linear infinite; }
+    .ac-case { stroke: #fff; stroke-width: calc(7px * var(--k,1)); } .ac-net { stroke: #6d28d9; stroke-width: calc(3.5px * var(--k,1)); stroke-dasharray: 9 6; animation: acDash 1.6s linear infinite; }
+    .ac-link { stroke: #64748b; stroke-width: calc(2.5px * var(--k,1)); stroke-dasharray: 2 5; }
+    .ac-rcase { stroke: #fff; stroke-width: calc(11px * var(--k,1)); filter: drop-shadow(0 1px 3px rgba(0,0,0,.5)); } .ac-route { stroke: #1d4ed8; stroke-width: calc(6px * var(--k,1)); stroke-dasharray: 14 8; animation: acDash .9s linear infinite; }
     @keyframes acDash { to { stroke-dashoffset: -30; } }
     @media (prefers-reduced-motion: reduce) { .ac-net, .ac-route { animation: none; } }
     .ac-ent circle { fill: #1d4ed8; stroke: #fff; stroke-width: 2; } .ac-ent text { fill: #fff; font-size: 9.5px; text-anchor: middle; pointer-events: none; } .ac-ent.on circle { fill: #15803d; }
