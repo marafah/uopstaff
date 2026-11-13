@@ -751,7 +751,7 @@
       <div class="rows">${deps.map(([d, ps]) => { const list = ps.filter(p => !q || U.norm(p.n).includes(q)).sort((a, b) => U.shortName(a.n).localeCompare(U.shortName(b.n), 'ar'));
         if (!list.length) return ''; const n = ps.filter(p => !p.off).length;
         return `<div class="dr"><div class="dh"><b>${esc(d)}</b><span class="n">${n} من ${ps.length}</span><button class="btn btn-sm btn-link p-0" data-exd="${esc(d)}">${n ? 'إعفاء الكل' : 'إعادة الكل'}</button></div>
-          <div class="nm">${list.map(p => `<button class="pc${p.off ? ' off' : ''}" data-exm="${esc(p.n)}" title="${esc(p.n)}${p.off ? ' — معفى' : ''}"><i class="bi ${p.off ? 'bi-slash-circle' : 'bi-check-circle-fill'}"></i>${esc(U.shortName(p.n))}${p.head && !p.off ? '<small>مواده فقط</small>' : p.dean ? '<small>عميد</small>' : ''}<span class="k">${p.extra ? esc(p.tag || 'إضافي') : p.k}</span></button>`).join('')}</div></div>`; }).join('')}</div></div>`;
+          <div class="nm">${list.map(p => `<button class="pc${p.off ? ' off' : ''}" data-exm="${esc(p.n)}" title="${esc(p.n)}${p.off ? ' — معفى' : ''}"><i class="bi ${p.off ? 'bi-slash-circle' : 'bi-check-circle-fill'}"></i><span>${esc(U.shortName(p.n))}${p.head && !p.off ? ' <small>· مواده فقط</small>' : p.dean ? ' <small>· عميد</small>' : ''}</span><span class="k">${p.extra ? esc(p.tag || 'إضافي') : p.k}</span></button>`).join('')}</div></div>`; }).join('')}</div></div>`;
   }
   // the add/swap lists are filled only when opened (thousands of rooms × hundreds of names would slow the page)
   let PV = null;
@@ -2672,6 +2672,13 @@
   .ex-p4 input[type=time] { font-size: 1.02rem !important; font-weight: 600; color: #0f1f26; }
   .ex-p4 .pp > b { font-size: .95rem !important; line-height: 1.8 !important; } .ex-p4 .pp small { font-size: .9rem !important; font-weight: 600; } .ex-p4 .pp > span { font-size: 1rem; }
   .ex-p4 .dwr { font-size: .95rem !important; } .ex-p4 .dwr small { font-size: .85rem !important; }
+  .ex-pool3 .nm { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: .35rem !important; padding: .5rem .6rem !important; }
+  .ex-pool3 .pc { display: grid !important; grid-template-columns: 1rem minmax(0, 1fr) auto; gap: .4rem !important; width: 100%; text-align: start; padding: .32rem .5rem !important; font-size: .92rem !important; font-weight: 600; border-radius: 8px !important; }
+  .ex-pool3 .pc > :nth-child(2) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ex-pool3 .pc .k { min-width: 1.6rem; text-align: center; font-size: .8rem !important; }
+  .ex-pool3 .dh b { font-size: 1rem !important; } .ex-pool3 .dh .n { font-size: .85rem !important; }
+  .ex-pmore { justify-content: space-between; } .ex-pmore > small { font-size: .85rem; }
+  .ex-pmore .ex-fold > summary::after { margin-inline-start: .35rem !important; } .ex-pmore > details { flex: 0 1 auto !important; } .ex-pmore > details[open] { flex: 1 1 100% !important; }
   .ex-cal2 { display: grid; grid-template-columns: minmax(250px, 330px) minmax(0, 1fr); gap: 1rem; align-items: start; }
   .ex-calf { display: grid; gap: .6rem; } .ex-calf section { border: 1px solid #e2e8ec; border-radius: 12px; padding: .55rem .7rem; background: #fbfcfd; }
   .ex-calf h6 { font-size: .9rem; font-weight: 800; margin: 0 0 .4rem; color: #0b4a66; } .ex-calf label { display: block; margin: 0; } .ex-calf label > span { font-size: .8rem; font-weight: 700; color: #1f2a30; }
