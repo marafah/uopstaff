@@ -67,7 +67,7 @@
       midterm: { periods: hourly(8, 16), firstStart: '08:00', lastEnd: '16:00', maxDay: 2, b2b: false, insClash: false, busy: true, depth: 'deep', labelT: 'جدول امتحانات MID', cal: { sunday: true, dropLast: true } },
     } };
   // the committee can change its saved answers («حفظها للخطط القادمة»): kept on this device over the built-in ones
-  const PKEY = 'ex-profiles-v1', PSAVE = ['periods', 'firstStart', 'lastEnd', 'maxDay', 'b2b', 'near', 'insClash', 'early', 'busy', 'depth', 'off', 'practical', 'splitOver', 'splitPer', 'blankHall', 'roomPolicy', 'headsOwn', 'procMode', 'perProc', 'minProc', 'maxDuty', 'maxDutyDay'];
+  const PKEY = 'ex-profiles-v1', PSAVE = ['periods', 'firstStart', 'lastEnd', 'maxDay', 'b2b', 'near', 'insClash', 'early', 'busy', 'depth', 'off', 'practical', 'splitOver', 'splitPer', 'blankHall', 'roomPolicy', 'headsOwn', 'deanNo', 'procMode', 'perProc', 'minProc', 'maxDuty', 'maxDutyDay'];
   const pOver = () => { try { return JSON.parse(localStorage.getItem(PKEY) || '{}') || {}; } catch (e) { return {}; } };
   const profOf = o => { if ((o.facs || []).length !== 1) return null; const f = o.facs[0], base = PROFILES[f], ov = pOver()[f]; if (!base && !ov) return null;
     const pr = Object.assign({ halls: null, labs: null }, base || {}); if (ov) Object.keys(ov).forEach(t => { pr[t] = Object.assign({}, pr[t] || {}, ov[t]); pr.saved = ov._at; }); return pr; };
@@ -106,7 +106,7 @@
     const t = TYPES[type || 'final'];   // the default exam is the final
     const o = { type: type || 'final', start: today(), days: t.days, off: [5, 6], hol: '', end: '', procMode: 'room', procFix: {}, firstStart: '08:00', lastEnd: '16:00', dayWin: {}, periods: t.periods.map(p => p.slice()), maxDay: 2, perProc: 30, minProc: 1, maxDuty: 0, maxDutyDay: 2, busy: type === 'mid1' || type === 'mid2' || type === 'midterm', b2b: true, near: true, insClash: true, early: true, depth: 'normal', noProc: '', label: '', gview: 'matrix', setupDone: false,
       faculty: facs ? facs[0] || '' : 'تكنولوجيا المعلومات', facs: facs || ['تكنولوجيا المعلومات'], flt: {}, practical: false, grad: true, src: 'plans', rooms: null, excl: {}, pins: {}, slot: {}, reg: null, regInfo: '', extraProc: '', drafts: [], approved: null,
-      splitOver: 0, splitPer: 24, blankHall: false, fixed: [], procList: [], procOnly: false, roomPolicy: 'ownFirst', headsOwn: true };
+      splitOver: 0, splitPer: 24, blankHall: false, fixed: [], procList: [], procOnly: false, roomPolicy: 'ownFirst', headsOwn: true, deanNo: true };
     return typeSet(o, o.type);
   }
   let S;
@@ -117,7 +117,7 @@
     if (!S.off.includes(5)) S.off.push(5);   // Friday is the official weekly holiday
     if (!S.procMode) S.procMode = 'room'; if (!S.procFix) S.procFix = {};
     if (S.firstStart == null) S.firstStart = '08:00'; if (!S.dayWin) S.dayWin = {}; if (S.end == null) S.end = '';
-    if (S.splitPer == null) { S.splitPer = 24; S.splitOver = S.splitOver || 0; } if (!Array.isArray(S.fixed)) S.fixed = []; if (!Array.isArray(S.procList)) S.procList = []; if (!S.roomPolicy) S.roomPolicy = 'free'; if (S.headsOwn == null) S.headsOwn = false;
+    if (S.splitPer == null) { S.splitPer = 24; S.splitOver = S.splitOver || 0; } if (!Array.isArray(S.fixed)) S.fixed = []; if (!Array.isArray(S.procList)) S.procList = []; if (!S.roomPolicy) S.roomPolicy = 'free'; if (S.headsOwn == null) S.headsOwn = false; if (S.deanNo == null) S.deanNo = false;
     if (S.lastEnd == null) { S.lastEnd = '16:00'; delete S.noFrom; delete S.noTo;
       if (S.type === 'midterm' && S.periods.map(p => p.join('-')).join(',') === OLDMID) { S.periods = TYPES.midterm.periods.map(p => p.slice()); S.slot = {}; S.pins = {}; } } };
   // a period that ends after the latest allowed time (a user setting, 16:00 by default)
@@ -501,7 +501,8 @@
   let HEADS = null;
   function headsSet() {
     if (HEADS) return HEADS; const out = [];
-    const walk = n => { (n.people || []).forEach(p => { if (p.type === 'academic' && /رئيس\s*قسم|^عميد|نائب\s*العميد|نائب\s*عميد/.test((p.role || '') + ' ' + (p.job || ''))) out.push({ n: p.name, job: p.job || p.role, unit: n.name }); }); (n.children || []).forEach(walk); };
+    const walk = n => { (n.people || []).forEach(p => { const j = (p.role || '') + ' ' + (p.job || ''); if (p.type !== 'academic') return;
+      if (/عميد/.test(j)) out.push({ n: p.name, job: p.job || p.role, unit: n.name, dean: true }); else if (/رئيس\s*قسم/.test(j)) out.push({ n: p.name, job: p.job || p.role, unit: n.name, dean: false }); }); (n.children || []).forEach(walk); };
     if (ORGJ && ORGJ.tree) (Array.isArray(ORGJ.tree) ? ORGJ.tree : [ORGJ.tree]).forEach(walk);
     return (HEADS = out);
   }
@@ -511,13 +512,14 @@
     const canon = n => { const [a, b] = nameKeys(n); return own.includes(n) ? n : km['0' + a] || (b && km['1' + b]) || (b && km['1' + a]) || n; };
     const L = (S.procList || []).map(p => Object.assign({}, p, { n: canon(p.n) })), info = {}; L.forEach(p => { info[p.n] = p; });
     const exempt = new Set((S.noProc || '').split(/\n/).map(x => x.trim()).filter(Boolean));
-    const isEx = n => exempt.has(n) || exempt.has(U.shortName(n)) || !!(info[n] || {}).ex || (!!S.procOnly && L.length > 0 && !info[n]);
+    const isEx0 = n => exempt.has(n) || exempt.has(U.shortName(n)) || !!(info[n] || {}).ex || (!!S.procOnly && L.length > 0 && !info[n]);
     // a head of department proctors only his own courses' exams (S.headsOwn): never drawn for others
-    const hk = new Set(); if (S.headsOwn) { headsSet().forEach(h => { const c = canon(h.n); hk.add(c); }); L.filter(p => /رئيس\s*قسم|عميد/.test(p.role || '')).forEach(p => hk.add(p.n)); }
-    const isHead = n => hk.has(n);
+    const hk = new Set(), dk = new Set();
+    headsSet().forEach(h => (h.dean ? dk : hk).add(canon(h.n))); L.forEach(p => { if (/عميد/.test(p.role || '')) dk.add(p.n); else if (/رئيس\s*قسم/.test(p.role || '')) hk.add(p.n); });
+    const isHead = n => !!S.headsOwn && hk.has(n), isDean = n => !!S.deanNo && dk.has(n), isEx = n => isEx0(n) || isDean(n);   // deans: not at all (S.deanNo)
     const names = [...new Set(own.concat((S.extraProc || '').split(/\n/).map(x => x.trim()).filter(Boolean).map(canon), L.map(p => p.n)))];
     const offOn = (n, dd) => { const p = info[n], d = DAYS[dd]; return !!p && !!d && ((p.offD || []).includes(d.iso) || (p.offW || []).includes(d.n)); };
-    return { info, isEx, isHead, offOn, names, pool: names.filter(n => !isEx(n) && !isHead(n)), maxOf: n => (info[n] && info[n].max) || S.maxDuty, dayOf: n => (info[n] && info[n].maxDay) || S.maxDutyDay };
+    return { info, isEx, isHead, isDean, offOn, names, pool: names.filter(n => !isEx(n) && !isHead(n)), maxOf: n => (info[n] && info[n].max) || S.maxDuty, dayOf: n => (info[n] && info[n].maxDay) || S.maxDutyDay };
   }
   function seating() {
     const out = {}, load = {}, unseated = [], short = [], dayLoad = {}, roomReq = [];
@@ -739,7 +741,7 @@
     const R = procRules(), by = {};
     R.names.forEach(n => { const ix = (INS[n] || []).filter(i => !EXT(C[i])), p = R.info[n], m = {}; ix.forEach(i => { m[C[i].dept] = (m[C[i].dept] || 0) + 1; });
       const d = ix.length ? Object.entries(m).sort((a, b) => b[1] - a[1])[0][0] : p ? p.dept || p.role || 'من قائمة المراقبين' : 'مراقبون إضافيون';
-      (by[d] = by[d] || []).push({ n, k: ix.length, off: R.isEx(n), head: R.isHead(n), extra: !ix.length, tag: p ? p.role || 'من القائمة' : '' }); });
+      (by[d] = by[d] || []).push({ n, k: ix.length, off: R.isEx(n), dean: R.isDean(n), head: R.isHead(n), extra: !ix.length, tag: p ? p.role || 'من القائمة' : '' }); });
     return by;
   }
   function poolView() {
@@ -754,7 +756,7 @@
         const n = ps.filter(p => !p.off).length;
         return `<section class="dc"><header><b>${esc(d)}</b><span class="n" title="متاح من مجموع القسم">${n} من ${ps.length}</span>
             <button class="btn btn-sm btn-link" data-exd="${esc(d)}">${n ? 'إعفاء الكل' : 'إعادة الكل'}</button></header>
-          <div class="ls">${list.map(p => `<button class="pr${p.off ? ' off' : ''}" data-exm="${esc(p.n)}" title="${esc(p.n)}${p.off ? ' — معفى' : ''}"><i class="bi ${p.off ? 'bi-slash-circle' : 'bi-check-circle-fill'}"></i><span class="nm">${esc(U.shortName(p.n))}${p.head && !p.off ? ' <small class="hd" title="يراقب مواده فقط">· مواده فقط</small>' : ''}</span><span class="k">${p.extra ? esc(p.tag || 'إضافي') : p.k}</span></button>`).join('')}</div></section>`; }).join('')}</div></div>`;
+          <div class="ls">${list.map(p => `<button class="pr${p.off ? ' off' : ''}" data-exm="${esc(p.n)}" title="${esc(p.n)}${p.off ? ' — معفى' : ''}"><i class="bi ${p.off ? 'bi-slash-circle' : 'bi-check-circle-fill'}"></i><span class="nm">${esc(U.shortName(p.n))}${p.head && !p.off ? ' <small class="hd" title="يراقب مواده فقط">· مواده فقط</small>' : p.dean ? ' <small class="hd">· عميد</small>' : ''}</span><span class="k">${p.extra ? esc(p.tag || 'إضافي') : p.k}</span></button>`).join('')}</div></section>`; }).join('')}</div></div>`;
   }
   // the add/swap lists are filled only when opened (thousands of rooms × hundreds of names would slow the page)
   let PV = null;
@@ -791,7 +793,7 @@
         return `<tr class="${nd ? 'nd' : ''}${r.fixed ? ' fx' : ''}"><td><b>${esc(si.d.wd)} ${+si.d.iso.slice(8)}/${+si.d.iso.slice(5, 7)}</b><small dir="ltr" class="d-block">${si.time}</small></td>
           <td><span class="ex-code" style="--c:${x.c.col[0]};--b:${x.c.col[1]}">${esc(x.c.code)}</span> ${esc(x.c.name)}<small class="d-block text-muted">${esc(x.c.dept)}</small></td>
           <td><b>${esc(r.room)}</b>${r.t === LAB ? ' <i class="bi bi-pc-display" title="مختبر"></i>' : ''}<small class="d-block">${r.n} طالب</small></td>
-          <td><div class="ex-chips">${r.proc.map(n => `<span class="ex-pp ${x.c.ins.includes(n) ? 'own' : ''}" title="${esc(n)}"><i class="bi bi-person-fill"></i> ${esc(U.shortName(n))} <b class="c">${cnt(n)}</b><button data-pfrm="${esc(key)}|${esc(n)}" aria-label="إزالة"><i class="bi bi-x"></i></button></span>`).join('') || '<span class="text-danger small"><i class="bi bi-exclamation-triangle-fill"></i> بلا مراقب</span>'}</div>
+          <td><div class="ex-chips">${r.proc.map(n => `<span class="ex-pp ${x.c.ins.includes(n) ? 'own' : ''}" title="${esc(n)}"><i class="bi bi-person-fill"></i> ${esc(U.shortName(n))} <b class="c">${cnt(n)}</b><button data-pfrm="${esc(key)}|${esc(n)}" aria-label="إزالة"><i class="bi bi-x"></i></button></span>`).join('')}${r.proc.length < (r.need || 1) ? `<span class="ex-pp miss"><i class="bi bi-exclamation-triangle-fill"></i> ${r.proc.length ? `ينقص ${(r.need || 1) - r.proc.length}` : 'بلا مراقب'}: أضف من القائمة</span>` : ''}</div>
             ${r.fixed ? `<button class="btn btn-sm btn-link p-0" data-pfauto="${esc(key)}"><i class="bi bi-arrow-counterclockwise"></i> تلقائي</button>` : ''}</td>
           <td><select class="form-select form-select-sm ex-pfsel" data-pfadd="${esc(key)}" data-ps="${s}"><option value="">+ مراقب…</option></select>
             ${r.proc.length ? `<select class="form-select form-select-sm ex-pfsel mt-1" data-pfswap="${esc(key)}" data-ps="${s}"><option value="">⇄ استبدال ${esc(U.shortName(r.proc[0]))} بـ…</option></select>` : ''}</td></tr>`; }).join('')}</tbody></table></div>
@@ -902,7 +904,7 @@
     const d = r => DAYS[dayOf(r.s)], tm = r => `${S.periods[r.s % P][0]}–${S.periods[r.s % P][1]}`;
     const base = r => [d(r).wd, d(r).iso, tm(r), r.c.code, r.c.name];
     const rm = r => r.rooms.map(x => `${x.room}${x.t === LAB ? ' (مختبر)' : ''}: ${x.n} طالب${x.secs && x.secs.length && r.c.sl.length > 1 ? ' – شعبة ' + x.secs.join(' و') : ''}`).join(' ؛ ') + (r.left ? ` ؛ ${r.left} بلا قاعة` : '');
-    const pr = r => [...new Set(r.rooms.flatMap(x => x.proc))].map(U.shortName).join('، ');
+    const pr = r => { const t = [...new Set(r.rooms.flatMap(x => x.proc))].map(U.shortName).join('، '), m = r.rooms.reduce((a, x) => a + Math.max(0, (x.need || 1) - x.proc.length), 0); return m ? (t ? t + '، ' : '') + `⚠ ينقص ${m === 1 ? 'مراقب' : m + ' مراقبين'}` : t; };
     const H = ['اليوم', 'التاريخ', 'الوقت', 'الرمز', 'المقرر'];
     const sec = (title, columns, list) => ({ title, columns, rows: list });
     if (outView === 'all') return [sec('', H.concat(['القسم', 'الطلبة', 'القاعات', 'المراقبون']), rows.map(r => base(r).concat([r.c.dept, r.c.students, rm(r), pr(r)])))];
@@ -910,7 +912,7 @@
     if (outView === 'dept') return [...new Set(rows.map(r => r.c.dept))].sort().map(dp => sec(dp, H.concat(['المدرسون', 'الطلبة', 'القاعات']), rows.filter(r => r.c.dept === dp).map(r => base(r).concat([r.c.ins.map(U.shortName).join('، '), r.c.students, rm(r)]))));
     if (outView === 'cohort') return G.filter(g => g.kind === 'cohort').map(g => sec(g.name, H, rows.filter(r => g.c.includes(r.c.i)).map(base))).filter(x => x.rows.length);
     if (outView === 'room') {
-      const byR = {}; rows.forEach(r => r.rooms.forEach(x => (byR[x.room] = byR[x.room] || []).push([d(r).wd, d(r).iso, tm(r), r.c.code, r.c.name, (x.secs || []).join('، '), x.n, x.proc.map(U.shortName).join('، ')])));
+      const byR = {}; rows.forEach(r => r.rooms.forEach(x => (byR[x.room] = byR[x.room] || []).push([d(r).wd, d(r).iso, tm(r), r.c.code, r.c.name, (x.secs || []).join('، '), x.n, x.proc.map(U.shortName).join('، ') + (x.proc.length < (x.need || 1) ? `${x.proc.length ? '، ' : ''}⚠ ينقص ${(x.need || 1) - x.proc.length === 1 ? 'مراقب' : (x.need || 1) - x.proc.length + ' مراقبين'}` : '')])));
       return Object.keys(byR).sort().map(k => sec(`القاعة ${k}`, H.concat(['الشعب', 'الطلبة في القاعة', 'المراقبون']), byR[k]));
     }
     const byI = {};
@@ -937,7 +939,7 @@
     if (k === 'num') return `<span class="bdg blue"><i class="bi bi-people-fill"></i> ${esc(s)}</span>`;
     if (k === 'rooms') return `<div class="ex-chips">${s.split(/\s*؛\s*/).map(x => { const m = x.match(/^(.+?):\s*(\d+) طالب(?:\s*–\s*(.+))?$/);
       return m ? `<span class="ex-rm"><i class="bi bi-door-open-fill"></i> <b>${esc(m[1])}</b><span class="n">${m[2]}</span>${m[3] ? `<small>${esc(m[3])}</small>` : ''}</span>` : `<span class="ex-rm ${/بلا قاعة/.test(x) ? 'bad' : ''}">${esc(x)}</span>`; }).join('')}</div>`;
-    if (k === 'ppl') return `<div class="ex-chips">${s.split(/\s*،\s*/).filter(Boolean).map(n => `<span class="ex-pp"><i class="bi bi-person-fill"></i> ${esc(n)}</span>`).join('')}</div>`;
+    if (k === 'ppl') return `<div class="ex-chips">${s.split(/\s*،\s*/).filter(Boolean).map(n => /^⚠/.test(n) ? `<span class="ex-pp miss"><i class="bi bi-exclamation-triangle-fill"></i> ${esc(n.replace(/^⚠\s*/, ''))}</span>` : `<span class="ex-pp"><i class="bi bi-person-fill"></i> ${esc(n)}</span>`).join('')}</div>`;
     if (k === 'task') return s === 'مراقبة' ? '<span class="bdg amber"><i class="bi bi-eye-fill"></i> مراقبة</span>' : '<span class="bdg green"><i class="bi bi-journal-check"></i> امتحان مقرره</span>';
     return esc(s);
   }
@@ -1043,18 +1045,18 @@
     const css = `@page { size: A4 ${orient || 'portrait'}; margin: 11mm 11mm 13mm; }
       * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; } body { margin: 0; font-family: Tajawal, 'Segoe UI', Tahoma, sans-serif; color: #1c2b31; font-size: 10.5pt; direction: rtl; }
       .sh { break-after: page; } .sh:last-child { break-after: auto; }
-      .hd { display: flex; align-items: center; gap: 12px; border-bottom: 3px solid #901d23; padding-bottom: 8px; } .hd img { height: 52px; } .hd .t { flex: 1; } .hd small { color: #6b7a82; font-size: 8.5pt; display: block; }
+      .hd { display: flex; align-items: center; gap: 12px; border-bottom: 3px solid #901d23; padding-bottom: 8px; } .hd img { height: 52px; } .hd .t { flex: 1; } .hd small { color: #1f2a30; font-size: 8.5pt; display: block; }
       .hd h1 { margin: 2px 0 0; font-size: 16pt; color: #091b22; } .hd h2 { margin: 2px 0 0; font-size: 10.5pt; color: #901d23; }
       .qr { text-align: center; } .qr svg { width: 78px; height: 78px; display: block; margin: auto; } .qr span { display: block; font-size: 7pt; color: #901d23; font-weight: 700; margin-top: 2px; }
       .info { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0; } .info div { border: 1px solid #e3dccb; border-top: 3px solid #091b22; border-radius: 7px; padding: 5px 8px; }
-      .info span { display: block; font-size: 8pt; color: #6b7a82; } .info b { font-size: 11pt; color: #091b22; } .info .w2 { grid-column: span 2; } .info .w4 { grid-column: span 4; }
+      .info span { display: block; font-size: 8pt; color: #1f2a30; } .info b { font-size: 11pt; color: #091b22; } .info .w2 { grid-column: span 2; } .info .w4 { grid-column: span 4; }
       table { width: 100%; border-collapse: collapse; } thead { display: table-header-group; } th { background: #091b22; color: #fff; font-size: 9pt; padding: 5px; border: 1px solid #091b22; }
       td { border: 1px solid #d9dfe3; padding: 4px 6px; font-size: 9.5pt; height: 22px; } tbody tr:nth-child(even) td { background: #f7f9fa; } tr { break-inside: avoid; }
-      td.n { text-align: center; width: 30px; color: #6b7a82; } td.id { direction: ltr; text-align: center; font-variant-numeric: tabular-nums; width: 90px; } td.sg { width: 110px; } td.c { text-align: center; }
+      td.n { text-align: center; width: 30px; color: #1f2a30; } td.id { direction: ltr; text-align: center; font-variant-numeric: tabular-nums; width: 90px; } td.sg { width: 110px; } td.c { text-align: center; }
       .band td { background: #f6e7e8 !important; color: #901d23; font-weight: 800; }
-      .sig { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; } .sig div { border-top: 1px dashed #9aa6ac; padding-top: 4px; font-size: 8.5pt; color: #4a5a62; text-align: center; }
+      .sig { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; } .sig div { border-top: 1px dashed #9aa6ac; padding-top: 4px; font-size: 8.5pt; color: #1f2a30; text-align: center; }
       .tot { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; } .tot span { background: #f6f3ec; border: 1px solid #e3dccb; border-radius: 999px; padding: 2px 10px; font-size: 8.5pt; }
-      .ft { margin-top: 8px; font-size: 7.5pt; color: #7a868c; display: flex; justify-content: space-between; }`;
+      .ft { margin-top: 8px; font-size: 7.5pt; color: #1f2a30; display: flex; justify-content: space-between; }`;
     const logo = SITE + 'assets/logo-print.png';
     const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${esc(docTitle)}</title><style>${css}</style></head><body>${sheets.map(x => `<section class="sh">
       <div class="hd"><img src="${logo}" alt=""><div class="t"><small>جامعة البترا · لجنة الامتحانات · ${esc(TT.term || '')}</small><h1>${esc(x.title)}</h1><h2>${esc(x.sub || '')}</h2></div>${x.qr ? `<div class="qr">${qrSvg(x.qr)}<span>${esc(x.qrLabel || 'امسح للتفاصيل')}</span></div>` : ''}</div>
@@ -1087,7 +1089,7 @@
       x.rooms.forEach((r, k) => { const st = lists[k] || [];
         sheets.push({ title: `كشف حضور امتحان: ${x.c.name}`, sub: `${TYPES[S.type].name} · ${x.c.dept}`, qr: SITE + 'myexams.html?c=' + encodeURIComponent(x.c.base || x.c.code), qrLabel: 'تفاصيل الامتحان للطلبة',
           info: [['رمز المادة', x.c.code], ['التاريخ', si.date], ['الوقت', si.time], ['القاعة', r.room + (r.t === LAB ? ' (مختبر)' : '')], ['الشعب', r.secs.join('، ') || '—', 'w2'], ['عدد الطلبة في القاعة', `${st.length || r.n}`], ['القاعة ' + (k + 1) + ' من', String(x.rooms.length)],
-            ['المراقبون', r.proc.map(U.shortName).join('، ') || '—', 'w4']],
+            ['المراقبون', r.proc.map(U.shortName).join('، ') + (r.proc.length < (r.need || 1) ? `${r.proc.length ? '، ' : ''}⚠ ينقص ${(r.need || 1) - r.proc.length === 1 ? 'مراقب' : (r.need || 1) - r.proc.length + ' مراقبين'}` : ''), 'w4']],
           body: st.length ? `<table><thead><tr><th>#</th><th>رقم الطالب</th><th>اسم الطالب</th><th>التخصص</th><th>الشعبة</th><th>التوقيع</th><th>ملاحظات</th></tr></thead><tbody>${st.map((u, i) => `<tr><td class="n">${i + 1}</td><td class="id">${esc(u.id)}</td><td>${esc(u.name)}</td><td>${esc(u.major.replace(/\s*\/\s*البكالوريوس$/, ''))}</td><td class="c">${esc(u.sec)}</td><td class="sg"></td><td></td></tr>`).join('')}</tbody></table>
             <div class="tot"><span>الحاضرون: ______</span><span>الغائبون: ______</span><span>المجموع: ${st.length}</span></div>
             <div class="sig">${(r.proc.length ? r.proc : ['', '']).map(n => `<div>المراقب: ${esc(U.shortName(n))}<br>التوقيع</div>`).join('')}<div>منسق الامتحان<br>التوقيع</div></div>`
@@ -1335,15 +1337,10 @@
       <div class="lgd"><span><i class="d win"></i> وقت الامتحانات المسموح <bdi dir="ltr">${U.toTime(win[0])} – ${U.toTime(win[1])}</bdi></span><span><i class="d p"></i> فترة امتحان</span>${gaps.length ? '<span><i class="d g"></i> استراحة بين فترتين</span>' : ''}</div></div>`;
   }
   function calKpis() {
-    if (!DAYS.length) return '<div class="alert alert-warning mt-3">لا توجد أيام امتحانات: راجع التاريخين وأيام التعطيل.</div>';
+    if (!DAYS.length) return '<div class="alert alert-warning">لا توجد أيام امتحانات: راجع التاريخين وأيام التعطيل.</div>';
     const a = DAYS[0].iso, z = DAYS[DAYS.length - 1].iso, span = Math.round((Date.parse(z) - Date.parse(a)) / 864e5) + 1, hol = (S.hol.match(/\d{4}-\d{2}-\d{2}/g) || []).filter(h => h >= a && h <= z).length;
-    return `<div class="ex-kpis">
-      <div class="k ex"><i class="bi bi-calendar-check-fill"></i><b>${DAYS.length}</b><span>يوم امتحانات</span></div>
-      <div class="k"><i class="bi bi-flag-fill"></i><b>${esc(DAYS[0].wd)} ${+a.slice(8)}/${+a.slice(5, 7)}</b><span>أول يوم</span></div>
-      <div class="k"><i class="bi bi-flag-checkered"></i><b>${esc(DAYS[DAYS.length - 1].wd)} ${+z.slice(8)}/${+z.slice(5, 7)}</b><span>آخر يوم</span></div>
-      <div class="k"><i class="bi bi-calendar-range"></i><b>${span}</b><span>يوماً من البداية للنهاية</span></div>
-      <div class="k hol"><i class="bi bi-calendar-x-fill"></i><b>${span - DAYS.length}</b><span>يوم بلا امتحانات${hol ? ` (منها ${hol} عطلة)` : ''}</span></div>
-      <div class="lg"><span><i class="d ex"></i> امتحانات</span><span><i class="d off"></i> بلا امتحانات</span><span><i class="d hol"></i> عطلة</span></div></div>`;
+    return `<div class="ex-kp2"><span class="ex"><b>${DAYS.length}</b> يوم امتحانات</span><span><b>${esc(DAYS[0].wd)} ${+a.slice(8)}/${+a.slice(5, 7)}</b> ← <b>${esc(DAYS[DAYS.length - 1].wd)} ${+z.slice(8)}/${+z.slice(5, 7)}</b></span>
+      <span><b>${span - DAYS.length}</b> يوم بلا امتحانات${hol ? ` (منها ${hol} عطلة)` : ''}</span><span class="lg"><i class="d ex"></i> امتحانات <i class="d off"></i> بلا <i class="d hol"></i> عطلة</span></div>`;
   }
   // the exam days one by one, week by week (with how many exams each has once the timetable is generated)
   function daysList() {
@@ -1364,7 +1361,7 @@
       for (let d = 1; d <= n; d++) {
         const iso = `${y}-${String(mo + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`, wd = new Date(iso + 'T12:00:00Z').getUTCDay(), inR = iso >= S.start && iso <= DAYS[DAYS.length - 1].iso;
         const cls = ex.has(iso) ? 'ex' : hol.has(iso) ? 'hol' : inR && (wd === 5 || S.off.includes(wd)) ? 'off' : inR ? 'off' : 'out';
-        cells.push({ iso, h: `<button class="${cls}${iso === U.amman().iso ? ' today' : ''}" ${inR && wd !== 5 && !S.off.includes(wd) ? `data-tgl="${iso}" title="${hol.has(iso) ? 'إلغاء العطلة' : 'تعيين عطلة'}"` : 'disabled'}><b>${d}</b>${ex.has(iso) ? `<small>${ex.get(iso)}</small>` : hol.has(iso) ? '<small>عطلة</small>' : ''}</button>` });
+        cells.push({ iso, h: `<button class="${cls}${iso === U.amman().iso ? ' today' : ''}" ${inR && wd !== 5 && !S.off.includes(wd) ? `data-tgl="${iso}" title="${hol.has(iso) ? 'إلغاء العطلة' : 'تعيين عطلة'}"` : 'disabled'}><b>${d}</b>${ex.has(iso) ? `<small>${(n => n ? n + ' امتحاناً' : 'يوم ' + ex.get(iso))(C.filter(c => c.s >= 0 && DAYS[dayOf(c.s)].iso === iso).length)}</small>` : hol.has(iso) ? '<small>عطلة</small>' : ''}</button>` });
       }
       // only the weeks of the exam period (the rest of the month is left out)
       const wk = []; for (let k = 0; k < cells.length; k += 7) wk.push(cells.slice(k, k + 7));
@@ -1420,19 +1417,18 @@
       <span class="d-flex flex-wrap gap-1"><button class="btn btn-sm btn-outline-primary" data-profapply title="يعيد الفترات والقواعد والقاعات والتواريخ إلى المحفوظ">إعادة تطبيقها</button><button class="btn btn-sm btn-outline-secondary" data-profsave title="تصبح إعدادات هذه الخطة هي المحفوظة للخطط القادمة من النوع نفسه (على هذا الجهاز)">حفظ الحالية للخطط القادمة</button></span></div>`;
   }
   function fixedView() {
-    const by = {}; (S.fixed || []).forEach(x => (by[x.code] = by[x.code] || []).push(x));
+    if (!(S.fixed || []).length) return '';
+    const by = {}; S.fixed.forEach(x => (by[x.code] = by[x.code] || []).push(x));
     const nm = {}; TT.sections.forEach(x => { nm[x.code] = nm[x.code] || x.name.replace(/\s*-\s*(نظري|عملي)$/, ''); });
-    const srcs = [...new Set((S.fixed || []).map(x => x.src))], blocked = (FX.blocks || []).filter(b => DAYS.some(d => d.iso === b.date));
+    const srcs = [...new Set(S.fixed.map(x => x.src))], blocked = (FX.blocks || []).filter(b => DAYS.some(d => d.iso === b.date));
     const tag = c => FX.inPlan.has(c) ? '<span class="bdg green">في الجدول بموعده</span>' : FX.codes.has(c) ? '<span class="bdg">لا طلبة مشتركون</span>' : '<span class="bdg">خارج أيام الامتحانات</span>';
-    return `<p class="small">امتحانات تعقدها جهات أخرى بمواعيد محددة (الرياضيات والعلوم الأساسية، متطلبات الجامعة…). كل مقرر منها يشترك طلبته مع مواد الخطة يدخل الجدول <b>بموعده الثابت</b>
-        فيمنع وضع امتحان آخر لطلبته في ذلك الوقت، ولا يأخذ مقاعد ولا مراقبين من الكلية؛ والقاعات المكتوبة له تُحجز في وقته.</p>
-      ${upCard('fixed', 'bi-pin-angle-fill', 'رفع جدول مواعيد ثابتة', 'نموذج الموقع، أو جدول الجهة كما هو إن كان فيه رقم المادة والشعبة والتاريخ والوقت. يمكن رفع أكثر من ملف؛ رفع الملف نفسه مرة أخرى يستبدله', fixedInfo(), 'fixed')}
-      ${srcs.length ? `<div class="ex-chipset my-2">${srcs.map(f => `<span class="ex-tagx"><i class="bi bi-file-earmark-spreadsheet"></i> ${esc(f)}<button data-fxdel="${esc(f)}" aria-label="حذف"><i class="bi bi-x"></i></button></span>`).join('')}
-        <span class="bdg"><i class="bi bi-door-closed"></i> ${blocked.length} حجز قاعات في أيام الامتحانات</span></div>
-      <div class="ex-rooms tall"><table class="table table-sm align-middle"><thead><tr><th>الرمز</th><th>المقرر</th><th>المواعيد (الشعب · القاعات)</th><th>الجهة</th><th>الحالة</th></tr></thead><tbody>
+    return `<details class="ex-fold ex-fixd"><summary><i class="bi bi-pin-angle-fill"></i> <b>المواعيد الثابتة للجهات الأخرى</b><small>${FX.inPlan.size} امتحاناً في الجدول بمواعيدها · ${blocked.length} حجز قاعات · ${srcs.length} ${srcs.length === 1 ? 'ملف' : 'ملفات'}</small></summary>
+      <p class="small mb-2">كل امتحان هنا يشترك طلبته مع مواد الخطة يدخل الجدول <b>بموعده الثابت</b>: يمنع وضع امتحان آخر لطلبته في ذلك الوقت، ولا يأخذ مقاعد ولا مراقبين من الكلية، وقاعاته محجوزة في وقته.</p>
+      <div class="ex-chipset mb-2">${srcs.map(f => `<span class="ex-tagx"><i class="bi bi-file-earmark-spreadsheet"></i> ${esc(f)}<button data-fxdel="${esc(f)}" title="حذف مواعيد هذا الملف" aria-label="حذف"><i class="bi bi-x"></i></button></span>`).join('')}</div>
+      <div class="ex-rooms"><table class="table table-sm align-middle"><thead><tr><th>الرمز</th><th>المقرر</th><th>المواعيد (الشعب · القاعات)</th><th>الجهة</th><th>الحالة</th></tr></thead><tbody>
         ${Object.entries(by).sort((a, b) => a[0].localeCompare(b[0])).map(([c, L]) => `<tr><td><b>${esc(c)}</b></td><td>${esc(nm[c] || '—')}</td>
           <td class="small">${L.map(x => `${dLong(x.date).replace(/\/\d{4}$/, '')} ${x.from}–${x.to}${x.secs.length ? ` · ش ${x.secs.join('، ')}` : ''}${x.rooms.length ? ` · ${x.rooms.length > 4 ? x.rooms.length + ' قاعات' : x.rooms.join('، ')}` : ''}`).join('<br>')}</td>
-          <td class="small">${esc(L[0].who || '')}</td><td>${tag(c)}</td></tr>`).join('')}</tbody></table></div>` : ''}`;
+          <td class="small">${esc(L[0].who || '')}</td><td>${tag(c)}</td></tr>`).join('')}</tbody></table></div></details>`;
   }
   function setView() {
     const facs = [...new Set(TT.sections.map(s => s.faculty))].sort();
@@ -1448,6 +1444,17 @@
     <div class="ex-set">
     ${bx(1, 'bi-journal-bookmark-fill', '#901d23', 'الدورة', 'نوع الامتحانات والكليات المشمولة', `
       <div class="ex-types">${Object.entries(TYPES).map(([k, t]) => `<label class="ex-type${S.type === k ? ' on' : ''}"><input type="radio" name="ty" data-ty="${k}" ${S.type === k ? 'checked' : ''}><i class="bi ${{ final: 'bi-mortarboard-fill', mid1: 'bi-1-square-fill', midterm: 'bi-hourglass-split', mid2: 'bi-2-square-fill', makeup: 'bi-arrow-repeat' }[k]}"></i><b>${t.name}</b></label>`).join('')}</div>
+      ${S.type === 'makeup' ? `<div class="ex-mk"><div class="h"><i class="bi bi-arrow-repeat"></i> قائمة طلبة الامتحان التكميلي</div>
+        <p>الجدول التكميلي يُبنى من قائمة الطلبة الذين لهم إكمال فقط: صف لكل طالب في كل مقرر. نزّل النموذج، املأه، ثم ارفعه.</p>
+        <div class="ex-acts"><button class="btn btn-outline-primary" data-tpl="mk"><i class="bi bi-file-earmark-arrow-down"></i> تنزيل النموذج (Excel)</button>
+          <label class="btn btn-ex mb-0"><i class="bi bi-upload"></i> رفع القائمة<input type="file" id="ex-mk" accept=".xlsx,.xls,.csv" hidden></label>
+          ${S.mk ? '<button class="btn btn-sm btn-link text-danger" data-clrmk>حذف القائمة</button>' : ''}</div>
+        ${S.mk ? `<div class="ex-rule ok mt-2"><i class="bi bi-check-circle-fill"></i> ${esc(S.mk.info)}${REGMEM ? '' : ' · <span class="text-muted">لطباعة كشوف الحضور بالأسماء أعد رفع القائمة (الأسماء لا تُحفظ)</span>'}</div>` : '<div class="ex-rule mt-2"><i class="bi bi-info-circle-fill"></i> لم تُرفع قائمة بعد: بدونها يُعامل التكميلي كامتحان لكل مقررات الكليات المختارة.</div>'}</div>` : ''}
+      ${profBox()}${filesPanel()}${fixedView()}
+      <div class="ex-row2b"><label class="ex-fld"><span>عنوان الجدول (يظهر في الطباعة)</span><input class="form-control" data-k="label" placeholder="${esc(TYPES[S.type].name)} – ${esc(TT.term)}" value="${esc(S.label || '')}"></label>
+      <div class="ex-fld"><span>الكليات المشمولة</span><div class="ex-chipset ex-facs"><label class="ex-chk${!S.facs.length ? ' on' : ''}"><input type="checkbox" data-facall ${!S.facs.length ? 'checked' : ''}> <i class="bi bi-buildings-fill"></i> كل الكليات</label>
+        ${facs.map(x => `<label class="ex-chk${S.facs.includes(x) ? ' on' : ''}"><input type="checkbox" data-fac="${esc(x)}" ${S.facs.includes(x) ? 'checked' : ''}> ${esc(x)}</label>`).join('')}</div>
+        <small>جدول واحد لعدة كليات يمنع تعارض المواد المشتركة (متطلبات الجامعة والمواد الخدمية).</small></div></div>
       <details class="ex-mk ex-list ex-fold" ${S.listMax ? 'open' : ''}><summary class="h"><i class="bi bi-list-columns-reverse"></i> جدول لقائمة مواد من ملف (مثل متطلبات الجامعة) <small>خطة جديدة منفصلة</small></summary>
         <p>نزّل النموذج، اكتب فيه موادك (صف لكل شعبة مع عدد طلبتها)، ثم ارفعه: تُنشأ <b>خطة جديدة</b> لهذه المواد فقط بأعداد الملف، ولا تتأثر خطتك الحالية (تبقى في قائمة الخطط).</p>
         <div class="table-responsive"><table class="table table-sm ex-tplprev"><caption>شكل النموذج — <b>عينة غير حقيقية</b></caption><thead><tr>${TPL.list.cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead>
@@ -1455,34 +1462,22 @@
         <div class="ex-acts"><button class="btn btn-outline-primary" data-tpl="list"><i class="bi bi-file-earmark-arrow-down"></i> تنزيل النموذج (Excel)</button>
           <label class="btn btn-ex mb-0"><i class="bi bi-upload"></i> رفع الملف وإنشاء الخطة<input type="file" id="ex-list" accept=".xlsx,.xls,.csv" hidden></label>
           ${S.only && S.only.length && S.regSec ? `<label class="ex-lmax">أقصى عدد طلبة في الفترة <input type="number" min="0" step="10" class="form-control form-control-sm" data-lmax value="${S.listMax || ''}" placeholder="بلا حد"></label>` : ''}</div>
-        ${S.only && S.only.length && S.regInfo ? `<div class="ex-rule ok mt-2"><i class="bi bi-check-circle-fill"></i> ${esc(S.regInfo)}${Object.keys(S.parts || {}).length ? ` · ${Object.keys(S.parts).length} مقررات مقسومة لتبقى كل فترة ضمن ${S.listMax || '—'} طالباً` : ''}</div>` : ''}</details>
-      ${S.type === 'makeup' ? `<div class="ex-mk"><div class="h"><i class="bi bi-arrow-repeat"></i> قائمة طلبة الامتحان التكميلي</div>
-        <p>الجدول التكميلي يُبنى من قائمة الطلبة الذين لهم إكمال فقط: صف لكل طالب في كل مقرر. نزّل النموذج، املأه، ثم ارفعه.</p>
-        <div class="ex-acts"><button class="btn btn-outline-primary" data-tpl="mk"><i class="bi bi-file-earmark-arrow-down"></i> تنزيل النموذج (Excel)</button>
-          <label class="btn btn-ex mb-0"><i class="bi bi-upload"></i> رفع القائمة<input type="file" id="ex-mk" accept=".xlsx,.xls,.csv" hidden></label>
-          ${S.mk ? '<button class="btn btn-sm btn-link text-danger" data-clrmk>حذف القائمة</button>' : ''}</div>
-        ${S.mk ? `<div class="ex-rule ok mt-2"><i class="bi bi-check-circle-fill"></i> ${esc(S.mk.info)}${REGMEM ? '' : ' · <span class="text-muted">لطباعة كشوف الحضور بالأسماء أعد رفع القائمة (الأسماء لا تُحفظ)</span>'}</div>` : '<div class="ex-rule mt-2"><i class="bi bi-info-circle-fill"></i> لم تُرفع قائمة بعد: بدونها يُعامل التكميلي كامتحان لكل مقررات الكليات المختارة.</div>'}</div>` : ''}
-      ${profBox()}${filesPanel()}
-      <label class="ex-fld"><span>عنوان الجدول (يظهر في الطباعة)</span><input class="form-control" data-k="label" placeholder="${esc(TYPES[S.type].name)} – ${esc(TT.term)}" value="${esc(S.label || '')}"></label>
-      <div class="ex-fld"><span>الكليات المشمولة</span><div class="ex-chipset ex-facs"><label class="ex-chk${!S.facs.length ? ' on' : ''}"><input type="checkbox" data-facall ${!S.facs.length ? 'checked' : ''}> <i class="bi bi-buildings-fill"></i> كل الكليات</label>
-        ${facs.map(x => `<label class="ex-chk${S.facs.includes(x) ? ' on' : ''}"><input type="checkbox" data-fac="${esc(x)}" ${S.facs.includes(x) ? 'checked' : ''}> ${esc(x)}</label>`).join('')}</div>
-        <small>جدول واحد لعدة كليات يمنع تعارض المواد المشتركة (متطلبات الجامعة والمواد الخدمية).</small></div>`)}
+        ${S.only && S.only.length && S.regInfo ? `<div class="ex-rule ok mt-2"><i class="bi bi-check-circle-fill"></i> ${esc(S.regInfo)}${Object.keys(S.parts || {}).length ? ` · ${Object.keys(S.parts).length} مقررات مقسومة لتبقى كل فترة ضمن ${S.listMax || '—'} طالباً` : ''}</div>` : ''}</details>`)}
     ${bx(2, 'bi-calendar-range-fill', '#0b4a66', 'التقويم', 'أيام الامتحانات والعطل', `
-      <div class="ex-cal3">
-        <section class="dur"><h6><i class="bi bi-1-circle-fill"></i> مدة الامتحانات</h6>
-          <div class="g3"><label class="ex-fld"><span>أول يوم امتحان</span><input type="date" class="form-control" data-k="start" value="${S.start}"></label>
-            <label class="ex-fld"><span>آخر يوم امتحان</span><input type="date" class="form-control" data-k="end" value="${S.end || ''}" min="${S.start}"></label>
-            ${S.end ? '<div class="ex-fld"><span>عدد الأيام</span><div class="calc">' + DAYS.length + ' <small>محسوب من التاريخين</small></div><button class="btn btn-sm btn-link p-0" data-noend>تحديد العدد يدوياً</button></div>' : num('days', 'أو عدد الأيام', 1, 40)}</div></section>
-        <section><h6><i class="bi bi-2-circle-fill"></i> أيام الأسبوع بلا امتحانات</h6>
-          <div class="ex-wk">${[6, 0, 1, 2, 3, 4, 5].map(i => i === 5 ? `<label class="ex-chk on lock" title="عطلة رسمية"><input type="checkbox" checked disabled> ${WD[i]}</label>` : `<label class="ex-chk${S.off.includes(i) ? ' on' : ''}"><input type="checkbox" data-off="${i}" ${S.off.includes(i) ? 'checked' : ''}> ${WD[i]}</label>`).join('')}</div>
-          <small>الجمعة عطلة دائماً؛ السبت حسب قرار الجامعة.</small></section>
-        <section><h6><i class="bi bi-3-circle-fill"></i> العطل الرسمية</h6>
-          <div class="ex-add"><input type="date" class="form-control" id="ex-holin"><button class="btn btn-outline-primary" data-addhol><i class="bi bi-plus-lg"></i> إضافة</button></div>
-          <div class="ex-chipset mt-1">${(S.hol.match(/\d{4}-\d{2}-\d{2}/g) || []).map(h => `<span class="ex-tagx">${dLong(h)}<button data-delhol="${h}" aria-label="حذف"><i class="bi bi-x"></i></button></span>`).join('') || '<small>لا عطل. أو اضغط أي يوم في التقويم.</small>'}</div></section>
+      <div class="ex-cal2"><div class="ex-calf">
+        <section><h6><i class="bi bi-calendar-event"></i> المدة</h6>
+          <div class="g2"><label><span>أول يوم</span><input type="date" class="form-control form-control-sm" data-k="start" value="${S.start}"></label>
+            <label><span>آخر يوم</span><input type="date" class="form-control form-control-sm" data-k="end" value="${S.end || ''}" min="${S.start}"></label></div>
+          ${S.end ? '' : `<label class="mt-1"><span>أو عدد الأيام</span><input type="number" class="form-control form-control-sm" data-k="days" min="1" max="40" value="${S.days}"></label>`}
+          ${S.calNote ? `<small class="src"><i class="bi bi-calendar-check"></i> من التقويم الجامعي (${esc(S.calNote)}) · <button class="btn btn-link btn-sm p-0" data-calset>إعادتها منه</button></small>` : ''}
+          ${S.end ? '<button class="btn btn-sm btn-link p-0" data-noend>تحديد عدد الأيام بدل آخر يوم</button>' : ''}</section>
+        <section><h6><i class="bi bi-calendar-week"></i> أيام الأسبوع بلا امتحانات</h6>
+          <div class="ex-wk">${[6, 0, 1, 2, 3, 4, 5].map(i => i === 5 ? `<label class="ex-chk on lock" title="عطلة رسمية دائماً"><input type="checkbox" checked disabled> ${WD[i]}</label>` : `<label class="ex-chk${S.off.includes(i) ? ' on' : ''}"><input type="checkbox" data-off="${i}" ${S.off.includes(i) ? 'checked' : ''}> ${WD[i]}</label>`).join('')}</div></section>
+        <section><h6><i class="bi bi-calendar-x"></i> العطل والأيام المستثناة</h6>
+          <div class="ex-add"><input type="date" class="form-control form-control-sm" id="ex-holin"><button class="btn btn-sm btn-outline-primary" data-addhol><i class="bi bi-plus-lg"></i> إضافة</button></div>
+          <div class="ex-chipset mt-1">${(S.hol.match(/\d{4}-\d{2}-\d{2}/g) || []).map(h => `<span class="ex-tagx">${dLong(h)}<button data-delhol="${h}" aria-label="حذف"><i class="bi bi-x"></i></button></span>`).join('') || '<small class="text-muted">لا عطل. أو اضغط اليوم في التقويم.</small>'}</div></section>
       </div>
-      ${S.calNote ? `<div class="ex-rule ok"><i class="bi bi-calendar-check"></i> الأيام مقترحة من التقويم الجامعي (${esc(S.calNote)}). <button class="btn btn-sm btn-link p-0" data-calset>إعادتها من التقويم</button></div>` : ''}
-      ${calKpis()}
-      <div class="ex-calbody">${monthsView()}${daysList()}</div>`)}
+      <div class="ex-calm">${calKpis()}${monthsView()}</div></div>`)}
     ${bx(3, 'bi-clock-fill', '#0f766e', 'الفترات اليومية', 'مواعيد الامتحانات في اليوم', `
       <div class="ex-what"><details class="ex-fold"><summary class="q"><i class="bi bi-question-circle-fill"></i> ما هي «الفترة»؟</summary>
         <p>الفترة <b>موعد امتحان ثابت يتكرر في كل يوم</b>، مثل: من الساعة 9:00 إلى 11:00. يأخذ كل امتحان فترة واحدة في يوم واحد، وكل الامتحانات التي تقع في الفترة نفسها تُعقد معاً في قاعات مختلفة.
@@ -1508,7 +1503,7 @@
     ${bx(4, 'bi-rulers', '#9a5b00', 'قواعد الجدولة', 'ما يمنعه النظام وما يحاول تجنّبه', `
       <div class="ex-rule hard"><i class="bi bi-shield-fill-check"></i> دائماً: لا يجتمع امتحانان لطالب في الفترة نفسها، ولا يتجاوز عدد الطلبة مقاعد القاعات.</div>
       <div class="row2">${num('maxDay', 'أقصى عدد امتحانات للطالب في اليوم', 1, 4)}<label class="ex-fld"><span>عمق البحث عن أفضل جدول</span><select class="form-select" data-k="depth">${[['quick', 'سريع (ثوانٍ)'], ['normal', 'متوازن'], ['deep', 'عميق (أبطأ وأدق)']].map(([k, t]) => `<option value="${k}" ${S.depth === k ? 'selected' : ''}>${t}</option>`).join('')}</select></label></div>
-      <div class="ex-rules2">${sw('b2b', 'تجنّب امتحانين متتاليين في اليوم نفسه', 'يترك فترة راحة بين امتحاني الطالب')}${sw('near', 'مراعاة طلبة السنتين المتتاليتين', 'تجنّب تزامن مواد السنة الثانية والثالثة مثلاً في التخصص نفسه')}${sw('insClash', 'منع تزامن امتحانين لمدرّس واحد', 'ليحضر المدرّس امتحان كل مقرر يدرّسه')}${sw('early', 'المقررات الكبيرة في الأيام الأولى', 'ليتسع وقت التصحيح')}${sw('busy', 'مراعاة المحاضرات القائمة', 'لا تُستخدم قاعة فيها محاضرة وقت الامتحان ولا يراقب مدرّس عنده محاضرة (للامتحانات خلال الفصل)')}${sw('practical', 'تضمين الشعب العملية', '')}${sw('grad', 'تضمين الماجستير', '')}</div>`)}
+      <div class="ex-rules2">${sw('b2b', 'تجنّب امتحانين متتاليين في اليوم نفسه', 'يترك فترة راحة بين امتحاني الطالب')}${sw('near', 'مراعاة طلبة السنتين المتتاليتين', 'تجنّب تزامن مواد السنة الثانية والثالثة مثلاً في التخصص نفسه')}${sw('insClash', 'منع تزامن امتحانين لمدرّس واحد', 'ليحضر المدرّس امتحان كل مقرر يدرّسه')}${sw('early', 'المقررات الكبيرة في الأيام الأولى', 'ليتسع وقت التصحيح')}${sw('headsOwn', 'رئيس القسم يراقب مواده فقط', `لا يُكلَّف بمراقبة امتحانات غير مقرراته (${headsSet().filter(h => !h.dean).length} رئيس قسم في الهيكل التنظيمي، ومن صفته «رئيس قسم» في قائمة المراقبين)`)}${sw('deanNo', 'العميد ونوابه لا يراقبون', 'معفَون من المراقبة كلياً، حتى في مقرراتهم')}${sw('busy', 'مراعاة المحاضرات القائمة', 'لا تُستخدم قاعة فيها محاضرة وقت الامتحان ولا يراقب مدرّس عنده محاضرة (للامتحانات خلال الفصل)')}${sw('practical', 'تضمين الشعب العملية', '')}${sw('grad', 'تضمين الماجستير', '')}</div>`)}
     ${bx(5, 'bi-people-fill', '#6d28d9', 'بيانات الطلبة', 'من يجلس مع من؟', `
       <div class="ex-srcs">${[['plans', 'bi-diagram-3-fill', 'الخطط الدراسية', 'تقدير حسب التخصص والسنة'], ['reg', 'bi-file-earmark-spreadsheet-fill', 'كشف التسجيل', 'دقيق لكل طالب'], ['both', 'bi-intersect', 'الاثنان معاً', 'الأدق والأشمل']]
         .map(([k, ic, t, d]) => `<label class="ex-type${S.src === k ? ' on' : ''}"><input type="radio" name="src" data-src="${k}" ${S.src === k ? 'checked' : ''}><i class="bi ${ic}"></i><b>${t}</b><small>${d}</small></label>`).join('')}</div>
@@ -1517,34 +1512,42 @@
       <div id="ex-regmsg" class="small text-muted"></div>
       <div class="ex-rule ${S.reg ? 'ok' : ''}">${S.reg ? `<i class="bi bi-check-circle-fill"></i> ${esc(S.regInfo)}${S.regN ? ` · <b>${C.filter(c => c.fromReg).length}</b> من ${C.length} مقرراً في نطاق الجدول أعدادها من الكشف${C.some(c => !c.fromReg) ? ' (البقية من الجدول الدراسي)' : ''}` : ''} <button class="btn btn-sm btn-link text-danger" data-clrreg>حذف الكشف</button>` : '<i class="bi bi-lock-fill"></i> لا يُحفظ رقم أي طالب: تُحفظ فقط مجموعات المواد وعدد طلبتها، على هذا الجهاز وحده.'}</div>`)}
     ${bx(6, 'bi-door-open-fill', '#15803d', 'القاعات', `${on.length} قاعة مفعّلة · ${capTotal} مقعد في الفترة`, `
-      <div class="ex-acts mb-2"><button class="btn btn-sm btn-outline-primary" data-addr><i class="bi bi-plus-lg"></i> قاعة</button><button class="btn btn-sm btn-outline-secondary" data-allr="1">تفعيل الكل</button><button class="btn btn-sm btn-outline-secondary" data-allr="0">تعطيل الكل</button>
-        <button class="btn btn-sm btn-outline-secondary" data-scaler="1.1">السعة +10%</button><button class="btn btn-sm btn-outline-secondary" data-scaler="0.9">السعة −10%</button><button class="btn btn-sm btn-outline-success" data-addlabs><i class="bi bi-pc-display"></i> إضافة مختبرات الكلية</button><button class="btn btn-sm btn-link" data-resetr>إعادة الاقتراح</button></div>
-      <div class="ex-fld"><span>قاعات كليات أخرى (تدرّس فيها كلية أخرى أكثر من كليتك)</span><div class="ex-srcs">${[['ownFirst', 'bi-sort-down', 'قاعات الكلية أولاً ثم غيرها', 'الافتراضي: لا تُستعمل قاعة كلية أخرى إلا عند الحاجة وفي وقت فراغها'], ['own', 'bi-shield-lock', 'قاعات الكلية وحدها', 'لا تُستعمل قاعات الكليات الأخرى أبداً'], ['free', 'bi-door-open', 'كأي قاعة', 'كل القاعات المفعّلة سواء، في أوقات فراغها']]
-        .map(([k, ic, t, d]) => `<label class="ex-type${S.roomPolicy === k ? ' on' : ''}"><input type="radio" name="rp" data-rp="${k}" ${S.roomPolicy === k ? 'checked' : ''}><i class="bi ${ic}"></i><b>${t}</b><small>${d}</small></label>`).join('')}</div></div>
-      ${(o => o.length && S.roomPolicy !== 'own' ? `<div class="ex-rule ${S.busy ? '' : 'warn'}"><i class="bi bi-info-circle-fill"></i> ${o.length} من القاعات المفعّلة تابعة لكليات أخرى (${[...new Set(o.map(r => ownerOf(r.n)))].map(esc).join('، ')}). تُعدّ مشغولة في أوقات محاضراتها${S.busy ? '' : ' (هذا الخيار متوقف الآن)'} وفي أوقات الامتحانات المرفوعة في «المواعيد الثابتة»؛ ${S.busy ? 'ولامتحانات تلك الكليات خارج المحاضرات' : 'وفي الامتحانات النهائية لا محاضرات، لذا'} ارفع جدول امتحانات الكلية المالكة وقاعاته في «المواعيد الثابتة» ليُتجنّب التداخل.</div>` : '')(on.filter(r => !mineR(r.n)))}
-      <div class="ex-split"><div class="row2">${num('splitOver', 'امتحان القاعة الذي يزيد طلبته على (طالباً)', 0, 500, '0 = حسب سعة القاعات فقط', 0)}${num('splitPer', 'يتوزع على قاعات، في كل قاعة (طالباً)', 5, 200, '', 24)}</div>
-        ${sw('blankHall', 'المقرر الذي لم يحدد منسقه نوع القاعة يُمتحن في قاعة', 'لا في مختبر')}</div>
-      <div class="ex-chipset mb-2"><span class="bdg"><i class="bi bi-easel2"></i> ${on.filter(r => r.t !== LAB).length} قاعة · ${on.filter(r => r.t !== LAB).reduce((a, r) => a + r.c, 0)} مقعد</span><span class="bdg teal"><i class="bi bi-pc-display"></i> ${on.filter(r => r.t === LAB).length} مختبر · ${on.filter(r => r.t === LAB).reduce((a, r) => a + r.c, 0)} جهاز</span></div>
-      <div class="ex-rooms"><table class="table table-sm align-middle"><thead><tr><th>مفعّلة</th><th>القاعة</th><th>النوع</th><th>السعة الامتحانية</th><th>تابعة لـ</th><th></th></tr></thead><tbody>
-        ${R.map((r, k) => `<tr class="${r.on ? '' : 'off'}"><td><input type="checkbox" class="form-check-input" data-ron="${k}" ${r.on ? 'checked' : ''}></td><td><input class="form-control form-control-sm" data-rn="${k}" value="${esc(r.n)}"></td>
-          <td><select class="form-select form-select-sm ex-rt ${r.t === LAB ? 'lab' : ''}" data-rt="${k}"><option ${r.t !== LAB ? 'selected' : ''}>${HALL}</option><option ${r.t === LAB ? 'selected' : ''}>${LAB}</option></select></td><td><input type="number" class="form-control form-control-sm" data-rc="${k}" value="${r.c}" min="1"></td><td class="small">${mineR(r.n) ? '<span class="text-muted">الكلية</span>' : `<span class="bdg amber">${esc(ownerOf(r.n))}</span>`}</td><td><button class="btn btn-sm btn-outline-danger" data-delr="${k}" aria-label="حذف"><i class="bi bi-trash"></i></button></td></tr>`).join('')}</tbody></table></div>
-      <label class="ex-fld"><span>إضافة قاعات دفعة واحدة (سطر لكل قاعة: الاسم، السعة)</span><textarea class="form-control" rows="2" id="ex-bulkr" placeholder="B101, 40&#10;مختبر 3, 25, مختبر"></textarea><button class="btn btn-sm btn-outline-primary mt-1" data-bulkr>إضافة</button></label>
-      <small class="text-muted">السعة المقترحة ≈ 60% من أكبر شعبة دُرّست في القاعة (مقعد فارغ بين الطلبة).</small>`)}
+      <div class="ex-two"><aside class="ex-side">
+        <h6><i class="bi bi-sliders"></i> قواعد القاعات</h6>
+        <div class="ex-opts">${[['ownFirst', 'قاعات الكلية أولاً ثم غيرها', 'قاعة كلية أخرى عند الحاجة وفي وقت فراغها فقط'], ['own', 'قاعات الكلية وحدها', 'لا تُستعمل قاعات الكليات الأخرى'], ['free', 'كل القاعات سواء', 'كل قاعة مفعّلة في وقت فراغها']]
+          .map(([k, t, d]) => `<label class="${S.roomPolicy === k ? 'on' : ''}"><input type="radio" name="rp" data-rp="${k}" ${S.roomPolicy === k ? 'checked' : ''}><span><b>${t}</b><small>${d}</small></span></label>`).join('')}</div>
+        <div class="ex-sent">امتحان القاعة فوق <input type="number" class="form-control form-control-sm" data-k="splitOver" min="0" max="500" value="${S.splitOver || 0}"> طالباً يتوزع على قاعات، <input type="number" class="form-control form-control-sm" data-k="splitPer" min="5" max="200" value="${S.splitPer || 24}"> في كل قاعة <small>(0 = حسب السعة)</small></div>
+        ${sw('blankHall', 'المقرر بلا نوع قاعة يُمتحن في قاعة', 'لا في مختبر')}
+        ${(o => o.length && S.roomPolicy !== 'own' ? `<div class="ex-rule ${S.busy ? '' : 'warn'} mt-2"><i class="bi bi-info-circle-fill"></i> ${o.length} قاعة مفعّلة تابعة لـ${[...new Set(o.map(r => ownerOf(r.n)))].map(esc).join('، ')}: مشغولة في أوقات محاضراتها${S.busy ? '' : ' (الخيار متوقف)'} وامتحانات «المواعيد الثابتة». ${S.busy ? '' : 'في النهائي '}ارفع جدول امتحانات تلك الكلية ليُتجنّب التداخل.</div>` : '')(on.filter(r => !mineR(r.n)))}
+      </aside><div class="ex-main2">
+        <div class="ex-tbar"><span class="bdg"><i class="bi bi-easel2"></i> ${on.filter(r => r.t !== LAB).length} قاعة · ${on.filter(r => r.t !== LAB).reduce((a, r) => a + r.c, 0)} مقعد</span><span class="bdg teal"><i class="bi bi-pc-display"></i> ${on.filter(r => r.t === LAB).length} مختبر · ${on.filter(r => r.t === LAB).reduce((a, r) => a + r.c, 0)} جهاز</span>${on.some(r => !mineR(r.n)) ? `<span class="bdg amber">${on.filter(r => !mineR(r.n)).length} لكليات أخرى</span>` : ''}
+          <span class="ms-auto d-flex flex-wrap gap-1"><button class="btn btn-sm btn-outline-primary" data-addr><i class="bi bi-plus-lg"></i> قاعة</button><button class="btn btn-sm btn-outline-success" data-addlabs><i class="bi bi-pc-display"></i> مختبرات الكلية</button>
+          <span class="dropdown"><button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">المزيد</button><ul class="dropdown-menu">
+            <li><button class="dropdown-item" data-allr="1">تفعيل الكل</button></li><li><button class="dropdown-item" data-allr="0">تعطيل الكل</button></li><li><button class="dropdown-item" data-scaler="1.1">السعة +10%</button></li><li><button class="dropdown-item" data-scaler="0.9">السعة −10%</button></li><li><button class="dropdown-item" data-resetr>إعادة الاقتراح</button></li></ul></span></span></div>
+        <div class="ex-rooms tall"><table class="table table-sm align-middle"><thead><tr><th>مفعّلة</th><th>القاعة</th><th>النوع</th><th>السعة</th><th>تابعة لـ</th><th></th></tr></thead><tbody>
+          ${R.map((r, k) => `<tr class="${r.on ? '' : 'off'}"><td><input type="checkbox" class="form-check-input" data-ron="${k}" ${r.on ? 'checked' : ''}></td><td><input class="form-control form-control-sm" data-rn="${k}" value="${esc(r.n)}"></td>
+            <td><select class="form-select form-select-sm ex-rt ${r.t === LAB ? 'lab' : ''}" data-rt="${k}"><option ${r.t !== LAB ? 'selected' : ''}>${HALL}</option><option ${r.t === LAB ? 'selected' : ''}>${LAB}</option></select></td><td><input type="number" class="form-control form-control-sm" data-rc="${k}" value="${r.c}" min="1"></td><td class="small">${mineR(r.n) ? 'الكلية' : `<span class="bdg amber">${esc(ownerOf(r.n))}</span>`}</td><td><button class="btn btn-sm btn-outline-danger" data-delr="${k}" aria-label="حذف"><i class="bi bi-trash"></i></button></td></tr>`).join('')}</tbody></table></div>
+        <details class="ex-fold mt-2"><summary class="small fw-bold">إضافة قاعات دفعة واحدة</summary><textarea class="form-control mt-1" rows="2" id="ex-bulkr" placeholder="B101, 40&#10;مختبر 3, 25, مختبر"></textarea><button class="btn btn-sm btn-outline-primary mt-1" data-bulkr>إضافة</button> <small>سطر لكل قاعة: الاسم، السعة (واكتب «مختبر» للمختبر).</small></details>
+      </div></div>`)}
     ${bx(7, 'bi-person-badge-fill', '#be185d', 'المراقبون', 'العدد والحدود والاستثناءات', `
-      <div class="ex-srcs two">${[['room', 'bi-person-fill', 'مراقب واحد لكل قاعة', 'الافتراضي: لكل جلسة امتحان في كل قاعة مراقب'], ['ratio', 'bi-people-fill', 'حسب عدد الطلبة', 'مراقب لكل عدد محدد من الطلبة']]
-        .map(([k, ic, t, d]) => `<label class="ex-type${S.procMode === k ? ' on' : ''}"><input type="radio" name="pm" data-pm="${k}" ${S.procMode === k ? 'checked' : ''}><i class="bi ${ic}"></i><b>${t}</b><small>${d}</small></label>`).join('')}</div>
-      ${S.procMode === 'ratio' ? `<div class="row2">${num('perProc', 'عدد الطلبة لكل مراقب', 10, 80)}${num('minProc', 'أقل عدد مراقبين في القاعة', 1, 5, '', 1)}</div>` : ''}
-      ${sw('headsOwn', 'رؤساء الأقسام والعمداء يراقبون مواد مقرراتهم فقط', `من الهيكل التنظيمي (${headsSet().length} اسماً) ومن صفة «رئيس قسم» في قائمة المراقبين: لا يُكلَّفون بمراقبة غيرها`)}
-      <div class="row2">${num('maxDutyDay', 'أقصى مراقبات للشخص في اليوم', 0, 6, '0 = بلا حد', 2)}${num('maxDuty', 'أقصى مراقبات للشخص في الدورة', 0, 60, '0 = بلا حد', 0)}</div>
-      ${upCard('proc', 'bi-person-lines-fill', 'قائمة المراقبين (اختياري)', 'من يراقب غير مدرّسي المقررات (مشرفو المختبرات، الإداريون)، وحدود كل شخص، وأيامه غير المتاحة، والمعفَون', (S.procList || []).length ? S.procInfo || `${S.procList.length} اسماً` : '', 'proc')}
-      ${(S.procList || []).length ? `<div class="ex-acts my-1">${sw('procOnly', 'المراقبة من القائمة فقط', 'لا يراقب من ليس في القائمة، ولو كان مدرّس المقرر')}<button class="btn btn-sm btn-link text-danger" data-procclr>حذف القائمة</button></div>
-        <div class="ex-rooms"><table class="table table-sm align-middle"><thead><tr><th>الاسم</th><th>الصفة</th><th>القسم</th><th>أقصى في الدورة</th><th>أقصى في اليوم</th><th>غير متاح</th><th></th></tr></thead><tbody>
-        ${S.procList.map(p => `<tr class="${p.ex ? 'off' : ''}"><td>${esc(p.n)}</td><td class="small">${esc(p.role || '')}</td><td class="small">${esc(p.dept || '')}</td><td>${p.max || '—'}</td><td>${p.maxDay || '—'}</td>
-          <td class="small">${(p.offW || []).map(i => WD[i]).concat((p.offD || []).map(d => dLong(d).replace(/\/\d{4}$/, ''))).join('، ') || '—'}</td><td>${p.ex ? '<span class="bdg">معفى</span>' : ''}</td></tr>`).join('')}</tbody></table></div>` : ''}
-      <label class="ex-fld"><span>مراقبون إضافيون من غير المدرسين (اسم في كل سطر)</span><textarea class="form-control" rows="2" data-k="extraProc">${esc(S.extraProc)}</textarea></label>
-      <label class="ex-fld"><span>معفَون من المراقبة (اسم في كل سطر، مثل العميد ورؤساء الأقسام)</span><textarea class="form-control" rows="2" data-k="noProc">${esc(S.noProc || '')}</textarea></label>
-      <div class="ex-rule"><i class="bi bi-info-circle-fill"></i> لا تحتاج معرفة المراقبين مسبقاً: يقترح النظام مدرّس الشعبة لقاعة شعبته، ثم يوزّع الباقين بالعدل حسب أقل عدد مراقبات. بعد التوليد يمكنك تغيير أي مراقب من عرض <b>«المراقبون»</b> في الخطوة 2.</div>
-      ${poolView()}`)}
+      <div class="ex-two"><aside class="ex-side">
+        <h6><i class="bi bi-sliders"></i> التوزيع والحدود</h6>
+        <div class="ex-opts">${[['room', 'مراقب واحد لكل قاعة', 'الافتراضي'], ['ratio', 'حسب عدد الطلبة', 'مراقب لكل عدد من الطلبة']]
+          .map(([k, t, d]) => `<label class="${S.procMode === k ? 'on' : ''}"><input type="radio" name="pm" data-pm="${k}" ${S.procMode === k ? 'checked' : ''}><span><b>${t}</b><small>${d}</small></span></label>`).join('')}</div>
+        ${S.procMode === 'ratio' ? `<div class="ex-sent">مراقب لكل <input type="number" class="form-control form-control-sm" data-k="perProc" min="10" max="80" value="${S.perProc}"> طالباً، وأقل <input type="number" class="form-control form-control-sm" data-k="minProc" min="1" max="5" value="${S.minProc || 1}"> في القاعة</div>` : ''}
+        <div class="ex-sent">أقصى <input type="number" class="form-control form-control-sm" data-k="maxDutyDay" min="0" max="6" value="${S.maxDutyDay ?? 2}"> مراقبات للشخص في اليوم، و<input type="number" class="form-control form-control-sm" data-k="maxDuty" min="0" max="60" value="${S.maxDuty || 0}"> في الدورة <small>(0 = بلا حد)</small></div>
+        <small class="d-block mt-1">رئيس القسم والعميد: في «قواعد الجدولة».</small>
+        <details class="ex-fold mt-2"><summary class="small fw-bold">إضافة أو إعفاء بالأسماء يدوياً${(S.extraProc || S.noProc) ? ' ●' : ''}</summary>
+          <label class="ex-fld mt-1"><span>مراقبون إضافيون (اسم في كل سطر)</span><textarea class="form-control" rows="2" data-k="extraProc">${esc(S.extraProc)}</textarea></label>
+          <label class="ex-fld mt-1"><span>معفَون من المراقبة (اسم في كل سطر)</span><textarea class="form-control" rows="2" data-k="noProc">${esc(S.noProc || '')}</textarea></label></details>
+      </aside><div class="ex-main2">
+        ${upCard('proc', 'bi-person-lines-fill', 'قائمة المراقبين (اختياري)', 'مشرفو المختبرات والإداريون، وحدود كل شخص وأيامه غير المتاحة والمعفَون', (S.procList || []).length ? S.procInfo || `${S.procList.length} اسماً` : '', 'proc')}
+        ${(S.procList || []).length ? `<div class="ex-acts my-1">${sw('procOnly', 'المراقبة من القائمة فقط', 'لا يراقب من ليس فيها، ولو كان مدرّس المقرر')}<button class="btn btn-sm btn-link text-danger" data-procclr>حذف القائمة</button></div>
+          <details class="ex-fold"><summary class="small fw-bold">عرض القائمة (${S.procList.length} اسماً)</summary><div class="ex-rooms mt-1"><table class="table table-sm align-middle"><thead><tr><th>الاسم</th><th>الصفة</th><th>القسم</th><th>أقصى/الدورة</th><th>أقصى/اليوم</th><th>غير متاح</th><th></th></tr></thead><tbody>
+          ${S.procList.map(p => `<tr class="${p.ex ? 'off' : ''}"><td>${esc(p.n)}</td><td class="small">${esc(p.role || '')}</td><td class="small">${esc(p.dept || '')}</td><td>${p.max || '—'}</td><td>${p.maxDay || '—'}</td>
+            <td class="small">${(p.offW || []).map(i => WD[i]).concat((p.offD || []).map(d => dLong(d).replace(/\/\d{4}$/, ''))).join('، ') || '—'}</td><td>${p.ex ? '<span class="bdg">معفى</span>' : ''}</td></tr>`).join('')}</tbody></table></div></details>` : ''}
+        ${poolView()}
+      </div></div>`)}
     ${bx(8, 'bi-list-check', '#1d4ed8', 'المقررات', `${all.length - Object.keys(S.excl).filter(k => all.some(c => c.code === k)).length} من ${all.length} مقرراً لها امتحان`, `
       <div class="ex-reqbar"><label class="btn btn-outline-primary mb-0"><i class="bi bi-file-earmark-arrow-up"></i> رفع قائمة متطلبات المقررات<input type="file" data-up="req" accept=".xlsx,.xls,.csv" hidden></label>
         <button class="btn btn-sm btn-outline-secondary" data-tpl="req"><i class="bi bi-file-earmark-arrow-down"></i> النموذج</button>
@@ -1561,10 +1564,9 @@
           <td><input class="form-control form-control-sm ex-qnote" data-qx="${esc(c.code)}" value="${esc(q.note || '')}" placeholder="${q.coord ? esc(q.coord) : ''}"></td>`)((S.req || {})[c.code] || {})}
           <td>${((S.req || {})[c.code] || {}).at && S.pins[c.code] == null ? (a => `<span class="bdg amber" title="من قائمة المتطلبات">${esc(dLong(a.date).replace(/\/\d{4}$/, ''))} ${a.from}–${a.to}</span><button class="btn btn-sm btn-link p-0" data-qat="${esc(c.code)}">إلغاء</button>`)(S.req[c.code].at) : `<select class="form-select form-select-sm" data-pinc="${esc(c.code)}" ${S.excl[c.code] ? 'disabled' : ''}><option value="">تلقائي</option>${slots.map(([s, l]) => `<option value="${s}" ${S.pins[c.code] === s ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`}</td></tr>`).join('')}</tbody></table></div>
       <small class="text-muted">أزل علامة المقرر الذي لا امتحان له (مشروع، تدريب…). «نوع القاعة» و«عدد القاعات» كما يطلبها المدرّس أو المنسق: مثلاً 80 طالباً في 4 مختبرات = 20 في كل مختبر. «موعد ثابت» يثبّت المقرر في موعد لا يغيّره التوليد.</small>`, true)}
-    ${bx(9, 'bi-pin-angle-fill', '#9a3412', 'المواعيد الثابتة', 'امتحانات الجهات الأخرى بمواعيدها', fixedView())}
     </div>`;
     const sum = [`${TYPES[S.type].name} · ${facLabel()}`, `${nDays(DAYS.length)} من ${DAYS[0] ? DAYS[0].label : '—'}`, `${nPer(P)} يومياً`, `حتى ${S.maxDay} امتحان/يوم`,
-      S.reg && S.src !== 'plans' ? 'كشف التسجيل' : S.regN && S.src !== 'plans' ? 'أعداد من ملف' : 'الخطط الدراسية', `${on.length} قاعة · ${capTotal} مقعد`, (S.procMode === 'ratio' ? `طالب/مراقب: ${S.perProc}` : 'مراقب لكل قاعة'), `${C.length} من ${all.length} مقرراً`, (S.fixed || []).length ? `${FX.inPlan.size} في الجدول بموعده` : 'لا مواعيد ثابتة'];
+      S.reg && S.src !== 'plans' ? 'كشف التسجيل' : S.regN && S.src !== 'plans' ? 'أعداد من ملف' : 'الخطط الدراسية', `${on.length} قاعة · ${capTotal} مقعد`, (S.procMode === 'ratio' ? `طالب/مراقب: ${S.perProc}` : 'مراقب لكل قاعة'), `${C.length} من ${all.length} مقرراً`];
     const k = Math.min(parts.length - 1, Math.max(0, (S.setTab || 1) - 1)), [n, ic, color, ti, sub, bodyHtml] = parts[k];
     return `<div class="ex-intro"><i class="bi bi-1-circle-fill"></i><div><b>الخطوة 1: الإعداد.</b> اختر قسماً من القائمة، أو تنقّل بزرّي «القسم التالي/السابق». الإعدادات كلها مقترحة مسبقاً ويمكن تركها كما هي، ثم اضغط <b>«التالي: التوليد والتعديل»</b>. كل تغيير يُحفظ تلقائياً.</div></div>
       <div class="ex-setwrap"><nav class="ex-setnav" aria-label="أقسام الإعداد">${parts.map((p, x) => `<button class="ex-sn${x === k ? ' on' : ''}" data-st="${x + 1}" style="--a:${p[2]}"><span class="bn">${p[0]}</span><i class="bi ${p[1]}"></i><span class="tx"><b>${p[3]}</b><small>${esc(sum[x] || '')}</small></span></button>`).join('')}</nav>
@@ -2248,8 +2250,8 @@
   .ex-gate { position: fixed; inset: 0; z-index: 3000; display: grid; place-items: center; padding: 16px; background: radial-gradient(circle at 50% 30%, rgba(144,29,35,.92), rgba(9,27,34,.97)); }
   .ex-gate .box { width: min(100%, 420px); background: #fff; color: #091b22; border-radius: 18px; padding: 1.6rem; display: flex; flex-direction: column; gap: .75rem; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.35); font-size: 1rem; }
   .ex-gate .ic { width: 64px; height: 64px; margin: 0 auto; border-radius: 50%; background: #f8e3e5; color: #901d23; display: grid; place-items: center; font-size: 1.8rem; }
-  .ex-gate h2 { font-size: 1.35rem; font-weight: 800; margin: 0; } .ex-gate p { color: #5b6b72; margin: 0; } .ex-gate label { text-align: start; font-weight: 700; }
-  .ex-gate .err { color: #b42318; } .ex-gate .back { font-size: .9rem; color: #5b6b72; } .ex-gate .rem { font-weight: 400; }
+  .ex-gate h2 { font-size: 1.35rem; font-weight: 800; margin: 0; } .ex-gate p { color: #1f2a30; margin: 0; } .ex-gate label { text-align: start; font-weight: 700; }
+  .ex-gate .err { color: #b42318; } .ex-gate .back { font-size: .9rem; color: #1f2a30; } .ex-gate .rem { font-weight: 400; }
   #ex-app { font-size: 1rem; color: #0f1f26; }
   .btn-ex { background: #901d23; color: #fff; border: 0; font-weight: 700; } .btn-ex:hover, .btn-ex:focus { background: #6f151a; color: #fff; }
   #ex-app .btn { font-weight: 700; }
@@ -2257,29 +2259,31 @@
   .ex-steps { display: flex; align-items: stretch; gap: .35rem; margin: .6rem 0 .6rem; overflow-x: auto; padding-bottom: 2px; }
   .ex-steps .sep { align-self: center; color: #9aa8ae; font-size: 1.1rem; flex: none; }
   .ex-step { flex: 1 1 0; min-width: 150px; display: flex; gap: .55rem; align-items: center; text-align: start; border: 2px solid #e2e8ec; background: #fff; border-radius: 14px; padding: .55rem .7rem; color: #0f1f26; }
-  .ex-step .num { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 1.05rem; background: #eef2f4; color: #4a5a61; }
-  .ex-step .tx b { display: block; font-size: 1rem; } .ex-step .tx small { display: block; font-size: .82rem; color: #5b6b72; }
+  .ex-step .num { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 1.05rem; background: #eef2f4; color: #1f2a30; }
+  .ex-step .tx b { display: block; font-size: 1rem; } .ex-step .tx small { display: block; font-size: .82rem; color: #1f2a30; }
   .ex-step.done .num { background: #15803d; color: #fff; } .ex-step.bad .num { background: #b42318; color: #fff; }
   .ex-step.on { border-color: #901d23; background: #fff6f6; box-shadow: 0 4px 14px rgba(144,29,35,.15); } .ex-step.on .num { box-shadow: 0 0 0 3px rgba(144,29,35,.25); }
   .ex-status { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .8rem; }
   .ex-pill { display: inline-flex; gap: .35rem; align-items: center; background: #eef3f6; color: #0b3a50; border-radius: 999px; padding: .28rem .75rem; font-size: .9rem; font-weight: 700; }
   .ex-pill.ok { background: #e4f5e9; color: #15803d; } .ex-pill.bad { background: #fde8e8; color: #b42318; }
-  .ex-list { border-color: #cfe3dc !important; } .ex-tplprev { font-size: .8rem; margin: .4rem 0; background: #fff; } .ex-tplprev caption { caption-side: top; font-size: .78rem; color: #6b777c; padding: 0 0 .2rem; }
-  .ex-tplprev th { background: #901d23 !important; color: #fff !important; white-space: nowrap; } .ex-tplprev td { color: #8a8a8a; font-style: italic; }
+  .ex-list { border-color: #cfe3dc !important; } .ex-tplprev { font-size: .8rem; margin: .4rem 0; background: #fff; } .ex-tplprev caption { caption-side: top; font-size: .78rem; color: #1f2a30; padding: 0 0 .2rem; }
+  .ex-tplprev th { background: #901d23 !important; color: #fff !important; white-space: nowrap; } .ex-tplprev td { color: #4a4a4a; font-style: italic; }
   .ex-lmax { display: inline-flex; align-items: center; gap: .4rem; font-size: .85rem; font-weight: 700; } .ex-lmax input { width: 6.5rem; }
   .ex-qrow { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: .4rem; margin-bottom: .6rem; }
   .ex-qk { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: .45rem; align-items: center; background: #fff; border: 1px solid #e3e8eb; border-top: 3px solid #16a34a; border-radius: 10px; padding: .4rem .55rem; min-width: 0; }
   .ex-qk i { grid-row: span 2; font-size: 1.15rem; color: #16a34a; } .ex-qk b { font-size: 1.15rem; line-height: 1.15; color: #0d4f25; font-variant-numeric: tabular-nums; }
-  .ex-qk span { font-size: .72rem; color: #4b5a62; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ex-qk span { font-size: .72rem; color: #1f2a30; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ex-qk.warn { border-top-color: #d97706; } .ex-qk.warn i, .ex-qk.warn b { color: #b45309; } .ex-qk.bad { border-top-color: #b42318; background: #fff8f7; } .ex-qk.bad i, .ex-qk.bad b { color: #b42318; }
   .ex-qk.info { border-top-color: #0b4a66; } .ex-qk.info i, .ex-qk.info b { color: #0b4a66; }
-  .ex-qtips { list-style: none; margin: 0 0 .8rem; padding: .45rem .8rem; background: #fbf9f5; border: 1px solid #ece6da; border-radius: 10px; display: grid; gap: .2rem; font-size: .82rem; color: #3c474c; }
+  #ex-app .text-muted, #ex-app .form-text, #ex-app .dropdown-header { color: #1f2a30 !important; } #ex-app .ex-pp.miss, #ex-app .text-danger { color: #b42318 !important; } #ex-app .ex-rule.ok, #ex-app .ex-rule.ok small, #ex-app .ex-up .st { color: #15803d !important; }
+  .ex-pp.miss { background: #fde8e8 !important; color: #b42318 !important; font-weight: 800; }
+  .ex-qtips { list-style: none; margin: 0 0 .8rem; padding: .45rem .8rem; background: #fbf9f5; border: 1px solid #ece6da; border-radius: 10px; display: grid; gap: .2rem; font-size: .82rem; color: #1f2a30; }
   .ex-qtips li { display: flex; gap: .45rem; align-items: baseline; } .ex-qtips i { color: #901d23; }
   .ex-qrep { background: #fff; border: 1px solid #e3dccd; border-radius: 12px; padding: .6rem .7rem; }
   .ex-qrep .ex-rephead { margin: 0 0 .6rem; padding-bottom: .5rem; border-bottom: 1px solid #ece6da; justify-content: flex-start; }
   .ex-qrep .ex-rephead h6 { font-weight: 800; color: #091b22; font-size: .98rem; white-space: nowrap; }
   .ex-rtabs { display: inline-flex; flex-wrap: wrap; border: 1px solid #d5cdbd; border-radius: 8px; overflow: hidden; background: #fff; }
-  .ex-rtabs button { border: 0; background: none; padding: .28rem .7rem; font-size: .8rem; font-weight: 700; color: #3c474c; white-space: nowrap; }
+  .ex-rtabs button { border: 0; background: none; padding: .28rem .7rem; font-size: .8rem; font-weight: 700; color: #1f2a30; white-space: nowrap; }
   .ex-rtabs button + button { border-inline-start: 1px solid #e2d9c8; } .ex-rtabs button.on { background: #fbf0f0; color: #7a1a1f; box-shadow: inset 0 -2px 0 #901d23; }
   .ex-rtabs em { font-style: normal; font-size: .72rem; background: #f1ede4; border-radius: 999px; padding: 0 .4rem; margin-inline-start: .15rem; } .ex-rtabs button.on em { background: #901d23; color: #fff; }
   .ex-racts { margin-inline-start: auto; display: inline-flex; gap: .3rem; }
@@ -2291,13 +2295,13 @@
   .ex-rtbl tbody tr:last-child td { border-bottom: 0; } .ex-rtbl tbody tr:hover td { background: #fcfaf6; }
   .ex-rtbl tr.sev0 td:first-child { box-shadow: inset 4px 0 0 #b42318; } .ex-rtbl tr.sev1 td:first-child { box-shadow: inset 4px 0 0 #d9480f; } .ex-rtbl tr.sev2 td:first-child { box-shadow: inset 4px 0 0 #d97706; } .ex-rtbl tr.sev3 td:first-child { box-shadow: inset 4px 0 0 #94a3b8; }
   .ex-sevb { display: inline-block; font-size: .72rem; font-weight: 800; padding: .05rem .55rem; border-radius: 999px; white-space: nowrap; }
-  .ex-sevb.sev0 { background: #fde8e8; color: #b42318; } .ex-sevb.sev1 { background: #fff0e6; color: #c2410c; } .ex-sevb.sev2 { background: #fef6e0; color: #a16207; } .ex-sevb.sev3 { background: #eef2f6; color: #475569; }
-  .ex-rtbl .ty { font-weight: 800; color: #091b22; white-space: nowrap; } .ex-rtbl .ty i { color: #901d23; } .ex-rtbl .ty small { display: block; font-weight: 600; color: #6b777c; font-size: .72rem; }
-  .ex-rtbl .wh { white-space: nowrap; color: #3c474c; font-variant-numeric: tabular-nums; }
+  .ex-sevb.sev0 { background: #fde8e8; color: #b42318; } .ex-sevb.sev1 { background: #fff0e6; color: #c2410c; } .ex-sevb.sev2 { background: #fef6e0; color: #a16207; } .ex-sevb.sev3 { background: #eef2f6; color: #1f2a30; }
+  .ex-rtbl .ty { font-weight: 800; color: #091b22; white-space: nowrap; } .ex-rtbl .ty i { color: #901d23; } .ex-rtbl .ty small { display: block; font-weight: 600; color: #1f2a30; font-size: .72rem; }
+  .ex-rtbl .wh { white-space: nowrap; color: #1f2a30; font-variant-numeric: tabular-nums; }
   .ex-rtbl .cs { min-width: 14rem; } .ex-cchip { display: flex; align-items: baseline; gap: .3rem; border-inline-start: 3px solid var(--c); padding-inline-start: .4rem; margin: 1px 0; line-height: 1.35; }
-  .ex-cchip b { color: #091b22; } .ex-cchip small { color: #6b777c; margin-inline-start: auto; padding-inline-start: .3rem; }
+  .ex-cchip b { color: #091b22; } .ex-cchip small { color: #1f2a30; margin-inline-start: auto; padding-inline-start: .3rem; }
   .ex-rtbl .why { color: #2f3f46; min-width: 13rem; } .ex-rtbl .why details { margin-top: .2rem; font-size: .76rem; color: #0b4a66; } .ex-rtbl .why summary { cursor: pointer; font-weight: 700; }
-  .ex-rtbl .act { min-width: 10rem; } .ex-rtbl .act small { display: block; color: #15803d; font-weight: 700; font-size: .74rem; margin: .2rem 0; } .ex-rtbl .act small.muted { color: #6b777c; font-weight: 500; }
+  .ex-rtbl .act { min-width: 10rem; } .ex-rtbl .act small { display: block; color: #15803d; font-weight: 700; font-size: .74rem; margin: .2rem 0; } .ex-rtbl .act small.muted { color: #1f2a30; font-weight: 500; }
   @media (max-width: 767.98px) { .ex-rtbl thead { display: none; } .ex-rtbl tr { display: grid; grid-template-columns: auto 1fr; gap: .2rem .5rem; padding: .5rem; border-bottom: 1px solid #ece6da; }
     .ex-rtbl td { border: 0; padding: 0; } .ex-rtbl td.cs, .ex-rtbl td.why, .ex-rtbl td.act { grid-column: 1 / -1; min-width: 0; } .ex-rtbl tr td:first-child { box-shadow: none !important; } }
   .ex-qrep .ex-rep { gap: .45rem; } .ex-qrep .ex-ri { padding: .5rem .7rem; border-radius: 10px; border-inline-start-width: 4px; }
@@ -2306,19 +2310,19 @@
   .ex-qrep .ex-ri .why { font-size: .82rem; margin: .2rem 0; } .ex-qrep .ex-ri .who { font-size: .8rem; }
   .ex-qrep .ex-ri footer { padding-top: .3rem; } .ex-qrep .ex-ri .fix { font-size: .82rem; }
   .ex-pbar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; background: #fff; border: 1px solid #e3dccd; border-radius: 12px; padding: .45rem .7rem; margin-bottom: .75rem; }
-  .ex-pbar > i { color: #0f766e; } .ex-pbar-l { font-size: .8rem; font-weight: 700; color: #5b6970; }
-  .ex-pbar-cur { display: inline-flex; align-items: center; gap: .5rem; border: 1px solid #b9ddd0; background: #effaf5; color: #0d4f3a; } .ex-pbar-cur small { color: #4b6b60; font-weight: 600; }
-  .ex-pbar-menu { min-width: 20rem; } .ex-pbar-menu .dropdown-item { display: flex; gap: .5rem; align-items: flex-start; white-space: normal; } .ex-pbar-menu small { display: block; color: #6b777c; }
+  .ex-pbar > i { color: #0f766e; } .ex-pbar-l { font-size: .8rem; font-weight: 700; color: #1f2a30; }
+  .ex-pbar-cur { display: inline-flex; align-items: center; gap: .5rem; border: 1px solid #b9ddd0; background: #effaf5; color: #0d4f3a; } .ex-pbar-cur small { color: #1f2a30; font-weight: 600; }
+  .ex-pbar-menu { min-width: 20rem; } .ex-pbar-menu .dropdown-item { display: flex; gap: .5rem; align-items: flex-start; white-space: normal; } .ex-pbar-menu small { display: block; color: #1f2a30; }
   .ex-pbar-name { max-width: 16rem; }
   @media (max-width: 767.98px) { .ex-pbar-name { max-width: none; flex: 1 1 100%; } .ex-pbar .ms-auto { margin-inline-start: 0 !important; } }
   .ex-sum { background: #fff; border: 1px solid #cfe3dc; border-radius: 14px; margin-bottom: .9rem; overflow: hidden; }
   .ex-sum > summary { cursor: pointer; list-style: none; padding: .65rem 1rem; background: #effaf5; font-weight: 800; color: #0d4f3a; display: flex; align-items: center; gap: .5rem; }
-  .ex-sum > summary::-webkit-details-marker { display: none; } .ex-sum > summary small { font-weight: 600; color: #4b6b60; }
+  .ex-sum > summary::-webkit-details-marker { display: none; } .ex-sum > summary small { font-weight: 600; color: #1f2a30; }
   .ex-sum > summary::after { content: '\\F282'; font-family: bootstrap-icons; margin-inline-start: auto; transition: transform .15s; } .ex-sum[open] > summary::after { transform: rotate(180deg); }
   .ex-sum-note { margin: .6rem 1rem 0; padding: .45rem .7rem; border-radius: 9px; background: #fff8e1; border: 1px solid #f1d48a; font-size: .86rem; color: #5c4400; }
   .ex-sum-r { display: grid; grid-template-columns: 1.3rem 7.5rem minmax(0, 1fr) auto; gap: .5rem; align-items: start; padding: .5rem 1rem; border-top: 1px dashed #e3ece8; font-size: .88rem; }
   .ex-sum-r:first-of-type { border-top: 0; } .ex-sum-r > i { color: #0f766e; margin-top: .15rem; } .ex-sum-r > b { color: #091b22; } .ex-sum-r .btn-link { padding: 0 .3rem; font-size: .8rem; }
-  .ex-sum-c { display: inline-block; border: 1px solid #d9e6e1; background: #f7fbf9; border-radius: 6px; padding: 0 .4rem; margin: 1px 0; font-size: .8rem; white-space: nowrap; } .ex-sum-c small { color: #6b777c; }
+  .ex-sum-c { display: inline-block; border: 1px solid #d9e6e1; background: #f7fbf9; border-radius: 6px; padding: 0 .4rem; margin: 1px 0; font-size: .8rem; white-space: nowrap; } .ex-sum-c small { color: #1f2a30; }
   .ex-sum-more summary { cursor: pointer; color: #0f766e; font-size: .8rem; font-weight: 700; margin-top: .25rem; }
   .ex-sum-b { margin-top: .25rem; display: flex; flex-direction: column; gap: .2rem; } .ex-sum-b b { font-size: .8rem; }
   @media (max-width: 767.98px) { .ex-sum-r { grid-template-columns: 1.3rem minmax(0, 1fr) auto; } .ex-sum-r > div { grid-column: 2 / -1; } }
@@ -2333,7 +2337,7 @@
   .ex-acts { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
   .ex-filter { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; background: #f7f9fa; border: 1px solid #e2e8ec; border-radius: 12px; padding: .5rem .65rem; margin-bottom: .6rem; }
   .ex-filter > i { color: #901d23; font-size: 1.1rem; } .ex-filter .form-control { flex: 1 1 200px; width: auto; } .ex-filter .form-select { width: auto; max-width: 100%; flex: 0 1 auto; }
-  .ex-count { font-size: .9rem; color: #4a5a61; } .ex-count b { color: #091b22; font-size: 1.05rem; }
+  .ex-count { font-size: .9rem; color: #1f2a30; } .ex-count b { color: #091b22; font-size: 1.05rem; }
   .ex-switch { display: inline-flex; align-items: center; gap: .35rem; font-weight: 700; font-size: .92rem; cursor: pointer; }
   .ex-switch input { display: none; } .ex-switch span { width: 38px; height: 22px; border-radius: 999px; background: #cbd5da; position: relative; transition: .2s; }
   .ex-switch span::after { content: ''; position: absolute; top: 3px; right: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: .2s; } .ex-switch input:checked + span { background: #901d23; } .ex-switch input:checked + span::after { right: 19px; }
@@ -2341,45 +2345,45 @@
   .ex-scope-row { display: flex; align-items: center; gap: .6rem; padding: .3rem 0; }
   .ex-scope-row + .ex-scope-row { border-top: 1px dashed #e2e8ec; }
   .ex-scope-lb { flex: 0 0 5.2rem; font-weight: 800; color: #091b22; font-size: .95rem; white-space: nowrap; } .ex-scope-lb i { color: #901d23; }
-  .ex-scope-hint { color: #6b7a82; font-size: .92rem; }
+  .ex-scope-hint { color: #1f2a30; font-size: .92rem; }
   .ex-seg { display: flex; flex-wrap: wrap; gap: .3rem; padding: .15rem .05rem; min-width: 0; flex: 1; }
   .ex-lg { flex: 0 0 auto; display: inline-flex; align-items: center; gap: .4rem; background: #f4f6f8; color: #26353c; border: 1px solid #dde3e7; border-radius: 8px; padding: .3rem .7rem; font-size: .92rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background .15s, border-color .15s; }
   .ex-lg .d { width: .55rem; height: .55rem; border-radius: 50%; display: inline-block; }
-  .ex-lg .k { color: #6b7a82; font-size: .8rem; font-weight: 700; }
+  .ex-lg .k { color: #1f2a30; font-size: .8rem; font-weight: 700; }
   .ex-lg:hover { background: #fff; border-color: #901d23; }
   .ex-lg.on { background: #901d23; border-color: #901d23; color: #fff; } .ex-lg.on .k { color: rgba(255,255,255,.8); } .ex-lg.on .d { box-shadow: 0 0 0 2px #fff; }
   [data-theme=dark] .ex-scope { background: #13232a; border-color: #2c4048; } [data-theme=dark] .ex-lg { background: #1b2e35; color: #e8eef0; border-color: #2c4048; } [data-theme=dark] .ex-scope-lb { color: #e8eef0; }
   @media (max-width: 700px) { .ex-scope-row { flex-direction: column; align-items: stretch; gap: .25rem; } .ex-scope-lb { flex: none; } .ex-seg { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .ex-lg { font-size: .88rem; padding: .28rem .6rem; } }
   .ex-hint { background: #fff8e6; border: 1px solid #f3d38b; border-radius: 12px; padding: .55rem .8rem; font-size: .95rem; margin-bottom: .6rem; display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; } .ex-hint.soft { background: #f1f6f9; border-color: #d8e3ea; }
   .ex-hint > i { font-size: 1.15rem; color: #9a5b00; } .ex-hint.soft > i { color: #0b4a66; } .ex-hint span[class^=h-] { padding: .05rem .5rem; border-radius: 6px; font-weight: 700; font-size: .85rem; }
-  .ex-note { font-size: .93rem; color: #3d4d54; background: #f1f6f9; border-radius: 10px; padding: .45rem .7rem; }
+  .ex-note { font-size: .93rem; color: #1f2a30; background: #f1f6f9; border-radius: 10px; padding: .45rem .7rem; }
   /* matrix */
   .ex-grid-wrap { overflow-x: auto; } .ex-grid { width: 100%; border-collapse: separate; border-spacing: 6px; min-width: 640px; table-layout: fixed; }
   .ex-grid thead th { background: #091b22; color: #fff; border-radius: 10px; padding: .5rem; text-align: center; } .ex-grid .pn { font-size: 1rem; font-weight: 800; } .ex-grid th small { display: block; font-weight: 400; opacity: .85; font-size: .88rem; }
-  .ex-grid th.day { background: #eef2f4; color: #091b22; border-radius: 10px; width: 92px; text-align: center; } .ex-grid th.day b { display: block; font-size: 1rem; } .ex-grid th.day small { font-size: .88rem; color: #4a5a61; } .ex-grid .corner { width: 92px; }
+  .ex-grid th.day { background: #eef2f4; color: #091b22; border-radius: 10px; width: 92px; text-align: center; } .ex-grid th.day b { display: block; font-size: 1rem; } .ex-grid th.day small { font-size: .88rem; color: #1f2a30; } .ex-grid .corner { width: 92px; }
   .ex-cell { background: #fbfcfd; border: 1.5px dashed #d3dbe0; border-radius: 12px; padding: 5px; vertical-align: top; min-height: 80px; height: 84px; cursor: pointer; }
-  .ex-cell .cap { font-size: .8rem; color: #5b6b72; margin-bottom: 3px; } .ex-cell .cap.hi { color: #9a5b00; font-weight: 700; } .ex-cell .cap.over { color: #b42318; font-weight: 800; }
-  .ex-cell .more, .ex-day .more { font-size: .8rem; color: #6b7a80; text-align: center; }
+  .ex-cell .cap { font-size: .8rem; color: #1f2a30; margin-bottom: 3px; } .ex-cell .cap.hi { color: #9a5b00; font-weight: 700; } .ex-cell .cap.over { color: #b42318; font-weight: 800; }
+  .ex-cell .more, .ex-day .more { font-size: .8rem; color: #1f2a30; text-align: center; }
   .ex-cell.h-good, span.h-good { background: #d3f0dc; } .ex-cell.h-ok, span.h-ok { background: #eef6f0; } .ex-cell.h-warn, span.h-warn { background: #ffecc7; } .ex-cell.h-bad, span.h-bad { background: #fbd5d5; }
   .ex-card { background: var(--b); border: 1px solid color-mix(in srgb, var(--c) 25%, transparent); border-inline-start: 5px solid var(--c); border-radius: 9px; padding: 5px 7px; margin: 4px 0; line-height: 1.35; cursor: grab; user-select: none; }
   .ex-card .t { display: flex; gap: .3rem; align-items: center; } .ex-card .t b { color: var(--c); font-size: .98rem; } .ex-card .t .wr { color: #b42318; margin-inline-start: auto; }
   .ex-card .n { font-size: .9rem; font-weight: 600; color: #0f1f26; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-  .ex-card .m { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px; } .ex-card .bd { background: #fff; border-radius: 6px; padding: 0 .35rem; font-size: .78rem; font-weight: 700; color: #3d4d54; }
+  .ex-card .m { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px; } .ex-card .bd { background: #fff; border-radius: 6px; padding: 0 .35rem; font-size: .78rem; font-weight: 700; color: #1f2a30; }
   .ex-card.sel { outline: 3px solid #091b22; box-shadow: 0 4px 12px rgba(0,0,0,.25); } .ex-card.bad { box-shadow: 0 0 0 2px #e05252; } .ex-card.pinned { background-image: linear-gradient(135deg, rgba(0,0,0,.04) 25%, transparent 25%, transparent 50%, rgba(0,0,0,.04) 50%, rgba(0,0,0,.04) 75%, transparent 75%); background-size: 10px 10px; }
   .ex-pool { display: flex; flex-wrap: wrap; gap: 6px; height: auto; } .ex-pool .ex-card { width: 200px; }
   .ex-busy { position: sticky; top: 76px; z-index: 5; background: #091b22; color: #fff; border-radius: 12px; padding: .55rem 1rem; margin-bottom: .6rem; display: inline-flex; gap: .55rem; align-items: center; font-weight: 700; }
   .ex-start, .ex-empty { text-align: center; padding: 2.5rem 1rem; border: 2px dashed #e2c6c8; border-radius: 18px; background: #fffafa; }
-  .ex-start > i { font-size: 3rem; color: #901d23; } .ex-start h3 { font-weight: 800; margin: .5rem 0; } .ex-start p { font-size: 1.05rem; color: #3d4d54; max-width: 620px; margin: 0 auto 1rem; }
+  .ex-start > i { font-size: 3rem; color: #901d23; } .ex-start h3 { font-weight: 800; margin: .5rem 0; } .ex-start p { font-size: 1.05rem; color: #1f2a30; max-width: 620px; margin: 0 auto 1rem; }
   /* days view */
   .ex-days-v { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: .8rem; }
   .ex-day { border: 1px solid #e2e8ec; border-radius: 16px; overflow: hidden; background: #fff; }
   .ex-day header { display: flex; flex-wrap: wrap; gap: .4rem .7rem; align-items: center; background: linear-gradient(90deg, #091b22, #163746); color: #fff; padding: .6rem .9rem; }
   .ex-day .dw { font-size: 1.15rem; font-weight: 800; } .ex-day .dd { opacity: .85; } .ex-day header .bdg { background: rgba(255,255,255,.15); color: #fff; }
   .ex-per { display: grid; grid-template-columns: 96px 1fr; gap: .5rem; border: 0; border-bottom: 1px solid #edf1f3; border-radius: 0; height: auto; min-height: 0; background: #fff; padding: .5rem .7rem; }
-  .ex-per .pt b { display: block; color: #0f766e; } .ex-per .pt span { font-size: .88rem; color: #4a5a61; } .ex-per .none { color: #9aa8ae; }
+  .ex-per .pt b { display: block; color: #0f766e; } .ex-per .pt span { font-size: .88rem; color: #1f2a30; } .ex-per .none { color: #9aa8ae; }
   .ex-row { display: grid; grid-template-columns: auto 1fr auto; gap: .2rem .5rem; align-items: center; background: var(--b); border-inline-start: 5px solid var(--c); border-radius: 9px; padding: .35rem .55rem; margin-bottom: 4px; cursor: grab; }
-  .ex-row .cd { font-weight: 800; color: var(--c); } .ex-row .nm { font-weight: 600; } .ex-row .nm small { display: block; font-weight: 400; color: #5b6b72; font-size: .82rem; }
-  .ex-row .rm { grid-column: 1 / -1; font-size: .84rem; color: #3d4d54; } .ex-row.bad { box-shadow: 0 0 0 2px #e05252; } .ex-row.sel { outline: 3px solid #091b22; }
+  .ex-row .cd { font-weight: 800; color: var(--c); } .ex-row .nm { font-weight: 600; } .ex-row .nm small { display: block; font-weight: 400; color: #1f2a30; font-size: .82rem; }
+  .ex-row .rm { grid-column: 1 / -1; font-size: .84rem; color: #1f2a30; } .ex-row.bad { box-shadow: 0 0 0 2px #e05252; } .ex-row.sel { outline: 3px solid #091b22; }
   /* list / tables */
   .ex-tbl { border: 1px solid #e2e8ec; border-radius: 12px; } .ex-tbl table { margin: 0; font-size: .95rem; }
   .ex-tbl thead th { background: #091b22; color: #fff; font-size: .9rem; white-space: nowrap; position: sticky; top: 0; } .ex-tbl th.sortable { cursor: pointer; } .ex-tbl th.sortable:hover { background: #163746; }
@@ -2387,12 +2391,12 @@
   .ex-tbl td { vertical-align: middle; padding: .6rem .55rem; } .ex-tbl tr.nd td { border-top: 3px solid #901d23; }
   .ex-tbl .c-day, .ex-tbl .c-date, .ex-tbl .c-time, .ex-tbl .c-code, .ex-tbl .c-num { white-space: nowrap; width: 1%; }
   .ex-tbl .c-name { min-width: 170px; } .ex-tbl .c-rooms { min-width: 220px; } .ex-tbl .c-ppl { min-width: 220px; }
-  .ex-dw { color: #091b22; } .ex-dt { font-weight: 800; color: #0b4a66; font-size: 1rem; } .ex-dt small { display: block; font-weight: 400; color: #6b7a80; font-size: .75rem; }
+  .ex-dw { color: #091b22; } .ex-dt { font-weight: 800; color: #0b4a66; font-size: 1rem; } .ex-dt small { display: block; font-weight: 400; color: #1f2a30; font-size: .75rem; }
   .ex-tm { display: inline-flex; gap: .3rem; align-items: center; background: #e0f4f1; color: #0f766e; border-radius: 8px; padding: .15rem .5rem; font-weight: 700; font-size: .88rem; }
   .ex-nm { font-size: .97rem; }
   .ex-chips { display: flex; flex-wrap: wrap; gap: .3rem; }
   .ex-rm { display: inline-flex; align-items: center; gap: .3rem; background: #eef6f0; color: #14532d; border: 1px solid #cfe8d6; border-radius: 9px; padding: .15rem .5rem; font-size: .88rem; }
-  .ex-rm .n { background: #15803d; color: #fff; border-radius: 999px; padding: 0 .4rem; font-size: .78rem; font-weight: 700; } .ex-rm small { color: #4a5a61; } .ex-rm.bad { background: #fde8e8; color: #b42318; border-color: #f5c2c2; }
+  .ex-rm .n { background: #15803d; color: #fff; border-radius: 999px; padding: 0 .4rem; font-size: .78rem; font-weight: 700; } .ex-rm small { color: #1f2a30; } .ex-rm.bad { background: #fde8e8; color: #b42318; border-color: #f5c2c2; }
   .ex-pp { display: inline-flex; align-items: center; gap: .25rem; background: #f3eefe; color: #5b21b6; border-radius: 999px; padding: .12rem .55rem; font-size: .86rem; font-weight: 600; }
   [data-theme=dark] .ex-dw, [data-theme=dark] .ex-nm { color: #e8eef0; } .ex-tbl select { min-width: 170px; }
   .ex-when { font-weight: 700; white-space: nowrap; font-size: .9rem; }
@@ -2408,7 +2412,7 @@
   /* quality */
   .ex-kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: .6rem; margin-bottom: .9rem; }
   .ex-kpi { border-radius: 14px; padding: .75rem .85rem; display: grid; grid-template-columns: auto 1fr; gap: 0 .6rem; align-items: center; border: 1px solid #e3e8eb; }
-  .ex-kpi i { grid-row: span 2; font-size: 1.7rem; } .ex-kpi b { font-size: 1.55rem; line-height: 1.1; } .ex-kpi span { font-size: .9rem; color: #3d4d54; }
+  .ex-kpi i { grid-row: span 2; font-size: 1.7rem; } .ex-kpi b { font-size: 1.55rem; line-height: 1.1; } .ex-kpi span { font-size: .9rem; color: #1f2a30; }
   .ex-kpi.ok { background: #effaf2; color: #15803d; } .ex-kpi.bad { background: #fdeeee; color: #b42318; } .ex-kpi.warn { background: #fff6e4; color: #9a5b00; } .ex-kpi.info { background: #eef4f8; color: #0b4a66; }
   .ex-h { margin: 1rem 0 .5rem; font-weight: 800; color: #091b22; font-size: 1.1rem; } .ex-n { display: inline-block; min-width: 1.6em; padding: 0 .4em; border-radius: 999px; background: #e9ecef; color: #091b22; font-size: .82rem; text-align: center; } .ex-n.bad { background: #b42318; color: #fff; }
   .ex-rephead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .5rem; margin: 1.1rem 0 .5rem; }
@@ -2419,19 +2423,19 @@
   .ex-ri header { display: flex; flex-wrap: wrap; gap: .35rem .8rem; align-items: center; font-size: 1rem; }
   .ex-ri .sev { font-size: .8rem; font-weight: 800; padding: .1rem .6rem; border-radius: 999px; background: #e2e8f0; }
   .ex-ri.sev0 .sev { background: #b42318; color: #fff; } .ex-ri.sev1 .sev { background: #fde5d4; color: #9a3412; } .ex-ri.sev2 .sev { background: #fdf1dc; color: #9a5b00; }
-  .ex-ri .when, .ex-ri .aff { font-size: .92rem; color: #3d4d54; }
-  .ex-ri .cs { list-style: none; padding: 0; margin: .5rem 0; display: grid; gap: .25rem; } .ex-ri .cs li { border-inline-start: 4px solid var(--c); padding-inline-start: .55rem; font-size: .95rem; } .ex-ri .cs small { color: #5b6b72; font-size: .85rem; }
+  .ex-ri .when, .ex-ri .aff { font-size: .92rem; color: #1f2a30; }
+  .ex-ri .cs { list-style: none; padding: 0; margin: .5rem 0; display: grid; gap: .25rem; } .ex-ri .cs li { border-inline-start: 4px solid var(--c); padding-inline-start: .55rem; font-size: .95rem; } .ex-ri .cs small { color: #1f2a30; font-size: .85rem; }
   .ex-ri .who { font-size: .9rem; color: #0b4a66; } .ex-ri .why { font-size: .93rem; color: #2f3f46; margin: .35rem 0; }
   .ex-ri footer { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; border-top: 1px dashed #e3e8eb; padding-top: .45rem; }
-  .ex-ri .fix { font-size: .93rem; font-weight: 700; color: #15803d; } .ex-ri .fix.muted { color: #6b7a80; font-weight: 400; }
+  .ex-ri .fix { font-size: .93rem; font-weight: 700; color: #15803d; } .ex-ri .fix.muted { color: #1f2a30; font-weight: 400; }
   .ex-empty.warn { border-color: #f3d38b; background: #fffaf0; } .ex-empty > i { font-size: 2.4rem; display: block; color: #15803d; } .ex-empty { color: #15803d; font-weight: 700; font-size: 1.1rem; }
   /* settings */
   .ex-set { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 1rem; }
   .ex-setwrap { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 1rem; align-items: start; }
   .ex-setnav { display: flex; flex-direction: column; gap: .35rem; position: sticky; top: 80px; }
   .ex-sn { display: flex; gap: .55rem; align-items: center; text-align: start; border: 1.5px solid #e2e8ec; background: #fff; border-radius: 12px; padding: .55rem .65rem; color: #0f1f26; }
-  .ex-sn .bn { width: 26px; height: 26px; border-radius: 50%; background: #eef2f4; color: #4a5a61; display: grid; place-items: center; font-weight: 800; font-size: .85rem; flex: none; }
-  .ex-sn > i { font-size: 1.3rem; color: var(--a); } .ex-sn .tx b { display: block; font-size: 1rem; } .ex-sn .tx small { display: block; font-size: .8rem; color: #5b6b72; }
+  .ex-sn .bn { width: 26px; height: 26px; border-radius: 50%; background: #eef2f4; color: #1f2a30; display: grid; place-items: center; font-weight: 800; font-size: .85rem; flex: none; }
+  .ex-sn > i { font-size: 1.3rem; color: var(--a); } .ex-sn .tx b { display: block; font-size: 1rem; } .ex-sn .tx small { display: block; font-size: .8rem; color: #1f2a30; }
   .ex-sn:hover { border-color: var(--a); } .ex-sn.on { border-color: var(--a); background: color-mix(in srgb, var(--a) 8%, #fff); box-shadow: inset -4px 0 0 var(--a); } .ex-sn.on .bn { background: var(--a); color: #fff; }
   .ex-setmain { min-width: 0; } .ex-setmain .ex-box { width: 100%; }
   .ex-subnav { display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; margin-top: .8rem; }
@@ -2440,13 +2444,13 @@
   .ex-box { border: 1px solid #e2e8ec; border-radius: 18px; background: #fff; overflow: hidden; box-shadow: 0 2px 10px rgba(9,27,34,.05); } .ex-box.wide { grid-column: 1 / -1; }
   .ex-box > header { display: flex; gap: .6rem; align-items: center; padding: .75rem 1rem; background: color-mix(in srgb, var(--a) 9%, #fff); border-bottom: 3px solid var(--a); }
   .ex-box > header .bn { width: 30px; height: 30px; border-radius: 50%; background: var(--a); color: #fff; display: grid; place-items: center; font-weight: 800; flex: none; }
-  .ex-box > header > i { font-size: 1.5rem; color: var(--a); } .ex-box h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: #091b22; } .ex-box header small { color: #4a5a61; font-size: .9rem; }
+  .ex-box > header > i { font-size: 1.5rem; color: var(--a); } .ex-box h4 { margin: 0; font-size: 1.15rem; font-weight: 800; color: #091b22; } .ex-box header small { color: #1f2a30; font-size: .9rem; }
   .ex-box .bb { padding: .9rem 1rem; display: flex; flex-direction: column; gap: .7rem; }
-  .ex-fld { display: flex; flex-direction: column; gap: .3rem; margin: 0; } .ex-fld > span { font-weight: 700; font-size: .95rem; } .ex-fld small { color: #5b6b72; font-size: .85rem; }
+  .ex-fld { display: flex; flex-direction: column; gap: .3rem; margin: 0; } .ex-fld > span { font-weight: 700; font-size: .95rem; } .ex-fld small { color: #1f2a30; font-size: .85rem; }
   .ex-set .row2, .ex-setwrap .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; align-items: start; }
   .ex-types, .ex-srcs { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: .45rem; }
   .ex-type { border: 2px solid #e2e8ec; border-radius: 12px; padding: .6rem; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: .15rem; margin: 0; }
-  .ex-type input { display: none; } .ex-type i { font-size: 1.5rem; color: #6b7a80; } .ex-type b { font-size: .92rem; } .ex-type small { font-size: .8rem; color: #5b6b72; }
+  .ex-type input { display: none; } .ex-type i { font-size: 1.5rem; color: #1f2a30; } .ex-type b { font-size: .92rem; } .ex-type small { font-size: .8rem; color: #1f2a30; }
   .ex-type.on { border-color: var(--a, #901d23); background: color-mix(in srgb, var(--a, #901d23) 7%, #fff); } .ex-type.on i { color: var(--a, #901d23); }
   .ex-chipset { display: flex; flex-wrap: wrap; gap: .35rem; }
   .ex-facs { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; } .ex-facs .ex-chk { flex: none; white-space: nowrap; padding: .22rem .6rem; font-size: .88rem; }
@@ -2469,12 +2473,12 @@
   @media print { #ex-savebar { display: none !important; } }
   .ex-pubsteps { padding-inline-start: 1.3rem; margin-bottom: .8rem; } .ex-pubsteps li { margin-bottom: .25rem; }
   .ex-pubsteps kbd { background: #eef2f6; color: #222; border: 1px solid #c9d3dd; padding: 0 .35rem; font-size: .85em; }
-  .ex-pubst { margin-top: .8rem; padding: .6rem .8rem; border-radius: 10px; background: #f4f6f8; color: #445; font-size: .92rem; }
+  .ex-pubst { margin-top: .8rem; padding: .6rem .8rem; border-radius: 10px; background: #f4f6f8; color: #1f2a30; font-size: .92rem; }
   .ex-pubst.wait { background: #fff8e6; color: #6a4b00; border: 1px solid #f0d58c; } .ex-pubst.ok { background: #e9f7ef; color: #135d32; border: 1px solid #a8dcbc; }
   .ex-srcs.two { grid-template-columns: 1fr 1fr; }
   .ex-pool2 { border: 1px solid #ecd3e0; background: #fdf8fb; border-radius: 14px; padding: .75rem .8rem; margin-top: .8rem; }
   .ex-pool2 .h { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; } .ex-pool2 .h .t { font-weight: 800; color: #9d174d; font-size: 1.08rem; margin-inline-end: .3rem; }
-  .ex-pool2 .h input { max-width: 15rem; margin-inline-start: auto; } .ex-pool2 .hint { color: #6b7a82; font-size: .86rem; margin: .4rem 0 .6rem; }
+  .ex-pool2 .h input { max-width: 15rem; margin-inline-start: auto; } .ex-pool2 .hint { color: #1f2a30; font-size: .86rem; margin: .4rem 0 .6rem; }
   .ex-pool2 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: .7rem; align-items: start; }
   .ex-pool2 .dc { background: #fff; border: 1px solid #e8d6e0; border-top: 4px solid #be185d; border-radius: 12px; overflow: hidden; }
   .ex-pool2 .dc header { display: flex; align-items: center; gap: .5rem; padding: .5rem .7rem; background: #fbf1f6; border-bottom: 1px solid #f0dde7; }
@@ -2483,7 +2487,7 @@
   .ex-pool2 .ls { display: grid; grid-template-columns: 1fr; max-height: 20rem; overflow: auto; }
   .ex-pool2 .pr { display: grid; grid-template-columns: 1.3rem minmax(0, 1fr) 2.6rem; align-items: center; gap: .45rem; width: 100%; border: 0; border-bottom: 1px solid #f3edf0; background: #fff; padding: .38rem .7rem; text-align: start; font-size: .93rem; color: #1c2b31; }
   .ex-pool2 .pr:nth-child(even) { background: #fcfafb; } .ex-pool2 .pr:hover { background: #fdeef5; } .ex-pool2 .pr i { color: #15803d; }
-  .ex-pool2 .pr .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ex-pool2 .pr .k { justify-self: end; min-width: 2rem; text-align: center; background: #eef2f4; color: #4a5a62; border-radius: 6px; font-size: .78rem; font-weight: 700; padding: .05rem .3rem; }
+  .ex-pool2 .pr .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ex-pool2 .pr .k { justify-self: end; min-width: 2rem; text-align: center; background: #eef2f4; color: #1f2a30; border-radius: 6px; font-size: .78rem; font-weight: 700; padding: .05rem .3rem; }
   .ex-pool2 .pr.off { color: #9aa6ac; } .ex-pool2 .pr.off .nm { text-decoration: line-through; } .ex-pool2 .pr.off i { color: #b42318; }
   [data-theme=dark] .ex-pool2, [data-theme=dark] .ex-pool2 .dc, [data-theme=dark] .ex-pool2 .pr { background: #13232a; border-color: #2c4048; color: #e8eef0; } [data-theme=dark] .ex-pool2 .dc header { background: #1b2e35; } [data-theme=dark] .ex-pool2 .dc header b { color: #e8eef0; }
   .ex-pv-sum { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-bottom: .5rem; }
@@ -2491,7 +2495,7 @@
   .ex-pv-load summary { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; cursor: pointer; list-style: none; } .ex-pv-load summary::-webkit-details-marker { display: none; }
   .ex-pv-load summary .t { font-weight: 800; color: #0b4a66; } .ex-pv-load summary .ch { display: inline-block; font-size: .8em; margin-inline-start: .3rem; transition: transform .2s; }
   .ex-pv-load[open] summary .ch { transform: rotate(180deg); }
-  .ex-pv-load .lg { display: flex; flex-wrap: wrap; gap: .8rem; margin-inline-start: auto; font-size: .8rem; color: #5b6770; }
+  .ex-pv-load .lg { display: flex; flex-wrap: wrap; gap: .8rem; margin-inline-start: auto; font-size: .8rem; color: #1f2a30; }
   .ex-pv-load .lg span::before { content: ''; display: inline-block; width: .7rem; height: .7rem; border-radius: 3px; margin-inline-end: .3rem; vertical-align: -1px; background: var(--t); }
   .ex-pv-load .lg .hi, .ex-ldrow.hi { --t: #b42318; --tb: #fdecea; } .ex-pv-load .lg .mid, .ex-ldrow.mid { --t: #0b4a66; --tb: #e8f1f6; } .ex-pv-load .lg .lo, .ex-ldrow.lo { --t: #9a6b00; --tb: #fff4d6; } .ex-ldrow.zero { --t: #6c757d; --tb: #f1f3f5; }
   .ex-ldg { display: flex; flex-direction: column; gap: .45rem; margin-top: .65rem; max-height: 24rem; overflow-y: auto; padding-inline-end: .2rem; }
@@ -2507,39 +2511,39 @@
   .ex-pv .ex-pp button { border: 0; background: none; color: #b42318; padding: 0 0 0 .1rem; } .ex-pfsel { min-width: 13rem; }
   .ex-cal3 { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.25fr) minmax(0, 1fr); gap: .75rem; align-items: stretch; }
   .ex-cal3 section { border: 1px solid #e2e8ec; border-radius: 12px; padding: .65rem .75rem; background: #fbfcfd; display: flex; flex-direction: column; gap: .35rem; }
-  .ex-cal3 h6 { font-weight: 800; color: #0b4a66; margin: 0 0 .2rem; } .ex-cal3 small { color: #6b7a82; } .ex-cal3 .ex-fld { margin: 0; }
+  .ex-cal3 h6 { font-weight: 800; color: #0b4a66; margin: 0 0 .2rem; } .ex-cal3 small { color: #1f2a30; } .ex-cal3 .ex-fld { margin: 0; }
   .ex-cal3 .g3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; align-items: start; }
   .ex-cal3 .calc { border: 1px solid #c9d8e3; background: #eef5fa; border-radius: 8px; padding: .38rem .6rem; font-weight: 800; font-size: 1.1rem; color: #0b4a66; } .ex-cal3 .calc small { font-size: .72rem; font-weight: 600; }
   .ex-wk { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .3rem; } .ex-wk .ex-chk { justify-content: center; }
   .ex-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) auto; gap: .6rem; margin: .8rem 0; align-items: stretch; }
   .ex-kpis .k { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: .55rem; align-items: center; background: #fff; border: 1px solid #e2e8ec; border-top: 3px solid #0b4a66; border-radius: 12px; padding: .5rem .7rem; }
-  .ex-kpis .k i { grid-row: span 2; font-size: 1.45rem; color: #0b4a66; } .ex-kpis .k b { font-size: 1.15rem; color: #091b22; line-height: 1.2; } .ex-kpis .k span { font-size: .8rem; color: #6b7a82; }
+  .ex-kpis .k i { grid-row: span 2; font-size: 1.45rem; color: #0b4a66; } .ex-kpis .k b { font-size: 1.15rem; color: #091b22; line-height: 1.2; } .ex-kpis .k span { font-size: .8rem; color: #1f2a30; }
   .ex-kpis .k.ex { border-top-color: #901d23; } .ex-kpis .k.ex i, .ex-kpis .k.ex b { color: #901d23; } .ex-kpis .k.hol { border-top-color: #b7791f; } .ex-kpis .k.hol i { color: #b7791f; }
-  .ex-kpis .lg { display: flex; flex-direction: column; justify-content: center; gap: .25rem; font-size: .82rem; color: #4a5a62; padding-inline-start: .3rem; } .ex-kpis .lg span { white-space: nowrap; }
+  .ex-kpis .lg { display: flex; flex-direction: column; justify-content: center; gap: .25rem; font-size: .82rem; color: #1f2a30; padding-inline-start: .3rem; } .ex-kpis .lg span { white-space: nowrap; }
   .d { display: inline-block; width: .9rem; height: .9rem; border-radius: 4px; vertical-align: -2px; margin-inline-end: .25rem; } .d.ex { background: #901d23; } .d.off { background: #e5e8eb; } .d.hol { background: repeating-linear-gradient(135deg, #f87171 0 3px, #fee2e2 3px 6px); }
   .ex-calbody { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 22rem); gap: .8rem; align-items: start; }
   .ex-months { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: .8rem; }
   .ex-month { border: 1px solid #e2e8ec; border-radius: 14px; padding: .65rem .75rem; background: #fff; } .ex-month h6 { text-align: center; font-weight: 800; font-size: 1.1rem; margin: 0 0 .5rem; color: #091b22; }
-  .ex-month .g { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; } .ex-month .g > i { text-align: center; font-style: normal; font-weight: 800; color: #4a5a62; font-size: .8rem; padding-bottom: .2rem; border-bottom: 2px solid #eef2f4; }
+  .ex-month .g { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; } .ex-month .g > i { text-align: center; font-style: normal; font-weight: 800; color: #1f2a30; font-size: .8rem; padding-bottom: .2rem; border-bottom: 2px solid #eef2f4; }
   .ex-month .g button { border: 0; border-radius: 9px; min-height: 3.3rem; background: #f7f8fa; color: #9aa6ac; padding: .2rem; line-height: 1.1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .1rem; }
   .ex-month .g button b { font-size: 1.05rem; } .ex-month .g button small { font-size: .66rem; } .ex-month .g button.ex { background: #901d23; color: #fff; box-shadow: 0 2px 5px rgba(144,29,35,.25); } .ex-month .g button.ex small { color: #fde2e3; background: rgba(255,255,255,.15); border-radius: 999px; padding: 0 .4rem; }
-  .ex-month .g button.off { background: #e9ecef; color: #6b7a82; } .ex-month .g button.hol { background: repeating-linear-gradient(135deg, #fecaca 0 5px, #fee2e2 5px 10px); color: #b42318; } .ex-month .g button.out { background: transparent; color: #c4ccd1; }
+  .ex-month .g button.off { background: #e9ecef; color: #1f2a30; } .ex-month .g button.hol { background: repeating-linear-gradient(135deg, #fecaca 0 5px, #fee2e2 5px 10px); color: #b42318; } .ex-month .g button.out { background: transparent; color: #c4ccd1; }
   .ex-month .g button.today { outline: 2px solid #0b4a66; outline-offset: 1px; } .ex-month .g button[data-tgl]:hover { outline: 2px solid #b7791f; }
   .ex-dlist { border: 1px solid #e2e8ec; border-radius: 14px; background: #fff; padding: .6rem .7rem; max-height: 30rem; overflow: auto; } .ex-dlist h6 { font-weight: 800; color: #091b22; margin: 0 0 .4rem; }
   .ex-dlist ol { list-style: none; margin: 0; padding: 0; } .ex-dlist li { display: grid; grid-template-columns: 1.9rem 4.6rem 1fr auto auto; align-items: center; gap: .45rem; padding: .32rem .2rem; border-bottom: 1px solid #f1f3f5; font-size: .92rem; }
   .ex-dlist li.wk { display: block; border: 0; font-size: .78rem; font-weight: 800; color: #0b4a66; padding: .5rem .2rem .15rem; }
-  .ex-dlist .no { background: #901d23; color: #fff; border-radius: 7px; text-align: center; font-weight: 800; font-size: .82rem; } .ex-dlist .wd { font-weight: 800; } .ex-dlist .dt { color: #4a5a62; font-variant-numeric: tabular-nums; }
-  .ex-dlist .ct { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0 .5rem; font-size: .78rem; font-weight: 700; white-space: nowrap; } .ex-dlist .ct.mut { background: #f1f3f5; color: #6b7a82; } .ex-dlist .btn { color: #b42318; padding: 0 .2rem; }
+  .ex-dlist .no { background: #901d23; color: #fff; border-radius: 7px; text-align: center; font-weight: 800; font-size: .82rem; } .ex-dlist .wd { font-weight: 800; } .ex-dlist .dt { color: #1f2a30; font-variant-numeric: tabular-nums; }
+  .ex-dlist .ct { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0 .5rem; font-size: .78rem; font-weight: 700; white-space: nowrap; } .ex-dlist .ct.mut { background: #f1f3f5; color: #1f2a30; } .ex-dlist .btn { color: #b42318; padding: 0 .2rem; }
   @media (max-width: 1200px) { .ex-cal3 { grid-template-columns: 1fr 1fr; } .ex-cal3 .dur { grid-column: 1 / -1; } .ex-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } .ex-kpis .lg { grid-column: 1 / -1; flex-direction: row; gap: 1rem; } .ex-calbody { grid-template-columns: 1fr; } }
   @media (max-width: 700px) { .ex-cal3, .ex-cal3 .g3 { grid-template-columns: 1fr; } .ex-kpis { grid-template-columns: 1fr 1fr; } .ex-months { grid-template-columns: 1fr; } .ex-month .g button { min-height: 2.6rem; } .ex-month .g > i { font-size: .62rem; } }
   .ex-what { border: 1px solid #b6e0da; background: #f1fbf9; border-radius: 12px; padding: .65rem .8rem; margin-bottom: .8rem; } .ex-what .q { font-weight: 800; color: #0f766e; font-size: 1.05rem; } .ex-what p { margin: .25rem 0 .5rem; color: #1f3b38; }
-  .ex-what ul { margin: .5rem 0 0; padding-inline-start: 1.1rem; color: #35524e; font-size: .9rem; }
-  .ex-cap { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; } .ex-cap span { background: #fff; border: 1px solid #b6e0da; border-radius: 8px; padding: .15rem .55rem; } .ex-cap span.t { background: #0f766e; color: #fff; border-color: #0f766e; } .ex-cap i { font-style: normal; color: #0f766e; font-weight: 800; } .ex-cap .avg { background: transparent; border: 0; color: #35524e; }
+  .ex-what ul { margin: .5rem 0 0; padding-inline-start: 1.1rem; color: #1f2a30; font-size: .9rem; }
+  .ex-cap { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; } .ex-cap span { background: #fff; border: 1px solid #b6e0da; border-radius: 8px; padding: .15rem .55rem; } .ex-cap span.t { background: #0f766e; color: #fff; border-color: #0f766e; } .ex-cap i { font-style: normal; color: #0f766e; font-weight: 800; } .ex-cap .avg { background: transparent; border: 0; color: #1f2a30; }
   .ex-tl { margin-top: .7rem; } .ex-tl .bar { position: relative; height: 3.1rem; background: #eef2f4; border-radius: 10px; overflow: hidden; }
   .ex-tl .win { position: absolute; top: 0; bottom: 0; background: #d5efe9; } .ex-tl .p { position: absolute; top: .3rem; bottom: .3rem; background: #0f766e; color: #fff; border-radius: 7px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: .75rem; line-height: 1.1; overflow: hidden; white-space: nowrap; }
   .ex-tl .p.bad { background: #b42318; } .ex-tl .p small { font-size: .68rem; opacity: .9; } .ex-tl .g { position: absolute; top: 1.2rem; height: .7rem; background: repeating-linear-gradient(90deg, #b7791f 0 4px, transparent 4px 8px); }
-  .ex-tl .ax { position: relative; height: 1.1rem; } .ex-tl .ax i { position: absolute; transform: translateX(50%); font-style: normal; font-size: .72rem; color: #6b7a82; }
-  .ex-tl .lgd { display: flex; flex-wrap: wrap; gap: .8rem; font-size: .8rem; color: #4a5a62; } .d.win { background: #d5efe9; } .d.p { background: #0f766e; } .d.g { background: repeating-linear-gradient(90deg, #b7791f 0 3px, transparent 3px 6px); }
+  .ex-tl .ax { position: relative; height: 1.1rem; } .ex-tl .ax i { position: absolute; transform: translateX(50%); font-style: normal; font-size: .72rem; color: #1f2a30; }
+  .ex-tl .lgd { display: flex; flex-wrap: wrap; gap: .8rem; font-size: .8rem; color: #1f2a30; } .d.win { background: #d5efe9; } .d.p { background: #0f766e; } .d.g { background: repeating-linear-gradient(90deg, #b7791f 0 3px, transparent 3px 6px); }
   @media (max-width: 900px) { .ex-cal3 { grid-template-columns: 1fr; } }
   .ex-mk { border: 2px dashed #b7791f; background: #fffaf0; border-radius: 12px; padding: .7rem .85rem; margin-bottom: .8rem; } .ex-mk .h { font-weight: 800; color: #7a4b00; font-size: 1.05rem; } .ex-mk p { margin: .2rem 0 .5rem; color: #5b4a20; }
   .ex-tplbar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; background: #f2f6fb; border: 1px dashed #9db4d0; border-radius: 10px; padding: .45rem .65rem; margin: -.3rem 0 .6rem; } .ex-tplbar > i { color: #0b4a66; } .ex-tplbar span { flex: 1 1 240px; font-size: .92rem; }
@@ -2551,15 +2555,15 @@
   .ex-win { border: 1px solid #f3c9c9; background: #fdf6f6; border-radius: 12px; padding: .6rem .75rem; margin-bottom: .7rem; } .ex-win-h { font-weight: 800; color: #901d23; margin-bottom: .4rem; }
   .ex-win-g { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; } .ex-win-g label span { display: block; font-size: .9rem; font-weight: 700; margin-bottom: .15rem; }
   .ex-win details { margin-top: .5rem; } .ex-win summary { cursor: pointer; font-weight: 700; color: #0b4a66; }
-  .ex-win-d { display: grid; gap: .3rem; margin-top: .4rem; } .ex-win-d .r { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) auto minmax(0, 1fr) 4rem; gap: .35rem; align-items: center; } .ex-win-d .r.on b { color: #901d23; } .ex-win-d small { color: #6b7a82; }
-  .ex-cell.blk { background: repeating-linear-gradient(135deg, #f4f5f7 0 8px, #eceef1 8px 16px) !important; } .blkt { font-size: .8rem; color: #6b7a82; text-align: center; padding: .4rem 0; } .blkt.bad { color: #b42318; font-weight: 700; } .ex-chk.lock small { font-size: .75rem; opacity: .85; }
+  .ex-win-d { display: grid; gap: .3rem; margin-top: .4rem; } .ex-win-d .r { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr) auto minmax(0, 1fr) 4rem; gap: .35rem; align-items: center; } .ex-win-d .r.on b { color: #901d23; } .ex-win-d small { color: #1f2a30; }
+  .ex-cell.blk { background: repeating-linear-gradient(135deg, #f4f5f7 0 8px, #eceef1 8px 16px) !important; } .blkt { font-size: .8rem; color: #1f2a30; text-align: center; padding: .4rem 0; } .blkt.bad { color: #b42318; font-weight: 700; } .ex-chk.lock small { font-size: .75rem; opacity: .85; }
   .ex-sw { display: grid; grid-template-columns: auto 1fr; gap: .6rem; align-items: center; margin: 0; cursor: pointer; } .ex-sw input { display: none; }
   .ex-sw .tg { width: 44px; height: 24px; border-radius: 999px; background: #cbd5da; position: relative; transition: .2s; } .ex-sw .tg::after { content: ''; position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
-  .ex-sw input:checked + .tg { background: #15803d; } .ex-sw input:checked + .tg::after { right: 23px; } .ex-sw b { display: block; font-size: .95rem; } .ex-sw small { display: block; color: #5b6b72; font-size: .84rem; }
+  .ex-sw input:checked + .tg { background: #15803d; } .ex-sw input:checked + .tg::after { right: 23px; } .ex-sw b { display: block; font-size: .95rem; } .ex-sw small { display: block; color: #1f2a30; font-size: .84rem; }
   .ex-rule { background: #f1f6f9; border-radius: 10px; padding: .5rem .7rem; font-size: .92rem; } .ex-rule.hard { background: #e4f5e9; color: #14532d; font-weight: 600; } .ex-rule.ok { background: #e4f5e9; color: #15803d; } .ex-rule.warn { background: #fff4e0; color: #8a4b00; }
   .ex-rooms { max-height: 320px; overflow: auto; border: 1px solid #e2e8ec; border-radius: 10px; } .ex-rooms.tall { max-height: 460px; } .ex-rooms table { margin: 0; font-size: .92rem; } .ex-rooms thead th { position: sticky; top: 0; background: #eef2f4; z-index: 1; } .ex-rooms tr.off td { opacity: .55; }
   .ex-drafts { list-style: none; padding: 0; margin: 0; display: grid; gap: .4rem; } .ex-drafts li { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; border: 1px solid #e2e8ec; border-radius: 12px; padding: .5rem .7rem; }
-  .ex-drafts li > i { font-size: 1.4rem; color: #0b4a66; } .ex-drafts li.app { border-color: #15803d; background: #f2faf5; } .ex-drafts li.app > i { color: #15803d; } .ex-drafts li span small { display: block; color: #5b6b72; } .ex-drafts .acts { margin-inline-start: auto; display: flex; gap: .3rem; flex-wrap: wrap; } .ex-drafts li.empty { color: #6b7a80; }
+  .ex-drafts li > i { font-size: 1.4rem; color: #0b4a66; } .ex-drafts li.app { border-color: #15803d; background: #f2faf5; } .ex-drafts li.app > i { color: #15803d; } .ex-drafts li span small { display: block; color: #1f2a30; } .ex-drafts .acts { margin-inline-start: auto; display: flex; gap: .3rem; flex-wrap: wrap; } .ex-drafts li.empty { color: #1f2a30; }
   [data-theme=dark] #ex-app { color: #e8eef0; }
   [data-theme=dark] .ex-step, [data-theme=dark] .ex-box, [data-theme=dark] .ex-day, [data-theme=dark] .ex-ri, [data-theme=dark] .ex-per, [data-theme=dark] .ex-type, [data-theme=dark] .ex-chk { background: #13232a; color: #e8eef0; border-color: #2c4048; }
   [data-theme=dark] .ex-cell, [data-theme=dark] .ex-mx td, [data-theme=dark] .ex-filter { background: #13232a; border-color: #2c4048; } [data-theme=dark] .ex-card .n, [data-theme=dark] .ex-h, [data-theme=dark] .ex-box h4 { color: #e8eef0; }
@@ -2574,18 +2578,38 @@
   .ex-type { display: grid !important; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; column-gap: .55rem; row-gap: 0; text-align: start !important; align-items: center !important; padding: .45rem .6rem !important; }
   .ex-type i { grid-row: 1 / 3; font-size: 1.25rem !important; } .ex-type b { line-height: 1.25; } .ex-type small { grid-column: 2; line-height: 1.25; }
   .ex-fold > summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; gap: .4rem; align-items: baseline; } .ex-fold > summary::-webkit-details-marker { display: none; }
-  .ex-fold > summary::after { content: '▾'; margin-inline-start: auto; color: #6b7a80; } .ex-fold[open] > summary::after { content: '▴'; } .ex-fold > summary small { font-weight: 400; color: #5b6b72; }
+  .ex-fold > summary::after { content: '▾'; margin-inline-start: auto; color: #1f2a30; } .ex-fold[open] > summary::after { content: '▴'; } .ex-fold > summary small { font-weight: 400; color: #1f2a30; }
   .ex-fold:not([open]) { padding-bottom: .55rem !important; }
   .ex-pool2 .pr .hd { color: #9d174d; font-size: .75rem; }
   @media (min-width: 1100px) { .ex-files { grid-template-columns: 1fr 1fr; } .ex-files > .h { grid-column: 1 / -1; } .ex-files .ex-up { margin: 0; } }
+  .ex-row2b { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: .8rem; align-items: start; margin: .6rem 0; } @media (max-width: 900px) { .ex-row2b { grid-template-columns: 1fr; } }
+  .ex-fixd { border: 1px solid #f0d9c8; background: #fffaf5; border-radius: 12px; padding: .55rem .7rem; margin: .5rem 0; } .ex-fixd > summary i { color: #9a3412; }
+  .ex-two { display: grid; grid-template-columns: minmax(250px, 320px) minmax(0, 1fr); gap: 1rem; align-items: start; } @media (max-width: 900px) { .ex-two { grid-template-columns: 1fr; } }
+  .ex-side { border: 1px solid #e2e8ec; border-radius: 12px; padding: .65rem .75rem; background: #fbfcfd; display: grid; gap: .55rem; } .ex-side h6 { font-size: .92rem; font-weight: 800; margin: 0; color: #0b4a66; }
+  .ex-opts { display: grid; gap: .3rem; } .ex-opts label { display: flex; gap: .45rem; align-items: flex-start; border: 1.5px solid #e2e8ec; border-radius: 9px; padding: .35rem .5rem; margin: 0; cursor: pointer; background: #fff; }
+  .ex-opts label.on { border-color: #901d23; background: #fff6f6; } .ex-opts input { margin-top: .25rem; accent-color: #901d23; } .ex-opts b { display: block; font-size: .88rem; } .ex-opts small { display: block; font-size: .78rem; color: #1f2a30; }
+  .ex-sent { font-size: .88rem; line-height: 2.1; } .ex-sent input { display: inline-block; width: 4.2rem; padding: .1rem .3rem; text-align: center; } .ex-sent small { color: #1f2a30; }
+  .ex-tbar { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; margin-bottom: .45rem; }
+  .ex-main2 .ex-pool2 { margin-top: .5rem; }
+  .ex-row2b .ex-chipset { display: flex; flex-wrap: wrap; gap: .3rem; } .ex-up .st { display: block !important; white-space: normal; }
+  .ex-cal2 { display: grid; grid-template-columns: minmax(250px, 330px) minmax(0, 1fr); gap: 1rem; align-items: start; }
+  .ex-calf { display: grid; gap: .6rem; } .ex-calf section { border: 1px solid #e2e8ec; border-radius: 12px; padding: .55rem .7rem; background: #fbfcfd; }
+  .ex-calf h6 { font-size: .9rem; font-weight: 800; margin: 0 0 .4rem; color: #0b4a66; } .ex-calf label { display: block; margin: 0; } .ex-calf label > span { font-size: .8rem; font-weight: 700; color: #1f2a30; }
+  .ex-calf .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; } .ex-calf .src { display: block; margin-top: .35rem; color: #15803d; font-size: .78rem; }
+  .ex-calf .ex-wk { display: flex; flex-wrap: wrap; gap: .25rem; } .ex-calf .ex-chk { font-size: .82rem; padding: .15rem .45rem; }
+  .ex-kp2 { display: flex; flex-wrap: wrap; gap: .35rem .9rem; align-items: center; font-size: .88rem; color: #1f2a30; margin-bottom: .5rem; } .ex-kp2 .ex b { color: #901d23; font-size: 1.1rem; }
+  .ex-kp2 .lg { margin-inline-start: auto; font-size: .78rem; display: inline-flex; gap: .3rem; align-items: center; } .ex-kp2 .d { display: inline-block; width: 11px; height: 11px; border-radius: 3px; }
+  .ex-kp2 .d.ex { background: #901d23; } .ex-kp2 .d.off { background: #e2e8ec; } .ex-kp2 .d.hol { background: repeating-linear-gradient(45deg, #f6b0b0 0 3px, #fff 3px 6px); border: 1px solid #f0a0a0; }
+  .ex-calm .ex-months { margin: 0; } .ex-calm .ex-month small { font-size: .68rem; }
+  @media (max-width: 900px) { .ex-cal2 { grid-template-columns: 1fr; } }
   .ex-files { border: 1px solid #e2e8ec; border-radius: 14px; padding: .7rem; margin: .7rem 0; background: #fbfcfd; display: grid; gap: .45rem; }
-  .ex-files > .h { font-weight: 800; display: flex; flex-wrap: wrap; gap: .4rem; align-items: baseline; } .ex-files > .h small { font-weight: 400; color: #5b6b72; }
+  .ex-files > .h { font-weight: 800; display: flex; flex-wrap: wrap; gap: .4rem; align-items: baseline; } .ex-files > .h small { font-weight: 400; color: #1f2a30; }
   .ex-up { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .6rem; align-items: center; background: #fff; border: 1px solid #e2e8ec; border-inline-start: 4px solid #c8d2d7; border-radius: 10px; padding: .5rem .7rem; margin: .35rem 0; }
-  .ex-up.ok { border-inline-start-color: #15803d; } .ex-up .ic { font-size: 1.35rem; color: #0b4a66; } .ex-up .tx b { display: block; } .ex-up .tx small { display: block; color: #5b6b72; font-size: .82rem; }
-  .ex-up .st { display: inline-flex; gap: .3rem; align-items: center; font-size: .82rem; font-weight: 700; color: #15803d; margin-top: .15rem; } .ex-up .st.no { color: #8a959a; font-weight: 400; }
+  .ex-up.ok { border-inline-start-color: #15803d; } .ex-up .ic { font-size: 1.35rem; color: #0b4a66; } .ex-up .tx b { display: block; } .ex-up .tx small { display: block; color: #1f2a30; font-size: .82rem; }
+  .ex-up .st { display: inline-flex; gap: .3rem; align-items: center; font-size: .82rem; font-weight: 700; color: #15803d; margin-top: .15rem; } .ex-up .st.no { color: #1f2a30; font-weight: 400; }
   .ex-up .ac { display: flex; flex-wrap: wrap; gap: .3rem; justify-content: flex-end; }
   .ex-prof { display: flex; gap: .6rem; align-items: center; background: #eef6f2; border: 1px solid #cfe3dc; border-radius: 12px; padding: .55rem .75rem; margin: .5rem 0; }
-  .ex-prof > i { font-size: 1.4rem; color: #15803d; } .ex-prof > div { flex: 1; min-width: 0; } .ex-prof b { display: block; } .ex-prof small { color: #355; font-size: .82rem; }
+  .ex-prof > i { font-size: 1.4rem; color: #15803d; } .ex-prof > div { flex: 1; min-width: 0; } .ex-prof b { display: block; } .ex-prof small { color: #1f2a30; font-size: .82rem; }
   .ex-split { border: 1px dashed #cfd8dc; border-radius: 10px; padding: .5rem .7rem; margin-bottom: .6rem; background: #fcfcfa; }
   @media (max-width: 640px) { .ex-up { grid-template-columns: auto minmax(0, 1fr); } .ex-up .ac { grid-column: 1 / -1; justify-content: flex-start; } .ex-prof { flex-wrap: wrap; } }
   @media print { .ex-steps, .ex-status, .ex-toolbar, .ex-filter, .ex-hint, .ex-nav { display: none; } }`;

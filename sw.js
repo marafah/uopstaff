@@ -2,7 +2,7 @@
    fetched fresh when online and the last copy is used when offline or when the network is too slow; libraries,
    fonts and photos are kept once used. VERSION changes with every release of the site (the same ?v= the pages use),
    which replaces the kept pages and scripts. */
-const VERSION = '202611171500';  // exams: «جدول» by the timetable, heads proctor their own courses, saved settings editable, compact setup
+const VERSION = '202611171800';  // exams: missing proctors shown, heads/deans rules, compact calendar, rooms and proctors, fixed exams in «الدورة», darker text
 const CORE = 'uop-core-' + VERSION, DATA = 'uop-data', LIBS = 'uop-libs', ASSETS = 'uop-assets';
 const PAGES = ['./', 'index.html', 'directory.html', 'timetable.html', 'calendar.html', 'now.html', 'notes.html', 'changes.html', 'makeup.html', 'load.html',
   'phones.html', 'together.html', 'instructor.html', 'planner.html', 'room.html', 'office-hours.html', 'usage.html', 'screen.html', 'screen-posts.html', 'campus.html', 'trends.html', 'org.html', 'plans.html', 'advisory.html',
