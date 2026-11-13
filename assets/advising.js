@@ -568,6 +568,7 @@
   .fb.reg { background:#e8f1f7; color:#0b4a66; border-color:#b9d3e4; border-radius:6px; }
   .adv-dash tbody td, .adv-dash tbody td small, .adv-dash tbody td .adv-src { color:#111 !important; } .adv-dash tbody .bd-nm b { font-weight:700 !important; font-size:1rem; }
   .adv-dash .fb.reg { font-family:inherit !important; letter-spacing:0; font-size:.88rem; }
+  .adv-t .fb, .dm-t .fb, .adv-t .bd-gpa, .adv-cc .fb, .dt .fb { border-radius:4px !important; }
   .adv-dayc { white-space:nowrap; } .bd-nm { white-space:nowrap; } .bd-nm b { color:#111; } .bd-id { font-family:ui-monospace,Consolas,monospace; }
   .bd-st { white-space:nowrap; } .bd-st .fb + .fb { margin-inline-start:4px; }
   .bd-gpa { display:inline-block; min-width:48px; text-align:center; border-radius:6px; padding:1px 8px; border:1px solid; font-variant-numeric:tabular-nums; }
