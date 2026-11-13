@@ -43,8 +43,9 @@
   // the description as printed (an image of its part of the page: exact), and its text when the file's text layer reads cleanly
   function descBody(e) {
     const imgs = (e.img || []).map(n => `<img class="am-dimg" src="data/coursedesc/${esc(n)}" alt="وصف المادة كما في الملف المنشور" loading="lazy">`).join('');
-    if (!imgs) return `<p class="am-desc">${esc(e.text)}</p>`;
-    return `<div class="am-dimgs">${imgs}</div>${e.clean ? `<details class="small"><summary>النص (للنسخ والبحث)</summary><p class="am-desc">${esc(e.text)}</p></details>` : '<p class="small text-muted mb-1">نص هذا الملف لا يُقرأ آلياً بدقة (خطّه يُسقط بعض الحروف)، فيُعرض كما طُبع.</p>'}`;
+    const text = e.clean || e.ocr ? `<p class="am-desc">${esc(e.text)}</p>` : '';
+    return `${text}${e.ocr ? '<p class="small text-muted mb-1">قُرئ النص من صورة الصفحة لأن خطّ الملف لا يُستخرج نصاً سليماً؛ قد يقع فيه خطأ حرفي نادر — المرجع الملف.</p>' : ''}
+      ${imgs ? (text ? `<details class="small"><summary>كما طُبع في الملف</summary><div class="am-dimgs">${imgs}</div></details>` : `<div class="am-dimgs">${imgs}</div>`) : ''}`;
   }
   // the groups of the portal's study plan a choice slot («متطلب تخصص اختياري», «مادة حرة»…) is filled from
   function slotGroups(n, pm) {

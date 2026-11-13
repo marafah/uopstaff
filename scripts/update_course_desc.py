@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import advisory_parse  # noqa: E402
 import update_advisory  # noqa: E402
 
-VERSION = 6
+VERSION = 7
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 OUT = os.path.join(ROOT, "data", "course_descriptions.json")
 IMG = os.path.join(ROOT, "data", "coursedesc")
@@ -154,13 +154,36 @@ def clean_text(t):
     return not re.search(r"ا{3,}|(?:\b\w\b ){4}", t) and single / len(ar) <= 0.03
 
 
+def ocr_text(pg, top, bottom):
+    """The printed text of one part of a page, read from its image at 300 dpi."""
+    try:
+        import pytesseract
+    except ImportError:
+        return ""
+    w, h = pg.get_width(), pg.get_height()
+    scale = 300 / 72
+    img = pg.render(scale=scale).to_pil().convert("L")
+    img = img.crop((0, int(max(0, top - 3) * scale), int(w * scale), int(min(h, bottom + 4) * scale)))
+    try:
+        t = pytesseract.image_to_string(img, lang="ara+eng", config="--psm 6")
+    except Exception as e:  # no Arabic data on this machine: the page image is shown instead
+        print(f"  OCR: {e}", file=sys.stderr)
+        return ""
+    t = unicodedata.normalize("NFKC", t)
+    t = t.replace("»", "،").replace("؛؛", "؛")   # Tesseract reads the Arabic comma as «»»
+    # drop the course's own title and prerequisite lines, which the page shows apart
+    lines = [l.strip() for l in t.splitlines() if l.strip()]
+    lines = [l for l in lines if not PRE.search(l) and not re.match(r"^\(?\d{6,7}\)?\s", l) and not re.search(r"\(\s*\d\s*-\s*\d\s*[:：]\s*\d\s*\)", l)]
+    return " ".join(lines)
+
+
 def crops(pdf_bytes, sha, got):
     """Every course's part of the page as an image (the published text exactly as printed), once per file."""
     import pypdfium2 as pdfium
     os.makedirs(IMG, exist_ok=True)
     doc = pdfium.PdfDocument(pdf_bytes)
     for code, c in got.items():
-        names = []
+        names, ocr = [], []
         for i, (page, top, bottom) in enumerate(c["seg"][:3]):
             name = f"{sha[:12]}-{VERSION}-{code}-{i}.webp"
             path = os.path.join(IMG, name)
@@ -172,7 +195,13 @@ def crops(pdf_bytes, sha, got):
                 y0, y1 = max(0, (top - 4) * scale), min(h * scale, (bottom + 5) * scale)
                 img.crop((int(0.04 * w * scale), int(y0), int(0.96 * w * scale), int(y1))).save(path, "WEBP", quality=70, method=6)
             names.append(name)
+            if not c["clean"]:
+                ocr.append(ocr_text(doc[page - 1], top, bottom))
         c["img"] = names
+        if not c["clean"] and any(ocr):
+            # the file's own text drops letters: the text is read from the printed page instead (Tesseract, Arabic + English)
+            text = re.sub(r"\s+", " ", " ".join(ocr)).strip()
+            c["text"], c["ocr"] = text, True
         c.pop("seg", None)
 
 
