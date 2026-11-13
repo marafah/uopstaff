@@ -566,6 +566,8 @@
   .sv-leg { display:flex; gap:16px; margin-top:8px; font-size:.85rem; color:#111; } .sv-leg i { display:inline-block; width:12px; height:8px; border-radius:2px; margin-inline-end:4px; } .sv-leg i.ok { background:#16a34a; } .sv-leg i.cur { background:#93c5fd; }
   .sv-code, .adv-t tbody .sv-code, .dt-c .sv-code { font-family:ui-monospace,Consolas,monospace; font-weight:700 !important; color:#000; }
   .sv-info { display:flex; gap:8px; align-items:flex-start; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:8px 12px; margin-bottom:10px; font-size:.92rem; color:#111; }
+  .sv-ph { flex-wrap:wrap; } .sv-pc { display:flex !important; gap:10px; align-items:center; margin:0 12px 0 0 !important; flex-wrap:wrap; font-size:.88rem; font-weight:400; } .sv-pc label { display:flex; gap:6px; align-items:center; white-space:nowrap; margin:0; } .sv-pc select { width:auto; }
+  .sv-sep { color:#bbb; margin:0 6px; }
   .sv-info.warn { background:#fffbeb; border-color:#fde68a; }
   .sv-t td { vertical-align:middle; }
   .sv-alt { border:1px solid #eee; border-radius:10px; padding:10px 12px; margin-bottom:10px; } .sv-alt-h { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:6px; color:#111; }
@@ -855,15 +857,16 @@
               ${ready.length > 10 ? `<button type="button" class="btn btn-sm btn-light border" data-sv="list">كل المواد (${ready.length})</button>` : ''}</div></section>
           ${a.open.filter(c => c.inProgress).length ? `<section class="dt-c"><h4><i class="bi bi-hourglass-top ic-o"></i> مسجلة هذا الفصل <span class="fb reg ms-auto">${a.current.size} مواد · ${curHrs} س</span></h4>${a.open.filter(c => c.inProgress).map(c => `<div class="sv-r sv-r3">${code(c.code)}<span class="dt-in">${esc(c.name)}</span><span>${c.hours}</span></div>`).join('')}</section>` : ''}
         </div></div>`;
-    else if (sv === 'plan') body = `<section class="dt-c sv-wide"><h4><i class="bi bi-magic ic-p"></i> الجدول المقترح <span class="fb ${sug.hours > lim.max ? 'no' : 'ok'} ms-auto">${sug.hours} من ${cap} ساعة</span></h4>
-        <div class="adv-ctl no-print mb-2">
-          <label>الخطة لـ <select class="form-select form-select-sm" id="adv-mode"><option value="next" ${assume ? 'selected' : ''}>الفصل القادم (المواد المسجلة الآن تُعدّ ناجحة)</option><option value="now" ${!assume ? 'selected' : ''}>هذا الفصل: سحب وإضافة</option></select></label>
-          <label>نوع الفصل <select class="form-select form-select-sm" id="adv-summer"><option value="0" ${!summer ? 'selected' : ''}>اعتيادي</option><option value="1" ${summer ? 'selected' : ''}>صيفي</option></select></label>
+    else if (sv === 'plan') body = `<section class="dt-c sv-wide"><h4 class="sv-ph"><i class="bi bi-magic ic-p"></i> الجدول المقترح
+          <span class="adv-ctl no-print sv-pc">
+          <label>الخطة لـ <select class="form-select form-select-sm" id="adv-mode"><option value="next" ${assume ? 'selected' : ''}>الفصل القادم (المسجلة الآن ناجحة)</option><option value="now" ${!assume ? 'selected' : ''}>هذا الفصل: سحب وإضافة</option></select></label>
+          <label>الفصل <select class="form-select form-select-sm" id="adv-summer"><option value="0" ${!summer ? 'selected' : ''}>اعتيادي</option><option value="1" ${summer ? 'selected' : ''}>صيفي</option></select></label>
           <label>الساعات <select class="form-select form-select-sm" id="adv-cap">${Array.from({ length: 22 }, (_, i) => i + 3).filter(n => n <= 24).map(n => `<option value="${n}" ${n === cap ? 'selected' : ''}>${n}${n === lim.max ? ' (الحد الأعلى)' : n > lim.max ? ' — فوق الحد' : ''}</option>`).join('')}</select></label>
-          ${st.force.size || st.drop.size ? '<button type="button" class="btn btn-sm btn-light" id="adv-reset"><i class="bi bi-arrow-counterclockwise"></i> المقترح الأصلي</button>' : ''}</div>
-        <div class="sv-info"><i class="bi bi-bookmark-check ic-b"></i> <span>الحد الأعلى ${hrsWord(lim.max)} ${ruleLink(lim.rule, 'م ' + lim.rule)}${lim.grad ? ' لأن ساعاته المتبقية لا تزيد على ' + (summer ? 13 : 21) + ' ساعة (الطالب المتوقع تخرجه)' : ''}${!summer && !lim.grad ? `، والحد الأدنى 12 ساعة ${ruleLink('7', 'م 7/ج')}` : lim.grad ? '، ولا يتقيد بالحد الأدنى في فصل التخرج (م 7/د)' : ''}.
-          ${cap > lim.max ? '<b class="adv-bad">العدد المختار فوق الحد الأعلى.</b>' : ''} ${sug.hours && sug.hours < lim.min ? '<b class="adv-bad">المقترح أقل من الحد الأدنى لأن المتاح محدود؛ يلزم موافقة العميد (م 7/ج).</b>' : ''}</span></div>
-        <div class="sv-info"><i class="bi bi-calendar3 ic-o"></i> <span>${ttNote}</span></div>
+          ${st.force.size || st.drop.size ? '<button type="button" class="btn btn-sm btn-light border" id="adv-reset"><i class="bi bi-arrow-counterclockwise"></i> الأصلي</button>' : ''}</span>
+          <span class="fb ${sug.hours > lim.max ? 'no' : 'ok'} ms-auto">${sug.hours} من ${cap} ساعة</span></h4>
+        <div class="sv-info"><i class="bi bi-bookmark-check ic-b"></i> <span>الحد الأعلى ${hrsWord(lim.max)} ${ruleLink(lim.rule, 'م ' + lim.rule)}${lim.grad ? ' لأن متبقيه لا يزيد على ' + (summer ? 13 : 21) + ' ساعة (متوقع تخرجه)، ولا يتقيد بالحد الأدنى (م 7/د)' : !summer ? `، والحد الأدنى 12 ${ruleLink('7', 'م 7/ج')}` : ''}.
+          ${cap > lim.max ? '<b class="adv-bad">العدد المختار فوق الحد الأعلى.</b>' : ''} ${sug.hours && sug.hours < lim.min ? '<b class="adv-bad">المقترح أقل من الحد الأدنى لأن المتاح محدود؛ يلزم موافقة العميد (م 7/ج).</b>' : ''}
+          <span class="sv-sep">|</span> <i class="bi bi-calendar3 ic-o"></i> ${later ? `الشعب من جدول ${esc(TT.term)} المنشور.` : `جدول الفصل القادم لم يُنشر بعد؛ الشعب من جدول ${esc(TT.term)} تقديراً، وتتحدّث تلقائياً.`}</span></div>
         ${sug.take.length ? `<div class="table-responsive"><table class="adv-t sv-t"><thead><tr><th>الرمز</th><th>المادة</th><th>س</th>${SEC_TH}<th class="no-print"></th></tr></thead><tbody>${sug.take.map(t => { const mine = sel.filter(x => x.code === (t.c.via || t.c.code));
             return `<tr><td>${code(t.c.code)}${t.c.via ? `<div><span class="fb sec">تُسجَّل برمز ${t.c.via}</span></div>` : ''}</td><td>${esc(t.c.name || nm(t.c.code))}<div class="mt-1">${whyB(t.c.why)}</div></td><td><span class="fb hrs">${t.c.hours} س</span></td>${secTds(mine)}
               <td class="no-print"><button type="button" class="btn btn-sm btn-light border" data-drop="${t.c.code}" title="أخرجها من المقترح"><i class="bi bi-x-lg"></i></button></td></tr>`; }).join('')}</tbody></table></div>
