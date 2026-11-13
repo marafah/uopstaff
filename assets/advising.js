@@ -564,6 +564,8 @@
   .dt-tl li.end::before { background:#16a34a; border-color:#16a34a; } .dt-tl li.end span:first-child { color:#15803d; }
   .dt-act { grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
   .dt-src { margin-inline-start:auto; font-size:.88rem; color:#111; }
+  .adv-dash th, .adv-dash td, .adv-dash td * { white-space:nowrap; } .adv-dash .adv-det td, .adv-dash .adv-det td * { white-space:normal; } .adv-dash .adv-det .dt-gn, .adv-dash .adv-det .dt-in, .adv-dash .adv-det .fb { white-space:nowrap; }
+  .fb.reg { background:#e8f1f7; color:#0b4a66; border-color:#b9d3e4; border-radius:6px; }
   .adv-dayc { white-space:nowrap; } .bd-nm { white-space:nowrap; } .bd-nm b { color:#111; } .bd-id { font-family:ui-monospace,Consolas,monospace; }
   .bd-st { white-space:nowrap; } .bd-st .fb + .fb { margin-inline-start:4px; }
   .bd-gpa { display:inline-block; min-width:48px; text-align:center; border-radius:6px; padding:1px 8px; border:1px solid; font-variant-numeric:tabular-nums; }
@@ -1191,7 +1193,7 @@
         ${show.map(r => { const s = r.s; return `<tr class="adv-row ${open === s.head.id ? 'open' : ''} ${SEL.has(String(s.head.id)) ? 'sel' : ''}" data-row="${esc(s.head.id)}"><td class="no-print adv-cb"><input type="checkbox" data-sel="${esc(s.head.id)}" ${SEL.has(String(s.head.id)) ? 'checked' : ''}></td><td class="bd-nm"><b>${esc(s.head.name || '')}</b><div class="adv-src"><span class="bd-id">${esc(s.head.id || '')}</span> · ${esc(s.level || '')}</div></td>
           <td><small>${esc(s.head.major || '')}</small><div class="adv-src">إصدار ${esc(s.version)}</div></td>
           <td>${s.gpa != null ? `<span class="bd-gpa ${s.gpa < 2 ? 'r' : s.gpa >= 3 ? 'g' : s.gpa < 2.5 ? 'y' : 'b'}">${s.gpa.toFixed(2)}</span>` : '<span class="fb sec">جديد</span>'}</td><td>${s.passedHours ?? ''}</td><td>${r.a0.remainingNow}</td>
-          <td style="white-space:nowrap"><div class="adv-pct bd-p"><i class="${r.pct >= 75 ? 'g' : r.pct >= 40 ? 'b' : 'y'}" style="width:${r.pct}%"></i></div><small>${r.pct}%</small></td><td>${r.a0.current.size ? `<span class="fb code">${r.a0.current.size} مواد · ${r.curH} س</span>` : '—'}</td>
+          <td style="white-space:nowrap"><div class="adv-pct bd-p"><i class="${r.pct >= 75 ? 'g' : r.pct >= 40 ? 'b' : 'y'}" style="width:${r.pct}%"></i></div><small>${r.pct}%</small></td><td>${r.a0.current.size ? `<span class="fb reg">${r.a0.current.size} مواد · ${r.curH} س</span>` : '—'}</td>
           <td style="white-space:nowrap">${r.path && r.path.end ? `<i class="bi bi-mortarboard-fill ${r.lim.grad ? 'ic-g' : 'ic-t'}"></i> ${esc(termName(r.path.end))}` : '—'}</td>
           <td class="bd-st">${r.lim.grad ? '<span class="fb ok"><i class="bi bi-mortarboard-fill"></i> متوقع تخرجه</span>' : ''}${r.a.warned ? '<span class="fb no"><i class="bi bi-exclamation-octagon-fill"></i> منذر</span>' : ''}${r.weak ? '<span class="fb hrs"><i class="bi bi-graph-down-arrow"></i> متعثر</span>' : ''}${r.failedNow ? `<span class="fb day"><i class="bi bi-x-circle"></i> ${r.failedNow} لم ينجح بها</span>` : ''}${(s.warn || []).length ? '<span class="fb no">⚠ تنبيه</span>' : ''}${!r.lim.grad && !r.a.warned && !r.weak && !r.failedNow ? '<span class="fb ok"><i class="bi bi-check-circle-fill"></i> منتظم</span>' : ''}</td>
           <td>${r.reqNotOff.map(c => `<span class="fb no" title="${esc(c.name)}">${c.code}</span>`).join(' ') || '—'}</td>
