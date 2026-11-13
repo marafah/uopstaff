@@ -211,8 +211,11 @@
       return { ...g, req, fixed, gotDone, gotPassed, needHours: fixed ? hrs(need) : Math.max(0, req - hrs(doneC)), need,
         open: fixed ? need : (req - hrs(doneC) > 0 ? g.courses.filter(c => !done.has(c.code)) : []) };
     });
-    const remainingNow = groups.filter(g => COUNTS(g.kind)).reduce((a, g) => a + Math.max(0, g.req - g.gotPassed), 0);
-    const remaining = groups.filter(g => COUNTS(g.kind)).reduce((a, g) => a + (g.fixed ? g.needHours : g.needHours), 0);
+    // the remaining hours are the registration system's own figure when the PDF prints it (plan hours less passed hours)
+    const sumNow = groups.filter(g => COUNTS(g.kind)).reduce((a, g) => a + Math.max(0, g.req - g.gotPassed), 0);
+    const sumAfter = groups.filter(g => COUNTS(g.kind)).reduce((a, g) => a + Math.max(0, g.req - g.gotDone), 0);
+    const remainingNow = st.remainingHours != null ? st.remainingHours : sumNow;
+    const remaining = Math.max(0, remainingNow - (sumNow - sumAfter));
     // the prerequisite graph inside the plan
     const byCode = {};
     all.forEach(c => { byCode[c.code] ||= c; });
@@ -638,11 +641,10 @@
   function consistency(s) {
     const a = analyse(s, { assumeCurrent: false });
     const checks = [];
-    if (s.remainingHours != null) checks.push(['الساعات المتبقية', a.remainingNow, s.remainingHours]);
     a.groups.forEach(g => { if (g.printedPassed != null && COUNTS(g.kind)) checks.push([g.name, g.gotPassed, g.printedPassed]); });
     const bad = checks.filter(c => c[1] !== c[2]);
     return bad.length ? `<div class="adv-check no"><i class="bi bi-exclamation-triangle"></i> اختلاف عن أرقام الكشف: ${bad.map(b => `${esc(b[0])}: الصفحة ${b[1]}، الكشف ${b[2]}`).join(' · ')} — المعتمد ما في الكشف.</div>`
-      : `<div class="adv-check ok"><i class="bi bi-check2-all"></i> مطابق لكشف الجامعة: الساعات المتبقية وساعات كل مجموعة (${checks.length} رقماً) كما هي مطبوعة في الكشف.</div>`;
+      : `<div class="adv-check ok"><i class="bi bi-check2-all"></i> مطابق لكشف الجامعة: الساعات المجتازة في كل مجموعة (${checks.length} رقماً) كما هي مطبوعة في الكشف، والساعات المتبقية منقولة من الكشف.</div>`;
   }
 
   // ---------------------------------------------------------------- the advising form for printing
@@ -683,7 +685,7 @@
   }
 
   // ---------------------------------------------------------------- plans kept on this device (IndexedDB), and the import from the portal
-  const PV = 2;   // the reader's version: plans kept by an older reader are read again from their PDF
+  const PV = 3;   // the reader's version: plans kept by an older reader are read again from their PDF
   const PORTAL = 'https://edugate.uop.edu.jo';
   const IMP = { on: P.get('from') === 'edugate', got: 0, ok: 0, warn: 0, bad: 0, last: '', done: null, list: [] };
   function idb() {
@@ -697,7 +699,6 @@
   // the PDF's own figures against the page's sums: [] when everything matches
   function mismatches(s) {
     const a = analyse(s, { assumeCurrent: false }), out = [];
-    if (s.remainingHours != null && a.remainingNow !== s.remainingHours) out.push(`المتبقية ${a.remainingNow}≠${s.remainingHours}`);
     a.groups.forEach(g => { if (g.printedPassed != null && COUNTS(g.kind) && g.gotPassed !== g.printedPassed) out.push(`${g.name} ${g.gotPassed}≠${g.printedPassed}`); });
     return out;
   }
