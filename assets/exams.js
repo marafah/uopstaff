@@ -883,7 +883,7 @@
             <td class="ty"><span class="ex-sevb sev${SEV[r.sev]}">${esc(r.sev)}</span><b><i class="bi ${KIND[r.k][2]}"></i> ${KIND[r.k][1]}</b>${r.k !== 'ins' && r.n ? `<span class="n">${r.exact ? r.n : 'حتى ' + r.n} ${r.n === 1 ? 'طالب' : 'طالباً'}${r.exact ? '' : ' (تقدير)'}</span>` : ''}</td>
             <td class="wh">${esc(r.when).replace(' · ', '<br>')}</td>
             <td class="cs">${r.cs.map(i => `<div class="ex-cc" style="--c:${C[i].col[0]}" title="${esc(C[i].dept + ' · ' + (C[i].ins.map(U.shortName).join('، ') || '—'))}"><b dir="ltr">${esc(C[i].code)}</b><span>${esc(C[i].name)}</span><em>${C[i].students} طالباً</em></div>`).join('')}</td>
-            <td class="why">${esc(r.why)}${r.who.length ? `<details><summary>${r.k === 'short' ? 'القاعات' : r.k === 'ins' ? 'المدرّس' : 'المجموعات'} (${r.who.length})</summary>${r.who.map(esc).join(' · ')}</details>` : ''}</td>
+            <td class="why"><div>${esc(r.why)}</div>${r.who.length ? `<div class="who"><span class="lb">${r.k === 'short' ? 'القاعات' : r.k === 'ins' ? 'المدرّس' : 'الطلبة'}:</span>${r.who.map(w => `<span class="wc">${esc(String(w).replace(/^القاعة\s*/, ''))}</span>`).join('')}</div>` : ''}</td>
             <td class="act">${r.fix ? `<div class="fx">${esc(fixTxt(r.fix))}</div><button class="btn btn-sm btn-ex" data-fix="${r.fix.i},${r.fix.s}"><i class="bi bi-magic"></i> تطبيق</button>`
               : `<div class="nofx">${r.k === 'short' ? 'أضف مراقبين أو ارفع حد المراقبات اليومي' : 'لا يوجد نقل أفضل؛ زد الأيام أو الفترات أو القاعات'}</div>`}
               <button class="btn btn-sm btn-outline-secondary" data-go="${r.cs[0]}"><i class="bi bi-box-arrow-up-left"></i> عرض في الجدول</button></td></tr>`).join('')}</tbody></table></div></section>`; })()}
@@ -2683,13 +2683,15 @@
   .ex-rt2 td { padding: .65rem .75rem !important; border-bottom: 1px solid #ebe4d6 !important; color: #0f1f26; } .ex-rt2 tbody tr:nth-child(even) td { background: #fcfbf8; }
   .ex-rt2 .ty { white-space: normal !important; min-width: 9.5rem; } .ex-rt2 .ty .ex-sevb { font-size: .8rem; margin-bottom: .25rem; } .ex-rt2 .ty b { display: block; font-size: 1rem; } .ex-rt2 .ty .n { display: block; font-size: .88rem; font-weight: 700; color: #0f1f26; }
   .ex-rt2 .wh { font-weight: 700; font-size: .95rem; color: #0f1f26 !important; line-height: 1.5; }
-  .ex-rt2 .cs { min-width: 17rem !important; } .ex-cc { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .45rem; align-items: baseline; border-inline-start: 4px solid var(--c); padding: .15rem .5rem; margin: .15rem 0; background: #fff; border-radius: 4px; }
+  .ex-rt2 .cs { min-width: 24rem !important; width: 30%; } .ex-rt2 .why { width: 32%; } .ex-cc { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .45rem; align-items: baseline; border-inline-start: 4px solid var(--c); padding: .15rem .5rem; margin: .15rem 0; background: #fff; border-radius: 4px; }
   .ex-cc b { font-size: .95rem; } .ex-cc span { font-size: .95rem; } .ex-cc em { font-style: normal; font-size: .85rem; font-weight: 700; white-space: nowrap; }
   .ex-rt2 .why { color: #0f1f26 !important; font-size: .95rem; min-width: 15rem !important; } .ex-rt2 .why details { font-size: .88rem !important; }
   .ex-rt2 .act { min-width: 12rem !important; } .ex-rt2 .act .fx { color: #15803d; font-weight: 800; font-size: .9rem; margin-bottom: .3rem; } .ex-rt2 .act .nofx { font-size: .9rem; margin-bottom: .3rem; }
   .ex-rt2 .act .btn { margin: .1rem 0 .1rem .3rem; font-size: .85rem; }
   .ex-qtips { font-size: .92rem !important; color: #0f1f26 !important; } .ex-qk span { font-size: .85rem !important; color: #0f1f26 !important; } .ex-qk b { font-size: 1.3rem !important; }
   .ex-rtabs button { font-size: .9rem !important; color: #0f1f26 !important; } .ex-rtabs em { font-size: .8rem !important; }
+  .ex-rt2 .why .who { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; margin-top: .4rem; } .ex-rt2 .why .who .lb { font-weight: 800; font-size: .88rem; }
+  .ex-rt2 .why .wc { background: #eef4f8; border: 1px solid #cfdde7; color: #0b3a50; border-radius: 6px; padding: .05rem .45rem; font-size: .88rem; font-weight: 700; }
   .ex-cal2 { display: grid; grid-template-columns: minmax(250px, 330px) minmax(0, 1fr); gap: 1rem; align-items: start; }
   .ex-calf { display: grid; gap: .6rem; } .ex-calf section { border: 1px solid #e2e8ec; border-radius: 12px; padding: .55rem .7rem; background: #fbfcfd; }
   .ex-calf h6 { font-size: .9rem; font-weight: 800; margin: 0 0 .4rem; color: #0b4a66; } .ex-calf label { display: block; margin: 0; } .ex-calf label > span { font-size: .8rem; font-weight: 700; color: #1f2a30; }
