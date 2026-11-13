@@ -18,9 +18,15 @@
   let A, PROGS, DOCS, READS, TTERM = '', TT = {}, SP = null, CODE_NAME = {}, DESC = null, PMC = null;
   // ---------------------------------------------------------------- from the official sources, per department
   // the course's description as the department publishes it («وصف المواد»), word for word, with its file and page
+  const PFX = {};
+  function docPfx(url) {   // the department a description file belongs to: the number prefix most of its courses share
+    if (!(url in PFX)) { const n = {}; Object.entries(DESC.courses).forEach(([c, L]) => L.forEach(e => { if (e.url === url) n[c.slice(0, 3)] = (n[c.slice(0, 3)] || 0) + 1; }));
+      PFX[url] = (Object.entries(n).sort((a, b) => b[1] - a[1])[0] || [''])[0]; }
+    return PFX[url];
+  }
   function descOf(code, p) {
     const L = (DESC && DESC.courses && DESC.courses[code]) || [];
-    return L.find(e => p && e.p === p.id) || L[0] || null;
+    return L.find(e => p && e.p === p.id) || L.find(e => docPfx(e.url) === code.slice(0, 3)) || L[0] || null;
   }
   function descHtml(code, p) {
     if (!realCode(code)) return '';

@@ -777,7 +777,7 @@
       <p class="adv-src mt-2 mb-0">لكل مادة: وصفها كما في ملف «وصف المواد» للقسم، اسمها، الخطط الدراسية التي تضمها، شعبها هذا الفصل، الرموز الأخرى بالاسم نفسه في الخطط والخطط الاسترشادية المنشورة (رمز قديم أو جديد — للتحقق لا للمعادلة التلقائية)، والمواد المكافئة من القائمة المرفوعة.</p></div>
       ${hits.map(c => { const sm = same[c] || [], eq = eqOf(c), pl = plansOf(c);
         return `<div class="adv-card"><h3><code>${c}</code> ${esc(NAMES[c])} ${sectionsLine(c)}</h3>
-          ${(DESC && DESC.courses && DESC.courses[c] || []).slice(0, 1).map(e => `<div class="adv-law mb-2">${(e.img || []).length ? e.img.map(n => `<img src="data/coursedesc/${esc(n)}" alt="وصف المادة كما في الملف المنشور" loading="lazy" style="width:100%;max-width:820px;display:block;border:1px solid #ece6d6;border-radius:6px;margin-bottom:2px">`).join('') : esc(e.text)}<div class="adv-src mt-1"><i class="bi bi-file-earmark-pdf"></i> من <a href="${esc(e.url)}#page=${e.page || 1}" target="_blank" rel="noopener">«وصف المواد» – ${esc((DESC.docs[e.url] || {}).program || '')}</a>، صفحة ${e.page || 1}${e.pre ? ` · ${esc(e.pre)}` : ''}${DESC.courses[c].length > 1 ? ` · ووصفها كذلك ${DESC.courses[c].length - 1} ملف آخر` : ''}</div></div>`).join('')}
+          ${(DESC && DESC.courses && DESC.courses[c] || []).slice().sort((x, y) => (pfxOf(y.url) === c.slice(0, 3)) - (pfxOf(x.url) === c.slice(0, 3))).slice(0, 1).map(e => `<div class="adv-law mb-2">${(e.img || []).length ? e.img.map(n => `<img src="data/coursedesc/${esc(n)}" alt="وصف المادة كما في الملف المنشور" loading="lazy" style="width:100%;max-width:820px;display:block;border:1px solid #ece6d6;border-radius:6px;margin-bottom:2px">`).join('') : esc(e.text)}<div class="adv-src mt-1"><i class="bi bi-file-earmark-pdf"></i> من <a href="${esc(e.url)}#page=${e.page || 1}" target="_blank" rel="noopener">«وصف المواد» – ${esc((DESC.docs[e.url] || {}).program || '')}</a>، صفحة ${e.page || 1}${e.pre ? ` · ${esc(e.pre)}` : ''}${DESC.courses[c].length > 1 ? ` · ووصفها كذلك ${DESC.courses[c].length - 1} ملف آخر` : ''}</div></div>`).join('')}
           ${pl.length ? `<div class="adv-note"><b>في الخطط الدراسية:</b> ${pl.slice(0, 12).map(esc).join('، ')}${pl.length > 12 ? ` و${pl.length - 12} غيرها` : ''}</div>` : ''}
           ${sm.length ? `<div class="adv-note mt-1"><b>الاسم نفسه برمز آخر:</b> ${sm.map(x => `<code>${x.code}</code> <small>(${[...x.where].slice(0, 3).map(esc).join('، ')})</small> ${sectionsLine(x.code)}`).join(' · ')}</div>` : ''}
           ${eq.length ? `<div class="adv-note mt-1"><b>مكافئة لها:</b> ${eq.map(x => `<code>${x.code}</code> ${esc(nm(x.code))} ${x.note ? `<small>(${esc(x.note)})</small>` : ''} ${sectionsLine(x.code)}`).join(' · ')}</div>` : ''}</div>`; }).join('') || (q ? '<p class="adv-note">لا نتائج.</p>' : '')}
@@ -792,6 +792,12 @@
           ${EQ.map((e, i) => `<tr><td><code>${e.a}</code> ${esc(nm(e.a))}</td><td><code>${e.b}</code> ${esc(nm(e.b))}</td><td><small>${esc([e.note, e.src].filter(Boolean).join(' · '))}</small></td><td class="no-print"><button type="button" class="btn btn-sm btn-light" data-eqdel="${i}"><i class="bi bi-x-lg"></i></button></td></tr>`).join('')}</tbody></table></div>` : ''}</div>`;
   }
 
+  const PFX = {};
+  function pfxOf(url) {   // the department of a description file: the number prefix most of its courses share
+    if (!(url in PFX)) { const n = {}; Object.entries(DESC.courses).forEach(([c, L]) => L.forEach(e => { if (e.url === url) n[c.slice(0, 3)] = (n[c.slice(0, 3)] || 0) + 1; }));
+      PFX[url] = (Object.entries(n).sort((a, b) => b[1] - a[1])[0] || [''])[0]; }
+    return PFX[url];
+  }
   function rulesView() {
     return `<div class="adv-card"><h3><i class="bi bi-bank"></i> القواعد الرسمية التي تطبقها الصفحة</h3>
       <p class="adv-note">منقولة بنصها من <a href="${BACH_URL}" target="_blank" rel="noopener"><b>تعليمات منح درجة البكالوريوس في جامعة البترا</b> (تعليمات رقم 17 لسنة 2023)</a> المنشورة في

@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import advisory_parse  # noqa: E402
 import update_advisory  # noqa: E402
 
-VERSION = 5
+VERSION = 6
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 OUT = os.path.join(ROOT, "data", "course_descriptions.json")
 IMG = os.path.join(ROOT, "data", "coursedesc")
@@ -91,8 +91,8 @@ def parse(lines, known):
         if len(t) > 160:
             return None
         # a line that is only a prerequisite («متطلب سابق: 603391», read right to left) names no course of its own
-        if PRE.search(t):
-            rest = re.sub(r"(ال)?متطلب(ات)?|(ال)?سابق[ةه]?|prerequisites?|pre-?req\.?|لا يوجد|none|[\d\s+،,/:;()\[\].\-–و]", "", t, flags=re.I)
+        if PRE.search(t) or PRE.search(t[::-1]):   # some files keep a line's letters in reverse order
+            rest = re.sub(r"(ال)?متطلب(ات)?|(ال)?سابق[ةه]?|prerequisites?|pre-?req\.?|لا يوجد|none|[\d\s+،,/:;()\[\].\-–و]", "", t if PRE.search(t) else t[::-1], flags=re.I)
             if len(rest) < 4:
                 return None
         for m in CODE.finditer(t):
