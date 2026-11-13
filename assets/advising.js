@@ -559,7 +559,8 @@
     if (SAME) return SAME;
     // each course number's own name is the one most sources give it (the timetable and the study plans weigh most); numbers
     // that share that name are the same course under another number. A slip in one guidance plan (a wrong name beside a
-    // number) does not tie unrelated courses.
+    // number) does not tie unrelated courses, and only numbers of the same department (same first three digits) are tied:
+    // «تدريب ميداني» or «مشروع تخرج» of two departments are different courses.
     const votes = {}, where = {};
     const add = (code, name, w, weight) => { if (!/^\d{6,7}$/.test(code) || !name) return; const k = norm(clean(name)).replace(/[()\s]|\d$/g, ''); if (k.length < 4) return;
       const v = votes[code] ||= {}; v[k] = (v[k] || 0) + weight; ((where[code] ||= {})[k] ||= { name: clean(name), where: new Set() }).where.add(w); };
@@ -567,7 +568,7 @@
     Object.entries(READS()).forEach(([sha, r]) => (r.years || []).forEach(y => y.terms.forEach(t => t.courses.forEach(c => add(c.code, c.name, (PROG_OF[sha] || 'خطة استرشادية') + (r.academic_year ? ' ' + r.academic_year : ''), 1)))));
     S.forEach(s2 => add(s2.code, s2.name.replace(/\s*-\s*(نظري|عملي)$/, ''), 'الجدول الدراسي', 5));
     const by = {};
-    Object.entries(votes).forEach(([code, v]) => { const k = Object.entries(v).sort((a, b) => b[1] - a[1])[0][0]; (by[k] ||= []).push({ code, name: where[code][k].name, where: where[code][k].where }); });
+    Object.entries(votes).forEach(([code, v]) => { const k = Object.entries(v).sort((a, b) => b[1] - a[1])[0][0] + '|' + code.slice(0, 3); (by[k] ||= []).push({ code, name: where[code][k.split('|')[0]].name, where: where[code][k.split('|')[0]].where }); });
     SAME = {};
     Object.values(by).forEach(L => { if (L.length > 1) L.forEach(x => { SAME[x.code] = L.filter(y => y.code !== x.code); }); });
     return SAME;
