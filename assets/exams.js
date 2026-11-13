@@ -977,12 +977,27 @@
         <tbody>${s.rows.map((r, k) => `<tr class="${k && dayKey(s.columns, r) !== dayKey(s.columns, s.rows[k - 1]) ? 'nd' : ''}">${r.map((v, j) => `<td class="c-${colCls(s.columns[j])}">${cellHtml(s.columns[j], v, r)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${s.columns.length}" class="text-muted">لا شيء</td></tr>`}</tbody></table></div>`).join('')}`;
   }
   const title = () => (S.label || TYPES[S.type].name) + ' – ' + facLabel();
+  // for paper: one row per course; each of its rooms on its own line (room · students · section — proctors); dates d/m/yyyy;
+  // the columns sized for A4 landscape
+  function printSec(sec) {
+    const j = sec.columns.indexOf('القاعات والمراقبون'), WP = { 'اليوم': '6%', 'التاريخ': '7.5%', 'الوقت': '8%', 'الرمز': '8%', 'المقرر': '14%', 'القسم': '9%', 'الطلبة': '4.5%', 'القاعات والمراقبون': '43%' };
+    const nb = t => ({ html: `<span style="white-space:nowrap">${esc(t)}</span>` });
+    const rows = sec.rows.map(row => row.map((v, k) => { const h = sec.columns[k], t = String(v == null ? '' : v);
+      if (h === 'التاريخ' && /^\d{4}-\d{2}-\d{2}$/.test(t)) return nb(`${+t.slice(8)}/${+t.slice(5, 7)}/${t.slice(0, 4)}`);
+      if (h === 'الوقت' || h === 'الرمز' || h === 'اليوم') return nb(t);
+      if (k === j && row.meta) { const r = row.meta;
+        if (!r.rooms.length) return t || '—';
+        return { html: r.rooms.map(x => { const m = Math.max(0, (x.need || 1) - x.proc.length);
+          return `<div style="padding:1px 0;border-bottom:1px dotted #d5dde2"><b>${esc(x.room)}</b>${x.t === LAB ? ' <small style="display:inline">مختبر</small>' : ''} · ${x.n} طالباً${x.secs && x.secs.length && r.c.sl.length > 1 ? ' · ش ' + esc(x.secs.join('، ')) : ''} — ${esc(x.proc.map(U.shortName).join('، ') || '')}${m ? ` <b style="color:#b42318">⚠ ${x.proc.length ? 'ينقص ' + m : 'بلا مراقب'}</b>` : ''}</div>`; }).join('') + (r.left ? `<div style="color:#b42318;font-weight:700">${r.left} طالباً بلا قاعة</div>` : '') }; }
+      return t; }));
+    return { title: sec.title, columns: sec.columns, rows, widths: j >= 0 ? sec.columns.map(h => WP[h] || '') : undefined };
+  }
   function doPrint() {
     const st = stats();
     window.printReport({ title: title(), subtitle: `${OUT[outView]} · ${TT.term}`, orientation: 'landscape', fit: false,
       filters: [['الفترة', DAYS.length ? `${DAYS[0].label} – ${DAYS[DAYS.length - 1].label}` : '—'], ['الحالة', S.approved ? 'معتمدة: ' + S.approved : 'مسودة']],
       stats: [['مقرراً', C.length], ['مقعد امتحان', C.reduce((a, c) => a + c.students, 0)], ['يوماً', DAYS.length], ['تعارض', st.clash]],
-      sections: outData().map(expandRooms), note: 'أُعدّ الجدول بأداة «جدول الامتحانات» في بوصلة البترا؛ القاعات والمراقبون مقترحة وتُعتمد من لجنة الامتحانات.', qr: false });
+      sections: outData().map(printSec), note: 'أُعدّ الجدول بأداة «جدول الامتحانات» في بوصلة البترا؛ القاعات والمراقبون مقترحة وتُعتمد من لجنة الامتحانات.', qr: false });
   }
   const loadXLSX = () => window.XLSX ? Promise.resolve() : new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js'; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
   // Excel: a cover/matrix sheet (days × periods) and one sheet per table, laid out like an official timetable
@@ -1320,12 +1335,16 @@
       } catch (x) { btn.disabled = false; say('text-danger', '<i class="bi bi-x-octagon-fill"></i> ' + (x.message === 'denied' ? 'المفتاح لا يملك صلاحية Actions: Read and write على marafah/uopstaff. أنشئه من جديد بالخطوات أعلاه.' : x.message === 'expired' ? 'المفتاح غير صحيح. انسخه كاملاً من GitHub.' : keyErr(x))); }
     };
   }
+  // CSV: one tidy table (one header row, no blank or title rows): the group of each row (the day, department, room…) is its first
+  // column, and every room row repeats its course, so the file can be sorted and filtered as it is
   function doCSV() {
-    // plain numbers stay numbers; everything else is text written right-to-left (a leading RLM mark), so Excel neither turns a
-    // date into ##### nor scrambles «2 (26 من 85)»; dates as d/m/yyyy
     const q = v => { let t = String(v == null ? '' : v); if (/^\d{4}-\d{2}-\d{2}$/.test(t)) t = `${+t.slice(8)}/${+t.slice(5, 7)}/${t.slice(0, 4)}`;
-      if (t && !/^\d+$/.test(t)) t = '\u200F' + t; return `"${t.replace(/"/g, '""')}"`; }, lines = [];
-    outData().map(expandRooms).forEach(s => { if (s.title) lines.push(q(s.title)); lines.push(s.columns.map(q).join(',')); s.rows.forEach(r => lines.push(r.map(q).join(','))); lines.push(''); });
+      if (t && !/^\d+$/.test(t)) t = '‏' + t; return `"${t.replace(/"/g, '""')}"`; };
+    const secs = outData().map(expandRooms), G = { day: 'اليوم', dept: 'القسم', cohort: 'التخصص والسنة', room: 'القاعة', ins: 'المدرّس / المراقب' }[outView];
+    const cols = secs.length ? secs[0].columns : [], lines = [(G ? [G] : []).concat(cols).map(q).join(',')];
+    secs.forEach(sec => { let prev = null; const g = G ? String(sec.title || '').replace(/^القاعة\s*/, '') : null;
+      sec.rows.forEach(r => { const row = r.slice(); if (sec.expanded && r.first === false && prev) row.forEach((v, j) => { if (v === '' && (j < sec.nhead || j >= row.length - sec.ntail)) row[j] = prev[j]; });
+        if (r.first !== false) prev = row; lines.push((G ? [g] : []).concat(row).map(q).join(',')); }); });
     U.download(`${title()}_${OUT[outView]}.csv`.replace(/\s+/g, '_'), '﻿' + lines.join('\r\n'), 'text/csv;charset=utf-8');
   }
   function repExport(xl) {
