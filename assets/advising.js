@@ -481,19 +481,26 @@
   .dm-s.open { background: #dcfce7; color: #14532d; border: 1px solid #86efac; } .dm-s.closed { background: #ffedd5; color: #7c2d12; border: 1px solid #fdba74; } .dm-s.no { background: #fee2e2; color: #7f1d1d; border: 1px solid #fca5a5; }
   .dm-s small { font-weight: 600; } .dm-empty { text-align: center; padding: 16px; }
 
-  /* one table style for every advising table (same as the students list): beige header, white rows, thin lines, small soft badges */
-  .adv-t thead th, .dm-t thead th { background:#f6f2ea !important; color:#111 !important; font-weight:800; border-bottom:1px solid #e6e1d3; border-radius:0 !important; padding:11px 10px; }
-  .adv-t tbody tr > td, .dm-t tbody tr > td, .dm-t tr.no td, .adv-t tbody tr:nth-child(even) > td, .dm-t tbody tr:nth-child(even) td { background:#fff !important; border-bottom:1px solid #eee9dc; padding:12px 10px; }
-  .adv-t tbody tr:hover > td, .dm-t tbody tr:hover td { background:#fbf8f1 !important; }
-  .adv-row.open td { background:#f7efe0 !important; } .adv-row.sel td { background:#fbf2f3 !important; } .adv-det td { background:#fffdf8 !important; }
+  /* official table style: white everywhere, black text, thin grey lines; colour only as text in the status column */
+  .adv-t thead th, .dm-t thead th { background:#fff !important; color:#111 !important; font-weight:800; border-bottom:2px solid #1f2328; border-radius:0 !important; padding:11px 10px; }
+  .adv-t thead th i, .dm-t thead th i { color:#111 !important; }
+  .adv-t tbody tr > td, .dm-t tbody tr > td, .dm-t tr.no td, .adv-t tbody tr:nth-child(even) > td, .dm-t tbody tr:nth-child(even) td { background:#fff !important; border-bottom:1px solid #e5e5e5; padding:12px 10px; color:#111; }
+  .adv-t tbody tr:hover > td, .dm-t tbody tr:hover td { background:#fafafa !important; }
+  .adv-row.open td, .adv-row.sel td, .adv-det td { background:#fafafa !important; }
   .adv-t code, .adv-code, .dm-code { background:none !important; border:0 !important; color:#111 !important; padding:0 !important; font-weight:700; }
   .adv-hrs { background:none !important; color:#111 !important; padding:0 !important; font-weight:700; min-width:0 !important; }
-  .dm-bar { background:none !important; min-width:110px !important; height:auto !important; display:flex; align-items:center; gap:6px; overflow:visible !important; }
-  .dm-bar i { position:static !important; display:block; height:7px; border-radius:99px; background:#0f766e !important; order:2; } .dm-bar b { padding:0 !important; line-height:inherit !important; font-weight:700; }
-  .dm-b, .dm-s, .adv-seat { border-radius:6px !important; padding:1px 8px !important; font-size:.8rem !important; font-weight:600 !important; }
-  .dm-b.el { background:#fff !important; border:1px solid #d9d3c3 !important; color:#111 !important; }
-  .adv-sn { background:none !important; color:#901d23 !important; padding:0 !important; }
+  .dm-bar { background:none !important; min-width:0 !important; height:auto !important; overflow:visible !important; } .dm-bar i { display:none !important; } .dm-bar b { padding:0 !important; line-height:inherit !important; font-weight:700; }
+  .adv-t .adv-chip, .dm-b, .dm-s, .adv-seat { background:none !important; border:0 !important; padding:0 !important; margin:0 !important; border-radius:0 !important; font-size:.88rem !important; font-weight:600 !important; color:#111 !important; }
+  .dm-b i, .dm-s i, .adv-seat i { display:none; }
+  .adv-t .adv-chip + .adv-chip::before { content:'، '; color:#111; }
+  .adv-t .adv-chip.retake, .adv-t .adv-chip.closed, .dm-s.no, .adv-seat.no { color:#b42318 !important; }
+  .adv-t .adv-chip.unlock, .dm-s.open, .adv-seat.ok { color:#15803d !important; }
+  .dm-s.closed { color:#b45309 !important; }
+  .adv-pct { background:#e5e5e5 !important; height:5px !important; } .adv-pct i { background:#1f2328 !important; }
+  .adv-sn { background:none !important; color:#111 !important; padding:0 !important; }
   .adv-mt { background:none !important; border:0 !important; padding:0 !important; color:#111 !important; font-weight:600; }
+  .adv-t thead th.adv-sort, .adv-t thead th.adv-sort.on { color:#111 !important; } .adv-sort-i { font-size:.7rem; color:#111; margin-inline-start:4px; }
+  .adv-t thead th input { accent-color:#901d23; }
   .adv-cb { width: 34px; text-align: center; } .adv-cb input { width: 17px; height: 17px; accent-color: #901d23; cursor: pointer; }
   .adv-row.sel td { background: #fbf2f3; }
   .adv-bulk { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; background: #fbf2f3; border-bottom: 1px solid #ecd4d6; }
@@ -1056,7 +1063,7 @@
     const sk = st.bs || 'name', dir = st.bd || 1;
     const key = { name: r => r.s.head.name || '', gpa: r => r.s.gpa ?? -1, passed: r => r.s.passedHours ?? 0, rem: r => r.a0.remainingNow, pct: r => r.pct, grad: r => r.path && r.path.end || 99999 }[sk];
     show = show.slice().sort((x, y) => { const a = key(x), b = key(y); return (typeof a === 'string' ? a.localeCompare(b, 'ar') : a - b) * dir; });
-    const th = (k, l) => `<th class="adv-sort ${sk === k ? 'on' : ''}" data-sort="${k}">${l}${sk === k ? (dir > 0 ? ' ▲' : ' ▼') : ''}</th>`;
+    const th = (k, l) => `<th class="adv-sort ${sk === k ? 'on' : ''}" data-sort="${k}">${l}${sk === k ? `<i class="bi bi-caret-${dir > 0 ? 'up' : 'down'}-fill adv-sort-i"></i>` : ''}</th>`;
     const avg = (() => { const g = rows.map(r => r.s.gpa).filter(x => x != null); return g.length ? (g.reduce((a, b) => a + b, 0) / g.length).toFixed(2) : '—'; })();
     const demand = {};
     rows.forEach(r => r.ready.forEach(c => { const d = demand[c.code] ||= { code: c.code, name: c.name || nm(c.code), n: 0, grad: 0, req: 0 }; d.n++; if (r.lim.grad) d.grad++; if (c.required) d.req++; }));
@@ -1093,7 +1100,7 @@
         ${show.map(r => { const s = r.s; return `<tr class="adv-row ${open === s.head.id ? 'open' : ''} ${SEL.has(String(s.head.id)) ? 'sel' : ''}" data-row="${esc(s.head.id)}"><td class="no-print adv-cb"><input type="checkbox" data-sel="${esc(s.head.id)}" ${SEL.has(String(s.head.id)) ? 'checked' : ''}></td><td><b>${esc(s.head.name || '')}</b><div class="adv-src">${esc(s.head.id || '')} · ${esc(s.level || '')}</div></td>
           <td><small>${esc(s.head.major || '')}</small><div class="adv-src">إصدار ${esc(s.version)}</div></td>
           <td class="${r.a.warned ? 'adv-bad fw-bold' : ''}">${s.gpa != null ? s.gpa.toFixed(2) : '—'}</td><td>${s.passedHours ?? ''}</td><td>${r.a0.remainingNow}</td>
-          <td><div class="adv-pct"><i style="width:${r.pct}%"></i></div><small>${r.pct}%</small></td><td>${r.a0.current.size ? `${r.a0.current.size} (${r.curH} س)` : '—'}</td>
+          <td style="white-space:nowrap"><div class="adv-pct"><i style="width:${r.pct}%"></i></div><small>${r.pct}%</small></td><td>${r.a0.current.size ? `${r.a0.current.size} (${r.curH} س)` : '—'}</td>
           <td><small>${r.path && r.path.end ? esc(termName(r.path.end)) : '—'}</small></td>
           <td>${r.lim.grad ? '<span class="adv-chip unlock">متوقع تخرجه</span>' : ''}${r.a.warned ? '<span class="adv-chip retake">منذر</span>' : ''}${r.weak ? '<span class="adv-chip req">متعثر</span>' : ''}${r.failedNow ? `<span class="adv-chip closed">${r.failedNow} لم ينجح بها بعد</span>` : ''}${(s.warn || []).length ? '<span class="adv-chip closed">⚠ تنبيه</span>' : ''}</td>
           <td>${r.reqNotOff.map(c => `<code title="${esc(c.name)}">${c.code}</code>`).join(' ') || '—'}</td>
