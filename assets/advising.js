@@ -412,7 +412,7 @@
   .adv-tabs button { border:0; border-bottom:3px solid transparent; margin-bottom:-2px; background:none; color:#3b4048; padding:9px 14px; font-weight:700; font-size:1rem; }
   .adv-tabs button:hover { color:#901d23; } .adv-tabs button.on { color:#901d23; border-bottom-color:#901d23; }
   .adv-tabs button em { font-style:normal; font-size:.78rem; background:#f3f1ea; color:#3b4048; border-radius:99px; padding:1px 8px; margin-inline-start:4px; } .adv-tabs button.on em { background:#901d23; color:#fff; }
-  .adv-tabs .adv-add { margin-inline-start:auto; background:#901d23; color:#fff; border-radius:10px 10px 0 0; } .adv-tabs .adv-add:hover { color:#fff; background:#7a171d; } .adv-tabs .adv-add.on { border-bottom-color:#5b0f14; }
+  .adv-tabs .adv-add { margin-inline-start:auto; background:#901d23; color:#fff; border-radius:10px 10px 0 0; } .adv-tabs .adv-add:hover { color:#fff; background:#7a171d; } .adv-tabs button.adv-add.on, .adv-tabs button.adv-add.on i { color:#fff; border-bottom-color:#5b0f14; }
   .adv-tabs .adv-ref { padding:9px 10px; color:#3b4048; }
   .adv-drop { border:2px dashed #c9bfa6; border-radius:14px; background:#fffdf7; padding:26px 16px; text-align:center; cursor:pointer; color:#1f2328; }
   .adv-drop.over { background:#f7efe0; border-color:#901d23; }
