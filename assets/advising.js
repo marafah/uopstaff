@@ -510,6 +510,10 @@
   .adv-cci { border:1px solid #e0e0e0; border-radius:10px; padding:12px 14px; background:#fff; color:#111; }
   .adv-cci-h { display:flex; justify-content:space-between; font-weight:700; } .adv-cci-n { display:block; font-size:1.02rem; margin:4px 0 6px; }
   .adv-cci dl { display:grid; grid-template-columns:auto 1fr; gap:3px 10px; margin:6px 0 0; padding-top:6px; border-top:1px solid #eee; font-size:.9rem; } .adv-cci dt { color:#3b4048; font-weight:600; } .adv-cci dd { margin:0; }
+  #adv-app .wk-head b { font-size:1rem; color:#111; } #adv-app .wk-hours span { font-size:.85rem; color:#111; }
+  #adv-app .wk-ev { font-size:.95rem; line-height:1.45; padding:6px 10px; color:#111; }
+  #adv-app .wk-ev b { font-size:1.02rem; font-weight:800; } #adv-app .wk-ev span { white-space:normal; font-weight:700; font-size:.92rem; line-height:1.3; }
+  #adv-app .wk-ev small { font-size:.88rem; opacity:1; font-weight:700; direction:ltr; text-align:right; }
   .adv-sl { padding:3px 0; white-space:nowrap; } .adv-sl + .adv-sl { border-top:1px dashed #e5e5e5; } .adv-sl small { color:#3b4048; }
   .adv-cb { width: 34px; text-align: center; } .adv-cb input { width: 17px; height: 17px; accent-color: #901d23; cursor: pointer; }
   .adv-row.sel td { background: #fbf2f3; }
@@ -624,7 +628,7 @@
   const secTds = mine => {
     const col = f => `<td>${mine.map(x => `<div class="adv-sl">${f(x)}</div>`).join('')}</td>`;
     return col(x => `<b>${esc(x.section)}</b>${x.activity === 'عملي' ? ' <small>عملي</small>' : ''}`)
-      + col(x => { const g = {}; x.meetings.forEach(m => { const k = live(m) ? `من ${m.start} إلى ${m.end}` : 'غير متزامن'; (g[k] ||= []).push(DAYN(m.day)); });
+      + col(x => { const g = {}; x.meetings.forEach(m => { const k = live(m) ? `<bdi dir="ltr">${m.start} – ${m.end}</bdi>` : 'غير متزامن'; (g[k] ||= []).push(DAYN(m.day)); });
           return Object.entries(g).map(([k, d]) => `${esc(d.join(' و'))} <b>${k === 'غير متزامن' ? '<small>غير متزامن</small>' : k}</b>`).join('، '); })
       + col(x => esc(U.shortName(x.instructor || '—')))
       + col(x => esc(x.room && x.room !== '0' ? x.room : 'افتراضية'))
@@ -699,7 +703,7 @@
     const colour = {};
     sug.take.forEach((t, i) => { colour[t.c.via || t.c.code] = U.PALETTE[i % U.PALETTE.length]; });
     const grid = sel.length ? U.weekGrid(sel.flatMap(x => x.meetings.map(m => ({ day: m.day, start: live(m) ? m.start : '', end: m.end, title: x.code, line: nm(x.code), sub: `ش ${x.section}${x.activity === 'عملي' ? ' عملي' : ''}`,
-      style: `background:${colour[x.code][1]};border-inline-start-color:${colour[x.code][0]}`, cls: isOpen(x) ? '' : 'clash' }))), { compact: true, px: 78 }) : '';
+      style: `background:${colour[x.code][1]};border-inline-start-color:${colour[x.code][0]}`, cls: isOpen(x) ? '' : 'clash' }))), { compact: true, px: 135 }) : '';
     const secRows = sug.take.map(t => {
       const mine = sel.filter(x => x.code === (t.c.via || t.c.code));
       return `<tr><td><code>${t.c.code}</code>${t.c.via ? `<div class="adv-src">تُسجَّل برمز <code>${t.c.via}</code></div>` : ''}</td><td>${esc(t.c.name || nm(t.c.code))}<div>${t.c.why.map(([k, l]) => `<span class="adv-chip ${k}">${esc(l)}</span>`).join('')}</div></td><td><span class="adv-hrs">${t.c.hours}</span></td>
@@ -1219,13 +1223,13 @@
           const byDay = days.map(d => ({ d, L: meet.filter(m => m.d === d).sort((u, v) => u.a.localeCompare(v.a)) })).filter(r => r.L.length);
           const asyncL = sel.flatMap(x => x.meetings.filter(m => !live(m)).map(m => ({ d: m.day, x })));
           let view;
-          if (fv === 'day') view = `<div class="table-responsive"><table class="adv-t"><thead><tr><th>اليوم</th><th>من</th><th>إلى</th><th>الرمز</th><th>المادة</th><th>الشعبة</th><th>المدرس</th><th>القاعة</th></tr></thead><tbody>
-              ${byDay.map(r => r.L.map((m, k) => `<tr>${k ? '' : `<td rowspan="${r.L.length}" class="adv-dayc"><b>${esc(DAYN(r.d))}</b><div class="adv-src">${r.L.length} محاضرة</div></td>`}<td><b>${m.a}</b></td><td>${m.b}</td><td><span class="adv-code">${m.x.code}</span></td><td><b>${esc(nm(m.x.code))}</b></td><td>${esc(m.x.section)}${m.x.activity === 'عملي' ? ' <small>عملي</small>' : ''}</td><td>${esc(U.shortName(m.x.instructor || '—'))}</td><td>${esc(room(m.x))}</td></tr>`).join('')).join('')}
-              ${asyncL.map(m => `<tr><td><b>${esc(DAYN(m.d))}</b></td><td colspan="2"><small>غير متزامن</small></td><td><span class="adv-code">${m.x.code}</span></td><td><b>${esc(nm(m.x.code))}</b></td><td>${esc(m.x.section)}</td><td>${esc(U.shortName(m.x.instructor || '—'))}</td><td>افتراضية</td></tr>`).join('')}</tbody></table></div>`;
-          else if (fv === 'week') view = sel.length ? `<div class="mt-1">${U.weekGrid(sel.flatMap(x => x.meetings.map(m => ({ day: m.day, start: live(m) ? m.start : '', end: m.end, title: x.code, line: nm(x.code), sub: `ش ${x.section}`, style: `background:${colour[x.code][1]};border-inline-start-color:${colour[x.code][0]}` }))), { compact: true, px: 78 })}</div>` : '';
+          if (fv === 'day') view = `<div class="table-responsive"><table class="adv-t"><thead><tr><th>اليوم</th><th>الوقت</th><th>الرمز</th><th>المادة</th><th>الشعبة</th><th>المدرس</th><th>القاعة</th></tr></thead><tbody>
+              ${byDay.map(r => r.L.map((m, k) => `<tr>${k ? '' : `<td rowspan="${r.L.length}" class="adv-dayc"><b>${esc(DAYN(r.d))}</b><div class="adv-src">${r.L.length} محاضرة</div></td>`}<td><b><bdi dir="ltr">${m.a} – ${m.b}</bdi></b></td><td><span class="adv-code">${m.x.code}</span></td><td><b>${esc(nm(m.x.code))}</b></td><td>${esc(m.x.section)}${m.x.activity === 'عملي' ? ' <small>عملي</small>' : ''}</td><td>${esc(U.shortName(m.x.instructor || '—'))}</td><td>${esc(room(m.x))}</td></tr>`).join('')).join('')}
+              ${asyncL.map(m => `<tr><td><b>${esc(DAYN(m.d))}</b></td><td><small>غير متزامن</small></td><td><span class="adv-code">${m.x.code}</span></td><td><b>${esc(nm(m.x.code))}</b></td><td>${esc(m.x.section)}</td><td>${esc(U.shortName(m.x.instructor || '—'))}</td><td>افتراضية</td></tr>`).join('')}</tbody></table></div>`;
+          else if (fv === 'week') view = sel.length ? `<div class="mt-1">${U.weekGrid(sel.flatMap(x => x.meetings.map(m => ({ day: m.day, start: live(m) ? m.start : '', end: m.end, title: x.code, line: nm(x.code), sub: `ش ${x.section}`, style: `background:${colour[x.code][1]};border-inline-start-color:${colour[x.code][0]}` }))), { compact: true, px: 135 })}</div>` : '';
           else if (fv === 'cards') view = `<div class="adv-cc">${courses.map(c => { const mine = sel.filter(x => x.code === (c.via || c.code));
               return `<div class="adv-cci"><div class="adv-cci-h"><span class="adv-code">${c.code}</span><span>${c.hours} س</span></div><b class="adv-cci-n">${esc(c.name)}</b>
-                ${mine.length ? mine.map(x => `<dl><dt>الشعبة</dt><dd>${esc(x.section)}${x.activity === 'عملي' ? ' (عملي)' : ''}</dd><dt>المواعيد</dt><dd>${x.meetings.map(m => live(m) ? `${esc(DAYN(m.day))} من ${m.start} إلى ${m.end}` : `${esc(DAYN(m.day))} غير متزامن`).join('<br>')}</dd><dt>المدرس</dt><dd>${esc(U.shortName(x.instructor || '—'))}</dd><dt>القاعة</dt><dd>${esc(room(x))}</dd><dt>المقاعد</dt><dd>${isOpen(x) ? `<span class="adv-seat ok">${seats(x)} شاغر</span>` : '<span class="adv-seat no">مغلقة</span>'}</dd></dl>`).join('')
+                ${mine.length ? mine.map(x => `<dl><dt>الشعبة</dt><dd>${esc(x.section)}${x.activity === 'عملي' ? ' (عملي)' : ''}</dd><dt>المواعيد</dt><dd>${x.meetings.map(m => live(m) ? `${esc(DAYN(m.day))} <bdi dir="ltr">${m.start} – ${m.end}</bdi>` : `${esc(DAYN(m.day))} غير متزامن`).join('<br>')}</dd><dt>المدرس</dt><dd>${esc(U.shortName(x.instructor || '—'))}</dd><dt>القاعة</dt><dd>${esc(room(x))}</dd><dt>المقاعد</dt><dd>${isOpen(x) ? `<span class="adv-seat ok">${seats(x)} شاغر</span>` : '<span class="adv-seat no">مغلقة</span>'}</dd></dl>`).join('')
                   : `<div class="adv-seat no mt-2">${offeredAs(c.code) ? 'تتعارض شعبها أو تتجاوز الساعات' : 'غير مطروحة هذا الفصل'}</div>`}</div>`; }).join('')}
               ${slots.map(c => `<div class="adv-cci"><div class="adv-cci-h"><span class="adv-code">${esc(c.code)}</span><span>${c.hours || ''} س</span></div><b class="adv-cci-n">${esc(c.name)}</b><div class="adv-src mt-2">يختارها الطالب من المجموعة</div></div>`).join('')}</div>`;
           else view = `<div class="table-responsive"><table class="adv-t"><thead><tr><th>الرمز</th><th>المادة</th><th>س</th>${SEC_TH}</tr></thead><tbody>
@@ -1269,11 +1273,11 @@
           rows: [...courses.map((c, i) => { const mine = sel.filter(x => x.code === (c.via || c.code));
             if (!mine.length) return [i + 1, c.code, c.name, c.hours, '—', offeredAs(c.code) ? 'تتعارض أو تتجاوز الساعات' : 'غير مطروحة هذا الفصل', '—', '—', '—'];
             return [i + 1, c.code + (c.via ? ` (برمز ${c.via})` : ''), c.name, c.hours, mine.map(x => x.section + (x.activity === 'عملي' ? ' عملي' : '')).join(' / '),
-              mine.map(x => x.meetings.map(m => live(m) ? `${DAYN(m.day)} من ${m.start} إلى ${m.end}` : `${DAYN(m.day)} غير متزامن`).join('، ')).join(' / '),
+              mine.map(x => x.meetings.map(m => live(m) ? `${DAYN(m.day)} ${m.start} – ${m.end}` : `${DAYN(m.day)} غير متزامن`).join('، ')).join(' / '),
               mine.map(x => U.shortName(x.instructor || '—')).join(' / '), mine.map(x => x.room && x.room !== '0' ? x.room : 'افتراضية').join(' / '), mine.map(x => isOpen(x) ? `${seats(x)} شاغر` : 'مغلقة').join(' / ')]; }),
             ...slots.map(c => ['', c.code, c.name, c.hours || '', '—', 'يختارها الطالب من المجموعة', '—', '—', '—'])] },
-        { title: 'برنامج الأسبوع', columns: ['اليوم', 'من', 'إلى', 'الرمز', 'المادة', 'الشعبة', 'القاعة'], widths: ['12%', '9%', '9%', '11%', '37%', '9%', '13%'],
-          rows: byDay.flatMap(r => r.L.map((m, k) => [k ? '' : DAYN(r.d), m.a, m.b, m.x.code, nm(m.x.code), m.x.section + (m.x.activity === 'عملي' ? ' عملي' : ''), m.x.room && m.x.room !== '0' ? m.x.room : 'افتراضية'])) }],
+        { title: 'برنامج الأسبوع', columns: ['اليوم', 'الوقت', 'الرمز', 'المادة', 'الشعبة', 'القاعة'], widths: ['12%', '16%', '11%', '39%', '9%', '13%'],
+          rows: byDay.flatMap(r => r.L.map((m, k) => [k ? '' : DAYN(r.d), `${m.a} – ${m.b}`, m.x.code, nm(m.x.code), m.x.section + (m.x.activity === 'عملي' ? ' عملي' : ''), m.x.room && m.x.room !== '0' ? m.x.room : 'افتراضية'])) }],
       raw: SIGN(['الطالب', 'المرشد الأكاديمي', 'رئيس القسم']),
       note: `المواد من الخطة الاسترشادية المنشورة للقسم${p.r.academic_year ? ' (' + p.r.academic_year + ')' : ''}، والشعب من الجدول الدراسي المنشور على بوابة الجامعة (${TT.term}) بلا تعارض، الأفضلية للشعب التي فيها مقاعد. المقترح للإرشاد؛ التسجيل الفعلي على بوابة الجامعة. رمز QR يفتح الجدول في «مخطط جدولي».` });
   }
