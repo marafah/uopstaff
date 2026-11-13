@@ -552,11 +552,12 @@
   .sv-info-g div { display:flex; gap:4px; align-items:baseline; font-size:.84rem; color:#111; white-space:nowrap; flex:none; } .sv-info-g b { white-space:nowrap; } .sv-info-g i { color:#901d23; } .sv-info-g span { color:#111; white-space:nowrap; } .sv-info-g b { font-weight:700; }
   .sv-tabs { margin:16px 0 12px !important; background:#fff; border:1px solid #e3ddcf !important; border-radius:12px; padding:4px 6px; position:sticky; top:0; z-index:5; }
   .sv-tabs button { font-size:1rem; }
-  .sv-two { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:14px; } .sv-col { display:grid; gap:14px; align-content:start; }
+  .sv-two { display:grid; grid-template-columns:1fr; gap:14px; } .sv-col { display:grid; grid-template-columns:repeat(auto-fit,minmax(380px,1fr)); gap:14px; align-items:start; }
   @media (max-width: 1000px) { .sv-two { grid-template-columns:1fr; } }
   .sv-wide { margin-bottom:14px; }
-  .sv-g { display:grid; grid-template-columns:minmax(0,1fr) minmax(120px,40%) auto; gap:12px; align-items:center; padding:7px 0; border-bottom:1px dashed #eee; font-size:.93rem; color:#111; }
-  .sv-gn { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .sv-gv { white-space:nowrap; font-variant-numeric:tabular-nums; text-align:end; }
+  .sv-g { display:grid; grid-template-columns:minmax(0,1fr) minmax(160px,40%) 70px 52px 60px; gap:12px; align-items:center; padding:7px 0; border-bottom:1px dashed #eee; font-size:.93rem; color:#111; }
+  .sv-gn { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .sv-gv, .sv-gp, .sv-gc { white-space:nowrap; font-variant-numeric:tabular-nums; text-align:center; } .sv-gp { font-size:.85rem; }
+  .sv-gh { font-size:.82rem; font-weight:700; color:#111; border-bottom:2px solid #1f2328 !important; padding-bottom:6px !important; } .sv-gh span:not(:first-child) { text-align:center; }
   .sv-bar { height:9px; background:#eee9dc; border-radius:99px; overflow:hidden; display:flex; } .sv-bar i { display:block; height:100%; }
   .sv-bar i.ok { background:#16a34a; } .sv-bar i.mid { background:#f59e0b; } .sv-bar i.low { background:#dc2626; } .sv-bar i.cur { background:#93c5fd; }
   .sv-leg { display:flex; gap:16px; margin-top:8px; font-size:.85rem; color:#111; } .sv-leg i { display:inline-block; width:12px; height:8px; border-radius:2px; margin-inline-end:4px; } .sv-leg i.ok { background:#16a34a; } .sv-leg i.cur { background:#93c5fd; }
@@ -837,11 +838,11 @@
     const groupsHtml = a.groups.map(g => { const pc = g.req ? Math.min(100, Math.round(100 * g.gotPassed / g.req)) : 100, cur = g.req ? Math.min(100 - pc, Math.round(100 * (g.gotDone - g.gotPassed) / g.req)) : 0, done = g.gotPassed >= g.req;
       return `<div class="sv-g"><span class="sv-gn">${done ? '<i class="bi bi-check-circle-fill ic-g"></i>' : '<i class="bi bi-circle-half ic-o"></i>'} ${esc(g.name.replace(/^متطلبات?\s*/, ''))}${g.kind === 'remedial' ? ' <span class="fb sec">لا تُحسب في الخطة</span>' : ''}</span>
         <span class="sv-bar"><i class="${done ? 'ok' : pc >= 50 ? 'mid' : 'low'}" style="width:${pc}%"></i><i class="cur" style="width:${cur}%"></i></span>
-        <span class="sv-gv"><b>${g.gotPassed}</b> / ${g.req}${g.gotDone > g.gotPassed ? ` <span class="fb reg">+${g.gotDone - g.gotPassed} مسجلة</span>` : ''}</span></div>`; }).join('');
+        <span class="sv-gv"><b>${g.gotPassed}</b> / ${g.req}</span><span class="sv-gp">${pc}%</span><span class="sv-gc">${g.gotDone > g.gotPassed ? `<span class="fb reg">+${g.gotDone - g.gotPassed}</span>` : '—'}</span></div>`; }).join('');
     const TABS = [['over', 'bi-grid-1x2', 'نظرة عامة', ''], ['plan', 'bi-magic', 'الجدول المقترح', `${sug.hours} س`], ['path', 'bi-signpost-split', 'مسارات التخرج', ''], ['list', 'bi-list-check', 'المواد', ready.length]];
     let body = '';
     if (sv === 'over') body = `<div class="sv-two">
-        <section class="dt-c"><h4><i class="bi bi-diagram-3-fill ic-b"></i> مجموعات المتطلبات <span class="fb ok ms-auto">${a.groups.filter(g => g.gotPassed >= g.req).length} من ${a.groups.length} مكتملة</span></h4>${groupsHtml}
+        <section class="dt-c"><h4><i class="bi bi-diagram-3-fill ic-b"></i> مجموعات المتطلبات <span class="fb ok ms-auto">${a.groups.filter(g => g.gotPassed >= g.req).length} من ${a.groups.length} مكتملة</span></h4><div class="sv-g sv-gh"><span>المجموعة</span><span>التقدّم</span><span>الساعات</span><span>النسبة</span><span>مسجلة</span></div>${groupsHtml}
           <div class="sv-leg"><span><i class="ok"></i> مجتازة</span><span><i class="cur"></i> مسجلة الآن</span></div></section>
         <div class="sv-col">
           <section class="dt-c"><h4><i class="bi bi-journal-check ic-g"></i> يحق له تسجيلها الآن <span class="fb sec ms-auto">${ready.length} مادة</span></h4>
