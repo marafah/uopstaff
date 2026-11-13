@@ -963,7 +963,7 @@
     const secs = outData(), n = secs.reduce((a, s) => a + s.rows.length, 0);
     return `${versBar()}<div class="ex-outbar"><div class="ex-views">${Object.entries(OUT).map(([k, t]) => `<button class="ex-vbtn${outView === k ? ' on' : ''}" data-ov="${k}"><i class="bi ${OUTIC[k]}"></i> ${t}</button>`).join('')}</div>
       <div class="ex-acts"><button class="btn btn-ex" id="ex-print" title="الطباعة والتصدير تأخذ العرض والتصفية الحاليين؛ في Excel كل جدول في ورقة"><i class="bi bi-printer-fill"></i> طباعة / PDF</button><button class="btn btn-success" id="ex-xlsx"><i class="bi bi-file-earmark-excel-fill"></i> Excel</button>
-      <button class="btn btn-outline-secondary" id="ex-csv"><i class="bi bi-filetype-csv"></i> CSV</button></div></div>
+      <button class="btn btn-outline-secondary" id="ex-csv" title="ملف بيانات خام لنظام آخر (بلا تنسيق ولا عرض أعمدة). للقراءة والطباعة استخدم Excel."><i class="bi bi-filetype-csv"></i> CSV</button></div></div>
       <div class="ex-o2">${pubPanel()}
       <div class="ex-docs"><b><i class="bi bi-folder2-open"></i> كشوف ومستندات</b>
         <button class="btn btn-outline-primary" id="ex-plists"><i class="bi bi-people-fill"></i> قوائم الطلبة لكل قاعة <small>QR</small></button>
@@ -1321,7 +1321,10 @@
     };
   }
   function doCSV() {
-    const q = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`, lines = [];
+    // plain numbers stay numbers; everything else is text written right-to-left (a leading RLM mark), so Excel neither turns a
+    // date into ##### nor scrambles «2 (26 من 85)»; dates as d/m/yyyy
+    const q = v => { let t = String(v == null ? '' : v); if (/^\d{4}-\d{2}-\d{2}$/.test(t)) t = `${+t.slice(8)}/${+t.slice(5, 7)}/${t.slice(0, 4)}`;
+      if (t && !/^\d+$/.test(t)) t = '\u200F' + t; return `"${t.replace(/"/g, '""')}"`; }, lines = [];
     outData().map(expandRooms).forEach(s => { if (s.title) lines.push(q(s.title)); lines.push(s.columns.map(q).join(',')); s.rows.forEach(r => lines.push(r.map(q).join(','))); lines.push(''); });
     U.download(`${title()}_${OUT[outView]}.csv`.replace(/\s+/g, '_'), '﻿' + lines.join('\r\n'), 'text/csv;charset=utf-8');
   }
