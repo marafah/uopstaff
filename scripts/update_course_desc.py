@@ -24,10 +24,10 @@ sys.path.insert(0, os.path.dirname(__file__))
 import advisory_parse  # noqa: E402
 import update_advisory  # noqa: E402
 
-VERSION = 3
-DEBUG = {}   # the first lines of every file read in this run, to check the reading (data/course_descriptions_lines.json)
+VERSION = 4
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 OUT = os.path.join(ROOT, "data", "course_descriptions.json")
+IMG = os.path.join(ROOT, "data", "coursedesc")
 LABEL = re.compile(r"وصف|description", re.I)
 CODE = re.compile(r"(?<!\d)(\d{6,7})(?!\d)")
 PRE = re.compile(r"متطلب|المتطلب|prereq|pre-req|pre req", re.I)
@@ -59,7 +59,7 @@ def known_codes():
 
 
 def text_lines(pdf_bytes):
-    """[(page, text)] for every visual line of the file, top to bottom."""
+    """[(page, text, top, bottom)] for every visual line of the file, top to bottom (positions in PDF points)."""
     import pdfplumber
     out = []
     with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
@@ -74,7 +74,7 @@ def text_lines(pdf_bytes):
                 t = advisory_parse._line_text(cs)
                 t = re.sub(r"\s+", " ", unicodedata.normalize("NFKC", t)).strip() if t else ""
                 if t:
-                    out.append((n, t))
+                    out.append((n, t, min(c["top"] for c in cs), max(c["bottom"] for c in cs)))
     return out
 
 
@@ -82,7 +82,7 @@ def parse(lines, known):
     """Courses of one file: {code: {name, hours, pre, text, page}}."""
     # running heads and feet (the same line on three pages or more) are not part of any description
     pages = Counter()
-    for p, t in set(lines):
+    for p, t in {(x[0], x[1]) for x in lines}:
         pages[t] += 1
     noise = {t for t, k in pages.items() if k >= 3}
     found, cur = {}, None
@@ -102,7 +102,13 @@ def parse(lines, known):
                 return code
         return None
 
-    for page, t in lines:
+    def span(c, page, top, bottom):   # the part of the page the course takes, page by page
+        if c["seg"] and c["seg"][-1][0] == page:
+            c["seg"][-1][2] = bottom
+        else:
+            c["seg"].append([page, top, bottom])
+
+    for page, t, top, bottom in lines:
         if t in noise or re.fullmatch(r"[\d\s\-–/|.]+", t):
             continue
         code = head(t)
@@ -115,9 +121,11 @@ def parse(lines, known):
             hm = HOURS.search(rest) or HOURS.search(pre)
             name = HOURS.sub(" ", rest)
             name = re.sub(r"[\s:|–\-]+$|^[\s:|–\-]+", "", re.sub(r"\s+", " ", name))
-            cur = found[code] = {"name": name[:160], "hours": int(hm.group(1)) if hm else None, "pre": re.sub(r"\s+", " ", pre).strip()[:200], "text": [], "page": page}
+            cur = found[code] = {"name": name[:160], "hours": int(hm.group(1)) if hm else None, "pre": re.sub(r"\s+", " ", pre).strip()[:200], "text": [], "page": page, "seg": []}
+            span(cur, page, top, bottom)
             continue
         if cur is not None:
+            span(cur, page, top, bottom)
             if not cur["pre"] and PRE.match(t):
                 cur["pre"] = t[:200]
                 continue
@@ -127,8 +135,40 @@ def parse(lines, known):
         text = re.sub(r"\s+", " ", " ".join(c["text"])).strip()
         if len(text) < 25 or len(text) > 4000:   # no description, or the cut went wrong: not shown
             continue
-        out[code] = {**c, "text": text}
+        out[code] = {**c, "text": text, "clean": clean_text(text)}
     return out
+
+
+def clean_text(t):
+    """False when the file's text layer is damaged (a font without a proper character map drops letters and turns the
+    stretch of a word into a run of «ا»): then the page itself is shown, not the text."""
+    ar = re.findall(r"[\u0600-\u06ff]+", t)
+    if not ar:
+        return True
+    single = sum(1 for w in ar if len(w) == 1 and w not in "وبلك")
+    return not re.search(r"ا{3,}|(?:\b\w\b ){4}", t) and single / len(ar) <= 0.03
+
+
+def crops(pdf_bytes, sha, got):
+    """Every course's part of the page as an image (the published text exactly as printed), once per file."""
+    import pypdfium2 as pdfium
+    os.makedirs(IMG, exist_ok=True)
+    doc = pdfium.PdfDocument(pdf_bytes)
+    for code, c in got.items():
+        names = []
+        for i, (page, top, bottom) in enumerate(c["seg"][:3]):
+            name = f"{sha[:12]}-{code}-{i}.webp"
+            path = os.path.join(IMG, name)
+            if not os.path.exists(path):
+                pg = doc[page - 1]
+                w, h = pg.get_width(), pg.get_height()
+                scale = 1100 / w
+                img = pg.render(scale=scale).to_pil().convert("RGB")
+                y0, y1 = max(0, (top - 4) * scale), min(h * scale, (bottom + 5) * scale)
+                img.crop((int(0.04 * w * scale), int(y0), int(0.96 * w * scale), int(y1))).save(path, "WEBP", quality=70, method=6)
+            names.append(name)
+        c["img"] = names
+        c.pop("seg", None)
 
 
 def main():
@@ -175,15 +215,14 @@ def main():
             except Exception as e:  # a damaged or unusual file: a link only
                 lines, got = [], {}
                 rec["error"] = repr(e)[:200]
-            DEBUG[url] = [f"{pg}| {t}" for pg, t in lines[:120]]
-            try:   # the same file through PDFium's own text layer, to compare the two readings
-                import pypdfium2 as pdfium
-                doc = pdfium.PdfDocument(pdf)
-                DEBUG[url + "#pdfium"] = unicodedata.normalize("NFKC", doc[0].get_textpage().get_text_range())[:2500]
-            except Exception as e:
-                DEBUG[url + "#pdfium"] = repr(e)
+            try:
+                crops(pdf, sha, got)
+            except Exception as e:  # no images: the text and the link stay
+                rec["img_error"] = repr(e)[:200]
+                for c in got.values():
+                    c.pop("seg", None)
             rec.update({"sha": sha, "read": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "lines": len(lines), "courses": len(got),
-                        "sample": [t for _, t in lines[:4]]})
+                        "sample": [x[1] for x in lines[:4]], "clean": sum(1 for c in got.values() if c["clean"])})
             docs[url] = rec
             for code, c in got.items():
                 courses.setdefault(code, []).append({"url": url, "p": p["id"], **c})
@@ -199,9 +238,10 @@ def main():
         return
     with open(OUT, "w", encoding="utf-8") as fh:
         json.dump(data, fh, ensure_ascii=False, separators=(",", ":"))
-    if DEBUG:
-        with open(os.path.join(ROOT, "data", "course_descriptions_lines.json"), "w", encoding="utf-8") as fh:
-            json.dump(DEBUG, fh, ensure_ascii=False, indent=0)
+    used = {n for L in courses.values() for e in L for n in e.get("img", [])}
+    for n in os.listdir(IMG) if os.path.isdir(IMG) else []:
+        if n not in used:
+            os.remove(os.path.join(IMG, n))
     print(f"course descriptions: {len(courses)} courses from {sum(1 for d in docs.values() if d.get('courses'))}/{len(docs)} files")
 
 
