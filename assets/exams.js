@@ -878,16 +878,15 @@
         return `<section class="ex-qrep"><div class="ex-rephead"><h6 class="m-0"><i class="bi bi-list-check"></i> الملاحظات <span class="ex-n ${st.clash ? 'bad' : ''}">${rep.length}</span></h6>
           <div class="ex-rtabs" role="tablist"><button class="${f ? '' : 'on'}" data-rf="">الكل <em>${rep.length}</em></button>${types.map(k => `<button class="${f === k ? 'on' : ''}" data-rf="${k}"><i class="bi ${KIND[k][2]}"></i> ${KIND[k][1]} <em>${rep.filter(r => r.k === k).length}</em></button>`).join('')}</div>
           <span class="ex-racts">${rep.some(r => r.fix) ? '<button class="btn btn-sm btn-ex" id="ex-fixall"><i class="bi bi-magic"></i> طبّق كل الحلول</button>' : ''}<button class="btn btn-sm btn-outline-secondary" id="ex-rprint" title="طباعة التقرير"><i class="bi bi-printer"></i></button><button class="btn btn-sm btn-outline-secondary" id="ex-rxlsx" title="Excel"><i class="bi bi-file-earmark-excel"></i></button></span></div>
-          <div class="table-responsive ex-rtw"><table class="ex-rtbl"><thead><tr><th>الأولوية</th><th>الملاحظة</th><th>الموعد</th><th>المقررات</th><th>التفاصيل</th><th>الإجراء</th></tr></thead><tbody>
+          <div class="table-responsive ex-rtw"><table class="ex-rtbl ex-rt2"><thead><tr><th>الملاحظة</th><th>الموعد</th><th>المقررات</th><th>السبب</th><th>الحل المقترح</th></tr></thead><tbody>
           ${list.map(r => `<tr class="sev${SEV[r.sev]}">
-            <td><span class="ex-sevb sev${SEV[r.sev]}">${esc(r.sev)}</span></td>
-            <td class="ty"><i class="bi ${KIND[r.k][2]}"></i> ${KIND[r.k][1]}${r.k !== 'ins' && r.n ? `<small>${r.exact ? r.n : 'حتى ' + r.n} طالب${r.exact ? '' : ' (تقدير)'}</small>` : ''}</td>
-            <td class="wh">${esc(r.when)}</td>
-            <td class="cs">${r.cs.map(i => `<span class="ex-cchip" style="--c:${C[i].col[0]}" title="${esc(C[i].name + ' · ' + C[i].dept + ' · ' + (C[i].ins.map(U.shortName).join('، ') || '—'))}"><b dir="ltr">${esc(C[i].code)}</b> ${esc(C[i].name)} <small>${C[i].students}</small></span>`).join('')}</td>
+            <td class="ty"><span class="ex-sevb sev${SEV[r.sev]}">${esc(r.sev)}</span><b><i class="bi ${KIND[r.k][2]}"></i> ${KIND[r.k][1]}</b>${r.k !== 'ins' && r.n ? `<span class="n">${r.exact ? r.n : 'حتى ' + r.n} ${r.n === 1 ? 'طالب' : 'طالباً'}${r.exact ? '' : ' (تقدير)'}</span>` : ''}</td>
+            <td class="wh">${esc(r.when).replace(' · ', '<br>')}</td>
+            <td class="cs">${r.cs.map(i => `<div class="ex-cc" style="--c:${C[i].col[0]}" title="${esc(C[i].dept + ' · ' + (C[i].ins.map(U.shortName).join('، ') || '—'))}"><b dir="ltr">${esc(C[i].code)}</b><span>${esc(C[i].name)}</span><em>${C[i].students} طالباً</em></div>`).join('')}</td>
             <td class="why">${esc(r.why)}${r.who.length ? `<details><summary>${r.k === 'short' ? 'القاعات' : r.k === 'ins' ? 'المدرّس' : 'المجموعات'} (${r.who.length})</summary>${r.who.map(esc).join(' · ')}</details>` : ''}</td>
-            <td class="act">${r.fix ? `<button class="btn btn-sm btn-ex" data-fix="${r.fix.i},${r.fix.s}" title="${esc(fixTxt(r.fix))}"><i class="bi bi-magic"></i> تطبيق</button><small>${esc(fixTxt(r.fix))}</small>`
-              : `<small class="muted">${r.k === 'short' ? 'أضف مراقبين أو ارفع حد المراقبات اليومي' : 'لا يوجد نقل أفضل؛ زد الأيام أو الفترات أو القاعات'}</small>`}
-              <button class="btn btn-sm btn-link p-0" data-go="${r.cs[0]}"><i class="bi bi-box-arrow-up-left"></i> عرض في الجدول</button></td></tr>`).join('')}</tbody></table></div></section>`; })()}
+            <td class="act">${r.fix ? `<div class="fx">${esc(fixTxt(r.fix))}</div><button class="btn btn-sm btn-ex" data-fix="${r.fix.i},${r.fix.s}"><i class="bi bi-magic"></i> تطبيق</button>`
+              : `<div class="nofx">${r.k === 'short' ? 'أضف مراقبين أو ارفع حد المراقبات اليومي' : 'لا يوجد نقل أفضل؛ زد الأيام أو الفترات أو القاعات'}</div>`}
+              <button class="btn btn-sm btn-outline-secondary" data-go="${r.cs[0]}"><i class="bi bi-box-arrow-up-left"></i> عرض في الجدول</button></td></tr>`).join('')}</tbody></table></div></section>`; })()}
       ${!st.is.length && !st.unseated ? '<div class="ex-empty"><i class="bi bi-patch-check-fill"></i> الجدول نظيف: لا تعارض ولا ضغط زائد ولا نقص مقاعد.</div>' : ''}`;
   }
   // ---------- outputs ----------
@@ -2679,6 +2678,18 @@
   .ex-pool3 .dh b { font-size: 1rem !important; } .ex-pool3 .dh .n { font-size: .85rem !important; }
   .ex-pmore { justify-content: space-between; } .ex-pmore > small { font-size: .85rem; }
   .ex-pmore .ex-fold > summary::after { margin-inline-start: .35rem !important; } .ex-pmore > details { flex: 0 1 auto !important; } .ex-pmore > details[open] { flex: 1 1 100% !important; }
+  .ex-rt2 { font-size: .98rem !important; color: #0f1f26; border: 1px solid #e3dccd; border-radius: 12px; overflow: hidden; }
+  .ex-rt2 th { font-size: .9rem !important; color: #0f1f26 !important; background: #f3ede1 !important; padding: .6rem .75rem !important; }
+  .ex-rt2 td { padding: .65rem .75rem !important; border-bottom: 1px solid #ebe4d6 !important; color: #0f1f26; } .ex-rt2 tbody tr:nth-child(even) td { background: #fcfbf8; }
+  .ex-rt2 .ty { white-space: normal !important; min-width: 9.5rem; } .ex-rt2 .ty .ex-sevb { font-size: .8rem; margin-bottom: .25rem; } .ex-rt2 .ty b { display: block; font-size: 1rem; } .ex-rt2 .ty .n { display: block; font-size: .88rem; font-weight: 700; color: #0f1f26; }
+  .ex-rt2 .wh { font-weight: 700; font-size: .95rem; color: #0f1f26 !important; line-height: 1.5; }
+  .ex-rt2 .cs { min-width: 17rem !important; } .ex-cc { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .45rem; align-items: baseline; border-inline-start: 4px solid var(--c); padding: .15rem .5rem; margin: .15rem 0; background: #fff; border-radius: 4px; }
+  .ex-cc b { font-size: .95rem; } .ex-cc span { font-size: .95rem; } .ex-cc em { font-style: normal; font-size: .85rem; font-weight: 700; white-space: nowrap; }
+  .ex-rt2 .why { color: #0f1f26 !important; font-size: .95rem; min-width: 15rem !important; } .ex-rt2 .why details { font-size: .88rem !important; }
+  .ex-rt2 .act { min-width: 12rem !important; } .ex-rt2 .act .fx { color: #15803d; font-weight: 800; font-size: .9rem; margin-bottom: .3rem; } .ex-rt2 .act .nofx { font-size: .9rem; margin-bottom: .3rem; }
+  .ex-rt2 .act .btn { margin: .1rem 0 .1rem .3rem; font-size: .85rem; }
+  .ex-qtips { font-size: .92rem !important; color: #0f1f26 !important; } .ex-qk span { font-size: .85rem !important; color: #0f1f26 !important; } .ex-qk b { font-size: 1.3rem !important; }
+  .ex-rtabs button { font-size: .9rem !important; color: #0f1f26 !important; } .ex-rtabs em { font-size: .8rem !important; }
   .ex-cal2 { display: grid; grid-template-columns: minmax(250px, 330px) minmax(0, 1fr); gap: 1rem; align-items: start; }
   .ex-calf { display: grid; gap: .6rem; } .ex-calf section { border: 1px solid #e2e8ec; border-radius: 12px; padding: .55rem .7rem; background: #fbfcfd; }
   .ex-calf h6 { font-size: .9rem; font-weight: 800; margin: 0 0 .4rem; color: #0b4a66; } .ex-calf label { display: block; margin: 0; } .ex-calf label > span { font-size: .8rem; font-weight: 700; color: #1f2a30; }
