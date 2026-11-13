@@ -20,6 +20,7 @@
   const M = px => Math.round(px * A.mpp / 5) * 5;                     // pixels on the plan to metres (rounded to 5)
   const mins = m => Math.max(1, Math.round(m / 50));                  // wheelchair about 3 km/h
   const walk = m => Math.max(1, Math.round(m / 75));
+  const SHORT = {"1": "الرئاسة", "2": "المكتبة", "3": "المسرح", "4": "تكنولوجيا المعلومات", "5": "الصيدلة", "6": "الدراسات الدوائية", "7": "العلوم الإدارية والمالية", "8": "الآداب والعلوم", "9": "الحقوق والإعلام", "10": "شؤون الطلبة", "11": "مواقف الطلبة", "12": "الهندسة", "13": "العمارة والتصميم", "14": "القبول والتسجيل"};   // the building names as labels on the plan
   const placeOf = k => { const [t, id] = String(k || '').split(':');
     if (t === 'b') { const b = A.buildings.find(x => String(x.n) === id); return b && { k, node: b.node, x: b.x, y: b.y, ar: b.ar, kind: 'b', b }; }
     const p = A.points.find(x => x.id === id && x.kind === t); return p && { k, node: p.node, x: p.x, y: p.y, ar: p.ar, kind: t, p }; };
@@ -62,7 +63,7 @@
       ? `<g class="ac-park" transform="translate(${p.x},${p.y}) scale(${K})"><rect x="-11" y="-11" width="22" height="22" rx="4"/><text y="4">P♿</text><title>${esc(p.ar)}</title></g>`
       : `<g class="ac-gate" transform="translate(${p.x},${p.y}) scale(${K})"><path d="M0,-12 L11,8 L-11,8 Z"/><text y="5">${esc(p.id)}</text><title>${esc(p.ar)}</title></g>`; });
     if (st.L.nums || opt.print) A.buildings.forEach(b => { const on = to && to.b === b, fo = fr && fr.b === b;
-      s += `<g class="ac-b ${on ? 'to' : fo ? 'from' : ''} ${served(b) ? '' : 'off'} ${st.hl === b.n ? 'hl' : ''}" data-b="${b.n}" transform="translate(${b.x},${b.y}) scale(${K})"><circle r="13"/><text y="5">${b.n}</text><title>${esc(b.ar)} — ${esc(b.en)}</title></g>`; });
+      s += `<g class="ac-b ${on ? 'to' : fo ? 'from' : ''} ${served(b) ? '' : 'off'} ${st.hl === b.n ? 'hl' : ''}" data-b="${b.n}" transform="translate(${b.x},${b.y}) scale(${K})"><circle r="13"/><text y="5">${b.n}</text>${st.L.names !== false ? `<g class="ac-nm"><rect x="${-(SHORT[b.n] || '').length * 2.75 - 7}" y="16" width="${(SHORT[b.n] || '').length * 5.5 + 14}" height="17" rx="8.5"/><text y="28.5">${esc(SHORT[b.n] || '')}</text></g>` : ''}<title>${esc(b.ar)} — ${esc(b.en)}</title></g>`; });
     if (route) { const a = route.pts[0], z = route.pts[route.pts.length - 1];
       s += `<g class="ac-pin a" transform="translate(${a[0]},${a[1]}) scale(${K})"><circle r="8"/></g><g class="ac-pin z" transform="translate(${z[0]},${z[1]}) scale(${K})"><path d="M0,0 C-9,-11 -9,-22 0,-24 C9,-22 9,-11 0,0Z"/><circle cy="-15" r="3.5" fill="#fff"/></g>`; }
     return s + '</g>';
@@ -95,7 +96,7 @@
         <optgroup label="مواقف ذوي الإعاقة">${A.points.filter(p => p.kind === 'park').map(p => `<option value="park:${p.id}" ${cur === 'park:' + p.id ? 'selected' : ''}>${esc(p.ar)}</option>`).join('')}</optgroup>` : '',
       withB ? `<optgroup label="المباني">${A.buildings.filter(served).map(b => `<option value="b:${b.n}" ${cur === 'b:' + b.n ? 'selected' : ''}>${b.n} · ${esc(b.ar)}</option>`).join('')}</optgroup>` : ''].join('');
     const q = U.norm(st.q || ''), list = A.buildings.filter(b => !q || U.norm(b.ar + ' ' + b.en + ' ' + b.n).includes(q));
-    app.className = (st.L.big ? 'ac-bigt ' : '') + (st.L.hc ? 'ac-hc' : '');
+    app.classList.toggle('ac-bigt', !!st.L.big); app.classList.toggle('ac-hc', !!st.L.hc);   // keep the page's own classes (container, padding)
     app.innerHTML = `<div class="ac-head">
         <div class="ac-title"><span class="ac-ico">♿</span><div><h2>المسار الميسّر في الحرم</h2><p>مسار ذوي الإعاقة الذي اعتمدته الجامعة على مخطط الحرم: من البوابات ومواقف ذوي الإعاقة إلى المدخل الميسّر لكل مبنى.</p></div></div>
         <div class="ac-kpis">${[['bi-building-check', A.buildings.filter(served).length + ' من ' + A.buildings.length, 'مبنى يخدمه المسار'], ['bi-rulers', 'حوالي ' + (Math.round(total * A.mpp / 50) * 50) + ' م', 'طول المسار'], ['bi-p-square', A.points.filter(p => p.kind === 'park').length, 'موقفان لذوي الإعاقة'], ['bi-door-open', A.points.filter(p => p.kind === 'gate').length, 'بوابات']].map(([i, v, l]) => `<div><i class="bi ${i}"></i><b>${v}</b><span>${l}</span></div>`).join('')}</div></div>
@@ -125,11 +126,9 @@
             <div class="ac-zoom no-print"><button type="button" data-z="in" title="تكبير" aria-label="تكبير"><i class="bi bi-plus-lg"></i></button><button type="button" data-z="out" title="تصغير" aria-label="تصغير"><i class="bi bi-dash-lg"></i></button><button type="button" data-z="fit" title="المخطط كاملاً" aria-label="المخطط كاملاً"><i class="bi bi-arrows-fullscreen"></i></button></div>
             <div class="ac-north" title="الشمال"><i class="bi bi-arrow-up"></i><span>ش</span></div>
             <div class="ac-tools no-print"><button type="button" id="ac-fs" title="ملء الشاشة" aria-label="ملء الشاشة"><i class="bi ${document.fullscreenElement ? 'bi-fullscreen-exit' : 'bi-fullscreen'}"></i></button><button type="button" id="ac-big" class="${st.L.big ? 'on' : ''}" title="خط أكبر" aria-label="خط أكبر"><i class="bi bi-type"></i></button><button type="button" id="ac-hc" class="${st.L.hc ? 'on' : ''}" title="تباين عالٍ" aria-label="تباين عالٍ"><i class="bi bi-circle-half"></i></button></div>
-            <div class="ac-key ${st.L.key === false ? 'shut' : ''}"><button type="button" class="ac-key-h" id="ac-key"><i class="bi bi-list-ol"></i> دليل المباني <i class="bi ${st.L.key === false ? 'bi-chevron-up' : 'bi-chevron-down'}"></i></button>
-              <div class="ac-key-b">${A.buildings.map(b => `<button type="button" class="${to && to.b === b ? 'on' : ''}" data-key="${b.n}" title="${esc(b.en)}"><span class="ac-bn">${b.n}</span><span><b>${esc(b.ar)}</b><small>${esc(b.en)}</small></span>${served(b) ? '<i class="ac-ok">♿</i>' : ''}</button>`).join('')}
-                <div class="ac-key-l"><span><i class="ac-l-net"></i> المسار الميسّر</span><span><i class="ac-l-route"></i> مسارك</span></div></div></div></div>
+</div>
           <div class="ac-legend">${[['ac-l-net', 'المسار الميسّر (من المخطط)'], ['ac-l-route', 'مسارك'], ['ac-l-link', 'وصلة إلى المسار (ليست في المخطط)'], ['ac-l-ent', 'مدخل ميسّر'], ['ac-l-park', 'موقف ذوي الإعاقة'], ['ac-l-gate', 'بوابة'], ['ac-l-b', 'رقم المبنى في المخطط']].map(([c, t]) => `<span><i class="${c}"></i>${t}</span>`).join('')}</div>
-          <div class="ac-layers no-print">${[['route', 'المسار'], ['ent', 'المداخل'], ['pts', 'المواقف والبوابات'], ['nums', 'أرقام المباني'], ['dim', 'تخفيف خلفية المخطط']].map(([k, t]) => `<label><input type="checkbox" data-l="${k}" ${st.L[k] ? 'checked' : ''}> ${t}</label>`).join('')}</div></section></div>`;
+          <div class="ac-layers no-print">${[['names', 'أسماء المباني'], ['route', 'المسار'], ['ent', 'المداخل'], ['pts', 'المواقف والبوابات'], ['nums', 'أرقام المباني'], ['dim', 'تخفيف خلفية المخطط']].map(([k, t]) => `<label><input type="checkbox" data-l="${k}" ${st.L[k] || (k === 'names' && st.L.names !== false) ? 'checked' : ''}> ${t}</label>`).join('')}</div></section></div>`;
     bind(r);
     const url = new URL(location.href); url.searchParams.set('from', st.from); if (st.to) url.searchParams.set('to', st.to); else url.searchParams.delete('to'); history.replaceState(null, '', url);
   }
@@ -153,10 +152,9 @@
     const q = $('#ac-q'); q.oninput = () => { st.q = q.value; const pos = q.selectionStart; render(); const n = $('#ac-q'); n.focus(); n.setSelectionRange(pos, pos); };
     const cp = $('#ac-copy'); if (cp) cp.onclick = () => { navigator.clipboard && navigator.clipboard.writeText(location.href); cp.innerHTML = '<i class="bi bi-check2"></i> نُسخ الرابط'; };
     const pr = $('#ac-print'); if (pr) pr.onclick = () => sheet(r);
-    app.querySelectorAll('[data-key]').forEach(b => { b.onclick = () => { st.to = 'b:' + b.dataset.key; render(); focusRoute(); };
-      b.onmouseenter = () => { const g = app.querySelector(`.ac-b[data-b="${b.dataset.key}"]`); if (g) g.classList.add('hl'); };
-      b.onmouseleave = () => { const g = app.querySelector(`.ac-b[data-b="${b.dataset.key}"]`); if (g) g.classList.remove('hl'); }; });
-    $('#ac-key').onclick = () => { st.L.key = st.L.key === false; saveL(); render(); };
+    app.querySelectorAll('.ac-bi[data-to]').forEach(b => { const n = b.dataset.to.slice(2);
+      b.onmouseenter = () => { const g = app.querySelector(`.ac-b[data-b="${n}"]`); if (g) g.classList.add('hl'); };
+      b.onmouseleave = () => { const g = app.querySelector(`.ac-b[data-b="${n}"]`); if (g) g.classList.remove('hl'); }; });
     $('#ac-big').onclick = () => { st.L.big = !st.L.big; saveL(); render(); };
     $('#ac-hc').onclick = () => { st.L.hc = !st.L.hc; saveL(); render(); };
     $('#ac-fs').onclick = () => { const c = $('.ac-mapc'); if (document.fullscreenElement) document.exitFullscreen(); else if (c.requestFullscreen) c.requestFullscreen(); };
@@ -178,7 +176,7 @@
     const map = `<div style="position:relative;border:1px solid #c9c1ae;border-radius:6px;overflow:hidden"><svg viewBox="${A.view[0]} ${A.view[1]} ${A.view[2] - A.view[0]} ${A.view[3] - A.view[1]}" style="width:100%;display:block"><image href="${SITE + A.image}" width="${W}" height="${H}"/>${svg(r, { print: true })}</svg></div>
       <style>.ac-net{fill:none;stroke:#6d28d9;stroke-width:4;stroke-dasharray:9 6}.ac-case{fill:none;stroke:#fff;stroke-width:8}.ac-link{fill:none;stroke:#64748b;stroke-width:2.5;stroke-dasharray:2 5}.ac-route{fill:none;stroke:#1d4ed8;stroke-width:6}.ac-rcase{fill:none;stroke:#fff;stroke-width:11}
       .ac-ent circle{fill:#1d4ed8;stroke:#fff;stroke-width:2}.ac-ent text{fill:#fff;font-size:10px;text-anchor:middle}.ac-park rect{fill:#0b4a66;stroke:#fff;stroke-width:2}.ac-park text{fill:#fff;font-size:9px;font-weight:700;text-anchor:middle}
-      .ac-gate path{fill:#1e3a8a;stroke:#fff;stroke-width:2}.ac-gate text{fill:#fff;font-size:10px;font-weight:700;text-anchor:middle}.ac-b circle{fill:#901d23;stroke:#fff;stroke-width:2.5}.ac-b text{fill:#fff;font-size:13px;font-weight:700;text-anchor:middle}.ac-b.to circle{fill:#15803d}.ac-pin.a circle{fill:#15803d;stroke:#fff;stroke-width:3}.ac-pin.z path{fill:#b42318;stroke:#fff;stroke-width:2}</style>`;
+      .ac-gate path{fill:#1e3a8a;stroke:#fff;stroke-width:2}.ac-gate text{fill:#fff;font-size:10px;font-weight:700;text-anchor:middle}.ac-b circle{fill:#901d23;stroke:#fff;stroke-width:2.5}.ac-b text{fill:#fff;font-size:13px;font-weight:700;text-anchor:middle}.ac-b.to circle{fill:#15803d}.ac-nm rect{fill:#fff;stroke:#901d23;stroke-width:1.2}.ac-nm text{fill:#111!important;font-size:11px!important}.ac-pin.a circle{fill:#15803d;stroke:#fff;stroke-width:3}.ac-pin.z path{fill:#b42318;stroke:#fff;stroke-width:2}</style>`;
     const legend = '<p style="font-size:9pt;margin:6px 0 0">الخط البنفسجي المتقطّع: المسار الميسّر كما في مخطط الجامعة · الأزرق: المسار المختار · ♿ مدخل ميسّر · P♿ موقف ذوي الإعاقة · ▲ بوابة · الدوائر الخمرية: أرقام المباني في المخطط · المنقّط الرمادي: وصلة إلى المسار ليست في المخطط.</p>';
     const rows = A.buildings.map(b => { const g = served(b) && nearestGate(b); return [b.n, b.ar, b.en, served(b) ? 'نعم' : 'لا', g ? `${M(g.r.px)} م من ${g.g.ar}` : '—']; });
     window.printReport({ title: r ? 'المسار الميسّر: ' + fr.ar + ' ← ' + to.ar : 'المسار الميسّر لذوي الإعاقة في الحرم الجامعي', subtitle: A.source, orientation: 'landscape', fit: true, url: location.href, qrLabel: 'المسار على الموقع',
@@ -203,6 +201,7 @@
     const site = P.get('site') && d.buildings.find(b => b.site === P.get('site')); if (site) st.to = 'b:' + site.n;   // from «خريطة الحرم»: ?site=<its building number>
     if (st.to && !placeOf(st.to)) st.to = ''; if (!placeOf(st.from)) st.from = 'gate:1';
     render(); if (st.to) setTimeout(focusRoute, 50);
+    if (U.updatedLine && d.updated) U.updatedLine(d.updated, 'المسار من مخطط الجامعة لمسار ذوي الاحتياجات الخاصة');
     window.addEventListener('resize', () => fit()); document.addEventListener('fullscreenchange', () => { render(); setTimeout(() => fit(), 60); });
   }).catch(e => { app.innerHTML = `<div class="alert alert-danger mt-3">تعذّر تحميل المسار (${esc(e.message)}).</div>`; });
 
@@ -254,6 +253,7 @@
     .ac-bt b { display: block; font-size: .92rem; } .ac-bt small { font-size: .76rem; } .ac-bs { text-align: end; font-size: .8rem; } .ac-bs small { display: block; }
     .ac-ok { color: #1d4ed8; font-weight: 700; } .ac-no { color: #6b7280; }
     .ac-mask { fill: #fff; }
+    .ac-nm rect { fill: rgba(255,255,255,.95); stroke: #901d23; stroke-width: 1.2; } .ac-nm text { fill: #111 !important; font-size: 11px !important; font-weight: 700; } .ac-b.to .ac-nm rect { stroke: #15803d; fill: #f0fdf4; } .ac-b.hl .ac-nm rect { stroke: #f59e0b; }
     .ac-b.hl circle { fill: #f59e0b; stroke: #fff; stroke-width: 4; } .ac-b.hl { filter: drop-shadow(0 0 6px rgba(245,158,11,.9)); }
     .ac-tools { position: absolute; bottom: 10px; left: 10px; display: flex; gap: 6px; } .ac-tools button { width: 38px; height: 38px; border-radius: 10px; border: 1px solid #d9d3c3; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.1); } .ac-tools button.on { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
     .ac-key { position: absolute; top: 10px; left: 58px; width: 270px; max-width: calc(100% - 130px); background: rgba(255,255,255,.97); border: 1px solid #e3ddcf; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,.12); overflow: hidden; }
