@@ -544,8 +544,7 @@
   // the same course under another number: an uploaded equivalent, or the same name in the published plans (a renumbered course)
   const altCodes = code => [...new Set([...eqOf(code).map(x => x.code), ...((sameName()[code] || []).map(x => x.code))])];
   const offeredAs = code => offered(code).length ? code : altCodes(code).find(x => offered(x).length) || '';
-  root.ADVDBG = () => ({ alt: altCodes('9400109'), as: offeredAs('9400109') });
-  const sectionsLine = code => { const L = offered(code); if (!L.length) { const x = offeredAs(code); return x ? `<a class="adv-chip unlock" href="timetable.html?q=${x}" target="_blank" rel="noopener" title="الاسم نفسه برمز آخر في الجدول الدراسي">مطروحة برمز ${x}</a>` : '<span class="adv-chip off">غير مطروحة</span>'; }
+    const sectionsLine = code => { const L = offered(code); if (!L.length) { const x = offeredAs(code); return x ? `<a class="adv-chip unlock" href="timetable.html?q=${x}" target="_blank" rel="noopener" title="الاسم نفسه برمز آخر في الجدول الدراسي">مطروحة برمز ${x}</a>` : '<span class="adv-chip off">غير مطروحة</span>'; }
     const open = L.filter(isOpen).length; return `<a class="adv-chip" href="timetable.html?q=${code}" target="_blank" rel="noopener">${L.length} شعبة${open < L.length ? ` · ${open} مفتوحة` : ''}</a>`; };
 
   // equivalents uploaded by the user, both ways
@@ -558,14 +557,19 @@
   let SAME = null;
   function sameName() {
     if (SAME) return SAME;
+    // each course number's own name is the one most sources give it (the timetable and the study plans weigh most); numbers
+    // that share that name are the same course under another number. A slip in one guidance plan (a wrong name beside a
+    // number) does not tie unrelated courses.
+    const votes = {}, where = {};
+    const add = (code, name, w, weight) => { if (!/^\d{6,7}$/.test(code) || !name) return; const k = norm(clean(name)).replace(/[()\s]|\d$/g, ''); if (k.length < 4) return;
+      const v = votes[code] ||= {}; v[k] = (v[k] || 0) + weight; ((where[code] ||= {})[k] ||= { name: clean(name), where: new Set() }).where.add(w); };
+    (SP ? SP.plans : []).forEach(p => p.groups.forEach(g => g.courses.forEach(c => add(c.code, c.name, `${p.major} (خطة ${p.version})`, 5))));
+    Object.entries(READS()).forEach(([sha, r]) => (r.years || []).forEach(y => y.terms.forEach(t => t.courses.forEach(c => add(c.code, c.name, (PROG_OF[sha] || 'خطة استرشادية') + (r.academic_year ? ' ' + r.academic_year : ''), 1)))));
+    S.forEach(s2 => add(s2.code, s2.name.replace(/\s*-\s*(نظري|عملي)$/, ''), 'الجدول الدراسي', 5));
     const by = {};
-    const add = (code, name, where) => { if (!/^\d{6,7}$/.test(code) || !name) return; const k = norm(clean(name)).replace(/[()\s]/g, ''); if (k.length < 4) return;
-      ((by[k] ||= {})[code] ||= { code, name: clean(name), where: new Set() }).where.add(where); };
-    (SP ? SP.plans : []).forEach(p => p.groups.forEach(g => g.courses.forEach(c => add(c.code, c.name, `${p.major} (خطة ${p.version})`))));
-    Object.entries(READS()).forEach(([sha, r]) => (r.years || []).forEach(y => y.terms.forEach(t => t.courses.forEach(c => add(c.code, c.name, (PROG_OF[sha] || 'خطة استرشادية') + (r.academic_year ? ' ' + r.academic_year : ''))))));
-    S.forEach(s => add(s.code, s.name.replace(/\s*-\s*(نظري|عملي)$/, ''), 'الجدول الدراسي'));
+    Object.entries(votes).forEach(([code, v]) => { const k = Object.entries(v).sort((a, b) => b[1] - a[1])[0][0]; (by[k] ||= []).push({ code, name: where[code][k].name, where: where[code][k].where }); });
     SAME = {};
-    Object.values(by).forEach(m => { const L = Object.values(m); if (L.length > 1) L.forEach(x => { SAME[x.code] = L.filter(y => y.code !== x.code); }); });
+    Object.values(by).forEach(L => { if (L.length > 1) L.forEach(x => { SAME[x.code] = L.filter(y => y.code !== x.code); }); });
     return SAME;
   }
   let PROG_OF = {};
