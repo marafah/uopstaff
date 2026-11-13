@@ -544,7 +544,7 @@
   .adv-t td small, .adv-t td .adv-src, .adv-t td .text-muted, .adv-t td .text-secondary, .adv-t td .small, .adv-tools, .adv-tools small, .adv-cci dt, .adv-dayc .adv-src { color:#111 !important; opacity:1 !important; }
   /* student details panel */
   .adv-det > td { padding:14px 12px 16px !important; background:#f7f5f0 !important; }
-  .dt { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+  .dt { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; position:sticky; inset-inline-start:0; width:min(100%, calc(100vw - 90px)); }
   @media (max-width: 1100px) { .dt { grid-template-columns:1fr; } }
   .dt-c { background:#fff; border:1px solid #e3ddcf; border-radius:12px; padding:12px 14px; }
   .dt-c h4 { display:flex; align-items:center; gap:8px; font-size:1rem !important; font-weight:700 !important; color:#111; margin:0 0 10px !important; padding-bottom:8px; border-bottom:1px solid #eee; }
@@ -559,7 +559,7 @@
   .dt-al { margin-top:10px; background:#fef2f2; border:1px solid #fecaca; border-radius:10px; padding:8px 10px; color:#7f1d1d; font-size:.9rem; display:grid; gap:4px; }
   .dt-al b { font-weight:700 !important; }
   .dt-tl { list-style:none; margin:0; padding:0 18px 0 0; position:relative; } .dt-tl::before { content:''; position:absolute; inset-block:6px; right:5px; width:2px; background:#d9d3c3; }
-  .dt-tl li { position:relative; display:flex; justify-content:space-between; align-items:center; padding:5px 0; font-size:.92rem; color:#111; }
+  .dt-tl li { position:relative; display:flex; justify-content:flex-start; gap:10px; align-items:center; padding:5px 0; font-size:.92rem; color:#111; }
   .dt-tl li::before { content:''; position:absolute; right:-17px; width:10px; height:10px; border-radius:50%; background:#fff; border:2px solid #0f766e; }
   .dt-tl li.end::before { background:#16a34a; border-color:#16a34a; } .dt-tl li.end span:first-child { color:#15803d; }
   .dt-act { grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
@@ -1172,7 +1172,7 @@
           ${r.ready.length > 10 ? `<div class="dt-e">و${r.ready.length - 10} مادة أخرى في «التحليل الكامل»</div>` : ''}
           ${r.reqNotOff.length ? `<div class="dt-al"><b><i class="bi bi-exclamation-triangle-fill"></i> إجبارية غير مطروحة هذا الفصل</b>${r.reqNotOff.map(c => `<div><span class="fb code">${c.code}</span> ${esc(c.name)}</div>`).join('')}</div>` : ''}</section>
         <section class="dt-c"><h4><i class="bi bi-signpost-split-fill ic-t"></i> مسار التخرج المنتظم <span class="fb hrs ms-auto">18 س للفصل</span></h4>
-          ${r.path && r.path.terms.length ? `<ol class="dt-tl">${r.path.terms.map(t => `<li><span>${esc(termName(t.term))}</span><span class="fb hrs">${t.hours} س</span></li>`).join('')}<li class="end"><span><i class="bi bi-mortarboard-fill"></i> التخرج المتوقع</span><span class="fb ok">${esc(termName(r.path.end))}</span></li></ol>` : '<div class="dt-e">—</div>'}
+          ${r.path && r.path.terms.length ? `<ol class="dt-tl">${r.path.terms.map(t => `<li><span>${esc(termName(t.term))}</span><span class="fb hrs">${t.hours} س</span></li>`).join('')}<li class="end"><span><i class="bi bi-mortarboard-fill"></i> التخرج المتوقع</span><span class="fb ok">${esc(termName(r.path.end))}</span></li></ol><div class="dt-e mt-1">المجموع: ${r.path.terms.reduce((a, t) => a + t.hours, 0)} ساعة في ${r.path.terms.length} فصول</div>` : '<div class="dt-e">—</div>'}
           ${(s.warn || []).length ? `<div class="dt-al">⚠ ${esc(s.warn.join('، '))}</div>` : ''}</section>
         <div class="dt-act"><button type="button" class="btn btn-sm btn-maroon" data-open="${esc(s.head.id)}"><i class="bi bi-person-vcard"></i> التحليل الكامل والجدول المقترح</button>
           <button type="button" class="btn btn-sm btn-light border" data-pdf="${esc(s.head.id)}"><i class="bi bi-file-earmark-pdf ic-r"></i> الخطة الأصلية</button>
