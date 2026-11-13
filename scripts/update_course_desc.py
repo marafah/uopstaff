@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import advisory_parse  # noqa: E402
 import update_advisory  # noqa: E402
 
-VERSION = 2
+VERSION = 3
 DEBUG = {}   # the first lines of every file read in this run, to check the reading (data/course_descriptions_lines.json)
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 OUT = os.path.join(ROOT, "data", "course_descriptions.json")
@@ -176,6 +176,12 @@ def main():
                 lines, got = [], {}
                 rec["error"] = repr(e)[:200]
             DEBUG[url] = [f"{pg}| {t}" for pg, t in lines[:120]]
+            try:   # the same file through PDFium's own text layer, to compare the two readings
+                import pypdfium2 as pdfium
+                doc = pdfium.PdfDocument(pdf)
+                DEBUG[url + "#pdfium"] = unicodedata.normalize("NFKC", doc[0].get_textpage().get_text_range())[:2500]
+            except Exception as e:
+                DEBUG[url + "#pdfium"] = repr(e)
             rec.update({"sha": sha, "read": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "lines": len(lines), "courses": len(got),
                         "sample": [t for _, t in lines[:4]]})
             docs[url] = rec
