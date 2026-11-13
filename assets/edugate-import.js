@@ -9,7 +9,7 @@
   const SRC = (document.currentScript && document.currentScript.src) || 'https://marafah.github.io/uopstaff/assets/edugate-import.js';
   const SITE = new URL('../', SRC).href;                 // the site's root, beside assets/
   const SITE_ORIGIN = new URL(SITE).origin;
-  const TARGET = SITE + 'advising.html?view=board&from=edugate';
+  const TARGET = SITE + 'advising.html?view=import&from=edugate';
   const $ = (s, r) => (r || document).querySelector(s);
   const wait = ms => new Promise(r => setTimeout(r, ms));
   const onPlanPage = /\/staff\/studentPlan/.test(location.pathname) && $('[id="contents:sectionsTable"]');
@@ -62,7 +62,7 @@
   const W = window.PrimeFaces && PrimeFaces.widgets.widget_contents_sectionsTable;
   const total = W && W.paginator ? W.paginator.cfg.rowCount : document.querySelectorAll('[id="contents:sectionsTable_data"] > tr').length;
   bd.innerHTML = steps(1) + `<p>في قائمتك على البوابة:</p><div class="big">${total} طالباً</div>
-    <p>ستُسحب «تحليل خطة الطالب» لكل منهم كما تطبعه البوابة، ثم تُفتح «لوحة المرشد» في تبويب جديد وتظهر فيها الخطط أولاً بأول. يستغرق السحب نحو ${Math.max(1, Math.round(total * 2.2 / 60))} دقيقة؛ أبقِ هذا التبويب مفتوحاً.</p>
+    <p>ستُسحب «تحليل خطة الطالب» لكل منهم كما تطبعه البوابة، ثم تُفتح صفحة «استيراد الخطط» في تبويب جديد وتظهر فيها الخطط أولاً بأول. يستغرق السحب نحو ${Math.max(1, Math.round(total * 2.2 / 60))} دقيقة؛ أبقِ هذا التبويب مفتوحاً.</p>
     ${privacy}<button class="btn go" id="start">تأكيد وابدأ السحب</button>`;
   root.getElementById('start').onclick = start;
   window.__uopImport = { show() { document.body.appendChild(host); } };
@@ -103,7 +103,7 @@
     site = window.open(TARGET, 'uop-advising');
     return new Promise((res, rej) => {
       if (!site) return rej(new Error('popup'));
-      const t = setInterval(() => { try { site.postMessage({ type: 'uop-hello' }, SITE_ORIGIN); } catch (e) { /* not loaded yet */ } }, 700);
+      const t = setInterval(() => { try { site.postMessage({ type: 'uop-hello', total }, SITE_ORIGIN); } catch (e) { /* not loaded yet */ } }, 700);
       replies.ready = () => { clearInterval(t); res(); };
       setTimeout(() => { clearInterval(t); rej(new Error('timeout')); }, 45000);
     });
@@ -116,7 +116,7 @@
 
   async function start() {
     running = true;
-    bd.innerHTML = steps(2) + '<p>جارٍ فتح «لوحة المرشد» في تبويب جديد…</p>';
+    bd.innerHTML = steps(2) + '<p>جارٍ فتح صفحة «استيراد الخطط» في تبويب جديد…</p>';
     try { await openSite(); } catch (e) {
       running = false;
       bd.innerHTML = steps(1) + `<div class="err">${e.message === 'popup' ? 'منع المتصفح فتح التبويب الجديد. اسمح بالنوافذ المنبثقة لهذا الموقع (رمز في شريط العنوان) ثم اضغط الزر مرة أخرى.' : 'لم تُفتح صفحة «مكتب الإرشاد». تحقّق من الاتصال ثم أعد المحاولة.'}</div><button class="btn go" id="start">إعادة المحاولة</button>`;
@@ -163,8 +163,8 @@
     running = false;
     bd.innerHTML = steps(4) + `<p>${stop ? 'أُوقف السحب.' : 'اكتمل السحب.'}</p><div class="grid"><div class="g"><b>${ok}</b><span>خطة مطابقة وكاملة</span></div><div class="y"><b>${total - done}</b><span>لم تُسحب</span></div><div class="r"><b>${bad}</b><span>تعذّرت</span></div></div>
       ${errs.length ? `<div class="err">${errs.map(x => `<div>${x.replace(/</g, '&lt;')}</div>`).join('')}</div>` : ''}
-      <button class="btn go" id="openSite">افتح لوحة المرشد</button><button class="btn ghost" id="close">إغلاق</button>`;
-    root.getElementById('openSite').onclick = () => { try { site.focus(); } catch (e) { window.open(TARGET.replace('&from=edugate', ''), 'uop-advising'); } };
+      <button class="btn go" id="openSite">افتح لوحة التحكم</button><button class="btn ghost" id="close">إغلاق</button>`;
+    root.getElementById('openSite').onclick = () => { try { site.focus(); } catch (e) { window.open(TARGET.replace('view=import&from=edugate', 'view=board'), 'uop-advising'); } };
     root.getElementById('close').onclick = () => { host.remove(); window.__uopImport = null; };
   }
 })();
