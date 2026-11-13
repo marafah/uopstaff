@@ -965,7 +965,7 @@
     const secs = outData(), n = secs.reduce((a, s) => a + s.rows.length, 0);
     return `${versBar()}<div class="ex-outbar"><div class="ex-views">${Object.entries(OUT).map(([k, t]) => `<button class="ex-vbtn${outView === k ? ' on' : ''}" data-ov="${k}"><i class="bi ${OUTIC[k]}"></i> ${t}</button>`).join('')}</div>
       <div class="ex-acts"><button class="btn btn-ex" id="ex-print" title="الطباعة والتصدير تأخذ العرض والتصفية الحاليين؛ في Excel كل جدول في ورقة"><i class="bi bi-printer-fill"></i> طباعة / PDF</button><button class="btn btn-success" id="ex-xlsx"><i class="bi bi-file-earmark-excel-fill"></i> Excel</button>
-      <button class="btn btn-outline-success" id="ex-data" title="جدول واحد منسّق: صف لكل قاعة، عناوين ثابتة وتصفية على كل عمود، من اليمين لليسار"><i class="bi bi-table"></i> جدول بيانات</button><button class="btn btn-sm btn-link" id="ex-csv" title="ملف نصي خام لإدخاله في نظام آخر (بلا تنسيق)">CSV</button></div></div>
+      <button class="btn btn-outline-success" id="ex-data" title="جدول واحد منسّق: صف لكل قاعة، عناوين ثابتة وتصفية على كل عمود، من اليمين لليسار"><i class="bi bi-table"></i> جدول بيانات</button><button class="btn btn-sm btn-link" id="ex-csv" title="ملف نصي خام لإدخاله في نظام آخر: لا يحمل عرض أعمدة ولا اتجاهاً ولا تنسيقاً. للقراءة والطباعة استخدم «جدول بيانات» أو Excel.">CSV خام (لنظام آخر)</button></div></div>
       <div class="ex-o2">${pubPanel()}
       <div class="ex-docs"><b><i class="bi bi-folder2-open"></i> كشوف ومستندات</b>
         <button class="btn btn-outline-primary" id="ex-plists"><i class="bi bi-people-fill"></i> قوائم الطلبة لكل قاعة <small>QR</small></button>
