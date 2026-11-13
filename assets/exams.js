@@ -1319,14 +1319,15 @@
   // the exam period on a month calendar: exam days numbered, weekly days off, holidays; a click on a day adds / removes a holiday
   // one day from 7:00 to 18:00: the exam window, each period, the breaks between them
   function timeline() {
-    const A = 7 * 60, Z = 18 * 60, X = m => ((m - A) / (Z - A) * 100).toFixed(2) + '%', W = (a, b) => ((b - a) / (Z - A) * 100).toFixed(2) + '%';
     const ps = S.periods.map(p => [U.toMin(p[0]), U.toMin(p[1])]).sort((a, b) => a[0] - b[0]);
     const win = [U.toMin(S.firstStart || '07:00'), U.toMin(S.lastEnd || '18:00')];
+    const A = Math.max(0, Math.floor(Math.min(win[0], ...ps.map(p => p[0])) / 60) * 60 - 60), Z = Math.min(1440, Math.ceil(Math.max(win[1], ...ps.map(p => p[1])) / 60) * 60 + 60);
+    const X = m => ((m - A) / (Z - A) * 100).toFixed(2) + '%', W = (a, b) => ((b - a) / (Z - A) * 100).toFixed(2) + '%';
     const gaps = ps.slice(1).map((p, k) => [ps[k][1], p[0]]).filter(([a, b]) => b > a);
     return `<div class="ex-tl"><div class="bar"><span class="win" style="right:${X(win[0])};width:${W(win[0], win[1])}"></span>
       ${ps.map(([a, b], k) => `<span class="p${late([U.toTime(a), U.toTime(b)]) ? ' bad' : ''}" style="right:${X(a)};width:${W(a, b)}"><b>الفترة ${k + 1}</b><small dir="ltr">${U.toTime(a)}–${U.toTime(b)}</small></span>`).join('')}
       ${gaps.map(([a, b]) => `<span class="g" style="right:${X(a)};width:${W(a, b)}" title="استراحة ${b - a} دقيقة"></span>`).join('')}</div>
-      <div class="ax">${[7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18].map(h => `<i style="right:${X(h * 60)}">${h}</i>`).join('')}</div>
+      <div class="ax">${Array.from({ length: (Z - A) / 60 + 1 }, (_, k) => A / 60 + k).map(h => `<i style="right:${X(h * 60)}">${h}:00</i>`).join('')}</div>
       <div class="lgd"><span><i class="d win"></i> وقت الامتحانات المسموح <bdi dir="ltr">${U.toTime(win[0])} – ${U.toTime(win[1])}</bdi></span><span><i class="d p"></i> فترة امتحان</span>${gaps.length ? '<span><i class="d g"></i> استراحة بين فترتين</span>' : ''}</div></div>`;
   }
   function calKpis() {
@@ -1479,14 +1480,16 @@
             <p>الفترة <b>موعد امتحان ثابت يتكرر كل يوم</b> (مثلاً 9:00–11:00). كل امتحان يأخذ فترة واحدة في يوم واحد، والامتحانات في الفترة نفسها تُعقد معاً في قاعات مختلفة. المواعيد المتاحة = الأيام × الفترات.</p>
             <ul><li>طول الفترة = مدة الامتحان.</li><li>اترك 30 دقيقة بين فترتين إن احتجت تبديل القاعات.</li><li>تعارضات كثيرة؟ زِد الأيام أو أضف فترة.</li></ul></div></details></div>
         <div class="r2">${timeline()}</div>
-        <div class="r3"><i class="bi bi-clock-history"></i> <b>وقت الامتحانات اليومي</b> من <input type="time" class="form-control form-control-sm" data-k="firstStart" value="${S.firstStart || ''}"> إلى <input type="time" class="form-control form-control-sm" data-k="lastEnd" value="${S.lastEnd || ''}">
-          <details class="ex-dw" ${Object.keys(S.dayWin || {}).length ? 'open' : ''}><summary>وقت مختلف لبعض الأيام${Object.keys(S.dayWin || {}).length ? ` (${Object.keys(S.dayWin).length})` : ''}</summary>
-            <div class="ex-win-d">${[0, 1, 2, 3, 4, 6].filter(i => !S.off.includes(i)).map(i => { const w = (S.dayWin || {})[i] || {};
-              return `<div class="r${w.from || w.to ? ' on' : ''}"><b>${WD[i]}</b><input type="time" class="form-control form-control-sm" data-dw="${i}" data-e="from" value="${w.from || ''}" title="من"><span>–</span><input type="time" class="form-control form-control-sm" data-dw="${i}" data-e="to" value="${w.to || ''}" title="إلى">${w.from || w.to ? `<button class="btn btn-sm btn-link" data-dwclr="${i}">مسح</button>` : '<small>كالعام</small>'}</div>`; }).join('')}</div>
-            <small class="d-block">فترة خارج وقت اليوم تُعطَّل في ذلك اليوم فقط.</small></details></div>
-        <div class="r4">${S.periods.map((p, k) => `<span class="pp${mins(p[0], p[1]) > 0 && !late(p) ? '' : ' bad'}" title="${mins(p[0], p[1]) <= 0 ? 'وقت غير صحيح' : late(p) ? 'خارج وقت الامتحانات' : U.dur(mins(p[0], p[1]))}"><b>${k + 1}</b><input type="time" class="form-control form-control-sm" data-p="${k}" data-e="0" value="${p[0]}"><span>–</span><input type="time" class="form-control form-control-sm" data-p="${k}" data-e="1" value="${p[1]}"><button class="btn btn-sm" data-delp="${k}" ${P < 2 ? 'disabled' : ''} aria-label="حذف الفترة ${k + 1}"><i class="bi bi-x-lg"></i></button></span>`).join('')}
-          <button class="btn btn-sm btn-outline-primary" data-addp><i class="bi bi-plus-lg"></i> فترة</button>
-          <span class="dropdown"><button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-lightning-charge"></i> قوالب</button><ul class="dropdown-menu">${PRESETS.map(([t], k) => `<li><button class="dropdown-item" data-preset="${k}">${t}</button></li>`).join('')}</ul></span></div>
+        <div class="r34"><section class="cd"><h6><i class="bi bi-clock-history"></i> وقت الامتحانات اليومي</h6>
+            <div class="win"><label><span>من</span><input type="time" class="form-control form-control-sm" data-k="firstStart" value="${S.firstStart || ''}"></label><label><span>إلى</span><input type="time" class="form-control form-control-sm" data-k="lastEnd" value="${S.lastEnd || ''}"></label></div>
+            <details class="ex-dw" ${Object.keys(S.dayWin || {}).length ? 'open' : ''}><summary>وقت مختلف لبعض الأيام${Object.keys(S.dayWin || {}).length ? ` (${Object.keys(S.dayWin).length})` : ''}</summary>
+              <div class="dws">${[0, 1, 2, 3, 4, 6].filter(i => !S.off.includes(i)).map(i => { const w = (S.dayWin || {})[i] || {};
+                return `<div class="dwr${w.from || w.to ? ' on' : ''}"><b>${WD[i]}</b><input type="time" class="form-control form-control-sm" data-dw="${i}" data-e="from" value="${w.from || ''}" title="من"><span>–</span><input type="time" class="form-control form-control-sm" data-dw="${i}" data-e="to" value="${w.to || ''}" title="إلى">${w.from || w.to ? `<button class="btn btn-sm btn-link p-0" data-dwclr="${i}" title="مسح"><i class="bi bi-x-lg"></i></button>` : '<small>كالعام</small>'}</div>`; }).join('')}</div>
+              <small class="d-block mt-1">فترة خارج وقت اليوم تُعطَّل في ذلك اليوم فقط.</small></details></section>
+          <section class="cd"><h6><i class="bi bi-list-ol"></i> الفترات <span class="n">${nPer(P)}</span>
+              <span class="ms-auto d-flex gap-1"><button class="btn btn-sm btn-outline-primary" data-addp><i class="bi bi-plus-lg"></i> فترة</button>
+              <span class="dropdown"><button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-lightning-charge"></i> قوالب</button><ul class="dropdown-menu">${PRESETS.map(([t], k) => `<li><button class="dropdown-item" data-preset="${k}">${t}</button></li>`).join('')}</ul></span></span></h6>
+            <div class="pl">${S.periods.map((p, k) => { const bad = !(mins(p[0], p[1]) > 0 && !late(p)); return `<div class="pp${bad ? ' bad' : ''}"><b>${k + 1}</b><input type="time" class="form-control form-control-sm" data-p="${k}" data-e="0" value="${p[0]}" aria-label="بداية الفترة ${k + 1}"><span>–</span><input type="time" class="form-control form-control-sm" data-p="${k}" data-e="1" value="${p[1]}" aria-label="نهاية الفترة ${k + 1}"><small>${(m => m <= 0 ? 'وقت غير صحيح' : late(p) ? 'خارج الوقت' : m < 60 ? m + ' دقيقة' : Math.floor(m / 60) + ' س' + (m % 60 ? ' ' + m % 60 + ' د' : ''))(mins(p[0], p[1]))}</small><button class="btn btn-sm del" data-delp="${k}" ${P < 2 ? 'disabled' : ''} title="حذف الفترة"><i class="bi bi-x-lg"></i></button></div>`; }).join('')}</div></section></div>
       </div>
       ${P === 1 ? '<div class="ex-note1"><i class="bi bi-info-circle-fill"></i> فترة واحدة فقط: كل الامتحانات في الساعة نفسها من كل يوم. أضف فترة ثانية لتقليل الضغط.</div>' : ''}
       ${S.periods.some(p => mins(p[0], p[1]) > 180) ? '<div class="ex-note1 warn"><i class="bi bi-exclamation-triangle-fill"></i> فترة أطول من 3 ساعات: الفترة = مدة امتحان واحد، لا يوم الامتحانات كله.</div>' : ''}
@@ -2649,6 +2652,18 @@
   .ex-vers .new { display: inline-flex; gap: .3rem; } .ex-vers .new input { width: 13rem; }
   .ex-vers .list { display: flex; flex-wrap: wrap; gap: .3rem; flex: 1 1 auto; } .ex-vers .v { display: inline-flex; align-items: center; gap: .2rem; border: 1px solid #d6dee3; background: #fff; border-radius: 8px; padding: .12rem .2rem .12rem .45rem; font-size: .86rem; font-weight: 700; }
   .ex-vers .v.app { border-color: #15803d; background: #effaf3; color: #15803d; } .ex-vers .v button { border: 0; background: transparent; padding: 0 .25rem; color: #0b4a66; } .ex-vers .v button[data-ddel] { color: #b42318; }
+  .ex-p4 .r34 { display: grid; grid-template-columns: minmax(260px, 330px) minmax(0, 1fr); gap: .7rem; align-items: start; } @media (max-width: 900px) { .ex-p4 .r34 { grid-template-columns: 1fr; } }
+  .ex-p4 .cd { background: #fff; border: 1px solid #cfe9e4; border-radius: 11px; padding: .55rem .7rem; } .ex-p4 .cd h6 { display: flex; align-items: center; gap: .4rem; font-size: .92rem; font-weight: 800; color: #0f766e; margin: 0 0 .5rem; }
+  .ex-p4 .cd h6 .n { background: #e6f4f1; color: #0f766e; border-radius: 999px; padding: 0 .5rem; font-size: .78rem; }
+  .ex-p4 .win { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; } .ex-p4 .win label { margin: 0; display: flex; flex-direction: column; gap: .15rem; } .ex-p4 .win span { font-size: .8rem; font-weight: 700; color: #1f2a30; }
+  .ex-p4 .ex-dw { margin: .5rem 0 0; } .ex-p4 .ex-dw > summary { font-size: .84rem; }
+  .ex-p4 .dws { display: grid; gap: .3rem; margin-top: .4rem; } .ex-p4 .dwr { display: grid; grid-template-columns: 4.2rem 1fr auto 1fr 3rem; gap: .3rem; align-items: center; font-size: .84rem; }
+  .ex-p4 .dwr input { width: 100% !important; } .ex-p4 .dwr small { color: #1f2a30; font-size: .74rem; } .ex-p4 .dwr.on b { color: #0f766e; }
+  .ex-p4 .pl { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: .4rem; }
+  .ex-p4 .pp { display: grid !important; grid-template-columns: 1.6rem minmax(6rem, 1fr) auto minmax(6rem, 1fr) 4.4rem 1.4rem; gap: .3rem; align-items: center; border: 1px solid #cfe9e4 !important; background: #f8fcfb !important; border-radius: 9px !important; padding: .3rem .4rem !important; }
+  .ex-p4 .pp > b { background: #0f766e; color: #fff; border-radius: 6px; text-align: center; font-size: .8rem; line-height: 1.6; } .ex-p4 .pp input { width: 100% !important; min-width: 0; padding: .15rem .3rem; font-size: .86rem; }
+  .ex-p4 .pp > span { color: #1f2a30; } .ex-p4 .pp small { font-size: .75rem; color: #1f2a30; text-align: center; white-space: nowrap; } .ex-p4 .pp .del { padding: 0; color: #b42318; border: 0; }
+  .ex-p4 .pp.bad { border-color: #b42318 !important; background: #fff4f4 !important; } .ex-p4 .pp.bad > b { background: #b42318; } .ex-p4 .pp.bad small { color: #b42318; font-weight: 700; }
   .ex-cal2 { display: grid; grid-template-columns: minmax(250px, 330px) minmax(0, 1fr); gap: 1rem; align-items: start; }
   .ex-calf { display: grid; gap: .6rem; } .ex-calf section { border: 1px solid #e2e8ec; border-radius: 12px; padding: .55rem .7rem; background: #fbfcfd; }
   .ex-calf h6 { font-size: .9rem; font-weight: 800; margin: 0 0 .4rem; color: #0b4a66; } .ex-calf label { display: block; margin: 0; } .ex-calf label > span { font-size: .8rem; font-weight: 700; color: #1f2a30; }
