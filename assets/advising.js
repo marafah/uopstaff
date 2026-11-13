@@ -98,7 +98,7 @@
     return { name, kind, req: req === '' || req == null ? null : +req, printedPassed: got == null || got === '' ? null : +got, courses: [] };
   }
 
-  function parsePlan(items, known) {
+  function parsePlan(items, known, hoursOf) {
     const rows = rowsOf(items);
     const st = { head: {}, groups: [], term: 0, termLabel: '', level: '', grade: '', pages: Math.max(0, ...items.map(i => i.page)) };
     let g = null, last = null, page = 0;
@@ -152,6 +152,10 @@
     // prerequisite numbers: the PDF runs them together («(601104103250و)»), so they are cut at the course numbers known
     // from the plan itself; a number broken over two lines is joined again
     const K = new Set([...(known || []), ...st.groups.flatMap(x => x.courses.map(c => c.code))]);
+    // a course passed through a substitute shows the substitute's hours on its row; the plan counts the course's own hours
+    const ownHours = {};
+    st.groups.forEach(x => x.courses.forEach(c => { if (!c.alt && c.hours != null) ownHours[c.code] = c.hours; }));
+    st.groups.forEach(x => x.courses.forEach(c => { if (c.alt) { const h = ownHours[c.code] ?? (hoursOf && hoursOf(c.code)); if (h != null && h !== c.hours) c.planHours = h; } }));
     st.groups.forEach(x => x.courses.forEach(c => { const p = splitPre(c.pre, K); c.prereq = p.codes; c.preOr = p.or; c.name = clean(c.name).replace(/\(\s*/g, '(').replace(/\s*\)/g, ')'); }));
     const h = st.head;
     st.gpa = h.gpa != null ? parseFloat(h.gpa) : null;
@@ -197,8 +201,9 @@
     st.groups.filter(g => g.kind === 'outside').forEach(g => g.courses.forEach(c => (tries[c.code] ||= []).push(c)));
     const failedBefore = code => (tries[code] || []).some(t => t.result === 'راسب');
     const groups = plan.map(g => {
-      const hrs = cs => cs.reduce((a, c) => a + (c.hours || 0), 0);
-      const doneC = g.courses.filter(c => done.has(c.code)), passC = g.courses.filter(c => passed.has(c.code));
+      const hrs = cs => cs.reduce((a, c) => a + (c.planHours ?? c.hours ?? 0), 0);
+      // hours count where the PDF records the grade: a course listed in two groups (an elective also taken as a free course) counts once
+      const passC = g.courses.filter(c => c.result === 'ناجح'), doneC = g.courses.filter(c => c.result === 'ناجح' || (opt.assumeCurrent && c.current));
       const fixed = g.kind === 'required' || g.kind === 'remedial' || g.kind === 'service';
       const req = g.req == null ? hrs(g.courses) : g.req;
       const gotDone = Math.min(req, hrs(doneC)), gotPassed = Math.min(req, hrs(passC));
@@ -453,10 +458,12 @@
     return items;
   }
   const knownCodes = () => Object.keys(NAMES);
+  let HOURS = null;
+  const planHours = code => { if (!HOURS) { HOURS = {}; (SP ? SP.plans : []).forEach(p => p.groups.forEach(g => g.courses.forEach(c => { HOURS[c.code] ??= c.hours; }))); } return HOURS[code]; };
   async function readStudent(file) {
     const buf = await file.arrayBuffer();
     const items = await pdfItems(buf.slice(0));
-    const s = parsePlan(items, knownCodes());
+    const s = parsePlan(items, knownCodes(), planHours);
     s._buf = buf;
     s.file = file.name;
     return s;
@@ -676,7 +683,7 @@
   }
 
   // ---------------------------------------------------------------- plans kept on this device (IndexedDB), and the import from the portal
-  const PV = 1;   // the reader's version: plans kept by an older reader are read again from their PDF
+  const PV = 2;   // the reader's version: plans kept by an older reader are read again from their PDF
   const PORTAL = 'https://edugate.uop.edu.jo';
   const IMP = { on: P.get('from') === 'edugate', got: 0, ok: 0, warn: 0, bad: 0, last: '', done: null, list: [] };
   function idb() {
@@ -699,7 +706,7 @@
     const recs = await storedAll();
     for (const r of recs) {
       let s = r.pv === PV && r.parsed ? r.parsed : null;
-      if (!s && r.pdf) { try { s = parsePlan(await pdfItems(r.pdf.slice(0)), knownCodes()); r.parsed = s; r.pv = PV; await store(r); } catch (e) { continue; } }
+      if (!s && r.pdf) { try { s = parsePlan(await pdfItems(r.pdf.slice(0)), knownCodes(), planHours); r.parsed = s; r.pv = PV; r.warn = mismatches(s); await store(r); } catch (e) { continue; } }
       if (s && s.ok) { s.stored = r.importedAt; s.src = r.src; s.warn = r.warn; addBoard(s); }
     }
     return recs.length;
@@ -715,7 +722,7 @@
     if (d.type === 'uop-plan') {
       IMP.got++; IMP.last = d.meta && d.meta.name || '';
       try {
-        const s = parsePlan(await pdfItems(d.pdf.slice(0)), knownCodes());
+        const s = parsePlan(await pdfItems(d.pdf.slice(0)), knownCodes(), planHours);
         if (!s.ok) throw new Error('الملف ليس «تحليل خطة الطالب»');
         if (String(s.head.id) !== String(d.id)) throw new Error(`رقم الطالب في الملف ${s.head.id} لا يطابق ${d.id}`);
         const g = parseFloat(d.meta && d.meta.gpa);
