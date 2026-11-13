@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import advisory_parse  # noqa: E402
 import update_advisory  # noqa: E402
 
-VERSION = 7
+VERSION = 8
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 OUT = os.path.join(ROOT, "data", "course_descriptions.json")
 IMG = os.path.join(ROOT, "data", "coursedesc")
@@ -154,7 +154,7 @@ def clean_text(t):
     return not re.search(r"ا{3,}|(?:\b\w\b ){4}", t) and single / len(ar) <= 0.03
 
 
-def ocr_text(pg, top, bottom):
+def ocr_text(pg, top, bottom, code="", lang="ara"):
     """The printed text of one part of a page, read from its image at 300 dpi."""
     try:
         import pytesseract
@@ -165,15 +165,17 @@ def ocr_text(pg, top, bottom):
     img = pg.render(scale=scale).to_pil().convert("L")
     img = img.crop((0, int(max(0, top - 3) * scale), int(w * scale), int(min(h, bottom + 4) * scale)))
     try:
-        t = pytesseract.image_to_string(img, lang="ara+eng", config="--psm 6")
+        t = pytesseract.image_to_string(img, lang=lang, config="--psm 6")
     except Exception as e:  # no Arabic data on this machine: the page image is shown instead
         print(f"  OCR: {e}", file=sys.stderr)
         return ""
     t = unicodedata.normalize("NFKC", t)
-    t = t.replace("»", "،").replace("؛؛", "؛")   # Tesseract reads the Arabic comma as «»»
+    t = t.replace("»", "،").replace("؛؛", "؛")
+    t = re.sub(r"[\u200e\u200f\u202a-\u202e]", "", t)   # Tesseract reads the Arabic comma as «»»
     # drop the course's own title and prerequisite lines, which the page shows apart
     lines = [l.strip() for l in t.splitlines() if l.strip()]
-    lines = [l for l in lines if not PRE.search(l) and not re.match(r"^\(?\d{6,7}\)?\s", l) and not re.search(r"\(\s*\d\s*-\s*\d\s*[:：]\s*\d\s*\)", l)]
+    lines = [l for l in lines if not re.match(r"^\W*(ال)?متطلب(ات)?\s*(ال)?سابق|^\W*prereq", l, re.I)
+             and not (code and code in l) and not re.search(r"[()]\s*\d\s*-\s*\d\s*[:：]\s*\d\s*[()]", l)]
     return " ".join(lines)
 
 
@@ -196,7 +198,8 @@ def crops(pdf_bytes, sha, got):
                 img.crop((int(0.04 * w * scale), int(y0), int(0.96 * w * scale), int(y1))).save(path, "WEBP", quality=70, method=6)
             names.append(name)
             if not c["clean"]:
-                ocr.append(ocr_text(doc[page - 1], top, bottom))
+                arabic = len(re.findall(r"[\u0600-\u06ff]", c["text"])) > len(re.findall(r"[A-Za-z]", c["text"]))
+                ocr.append(ocr_text(doc[page - 1], top, bottom, code, "ara" if arabic else "eng"))
         c["img"] = names
         if not c["clean"] and any(ocr):
             # the file's own text drops letters: the text is read from the printed page instead (Tesseract, Arabic + English)
