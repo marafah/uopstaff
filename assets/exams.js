@@ -675,13 +675,12 @@
     <div class="n">${esc(c.name)}</div>
     <div class="m"><span class="bd"><i class="bi bi-people-fill"></i> ${c.students}</span><span class="bd">${LVS(c.lv)}</span>${c.secs > 1 ? `<span class="bd">${c.secs} شعب</span>` : ''}</div></div>`;
   const STEPS = [['set', 'bi-sliders', 'الإعداد', 'الأيام والفترات والقاعات والقواعد'], ['grid', 'bi-magic', 'التوليد والتعديل', 'ولّد الجدول ثم عدّله'],
-    ['check', 'bi-clipboard2-check', 'فحص الجودة', 'التعارضات وحلولها'], ['drafts', 'bi-patch-check', 'الحفظ والاعتماد', 'نسخ واعتماد ومشاركة'], ['out', 'bi-printer', 'الطباعة والتصدير', 'PDF وExcel لكل جهة']];
+    ['check', 'bi-clipboard2-check', 'فحص الجودة', 'التعارضات وحلولها'], ['out', 'bi-patch-check', 'الاعتماد والطباعة', 'نسخ واعتماد ونشر وطباعة']];
   function stepState(k, st) {
     if (k === 'set') return S.setupDone ? ['done', `${C.length} مقرراً · ${nDays(DAYS.length)}`] : ['todo', 'ابدأ من هنا'];
     if (k === 'grid') return st.placed ? ['done', `${st.placed} امتحاناً مجدولاً`] : ['todo', 'لم يُولَّد بعد'];
     if (k === 'check') return !st.placed ? ['todo', '—'] : st.clash || st.unseated ? ['bad', `${st.clash} تعارض · ${st.unseated} بلا مقعد`] : ['done', 'بلا تعارض'];
-    if (k === 'drafts') return S.approved ? ['done', 'معتمدة: ' + S.approved] : ['todo', `${S.drafts.length} نسخة محفوظة`];
-    return ['todo', 'جاهز عند الاعتماد'];
+    return S.approved ? ['done', 'معتمدة: ' + S.approved] : ['todo', S.drafts.length ? `${S.drafts.length} نسخة · لم تُعتمد` : 'احفظ نسخة واعتمدها'];
   }
   function head(st) {
     const i = STEPS.findIndex(x => x[0] === tab);
@@ -939,7 +938,7 @@
   }
   function outView_() {
     const secs = outData(), n = secs.reduce((a, s) => a + s.rows.length, 0);
-    return `<div class="ex-outbar"><div class="ex-views">${Object.entries(OUT).map(([k, t]) => `<button class="ex-vbtn${outView === k ? ' on' : ''}" data-ov="${k}"><i class="bi ${OUTIC[k]}"></i> ${t}</button>`).join('')}</div>
+    return `${versBar()}<div class="ex-outbar"><div class="ex-views">${Object.entries(OUT).map(([k, t]) => `<button class="ex-vbtn${outView === k ? ' on' : ''}" data-ov="${k}"><i class="bi ${OUTIC[k]}"></i> ${t}</button>`).join('')}</div>
       <div class="ex-acts"><button class="btn btn-ex" id="ex-print"><i class="bi bi-printer-fill"></i> طباعة / PDF</button><button class="btn btn-success" id="ex-xlsx"><i class="bi bi-file-earmark-excel-fill"></i> Excel</button>
       <button class="btn btn-outline-secondary" id="ex-csv"><i class="bi bi-filetype-csv"></i> CSV</button></div></div>
       ${pubPanel()}
@@ -1570,6 +1569,14 @@
         ${k < parts.length - 1 ? `<button class="btn btn-outline-primary" data-st="${k + 2}">القسم التالي: ${parts[k + 1][3]} <i class="bi bi-arrow-left"></i></button>` : `<button class="btn btn-ex" id="ex-setdone">انتهيت — ولّد الجدول <i class="bi bi-magic"></i></button>`}</div></div></div>`;
 
   }
+  // saved versions of this plan and which one is approved: one row above the outputs
+  function versBar() {
+    const app = S.approved;
+    return `<div class="ex-vers"><span class="st ${app ? 'ok' : ''}"><i class="bi ${app ? 'bi-patch-check-fill' : 'bi-patch-exclamation'}"></i> ${app ? `معتمدة: <b>${esc(app)}</b>` : 'غير معتمدة بعد'}</span>
+      <span class="new"><input class="form-control form-control-sm" id="ex-dname" placeholder="اسم النسخة، مثل: مسودة ${S.drafts.length + 1}"><button class="btn btn-sm btn-ex" id="ex-dsave"><i class="bi bi-save"></i> حفظ نسخة</button></span>
+      <span class="list">${S.drafts.map((d, k) => `<span class="v${app === d.name ? ' app' : ''}" title="${esc(d.at)} · ${d.n} مقرراً"><i class="bi ${app === d.name ? 'bi-patch-check-fill' : 'bi-file-earmark-text'}"></i> ${esc(d.name)}
+        <button data-dload="${k}" title="فتح هذه النسخة"><i class="bi bi-folder2-open"></i></button><button data-dapp="${k}" title="${app === d.name ? 'إلغاء الاعتماد' : 'اعتماد هذه النسخة'}"><i class="bi ${app === d.name ? 'bi-x-circle' : 'bi-patch-check'}"></i></button><button data-ddel="${k}" title="حذف"><i class="bi bi-trash"></i></button></span>`).join('') || '<small>لا نسخ محفوظة بعد: احفظ نسخة ثم اعتمدها.</small>'}</span></div>`;
+  }
   function draftsView() {
     return `<div class="ex-set">
       ${box(1, 'bi-save-fill', '#0b4a66', 'حفظ نسخة', 'لا يُحفظ شيء على هذا الجهاز إلا بزر «حفظ» (هنا أو في الشريط السفلي)', `
@@ -1607,7 +1614,12 @@
       <div class="dropdown"><button class="btn btn-sm ex-pbar-cur dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><b>${esc(planName(S))}</b><small>${esc((TYPES[S.type] || {}).name || '')} · ${C.length} امتحاناً${S.approved ? ' · معتمدة' : ''}${DIRTY || SWAPPED ? ' · غير محفوظة' : ''}</small></button>
         <ul class="dropdown-menu ex-pbar-menu">${lib.length ? lib.map((x, k) => `<li><button class="dropdown-item" data-libopen="${x.k}"><i class="bi bi-file-earmark-text"></i> <span><b>${esc(x.name)}</b><small>${esc(x.type)} · ${x.n} امتحاناً${x.approved ? ' · معتمدة' : ''}</small></span></button></li>`).join('')
           : '<li><span class="dropdown-item-text small text-muted">لا خطط أخرى على هذا الجهاز بعد</span></li>'}
-          ${(SITEPLANS || []).length ? '<li><hr class="dropdown-divider"></li><li><h6 class="dropdown-header">جاهزة على الموقع</h6></li>' + SITEPLANS.map(x => `<li><a class="dropdown-item" href="?plan=${encodeURIComponent(x.name)}"><i class="bi bi-cloud-download"></i> <span><b>${esc(x.label)}</b></span></a></li>`).join('') : ''}</ul></div>
+          ${(SITEPLANS || []).length ? '<li><hr class="dropdown-divider"></li><li><h6 class="dropdown-header">جاهزة على الموقع</h6></li>' + SITEPLANS.map(x => `<li><a class="dropdown-item" href="?plan=${encodeURIComponent(x.name)}"><i class="bi bi-cloud-download"></i> <span><b>${esc(x.label)}</b></span></a></li>`).join('') : ''}
+          <li><hr class="dropdown-divider"></li><li><h6 class="dropdown-header">مشاركة مع اللجنة (ملف)</h6></li>
+          <li><button class="dropdown-item" id="ex-export"><i class="bi bi-download"></i> <span><b>تصدير ملف الخطة</b><small>ملف واحد بالجدول وكل الإعدادات</small></span></button></li>
+          <li><label class="dropdown-item mb-0"><i class="bi bi-upload"></i> <span><b>استيراد ملف خطة</b><small>يفتح خطة أرسلها عضو في اللجنة</small></span><input type="file" id="ex-import" accept=".json" hidden></label></li>
+          ${lib.length ? lib.map(x => `<li><button class="dropdown-item text-danger" data-libdel="${x.k}"><i class="bi bi-trash"></i> <span>حذف «${esc(x.name)}» من الجهاز</span></button></li>`).join('') : ''}
+          ${HAS ? '<li><button class="dropdown-item text-danger" id="ex-forget"><i class="bi bi-eraser"></i> <span>مسح المحفوظ من هذا الجهاز</span></button></li>' : ''}</ul></div>
       <input class="form-control form-control-sm ex-pbar-name" data-k="label" value="${esc(S.label || '')}" placeholder="اسم الخطة" aria-label="اسم الخطة">
       <span class="ex-pbar-k" title="الكليات · المقررات · الأيام والفترات · القاعات"><i class="bi bi-building"></i> ${esc(facLabel())} · ${C.length} مقرراً · ${nDays(DAYS.length)} × ${nPer(P)} · ${rooms().filter(r => r.on).length} قاعة (${capTotal} مقعد/فترة)</span>
       ${S.only && S.only.length ? `<span class="ex-pbar-only" title="${S.reqOnly && !S.listMax ? 'الخطة لمواد قائمة المتطلبات ومعها الامتحانات الثابتة للجهات الأخرى' : 'الخطة مقصورة على مواد الملف، بصرف النظر عن الكلية'}${Object.keys(PARTS).length ? ` · ${Object.keys(PARTS).length} مقررات مقسومة على أكثر من جلسة` : ''}"><i class="bi bi-funnel-fill"></i> مقصورة على ${S.only.length} مقرراً${FX.inPlan.size ? ` + ${FX.inPlan.size} ثابتاً` : ''}<button data-noonly title="إلغاء القصر" aria-label="إلغاء القصر"><i class="bi bi-x"></i></button></span>` : ''}
@@ -1630,6 +1642,7 @@
     <span>${S.reqOnly && !S.listMax ? `الخطة لمواد قائمة المتطلبات: <b>${S.only.length}</b> مقرراً${FX.inPlan.size ? `، ومعها <b>${FX.inPlan.size}</b> امتحاناً ثابتاً لجهات أخرى` : ''}` : `الخطة مقصورة على <b>${S.only.length}</b> مقرراً${S.label ? ` (${esc(S.label)})` : ''}، بصرف النظر عن الكلية`}${Object.keys(PARTS).length ? ` · ${Object.keys(PARTS).length} مقررات مقسومة شعبُها على أكثر من جلسة` : ''}.</span>
     <button class="btn btn-sm btn-link ms-auto" data-noonly>إلغاء القصر</button></div>` : '';
   function render() {
+    if (tab === 'drafts') tab = 'out';   // (the old «الحفظ والاعتماد» step is now part of this one)
     const st = stats();
     PROB = new Set(st.is.flatMap(x => x.cs).concat(st.seat.unseated.map(u => u.c.i), st.seat.short.map(u => u.c.i)));
     const body = tab === 'grid' ? gridView(st) : tab === 'check' ? checkView(st) : tab === 'out' ? outView_() : tab === 'set' ? setView() : draftsView();
@@ -2631,6 +2644,11 @@
   .ex-pbar-only button { border: 0; background: transparent; color: #0b4a66; padding: 0 .2rem; }
   .ex-filter { flex-wrap: wrap; } .ex-filter .form-select { width: auto; max-width: 15rem; } .ex-filter .form-control { flex: 1 1 14rem; min-width: 10rem; }
   .ex-filter .ex-help .pop { top: 1.8rem; }
+  .ex-vers { display: flex; flex-wrap: wrap; gap: .45rem .7rem; align-items: center; border: 1px solid #d9e6ee; background: #f6fafc; border-radius: 12px; padding: .45rem .65rem; margin-bottom: .55rem; }
+  .ex-vers .st { font-weight: 800; color: #8a4b00; font-size: .9rem; } .ex-vers .st.ok { color: #15803d; }
+  .ex-vers .new { display: inline-flex; gap: .3rem; } .ex-vers .new input { width: 13rem; }
+  .ex-vers .list { display: flex; flex-wrap: wrap; gap: .3rem; flex: 1 1 auto; } .ex-vers .v { display: inline-flex; align-items: center; gap: .2rem; border: 1px solid #d6dee3; background: #fff; border-radius: 8px; padding: .12rem .2rem .12rem .45rem; font-size: .86rem; font-weight: 700; }
+  .ex-vers .v.app { border-color: #15803d; background: #effaf3; color: #15803d; } .ex-vers .v button { border: 0; background: transparent; padding: 0 .25rem; color: #0b4a66; } .ex-vers .v button[data-ddel] { color: #b42318; }
   .ex-cal2 { display: grid; grid-template-columns: minmax(250px, 330px) minmax(0, 1fr); gap: 1rem; align-items: start; }
   .ex-calf { display: grid; gap: .6rem; } .ex-calf section { border: 1px solid #e2e8ec; border-radius: 12px; padding: .55rem .7rem; background: #fbfcfd; }
   .ex-calf h6 { font-size: .9rem; font-weight: 800; margin: 0 0 .4rem; color: #0b4a66; } .ex-calf label { display: block; margin: 0; } .ex-calf label > span { font-size: .8rem; font-weight: 700; color: #1f2a30; }
