@@ -542,6 +542,43 @@
   .adv-kpi span { font-size:.95rem !important; color:#111 !important; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .adv-kpi b { font-size:1.6rem !important; }
   .adv-t td small, .adv-t td .adv-src, .adv-t td .text-muted, .adv-t td .text-secondary, .adv-t td .small, .adv-tools, .adv-tools small, .adv-cci dt, .adv-dayc .adv-src { color:#111 !important; opacity:1 !important; }
+  /* student analysis page */
+  .sv-head { padding:18px 20px !important; }
+  .sv-top { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .sv-av { width:54px; height:54px; border-radius:50%; background:#fbf2f3; color:#901d23; display:flex; align-items:center; justify-content:center; font-size:1.7rem; flex:none; }
+  .sv-who h2 { font-size:1.45rem; font-weight:800; margin:0 0 4px; color:#111; } .sv-who .fb + .fb { margin-inline-start:4px; }
+  .sv-act { margin-inline-start:auto; display:flex; gap:8px; flex-wrap:wrap; }
+  .sv-info-g { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:8px 18px; margin-top:14px; padding-top:12px; border-top:1px solid #eee; }
+  .sv-info-g div { display:grid; grid-template-columns:22px auto 1fr; gap:6px; align-items:baseline; font-size:.93rem; color:#111; } .sv-info-g i { color:#901d23; } .sv-info-g span { color:#111; white-space:nowrap; } .sv-info-g b { font-weight:700; }
+  .sv-tabs { margin:16px 0 12px !important; background:#fff; border:1px solid #e3ddcf !important; border-radius:12px; padding:4px 6px; position:sticky; top:0; z-index:5; }
+  .sv-tabs button { font-size:1rem; }
+  .sv-two { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:14px; } .sv-col { display:grid; gap:14px; align-content:start; }
+  @media (max-width: 1000px) { .sv-two { grid-template-columns:1fr; } }
+  .sv-wide { margin-bottom:14px; }
+  .sv-g { display:grid; grid-template-columns:minmax(0,1fr) minmax(120px,40%) auto; gap:12px; align-items:center; padding:7px 0; border-bottom:1px dashed #eee; font-size:.93rem; color:#111; }
+  .sv-gn { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .sv-gv { white-space:nowrap; font-variant-numeric:tabular-nums; text-align:end; }
+  .sv-bar { height:9px; background:#eee9dc; border-radius:99px; overflow:hidden; display:flex; } .sv-bar i { display:block; height:100%; }
+  .sv-bar i.ok { background:#16a34a; } .sv-bar i.mid { background:#f59e0b; } .sv-bar i.low { background:#dc2626; } .sv-bar i.cur { background:#93c5fd; }
+  .sv-leg { display:flex; gap:16px; margin-top:8px; font-size:.85rem; color:#111; } .sv-leg i { display:inline-block; width:12px; height:8px; border-radius:2px; margin-inline-end:4px; } .sv-leg i.ok { background:#16a34a; } .sv-leg i.cur { background:#93c5fd; }
+  .sv-code, .adv-t tbody .sv-code, .dt-c .sv-code { font-family:ui-monospace,Consolas,monospace; font-weight:700 !important; color:#000; }
+  .sv-info { display:flex; gap:8px; align-items:flex-start; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:8px 12px; margin-bottom:10px; font-size:.92rem; color:#111; }
+  .sv-info.warn { background:#fffbeb; border-color:#fde68a; }
+  .sv-t td { vertical-align:middle; }
+  .sv-alt { border:1px solid #eee; border-radius:10px; padding:10px 12px; margin-bottom:10px; } .sv-alt-h { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:6px; color:#111; }
+  .sv-paths { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin:6px 0 12px; }
+  .sv-paths button { display:grid; grid-template-columns:auto 1fr; grid-template-rows:auto auto auto; column-gap:10px; text-align:start; background:#fff; border:1px solid #e3ddcf; border-radius:12px; padding:10px 12px; color:#111; }
+  .sv-paths button i { grid-row:span 3; font-size:1.5rem; color:#0f766e; align-self:center; } .sv-paths button b { font-size:1.02rem; } .sv-paths button small { color:#111; }
+  .sv-paths button.on { border:2px solid #901d23; background:#fbf2f3; } .sv-paths button.on i { color:#901d23; }
+  .sv-terms { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
+  .sv-term { border:1px solid #e3ddcf; border-top:4px solid #0f766e; border-radius:12px; padding:10px 12px; background:#fff; }
+  .sv-term.sum { border-top-color:#f59e0b; } .sv-term.last { border-top-color:#16a34a; background:#f7fdf9; } .sv-term.stuck { border-top-color:#dc2626; }
+  .sv-term-h { display:flex; align-items:center; gap:8px; padding-bottom:8px; margin-bottom:6px; border-bottom:1px solid #eee; color:#111; }
+  .sv-term-n { width:24px; height:24px; border-radius:50%; background:#0f766e; color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:700; }
+  .sv-term.last .sv-term-n { background:#16a34a; }
+  .sv-term-c { display:grid; grid-template-columns:auto minmax(0,1fr) 24px 10px; gap:8px; align-items:center; padding:4px 0; font-size:.9rem; color:#111; }
+  .sv-term-c span:nth-child(2) { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .sv-h { text-align:center; background:#fff7e6; border:1px solid #f5d38a; border-radius:4px; font-size:.8rem; }
+  .sv-foot { font-size:.88rem; color:#111; margin-top:6px; }
+  .adv-kpi.static.r i { color:#b42318; } .adv-kpi.static.g i { color:#15803d; } .adv-kpi.static.y i { color:#b45309; }
   /* student details panel */
   .adv-det > td { padding:14px 12px 16px !important; background:#f7f5f0 !important; }
   .dt { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; position:sticky; inset-inline-start:0; width:min(100%, calc(100vw - 90px)); }
@@ -785,58 +822,78 @@
     };
     const lawWarn = a.warned ? `<div class="alert alert-danger py-2 mb-2"><b><i class="bi bi-exclamation-octagon-fill"></i> المعدل التراكمي ${s.gpa.toFixed(2)} أقل من 2.00:</b> الطالب على قائمة الإنذار ${ruleLink('12', 'م 12/أ')} — عليه رفع معدله إلى 2.00 خلال فصلين اعتياديين ${ruleLink('12', 'م 12/ب')}${(s.passedHours || 0) >= 99 ? '، ولا يُفصل لأنه أتمّ 99 ساعة بنجاح (م 12/ج)' : ''}. الأولوية في المقترح لإعادة المواد الإجبارية التي رسب فيها، فتُحسب له أعلى علامة ${ruleLink('11', 'م 11/ب')}.</div>`
       : s.gpa != null && s.gpa < 2.2 ? `<div class="alert alert-warning py-2 mb-2"><b><i class="bi bi-exclamation-triangle-fill"></i> المعدل التراكمي ${s.gpa.toFixed(2)} قريب من حد الإنذار (2.00)</b> ${ruleLink('12', 'م 12/أ')}: يحسن تخفيف العبء وإعادة المواد ذات العلامات المتدنية.</div>` : '';
-    return `<div class="adv-card"><h3><i class="bi bi-person-vcard"></i> ${esc(h.name || '')} <span class="badge text-bg-light border">${esc(h.id || '')}</span>
-        <span class="ms-auto d-flex gap-2 no-print">${BOARD.length ? '<button type="button" class="btn btn-sm btn-light border" id="adv-back"><i class="bi bi-arrow-right"></i> الطلاب</button>' : ''}<button type="button" class="btn btn-sm btn-outline-secondary" id="adv-other"><i class="bi bi-people"></i> اختر طالباً آخر</button>
-        <button type="button" class="btn btn-sm btn-maroon" id="adv-print"><i class="bi bi-printer"></i> نموذج الإرشاد</button></span></h3>
-      <div class="adv-kv"><div><b>التخصص</b>${esc(h.major || '')}</div><div><b>الكلية</b>${esc(h.faculty || '')}</div><div><b>إصدار الخطة</b>${esc(s.version || '')}</div>
-        <div><b>فصل الالتحاق</b>${esc(termName(+h.entry) || h.entry || '')}</div><div><b>نوع الدراسة</b>${esc(h.studyType || '')}</div><div><b>المرشد</b>${esc(h.advisor || '')}</div>
-        <div><b>المستوى</b>${esc(s.level || '')}</div><div><b>كشف الفصل</b>${esc(s.termLabel || '')}${h.printed ? ` · طُبع ${esc(h.printed)}` : ''}</div></div>
-      <div class="adv-stats mt-3">
-        <div class="adv-stat ${a.warned ? 'bad' : ''}"><div class="v">${s.gpa != null ? s.gpa.toFixed(2) : '—'}</div><div class="l">المعدل التراكمي${s.grade ? ` · ${esc(s.grade)}` : ''}</div></div>
-        <div class="adv-stat"><div class="v">${s.passedHours ?? '—'}</div><div class="l">ساعة مجتازة</div></div>
-        <div class="adv-stat"><div class="v">${a.remainingNow}</div><div class="l">ساعة متبقية من ${s.planHours ?? '—'}</div></div>
-        <div class="adv-stat"><div class="v">${a.current.size}</div><div class="l">مواد مسجلة الآن (${curHrs} س)</div></div>
-        <div class="adv-stat ${lim.grad ? 'good' : ''}"><div class="v">${a.remaining}</div><div class="l">${assume ? 'متبقية بعد نجاح المسجلة' : 'متبقية'}${lim.grad ? ' · متوقع تخرجه' : ''}</div></div>
-        <div class="adv-stat"><div class="v">${a.longest > 0 ? a.longest : 0}</div><div class="l">أطول سلسلة متطلبات متبقية (فصول على الأقل)</div></div></div>
-      ${chk}</div>
-      ${lawWarn}
-      <div class="adv-card"><h3><i class="bi bi-diagram-3"></i> مجموعات المتطلبات</h3>${gRows}</div>
-      <div class="adv-card"><h3><i class="bi bi-magic"></i> الجدول المقترح <span class="badge text-bg-${sug.hours > lim.max ? 'danger' : 'success'}">${sug.hours} من ${cap} ساعة</span></h3>
+    // ---- layout: profile header, then four section tabs (overview, suggested schedule, graduation paths, courses)
+    const sv = st.sv || 'over';
+    const code = c => `<b class="sv-code">${esc(c)}</b>`;
+    const whyB = w => w.map(([k, l]) => `<span class="fb ${k === 'retake' ? 'no' : k === 'unlock' ? 'ok' : k === 'chain' ? 'reg' : k === 'el' ? 'sec' : 'hrs'}">${esc(l)}</span>`).join(' ');
+    const offB = c => { const n = offered(c).length, o = offered(c).filter(isOpen).length; if (n) return `<a class="fb ${o ? 'ok' : 'hrs'}" style="text-decoration:none" href="timetable.html?q=${c}" target="_blank" rel="noopener">${n} شعبة · ${o} مفتوحة</a>`;
+      const x = offeredAs(c); return x ? `<a class="fb sec" style="text-decoration:none" href="timetable.html?q=${x}" target="_blank" rel="noopener">مطروحة برمز ${x}</a>` : '<span class="fb no">غير مطروحة</span>'; };
+    const flags = [lim.grad && '<span class="fb ok"><i class="bi bi-mortarboard-fill"></i> متوقع تخرجه</span>', a.warned && '<span class="fb no"><i class="bi bi-exclamation-octagon-fill"></i> منذر</span>',
+      !a.warned && s.gpa != null && s.gpa < 2.2 && '<span class="fb hrs"><i class="bi bi-exclamation-triangle-fill"></i> قريب من الإنذار</span>'].filter(Boolean).join(' ') || '<span class="fb ok"><i class="bi bi-check-circle-fill"></i> منتظم</span>';
+    const gpaC = s.gpa == null ? '' : s.gpa < 2 ? 'r' : s.gpa >= 3 ? 'g' : s.gpa < 2.5 ? 'y' : '';
+    const kpi = (ic, c, v, l) => `<div class="adv-kpi static ${c}"><i class="bi ${ic}"></i><b>${v}</b><span>${l}</span></div>`;
+    const info = [['bi-mortarboard', 'التخصص', h.major], ['bi-building', 'الكلية', h.faculty], ['bi-journal-text', 'إصدار الخطة', s.version], ['bi-calendar-plus', 'فصل الالتحاق', termName(+h.entry) || h.entry],
+      ['bi-sun', 'نوع الدراسة', h.studyType], ['bi-person-badge', 'المرشد', h.advisor], ['bi-bar-chart-steps', 'المستوى', s.level], ['bi-file-earmark-text', 'كشف الفصل', s.termLabel]];
+    const groupsHtml = a.groups.map(g => { const pc = g.req ? Math.min(100, Math.round(100 * g.gotPassed / g.req)) : 100, cur = g.req ? Math.min(100 - pc, Math.round(100 * (g.gotDone - g.gotPassed) / g.req)) : 0, done = g.gotPassed >= g.req;
+      return `<div class="sv-g"><span class="sv-gn">${done ? '<i class="bi bi-check-circle-fill ic-g"></i>' : '<i class="bi bi-circle-half ic-o"></i>'} ${esc(g.name.replace(/^متطلبات?\s*/, ''))}${g.kind === 'remedial' ? ' <span class="fb sec">لا تُحسب في الخطة</span>' : ''}</span>
+        <span class="sv-bar"><i class="${done ? 'ok' : pc >= 50 ? 'mid' : 'low'}" style="width:${pc}%"></i><i class="cur" style="width:${cur}%"></i></span>
+        <span class="sv-gv"><b>${g.gotPassed}</b> / ${g.req}${g.gotDone > g.gotPassed ? ` <span class="fb reg">+${g.gotDone - g.gotPassed} مسجلة</span>` : ''}</span></div>`; }).join('');
+    const TABS = [['over', 'bi-grid-1x2', 'نظرة عامة', ''], ['plan', 'bi-magic', 'الجدول المقترح', `${sug.hours} س`], ['path', 'bi-signpost-split', 'مسارات التخرج', ''], ['list', 'bi-list-check', 'المواد', ready.length]];
+    let body = '';
+    if (sv === 'over') body = `<div class="sv-two">
+        <section class="dt-c"><h4><i class="bi bi-diagram-3-fill ic-b"></i> مجموعات المتطلبات <span class="fb ok ms-auto">${a.groups.filter(g => g.gotPassed >= g.req).length} من ${a.groups.length} مكتملة</span></h4>${groupsHtml}
+          <div class="sv-leg"><span><i class="ok"></i> مجتازة</span><span><i class="cur"></i> مسجلة الآن</span></div></section>
+        <div class="sv-col">
+          <section class="dt-c"><h4><i class="bi bi-journal-check ic-g"></i> يحق له تسجيلها الآن <span class="fb sec ms-auto">${ready.length} مادة</span></h4>
+            ${ready.slice(0, 8).map(c => `<div class="dt-i">${code(c.code)}<span class="dt-in">${esc(c.name || nm(c.code))}</span>${offB(c.code)}</div>`).join('') || '<div class="dt-e">—</div>'}
+            ${ready.length > 8 ? `<button type="button" class="btn btn-sm btn-light border mt-2" data-sv="list">كل المواد (${ready.length})</button>` : ''}</section>
+          ${a.open.filter(c => c.inProgress).length ? `<section class="dt-c"><h4><i class="bi bi-hourglass-top ic-o"></i> مسجلة هذا الفصل <span class="fb reg ms-auto">${a.current.size} مواد · ${curHrs} س</span></h4>${a.open.filter(c => c.inProgress).map(c => `<div class="dt-i">${code(c.code)}<span class="dt-in">${esc(c.name)}</span><span class="fb hrs">${c.hours} س</span></div>`).join('')}</section>` : ''}
+          ${notOff.length ? `<section class="dt-c"><div class="dt-al"><b><i class="bi bi-exclamation-triangle-fill"></i> يحق له تسجيلها لكنها غير مطروحة (${notOff.length})</b>${notOff.map(c => `<div>${code(c.code)} ${esc(c.name || nm(c.code))}</div>`).join('')}<button type="button" class="btn btn-sm btn-light border mt-1" data-sv="list">البدائل المطروحة</button></div></section>` : ''}
+        </div></div>`;
+    else if (sv === 'plan') body = `<section class="dt-c sv-wide"><h4><i class="bi bi-magic ic-p"></i> الجدول المقترح <span class="fb ${sug.hours > lim.max ? 'no' : 'ok'} ms-auto">${sug.hours} من ${cap} ساعة</span></h4>
         <div class="adv-ctl no-print mb-2">
           <label>الخطة لـ <select class="form-select form-select-sm" id="adv-mode"><option value="next" ${assume ? 'selected' : ''}>الفصل القادم (المواد المسجلة الآن تُعدّ ناجحة)</option><option value="now" ${!assume ? 'selected' : ''}>هذا الفصل: سحب وإضافة</option></select></label>
           <label>نوع الفصل <select class="form-select form-select-sm" id="adv-summer"><option value="0" ${!summer ? 'selected' : ''}>اعتيادي</option><option value="1" ${summer ? 'selected' : ''}>صيفي</option></select></label>
           <label>الساعات <select class="form-select form-select-sm" id="adv-cap">${Array.from({ length: 22 }, (_, i) => i + 3).filter(n => n <= 24).map(n => `<option value="${n}" ${n === cap ? 'selected' : ''}>${n}${n === lim.max ? ' (الحد الأعلى)' : n > lim.max ? ' — فوق الحد' : ''}</option>`).join('')}</select></label>
           ${st.force.size || st.drop.size ? '<button type="button" class="btn btn-sm btn-light" id="adv-reset"><i class="bi bi-arrow-counterclockwise"></i> المقترح الأصلي</button>' : ''}</div>
-        <p class="adv-note mb-2"><i class="bi bi-bookmark-check"></i> الحد الأعلى ${hrsWord(lim.max)} ${ruleLink(lim.rule, 'م ' + lim.rule)}${lim.grad ? ' لأن ساعاته المتبقية لا تزيد على ' + (summer ? 13 : 21) + ' ساعة، فيمكنه إنهاؤها في هذا الفصل (الطالب المتوقع تخرجه)' : ''}${!summer && !lim.grad ? `، والحد الأدنى 12 ساعة ${ruleLink('7', 'م 7/ج')}` : lim.grad ? ' — ولا يتقيد بالحد الأدنى في فصل التخرج (م 7/د)' : ''}.
-          ${cap > lim.max ? '<b class="adv-bad">العدد المختار فوق الحد الأعلى في التعليمات.</b>' : ''} ${sug.hours && sug.hours < lim.min ? `<b class="adv-bad">المقترح أقل من الحد الأدنى (12) لأن المتاح محدود؛ يلزم موافقة العميد (م 7/ج).</b>` : ''}</p>
-        <p class="adv-src">${ttNote} المواد مرتبة حسب أولويتها؛ تُضاف ما دامت الساعات تسمح ولها شعب بلا تعارض، والأفضلية للشعب التي فيها مقاعد ثم أقل أيام دوام وفراغات.</p>
-        ${sug.take.length ? `<div class="table-responsive"><table class="adv-t"><thead><tr><th>الرمز</th><th>المادة ولماذا</th><th>س</th>${SEC_TH}<th class="no-print"></th></tr></thead><tbody>${secRows}</tbody></table></div>
+        <div class="sv-info"><i class="bi bi-bookmark-check ic-b"></i> <span>الحد الأعلى ${hrsWord(lim.max)} ${ruleLink(lim.rule, 'م ' + lim.rule)}${lim.grad ? ' لأن ساعاته المتبقية لا تزيد على ' + (summer ? 13 : 21) + ' ساعة (الطالب المتوقع تخرجه)' : ''}${!summer && !lim.grad ? `، والحد الأدنى 12 ساعة ${ruleLink('7', 'م 7/ج')}` : lim.grad ? '، ولا يتقيد بالحد الأدنى في فصل التخرج (م 7/د)' : ''}.
+          ${cap > lim.max ? '<b class="adv-bad">العدد المختار فوق الحد الأعلى.</b>' : ''} ${sug.hours && sug.hours < lim.min ? '<b class="adv-bad">المقترح أقل من الحد الأدنى لأن المتاح محدود؛ يلزم موافقة العميد (م 7/ج).</b>' : ''}</span></div>
+        <div class="sv-info"><i class="bi bi-calendar3 ic-o"></i> <span>${ttNote}</span></div>
+        ${sug.take.length ? `<div class="table-responsive"><table class="adv-t sv-t"><thead><tr><th>الرمز</th><th>المادة</th><th>س</th>${SEC_TH}<th class="no-print"></th></tr></thead><tbody>${sug.take.map(t => { const mine = sel.filter(x => x.code === (t.c.via || t.c.code));
+            return `<tr><td>${code(t.c.code)}${t.c.via ? `<div><span class="fb sec">تُسجَّل برمز ${t.c.via}</span></div>` : ''}</td><td>${esc(t.c.name || nm(t.c.code))}<div class="mt-1">${whyB(t.c.why)}</div></td><td><span class="fb hrs">${t.c.hours} س</span></td>${secTds(mine)}
+              <td class="no-print"><button type="button" class="btn btn-sm btn-light border" data-drop="${t.c.code}" title="أخرجها من المقترح"><i class="bi bi-x-lg"></i></button></td></tr>`; }).join('')}</tbody></table></div>
           <div class="mt-3">${grid}</div>
-          <div class="d-flex flex-wrap gap-2 mt-2 no-print"><a class="btn btn-sm btn-maroon" href="${planner}" target="_blank" rel="noopener"><i class="bi bi-calendar2-week"></i> افتح المقترح في «مخطط جدولي» (للطالب)</a>
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="adv-copy"><i class="bi bi-link-45deg"></i> انسخ رابط المقترح للطالب</button>
-            ${sug.options.length > 1 ? `<span class="adv-src align-self-center">${sug.options.length >= 5 ? 'ومن ' : ''}بدائل الشعب: انقر «افتح» ثم «اقترح توزيعاً» في المخطط.</span>` : ''}</div>` : '<p class="adv-note">لا توجد مادة يمكن اقتراحها الآن.</p>'}
-        ${sug.skipped.length ? `<details class="mt-2"><summary class="adv-note fw-bold">لم تدخل المقترح (${sug.skipped.length})</summary><table class="adv-t mt-1"><tbody>${sug.skipped.map(x => `<tr><td><code>${x.c.code}</code></td><td>${esc(x.c.name || nm(x.c.code))}</td><td>${x.c.hours}</td><td>${esc(x.why)}</td><td class="no-print"><button type="button" class="btn btn-sm btn-light" data-force="${x.c.code}"><i class="bi bi-plus-lg"></i> قدّمها</button></td></tr>`).join('')}</tbody></table></details>` : ''}
-        ${st.drop.size ? `<p class="adv-src mt-2">أُخرجت يدوياً: ${[...st.drop].map(c => `<code>${c}</code> <a href="#" data-undrop="${c}">إرجاع</a>`).join('، ')}</p>` : ''}</div>
-      ${pathsCard(s)}
-      <div class="adv-card"><h3><i class="bi bi-list-ol"></i> المواد التي يحق له تسجيلها، حسب الأولوية <span class="badge text-bg-light border">${ready.length}</span></h3>
-        <div class="table-responsive"><table class="adv-t"><thead><tr><th>#</th><th>الرمز</th><th>المادة</th><th>س</th><th>المجموعة</th><th>لماذا</th><th>هذا الفصل</th></tr></thead><tbody>
-        ${ready.map((c, i) => `<tr class="${inSug.has(c.code) ? '' : 'adv-x'}"><td>${i + 1}</td><td><code>${c.code}</code></td><td>${esc(c.name || nm(c.code))}${inSug.has(c.code) ? ' <i class="bi bi-check2-circle adv-ok" title="في المقترح"></i>' : ''}</td><td>${c.hours}</td><td><small>${esc(c.g.name)}</small></td>
-          <td>${c.why.map(([k, l]) => `<span class="adv-chip ${k}">${esc(l)}</span>`).join('')}${c.unlocks.length ? `<div class="adv-src">تفتح: ${c.unlocks.map(u => `<code>${u}</code>`).join(' ')}</div>` : ''}</td><td>${sectionsLine(c.code)}</td></tr>`).join('') || '<tr><td colspan="7">—</td></tr>'}</tbody></table></div></div>
-      ${notOff.length ? `<div class="adv-card"><h3><i class="bi bi-slash-circle"></i> يحق له تسجيلها ولكنها غير مطروحة <span class="badge text-bg-light border">${notOff.length}</span></h3>
-        ${lim.grad && notOff.some(c => c.required) ? `<div class="alert alert-warning py-2">الطالب متوقع تخرجه وفي المتبقي مواد إجبارية غير مطروحة: يجوز للعميد بتنسيب من رئيس القسم الموافقة على مادتين بديلتين حداً أقصى، مكافئتين في المستوى والساعات ومن اختياريات التخصص ${ruleLink('11', 'م 11/د')}.</div>` : ''}
-        <table class="adv-t"><thead><tr><th>الرمز</th><th>المادة</th><th>س</th><th>بدائل مطروحة</th></tr></thead><tbody>${notOff.map(c => { const x = altFor(c);
-          return `<tr><td><code>${c.code}</code></td><td>${esc(c.name || nm(c.code))}<div>${c.why.filter(w => w[0] !== 'el').map(([k, l]) => `<span class="adv-chip ${k}">${esc(l)}</span>`).join('')}</div></td><td>${c.hours}</td><td>
-            ${x.eq.map(e => `<div><span class="adv-chip unlock">مكافئة</span> <code>${e.code}</code> ${esc(nm(e.code))} ${sectionsLine(e.code)}${e.src ? ` <small class="adv-src">(${esc(e.src)})</small>` : ''}</div>`).join('')}
-            ${x.same.map(e => `<div><span class="adv-chip chain">الاسم نفسه برمز آخر</span> <code>${e.code}</code> ${esc(e.name)} ${sectionsLine(e.code)}</div>`).join('')}
-            ${x.el.slice(0, 6).map(e => `<div><span class="adv-chip el">اختيارية بالساعات نفسها</span> <code>${e.code}</code> ${esc(e.name || nm(e.code))} ${sectionsLine(e.code)}</div>`).join('')}
-            ${!x.eq.length && !x.same.length && !x.el.length ? '<span class="adv-src">لا بديل مطروح معروف. يمكن رفع قائمة المواد المكافئة من «قاموس المواد».</span>' : ''}</td></tr>`; }).join('')}</tbody></table></div>` : ''}
-      <div class="adv-card"><h3><i class="bi bi-hourglass-split"></i> متبقية بانتظار متطلب سابق <span class="badge text-bg-light border">${waiting.length}</span></h3>
-        <table class="adv-t"><thead><tr><th>الرمز</th><th>المادة</th><th>س</th><th>ينتظر</th></tr></thead><tbody>
-        ${waiting.map(c => `<tr><td><code>${c.code}</code></td><td>${esc(c.name || nm(c.code))}</td><td>${c.hours}</td><td>${c.missing.map(m => `<code title="${esc(nm(m) || a.byCode[m]?.name || '')}">${m}</code>${a.current.has(m) ? ' <small class="adv-ok">(مسجلة الآن)</small>' : ''}`).join(c.preOr ? ' أو ' : ' و ')}</td></tr>`).join('') || '<tr><td colspan="4">—</td></tr>'}</tbody></table>
-        ${a.open.filter(c => c.inProgress).length ? `<p class="adv-src mt-2">مسجلة هذا الفصل: ${a.open.filter(c => c.inProgress).map(c => `<code>${c.code}</code> ${esc(c.name)}`).join('، ')}</p>` : ''}</div>
-      ${Object.keys(a.tries).length ? `<div class="adv-card"><h3><i class="bi bi-arrow-counterclockwise"></i> محاولات سابقة (مواد غير محتسبة خارج الخطة)</h3><table class="adv-t"><thead><tr><th>الرمز</th><th>المادة</th><th>المحاولات</th><th>الآن</th></tr></thead><tbody>
-        ${Object.entries(a.tries).map(([code, L]) => `<tr><td><code>${code}</code></td><td>${esc(L[0].name)}</td><td>${L.map(t => `<span class="adv-chip ${t.result === 'راسب' ? 'retake' : ''}">${esc(t.grade || '—')} · ${esc(termName(t.term))}</span>`).join('')}</td><td>${a.passed.has(code) ? '<span class="adv-ok">ناجح</span>' : a.current.has(code) ? 'مسجلة الآن' : '<span class="adv-bad">لم ينجح بعد</span>'}</td></tr>`).join('')}</tbody></table></div>` : ''}
-      <p class="adv-src"><i class="bi bi-shield-lock"></i> كل ما في هذه الصفحة من ملف الطالب نفسه، قُرئ في هذا المتصفح ولم يُرسل إلى أي مكان. المواد والمتطلبات والعلامات من الكشف كما هو، والشعب من الجدول الدراسي المنشور (${esc(TT.term)}، آخر تحديث ${U.ago(TT.updated)})، والقواعد من ${ruleLink('', 'تعليمات منح درجة البكالوريوس لسنة 2023')}. المقترح للإرشاد؛ التسجيل الفعلي على بوابة الجامعة.</p>`;
+          <div class="d-flex flex-wrap gap-2 mt-2 no-print"><a class="btn btn-sm btn-maroon" href="${planner}" target="_blank" rel="noopener"><i class="bi bi-calendar2-week"></i> افتح في «مخطط جدولي»</a>
+            <button type="button" class="btn btn-sm btn-light border" id="adv-copy"><i class="bi bi-link-45deg ic-b"></i> انسخ رابط المقترح للطالب</button></div>` : '<div class="dt-e">لا توجد مادة يمكن اقتراحها الآن.</div>'}
+        ${sug.skipped.length ? `<details class="mt-3"><summary class="fw-bold">لم تدخل المقترح (${sug.skipped.length})</summary><table class="adv-t mt-1"><tbody>${sug.skipped.map(x => `<tr><td>${code(x.c.code)}</td><td>${esc(x.c.name || nm(x.c.code))}</td><td><span class="fb hrs">${x.c.hours} س</span></td><td>${esc(x.why)}</td><td class="no-print"><button type="button" class="btn btn-sm btn-light border" data-force="${x.c.code}"><i class="bi bi-plus-lg"></i> قدّمها</button></td></tr>`).join('')}</tbody></table></details>` : ''}
+        ${st.drop.size ? `<p class="mt-2">أُخرجت يدوياً: ${[...st.drop].map(c => `${code(c)} <a href="#" data-undrop="${c}">إرجاع</a>`).join('، ')}</p>` : ''}</section>`;
+    else if (sv === 'path') body = pathsCard(s);
+    else body = `<section class="dt-c sv-wide"><h4><i class="bi bi-list-ol ic-g"></i> المواد التي يحق له تسجيلها، حسب الأولوية <span class="fb sec ms-auto">${ready.length}</span></h4>
+        <div class="table-responsive"><table class="adv-t sv-t"><thead><tr><th>#</th><th>الرمز</th><th>المادة</th><th>س</th><th>المجموعة</th><th>لماذا</th><th>هذا الفصل</th></tr></thead><tbody>
+        ${ready.map((c, i) => `<tr><td>${i + 1}</td><td>${code(c.code)}</td><td>${esc(c.name || nm(c.code))}${inSug.has(c.code) ? ' <i class="bi bi-check2-circle ic-g" title="في المقترح"></i>' : ''}</td><td><span class="fb hrs">${c.hours} س</span></td><td>${esc(c.g.name.replace(/^متطلبات?\s*/, ''))}</td>
+          <td>${whyB(c.why)}${c.unlocks.length ? `<div class="mt-1">تفتح: ${c.unlocks.map(u => code(u)).join(' ')}</div>` : ''}</td><td>${offB(c.code)}</td></tr>`).join('') || '<tr><td colspan="7">—</td></tr>'}</tbody></table></div></section>
+      ${notOff.length ? `<section class="dt-c sv-wide"><h4><i class="bi bi-slash-circle ic-r"></i> يحق له تسجيلها لكنها غير مطروحة <span class="fb no ms-auto">${notOff.length}</span></h4>
+        ${lim.grad && notOff.some(c => c.required) ? `<div class="sv-info warn"><i class="bi bi-info-circle-fill"></i> <span>الطالب متوقع تخرجه وفي المتبقي مواد إجبارية غير مطروحة: يجوز للعميد بتنسيب من رئيس القسم الموافقة على مادتين بديلتين حداً أقصى، مكافئتين في المستوى والساعات ومن اختياريات التخصص ${ruleLink('11', 'م 11/د')}.</span></div>` : ''}
+        ${notOff.map(c => { const x = altFor(c); const alts = [...x.eq.map(e => [e, 'مكافئة', 'ok']), ...x.same.map(e => [e, 'الاسم نفسه', 'reg']), ...x.el.slice(0, 6).map(e => [e, 'اختيارية بالساعات نفسها', 'sec'])];
+          return `<div class="sv-alt"><div class="sv-alt-h">${code(c.code)} <span>${esc(c.name || nm(c.code))}</span> <span class="fb hrs">${c.hours} س</span> ${whyB(c.why.filter(w => w[0] !== 'el'))}</div>
+            ${alts.length ? `<table class="adv-t"><thead><tr><th>البديل</th><th>المادة</th><th>النوع</th><th>هذا الفصل</th></tr></thead><tbody>${alts.map(([e, l, k]) => `<tr><td>${code(e.code)}</td><td>${esc(e.name || nm(e.code))}</td><td><span class="fb ${k}">${l}</span></td><td>${offB(e.code)}</td></tr>`).join('')}</tbody></table>`
+              : '<div class="dt-e">لا بديل مطروح معروف. يمكن رفع قائمة المواد المكافئة من «قاموس المواد».</div>'}</div>`; }).join('')}</section>` : ''}
+      <section class="dt-c sv-wide"><h4><i class="bi bi-hourglass-split ic-o"></i> متبقية بانتظار متطلب سابق <span class="fb hrs ms-auto">${waiting.length}</span></h4>
+        ${waiting.length ? `<table class="adv-t"><thead><tr><th>الرمز</th><th>المادة</th><th>س</th><th>ينتظر</th></tr></thead><tbody>${waiting.map(c => `<tr><td>${code(c.code)}</td><td>${esc(c.name || nm(c.code))}</td><td><span class="fb hrs">${c.hours} س</span></td><td>${c.missing.map(m => `<span class="fb ${a.current.has(m) ? 'reg' : 'day'}" title="${esc(nm(m) || a.byCode[m]?.name || '')}">${m}${a.current.has(m) ? ' · مسجلة الآن' : ''}</span>`).join(c.preOr ? ' أو ' : ' ')}</td></tr>`).join('')}</tbody></table>` : '<div class="dt-e"><i class="bi bi-check-circle-fill ic-g"></i> لا مواد بانتظار متطلب سابق.</div>'}</section>
+      ${Object.keys(a.tries).length ? `<section class="dt-c sv-wide"><h4><i class="bi bi-arrow-counterclockwise ic-b"></i> محاولات سابقة (مواد غير محتسبة)</h4><table class="adv-t"><thead><tr><th>الرمز</th><th>المادة</th><th>المحاولات</th><th>الآن</th></tr></thead><tbody>
+        ${Object.entries(a.tries).map(([cd, L]) => `<tr><td>${code(cd)}</td><td>${esc(L[0].name)}</td><td>${L.map(t => `<span class="fb ${t.result === 'راسب' ? 'no' : 'reg'}">${esc(t.grade || '—')} · ${esc(termName(t.term))}</span>`).join(' ')}</td><td>${a.passed.has(cd) ? '<span class="fb ok">ناجح</span>' : a.current.has(cd) ? '<span class="fb reg">مسجلة الآن</span>' : '<span class="fb no">لم ينجح بعد</span>'}</td></tr>`).join('')}</tbody></table></section>` : ''}`;
+    return `<div class="adv-card sv-head">
+        <div class="sv-top"><div class="sv-av"><i class="bi bi-person-fill"></i></div>
+          <div class="sv-who"><h2>${esc(h.name || '')}</h2><div><span class="fb reg">${esc(h.id || '')}</span> ${flags}</div></div>
+          <div class="sv-act no-print">${BOARD.length ? '<button type="button" class="btn btn-sm btn-light border" id="adv-back"><i class="bi bi-arrow-right"></i> الطلاب</button>' : ''}<button type="button" class="btn btn-sm btn-light border" id="adv-other"><i class="bi bi-people ic-b"></i> طالب آخر</button>
+            <button type="button" class="btn btn-sm btn-maroon" id="adv-print"><i class="bi bi-printer"></i> نموذج الإرشاد</button></div></div>
+        <div class="sv-info-g">${info.filter(x => x[2]).map(([ic, l, v]) => `<div><i class="bi ${ic}"></i><span>${l}</span><b>${esc(v)}</b></div>`).join('')}</div>
+        <div class="adv-kpis mt-3">${kpi('bi-speedometer2', gpaC === 'r' ? 'r' : gpaC === 'g' ? 'g' : gpaC === 'y' ? 'y' : '', s.gpa != null ? s.gpa.toFixed(2) : '—', 'المعدل' + (s.grade ? ' · ' + s.grade : ''))}${kpi('bi-check2-circle', 'g', s.passedHours ?? '—', 'ساعة مجتازة')}${kpi('bi-hourglass-split', 'y', a.remainingNow, 'متبقية من ' + (s.planHours ?? '—'))}${kpi('bi-journal-bookmark', '', a.current.size, `مواد مسجلة (${curHrs} س)`)}${kpi('bi-flag', lim.grad ? 'g' : '', a.remaining, assume ? 'بعد نجاح المسجلة' : 'متبقية')}${kpi('bi-link-45deg', '', a.longest > 0 ? a.longest : 0, 'فصول متطلبات متتالية')}</div>
+        ${chk}</div>
+      ${lawWarn}
+      <div class="adv-fv sv-tabs no-print">${TABS.map(([k, ic, l, n]) => `<button type="button" class="${sv === k ? 'on' : ''}" data-sv="${k}"><i class="bi ${ic}"></i> ${l}${n !== '' ? ` <span class="fb reg">${n}</span>` : ''}</button>`).join('')}</div>
+      ${body}
+      <p class="sv-foot"><i class="bi bi-shield-lock ic-g"></i> كل ما في هذه الصفحة من ملف الطالب نفسه، قُرئ في هذا المتصفح ولم يُرسل إلى أي مكان. الشعب من الجدول الدراسي المنشور (${esc(TT.term)}، آخر تحديث ${U.ago(TT.updated)})، والقواعد من ${ruleLink('', 'تعليمات منح درجة البكالوريوس لسنة 2023')}. المقترح للإرشاد؛ التسجيل الفعلي على بوابة الجامعة.</p>`;
   }
   // ---------------------------------------------------------------- paths to graduation
   const PATHS = [
@@ -851,14 +908,14 @@
       return { k, l, ic, d: k === 'light' && a.warned ? '12 ساعة (الحد الأدنى) لأن الطالب منذر — للتركيز على رفع المعدل' : d, p: paths(s, opt) };
     });
     const pick = res.find(r => r.k === (st.path || 'regular')) || res[1];
-    const box = (tm, i, L) => `<div class="adv-term ${tm.summer ? 'sum' : ''} ${tm.stuck ? 'stuck' : ''}"><div class="adv-term-h"><b>${esc(termName(tm.term))}</b>${tm.summer ? ' <span class="adv-chip">صيفي</span>' : ''}
-        <span class="ms-auto text-nowrap">${tm.hours} س${i === L.length - 1 && !tm.stuck ? ' · <span class="adv-ok">التخرج</span>' : ''}</span></div>
-      ${tm.stuck ? '<div class="adv-bad small">لا مادة متاحة: متطلب سابق خارج الخطة أو يحتاج قراراً (م 5/هـ/2)</div>' : tm.take.map(x => `<div class="adv-term-c"><code>${esc(x.code)}</code> ${esc(x.name || nm(x.code))} <small>${x.hours}</small>${x.code !== '—' && offered(x.code).length ? '<i class="bi bi-dot adv-ok" title="مطروحة هذا الفصل"></i>' : ''}${x.el && x.el !== 'free' ? ' <span class="adv-chip el">اختيارية</span>' : ''}</div>`).join('')}</div>`;
-    return `<div class="adv-card"><h3><i class="bi bi-signpost-split"></i> مسارات التخرج</h3>
-      <p class="adv-src">من الفصل الذي يلي كشف الطالب، على اعتبار نجاحه فيما سجّله الآن: كل فصل يأخذ المواد التي اجتاز متطلباتها في فصل سابق، حسب أولويتها، ضمن الحمل المختار والحد الأعلى ${ruleLink('7', 'م 7')} (ويرتفع إلى 21 في فصل التخرج، م 7/ب). جداول الفصول القادمة لم تُنشر بعد، فالمسار ترتيب تسمح به المتطلبات وليس شعباً مضمونة.</p>
-      <div class="adv-ctl mb-3 no-print">${res.map(r => `<button type="button" class="btn btn-sm ${r === pick ? 'btn-maroon' : 'btn-light border'}" data-path="${r.k}"><i class="bi ${r.ic}"></i> ${r.l}: ${r.p.stuck ? 'يتوقف' : `التخرج ${esc(termName(r.p.end))}`} <small>(${r.p.regular} اعتيادي${r.p.summers ? ` + ${r.p.summers} صيفي` : ''})</small></button>`).join('')}</div>
-      <p class="adv-note mb-2"><b>${esc(pick.l)}:</b> ${esc(pick.d)}.</p>
-      <div class="adv-terms">${pick.p.terms.map(box).join('')}</div></div>`;
+    const box = (tm, i, L) => `<div class="sv-term ${tm.summer ? 'sum' : ''} ${tm.stuck ? 'stuck' : ''} ${i === L.length - 1 && !tm.stuck ? 'last' : ''}"><div class="sv-term-h"><span class="sv-term-n">${i + 1}</span><b>${esc(termName(tm.term))}</b>${tm.summer ? ' <span class="fb day">صيفي</span>' : ''}
+        <span class="fb hrs ms-auto">${tm.hours} س</span>${i === L.length - 1 && !tm.stuck ? ' <span class="fb ok"><i class="bi bi-mortarboard-fill"></i> التخرج</span>' : ''}</div>
+      ${tm.stuck ? '<div class="dt-al">لا مادة متاحة: متطلب سابق خارج الخطة أو يحتاج قراراً (م 5/هـ/2)</div>' : tm.take.map(x => `<div class="sv-term-c"><b class="sv-code">${esc(x.code)}</b><span>${esc(x.name || nm(x.code))}</span><span class="sv-h">${x.hours}</span>${x.code !== '—' && offered(x.code).length ? '<i class="bi bi-circle-fill ic-g" style="font-size:.5rem" title="مطروحة هذا الفصل"></i>' : '<i></i>'}</div>`).join('')}</div>`;
+    return `<section class="dt-c sv-wide"><h4><i class="bi bi-signpost-split-fill ic-t"></i> مسارات التخرج</h4>
+      <div class="sv-info"><i class="bi bi-info-circle ic-b"></i> <span>من الفصل الذي يلي كشف الطالب، على اعتبار نجاحه فيما سجّله الآن: كل فصل يأخذ المواد التي اجتاز متطلباتها، حسب أولويتها، ضمن الحمل المختار والحد الأعلى ${ruleLink('7', 'م 7')} (21 في فصل التخرج، م 7/ب). جداول الفصول القادمة لم تُنشر بعد، فالمسار ترتيب تسمح به المتطلبات وليس شعباً مضمونة.</span></div>
+      <div class="sv-paths no-print">${res.map(r => `<button type="button" class="${r === pick ? 'on' : ''}" data-path="${r.k}"><i class="bi ${r.ic}"></i><b>${r.l}</b><span>${r.p.stuck ? 'يتوقف' : `التخرج ${esc(termName(r.p.end))}`}</span><small>${r.p.regular} اعتيادي${r.p.summers ? ` + ${r.p.summers} صيفي` : ''}</small></button>`).join('')}</div>
+      <p class="mb-2"><b>${esc(pick.l)}:</b> ${esc(pick.d)}.</p>
+      <div class="sv-terms">${pick.p.terms.map(box).join('')}</div></section>`;
   }
 
   // the page's own sums against the figures printed on the PDF
@@ -1513,6 +1570,7 @@
     on('#fr-name', 'input', e => { st.fresh.name = e.target.value; });
     on('#fr-id', 'input', e => { st.fresh.id = e.target.value; });
     on('#fr-print', 'click', printFresh);
+    document.querySelectorAll('[data-sv]').forEach(b => b.addEventListener('click', () => { st.sv = b.dataset.sv; render(); }));
     document.querySelectorAll('[data-fv]').forEach(b => b.addEventListener('click', () => { st.fresh.fv = b.dataset.fv; render(); }));
     document.querySelectorAll('[data-rem]').forEach(b => b.addEventListener('change', () => { st.fresh[b.dataset.rem] = b.checked; render(); }));
     const dq = $('#adv-dq');
