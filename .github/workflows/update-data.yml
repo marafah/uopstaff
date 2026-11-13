@@ -37,6 +37,8 @@ jobs:
       - name: Course descriptions («وصف المواد») from the department pages
         # a file that cannot be downloaded keeps what was read from it before
         continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python scripts/update_course_desc.py
       - name: Advisory plans the text reader could not read (scanned pages), read by Claude
         # needs the repository secret ANTHROPIC_API_KEY; without it this step does nothing. A reading is published only

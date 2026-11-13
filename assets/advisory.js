@@ -43,7 +43,7 @@
   // the description as printed (an image of its part of the page: exact), and its text when the file's text layer reads cleanly
   function descBody(e) {
     const imgs = (e.img || []).map(n => `<img class="am-dimg" src="data/coursedesc/${esc(n)}" alt="وصف المادة كما في الملف المنشور" loading="lazy">`).join('');
-    const text = e.clean || e.ocr ? `<p class="am-desc">${esc(e.text)}</p>` : '';
+    const text = e.clean || e.ocr || e.ai ? `<p class="am-desc">${esc(e.text)}</p>` : '';
     return `${text}${e.ocr ? '<p class="small text-muted mb-1">قُرئ النص من صورة الصفحة لأن خطّ الملف لا يُستخرج نصاً سليماً؛ قد يقع فيه خطأ حرفي نادر — المرجع الملف.</p>' : ''}
       ${imgs ? (text ? `<details class="small"><summary>كما طُبع في الملف</summary><div class="am-dimgs">${imgs}</div></details>` : `<div class="am-dimgs">${imgs}</div>`) : ''}`;
   }

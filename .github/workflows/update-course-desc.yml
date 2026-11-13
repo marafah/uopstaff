@@ -26,11 +26,13 @@ jobs:
       - run: sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-ara >/dev/null
       - run: pip install requests pdfplumber pypdfium2 pillow pytesseract
       - run: python scripts/update_course_desc.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A data/course_descriptions.json data/coursedesc
+          git add -A data/course_descriptions.json data/coursedesc data/course_desc_ai.json
           if ! git diff --cached --quiet; then
             git commit -m "Course descriptions $(date -u +'%Y-%m-%d %H:%M')"
             git pull --rebase --autostash -q origin main || true

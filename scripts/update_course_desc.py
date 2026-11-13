@@ -28,6 +28,43 @@ VERSION = 9
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 OUT = os.path.join(ROOT, "data", "course_descriptions.json")
 IMG = os.path.join(ROOT, "data", "coursedesc")
+AI = os.path.join(ROOT, "data", "course_desc_ai.json")   # Claude's transcriptions, kept per file and course
+KEY = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+MODEL = os.environ.get("COURSE_DESC_MODEL", "claude-sonnet-4-5")
+AI_MAX = int(os.environ.get("COURSE_DESC_AI_MAX", "600"))
+AI_CACHE, AI_USED = {}, [0]
+PROMPT = ("This image is part of a page of a University of Petra course description file («وصف المواد»). Transcribe the course "
+          "description paragraph exactly as printed, letter for letter, in its own language (Arabic or English), keeping every English "
+          "term and punctuation mark as printed. Leave out the title line (course number, name, credit hours) and the prerequisite line "
+          "(«متطلب سابق»). Do not correct, summarise or add anything. Reply with the paragraph text only.")
+
+
+def ai_text(names, key):
+    """The description read by Claude from the printed page (exact transcription); cached, so each course is read once."""
+    if key in AI_CACHE:
+        return AI_CACHE[key]
+    if not KEY or AI_USED[0] >= AI_MAX:
+        return ""
+    import base64
+    import requests
+    content = []
+    for n in names:
+        with open(os.path.join(IMG, n), "rb") as fh:
+            content.append({"type": "image", "source": {"type": "base64", "media_type": "image/webp", "data": base64.b64encode(fh.read()).decode()}})
+    content.append({"type": "text", "text": PROMPT})
+    try:
+        r = requests.post("https://api.anthropic.com/v1/messages", timeout=180, headers={
+            "x-api-key": KEY, "anthropic-version": "2023-06-01", "content-type": "application/json"},
+            json={"model": MODEL, "max_tokens": 3000, "messages": [{"role": "user", "content": content}]})
+        r.raise_for_status()
+    except Exception as e:  # quota or network: the page reading stays, tried again next run
+        print(f"  Claude: {e}", file=sys.stderr)
+        AI_USED[0] = AI_MAX
+        return ""
+    AI_USED[0] += 1
+    t = re.sub(r"\s+", " ", "".join(b.get("text", "") for b in r.json().get("content", []))).strip()
+    AI_CACHE[key] = t
+    return t
 LABEL = re.compile(r"وصف|description", re.I)
 CODE = re.compile(r"(?<!\d)(\d{6,7})(?!\d)")
 PRE = re.compile(r"متطلب|المتطلب|prereq|pre-req|pre req", re.I)
@@ -221,10 +258,16 @@ def crops(pdf_bytes, sha, got):
             # the file's own text drops letters: the text is read from the printed page instead (Tesseract, Arabic + English)
             text = re.sub(r"\s+", " ", " ".join(ocr)).strip()
             c["text"], c["ocr"] = latin_back(text, c["text"]), True
+        if not c["clean"]:
+            t = ai_text(names, f"{sha[:12]}-{code}")
+            if t:
+                c["text"], c["ai"] = t, True
+                c.pop("ocr", None)
         c.pop("seg", None)
 
 
 def main():
+    AI_CACHE.update(load(AI, {}))
     old = load(OUT, {})
     same_reader = old.get("parser") == VERSION
     known = known_codes()
@@ -291,6 +334,8 @@ def main():
         return
     with open(OUT, "w", encoding="utf-8") as fh:
         json.dump(data, fh, ensure_ascii=False, separators=(",", ":"))
+    with open(AI, "w", encoding="utf-8") as fh:
+        json.dump(AI_CACHE, fh, ensure_ascii=False, indent=0, sort_keys=True)
     used = {n for L in courses.values() for e in L for n in e.get("img", [])}
     for n in os.listdir(IMG) if os.path.isdir(IMG) else []:
         if n not in used:
