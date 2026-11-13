@@ -49,7 +49,7 @@
   // ---------------------------------------------------------------- the plan, the route and the markers
   function svg(route, opt = {}) {
     const poly = pts => pts.map(p => p.join(',')).join(' ');
-    let s = `<g style="--k:${K}">`;
+    let s = `<g style="--k:${K}">${A.mask ? `<polygon class="ac-mask" points="${A.mask.map(p => p.join(',')).join(' ')}"/>` : ''}`;
     if (st.L.route || opt.print) A.edges.forEach(e => {
       const p = poly(e[2]);
       s += e[3] === 'link' ? `<polyline class="ac-link" points="${p}"/>` : `<polyline class="ac-case" points="${p}"/><polyline class="ac-net" points="${p}"/>`;
@@ -62,7 +62,7 @@
       ? `<g class="ac-park" transform="translate(${p.x},${p.y}) scale(${K})"><rect x="-11" y="-11" width="22" height="22" rx="4"/><text y="4">P♿</text><title>${esc(p.ar)}</title></g>`
       : `<g class="ac-gate" transform="translate(${p.x},${p.y}) scale(${K})"><path d="M0,-12 L11,8 L-11,8 Z"/><text y="5">${esc(p.id)}</text><title>${esc(p.ar)}</title></g>`; });
     if (st.L.nums || opt.print) A.buildings.forEach(b => { const on = to && to.b === b, fo = fr && fr.b === b;
-      s += `<g class="ac-b ${on ? 'to' : fo ? 'from' : ''} ${served(b) ? '' : 'off'}" data-b="${b.n}" transform="translate(${b.x},${b.y}) scale(${K})"><circle r="13"/><text y="5">${b.n}</text><title>${esc(b.ar)} — ${esc(b.en)}</title></g>`; });
+      s += `<g class="ac-b ${on ? 'to' : fo ? 'from' : ''} ${served(b) ? '' : 'off'} ${st.hl === b.n ? 'hl' : ''}" data-b="${b.n}" transform="translate(${b.x},${b.y}) scale(${K})"><circle r="13"/><text y="5">${b.n}</text><title>${esc(b.ar)} — ${esc(b.en)}</title></g>`; });
     if (route) { const a = route.pts[0], z = route.pts[route.pts.length - 1];
       s += `<g class="ac-pin a" transform="translate(${a[0]},${a[1]}) scale(${K})"><circle r="8"/></g><g class="ac-pin z" transform="translate(${z[0]},${z[1]}) scale(${K})"><path d="M0,0 C-9,-11 -9,-22 0,-24 C9,-22 9,-11 0,0Z"/><circle cy="-15" r="3.5" fill="#fff"/></g>`; }
     return s + '</g>';
@@ -95,16 +95,11 @@
         <optgroup label="مواقف ذوي الإعاقة">${A.points.filter(p => p.kind === 'park').map(p => `<option value="park:${p.id}" ${cur === 'park:' + p.id ? 'selected' : ''}>${esc(p.ar)}</option>`).join('')}</optgroup>` : '',
       withB ? `<optgroup label="المباني">${A.buildings.filter(served).map(b => `<option value="b:${b.n}" ${cur === 'b:' + b.n ? 'selected' : ''}>${b.n} · ${esc(b.ar)}</option>`).join('')}</optgroup>` : ''].join('');
     const q = U.norm(st.q || ''), list = A.buildings.filter(b => !q || U.norm(b.ar + ' ' + b.en + ' ' + b.n).includes(q));
+    app.className = (st.L.big ? 'ac-bigt ' : '') + (st.L.hc ? 'ac-hc' : '');
     app.innerHTML = `<div class="ac-head">
         <div class="ac-title"><span class="ac-ico">♿</span><div><h2>المسار الميسّر في الحرم</h2><p>مسار ذوي الإعاقة الذي اعتمدته الجامعة على مخطط الحرم: من البوابات ومواقف ذوي الإعاقة إلى المدخل الميسّر لكل مبنى.</p></div></div>
         <div class="ac-kpis">${[['bi-building-check', A.buildings.filter(served).length + ' من ' + A.buildings.length, 'مبنى يخدمه المسار'], ['bi-rulers', 'حوالي ' + (Math.round(total * A.mpp / 50) * 50) + ' م', 'طول المسار'], ['bi-p-square', A.points.filter(p => p.kind === 'park').length, 'موقفان لذوي الإعاقة'], ['bi-door-open', A.points.filter(p => p.kind === 'gate').length, 'بوابات']].map(([i, v, l]) => `<div><i class="bi ${i}"></i><b>${v}</b><span>${l}</span></div>`).join('')}</div></div>
       <div class="ac-grid">
-        <section class="ac-mapc"><div class="ac-map" id="ac-map" tabindex="0" aria-label="مخطط الحرم مع المسار الميسّر">
-            <div id="ac-in" class="${st.L.dim ? 'dim' : ''}"><img src="${A.image}" alt="مخطط الحرم الجامعي – مسار ذوي الاحتياجات الخاصة" width="${W}" height="${H}" draggable="false"><svg viewBox="0 0 ${W} ${H}" id="ac-svg">${svg(r)}</svg></div>
-            <div class="ac-zoom no-print"><button type="button" data-z="in" title="تكبير" aria-label="تكبير"><i class="bi bi-plus-lg"></i></button><button type="button" data-z="out" title="تصغير" aria-label="تصغير"><i class="bi bi-dash-lg"></i></button><button type="button" data-z="fit" title="المخطط كاملاً" aria-label="المخطط كاملاً"><i class="bi bi-arrows-fullscreen"></i></button></div>
-            <div class="ac-north" title="الشمال"><i class="bi bi-arrow-up"></i><span>ش</span></div></div>
-          <div class="ac-legend">${[['ac-l-net', 'المسار الميسّر (من المخطط)'], ['ac-l-route', 'مسارك'], ['ac-l-link', 'وصلة إلى المسار (ليست في المخطط)'], ['ac-l-ent', 'مدخل ميسّر'], ['ac-l-park', 'موقف ذوي الإعاقة'], ['ac-l-gate', 'بوابة'], ['ac-l-b', 'رقم المبنى في المخطط']].map(([c, t]) => `<span><i class="${c}"></i>${t}</span>`).join('')}</div>
-          <div class="ac-layers no-print">${[['route', 'المسار'], ['ent', 'المداخل'], ['pts', 'المواقف والبوابات'], ['nums', 'أرقام المباني'], ['dim', 'تخفيف خلفية المخطط']].map(([k, t]) => `<label><input type="checkbox" data-l="${k}" ${st.L[k] ? 'checked' : ''}> ${t}</label>`).join('')}</div></section>
         <aside class="ac-side">
           <section class="ac-card"><h3><i class="bi bi-signpost-split-fill"></i> خطّط مساراً ميسّراً</h3>
             <label>من<select class="form-select" id="ac-from">${opts(st.from, true, true)}</select></label>
@@ -112,8 +107,8 @@
             <label>إلى<select class="form-select" id="ac-to"><option value="">— اختر المبنى —</option>${opts(st.to, true, false)}</select></label>
             ${r ? `<div class="ac-res"><div><b>${M(r.px)} م</b><span>طول المسار</span></div><div><b>${mins(M(r.px))} د</b><span>بالكرسي المتحرك</span></div><div><b>${walk(M(r.px))} د</b><span>مشياً</span></div></div>
               <ol class="ac-steps">${steps(r).map(([i, t, v]) => `<li><i class="bi ${i}"></i><span><small>${t}</small>${esc(v)}</span></li>`).join('')}</ol>
-              <div class="ac-acts no-print"><button type="button" class="btn btn-sm btn-maroon" id="ac-print"><i class="bi bi-printer"></i> طباعة المسار</button><button type="button" class="btn btn-sm btn-light border" id="ac-copy"><i class="bi bi-link-45deg"></i> نسخ الرابط</button>
-                ${to && to.b ? `<a class="btn btn-sm btn-light border" href="campus.html?b=${encodeURIComponent(to.b.site)}"><i class="bi bi-map"></i> المبنى على خريطة الحرم</a>` : ''}</div>`
+              <div class="ac-acts no-print"><button type="button" class="btn btn-sm btn-maroon" id="ac-print"><i class="bi bi-printer"></i> طباعة المسار</button><button type="button" class="btn btn-sm btn-light border" id="ac-copy"><i class="bi bi-link-45deg"></i> نسخ الرابط</button>${'speechSynthesis' in window ? '<button type="button" class="btn btn-sm btn-light border" id="ac-say"><i class="bi bi-volume-up"></i> اقرأ المسار</button>' : ''}
+                ${to && to.b ? `<a class="btn btn-sm btn-light border" href="campus.html?b=${encodeURIComponent(to.b.site)}"><i class="bi bi-map"></i> المبنى على خريطة الحرم</a><a class="btn btn-sm btn-light border" href="campus.html?b=${encodeURIComponent(to.b.site)}&tool=access"><i class="bi bi-layers"></i> طوابقه وقاعاته الأرضية</a>` : ''}</div>`
               : st.to && fr && to ? '<div class="ac-warn"><i class="bi bi-exclamation-triangle-fill"></i> لا يصل المسار الميسّر بين النقطتين في المخطط.</div>' : '<p class="ac-hint">اختر المبنى الذي تريده؛ يُرسم أقصر طريق على المسار الميسّر من نقطة البداية إلى مدخله الميسّر.</p>'}</section>
           <section class="ac-card"><h3><i class="bi bi-buildings"></i> المباني على المسار <span class="ac-n">${A.buildings.length}</span></h3>
             <input type="search" class="form-control form-control-sm mb-2" id="ac-q" placeholder="ابحث عن مبنى…" value="${esc(st.q)}">
@@ -123,8 +118,18 @@
           <section class="ac-card ac-note"><h3><i class="bi bi-patch-check-fill"></i> عن هذا المسار</h3>
             <p>المسار والمداخل والمواقف منقولة كما هي من <b>${esc(A.source)}</b>: الأسهم الحمراء «سهم التوجيه لذوي الاحتياجات الخاصة» على المخطط. المسافات والأوقات تقديرية من مقياس المخطط.</p>
             <p>الوصلات المنقّطة من البوابات والمواقف إلى المسار ليست في المخطط، وتدل على أقرب نقطة فقط. للطوابق والقاعات الأرضية في كل مبنى: <a href="campus.html?tool=access">الوصول الميسّر في خريطة الحرم</a>.</p>
-            <div class="ac-acts no-print"><a class="btn btn-sm btn-light border" href="campus.html?tool=fix"><i class="bi bi-tools"></i> أبلغ عن عائق على المسار</a><button type="button" class="btn btn-sm btn-light border" id="ac-sheet"><i class="bi bi-file-earmark-text"></i> مخطط المسار للطباعة</button></div></section>
-        </aside></div>`;
+            <div class="ac-acts no-print"><a class="btn btn-sm btn-light border" href="campus.html?tool=fix"><i class="bi bi-tools"></i> أبلغ عن عائق على المسار</a><button type="button" class="btn btn-sm btn-light border" id="ac-sheet"><i class="bi bi-file-earmark-text"></i> مخطط المسار للطباعة</button><button type="button" class="btn btn-sm btn-light border" id="ac-qr"><i class="bi bi-qr-code"></i> ملصقات QR «أنت هنا»</button></div></section>
+        </aside>
+        <section class="ac-mapc"><div class="ac-map" id="ac-map" tabindex="0" aria-label="مخطط الحرم مع المسار الميسّر">
+            <div id="ac-in" class="${st.L.dim ? 'dim' : ''}"><img src="${A.image}" alt="مخطط الحرم الجامعي – مسار ذوي الاحتياجات الخاصة" width="${W}" height="${H}" draggable="false"><svg viewBox="0 0 ${W} ${H}" id="ac-svg">${svg(r)}</svg></div>
+            <div class="ac-zoom no-print"><button type="button" data-z="in" title="تكبير" aria-label="تكبير"><i class="bi bi-plus-lg"></i></button><button type="button" data-z="out" title="تصغير" aria-label="تصغير"><i class="bi bi-dash-lg"></i></button><button type="button" data-z="fit" title="المخطط كاملاً" aria-label="المخطط كاملاً"><i class="bi bi-arrows-fullscreen"></i></button></div>
+            <div class="ac-north" title="الشمال"><i class="bi bi-arrow-up"></i><span>ش</span></div>
+            <div class="ac-tools no-print"><button type="button" id="ac-fs" title="ملء الشاشة" aria-label="ملء الشاشة"><i class="bi ${document.fullscreenElement ? 'bi-fullscreen-exit' : 'bi-fullscreen'}"></i></button><button type="button" id="ac-big" class="${st.L.big ? 'on' : ''}" title="خط أكبر" aria-label="خط أكبر"><i class="bi bi-type"></i></button><button type="button" id="ac-hc" class="${st.L.hc ? 'on' : ''}" title="تباين عالٍ" aria-label="تباين عالٍ"><i class="bi bi-circle-half"></i></button></div>
+            <div class="ac-key ${st.L.key === false ? 'shut' : ''}"><button type="button" class="ac-key-h" id="ac-key"><i class="bi bi-list-ol"></i> دليل المباني <i class="bi ${st.L.key === false ? 'bi-chevron-up' : 'bi-chevron-down'}"></i></button>
+              <div class="ac-key-b">${A.buildings.map(b => `<button type="button" class="${to && to.b === b ? 'on' : ''}" data-key="${b.n}" title="${esc(b.en)}"><span class="ac-bn">${b.n}</span><span><b>${esc(b.ar)}</b><small>${esc(b.en)}</small></span>${served(b) ? '<i class="ac-ok">♿</i>' : ''}</button>`).join('')}
+                <div class="ac-key-l"><span><i class="ac-l-net"></i> المسار الميسّر</span><span><i class="ac-l-route"></i> مسارك</span></div></div></div></div>
+          <div class="ac-legend">${[['ac-l-net', 'المسار الميسّر (من المخطط)'], ['ac-l-route', 'مسارك'], ['ac-l-link', 'وصلة إلى المسار (ليست في المخطط)'], ['ac-l-ent', 'مدخل ميسّر'], ['ac-l-park', 'موقف ذوي الإعاقة'], ['ac-l-gate', 'بوابة'], ['ac-l-b', 'رقم المبنى في المخطط']].map(([c, t]) => `<span><i class="${c}"></i>${t}</span>`).join('')}</div>
+          <div class="ac-layers no-print">${[['route', 'المسار'], ['ent', 'المداخل'], ['pts', 'المواقف والبوابات'], ['nums', 'أرقام المباني'], ['dim', 'تخفيف خلفية المخطط']].map(([k, t]) => `<label><input type="checkbox" data-l="${k}" ${st.L[k] ? 'checked' : ''}> ${t}</label>`).join('')}</div></section></div>`;
     bind(r);
     const url = new URL(location.href); url.searchParams.set('from', st.from); if (st.to) url.searchParams.set('to', st.to); else url.searchParams.delete('to'); history.replaceState(null, '', url);
   }
@@ -148,6 +153,17 @@
     const q = $('#ac-q'); q.oninput = () => { st.q = q.value; const pos = q.selectionStart; render(); const n = $('#ac-q'); n.focus(); n.setSelectionRange(pos, pos); };
     const cp = $('#ac-copy'); if (cp) cp.onclick = () => { navigator.clipboard && navigator.clipboard.writeText(location.href); cp.innerHTML = '<i class="bi bi-check2"></i> نُسخ الرابط'; };
     const pr = $('#ac-print'); if (pr) pr.onclick = () => sheet(r);
+    app.querySelectorAll('[data-key]').forEach(b => { b.onclick = () => { st.to = 'b:' + b.dataset.key; render(); focusRoute(); };
+      b.onmouseenter = () => { const g = app.querySelector(`.ac-b[data-b="${b.dataset.key}"]`); if (g) g.classList.add('hl'); };
+      b.onmouseleave = () => { const g = app.querySelector(`.ac-b[data-b="${b.dataset.key}"]`); if (g) g.classList.remove('hl'); }; });
+    $('#ac-key').onclick = () => { st.L.key = st.L.key === false; saveL(); render(); };
+    $('#ac-big').onclick = () => { st.L.big = !st.L.big; saveL(); render(); };
+    $('#ac-hc').onclick = () => { st.L.hc = !st.L.hc; saveL(); render(); };
+    $('#ac-fs').onclick = () => { const c = $('.ac-mapc'); if (document.fullscreenElement) document.exitFullscreen(); else if (c.requestFullscreen) c.requestFullscreen(); };
+    const say = $('#ac-say'); if (say) say.onclick = () => { speechSynthesis.cancel(); const fr = placeOf(st.from), to = placeOf(st.to);
+      const u = new SpeechSynthesisUtterance(`المسار الميسّر من ${fr.ar} إلى ${to.ar}: حوالي ${M(r.px)} متر، ${mins(M(r.px))} دقائق بالكرسي المتحرك. ` + steps(r).map(([, t, v]) => `${t} ${v}`).join('. '));
+      u.lang = 'ar'; speechSynthesis.speak(u); };
+    $('#ac-qr').onclick = qrSheet;
     $('#ac-sheet').onclick = () => sheet(null);
   }
   function focusRoute() {
@@ -172,12 +188,22 @@
       note: 'المسار والمداخل والمواقف من مخطط الجامعة لمسار ذوي الاحتياجات الخاصة. المسافات والأوقات تقديرية (كرسي متحرك نحو 3 كم/س). الوصلات من البوابات والمواقف إلى المسار ليست في المخطط.' });
   }
 
+  function qrSheet() {
+    const qr = link => { if (!window.qrcode) return ''; const x = window.qrcode(0, 'M'); x.addData(link); x.make(); return x.createSvgTag({ cellSize: 5, margin: 1, scalable: true }); };
+    const items = A.points.map(p => [p.kind + ':' + p.id, p.ar, p.kind === 'park' ? 'P♿' : '▲ ' + p.id]);
+    window.printReport({ title: 'ملصقات «أنت هنا» على المسار الميسّر', subtitle: 'تُثبَّت عند البوابات ومواقف ذوي الإعاقة: مسح الرمز يفتح المسار الميسّر من هذه النقطة إلى أي مبنى', orientation: 'portrait', fit: false, qr: false,
+      raw: `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px">${items.map(([k, n, ic]) => `<div style="border:2px solid #1d4ed8;border-radius:12px;padding:14px;text-align:center;page-break-inside:avoid">
+        <div style="font-size:30pt;color:#1d4ed8">♿</div><div style="font-size:15pt;font-weight:800">أنت هنا: ${esc(n)}</div><div style="width:52%;margin:10px auto">${qr(SITE + 'access.html?from=' + encodeURIComponent(k))}</div>
+        <div style="font-size:11pt">امسح الرمز لأقصر مسار ميسّر إلى المدخل الميسّر لأي مبنى</div><div style="font-size:9pt;color:#555;margin-top:4px">${esc(ic)} · ${esc(SITE)}access.html</div></div>`).join('')}</div>`,
+      note: 'المسار من مخطط الجامعة لمسار ذوي الاحتياجات الخاصة.' });
+  }
   U.getJSON('data/campus_access.json').then(d => {
     A = d; W = d.w; H = d.h; K = W / 1280; build();
+    const here = P.get('here'); if (here && placeOf(here)) st.from = here;   // a «أنت هنا» sticker
     const site = P.get('site') && d.buildings.find(b => b.site === P.get('site')); if (site) st.to = 'b:' + site.n;   // from «خريطة الحرم»: ?site=<its building number>
     if (st.to && !placeOf(st.to)) st.to = ''; if (!placeOf(st.from)) st.from = 'gate:1';
     render(); if (st.to) setTimeout(focusRoute, 50);
-    window.addEventListener('resize', () => fit());
+    window.addEventListener('resize', () => fit()); document.addEventListener('fullscreenchange', () => { render(); setTimeout(() => fit(), 60); });
   }).catch(e => { app.innerHTML = `<div class="alert alert-danger mt-3">تعذّر تحميل المسار (${esc(e.message)}).</div>`; });
 
   document.head.insertAdjacentHTML('beforeend', `<style>
@@ -187,7 +213,7 @@
     .ac-title h2 { margin: 0; font-size: 1.45rem; font-weight: 800; } .ac-title p { margin: 2px 0 0; font-size: .93rem; }
     .ac-kpis { display: flex; gap: 8px; flex-wrap: wrap; } .ac-kpis div { background: #fff; border: 1px solid #e3ddcf; border-radius: 12px; padding: 8px 12px; display: grid; grid-template-columns: auto auto; column-gap: 8px; align-items: center; }
     .ac-kpis i { grid-row: span 2; font-size: 1.35rem; color: #1d4ed8; } .ac-kpis b { font-size: 1.1rem; } .ac-kpis span { font-size: .78rem; }
-    .ac-grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 14px; align-items: start; }
+    .ac-grid { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 14px; align-items: start; }
     @media (max-width: 1000px) { .ac-grid { grid-template-columns: 1fr; } }
     .ac-mapc { background: #fff; border: 1px solid #e3ddcf; border-radius: 14px; padding: 10px; position: sticky; top: 10px; }
     .ac-map { position: relative; height: min(74vh, 720px); overflow: hidden; border-radius: 10px; background: #f8fafc; cursor: grab; touch-action: none; outline: none; }
@@ -227,6 +253,22 @@
     .ac-bn { width: 30px; height: 30px; border-radius: 50%; background: #901d23; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; }
     .ac-bt b { display: block; font-size: .92rem; } .ac-bt small { font-size: .76rem; } .ac-bs { text-align: end; font-size: .8rem; } .ac-bs small { display: block; }
     .ac-ok { color: #1d4ed8; font-weight: 700; } .ac-no { color: #6b7280; }
+    .ac-mask { fill: #fff; }
+    .ac-b.hl circle { fill: #f59e0b; stroke: #fff; stroke-width: 4; } .ac-b.hl { filter: drop-shadow(0 0 6px rgba(245,158,11,.9)); }
+    .ac-tools { position: absolute; bottom: 10px; left: 10px; display: flex; gap: 6px; } .ac-tools button { width: 38px; height: 38px; border-radius: 10px; border: 1px solid #d9d3c3; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.1); } .ac-tools button.on { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
+    .ac-key { position: absolute; top: 10px; left: 58px; width: 270px; max-width: calc(100% - 130px); background: rgba(255,255,255,.97); border: 1px solid #e3ddcf; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,.12); overflow: hidden; }
+    .ac-key-h { width: 100%; display: flex; align-items: center; gap: 6px; background: #fff; border: 0; border-bottom: 1px solid #eee; padding: 8px 12px; font-weight: 800; } .ac-key-h .bi:last-child { margin-inline-start: auto; }
+    .ac-key.shut .ac-key-b { display: none; } .ac-key.shut .ac-key-h { border-bottom: 0; }
+    .ac-key-b { max-height: min(46vh, 430px); overflow: auto; padding: 4px; }
+    .ac-key-b > button { width: 100%; display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; align-items: center; text-align: start; background: none; border: 0; border-radius: 8px; padding: 4px 6px; color: #111; }
+    .ac-key-b > button:hover, .ac-key-b > button:focus-visible { background: #fff7e6; } .ac-key-b > button.on { background: #eff6ff; outline: 1px solid #93c5fd; }
+    .ac-key-b .ac-bn { width: 26px; height: 26px; font-size: .8rem; } .ac-key-b b { display: block; font-size: .86rem; line-height: 1.3; } .ac-key-b small { display: block; font-size: .72rem; line-height: 1.2; } .ac-key-b i.ac-ok { font-style: normal; }
+    .ac-key-l { display: flex; gap: 12px; padding: 6px 8px 4px; border-top: 1px dashed #eee; margin-top: 4px; font-size: .78rem; } .ac-key-l i { display: inline-block; width: 22px; border-top: 4px dashed #6d28d9; vertical-align: middle; } .ac-key-l i.ac-l-route { border-top: 5px solid #1d4ed8; }
+    @media (max-width: 700px) { .ac-key { width: auto; right: 56px; left: 56px; max-width: none; } .ac-key-b { max-height: 40vh; } }
+    .ac-mapc:fullscreen { padding: 0; border-radius: 0; } .ac-mapc:fullscreen .ac-map { height: 100vh; border-radius: 0; } .ac-mapc:fullscreen .ac-legend, .ac-mapc:fullscreen .ac-layers { display: none; }
+    #ac-app.ac-bigt { font-size: 1.15rem; } #ac-app.ac-bigt .ac-card label, #ac-app.ac-bigt .ac-steps li, #ac-app.ac-bigt .ac-key-b b { font-size: 1.05rem; }
+    #ac-app.ac-hc .ac-card, #ac-app.ac-hc .ac-mapc, #ac-app.ac-hc .ac-key { border: 2px solid #000; } #ac-app.ac-hc #ac-in img { filter: grayscale(1) contrast(.8) brightness(1.15); }
+    #ac-app.ac-hc .ac-net { stroke: #000; stroke-width: calc(5px * var(--k,1)); } #ac-app.ac-hc .ac-route { stroke: #0033ff; stroke-width: calc(8px * var(--k,1)); } #ac-app.ac-hc .ac-ok { color: #0033ff; }
     .ac-note p { font-size: .9rem; line-height: 1.8; margin-bottom: 8px; }
     @media print { .ac-zoom, .ac-layers { display: none !important; } }
   </style>`);
