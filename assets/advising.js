@@ -883,7 +883,20 @@
       return `<div class="sv-g"><span class="sv-gn">${done ? '<i class="bi bi-check-circle-fill ic-g"></i>' : '<i class="bi bi-circle-half ic-o"></i>'} ${esc(g.name.replace(/^متطلبات?\s*/, ''))}${g.kind === 'remedial' ? ' <span class="fb sec">لا تُحسب في الخطة</span>' : ''}</span>
         <span class="sv-bar"><i class="${done ? 'ok' : pc >= 50 ? 'mid' : 'low'}" style="width:${pc}%"></i><i class="cur" style="width:${cur}%"></i></span>
         <span class="sv-gv"><b>${g.gotPassed}</b> / ${g.req}</span><span class="sv-gp">${pc}%</span><span class="sv-gc">${g.gotDone > g.gotPassed ? `<span class="fb reg">+${g.gotDone - g.gotPassed}</span>` : '—'}</span></div>`; }).join('');
-    const TABS = [['over', 'bi-grid-1x2', 'نظرة عامة', ''], ['plan', 'bi-magic', 'الجدول المقترح', `${sug.hours} س`], ['path', 'bi-signpost-split', 'مسارات التخرج', ''], ['list', 'bi-list-check', 'المواد', ready.length]];
+    // behind the guidance plan: courses the published guidance plan places in a term the student has already passed through, still not passed or registered
+    const late = (() => {
+      const G = guidanceFor(s); if (!G.length || !+h.entry) return null;
+      let n = 0, t = +h.entry; while (t && t < s.term && n < 24) { if (t % 10 !== 3) n++; t = nextTerm(t); }
+      const ord = c => (c.year - 1) * 2 + (c.term === 'first' ? 0 : 1);
+      const YR = ['', 'الأولى', 'الثانية', 'الثالثة', 'الرابعة', 'الخامسة', 'السادسة'], TN = { first: 'الأول', second: 'الثاني', summer: 'الصيفي' };
+      const row = c => { const o = a.open.find(x => x.code === c.code); return { c, o, due: `السنة ${YR[c.year] || c.year} · ${TN[c.term] || c.term}`, by: n - ord(c), name: c.name || nm(c.code), hours: c.hours || (o && o.hours) || 3 }; };
+      const mine = new Set(s.groups.filter(g => g.kind !== 'outside').flatMap(g => g.courses.map(x => x.code)));   // only courses of the student's own plan version
+      const left = G.filter(c => /^\d{6,7}$/.test(c.code) && mine.has(c.code) && !a.passed.has(c.code) && !a.current.has(c.code) && !altCodes(c.code).some(x => a.passed.has(x) || a.current.has(x)));
+      const behind = left.filter(c => ord(c) < n).map(row).sort((x, y) => y.by - x.by || x.c.code.localeCompare(y.c.code));
+      const now = left.filter(c => ord(c) === n).map(row);
+      return { n, pos: `السنة ${YR[Math.floor(n / 2) + 1] || ''} · الفصل ${n % 2 ? 'الثاني' : 'الأول'}`, behind, now, hrs: behind.reduce((x, r) => x + r.hours, 0) };
+    })();
+    const TABS = [['over', 'bi-grid-1x2', 'نظرة عامة', ''], ['plan', 'bi-magic', 'الجدول المقترح', `${sug.hours} س`], ['late', 'bi-clock-history', 'المتأخر عن الخطة', late ? late.behind.length : '—'], ['path', 'bi-signpost-split', 'مسارات التخرج', ''], ['list', 'bi-list-check', 'المواد', ready.length]];
     let body = '';
     if (sv === 'over') body = `<div class="sv-two">
         <section class="dt-c"><h4><i class="bi bi-diagram-3-fill ic-b"></i> مجموعات المتطلبات <span class="fb ok ms-auto">${a.groups.filter(g => g.gotPassed >= g.req).length} من ${a.groups.length} مكتملة</span></h4><div class="sv-g sv-gh"><span>المجموعة</span><span>التقدّم</span><span>الساعات</span><span>النسبة</span><span>مسجلة</span></div>${groupsHtml}
@@ -913,6 +926,19 @@
             <button type="button" class="btn btn-sm btn-light border" id="adv-copy"><i class="bi bi-link-45deg ic-b"></i> انسخ رابط المقترح للطالب</button></div>` : '<div class="dt-e">لا توجد مادة يمكن اقتراحها الآن.</div>'}
         ${sug.skipped.length ? `<details class="mt-3"><summary class="fw-bold">لم تدخل المقترح (${sug.skipped.length})</summary><table class="adv-t mt-1"><tbody>${sug.skipped.map(x => `<tr><td>${code(x.c.code)}</td><td>${esc(x.c.name || nm(x.c.code))}</td><td><span class="fb hrs">${x.c.hours} س</span></td><td>${esc(x.why)}</td><td class="no-print"><button type="button" class="btn btn-sm btn-light border" data-force="${x.c.code}"><i class="bi bi-plus-lg"></i> قدّمها</button></td></tr>`).join('')}</tbody></table></details>` : ''}
         ${st.drop.size ? `<p class="mt-2">أُخرجت يدوياً: ${[...st.drop].map(c => `${code(c)} <a href="#" data-undrop="${c}">إرجاع</a>`).join('، ')}</p>` : ''}</section>`;
+    else if (sv === 'late') {
+      const st8 = r => !r.o ? '<span class="fb sec">خارج خطة الطالب</span>' : r.o.ready ? '<span class="fb ok"><i class="bi bi-check-circle-fill"></i> يحق له تسجيلها</span>' : `<span class="fb hrs"><i class="bi bi-hourglass-split"></i> تنتظر ${r.o.missing.map(m => `<b class="sv-code">${m}</b>`).join(r.o.preOr ? ' أو ' : ' و ')}</span>`;
+      const tbl = (L, lateCol) => `<div class="table-responsive"><table class="adv-t sv-t"><thead><tr><th>الرمز</th><th>المادة</th><th>س</th><th>موعدها في الخطة</th>${lateCol ? '<th>التأخر</th>' : ''}<th>الحالة</th><th>هذا الفصل</th><th class="no-print"></th></tr></thead><tbody>
+          ${L.map(r => `<tr><td>${code(r.c.code)}</td><td>${esc(r.name)}${inSug.has(r.c.code) ? ' <i class="bi bi-check2-circle ic-g" title="في الجدول المقترح"></i>' : ''}</td><td><span class="fb hrs">${r.hours} س</span></td><td><span class="fb reg">${r.due}</span></td>
+            ${lateCol ? `<td><span class="fb ${r.by >= 3 ? 'no' : r.by === 2 ? 'hrs' : 'day'}">${r.by} ${r.by === 1 ? 'فصل' : r.by === 2 ? 'فصلان' : 'فصول'}</span></td>` : ''}<td>${st8(r)}</td><td>${offB(r.c.code)}</td>
+            <td class="no-print">${r.o && r.o.ready && !inSug.has(r.c.code) && offeredAs(r.c.code) ? `<button type="button" class="btn btn-sm btn-light border" data-force="${r.c.code}" title="قدّمها في الجدول المقترح"><i class="bi bi-plus-lg"></i> للمقترح</button>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
+      body = !late ? `<section class="dt-c sv-wide"><h4><i class="bi bi-clock-history ic-r"></i> المتأخر عن الخطة الاسترشادية</h4><div class="dt-e">لا خطة استرشادية منشورة مقروءة لتخصص الطالب، أو فصل التحاقه غير معروف.</div></section>`
+        : `<section class="dt-c sv-wide"><h4 class="sv-ph"><i class="bi bi-clock-history ic-r"></i> المتأخر عن الخطة الاسترشادية
+            <span class="ms-auto d-flex gap-1 flex-wrap"><span class="fb ${late.behind.length ? 'no' : 'ok'}">${late.behind.length} مادة · ${late.hrs} س متأخرة</span><span class="fb reg">موقعه: ${late.pos}</span></span></h4>
+          <div class="sv-info"><i class="bi bi-info-circle ic-b"></i> <span>بحسب الخطة الاسترشادية المنشورة لتخصصه: الطالب التحق ${esc(termName(+h.entry))} وأتمّ ${late.n} ${late.n === 1 ? 'فصلاً' : 'فصول'} اعتيادية قبل ${esc(s.termLabel || termName(s.term))}، فهذه مواد موعدها في فصل سابق ولم ينجح فيها ولم يسجلها. الأولوية لها في التسجيل حين تُتاح متطلباتها ${ruleLink('5h', 'م 5/هـ')}؛ والمواد الاختيارية لا تُحسب هنا لأن الطالب يختارها. <span class="sv-sep">|</span> <i class="bi bi-check2-circle ic-g"></i> = في الجدول المقترح.</span></div>
+          ${late.behind.length ? tbl(late.behind, true) : '<div class="dt-e"><i class="bi bi-check-circle-fill ic-g"></i> لا مواد متأخرة: الطالب على الخطة الاسترشادية.</div>'}</section>
+        ${late.now.length ? `<section class="dt-c sv-wide"><h4><i class="bi bi-calendar-event ic-o"></i> مستحقة في فصله الحالي ولم يسجلها <span class="fb hrs ms-auto">${late.now.length} مادة</span></h4>${tbl(late.now, false)}</section>` : ''}`;
+    }
     else if (sv === 'path') body = pathsCard(s);
     else body = `<section class="dt-c sv-wide"><h4><i class="bi bi-list-ol ic-g"></i> المواد التي يحق له تسجيلها، حسب الأولوية <span class="fb sec ms-auto">${ready.length}</span></h4>
         <div class="table-responsive"><table class="adv-t sv-t"><thead><tr><th>#</th><th>الرمز</th><th>المادة</th><th>س</th><th>المجموعة</th><th>لماذا</th><th>هذا الفصل</th></tr></thead><tbody>
