@@ -1549,11 +1549,11 @@
         ${poolView()}
       </div></div>`)}
     ${bx(8, 'bi-list-check', '#1d4ed8', 'المقررات', `${all.length - Object.keys(S.excl).filter(k => all.some(c => c.code === k)).length} من ${all.length} مقرراً لها امتحان`, `
-      <div class="ex-reqbar"><label class="btn btn-outline-primary mb-0"><i class="bi bi-file-earmark-arrow-up"></i> رفع قائمة متطلبات المقررات<input type="file" data-up="req" accept=".xlsx,.xls,.csv" hidden></label>
+      <div class="ex-reqbar"><label class="btn btn-sm btn-outline-primary mb-0"><i class="bi bi-file-earmark-arrow-up"></i> رفع قائمة المتطلبات<input type="file" data-up="req" accept=".xlsx,.xls,.csv" hidden></label>
         <button class="btn btn-sm btn-outline-secondary" data-tpl="req"><i class="bi bi-file-earmark-arrow-down"></i> النموذج</button>
-        <span class="small text-muted">رمز المادة، المنسق، قاعة / مختبر، عدد القاعات، عدد المراقبين، موعد ثابت، في آخر الجدول (أو تظليل الصف بالبرتقالي)، ملاحظات.</span>
-        ${S.reqOnly && !S.listMax ? `<label class="ex-chk${S.only && S.only.length ? ' on' : ''}"><input type="checkbox" data-reqonly ${S.only && S.only.length ? 'checked' : ''}> جدولة مواد القائمة فقط</label>` : ''}
-        ${Object.keys(S.req || {}).length ? `<span class="bdg green"><i class="bi bi-check2-circle"></i> ${Object.keys(S.req).length} مقرراً لها متطلبات</span><button class="btn btn-sm btn-link text-danger" data-clrreq>مسح المتطلبات</button>` : ''}</div>
+        <span class="tx" title="رمز المادة، المنسق، قاعة / مختبر، عدد القاعات، عدد المراقبين، موعد ثابت، في آخر الجدول (أو تظليل الصف بالبرتقالي)، ملاحظات">رمز المادة، المنسق، قاعة / مختبر، عدد القاعات، عدد المراقبين، موعد ثابت، في آخر الجدول (أو تظليل الصف بالبرتقالي)، ملاحظات</span>
+        ${S.reqOnly && !S.listMax ? `<label class="ex-chk${S.only && S.only.length ? ' on' : ''}"><input type="checkbox" data-reqonly ${S.only && S.only.length ? 'checked' : ''}> مواد القائمة فقط</label>` : ''}
+        ${Object.keys(S.req || {}).length ? `<span class="bdg green"><i class="bi bi-check2-circle"></i> ${Object.keys(S.req).length} مقرراً لها متطلبات</span><button class="btn btn-sm btn-link text-danger p-0" data-clrreq title="مسح المتطلبات"><i class="bi bi-trash"></i> مسح</button>` : ''}</div>
       <div class="ex-add"><input class="form-control" data-f="cq" placeholder="ابحث في المقررات…" value="${esc(f.cq || '')}"><button class="btn btn-sm btn-outline-secondary" data-inclall="1">تضمين الكل</button><button class="btn btn-sm btn-outline-secondary" data-inclall="0">استبعاد الكل</button></div>
       <div class="ex-rooms tall"><table class="table table-sm align-middle"><thead><tr><th>امتحان</th><th>الرمز</th><th>المقرر</th><th>القسم</th><th>الطلبة</th><th>الشعب</th><th>نوع القاعة</th><th title="0 = حسب عدد الطلبة">عدد القاعات</th><th>مراقبون</th><th title="قرب نهاية أيام الامتحانات">آخر الجدول</th><th>ملاحظات المنسق</th><th>موعد ثابت</th></tr></thead><tbody>
         ${shown.map(c => `<tr class="${S.excl[c.code] ? 'off' : ''}"><td><input type="checkbox" class="form-check-input" data-incl="${esc(c.code)}" ${S.excl[c.code] ? '' : 'checked'}></td><td><b>${esc(c.code)}</b></td><td>${esc(c.name)}</td><td class="small">${esc(c.dept)}</td><td>${c.n}</td><td>${c.k}</td>
@@ -2549,7 +2549,7 @@
   .ex-tplbar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; background: #f2f6fb; border: 1px dashed #9db4d0; border-radius: 10px; padding: .45rem .65rem; margin: -.3rem 0 .6rem; } .ex-tplbar > i { color: #0b4a66; } .ex-tplbar span { flex: 1 1 240px; font-size: .92rem; }
   .ex-docs { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; background: #fbf7ef; border: 1px solid #ecdcbc; border-radius: 12px; padding: .55rem .7rem; margin-bottom: .6rem; }
   .ex-docs > b { color: #7a4b00; margin-inline-end: .3rem; } .ex-docs small { flex-basis: 100%; } .ex-docs .btn small { font-size: .7rem; background: #fff3; border: 1px solid currentColor; border-radius: 4px; padding: 0 .25rem; margin-inline-start: .2rem; }
-  .ex-reqbar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; background: #f2f6fb; border: 1px dashed #9db4d0; border-radius: 10px; padding: .5rem .65rem; margin-bottom: .6rem; }
+  .ex-reqbar { display: flex; flex-wrap: nowrap; gap: .5rem; align-items: center; background: #f2f6fb; border: 1px dashed #9db4d0; border-radius: 10px; padding: .5rem .65rem; margin-bottom: .6rem; }
   .ex-rt { min-width: 6.5rem; } .ex-rt.lab { background-color: #e6f6f4; border-color: #0f766e; color: #0f766e; font-weight: 700; } .ex-rt.hall { background-color: #eef2ff; border-color: #4f46e5; color: #3730a3; font-weight: 700; }
   .ex-qn { width: 4.6rem; } .ex-qnote { min-width: 9rem; }
   .ex-win { border: 1px solid #f3c9c9; background: #fdf6f6; border-radius: 12px; padding: .6rem .75rem; margin-bottom: .7rem; } .ex-win-h { font-weight: 800; color: #901d23; margin-bottom: .4rem; }
@@ -2592,6 +2592,8 @@
   .ex-tbar { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; margin-bottom: .45rem; }
   .ex-main2 .ex-pool2 { margin-top: .5rem; }
   .ex-row2b .ex-chipset { display: flex; flex-wrap: wrap; gap: .3rem; } .ex-up .st { display: block !important; white-space: normal; }
+  .ex-reqbar > * { flex: none; white-space: nowrap; } .ex-reqbar .tx { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: .85rem; color: #1f2a30; }
+  @media (max-width: 760px) { .ex-reqbar { flex-wrap: wrap; } .ex-reqbar .tx { flex-basis: 100%; white-space: normal; } }
   .ex-cal2 { display: grid; grid-template-columns: minmax(250px, 330px) minmax(0, 1fr); gap: 1rem; align-items: start; }
   .ex-calf { display: grid; gap: .6rem; } .ex-calf section { border: 1px solid #e2e8ec; border-radius: 12px; padding: .55rem .7rem; background: #fbfcfd; }
   .ex-calf h6 { font-size: .9rem; font-weight: 800; margin: 0 0 .4rem; color: #0b4a66; } .ex-calf label { display: block; margin: 0; } .ex-calf label > span { font-size: .8rem; font-weight: 700; color: #1f2a30; }
