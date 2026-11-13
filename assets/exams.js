@@ -2664,6 +2664,12 @@
   .ex-p4 .pp > b { background: #0f766e; color: #fff; border-radius: 6px; text-align: center; font-size: .8rem; line-height: 1.6; } .ex-p4 .pp input { width: 100% !important; min-width: 0; padding: .15rem .3rem; font-size: .86rem; }
   .ex-p4 .pp > span { color: #1f2a30; } .ex-p4 .pp small { font-size: .75rem; color: #1f2a30; text-align: center; white-space: nowrap; } .ex-p4 .pp .del { padding: 0; color: #b42318; border: 0; }
   .ex-p4 .pp.bad { border-color: #b42318 !important; background: #fff4f4 !important; } .ex-p4 .pp.bad > b { background: #b42318; } .ex-p4 .pp.bad small { color: #b42318; font-weight: 700; }
+  .ex-p4 .ex-tl .bar { height: 3.3rem !important; } .ex-p4 .ex-tl .p { font-size: .92rem !important; font-weight: 700; } .ex-p4 .ex-tl .p small { font-size: .84rem !important; opacity: 1 !important; font-weight: 600; }
+  .ex-p4 .ex-tl .ax { height: 1.4rem !important; } .ex-p4 .ex-tl .ax i { font-size: .86rem !important; font-weight: 700; }
+  .ex-p4 .ex-cap { font-size: 1rem; } .ex-p4 .cd h6 { font-size: 1.05rem !important; } .ex-p4 .win span, .ex-p4 .ex-dw > summary { font-size: .95rem !important; }
+  .ex-p4 input[type=time] { font-size: 1.02rem !important; font-weight: 600; color: #0f1f26; }
+  .ex-p4 .pp > b { font-size: .95rem !important; line-height: 1.8 !important; } .ex-p4 .pp small { font-size: .9rem !important; font-weight: 600; } .ex-p4 .pp > span { font-size: 1rem; }
+  .ex-p4 .dwr { font-size: .95rem !important; } .ex-p4 .dwr small { font-size: .85rem !important; }
   .ex-cal2 { display: grid; grid-template-columns: minmax(250px, 330px) minmax(0, 1fr); gap: 1rem; align-items: start; }
   .ex-calf { display: grid; gap: .6rem; } .ex-calf section { border: 1px solid #e2e8ec; border-radius: 12px; padding: .55rem .7rem; background: #fbfcfd; }
   .ex-calf h6 { font-size: .9rem; font-weight: 800; margin: 0 0 .4rem; color: #0b4a66; } .ex-calf label { display: block; margin: 0; } .ex-calf label > span { font-size: .8rem; font-weight: 700; color: #1f2a30; }
