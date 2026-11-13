@@ -1470,12 +1470,12 @@
             <label><span>آخر يوم</span><input type="date" class="form-control form-control-sm" data-k="end" value="${S.end || ''}" min="${S.start}"></label></div>
           ${S.end ? '' : `<label class="mt-1"><span>أو عدد الأيام</span><input type="number" class="form-control form-control-sm" data-k="days" min="1" max="40" value="${S.days}"></label>`}
           ${S.calNote ? `<small class="src"><i class="bi bi-calendar-check"></i> من التقويم الجامعي (${esc(S.calNote)}) · <button class="btn btn-link btn-sm p-0" data-calset>إعادتها منه</button></small>` : ''}
-          ${S.end ? '<button class="btn btn-sm btn-link p-0" data-noend>تحديد عدد الأيام بدل آخر يوم</button>' : ''}</section>
-        <section><h6><i class="bi bi-calendar-week"></i> أيام الأسبوع بلا امتحانات</h6>
+          ${S.end ? '<button class="btn btn-sm btn-link p-0 mt-1" data-noend>أو حدّد عدد الأيام بدل آخر يوم</button>' : ''}</section>
+        <section><h6><i class="bi bi-calendar-week"></i> أيام الأسبوع بلا امتحانات <small class="fw-normal">(اضغط اليوم)</small></h6>
           <div class="ex-wk">${[6, 0, 1, 2, 3, 4, 5].map(i => i === 5 ? `<label class="ex-chk on lock" title="عطلة رسمية دائماً"><input type="checkbox" checked disabled> ${WD[i]}</label>` : `<label class="ex-chk${S.off.includes(i) ? ' on' : ''}"><input type="checkbox" data-off="${i}" ${S.off.includes(i) ? 'checked' : ''}> ${WD[i]}</label>`).join('')}</div></section>
         <section><h6><i class="bi bi-calendar-x"></i> العطل والأيام المستثناة</h6>
           <div class="ex-add"><input type="date" class="form-control form-control-sm" id="ex-holin"><button class="btn btn-sm btn-outline-primary" data-addhol><i class="bi bi-plus-lg"></i> إضافة</button></div>
-          <div class="ex-chipset mt-1">${(S.hol.match(/\d{4}-\d{2}-\d{2}/g) || []).map(h => `<span class="ex-tagx">${dLong(h)}<button data-delhol="${h}" aria-label="حذف"><i class="bi bi-x"></i></button></span>`).join('') || '<small class="text-muted">لا عطل. أو اضغط اليوم في التقويم.</small>'}</div></section>
+          <div class="ex-chipset mt-1">${(S.hol.match(/\d{4}-\d{2}-\d{2}/g) || []).map(h => `<span class="ex-tagx">${dLong(h)}<button data-delhol="${h}" aria-label="حذف"><i class="bi bi-x"></i></button></span>`).join('') || '<small class="hint">لا عطل. يمكن أيضاً الضغط على اليوم في التقويم.</small>'}</div></section>
       </div>
       <div class="ex-calm">${calKpis()}${monthsView()}</div></div>`)}
     ${bx(3, 'bi-clock-fill', '#0f766e', 'الفترات اليومية', 'مواعيد الامتحانات في اليوم', `
@@ -2596,7 +2596,13 @@
   .ex-calf { display: grid; gap: .6rem; } .ex-calf section { border: 1px solid #e2e8ec; border-radius: 12px; padding: .55rem .7rem; background: #fbfcfd; }
   .ex-calf h6 { font-size: .9rem; font-weight: 800; margin: 0 0 .4rem; color: #0b4a66; } .ex-calf label { display: block; margin: 0; } .ex-calf label > span { font-size: .8rem; font-weight: 700; color: #1f2a30; }
   .ex-calf .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; } .ex-calf .src { display: block; margin-top: .35rem; color: #15803d; font-size: .78rem; }
-  .ex-calf .ex-wk { display: flex; flex-wrap: wrap; gap: .25rem; } .ex-calf .ex-chk { font-size: .82rem; padding: .15rem .45rem; }
+  .ex-calf .ex-wk { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .3rem; }
+  .ex-calf .ex-wk .ex-chk { display: flex; align-items: center; justify-content: center; gap: .25rem; margin: 0; height: 2rem; padding: 0 .2rem; font-size: .82rem; font-weight: 700; border-radius: 8px; white-space: nowrap; }
+  .ex-calf .ex-wk .ex-chk input { display: none; } .ex-calf .ex-wk .ex-chk.on::before { content: '✕'; font-size: .7rem; }
+  .ex-calf .ex-wk .ex-chk.lock { opacity: .6; cursor: default; }
+  .ex-calf .ex-add { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .35rem; align-items: stretch; } .ex-calf .ex-add .btn { white-space: nowrap; }
+  .ex-calf .g2 label { display: flex; flex-direction: column; gap: .15rem; } .ex-calf [data-noend], .ex-calf [data-calset] { font-size: .78rem; font-weight: 600; text-decoration: none; }
+  .ex-calf .hint { display: block; margin-top: .3rem; font-size: .78rem; }
   .ex-kp2 { display: flex; flex-wrap: wrap; gap: .35rem .9rem; align-items: center; font-size: .88rem; color: #1f2a30; margin-bottom: .5rem; } .ex-kp2 .ex b { color: #901d23; font-size: 1.1rem; }
   .ex-kp2 .lg { margin-inline-start: auto; font-size: .78rem; display: inline-flex; gap: .3rem; align-items: center; } .ex-kp2 .d { display: inline-block; width: 11px; height: 11px; border-radius: 3px; }
   .ex-kp2 .d.ex { background: #901d23; } .ex-kp2 .d.off { background: #e2e8ec; } .ex-kp2 .d.hol { background: repeating-linear-gradient(45deg, #f6b0b0 0 3px, #fff 3px 6px); border: 1px solid #f0a0a0; }
