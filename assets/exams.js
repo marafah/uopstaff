@@ -131,7 +131,9 @@
   // Nothing is kept on this device until «حفظ»: changes live in the page; save() only marks them unsaved, store() keeps them.
   let DIRTY = false, READY = false, HAS = false, SAVED_AT = 0;
   try { HAS = !!localStorage.getItem(KEY); } catch (e) { /* */ }
-  const save = () => { if (READY) { DIRTY = true; savebar(); } };
+  // (viewing — moving between sections, views and filters — changes nothing worth a warning; only edits do)
+  let EDITED = false;
+  const save = () => { if (READY) { DIRTY = true; EDITED = true; savebar(); } };
   // other plans kept on this device: when a plan opened from a link, a file or this list is saved, the plan saved before it
   // is moved here (never lost); «فتح» swaps them
   const LIB = 'ex-plans-lib';
@@ -148,7 +150,7 @@
   function store() {
     if (SWAPPED && !stash()) return;
     try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { alert('تعذّر الحفظ في هذا المتصفح (المساحة ممتلئة أو التخزين محظور).'); return; }
-    SWAPPED = false; DIRTY = false; HAS = true; SAVED_AT = Date.now(); savebar(); if (READY) render();
+    SWAPPED = false; DIRTY = false; EDITED = false; HAS = true; SAVED_AT = Date.now(); savebar(); if (READY) render();
   }
   function savebar() {
     let b = document.getElementById('ex-savebar');
@@ -160,7 +162,7 @@
       : just ? '<i class="bi bi-check-circle-fill"></i><span><b>حُفظ على هذا الجهاز</b></span>' : '';
     if (just && !DIRTY) setTimeout(savebar, 2600);
   }
-  window.addEventListener('beforeunload', e => { if (DIRTY) { e.preventDefault(); e.returnValue = ''; } });
+  window.addEventListener('beforeunload', e => { if (DIRTY && EDITED) { e.preventDefault(); e.returnValue = ''; } });
   let repCache = [], repFilter = '';
   let REGMEM = null;   // the registration report's names: read when uploaded, never saved
   let TT, PLANS, tab = new URLSearchParams(location.search).get('tab') || (S.setupDone ? 'grid' : 'set'), sel = null, outView = 'all', undo = [];
@@ -1596,7 +1598,7 @@
   }
   // leaving the open plan (to another one): its unsaved changes are saved first, or dropped, as the user says
   function leaveCur(go) {
-    if (DIRTY) { if (confirm('في الخطة المفتوحة تغييرات غير محفوظة. اضغط «موافق» لحفظها قبل الانتقال، أو «إلغاء» للانتقال دون حفظها.')) store(); else DIRTY = false; }
+    if (DIRTY) { if (confirm('في الخطة المفتوحة تغييرات غير محفوظة. اضغط «موافق» لحفظها قبل الانتقال، أو «إلغاء» للانتقال دون حفظها.')) store(); else { DIRTY = false; EDITED = false; } }
     if (HAS && !SWAPPED && !stash()) return;   // the saved plan goes to the list
     go();
   }
@@ -2116,18 +2118,18 @@
     let tmr;
     app.addEventListener('input', e => {
       const t = e.target;
-      if (t.dataset.f === 'q' || t.dataset.f === 'cq' || t.dataset.f === 'pq') { F()[t.dataset.f] = t.value; clearTimeout(tmr); tmr = setTimeout(() => { save(); render(); }, 250); }
+      if (t.dataset.f === 'q' || t.dataset.f === 'cq' || t.dataset.f === 'pq') { F()[t.dataset.f] = t.value; clearTimeout(tmr); tmr = setTimeout(() => { render(); }, 250); }
     });
     app.addEventListener('click', e => {
       const t = e.target.closest('button,[data-c],.ex-cell,[data-tab],[data-go],th[data-sort]'); if (!t) return;
       if (t.id === 'ex-setdone') { S.setupDone = true; save(); tab = 'grid'; render(); if (!C.some(c => c.s >= 0) && C.length) busy(() => solve(false)); window.scrollTo(0, 0); return; }
       if (t.dataset.tab) { tab = t.dataset.tab; sel = null; if (tab === 'out' && LIVE === null) liveCheck(); render(); if (t.closest('.ex-nav')) window.scrollTo(0, 0); return; }
-      if (t.dataset.st) { S.setTab = +t.dataset.st; save(); render(); const m = app.querySelector('.ex-setwrap'); if (m && m.getBoundingClientRect().top < 0) m.scrollIntoView({ behavior: 'smooth' }); return; }
-      if (t.dataset.fk) { const f = F(), k = t.dataset.fk, v = t.dataset.fv; f[k] = f[k] === v ? '' : v; if (k === 'fac') f.dept = ''; save(); render(); return; }
-      if (t.dataset.gv) { S.gview = t.dataset.gv; save(); render(); return; }
+      if (t.dataset.st) { S.setTab = +t.dataset.st; render(); const m = app.querySelector('.ex-setwrap'); if (m && m.getBoundingClientRect().top < 0) m.scrollIntoView({ behavior: 'smooth' }); return; }
+      if (t.dataset.fk) { const f = F(), k = t.dataset.fk, v = t.dataset.fv; f[k] = f[k] === v ? '' : v; if (k === 'fac') f.dept = ''; render(); return; }
+      if (t.dataset.gv) { S.gview = t.dataset.gv; render(); return; }
       if (t.dataset.ov) { outView = t.dataset.ov; render(); return; }
       if (t.dataset.sort) { const k = t.dataset.sort; sortD = sortK === k ? -sortD : 1; sortK = k; render(); return; }
-      if (t.hasAttribute('data-fclear')) { const cq = F().cq; S.flt = { cq }; save(); render(); return; }
+      if (t.hasAttribute('data-fclear')) { const cq = F().cq; S.flt = { cq }; render(); return; }
       if (t.id === 'ex-solve') { push(); busy(() => solve(false)); return; }
       if (t.id === 'ex-improve') { push(); busy(() => solve(true)); return; }
       if (t.dataset.tgl) { const h = new Set(S.hol.match(/\d{4}-\d{2}-\d{2}/g) || []); h.has(t.dataset.tgl) ? h.delete(t.dataset.tgl) : h.add(t.dataset.tgl); S.hol = [...h].sort().join(' '); rebuild(); return; }
@@ -2213,7 +2215,7 @@
     });
     app.addEventListener('change', e => {
       const t = e.target, k = t.dataset.k;
-      if (t.dataset.f && t.dataset.f !== 'q' && t.dataset.f !== 'cq' && t.dataset.f !== 'pq') { F()[t.dataset.f] = t.type === 'checkbox' ? t.checked : t.value; if (t.dataset.f === 'fac') F().dept = ''; save(); render(); return; }
+      if (t.dataset.f && t.dataset.f !== 'q' && t.dataset.f !== 'cq' && t.dataset.f !== 'pq') { F()[t.dataset.f] = t.type === 'checkbox' ? t.checked : t.value; if (t.dataset.f === 'fac') F().dept = ''; render(); return; }
       if (t.dataset.mv != null) { move(+t.dataset.mv, +t.value); return; }
       if (t.dataset.ty) { typeSet(S, t.dataset.ty); Object.assign(S, { slot: {}, pins: {}, approved: null }); if (profOf(S)) S.rooms = null; rebuild(); return; }
       if (t.hasAttribute('data-facall')) { S.facs = t.checked ? [] : ['تكنولوجيا المعلومات']; S.rooms = null; S.slot = {}; S.pins = {}; S.flt = {}; rebuild(); return; }
