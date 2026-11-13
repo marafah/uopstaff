@@ -116,7 +116,6 @@ SITE = [  # the site's own menu (same as the other pages): href, icon, full labe
                                      ('myexams.html', 'bi-calendar-check', 'امتحاناتي', 'يوم امتحان كل مقرر ووقته وقاعته، على هاتفك')]),
     ('advising.html', 'bi-compass', 'الإرشاد', '', [('advising.html', 'bi-people', 'الطلاب', 'كل طلبتك وخططهم وتفاصيلهم: المتوقع تخرجهم، المنذرون، المتعثرون'), None,
                                      ('advising.html?view=import', 'bi-plus-circle', 'إضافة طلاب', 'من بوابة الطلبة دفعة واحدة، أو برفع «تحليل خطة الطالب»، أو يدوياً'),
-                                     ('advising.html?view=student', 'bi-person-vcard', 'تحليل طالب', 'ما يحق له تسجيله وأولويته، جدول مقترح بلا تعارض، ومسارات التخرج'),
                                      ('advising.html?view=demand', 'bi-bar-chart-line', 'المواد المطلوبة', 'كم طالباً يحق له تسجيل كل مادة في الفصل القادم، لتخطيط الشعب'),
                                      ('advising.html?view=fresh', 'bi-stars', 'طالب جديد', 'حزمة الفصل الأول من الخطة الاسترشادية مع المواد الاستدراكية'),
                                      ('advising.html?view=dict', 'bi-book-half', 'قاموس المواد', 'الرموز القديمة والجديدة، والمواد المكافئة (يرفعها أي مستخدم)'),

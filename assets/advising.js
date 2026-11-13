@@ -1165,11 +1165,11 @@
   // ---------------------------------------------------------------- page frame and events
   function render() {
     const nDemand = BOARD.length ? new Set(dashRows().flatMap(r => r.ready.map(c => c.code))).size : 0;
-    const tabs = [['board', 'bi-people', `الطلاب${BOARD.length ? ` <em>${BOARD.length}</em>` : ''}`], ['student', 'bi-person-vcard', 'تحليل طالب'], ['demand', 'bi-bar-chart-line', `المواد المطلوبة${nDemand ? ` <em>${nDemand}</em>` : ''}`],
+    const tabs = [['board', 'bi-people', `الطلاب${BOARD.length ? ` <em>${BOARD.length}</em>` : ''}`], ['demand', 'bi-bar-chart-line', `المواد المطلوبة${nDemand ? ` <em>${nDemand}</em>` : ''}`],
       ['fresh', 'bi-stars', 'طالب جديد'], ['dict', 'bi-book-half', 'قاموس المواد'], ['rules', 'bi-bank', 'القواعد الرسمية']];
     const sub = '';
     const body = sub + (st.view === 'import' ? importView() : st.view === 'board' || st.view === 'demand' ? boardView() : st.view === 'fresh' ? freshView() : st.view === 'dict' ? dictView() : st.view === 'rules' ? rulesView() : studentView());
-    $('#adv-app').innerHTML = `<div class="adv-tabs">${tabs.map(([k, ic, l]) => `<button type="button" class="${st.view === k ? 'on' : ''}" data-view="${k}"><i class="bi ${ic}"></i> ${l}</button>`).join('')}
+    $('#adv-app').innerHTML = `<div class="adv-tabs">${tabs.map(([k, ic, l]) => `<button type="button" class="${st.view === k || (k === 'board' && st.view === 'student') ? 'on' : ''}" data-view="${k}"><i class="bi ${ic}"></i> ${l}</button>`).join('')}
       <button type="button" class="adv-add ${st.view === 'import' ? 'on' : ''}" data-view="import"><i class="bi bi-plus-lg"></i> إضافة طلاب</button>
       <button type="button" class="adv-ref" id="adv-refresh" title="أعد قراءة الجدول الدراسي المنشور الآن (يتحدّث كل ساعة)"><i class="bi bi-arrow-clockwise"></i></button></div>${body}`;
     const url = new URL(location.href);
