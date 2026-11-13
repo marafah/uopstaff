@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-12T20:54:48Z",
+"updated": "2026-11-13T23:39:33Z",
 "main_line": "+96265799555",
 "main_line_display": "06 5799555",
 "faculties": [
@@ -5163,7 +5163,7 @@
 "ext": "8440",
 "office": "كلية الصيدلة والعلوم الطبية",
 "email": "salwawi@uop.edu.jo",
-"photo": "",
+"photo": "assets/photos/7d29e3c9b8631dbb.jpg",
 "profile": "https://pharma.uop.edu.jo/Ar/Pages/AllAdministrativeStaff.aspx",
 "source": "admin_pharma",
 "photo_src": "https://pharma.uop.edu.jo/PublishingImages/Stuff/Suzan%20Alwawi.JPG"
@@ -5446,7 +5446,7 @@
 "department": "ذكاء الأعمال وتحليل البيانات",
 "specialization": "",
 "qualification": "",
-"ext": "",
+"ext": "9400",
 "office": "",
 "email": "ahmad.eyadat@uop.edu.jo",
 "photo": "assets/photos/94138408f1a1f64a.jpg",
@@ -10383,28 +10383,6 @@
 "photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/05312022103128649.JPG"
 },
 {
-"id": "A:680061006400650065006C002E00730068007100610069007200400075006F0070002E006500640075002E006A006F00",
-"type": "academic",
-"faculty": 11,
-"name": "د. هديل سمير مسعود شقير",
-"name_en": "Hadeel Sameer Shqair",
-"job": "عميد كلية الإعلام",
-"rank": "أستاذ مساعد",
-"rank_order": 3,
-"role": "رئيس قسم",
-"sort": 5,
-"department": "الإذاعة والتلفزيون",
-"specialization": "الإعلام - الإذاعة والتلفزيون – المسرح والسينما والتلفزيون والإعلام التفاعلي",
-"qualification": "",
-"ext": "3000",
-"office": "3323",
-"email": "hadeel.shqair@uop.edu.jo",
-"photo": "assets/photos/e917bed7071dd377.jpg",
-"profile": "https://mass.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=680061006400650065006C002E00730068007100610069007200400075006F0070002E006500640075002E006A006F00",
-"source": "academic_api",
-"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20212014.JPG"
-},
-{
 "id": "A:69006B00680061007300610077006E0065006800400075006F0070002E006500640075002E006A006F00",
 "type": "academic",
 "faculty": 11,
@@ -10491,6 +10469,28 @@
 "profile": "https://mass.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=7A00610069006E00650068002E0061006C007A006F00750062006900400075006F0070002E006500640075002E006A006F00",
 "source": "academic_api",
 "photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20221020.JPG"
+},
+{
+"id": "A:680061006400650065006C002E00730068007100610069007200400075006F0070002E006500640075002E006A006F00",
+"type": "academic",
+"faculty": 11,
+"name": "د. هديل سمير مسعود شقير",
+"name_en": "Hadeel Sameer Shqair",
+"job": "عميد كلية الإعلام",
+"rank": "أستاذ مساعد",
+"rank_order": 3,
+"role": "رئيس قسم",
+"sort": 5,
+"department": "الإذاعة والتلفزيون",
+"specialization": "الإعلام - الإذاعة والتلفزيون – المسرح والسينما والتلفزيون والإعلام التفاعلي",
+"qualification": "",
+"ext": "3000",
+"office": "3323",
+"email": "hadeel.shqair@uop.edu.jo",
+"photo": "assets/photos/e917bed7071dd377.jpg",
+"profile": "https://mass.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=680061006400650065006C002E00730068007100610069007200400075006F0070002E006500640075002E006A006F00",
+"source": "academic_api",
+"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20212014.JPG"
 },
 {
 "id": "A:4D0045006C0053006100720061007900720061006800400075006F0070002E006500640075002E006A006F00",
