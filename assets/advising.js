@@ -527,6 +527,9 @@
   .adv-fv button i { font-size:1.05rem; } .adv-fv button:nth-child(1) i { color:#0b4a66; } .adv-fv button:nth-child(2) i { color:#d97706; } .adv-fv button:nth-child(3) i { color:#0f766e; } .adv-fv button:nth-child(4) i { color:#7c3aed; }
   .adv-cci { border-top:4px solid var(--cc, #901d23); }
   .adv-cci dt i { margin-inline-end:4px; }
+  .adv-kpis { grid-template-columns:repeat(auto-fill,minmax(165px,1fr)) !important; }
+  .adv-kpi span { font-size:.95rem !important; color:#111 !important; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .adv-kpi b { font-size:1.6rem !important; }
   .adv-sl { padding:3px 0; white-space:nowrap; } .adv-sl + .adv-sl { border-top:1px dashed #e5e5e5; } .adv-sl small { color:#3b4048; }
   .adv-cb { width: 34px; text-align: center; } .adv-cb input { width: 17px; height: 17px; accent-color: #901d23; cursor: pointer; }
   .adv-row.sel td { background: #fbf2f3; }
@@ -1123,8 +1126,8 @@
     LAST = { show, rows, D };
     if (st.view === 'demand') return demandHtml(D);
     return `      <div class="adv-kpis">
-        ${[['all', rows.length, 'كل الطلبة', 'bi-people', ''], ['grad', cnt('grad'), 'متوقع تخرجهم', 'bi-mortarboard', 'g'], ['miss', cnt('miss'), 'تنقصهم إجبارية غير مطروحة', 'bi-exclamation-diamond', 'r'], ['warn', cnt('warn'), 'منذرون (معدل < 2.00)', 'bi-exclamation-octagon', 'r'], ['weak', cnt('weak'), 'متعثرون', 'bi-graph-down-arrow', 'y'], ['nogpa', cnt('nogpa'), 'جدد بلا معدل', 'bi-stars', '']]
-          .map(([k, v, l, ic, c]) => `<button type="button" class="adv-kpi ${c} ${f === k ? 'on' : ''}" data-bf="${k}"><i class="bi ${ic}"></i><b>${v}</b><span>${l}</span></button>`).join('')}
+        ${[['all', rows.length, 'كل الطلبة', 'bi-people', ''], ['grad', cnt('grad'), 'متوقع تخرجهم', 'bi-mortarboard', 'g'], ['miss', cnt('miss'), 'إجبارية غير مطروحة', 'bi-exclamation-diamond', 'r'], ['warn', cnt('warn'), 'منذرون', 'bi-exclamation-octagon', 'r'], ['weak', cnt('weak'), 'متعثرون', 'bi-graph-down-arrow', 'y'], ['nogpa', cnt('nogpa'), 'طلبة جدد', 'bi-stars', '']]
+          .map(([k, v, l, ic, c]) => `<button type="button" class="adv-kpi ${c} ${f === k ? 'on' : ''}" data-bf="${k}" title="${({all:'كل الطلبة المضافين',grad:'متبقٍ لهم 21 ساعة أو أقل (13 في الصيفي)',miss:'تنقصهم مادة إجبارية غير مطروحة هذا الفصل',warn:'المعدل التراكمي أقل من 2.00 (المادة 12/أ)',weak:'نسبة إنجاز منخفضة أو رسوب حالي',nogpa:'طلبة جدد بلا معدل بعد'})[k] || ''}"><i class="bi ${ic}"></i><b>${v}</b><span>${l}</span></button>`).join('')}
         <div class="adv-kpi static"><i class="bi bi-bar-chart"></i><b>${avg}</b><span>متوسط المعدل</span></div></div>
       <div class="adv-card p-0"><div class="adv-tools no-print"><input type="search" class="form-control form-control-sm" id="adv-bq" placeholder="ابحث باسم الطالب أو رقمه…" value="${esc(st.bq || '')}">
           <select class="form-select form-select-sm" id="adv-bm"><option value="">كل التخصصات</option>${majors.map(m => `<option ${m === mj ? 'selected' : ''}>${esc(m)}</option>`).join('')}</select>
