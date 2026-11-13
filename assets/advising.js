@@ -552,7 +552,10 @@
   .sv-info-g div { display:flex; gap:4px; align-items:baseline; font-size:.84rem; color:#111; white-space:nowrap; flex:none; } .sv-info-g b { white-space:nowrap; } .sv-info-g i { color:#901d23; } .sv-info-g span { color:#111; white-space:nowrap; } .sv-info-g b { font-weight:700; }
   .sv-tabs { margin:16px 0 12px !important; background:#fff; border:1px solid #e3ddcf !important; border-radius:12px; padding:4px 6px; position:sticky; top:0; z-index:5; }
   .sv-tabs button { font-size:1rem; }
-  .sv-two { display:grid; grid-template-columns:1fr; gap:14px; } .sv-col { display:grid; grid-template-columns:repeat(auto-fit,minmax(380px,1fr)); gap:14px; align-items:start; }
+  .sv-two { display:grid; grid-template-columns:1fr; gap:14px; } .sv-col { display:grid; grid-template-columns:1fr; gap:14px; }
+  .sv-r { display:grid; grid-template-columns:90px minmax(0,1.4fr) minmax(0,1fr) 40px 190px; gap:12px; align-items:center; padding:8px 0; border-bottom:1px dashed #eee; font-size:.93rem; color:#111; } .sv-r > span:nth-child(4) { text-align:center; }
+  .sv-r3 { grid-template-columns:90px minmax(0,1fr) 40px; } .sv-rh { font-size:.82rem; font-weight:700; border-bottom:2px solid #1f2328; padding-top:0; }
+  .sv-rf { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px; } .sv-rf:empty { display:none; } .sv-rw { color:#b42318; font-weight:600; }
   @media (max-width: 1000px) { .sv-two { grid-template-columns:1fr; } }
   .sv-wide { margin-bottom:14px; }
   .sv-g { display:grid; grid-template-columns:minmax(0,1fr) minmax(160px,40%) 70px 52px 60px; gap:12px; align-items:center; padding:7px 0; border-bottom:1px dashed #eee; font-size:.93rem; color:#111; }
@@ -845,11 +848,12 @@
         <section class="dt-c"><h4><i class="bi bi-diagram-3-fill ic-b"></i> مجموعات المتطلبات <span class="fb ok ms-auto">${a.groups.filter(g => g.gotPassed >= g.req).length} من ${a.groups.length} مكتملة</span></h4><div class="sv-g sv-gh"><span>المجموعة</span><span>التقدّم</span><span>الساعات</span><span>النسبة</span><span>مسجلة</span></div>${groupsHtml}
           <div class="sv-leg"><span><i class="ok"></i> مجتازة</span><span><i class="cur"></i> مسجلة الآن</span></div></section>
         <div class="sv-col">
-          <section class="dt-c"><h4><i class="bi bi-journal-check ic-g"></i> يحق له تسجيلها الآن <span class="fb sec ms-auto">${ready.length} مادة</span></h4>
-            ${ready.slice(0, 8).map(c => `<div class="dt-i">${code(c.code)}<span class="dt-in">${esc(c.name || nm(c.code))}</span>${offB(c.code)}</div>`).join('') || '<div class="dt-e">—</div>'}
-            ${ready.length > 8 ? `<button type="button" class="btn btn-sm btn-light border mt-2" data-sv="list">كل المواد (${ready.length})</button>` : ''}</section>
-          ${a.open.filter(c => c.inProgress).length ? `<section class="dt-c"><h4><i class="bi bi-hourglass-top ic-o"></i> مسجلة هذا الفصل <span class="fb reg ms-auto">${a.current.size} مواد · ${curHrs} س</span></h4>${a.open.filter(c => c.inProgress).map(c => `<div class="dt-i">${code(c.code)}<span class="dt-in">${esc(c.name)}</span><span class="fb hrs">${c.hours} س</span></div>`).join('')}</section>` : ''}
-          ${notOff.length ? `<section class="dt-c"><div class="dt-al"><b><i class="bi bi-exclamation-triangle-fill"></i> يحق له تسجيلها لكنها غير مطروحة (${notOff.length})</b>${notOff.map(c => `<div>${code(c.code)} ${esc(c.name || nm(c.code))}</div>`).join('')}<button type="button" class="btn btn-sm btn-light border mt-1" data-sv="list">البدائل المطروحة</button></div></section>` : ''}
+          <section class="dt-c"><h4><i class="bi bi-journal-check ic-g"></i> المواد التي يحق له تسجيلها الآن <span class="ms-auto d-flex gap-1"><span class="fb sec">${ready.length} مادة</span>${notOff.length ? `<span class="fb no">${notOff.length} غير مطروحة</span>` : ''}</span></h4>
+            <div class="sv-r sv-rh"><span>الرمز</span><span>المادة</span><span>المجموعة</span><span>س</span><span>هذا الفصل</span></div>
+            ${ready.slice(0, 10).map(c => `<div class="sv-r">${code(c.code)}<span class="dt-in">${esc(c.name || nm(c.code))}</span><span class="dt-in">${esc(c.g.name.replace(/^متطلبات?\s*/, ''))}</span><span>${c.hours}</span><span>${offB(c.code)}</span></div>`).join('') || '<div class="dt-e">—</div>'}
+            <div class="sv-rf">${notOff.length ? `<span class="sv-rw"><i class="bi bi-exclamation-triangle-fill"></i> ${notOff.length === 1 ? 'مادة واحدة' : notOff.length + ' مواد'} يحق له تسجيلها لكنها غير مطروحة هذا الفصل</span><button type="button" class="btn btn-sm btn-light border" data-sv="list"><i class="bi bi-shuffle ic-b"></i> البدائل المطروحة</button>` : ''}
+              ${ready.length > 10 ? `<button type="button" class="btn btn-sm btn-light border" data-sv="list">كل المواد (${ready.length})</button>` : ''}</div></section>
+          ${a.open.filter(c => c.inProgress).length ? `<section class="dt-c"><h4><i class="bi bi-hourglass-top ic-o"></i> مسجلة هذا الفصل <span class="fb reg ms-auto">${a.current.size} مواد · ${curHrs} س</span></h4>${a.open.filter(c => c.inProgress).map(c => `<div class="sv-r sv-r3">${code(c.code)}<span class="dt-in">${esc(c.name)}</span><span>${c.hours}</span></div>`).join('')}</section>` : ''}
         </div></div>`;
     else if (sv === 'plan') body = `<section class="dt-c sv-wide"><h4><i class="bi bi-magic ic-p"></i> الجدول المقترح <span class="fb ${sug.hours > lim.max ? 'no' : 'ok'} ms-auto">${sug.hours} من ${cap} ساعة</span></h4>
         <div class="adv-ctl no-print mb-2">
