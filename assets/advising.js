@@ -583,6 +583,17 @@
   .sv-term.last .sv-term-n { background:#16a34a; }
   .sv-term-c { display:grid; grid-template-columns:auto minmax(0,1fr) 24px 10px; gap:8px; align-items:center; padding:4px 0; font-size:.9rem; color:#111; }
   .sv-term-c span:nth-child(2) { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .sv-h { text-align:center; background:#fff7e6; border:1px solid #f5d38a; border-radius:4px; font-size:.8rem; }
+  .tl { display:flex; gap:0; overflow-x:auto; padding:6px 2px 10px; position:relative; }
+  .tl-s { flex:0 0 300px; display:flex; flex-direction:column; position:relative; padding:0 8px; }
+  .tl-s::before { content:''; position:absolute; top:17px; inset-inline:0; height:3px; background:#0f766e; }
+  .tl-s:first-child::before { inset-inline-start:50%; } .tl-s:last-child::before { inset-inline-end:50%; }
+  .tl-n { display:flex; justify-content:center; position:relative; z-index:1; } .tl-n span { width:36px; height:36px; border-radius:50%; background:#0f766e; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; border:3px solid #fff; box-shadow:0 0 0 2px #0f766e; }
+  .tl-s.now .tl-n span { background:#0b4a66; box-shadow:0 0 0 2px #0b4a66; } .tl-s.sum .tl-n span { background:#d97706; box-shadow:0 0 0 2px #d97706; } .tl-s.last .tl-n span { background:#16a34a; box-shadow:0 0 0 2px #16a34a; } .tl-s.stuck .tl-n span { background:#dc2626; }
+  .tl-h { text-align:center; margin:8px 0; color:#111; } .tl-h b { display:block; font-size:1.02rem; } .tl-h div { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; margin-top:4px; }
+  .tl-c { flex:1; border:1px solid #e3ddcf; border-top:3px solid #0f766e; border-radius:10px; padding:6px 10px; background:#fff; }
+  .tl-s.now .tl-c { border-top-color:#0b4a66; background:#f8fbfd; } .tl-s.sum .tl-c { border-top-color:#d97706; } .tl-s.last .tl-c { border-top-color:#16a34a; background:#f7fdf9; }
+  .tl-i { display:grid; grid-template-columns:auto 1fr; gap:2px 8px; padding:6px 0; border-bottom:1px dashed #eee; font-size:.88rem; color:#111; } .tl-i:last-child { border-bottom:0; }
+  .tl-i > span:nth-child(2) { line-height:1.4; } .tl-m { grid-column:1 / -1; display:flex; gap:4px; align-items:center; justify-content:flex-start; } .tl-dot { font-size:.6rem; margin-inline-start:auto; }
   .sv-foot { font-size:.88rem; color:#111; margin-top:6px; }
   .adv-kpi.static.r i { color:#b42318; } .adv-kpi.static.g i { color:#15803d; } .adv-kpi.static.y i { color:#b45309; }
   /* student details panel */
@@ -917,14 +928,25 @@
       return { k, l, ic, d: k === 'light' && a.warned ? '12 ساعة (الحد الأدنى) لأن الطالب منذر — للتركيز على رفع المعدل' : d, p: paths(s, opt) };
     });
     const pick = res.find(r => r.k === (st.path || 'regular')) || res[1];
-    const box = (tm, i, L) => `<div class="sv-term ${tm.summer ? 'sum' : ''} ${tm.stuck ? 'stuck' : ''} ${i === L.length - 1 && !tm.stuck ? 'last' : ''}"><div class="sv-term-h"><span class="sv-term-n">${i + 1}</span><b>${esc(termName(tm.term))}</b>${tm.summer ? ' <span class="fb day">صيفي</span>' : ''}
-        <span class="fb hrs ms-auto">${tm.hours} س</span>${i === L.length - 1 && !tm.stuck ? ' <span class="fb ok"><i class="bi bi-mortarboard-fill"></i> التخرج</span>' : ''}</div>
-      ${tm.stuck ? '<div class="dt-al">لا مادة متاحة: متطلب سابق خارج الخطة أو يحتاج قراراً (م 5/هـ/2)</div>' : tm.take.map(x => `<div class="sv-term-c"><b class="sv-code">${esc(x.code)}</b><span>${esc(x.name || nm(x.code))}</span><span class="sv-h">${x.hours}</span>${x.code !== '—' && offered(x.code).length ? '<i class="bi bi-circle-fill ic-g" style="font-size:.5rem" title="مطروحة هذا الفصل"></i>' : '<i></i>'}</div>`).join('')}</div>`;
-    return `<section class="dt-c sv-wide"><h4><i class="bi bi-signpost-split-fill ic-t"></i> مسارات التخرج</h4>
-      <div class="sv-info"><i class="bi bi-info-circle ic-b"></i> <span>من الفصل الذي يلي كشف الطالب، على اعتبار نجاحه فيما سجّله الآن: كل فصل يأخذ المواد التي اجتاز متطلباتها، حسب أولويتها، ضمن الحمل المختار والحد الأعلى ${ruleLink('7', 'م 7')} (21 في فصل التخرج، م 7/ب). جداول الفصول القادمة لم تُنشر بعد، فالمسار ترتيب تسمح به المتطلبات وليس شعباً مضمونة.</span></div>
-      <div class="sv-paths no-print">${res.map(r => `<button type="button" class="${r === pick ? 'on' : ''}" data-path="${r.k}"><i class="bi ${r.ic}"></i><b>${r.l}</b><span>${r.p.stuck ? 'يتوقف' : `التخرج ${esc(termName(r.p.end))}`}</span><small>${r.p.regular} اعتيادي${r.p.summers ? ` + ${r.p.summers} صيفي` : ''}</small></button>`).join('')}</div>
-      <p class="mb-2"><b>${esc(pick.l)}:</b> ${esc(pick.d)}.</p>
-      <div class="sv-terms">${pick.p.terms.map(box).join('')}</div></section>`;
+    // a horizontal timeline: now (registered) → each coming term with its courses → graduation
+    const a0 = analyse(s, { assumeCurrent: false });
+    const nowC = a0.open.filter(c => c.inProgress);
+    const typ = x => x.el === 'free' ? '<span class="fb sec">حرة</span>' : x.el ? '<span class="fb sec">اختيارية</span>' : x.code === '—' ? '' : '<span class="fb day">إجبارية</span>';
+    const offD = x => x.code !== '—' && offered(x.code).length ? '<i class="bi bi-circle-fill ic-g tl-dot" title="مطروحة في الجدول الحالي"></i>' : '<i class="bi bi-circle tl-dot" style="color:#bbb" title="غير مطروحة في الجدول الحالي"></i>';
+    const L = pick.p.terms, tot = L.reduce((x, t) => x + t.hours, 0);
+    const col = (cls, n, title, badges, body) => `<div class="tl-s ${cls}"><div class="tl-n"><span>${n}</span></div><div class="tl-h"><b>${title}</b><div>${badges}</div></div><div class="tl-c">${body}</div></div>`;
+    const crs = list => list.map(x => `<div class="tl-i"><b class="sv-code">${esc(x.code)}</b><span>${esc(x.name || nm(x.code))}</span><span class="tl-m">${typ(x)}<span class="fb hrs">${x.hours} س</span>${offD(x)}</span></div>`).join('');
+    const tl = [nowC.length ? col('now', '<i class="bi bi-hourglass-top"></i>', 'الفصل الحالي', `<span class="fb reg">مسجلة · ${nowC.reduce((x, c) => x + (c.hours || 0), 0)} س</span>`,
+        nowC.map(c => `<div class="tl-i"><b class="sv-code">${esc(c.code)}</b><span>${esc(c.name)}</span><span class="tl-m"><span class="fb hrs">${c.hours} س</span></span></div>`).join('')) : '',
+      ...L.map((tm, i) => { const last = i === L.length - 1 && !tm.stuck;
+        return col(`${tm.summer ? 'sum' : ''} ${last ? 'last' : ''} ${tm.stuck ? 'stuck' : ''}`, last ? '<i class="bi bi-mortarboard-fill"></i>' : i + 1, esc(termName(tm.term)),
+          `${tm.summer ? '<span class="fb day">صيفي</span>' : '<span class="fb reg">اعتيادي</span>'}<span class="fb hrs">${tm.hours} س</span>${last ? '<span class="fb ok">التخرج</span>' : ''}`,
+          tm.stuck ? '<div class="dt-al">لا مادة متاحة: متطلب سابق خارج الخطة أو يحتاج قراراً (م 5/هـ/2)</div>' : crs(tm.take)); })].join('');
+    return `<section class="dt-c sv-wide"><h4><i class="bi bi-signpost-split-fill ic-t"></i> مسار التخرج على خط زمني
+        <span class="ms-auto d-flex gap-1">${pick.p.stuck ? '<span class="fb no">يتوقف</span>' : `<span class="fb ok"><i class="bi bi-mortarboard-fill"></i> التخرج ${esc(termName(pick.p.end))}</span>`}<span class="fb reg">${L.length} فصول · ${tot} س</span></span></h4>
+      <div class="sv-paths no-print">${res.map(r => `<button type="button" class="${r === pick ? 'on' : ''}" data-path="${r.k}"><i class="bi ${r.ic}"></i><b>${r.l}</b><span>${r.p.stuck ? 'يتوقف' : `التخرج ${esc(termName(r.p.end))}`}</span><small>${r.p.regular} اعتيادي${r.p.summers ? ` + ${r.p.summers} صيفي` : ''} · ${esc(r.d)}</small></button>`).join('')}</div>
+      <div class="sv-info"><i class="bi bi-info-circle ic-b"></i> <span>مبني على: خطة الطالب (${esc(s.head.major || '')}، إصدار ${esc(s.version || '')}) وما اجتازه، ومتطلبات كل مادة، والحمل وفق التعليمات ${ruleLink('7', 'م 7')}: ${a0.warned ? '12 ساعة لأنه منذر،' : '18 ساعة في الفصل الاعتيادي و10 في الصيفي،'} وحتى 21 في فصل التخرج. كل فصل يأخذ ما اجتاز متطلباته في فصل سابق، حسب الأولوية. النقطة الخضراء: المادة مطروحة في الجدول الحالي (${esc(TT.term)})؛ جداول الفصول القادمة لم تُنشر بعد.</span></div>
+      <div class="tl">${tl}</div></section>`;
   }
 
   // the page's own sums against the figures printed on the PDF
