@@ -21,7 +21,7 @@
   let here = null;           // {x, y, label} from ?here=
   let route = null;          // {from, to: {b, room, label}} drawn on the map
   let day = null;            // «يومي»: the chosen day's lectures in order
-  const L = { heat: true, nums: true, names: P.has('names'), count: !P.has('nocount'), size: 1, faces: P.has('faces'), oh: false, events: true, exams: true, gardens: false, services: false, gates: true, safety: false };
+  const L = { heat: true, nums: true, names: P.has('names'), count: !P.has('nocount'), size: 1, faces: P.has('faces'), oh: false, events: true, exams: true, gardens: false, services: false, gates: true, safety: false, acc: P.has('acc') };
   const view = { s: 1, x: 0, y: 0 };
   const L0 = Object.assign({}, L), LKEY = 'uop-campus-layers';
   try { const kept = JSON.parse(localStorage.getItem(LKEY) || 'null'); if (kept && !P.has('names') && !P.has('nocount') && !P.has('faces')) Object.keys(L).forEach(k => { if (k in kept) L[k] = kept[k]; }); } catch (e) { /* storage unavailable */ }
@@ -150,7 +150,7 @@
           <button type="button" id="cm-panel" class="cm-fs-only" title="إخفاء القائمة"><i class="bi bi-layout-sidebar-inset-reverse"></i></button></div>
         <div class="cm-layers" id="cm-layers" hidden><b>ما يظهر على الخريطة</b>${[['nums', 'bi-123', 'أرقام المباني'], ['names', 'bi-fonts', 'أسماء المباني'], ['heat', 'bi-thermometer-half', 'ألوان الانشغال'], ['count', 'bi-broadcast', 'عدد المحاضرات الجارية'], ['faces', 'bi-people', 'وجوه القيادات على المباني'],
           ['oh', 'bi-person-raised-hand', 'في الساعات المكتبية الآن'], ['exams', 'bi-clipboard-check', 'الامتحانات'], ['events', 'bi-calendar-event', 'الفعاليات'],
-          ['gardens', 'bi-tree', 'الحدائق'], ['services', 'bi-signpost-2', 'الخدمات والمواقف'], ['gates', 'bi-door-closed', 'البوابات'], ['safety', 'bi-people-fill', 'نقاط التجمع (مقترحة)']].map(([k, i, t]) =>
+          ['gardens', 'bi-tree', 'الحدائق'], ['services', 'bi-signpost-2', 'الخدمات والمواقف'], ['gates', 'bi-door-closed', 'البوابات'], ['acc', 'bi-universal-access', 'المسار الميسّر'], ['safety', 'bi-people-fill', 'نقاط التجمع (مقترحة)']].map(([k, i, t]) =>
           `<label><input type="checkbox" data-l="${k}" ${L[k] ? 'checked' : ''}> <i class="bi ${i}"></i> ${t}</label>`).join('')}
           <label class="cm-size"><i class="bi bi-type"></i> الحجم <input type="range" id="cm-size" min="0.7" max="1.6" step="0.1" value="${L.size}" aria-label="حجم الأرقام والأسماء"></label>
           <button type="button" class="cm-reset" id="cm-reset">الإعدادات الأصلية</button></div>
@@ -254,7 +254,7 @@
     if (L.services) h += (C.services || []).map(s => `<span class="cm-svc ${s.kind}" style="${pos(s)}" title="${esc(s.name)}"><i class="bi ${esc(s.icon)}"></i><span>${esc(s.name)}</span></span>`).join('');
     h += ev.map(({ p, b }) => `<span class="cm-ev" style="left:${b.x * 100}%;top:${b.y * 100}%" title="${esc(p.title)} — ${esc(p.place)}"><i class="bi bi-calendar-event"></i> ${esc(evWhen(p, n))}</span>`).join('');
     if (here) h += `<span class="cm-here" style="${pos(here)}"><i></i><b>أنت هنا</b></span>`;
-    h += bubbles(n) + routeMarks() + OV.marks;
+    h += bubbles(n) + routeMarks() + OV.marks + (L.acc && tool !== 'access' && C.access ? accLayer().marks : '');
     if ((L.safety || tool === 'emergency') && C.safety) h += C.safety.assembly.map(a => `<span class="cm-ap" style="${pos(a)}" title="نقطة التجمع ${esc(a.id)}: ${esc(a.name)}${C.safety.status !== 'official' ? ' (مقترحة)' : ''}"><i class="bi bi-people-fill"></i><b>${esc(a.id)}</b></span>`).join('');
     if (day && day.length) { const seen = {}; h += day.map((x, i) => { if (!x.b) return ''; const k = seen[x.b.id] = (seen[x.b.id] || 0) + 1; return `<span class="cm-step" style="left:${x.b.x * 100}%;top:${x.b.y * 100}%;--i:${k - 1}">${i + 1}</span>`; }).join(''); }
     $('#cm-pins').innerHTML = h;
@@ -300,6 +300,7 @@
     if (showRoute()) s += line(`${pt(route.from)} ${pt(route.to.b)}`, 'cm-route');
     const dp = day ? day.filter(x => x.b).map(x => x.b) : [], st0 = tool === 'day' && DT.tab === 'day' && DT.from;
     if (dp.length && (dp.length > 1 || st0)) s += line([...(st0 ? [DT.from] : []), ...dp].map(pt).join(' '), 'cm-dayline');
+    if (L.acc && tool !== 'access' && C.access) accLayer().lines.forEach(l => { const pts = l.pts.map(pt).join(' '); s += l.nocase ? `<polyline class="${l.cls}" points="${pts}"/>` : line(pts, l.cls); });
     OV.lines.forEach(l => { const pts = l.pts.map(pt).join(' '); s += l.nocase ? `<polyline class="${l.cls}" points="${pts}"/>` : line(pts, l.cls); });
     $('#cm-svg').innerHTML = s;
   }
@@ -677,8 +678,8 @@
   const ptS = o => `${(o.x * C.width).toFixed(1)},${(o.y * C.height).toFixed(1)}`;
   const stepMarks = (list, cls) => { const seen = {}; return list.map((x, i) => { if (!x.b) return ''; const k = seen[x.b.id || x.b.name] = (seen[x.b.id || x.b.name] || 0) + 1; return `<span class="cm-step ${cls || ''}" style="left:${x.b.x * 100}%;top:${x.b.y * 100}%;--i:${k - 1}">${i + 1}</span>`; }).join(''); };
   // the proposed path network (data/campus.json «paths»): the shortest way along it, from a point to a point
-  function pathTo(a, b) {
-    const P2 = C.paths; if (!P2) return null;
+  function pathTo(a, b, net) {
+    const P2 = net || C.paths; if (!P2) return null;
     const nodes = P2.nodes, adj = {}, d = (p, q) => Math.hypot(p.x - q.x, (p.y - q.y) * C.height / C.width);
     P2.edges.forEach(([u, v]) => { (adj[u] = adj[u] || []).push(v); (adj[v] = adj[v] || []).push(u); });
     const near = o => Object.keys(nodes).sort((p, q) => d(nodes[p], o) - d(nodes[q], o))[0];
@@ -1045,18 +1046,37 @@
   const floorsText = u => u.hi == null ? 'غير معروفة' : [u.lo === u.hi ? (u.hi === 0 ? 'كل قاعاته في الطابق الأرضي' : `قاعاته في الطابق ${u.hi}`) : `قاعاته في الطوابق ${u.lo === 0 ? 'من الأرضي' : 'من ' + u.lo} إلى ${u.hi}`,
     u.ground ? `${roomsN(u.ground)} في الأرضي` : 'لا قاعات أرضية', u.up ? `${roomsN(u.up)} في الطوابق العليا` : ''].filter(Boolean).join(' · ');
   const DAYS5 = () => Object.keys(U.DAYS).filter(k => k !== 'ج');
+  // the university's accessible route, carried onto this map's roads (data/campus.json «access»): from a gate, a car park
+  // or «أنت هنا» to the accessible entrance of a building
+  const ACCNET = () => C.access ? { nodes: C.access.nodes, edges: C.access.edges } : null;
+  function accPath(from, b) {
+    const A2 = C.access; if (!A2) return null;
+    const e = A2.ent[b.id], to = e ? e[1] : b;
+    const g = from && from.id && /^البوابة/.test(from.name || '') && A2.gates[from.id];   // a gate starts on its own node
+    const p = pathTo(g ? A2.nodes[g] : from, to, ACCNET());
+    return p && Object.assign(p, { entrance: !!e });
+  }
+  function accLayer(route) {
+    const A2 = C.access; if (!A2) return { lines: [], marks: '' };
+    const lines = A2.edges.map(([a, b]) => ({ pts: [A2.nodes[a], A2.nodes[b]], cls: 'cm-accnet' }))
+      .concat(Object.values(A2.ent).map(([n, p]) => ({ pts: [A2.nodes[n], p], cls: 'cm-accspur', nocase: true })));
+    if (route) lines.push({ pts: route.pts, cls: 'cm-access' });
+    const marks = Object.entries(A2.ent).map(([id, [, p]]) => `<span class="cm-accent" style="left:${p.x * 100}%;top:${p.y * 100}%" title="المدخل الميسّر: ${esc((B(id) || {}).name || '')}">♿</span>`).join('')
+      + A2.park.map(k => `<span class="cm-accpark" style="left:${k.x * 100}%;top:${k.y * 100}%" title="${esc(k.name)}">P♿</span>`).join('');
+    return { lines, marks };
+  }
   function accessTool() {
     if (!ACC.to) ACC.to = B(sel) || C.buildings.find(b => (b.tt || []).length);
     if (!ACC.from) ACC.from = here || (C.gates || [])[0];
-    const p = pathTo(ACC.from, ACC.to), u = upper(ACC.to);
+    const p = C.access ? accPath(ACC.from, ACC.to) : pathTo(ACC.from, ACC.to), u = upper(ACC.to);
     $('#cm-card').innerHTML = `<div class="cm-card">${head('', '', 'الوصول الميسّر', 'لذوي الإعاقة وكبار السن ومن يحمل أمتعة')}
       <a class="cm-official" href="access.html?site=${encodeURIComponent(ACC.to.id)}"><span>♿</span><div><b>المسار الميسّر المعتمد من الجامعة</b><small>مسار ذوي الإعاقة على مخطط الحرم: من البوابات ومواقف ذوي الإعاقة إلى المدخل الميسّر لكل مبنى، مع أقصر طريق ووقته</small></div><i class="bi bi-chevron-left"></i></a>
-      ${proposed('المسار البنفسجي أدناه تقريبي على طرق هذه الخريطة؛ المسار المعتمد في صفحة «المسار الميسّر».')}
+      ${C.access ? `<p class="cm-note"><i class="bi bi-patch-check-fill" style="color:#1d4ed8"></i> ${esc(C.access.note)}</p>` : proposed('المسار البنفسجي أدناه تقريبي على طرق هذه الخريطة؛ المسار المعتمد في صفحة «المسار الميسّر».')}
       <div class="cm-two"><div>${fromSel('cm-afrom', ACC.from)}</div><div>${bSel('cm-ato', ACC.to, 'إلى')}</div></div>
       ${p ? `<div class="cm-facts mt-2"><div><i class="bi bi-signpost-2"></i><span><small>المسار المقترح</small><b>حوالي ${p.m} م · ${U.mins(Math.max(1, Math.round(p.m / 50)))} بالكرسي المتحرك</b><em>على الطرق الداخلية بدل الاختصار عبر الحدائق والدرج</em></span></div></div>` : ''}
       <h3><i class="bi bi-building"></i> ${esc(ACC.to.name)}</h3>
       <div class="cm-facts">${[['bi-layers', 'الطوابق (من أرقام القاعات)', floorsText(u)],
-        ['bi-door-open', 'المدخل الميسّر', 'غير موثّق'], ['bi-arrow-down-up', 'المصعد', 'غير موثّق'], ['bi-badge-wc', 'دورة مياه ميسّرة', 'غير موثّقة']].map(([i, t, v]) => `<div><i class="bi ${i}"></i><span><small>${t}</small><b>${esc(v)}</b></span></div>`).join('')}</div>
+        ['bi-door-open', 'المدخل الميسّر', C.access && C.access.ent[ACC.to.id] ? 'على المسار المعتمد (♿ على الخريطة)' : 'غير موثّق'], ['bi-arrow-down-up', 'المصعد', 'غير موثّق'], ['bi-badge-wc', 'دورة مياه ميسّرة', 'غير موثّقة']].map(([i, t, v]) => `<div><i class="bi ${i}"></i><span><small>${t}</small><b>${esc(v)}</b></span></div>`).join('')}</div>
       <p class="cm-note">لطالب لا يستطيع صعود الدرج: «قاعة شاغرة» مع «الطابق الأرضي فقط» تعرض القاعات الأرضية، ويمكن للقسم نقل الشعبة إليها.</p>
       <div class="cm-links"><button type="button" class="btn btn-sm btn-maroon" id="cm-doc"><i class="bi bi-file-earmark-text"></i> مقترح رسمي للدراسة</button>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-go="free"><i class="bi bi-door-open"></i> قاعة أرضية شاغرة</button></div></div>`;
@@ -1065,8 +1085,9 @@
     $('#cm-ato').onchange = e => { ACC.to = B(e.target.value); accessTool(); center(ACC.to); };
     $('#cm-card').querySelector('[data-go="free"]').onclick = () => { FREE.ground = true; FREE.from = ACC.to; setTool('free'); };
     $('#cm-doc').onclick = accessDoc;
-    const net = C.paths ? C.paths.edges.map(([a, b]) => ({ pts: [C.paths.nodes[a], C.paths.nodes[b]], cls: 'cm-net', nocase: true })) : [];
-    OV = { lines: [...net, ...(p ? [{ pts: p.pts, cls: 'cm-access' }] : [])], marks: '' };
+    if (C.access) OV = accLayer(p);
+    else { const net = C.paths ? C.paths.edges.map(([a, b]) => ({ pts: [C.paths.nodes[a], C.paths.nodes[b]], cls: 'cm-net', nocase: true })) : [];
+      OV = { lines: [...net, ...(p ? [{ pts: p.pts, cls: 'cm-access' }] : [])], marks: '' }; }
     mark = new Set([ACC.to.id]); pins();
   }
   function accessDoc() {
@@ -1766,7 +1787,10 @@
     #cm-svg .cm-evac { stroke: #15803d; stroke-width: 6; stroke-dasharray: 14 9; animation: cmDash 1s linear infinite; }
     .cm-official { display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; background: #eff6ff; border: 1px solid #93c5fd; border-radius: 12px; padding: 10px 12px; margin: 8px 0; color: #0f172a; text-decoration: none; }
     .cm-official > span { width: 44px; height: 44px; border-radius: 12px; background: #1d4ed8; color: #fff; font-size: 1.6rem; display: flex; align-items: center; justify-content: center; } .cm-official b { display: block; color: #1d4ed8; } .cm-official small { font-size: .82rem; }
-    #cm-svg .cm-access { stroke: #7c3aed; stroke-width: 6; stroke-dasharray: 12 8; }
+    #cm-svg .cm-accnet { stroke: #7c3aed; stroke-width: 4; stroke-dasharray: 10 6; } #cm-svg .cm-accspur { stroke: #1d4ed8; stroke-width: 2.5; stroke-dasharray: 3 4; }
+    .cm-accent, .cm-accpark { position: absolute; transform: translate(-50%, -50%); z-index: 3; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; box-shadow: 0 1px 4px rgba(0,0,0,.4); border: 2px solid #fff; pointer-events: auto; }
+    .cm-accent { width: 1.35rem; height: 1.35rem; border-radius: 50%; background: #1d4ed8; font-size: .78rem; } .cm-accpark { padding: 0 .3rem; height: 1.35rem; border-radius: 5px; background: #0b4a66; font-size: .66rem; }
+    #cm-svg .cm-access { stroke: #1d4ed8; stroke-width: 6; stroke-dasharray: 12 8; }
     #cm-svg .cm-net { stroke: #7c3aed; stroke-width: 2; opacity: .45; }
     .cm-pin.mk { box-shadow: 0 0 0 4px #22c55e, 0 3px 10px rgba(0,0,0,.35); }
     .cm-stop { border: 1px solid #ecd5d7; background: #fdf7f7; border-radius: 12px; padding: .65rem .75rem; margin: .6rem 0; }
