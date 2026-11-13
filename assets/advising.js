@@ -502,6 +502,14 @@
   .adv-t thead th.adv-sort, .adv-t thead th.adv-sort.on { color:#111 !important; } .adv-sort-i { font-size:.7rem; color:#111; margin-inline-start:4px; }
   .adv-t thead th input { accent-color:#901d23; }
   .adv-card h3 { color:#111 !important; }
+  .adv-fv { display:flex; gap:0; border-bottom:1px solid #d9d9d9; margin:6px 0 10px; flex-wrap:wrap; }
+  .adv-fv button { background:none; border:0; border-bottom:2px solid transparent; margin-bottom:-1px; padding:8px 14px; font-weight:700; color:#3b4048; }
+  .adv-fv button.on { color:#111; border-bottom-color:#901d23; } .adv-fv button i { margin-inline-end:4px; }
+  .adv-dayc { vertical-align:top !important; border-inline-end:1px solid #e5e5e5; }
+  .adv-cc { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+  .adv-cci { border:1px solid #e0e0e0; border-radius:10px; padding:12px 14px; background:#fff; color:#111; }
+  .adv-cci-h { display:flex; justify-content:space-between; font-weight:700; } .adv-cci-n { display:block; font-size:1.02rem; margin:4px 0 6px; }
+  .adv-cci dl { display:grid; grid-template-columns:auto 1fr; gap:3px 10px; margin:6px 0 0; padding-top:6px; border-top:1px solid #eee; font-size:.9rem; } .adv-cci dt { color:#3b4048; font-weight:600; } .adv-cci dd { margin:0; }
   .adv-sl { padding:3px 0; white-space:nowrap; } .adv-sl + .adv-sl { border-top:1px dashed #e5e5e5; } .adv-sl small { color:#3b4048; }
   .adv-cb { width: 34px; text-align: center; } .adv-cb input { width: 17px; height: 17px; accent-color: #901d23; cursor: pointer; }
   .adv-row.sel td { background: #fbf2f3; }
@@ -1201,13 +1209,33 @@
         <p class="adv-src">من الخطة الاسترشادية المنشورة للقسم${p.r.academic_year || p.r.edition ? ` (${[p.r.academic_year, p.r.edition ? 'إصدار ' + p.r.edition : ''].filter(Boolean).join(' · ')})` : ''}، السنة الأولى – ${termNo === 'first' ? 'الفصل الأول' : 'الفصل الثاني'}، مع شعب الجدول الدراسي ${esc(TT.term)}.
           <a href="advisory.html?p=${encodeURIComponent(p.prog.id)}" target="_blank" rel="noopener">الخطة كاملة</a></p>
         <div class="adv-ctl mb-2">${REM.map(([k, , , l]) => `<label class="adv-pick"><input type="checkbox" data-rem="${k}" ${st.fresh[k] ? 'checked' : ''}>لم ينجح في امتحان مستوى ${l}</label>`).join('')}</div>
-        <div class="table-responsive"><table class="adv-t"><thead><tr><th>الرمز</th><th>المادة</th><th>س</th>${SEC_TH}</tr></thead><tbody>
+        ${(() => {
+          const fv = st.fresh.fv || 'course';
+          const tabs = [['course', 'bi-list-ul', 'حسب المادة'], ['day', 'bi-calendar-day', 'حسب اليوم'], ['week', 'bi-calendar3-week', 'جدول الأسبوع'], ['cards', 'bi-grid-3x2-gap', 'بطاقات المواد']];
+          const nav = `<div class="adv-fv no-print">${tabs.map(([k, ic, l]) => `<button type="button" class="${fv === k ? 'on' : ''}" data-fv="${k}"><i class="bi ${ic}"></i> ${l}</button>`).join('')}</div>`;
+          const room = x => x.room && x.room !== '0' ? x.room : 'افتراضية';
+          const days = ['ح', 'ن', 'ث', 'ر', 'خ', 'س'], meet = [];
+          sel.forEach(x => x.meetings.forEach(m => { if (live(m)) meet.push({ d: m.day, a: m.start, b: m.end, x }); }));
+          const byDay = days.map(d => ({ d, L: meet.filter(m => m.d === d).sort((u, v) => u.a.localeCompare(v.a)) })).filter(r => r.L.length);
+          const asyncL = sel.flatMap(x => x.meetings.filter(m => !live(m)).map(m => ({ d: m.day, x })));
+          let view;
+          if (fv === 'day') view = `<div class="table-responsive"><table class="adv-t"><thead><tr><th>اليوم</th><th>من</th><th>إلى</th><th>الرمز</th><th>المادة</th><th>الشعبة</th><th>المدرس</th><th>القاعة</th></tr></thead><tbody>
+              ${byDay.map(r => r.L.map((m, k) => `<tr>${k ? '' : `<td rowspan="${r.L.length}" class="adv-dayc"><b>${esc(DAYN(r.d))}</b><div class="adv-src">${r.L.length} محاضرة</div></td>`}<td><b>${m.a}</b></td><td>${m.b}</td><td><span class="adv-code">${m.x.code}</span></td><td><b>${esc(nm(m.x.code))}</b></td><td>${esc(m.x.section)}${m.x.activity === 'عملي' ? ' <small>عملي</small>' : ''}</td><td>${esc(U.shortName(m.x.instructor || '—'))}</td><td>${esc(room(m.x))}</td></tr>`).join('')).join('')}
+              ${asyncL.map(m => `<tr><td><b>${esc(DAYN(m.d))}</b></td><td colspan="2"><small>غير متزامن</small></td><td><span class="adv-code">${m.x.code}</span></td><td><b>${esc(nm(m.x.code))}</b></td><td>${esc(m.x.section)}</td><td>${esc(U.shortName(m.x.instructor || '—'))}</td><td>افتراضية</td></tr>`).join('')}</tbody></table></div>`;
+          else if (fv === 'week') view = sel.length ? `<div class="mt-1">${U.weekGrid(sel.flatMap(x => x.meetings.map(m => ({ day: m.day, start: live(m) ? m.start : '', end: m.end, title: x.code, line: nm(x.code), sub: `ش ${x.section}`, style: `background:${colour[x.code][1]};border-inline-start-color:${colour[x.code][0]}` }))), { compact: true, px: 78 })}</div>` : '';
+          else if (fv === 'cards') view = `<div class="adv-cc">${courses.map(c => { const mine = sel.filter(x => x.code === (c.via || c.code));
+              return `<div class="adv-cci"><div class="adv-cci-h"><span class="adv-code">${c.code}</span><span>${c.hours} س</span></div><b class="adv-cci-n">${esc(c.name)}</b>
+                ${mine.length ? mine.map(x => `<dl><dt>الشعبة</dt><dd>${esc(x.section)}${x.activity === 'عملي' ? ' (عملي)' : ''}</dd><dt>المواعيد</dt><dd>${x.meetings.map(m => live(m) ? `${esc(DAYN(m.day))} من ${m.start} إلى ${m.end}` : `${esc(DAYN(m.day))} غير متزامن`).join('<br>')}</dd><dt>المدرس</dt><dd>${esc(U.shortName(x.instructor || '—'))}</dd><dt>القاعة</dt><dd>${esc(room(x))}</dd><dt>المقاعد</dt><dd>${isOpen(x) ? `<span class="adv-seat ok">${seats(x)} شاغر</span>` : '<span class="adv-seat no">مغلقة</span>'}</dd></dl>`).join('')
+                  : `<div class="adv-seat no mt-2">${offeredAs(c.code) ? 'تتعارض شعبها أو تتجاوز الساعات' : 'غير مطروحة هذا الفصل'}</div>`}</div>`; }).join('')}
+              ${slots.map(c => `<div class="adv-cci"><div class="adv-cci-h"><span class="adv-code">${esc(c.code)}</span><span>${c.hours || ''} س</span></div><b class="adv-cci-n">${esc(c.name)}</b><div class="adv-src mt-2">يختارها الطالب من المجموعة</div></div>`).join('')}</div>`;
+          else view = `<div class="table-responsive"><table class="adv-t"><thead><tr><th>الرمز</th><th>المادة</th><th>س</th>${SEC_TH}</tr></thead><tbody>
         ${courses.map(c => { const mine = sel.filter(x => x.code === (c.via || c.code));
           return `<tr class="${mine.length ? '' : 'adv-x'}"><td><span class="adv-code">${c.code}</span>${c.via ? `<div class="adv-src">برمز ${c.via}</div>` : ''}</td><td><b>${esc(c.name)}</b>${c.why[0][0] === 'retake' ? ' <span class="adv-chip retake">استدراكية</span>' : ''}</td><td><span class="adv-hrs">${c.hours}</span></td>${mine.length ? secTds(mine)
             : `<td colspan="5">${offeredAs(c.code) ? '<span class="adv-seat no">تتعارض شعبها أو تتجاوز الساعات</span>' : '<span class="adv-seat no">غير مطروحة هذا الفصل</span>'}</td>`}</tr>`; }).join('')}
-        ${slots.map(c => `<tr><td><span class="adv-code">${esc(c.code)}</span></td><td><b>${esc(c.name)}</b><div class="adv-src">يختارها الطالب من المجموعة</div></td><td><span class="adv-hrs">${c.hours || ''}</span></td><td colspan="5">انظر المطروح منها في <a href="plans.html" target="_blank" rel="noopener">الخطط الدراسية</a></td></tr>`).join('')}</tbody></table></div>
-        ${sel.length ? `<div class="mt-3">${U.weekGrid(sel.flatMap(x => x.meetings.map(m => ({ day: m.day, start: live(m) ? m.start : '', end: m.end, title: x.code, line: nm(x.code), sub: `ش ${x.section}`, style: `background:${colour[x.code][1]};border-inline-start-color:${colour[x.code][0]}` }))), { compact: true, px: 78 })}</div>
-          <a class="btn btn-sm btn-light border mt-2" href="${planner}" target="_blank" rel="noopener"><i class="bi bi-calendar2-week"></i> افتح في «مخطط جدولي»</a>` : ''}</div>`;
+        ${slots.map(c => `<tr><td><span class="adv-code">${esc(c.code)}</span></td><td><b>${esc(c.name)}</b><div class="adv-src">يختارها الطالب من المجموعة</div></td><td><span class="adv-hrs">${c.hours || ''}</span></td><td colspan="5">انظر المطروح منها في <a href="plans.html" target="_blank" rel="noopener">الخطط الدراسية</a></td></tr>`).join('')}</tbody></table></div>`;
+          return nav + view;
+        })()}
+        ${sel.length ? `<a class="btn btn-sm btn-light border mt-2 no-print" href="${planner}" target="_blank" rel="noopener"><i class="bi bi-calendar2-week"></i> افتح في «مخطط جدولي»</a>` : ''}</div>`;
     }
     const facs = [...new Set(progs.map(x => x.prog.faculty))].sort((a, b) => a.localeCompare(b, 'ar'));
     const F = st.fresh, inFac = progs.filter(x => !F.fac || x.prog.faculty === F.fac);
@@ -1399,6 +1427,7 @@
     on('#fr-name', 'input', e => { st.fresh.name = e.target.value; });
     on('#fr-id', 'input', e => { st.fresh.id = e.target.value; });
     on('#fr-print', 'click', printFresh);
+    document.querySelectorAll('[data-fv]').forEach(b => b.addEventListener('click', () => { st.fresh.fv = b.dataset.fv; render(); }));
     document.querySelectorAll('[data-rem]').forEach(b => b.addEventListener('change', () => { st.fresh[b.dataset.rem] = b.checked; render(); }));
     const dq = $('#adv-dq');
     if (dq) { let t; dq.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { st.q = dq.value; const pos = dq.selectionStart; render(); const n = $('#adv-dq'); n.focus(); n.setSelectionRange(pos, pos); }, 250); }); }
