@@ -951,11 +951,15 @@
       stats: [['المعدل التراكمي', s.gpa != null ? s.gpa.toFixed(2) + (a.warned ? ' (منذر)' : '') : '—'], ['الساعات المجتازة', s.passedHours ?? '—'], ['المتبقية', `${a0.remainingNow} من ${s.planHours ?? '—'}`],
         ['ساعات الجدول المقترح', `${sug.hours} (الحد ${lim.max})`], ['التخرج المتوقع', path && path.end ? termName(path.end) : '—']],
       sections: [
-        { title: `الجدول المقترح (${sug.hours} ساعة؛ الحد الأعلى ${lim.max} وفق المادة ${lim.rule} من تعليمات منح درجة البكالوريوس 2023)`, columns: ['الرمز', 'المادة', 'س', 'الشعبة والموعد', 'سبب الأولوية'], widths: ['10%', '27%', '5%', '33%', '25%'],
-          rows: sug.take.map(t => { const mine = sel.filter(x => x.code === (t.c.via || t.c.code)); return [t.c.code + (t.c.via ? ` (برمز ${t.c.via})` : ''), t.c.name || nm(t.c.code), t.c.hours, mine.map(x => `ش ${x.section}${x.activity === 'عملي' ? ' (عملي)' : ''}: ${when(x)}`).join(' | '), t.c.why.map(w => w[1]).join('، ')]; }) },
+        { title: `الجدول المقترح (${sug.hours} ساعة؛ الحد الأعلى ${lim.max} وفق المادة ${lim.rule} من تعليمات منح درجة البكالوريوس 2023)`, columns: ['الرمز', 'المادة', 'س', 'الشعبة', 'الأيام والوقت', 'القاعة', 'سبب الأولوية'], widths: ['9%', '24%', '4%', '7%', '26%', '9%', '21%'], numCols: [2],
+          rows: sug.take.map(t => { const mine = sel.filter(x => x.code === (t.c.via || t.c.code));
+            const times = x => { const g = {}; x.meetings.forEach(m => { const k = live(m) ? `<bdi dir="ltr">${m.start} – ${m.end}</bdi>` : 'غير متزامن'; (g[k] ||= []).push(DAYN(m.day)); }); return Object.entries(g).map(([k, d]) => `${esc(d.join(' و'))} ${k}`).join('<br>'); };
+            return [{ html: `<b>${esc(t.c.code)}</b>${t.c.via ? `<br>برمز ${esc(t.c.via)}` : ''}` }, t.c.name || nm(t.c.code), t.c.hours,
+              { html: mine.map(x => `${esc(x.section)}${x.activity === 'عملي' ? ' (عملي)' : ''}`).join('<br>') || '—' }, { html: mine.map(times).join('<br>') || '—' },
+              { html: mine.map(x => esc(x.room && x.room !== '0' ? x.room : 'افتراضية')).join('<br>') || '—' }, t.c.why.map(w => w[1]).join('، ')]; }) },
         ...(sug.skipped.length ? [{ title: 'بدائل إن تعذّر التسجيل', columns: ['الرمز', 'المادة', 'س', 'لماذا لم تدخل المقترح'], widths: ['12%', '43%', '6%', '39%'], rows: sug.skipped.slice(0, 10).map(x => [x.c.code, x.c.name || nm(x.c.code), x.c.hours, x.why]) }] : []),
         ...(waiting.length ? [{ title: 'مواد متبقية بانتظار متطلب سابق', columns: ['الرمز', 'المادة', 'س', 'تنتظر'], widths: ['12%', '50%', '6%', '32%'], rows: waiting.map(c => [c.code, c.name || nm(c.code), c.hours, c.missing.join(c.preOr ? ' أو ' : ' و ')]) }] : []),
-        ...(path && path.terms.length ? [{ title: 'مسار التخرج المنتظم (18 ساعة في الفصل الاعتيادي)', columns: ['الفصل', 'الساعات', 'المواد'], widths: ['16%', '8%', '76%'], rows: path.terms.map(t => [termName(t.term), t.hours, t.take.map(x => `${x.code} ${x.name || nm(x.code)}`).join('، ')]) }] : [])],
+        ...(path && path.terms.length ? [{ title: 'مسار التخرج المنتظم (18 ساعة في الفصل الاعتيادي)', columns: ['الفصل', 'الساعات', 'المواد'], widths: ['16%', '8%', '76%'], rows: path.terms.map(t => [termName(t.term), t.hours, { html: t.take.map(x => `<b>${esc(x.code)}</b> ${esc(x.name || nm(x.code))} (${x.hours} س)`).join('<br>') }]) }] : [])],
       raw: `<h3 class="sec">ملاحظات المرشد</h3><div style="height:80px;border:1px solid #c9c1ae;border-radius:6px"></div>` + SIGN(['الطالب', 'المرشد الأكاديمي', 'رئيس القسم']),
       note: 'المواد والعلامات والمتطلبات من «تحليل خطة الطالب» كما تطبعه بوابة الجامعة، والشعب من الجدول الدراسي المنشور. المقترح للإرشاد؛ التسجيل الفعلي على بوابة الجامعة. رمز QR يفتح الجدول المقترح في «مخطط جدولي».' });
   }
