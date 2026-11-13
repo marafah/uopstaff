@@ -903,7 +903,7 @@
     const sec = (title, columns, list) => ({ title, columns, rows: list });
     // each room with its students, sections and proctors (one line per room: clear on paper and in Excel)
     const miss = x => Math.max(0, (x.need || 1) - x.proc.length);
-    const rp = r => r.rooms.map(x => `${x.room}${x.t === LAB ? ' (مختبر)' : ''}: ${x.n} طالب${x.secs && x.secs.length && r.c.sl.length > 1 ? ' – شعبة ' + x.secs.join(' و') : ''} — المراقبة: ${x.proc.map(U.shortName).join('، ') || '—'}${miss(x) ? ` (⚠ ينقص ${miss(x) === 1 ? 'مراقب' : miss(x) + ' مراقبين'})` : ''}`).join(' ؛ ')
+    const rp = r => r.rooms.map(x => `${x.room}${x.t === LAB ? ' (مختبر)' : ''}: ${x.n} طالب${x.secs && x.secs.length && r.c.sl.length > 1 ? ' – ' + secTxt(x.secs) : ''} — المراقبة: ${x.proc.map(U.shortName).join('، ') || '—'}${miss(x) ? ` (⚠ ينقص ${miss(x) === 1 ? 'مراقب' : miss(x) + ' مراقبين'})` : ''}`).join(' ؛ ')
       + (r.left ? ` ؛ ${r.left} بلا قاعة` : '') + (!r.rooms.length && EXT(r.c) ? `يعقده ${REQ(r.c).fixedBy || 'القسم المختص'}` : '');
     const withM = (row, r) => { row.meta = r; return row; };
     if (outView === 'all') return [sec('', H.concat(['القسم', 'الطلبة', 'القاعات والمراقبون']), rows.map(r => withM(base(r).concat([r.c.dept, r.c.students, rp(r)]), r)))];
@@ -923,12 +923,14 @@
   }
   // for paper and Excel: the «القاعات والمراقبون» column becomes one row per room (القاعة، طلبتها، الشعبة، المراقبون); the
   // course's cells are on its first room row (rows.span = how many rows the course takes, for merging)
+  // a room's sections as words, never «2 (31 من 162)» (Excel and other right-to-left views scramble parentheses with numbers)
+  const secTxt = l => (l || []).map(t => String(t).replace(/^(\S+)\s*\((\d+) من (\d+)\)$/, 'ش $1: $2 من $3').replace(/^(\d+)$/, 'ش $1')).join('، ');
   function expandRooms(sec) {
     const j = sec.columns.indexOf('القاعات والمراقبون'); if (j < 0) return sec;
     const columns = sec.columns.slice(0, j).concat(['القاعة', 'طلبة القاعة', 'الشعبة', 'المراقبون'], sec.columns.slice(j + 1)), rows = [];
     sec.rows.forEach(row => { const r = row.meta, head = row.slice(0, j), tail = row.slice(j + 1);
       const subs = r && r.rooms.length ? r.rooms.map(x => { const m = Math.max(0, (x.need || 1) - x.proc.length);
-        return [x.room + (x.t === LAB ? ' (مختبر)' : ''), x.n, x.secs && x.secs.length && r.c.sl.length > 1 ? x.secs.join('، ') : '', x.proc.map(U.shortName).join('، ') + (m ? `${x.proc.length ? '، ' : ''}⚠ ينقص ${m === 1 ? 'مراقب' : m + ' مراقبين'}` : '')]; }) : [[row[j] || '—', '', '', '']];
+        return [x.room + (x.t === LAB ? ' (مختبر)' : ''), x.n, x.secs && x.secs.length && r.c.sl.length > 1 ? secTxt(x.secs) : '', x.proc.map(U.shortName).join('، ') + (m ? `${x.proc.length ? '، ' : ''}⚠ ينقص ${m === 1 ? 'مراقب' : m + ' مراقبين'}` : '')]; }) : [[row[j] || '—', '', '', '']];
       if (r && r.left) subs.push([`${r.left} طالباً بلا قاعة`, '', '', '']);
       subs.forEach((x, k) => { const nr = (k ? head.map(() => '') : head).concat(x, k ? tail.map(() => '') : tail); nr.span = k ? 0 : subs.length; nr.first = !k; rows.push(nr); }); });
     return { title: sec.title, columns, rows, expanded: true, nhead: j, ntail: sec.columns.length - j - 1 };
@@ -944,7 +946,7 @@
     if (k === 'rp' && row && row.meta) { const r = row.meta;
       if (!r.rooms.length) return `<span class="ex-rpx">${esc(s || '—')}</span>`;
       return `<div class="ex-rp">${r.rooms.map(x => { const m = Math.max(0, (x.need || 1) - x.proc.length);
-        return `<div class="l"><span class="rm"><i class="bi ${x.t === LAB ? 'bi-pc-display' : 'bi-door-open-fill'}"></i><b>${esc(x.room)}</b></span><span class="n">${x.n} طالباً</span><span class="sc">${x.secs && x.secs.length && r.c.sl.length > 1 ? 'ش ' + esc(x.secs.join('، ')) : ''}</span>
+        return `<div class="l"><span class="rm"><i class="bi ${x.t === LAB ? 'bi-pc-display' : 'bi-door-open-fill'}"></i><b>${esc(x.room)}</b></span><span class="n">${x.n} طالباً</span><span class="sc">${x.secs && x.secs.length && r.c.sl.length > 1 ? esc(secTxt(x.secs)) : ''}</span>
           <span class="pp">${x.proc.map(n => `<span class="ex-pp${r.c.ins.includes(n) ? ' own' : ''}"><i class="bi bi-person-fill"></i> ${esc(U.shortName(n))}</span>`).join('')}${m ? `<span class="ex-pp miss"><i class="bi bi-exclamation-triangle-fill"></i> ${x.proc.length ? 'ينقص ' + m : 'بلا مراقب'}</span>` : ''}</span></div>`; }).join('')}${r.left ? `<div class="l bad">${r.left} طالباً بلا قاعة</div>` : ''}</div>`; }
     if (!s) return '<span class="text-muted">—</span>';
     if (k === 'date') return `<span class="ex-dt">${+s.slice(8)}/${+s.slice(5, 7)}<small>${s.slice(0, 4)}</small></span>`;
@@ -988,7 +990,7 @@
       if (k === j && row.meta) { const r = row.meta;
         if (!r.rooms.length) return t || '—';
         return { html: r.rooms.map(x => { const m = Math.max(0, (x.need || 1) - x.proc.length);
-          return `<div style="padding:1px 0;border-bottom:1px dotted #d5dde2"><b>${esc(x.room)}</b>${x.t === LAB ? ' <small style="display:inline">مختبر</small>' : ''} · ${x.n} طالباً${x.secs && x.secs.length && r.c.sl.length > 1 ? ' · ش ' + esc(x.secs.join('، ')) : ''} — ${esc(x.proc.map(U.shortName).join('، ') || '')}${m ? ` <b style="color:#b42318">⚠ ${x.proc.length ? 'ينقص ' + m : 'بلا مراقب'}</b>` : ''}</div>`; }).join('') + (r.left ? `<div style="color:#b42318;font-weight:700">${r.left} طالباً بلا قاعة</div>` : '') }; }
+          return `<div style="padding:1px 0;border-bottom:1px dotted #d5dde2"><b>${esc(x.room)}</b>${x.t === LAB ? ' <small style="display:inline">مختبر</small>' : ''} · ${x.n} طالباً${x.secs && x.secs.length && r.c.sl.length > 1 ? ' · ' + esc(secTxt(x.secs)) : ''} — ${esc(x.proc.map(U.shortName).join('، ') || '')}${m ? ` <b style="color:#b42318">⚠ ${x.proc.length ? 'ينقص ' + m : 'بلا مراقب'}</b>` : ''}</div>`; }).join('') + (r.left ? `<div style="color:#b42318;font-weight:700">${r.left} طالباً بلا قاعة</div>` : '') }; }
       return t; }));
     return { title: sec.title, columns: sec.columns, rows, widths: j >= 0 ? sec.columns.map(h => WP[h] || '') : undefined };
   }
@@ -1001,6 +1003,41 @@
   }
   const loadXLSX = () => window.XLSX ? Promise.resolve() : new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js'; s.onload = ok; s.onerror = no; document.head.appendChild(s); });
   // Excel: a cover/matrix sheet (days × periods) and one sheet per table, laid out like an official timetable
+  // Excel's print setup (the library cannot write it): every sheet on A4 landscape, fitted to one page wide, centred, with its
+  // header row repeated on each printed page. The written file is opened, its sheets and workbook amended, and zipped again.
+  const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  const crc32 = u => { let c = 0xFFFFFFFF; for (let i = 0; i < u.length; i++) c = CRC[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  async function zipBlob(files) {
+    const te = new TextEncoder(), parts = [], cen = []; let off = 0;
+    for (const [name, text] of Object.entries(files)) {
+      const raw = te.encode(text), nm = te.encode(name), crc = crc32(raw);
+      const data = new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer());
+      const h = new DataView(new ArrayBuffer(30)); h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 8, true);
+      h.setUint32(14, crc, true); h.setUint32(18, data.length, true); h.setUint32(22, raw.length, true); h.setUint16(26, nm.length, true);
+      const c = new DataView(new ArrayBuffer(46)); c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 8, true);
+      c.setUint32(16, crc, true); c.setUint32(20, data.length, true); c.setUint32(24, raw.length, true); c.setUint16(28, nm.length, true); c.setUint32(42, off, true);
+      parts.push(new Uint8Array(h.buffer), nm, data); cen.push(new Uint8Array(c.buffer), nm); off += 30 + nm.length + data.length;
+    }
+    const size = cen.reduce((a, x) => a + x.length, 0), n = Object.keys(files).length, e = new DataView(new ArrayBuffer(22));
+    e.setUint32(0, 0x06054b50, true); e.setUint16(8, n, true); e.setUint16(10, n, true); e.setUint32(12, size, true); e.setUint32(16, off, true);
+    return new Blob(parts.concat(cen, [new Uint8Array(e.buffer)]), { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  }
+  async function xlsxPrintable(wb, fname, headRow) {
+    try {
+      const buf = XLSX.write(wb, { bookType: 'xlsx', type: 'array' }), files = await unzip(buf instanceof ArrayBuffer ? buf : buf.buffer, /./);
+      Object.keys(files).filter(k => /^xl\/worksheets\/sheet\d+\.xml$/.test(k)).forEach(k => { let x = files[k];
+        const pr = '<pageSetUpPr fitToPage="1"/>';
+        x = x.replace(/<pageSetUpPr\b[^>]*\/>/g, '');   // (in <sheetPr>, after tabColor and outlinePr)
+        if (/<sheetPr\b[^>]*\/>/.test(x)) x = x.replace(/<sheetPr\b([^>]*)\/>/, `<sheetPr$1>${pr}</sheetPr>`); else if (/<sheetPr\b/.test(x)) x = x.replace('</sheetPr>', `${pr}</sheetPr>`); else x = x.replace(/(<worksheet\b[^>]*>)/, `$1<sheetPr>${pr}</sheetPr>`);
+        x = x.replace(/<printOptions\b[^>]*\/>|<pageSetup\b[^>]*\/>/g, '');
+        const ps = '<printOptions horizontalCentered="1"/>', pg = '<pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/>';
+        x = /<pageMargins\b[^>]*\/>/.test(x) ? x.replace(/(<pageMargins\b[^>]*\/>)/, `${ps}$1${pg}`) : x.replace('</worksheet>', `${ps}<pageMargins left="0.3" right="0.3" top="0.4" bottom="0.4" header="0.2" footer="0.2"/>${pg}</worksheet>`);
+        files[k] = x; });
+      const names = wb.SheetNames, dn = names.map((n, i) => `<definedName name="_xlnm.Print_Titles" localSheetId="${i}">'${n.replace(/'/g, "''").replace(/&/g, '&amp;').replace(/</g, '&lt;')}'!$${headRow}:$${headRow}</definedName>`).join('');
+      const wbx = files['xl/workbook.xml'].replace(/<definedNames\s*\/>/, ''); files['xl/workbook.xml'] = /<definedNames>/.test(wbx) ? wbx.replace('<definedNames>', `<definedNames>${dn}`) : wbx.replace('</sheets>', `</sheets><definedNames>${dn}</definedNames>`);
+      const blob = await zipBlob(files), a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fname; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+    } catch (e) { console.error(e); XLSX.writeFile(wb, fname); }   // (without the print setup rather than nothing)
+  }
   function doXLSX() {
     loadXLSX().then(() => {
       const wb = XLSX.utils.book_new(), used = {}, E = XLSX.utils.encode_cell;
@@ -1015,7 +1052,7 @@
         note: { font: { italic: true, sz: 9, color: { rgb: '6B7A82' } }, alignment: { horizontal: 'right', wrapText: true } } };
       const cell = (zebra, center, bold) => ({ font: { sz: 10.5, bold: !!bold, color: { rgb: '1C2B31' } }, fill: { fgColor: { rgb: zebra ? 'F7F9FA' : 'FFFFFF' } },
         alignment: { horizontal: center ? 'center' : 'right', vertical: 'center', wrapText: true }, border: BOX });
-      const W = { 'اليوم': 11, 'التاريخ': 12, 'الوقت': 13, 'الرمز': 11, 'المقرر': 38, 'القسم': 24, 'الطلبة': 9, 'الطلبة في القاعة': 10, 'الشعب': 12, 'القاعات': 34, 'القاعات والمراقبون': 70, 'طلبة القاعة': 10, 'الشعبة': 12, 'القاعة': 20, 'المراقبون': 34, 'المدرسون': 30, 'المهمة': 13 };
+      const W = { 'اليوم': 11, 'التاريخ': 12, 'الوقت': 13, 'الرمز': 11, 'المقرر': 38, 'القسم': 24, 'الطلبة': 9, 'الطلبة في القاعة': 10, 'الشعب': 12, 'القاعات': 34, 'القاعات والمراقبون': 70, 'طلبة القاعة': 10, 'الشعبة': 18, 'القاعة': 20, 'المراقبون': 34, 'المدرسون': 30, 'المهمة': 13 };
       const CENTER = new Set(['اليوم', 'التاريخ', 'الوقت', 'الرمز', 'الطلبة', 'الطلبة في القاعة', 'الشعب', 'المهمة', 'القاعة', 'طلبة القاعة', 'الشعبة']);
       const span = DAYS.length ? `${DAYS[0].label} – ${DAYS[DAYS.length - 1].label}` : '';
       const info = `${TT.term || ''} · ${span} · ${S.approved ? 'معتمدة: ' + S.approved : 'مسودة'} · أُعدّ في ${new Date().toLocaleDateString('ar-JO')}`;
@@ -1031,16 +1068,16 @@
       // 1) the timetable at a glance: one row per day, one column per period
       { const { out } = seating(), aoa = [], ws = { merges: [], rows: [] }, styles = {}, nc = P + 1;
         header(ws, aoa, nc, 'الجدول العام: الأيام × الفترات');
-        aoa.push(['اليوم'].concat(S.periods.map((p, k) => `الفترة ${k + 1}\n${p[0]} – ${p[1]}`))); ws.rows.push({ hpt: 34 });
+        aoa.push(['اليوم'].concat(S.periods.map((p, k) => `الفترة ${k + 1}\nمن ${p[0]} إلى ${p[1]}`))); ws.rows.push({ hpt: 36 });
         for (let j = 0; j < nc; j++) styles[E({ r: 4, c: j })] = ST.head;
         DAYS.forEach((d, di) => {
           const r = aoa.length, cells = S.periods.map((p, k) => (out[di * P + k] || []).filter(x => match(x.c)).sort((a, b) => a.c.code.localeCompare(b.c.code))
-            .map(x => `${x.c.code}  ${x.c.name}  (${x.c.students})`));
+            .map(x => `${x.c.code} · ${x.c.name} · ${x.c.students} طالباً`));
           aoa.push([`${d.wd}\n${+d.iso.slice(8)}/${+d.iso.slice(5, 7)}/${d.iso.slice(0, 4)}`].concat(cells.map(c => c.join('\n'))));
-          ws.rows.push({ hpt: Math.max(36, 15 * Math.max(1, ...cells.map(c => c.length)) + 6) });
+          const wch = P > 3 ? 40 : 52; ws.rows.push({ hpt: Math.max(36, 15 * Math.max(1, ...cells.map(c => c.reduce((a, t) => a + Math.ceil((t.length + 2) / (wch - 4)), 0))) + 8) });
           styles[E({ r, c: 0 })] = ST.day; for (let k = 0; k < P; k++) styles[E({ r, c: k + 1 })] = cell(di % 2, false);
         });
-        aoa.push([], ['الرقم بين القوسين عدد الطلبة. القاعات والمراقبون في الأوراق التالية.']); ws.merges.push({ s: { r: aoa.length - 1, c: 0 }, e: { r: aoa.length - 1, c: nc - 1 } }); styles[E({ r: aoa.length - 1, c: 0 })] = ST.note;
+        aoa.push([], ['لكل امتحان: الرمز · المقرر · عدد الطلبة. القاعات والمراقبون في الورقة التالية.']); ws.merges.push({ s: { r: aoa.length - 1, c: 0 }, e: { r: aoa.length - 1, c: nc - 1 } }); styles[E({ r: aoa.length - 1, c: 0 })] = ST.note;
         finish(ws, aoa, styles, [{ wch: 13 }].concat(S.periods.map(() => ({ wch: P > 3 ? 40 : 52 }))), 'الجدول العام'); }
       // 2) the current output view: one sheet per table, a coloured band for each new day
       outData().map(expandRooms).forEach(sec => {
@@ -1056,8 +1093,8 @@
           const r = aoa.length;
           // a course over several room rows: its own cells merged down
           if (sec.expanded && row.span > 1) cols.forEach((h, j) => { if (j < sec.nhead || j >= cols.length - sec.ntail) ws.merges.push({ s: { r, c: j }, e: { r: r + row.span - 1, c: j } }); });
-          const vals = row.map((v, j) => cols[j] === 'القاعات' ? String(v ?? '').split(/\s*؛\s*/).join('\n') : cols[j] === 'المراقبون' || cols[j] === 'المدرسون' ? String(v ?? '').split(/\s*،\s*/).join('\n') : v);
-          aoa.push(vals); const lines = Math.max(1, ...vals.map(v => String(v ?? '').split('\n').length)); ws.rows.push({ hpt: Math.max(20, 14 * lines + 4) });
+          const vals = row.map((v, j) => cols[j] === 'التاريخ' && /^\d{4}-\d{2}-\d{2}$/.test(String(v)) ? `${+String(v).slice(8)}/${+String(v).slice(5, 7)}/${String(v).slice(0, 4)}` : cols[j] === 'القاعات' ? String(v ?? '').split(/\s*؛\s*/).join('\n') : cols[j] === 'المراقبون' || cols[j] === 'المدرسون' ? String(v ?? '').split(/\s*،\s*/).join('\n') : v);
+          aoa.push(vals); const lines = Math.max(1, ...vals.map((v, j) => String(v ?? '').split('\n').reduce((a, t) => a + Math.max(1, Math.ceil((t.length + 1) / Math.max(6, (W[cols[j]] || 16) - 2))), 0))); ws.rows.push({ hpt: Math.max(20, 14.5 * lines + 5) });
           if (row.first !== false) z++;   // (the rooms of one course share its shade)
           cols.forEach((h, j) => { styles[E({ r, c: j })] = cell(z % 2, CENTER.has(h), h === 'الرمز' || h === 'المقرر' || h === 'القاعة'); });
         });
@@ -1066,7 +1103,7 @@
         ws.merges.push({ s: { r: aoa.length - 1, c: 0 }, e: { r: aoa.length - 1, c: nc - 1 } }); styles[E({ r: aoa.length - 1, c: 0 })] = ST.note;
         finish(ws, aoa, styles, cols.map(h => ({ wch: W[h] || 16 })), sec.title || OUT[outView]);
       });
-      XLSX.writeFile(wb, `${title()}_${OUT[outView]}.xlsx`.replace(/\s+/g, '_'));
+      xlsxPrintable(wb, `${title()}_${OUT[outView]}.xlsx`.replace(/\s+/g, '_'), 5);
     }).catch(e => { console.error(e); alert('تعذّر تحميل مكتبة Excel؛ تحقق من الاتصال.'); });
   }
   // ---------- documents: student lists, proctor sheets, proctor report, publishing ----------
@@ -1366,7 +1403,7 @@
       ws['!cols'] = cols.map((h, j) => ({ wch: Math.min(45, Math.max(String(h).length + 2, ...rows.slice(0, 400).map(r => String(r[j] == null ? '' : r[j]).length + 1))) }));
       ws['!rows'] = [{ hpt: 26 }]; ws['!views'] = [{ RTL: true }]; ws['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length, c: cols.length - 1 } }) };
       ws['!margins'] = { left: 0.3, right: 0.3, top: 0.4, bottom: 0.4, header: 0.2, footer: 0.2 };
-      const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'البيانات'); XLSX.writeFile(wb, `${title()}_${OUT[outView]}_بيانات.xlsx`.replace(/\s+/g, '_'));
+      const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'البيانات'); xlsxPrintable(wb, `${title()}_${OUT[outView]}_بيانات.xlsx`.replace(/\s+/g, '_'), 1);
     }).catch(e => { console.error(e); alert('تعذّر تحميل مكتبة Excel؛ تحقق من الاتصال.'); });
   }
   function repExport(xl) {
