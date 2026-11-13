@@ -688,11 +688,6 @@
     return `<nav class="ex-steps" aria-label="خطوات إعداد الجدول">${STEPS.map(([k, ic, t, sub], n) => { const [s, txt] = stepState(k, st);
       return `<button class="ex-step ${s}${tab === k ? ' on' : ''}" data-tab="${k}"><span class="num">${s === 'done' ? '<i class="bi bi-check-lg"></i>' : s === 'bad' ? '<i class="bi bi-exclamation-lg"></i>' : n + 1}</span>
         <span class="tx"><b><i class="bi ${ic}"></i> ${t}</b><small>${esc(txt)}</small></span></button>`; }).join('<i class="bi bi-chevron-left sep"></i>')}</nav>
-      <div class="ex-status"><span class="ex-pill"><i class="bi bi-journal-text"></i> ${esc(S.label || TYPES[S.type].name)}</span><span class="ex-pill"><i class="bi bi-building"></i> ${esc(facLabel())}</span>
-        <span class="ex-pill"><i class="bi bi-book"></i> ${C.length} مقرراً</span><span class="ex-pill"><i class="bi bi-people"></i> ${C.reduce((a, c) => a + c.students, 0)} مقعد</span>
-        <span class="ex-pill"><i class="bi bi-calendar3"></i> ${nDays(DAYS.length)} × ${nPer(P)}</span><span class="ex-pill"><i class="bi bi-door-open"></i> ${rooms().filter(r => r.on).length} قاعة · ${capTotal} مقعد/فترة</span>
-        <span class="ex-pill ${st.clash || st.unseated ? 'bad' : st.placed ? 'ok' : ''}"><i class="bi ${st.clash || st.unseated ? 'bi-exclamation-octagon-fill' : 'bi-check-circle-fill'}"></i> ${!st.placed ? 'غير مولّد' : st.clash || st.unseated ? `${st.clash} تعارض · ${st.unseated} بلا مقعد` : 'بلا تعارض'}</span>
-        ${S.approved ? `<span class="ex-pill ok"><i class="bi bi-patch-check-fill"></i> معتمدة</span>` : ''}</div>
       ${i >= 0 ? '' : ''}`;
   }
   const navBtns = () => { const i = STEPS.findIndex(x => x[0] === tab), p = STEPS[i - 1], n = STEPS[i + 1];
@@ -709,14 +704,15 @@
   }
   function filterBar(extra) {
     const f = F(), facs = [...new Set(C.map(c => c.fac))].sort(), depts = [...new Set(C.filter(c => !f.fac || c.fac === f.fac).map(c => c.dept))].sort(), lvs = [...new Set(C.map(c => c.lv))].sort();
-    const n = C.filter(match).length;
+    const n = C.filter(match).length, cnt = (k, x) => C.filter(c => c[k] === x && (k === 'fac' || !f.fac || c.fac === f.fac)).length;
     return `<div class="ex-filter"><i class="bi bi-funnel-fill"></i>
       <input class="form-control" data-f="q" placeholder="ابحث: رمز، مقرر، مدرّس…" value="${esc(f.q || '')}">
-      <select class="form-select" data-f="lv"><option value="">كل السنوات</option>${lvs.map(l => `<option value="${l}" ${String(f.lv) === String(l) && f.lv !== '' && f.lv != null ? 'selected' : ''}>${LV(l)}</option>`).join('')}</select>
-      <label class="ex-switch"><input type="checkbox" data-f="prob" ${f.prob ? 'checked' : ''}><span></span> ذات الملاحظات فقط</label>
-      ${extra || ''}<span class="ex-count"><b>${n}</b> / ${C.length}</span>${n < C.length ? '<button class="btn btn-sm btn-link" data-fclear>مسح التصفية</button>' : ''}</div>
-      <div class="ex-scope">${facs.length > 1 ? chips('fac', 'bi-buildings', 'الكلية', 'الكل', facs, f.fac) : ''}
-      ${facs.length > 1 && !f.fac ? '<div class="ex-scope-row"><span class="ex-scope-lb"><i class="bi bi-diagram-3"></i> القسم</span><span class="ex-scope-hint">اختر كلية لعرض أقسامها</span></div>' : chips('dept', 'bi-diagram-3', 'القسم', 'كل الأقسام', depts, f.dept)}</div>`;
+      ${facs.length > 1 ? `<select class="form-select" data-f="fac" title="الكلية"><option value="">كل الكليات</option>${facs.map(x => `<option value="${esc(x)}" ${f.fac === x ? 'selected' : ''}>${esc(x)} (${cnt('fac', x)})</option>`).join('')}</select>` : ''}
+      ${depts.length > 1 ? `<select class="form-select" data-f="dept" title="القسم"><option value="">كل الأقسام</option>${depts.map(x => `<option value="${esc(x)}" ${f.dept === x ? 'selected' : ''}>${esc(x)} (${cnt('dept', x)})</option>`).join('')}</select>` : ''}
+      <select class="form-select" data-f="lv" title="السنة"><option value="">كل السنوات</option>${lvs.map(l => `<option value="${l}" ${String(f.lv) === String(l) && f.lv !== '' && f.lv != null ? 'selected' : ''}>${LV(l)}</option>`).join('')}</select>
+      <label class="ex-switch"><input type="checkbox" data-f="prob" ${f.prob ? 'checked' : ''}><span></span> ذات الملاحظات</label>
+      ${extra || ''}<span class="ex-count"><b>${n}</b> / ${C.length}</span>${n < C.length ? '<button class="btn btn-sm btn-link" data-fclear>مسح</button>' : ''}
+      <details class="ex-help"><summary title="كيف أعدّل؟"><i class="bi bi-question-circle-fill"></i></summary><div class="pop">للتعديل: اسحب الامتحان إلى خانة أخرى، أو اضغطه ثم اضغط الخانة الجديدة؛ تتلوّن الخانات حسب أثر النقل (أخضر أفضل، أحمر تعارض). في «القائمة» يمكن النقل من قائمة منسدلة. الألوان حسب ${COLBY === 'fac' ? 'الكلية' : 'القسم'}.</div></details></div>`;
   }
   const GV = [['matrix', 'bi-grid-3x3-gap', 'المصفوفة'], ['days', 'bi-calendar-week', 'حسب اليوم'], ['list', 'bi-table', 'القائمة'], ['cohort', 'bi-mortarboard', 'التخصصات والسنوات'], ['dept', 'bi-diagram-3', 'الأقسام'], ['proc', 'bi-person-badge', 'المراقبون']];
   function gridView(st) {
@@ -803,7 +799,7 @@
     return c ? `<div class="ex-hint"><i class="bi bi-hand-index-thumb-fill"></i> <span>نقل <b>${esc(c.code)} ${esc(c.name)}</b> (الآن: ${esc(slotLabel(c.s))}) — اضغط الخانة المطلوبة:</span>
         <span class="h-good">أفضل</span><span class="h-ok">مقبول</span><span class="h-warn">يزيد الضغط</span><span class="h-bad">تعارض</span>
         <button class="btn btn-sm btn-outline-secondary" data-pin="${sel}"><i class="bi bi-pin-angle"></i> ${c.pin != null ? 'إلغاء التثبيت' : 'تثبيت هنا'}</button><button class="btn btn-sm btn-link" data-unsel>إلغاء</button></div>`
-      : '<div class="ex-hint soft"><i class="bi bi-info-circle-fill"></i> للتعديل: اسحب الامتحان إلى خانة أخرى، أو اضغطه ثم اضغط الخانة الجديدة؛ تتلوّن الخانات حسب أثر النقل. في «القائمة» يمكن النقل من قائمة منسدلة.</div>';
+      : '';
   }
   function matrixView() {
     const sl = SL(), heat = {};
@@ -1613,7 +1609,9 @@
           : '<li><span class="dropdown-item-text small text-muted">لا خطط أخرى على هذا الجهاز بعد</span></li>'}
           ${(SITEPLANS || []).length ? '<li><hr class="dropdown-divider"></li><li><h6 class="dropdown-header">جاهزة على الموقع</h6></li>' + SITEPLANS.map(x => `<li><a class="dropdown-item" href="?plan=${encodeURIComponent(x.name)}"><i class="bi bi-cloud-download"></i> <span><b>${esc(x.label)}</b></span></a></li>`).join('') : ''}</ul></div>
       <input class="form-control form-control-sm ex-pbar-name" data-k="label" value="${esc(S.label || '')}" placeholder="اسم الخطة" aria-label="اسم الخطة">
-      <span class="ms-auto d-flex gap-1"><button class="btn btn-sm btn-outline-primary" data-plannew><i class="bi bi-plus-lg"></i> خطة جديدة</button><button class="btn btn-sm btn-outline-secondary" data-plancopy><i class="bi bi-copy"></i> نسخة من هذه الخطة</button></span></div>`;
+      <span class="ex-pbar-k" title="الكليات · المقررات · الأيام والفترات · القاعات"><i class="bi bi-building"></i> ${esc(facLabel())} · ${C.length} مقرراً · ${nDays(DAYS.length)} × ${nPer(P)} · ${rooms().filter(r => r.on).length} قاعة (${capTotal} مقعد/فترة)</span>
+      ${S.only && S.only.length ? `<span class="ex-pbar-only" title="${S.reqOnly && !S.listMax ? 'الخطة لمواد قائمة المتطلبات ومعها الامتحانات الثابتة للجهات الأخرى' : 'الخطة مقصورة على مواد الملف، بصرف النظر عن الكلية'}${Object.keys(PARTS).length ? ` · ${Object.keys(PARTS).length} مقررات مقسومة على أكثر من جلسة` : ''}"><i class="bi bi-funnel-fill"></i> مقصورة على ${S.only.length} مقرراً${FX.inPlan.size ? ` + ${FX.inPlan.size} ثابتاً` : ''}<button data-noonly title="إلغاء القصر" aria-label="إلغاء القصر"><i class="bi bi-x"></i></button></span>` : ''}
+      <span class="ms-auto d-flex gap-1"><button class="btn btn-sm btn-outline-primary" data-plannew title="خطة جديدة"><i class="bi bi-plus-lg"></i> جديدة</button><button class="btn btn-sm btn-outline-secondary" data-plancopy title="نسخة من هذه الخطة"><i class="bi bi-copy"></i> نسخة</button></span></div>`;
   }
   let SITEPLANS = null;
   function plansBox() {
@@ -1637,7 +1635,7 @@
     const body = tab === 'grid' ? gridView(st) : tab === 'check' ? checkView(st) : tab === 'out' ? outView_() : tab === 'set' ? setView() : draftsView();
     const y = window.scrollY, focus = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.f;
     if (SITEPLANS === null) { SITEPLANS = []; U.getJSON('data/exams/plans/index.json').then(x => { SITEPLANS = Array.isArray(x) ? x : []; render(); }).catch(() => {}); }
-    $(APP).innerHTML = planBar() + head(st) + `<div class="ex-body">${onlyBar()}${body}</div>` + navBtns();
+    $(APP).innerHTML = planBar() + head(st) + `<div class="ex-body">${body}</div>` + navBtns();
     if (focus) { const el = $(APP).querySelector(`[data-f="${focus}"]`); if (el && el.focus) { el.focus(); if (el.setSelectionRange) el.setSelectionRange(el.value.length, el.value.length); } }
     const sn = $(APP).querySelector('.ex-sn.on'), nav = sn && sn.parentElement;
     if (nav && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = sn.offsetLeft - (nav.clientWidth - sn.offsetWidth) / 2;
@@ -2308,7 +2306,7 @@
   .ex-qrep .ex-ri .cs { margin: .3rem 0; } .ex-qrep .ex-ri .cs li { font-size: .84rem; } .ex-qrep .ex-ri .cs small { font-size: .76rem; }
   .ex-qrep .ex-ri .why { font-size: .82rem; margin: .2rem 0; } .ex-qrep .ex-ri .who { font-size: .8rem; }
   .ex-qrep .ex-ri footer { padding-top: .3rem; } .ex-qrep .ex-ri .fix { font-size: .82rem; }
-  .ex-pbar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; background: #fff; border: 1px solid #e3dccd; border-radius: 12px; padding: .45rem .7rem; margin-bottom: .75rem; }
+  .ex-pbar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; background: #fff; border: 1px solid #e3dccd; border-radius: 12px; padding: .4rem .65rem; margin-bottom: .4rem; }
   .ex-pbar > i { color: #0f766e; } .ex-pbar-l { font-size: .8rem; font-weight: 700; color: #1f2a30; }
   .ex-pbar-cur { display: inline-flex; align-items: center; gap: .5rem; border: 1px solid #b9ddd0; background: #effaf5; color: #0d4f3a; } .ex-pbar-cur small { color: #1f2a30; font-weight: 600; }
   .ex-pbar-menu { min-width: 20rem; } .ex-pbar-menu .dropdown-item { display: flex; gap: .5rem; align-items: flex-start; white-space: normal; } .ex-pbar-menu small { display: block; color: #1f2a30; }
@@ -2624,6 +2622,15 @@
   .ex-p4 .pp { display: inline-flex; align-items: center; gap: .2rem; border: 1.5px solid #9fd3cb; background: #fff; border-radius: 9px; padding: .15rem .25rem .15rem .15rem; }
   .ex-p4 .pp > b { background: #0f766e; color: #fff; border-radius: 6px; min-width: 1.4rem; text-align: center; font-size: .8rem; } .ex-p4 .pp input { width: 5.7rem; padding: .1rem .25rem; font-size: .85rem; }
   .ex-p4 .pp .btn { padding: 0 .3rem; color: #b42318; } .ex-p4 .pp.bad { border-color: #b42318; background: #fff4f4; } .ex-p4 .pp.bad > b { background: #b42318; }
+  .ex-steps { margin: .4rem 0 !important; gap: .25rem !important; } .ex-steps .sep { font-size: .8rem !important; }
+  .ex-step { padding: .3rem .55rem !important; border-radius: 10px !important; min-width: 0 !important; gap: .4rem !important; }
+  .ex-step .num { width: 24px !important; height: 24px !important; font-size: .8rem !important; } .ex-step .tx { min-width: 0; line-height: 1.25; }
+  .ex-step .tx b { display: inline !important; font-size: .9rem !important; } .ex-step .tx small { display: block; font-size: .74rem !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ex-pbar-k { font-size: .82rem; color: #1f2a30; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
+  .ex-pbar-only { display: inline-flex; align-items: center; gap: .3rem; background: #e0f2fe; color: #0b4a66; border-radius: 999px; padding: .1rem .2rem .1rem .6rem; font-size: .8rem; font-weight: 700; white-space: nowrap; }
+  .ex-pbar-only button { border: 0; background: transparent; color: #0b4a66; padding: 0 .2rem; }
+  .ex-filter { flex-wrap: wrap; } .ex-filter .form-select { width: auto; max-width: 15rem; } .ex-filter .form-control { flex: 1 1 14rem; min-width: 10rem; }
+  .ex-filter .ex-help .pop { top: 1.8rem; }
   .ex-cal2 { display: grid; grid-template-columns: minmax(250px, 330px) minmax(0, 1fr); gap: 1rem; align-items: start; }
   .ex-calf { display: grid; gap: .6rem; } .ex-calf section { border: 1px solid #e2e8ec; border-radius: 12px; padding: .55rem .7rem; background: #fbfcfd; }
   .ex-calf h6 { font-size: .9rem; font-weight: 800; margin: 0 0 .4rem; color: #0b4a66; } .ex-calf label { display: block; margin: 0; } .ex-calf label > span { font-size: .8rem; font-weight: 700; color: #1f2a30; }
