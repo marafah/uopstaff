@@ -29,7 +29,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/course_descriptions.json
+          git add data/course_descriptions.json data/course_descriptions_lines.json
           if ! git diff --cached --quiet; then
             git commit -m "Course descriptions $(date -u +'%Y-%m-%d %H:%M')"
             git pull --rebase --autostash -q origin main || true

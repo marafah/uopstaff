@@ -11,6 +11,7 @@ downloaded keeps what was read from it before. Scanned files (no text) are liste
     python scripts/update_course_desc.py   ->  data/course_descriptions.json
 """
 import hashlib
+import unicodedata
 import io
 import json
 import os
@@ -23,7 +24,8 @@ sys.path.insert(0, os.path.dirname(__file__))
 import advisory_parse  # noqa: E402
 import update_advisory  # noqa: E402
 
-VERSION = 1
+VERSION = 2
+DEBUG = {}   # the first lines of every file read in this run, to check the reading (data/course_descriptions_lines.json)
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 OUT = os.path.join(ROOT, "data", "course_descriptions.json")
 LABEL = re.compile(r"وصف|description", re.I)
@@ -70,6 +72,7 @@ def text_lines(pdf_bytes):
                     lines.append([c["top"], [c]])
             for _, cs in lines:
                 t = advisory_parse._line_text(cs)
+                t = re.sub(r"\s+", " ", unicodedata.normalize("NFKC", t)).strip() if t else ""
                 if t:
                     out.append((n, t))
     return out
@@ -85,16 +88,18 @@ def parse(lines, known):
     found, cur = {}, None
 
     def head(t):
-        toks = t.split()
-        if not toks:
+        if len(t) > 160:
             return None
-        # a course opens a line: its number is among the first two words, or ends a short line (a table read right to left)
-        for tok in toks[:2] + ([toks[-1]] if len(t) < 140 else []):
-            m = CODE.fullmatch(tok.strip("():.-–،,"))
-            if m and m.group(1) in known:
-                before = t.split(m.group(1))[0]
-                if not PRE.search(before):
-                    return m.group(1)
+        for m in CODE.finditer(t):
+            code = m.group(1)
+            before, after = t[:m.start()], t[m.end():]
+            if PRE.search(before[-40:]) or re.search(r"(?:متطلب|prereq)[^0-9]{0,25}$", before, re.I):
+                continue   # a prerequisite, not the course itself
+            edge = not re.search(r"[\w\u0600-\u06ff]", re.sub(r"(رقم\s*(?:المساق|المادة|المقرر)|course\s*(?:no\.?|code|number))\s*:?", "", before, flags=re.I)[-12:] or "") \
+                or not re.search(r"\w", after[:3])
+            near = m.start() <= 25 or len(t) - m.end() <= 25 or len(t) < 70   # at either end of the line, not inside a sentence
+            if near and (code in known or (edge and len(t) < 110)):
+                return code
         return None
 
     for page, t in lines:
@@ -170,6 +175,7 @@ def main():
             except Exception as e:  # a damaged or unusual file: a link only
                 lines, got = [], {}
                 rec["error"] = repr(e)[:200]
+            DEBUG[url] = [f"{pg}| {t}" for pg, t in lines[:120]]
             rec.update({"sha": sha, "read": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "lines": len(lines), "courses": len(got),
                         "sample": [t for _, t in lines[:4]]})
             docs[url] = rec
@@ -187,6 +193,9 @@ def main():
         return
     with open(OUT, "w", encoding="utf-8") as fh:
         json.dump(data, fh, ensure_ascii=False, separators=(",", ":"))
+    if DEBUG:
+        with open(os.path.join(ROOT, "data", "course_descriptions_lines.json"), "w", encoding="utf-8") as fh:
+            json.dump(DEBUG, fh, ensure_ascii=False, indent=0)
     print(f"course descriptions: {len(courses)} courses from {sum(1 for d in docs.values() if d.get('courses'))}/{len(docs)} files")
 
 
