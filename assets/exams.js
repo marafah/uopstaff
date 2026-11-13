@@ -901,8 +901,13 @@
     const pr = r => { const t = [...new Set(r.rooms.flatMap(x => x.proc))].map(U.shortName).join('، '), m = r.rooms.reduce((a, x) => a + Math.max(0, (x.need || 1) - x.proc.length), 0); return m ? (t ? t + '، ' : '') + `⚠ ينقص ${m === 1 ? 'مراقب' : m + ' مراقبين'}` : t; };
     const H = ['اليوم', 'التاريخ', 'الوقت', 'الرمز', 'المقرر'];
     const sec = (title, columns, list) => ({ title, columns, rows: list });
-    if (outView === 'all') return [sec('', H.concat(['القسم', 'الطلبة', 'القاعات', 'المراقبون']), rows.map(r => base(r).concat([r.c.dept, r.c.students, rm(r), pr(r)])))];
-    if (outView === 'day') return DAYS.map((dd, di) => sec(`${dd.wd} ${dd.iso}`, ['الوقت', 'الرمز', 'المقرر', 'القسم', 'الطلبة', 'القاعات', 'المراقبون'], rows.filter(r => dayOf(r.s) === di).map(r => [tm(r), r.c.code, r.c.name, r.c.dept, r.c.students, rm(r), pr(r)]))).filter(x => x.rows.length);
+    // each room with its students, sections and proctors (one line per room: clear on paper and in Excel)
+    const miss = x => Math.max(0, (x.need || 1) - x.proc.length);
+    const rp = r => r.rooms.map(x => `${x.room}${x.t === LAB ? ' (مختبر)' : ''}: ${x.n} طالب${x.secs && x.secs.length && r.c.sl.length > 1 ? ' – شعبة ' + x.secs.join(' و') : ''} — المراقبة: ${x.proc.map(U.shortName).join('، ') || '—'}${miss(x) ? ` (⚠ ينقص ${miss(x) === 1 ? 'مراقب' : miss(x) + ' مراقبين'})` : ''}`).join(' ؛ ')
+      + (r.left ? ` ؛ ${r.left} بلا قاعة` : '') + (!r.rooms.length && EXT(r.c) ? `يعقده ${REQ(r.c).fixedBy || 'القسم المختص'}` : '');
+    const withM = (row, r) => { row.meta = r; return row; };
+    if (outView === 'all') return [sec('', H.concat(['القسم', 'الطلبة', 'القاعات والمراقبون']), rows.map(r => withM(base(r).concat([r.c.dept, r.c.students, rp(r)]), r)))];
+    if (outView === 'day') return DAYS.map((dd, di) => sec(`${dd.wd} ${dd.iso}`, ['الوقت', 'الرمز', 'المقرر', 'القسم', 'الطلبة', 'القاعات والمراقبون'], rows.filter(r => dayOf(r.s) === di).map(r => withM([tm(r), r.c.code, r.c.name, r.c.dept, r.c.students, rp(r)], r)))).filter(x => x.rows.length);
     if (outView === 'dept') return [...new Set(rows.map(r => r.c.dept))].sort().map(dp => sec(dp, H.concat(['المدرسون', 'الطلبة', 'القاعات']), rows.filter(r => r.c.dept === dp).map(r => base(r).concat([r.c.ins.map(U.shortName).join('، '), r.c.students, rm(r)]))));
     if (outView === 'cohort') return G.filter(g => g.kind === 'cohort').map(g => sec(g.name, H, rows.filter(r => g.c.includes(r.c.i)).map(base))).filter(x => x.rows.length);
     if (outView === 'room') {
@@ -919,11 +924,16 @@
   const OUTIC = { all: 'bi-table', day: 'bi-calendar-week', dept: 'bi-diagram-3', cohort: 'bi-mortarboard', ins: 'bi-person-badge', room: 'bi-door-open' };
   // on screen, the plain cells of the reports become clear chips and badges (print and Excel keep the text)
   const COLS = { 'اليوم': 'day', 'التاريخ': 'date', 'الوقت': 'time', 'الرمز': 'code', 'المقرر': 'name', 'القسم': 'dept', 'الطلبة': 'num', 'الطلبة في القاعة': 'num', 'الشعب': 'secs',
-    'القاعات': 'rooms', 'القاعة': 'rooms', 'المراقبون': 'ppl', 'المدرسون': 'ppl', 'المهمة': 'task' };
+    'القاعات': 'rooms', 'القاعة': 'rooms', 'القاعات والمراقبون': 'rp', 'المراقبون': 'ppl', 'المدرسون': 'ppl', 'المهمة': 'task' };
   const colCls = h => COLS[h] || 'txt';
   const dayKey = (cols, r) => { const j = cols.indexOf('التاريخ'); return j < 0 ? '' : r[j]; };
-  function cellHtml(h, v) {
+  function cellHtml(h, v, row) {
     const k = colCls(h), s = String(v == null ? '' : v);
+    if (k === 'rp' && row && row.meta) { const r = row.meta;
+      if (!r.rooms.length) return `<span class="ex-rpx">${esc(s || '—')}</span>`;
+      return `<div class="ex-rp">${r.rooms.map(x => { const m = Math.max(0, (x.need || 1) - x.proc.length);
+        return `<div class="l"><span class="rm"><i class="bi ${x.t === LAB ? 'bi-pc-display' : 'bi-door-open-fill'}"></i><b>${esc(x.room)}</b></span><span class="n">${x.n} طالباً</span><span class="sc">${x.secs && x.secs.length && r.c.sl.length > 1 ? 'ش ' + esc(x.secs.join('، ')) : ''}</span>
+          <span class="pp">${x.proc.map(n => `<span class="ex-pp${r.c.ins.includes(n) ? ' own' : ''}"><i class="bi bi-person-fill"></i> ${esc(U.shortName(n))}</span>`).join('')}${m ? `<span class="ex-pp miss"><i class="bi bi-exclamation-triangle-fill"></i> ${x.proc.length ? 'ينقص ' + m : 'بلا مراقب'}</span>` : ''}</span></div>`; }).join('')}${r.left ? `<div class="l bad">${r.left} طالباً بلا قاعة</div>` : ''}</div>`; }
     if (!s) return '<span class="text-muted">—</span>';
     if (k === 'date') return `<span class="ex-dt">${+s.slice(8)}/${+s.slice(5, 7)}<small>${s.slice(0, 4)}</small></span>`;
     if (k === 'day') return `<b class="ex-dw">${esc(s)}</b>`;
@@ -940,19 +950,19 @@
   function outView_() {
     const secs = outData(), n = secs.reduce((a, s) => a + s.rows.length, 0);
     return `${versBar()}<div class="ex-outbar"><div class="ex-views">${Object.entries(OUT).map(([k, t]) => `<button class="ex-vbtn${outView === k ? ' on' : ''}" data-ov="${k}"><i class="bi ${OUTIC[k]}"></i> ${t}</button>`).join('')}</div>
-      <div class="ex-acts"><button class="btn btn-ex" id="ex-print"><i class="bi bi-printer-fill"></i> طباعة / PDF</button><button class="btn btn-success" id="ex-xlsx"><i class="bi bi-file-earmark-excel-fill"></i> Excel</button>
+      <div class="ex-acts"><button class="btn btn-ex" id="ex-print" title="الطباعة والتصدير تأخذ العرض والتصفية الحاليين؛ في Excel كل جدول في ورقة"><i class="bi bi-printer-fill"></i> طباعة / PDF</button><button class="btn btn-success" id="ex-xlsx"><i class="bi bi-file-earmark-excel-fill"></i> Excel</button>
       <button class="btn btn-outline-secondary" id="ex-csv"><i class="bi bi-filetype-csv"></i> CSV</button></div></div>
-      ${pubPanel()}
+      <div class="ex-o2">${pubPanel()}
       <div class="ex-docs"><b><i class="bi bi-folder2-open"></i> كشوف ومستندات</b>
         <button class="btn btn-outline-primary" id="ex-plists"><i class="bi bi-people-fill"></i> قوائم الطلبة لكل قاعة <small>QR</small></button>
         <button class="btn btn-outline-primary" id="ex-psheets"><i class="bi bi-person-badge-fill"></i> كشف كل مراقب <small>QR</small></button>
         <button class="btn btn-outline-primary" id="ex-prep"><i class="bi bi-clipboard-data-fill"></i> تقرير المراقبات</button>
         <input type="file" id="ex-reg2" accept=".xls,.xlsx,.csv,.htm,.html" hidden>
-        <small class="text-muted">تأخذ التصفية الحالية (الكلية والقسم والبحث). ${REGMEM ? `أسماء الطلبة من ${esc(REGMEM.file)} (في هذه الصفحة فقط).` : 'قوائم الطلبة تحتاج كشف التسجيل؛ سيُطلب رفعه ولا يُحفظ.'}</small></div>
+        <small class="text-muted">تأخذ التصفية الحالية. ${REGMEM ? `أسماء الطلبة من ${esc(REGMEM.file)} (في هذه الصفحة فقط).` : 'قوائم الطلبة تحتاج كشف التسجيل؛ يُطلب رفعه ولا يُحفظ.'}</small></div></div>
       ${filterBar()}
-      <p class="ex-note"><i class="bi bi-info-circle-fill"></i> ${secs.length > 1 ? `${secs.length} جدولاً` : 'جدول واحد'} · ${n} صفاً — الطباعة والتصدير يأخذان العرض والتصفية الحاليين؛ في Excel كل جدول في ورقة.</p>
+
       ${secs.map(s => `${s.title ? `<h5 class="ex-h"><i class="bi ${OUTIC[outView]}"></i> ${esc(s.title)} <span class="ex-n">${s.rows.length}</span></h5>` : ''}<div class="table-responsive ex-tbl"><table class="table table-striped align-middle"><thead><tr>${s.columns.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead>
-        <tbody>${s.rows.map((r, k) => `<tr class="${k && dayKey(s.columns, r) !== dayKey(s.columns, s.rows[k - 1]) ? 'nd' : ''}">${r.map((v, j) => `<td class="c-${colCls(s.columns[j])}">${cellHtml(s.columns[j], v)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${s.columns.length}" class="text-muted">لا شيء</td></tr>`}</tbody></table></div>`).join('')}`;
+        <tbody>${s.rows.map((r, k) => `<tr class="${k && dayKey(s.columns, r) !== dayKey(s.columns, s.rows[k - 1]) ? 'nd' : ''}">${r.map((v, j) => `<td class="c-${colCls(s.columns[j])}">${cellHtml(s.columns[j], v, r)}</td>`).join('')}</tr>`).join('') || `<tr><td colspan="${s.columns.length}" class="text-muted">لا شيء</td></tr>`}</tbody></table></div>`).join('')}`;
   }
   const title = () => (S.label || TYPES[S.type].name) + ' – ' + facLabel();
   function doPrint() {
@@ -978,7 +988,7 @@
         note: { font: { italic: true, sz: 9, color: { rgb: '6B7A82' } }, alignment: { horizontal: 'right', wrapText: true } } };
       const cell = (zebra, center, bold) => ({ font: { sz: 10.5, bold: !!bold, color: { rgb: '1C2B31' } }, fill: { fgColor: { rgb: zebra ? 'F7F9FA' : 'FFFFFF' } },
         alignment: { horizontal: center ? 'center' : 'right', vertical: 'center', wrapText: true }, border: BOX });
-      const W = { 'اليوم': 11, 'التاريخ': 12, 'الوقت': 13, 'الرمز': 11, 'المقرر': 38, 'القسم': 24, 'الطلبة': 9, 'الطلبة في القاعة': 10, 'الشعب': 12, 'القاعات': 34, 'القاعة': 20, 'المراقبون': 34, 'المدرسون': 30, 'المهمة': 13 };
+      const W = { 'اليوم': 11, 'التاريخ': 12, 'الوقت': 13, 'الرمز': 11, 'المقرر': 38, 'القسم': 24, 'الطلبة': 9, 'الطلبة في القاعة': 10, 'الشعب': 12, 'القاعات': 34, 'القاعات والمراقبون': 70, 'القاعة': 20, 'المراقبون': 34, 'المدرسون': 30, 'المهمة': 13 };
       const CENTER = new Set(['اليوم', 'التاريخ', 'الوقت', 'الرمز', 'الطلبة', 'الطلبة في القاعة', 'الشعب', 'المهمة']);
       const span = DAYS.length ? `${DAYS[0].label} – ${DAYS[DAYS.length - 1].label}` : '';
       const info = `${TT.term || ''} · ${span} · ${S.approved ? 'معتمدة: ' + S.approved : 'مسودة'} · أُعدّ في ${new Date().toLocaleDateString('ar-JO')}`;
@@ -1189,7 +1199,7 @@
   function pubPanel() {
     const L = LIVE, mine = S.pub, changed = L && mine && C.some(c => c.s >= 0) && sig(pubDoc()) !== mine.sig;
     const st = L === null ? '<span class="bdg"><span class="spinner-border spinner-border-sm"></span> يتحقق من الموقع…</span>'
-      : L ? `<span class="bdg green"><i class="bi bi-broadcast"></i> منشور الآن: ${esc(L.title)} · ${L.exams.length} امتحاناً · ${U.ago ? U.ago(L.published) : L.published.slice(0, 10)}</span>`
+      : L ? `<span class="bdg green"><i class="bi bi-broadcast"></i> منشور الآن: ${esc(L.title)} · ${L.exams.length} امتحاناً · ${L.published ? (U.ago ? U.ago(L.published) : String(L.published).slice(0, 10)) : ''}</span>`
       : '<span class="bdg"><i class="bi bi-eye-slash"></i> لا جدول منشوراً على الموقع</span>';
     return `<div class="ex-pub"><div class="t"><i class="bi bi-display"></i> النشر على شاشات المباني وصفحة «امتحاناتي»</div>${st}
       ${changed ? '<span class="bdg amber"><i class="bi bi-arrow-repeat"></i> عدّلت الجدول بعد آخر نشر</span>' : ''}
@@ -2692,6 +2702,14 @@
   .ex-rtabs button { font-size: .9rem !important; color: #0f1f26 !important; } .ex-rtabs em { font-size: .8rem !important; }
   .ex-rt2 .why .who { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; margin-top: .4rem; } .ex-rt2 .why .who .lb { font-weight: 800; font-size: .88rem; }
   .ex-rt2 .why .wc { background: #eef4f8; border: 1px solid #cfdde7; color: #0b3a50; border-radius: 6px; padding: .05rem .45rem; font-size: .88rem; font-weight: 700; }
+  .ex-o2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .6rem; margin: .5rem 0; } @media (max-width: 1100px) { .ex-o2 { grid-template-columns: 1fr; } }
+  .ex-o2 > * { margin: 0 !important; } .ex-o2 .ex-pub { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; } .ex-o2 .ex-pub .t { flex: 1 1 100%; font-weight: 800; }
+  .ex-o2 .ex-docs { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; } .ex-o2 .ex-docs > b { flex: 1 1 100%; } .ex-o2 .ex-docs .btn { font-size: .9rem; } .ex-o2 .ex-docs small { flex: 1 1 100%; color: #0f1f26 !important; }
+  .ex-rp { display: grid; gap: .3rem; min-width: 30rem; } .ex-rp .l { display: grid; grid-template-columns: 6rem 5.2rem auto minmax(0, 1fr); gap: .5rem; align-items: center; padding: .25rem .45rem; background: #f7fafb; border: 1px solid #e3ebef; border-radius: 8px; }
+  .ex-rp .rm { display: inline-flex; gap: .35rem; align-items: center; } .ex-rp .rm i { color: #15803d; } .ex-rp .rm b { font-size: 1rem; }
+  .ex-rp .n { font-weight: 800; font-size: .92rem; color: #0b3a50; } .ex-rp .sc { font-size: .85rem; font-weight: 700; color: #0f1f26; white-space: nowrap; } .ex-rp .pp { display: flex; flex-wrap: wrap; gap: .25rem; }
+  .ex-rp .pp .ex-pp { font-size: .86rem; } .ex-rp .l.bad { display: block; background: #fde8e8; color: #b42318; font-weight: 800; border-color: #f5c2c0; } .ex-rpx { font-weight: 700; color: #0b4a66; }
+  .ex-tbl table td { color: #0f1f26; font-size: .95rem; } .ex-tbl table td.c-name b { font-size: 1rem; }
   .ex-cal2 { display: grid; grid-template-columns: minmax(250px, 330px) minmax(0, 1fr); gap: 1rem; align-items: start; }
   .ex-calf { display: grid; gap: .6rem; } .ex-calf section { border: 1px solid #e2e8ec; border-radius: 12px; padding: .55rem .7rem; background: #fbfcfd; }
   .ex-calf h6 { font-size: .9rem; font-weight: 800; margin: 0 0 .4rem; color: #0b4a66; } .ex-calf label { display: block; margin: 0; } .ex-calf label > span { font-size: .8rem; font-weight: 700; color: #1f2a30; }
