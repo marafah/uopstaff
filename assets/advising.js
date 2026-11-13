@@ -393,6 +393,17 @@
   const saveEq = () => { try { localStorage.setItem(EQ_KEY, JSON.stringify(EQ)); } catch (e) { /* storage unavailable */ } };
   const ttTerm = () => termCode(TT && TT.term);
   const nm = c => NAMES[c] || '';
+  // names read from old plan files sometimes carry broken letters (\uFFFD): repair each word from the words of the official course names
+  let VOCAB = null;
+  const fixAr = t => {
+    if (!t || !/\uFFFD/.test(t)) return t;
+    if (!VOCAB) { VOCAB = new Set(['إجباري', 'اختياري', 'كلية', 'جامعة', 'متطلب', 'متطلبات', 'قسم', 'تخصص', 'حرة', 'مساندة']); Object.values(NAMES).forEach(n => String(n).split(/\s+/).forEach(w => /^[\u0600-\u06ff]{2,}$/.test(w) && VOCAB.add(w))); }
+    return t.split(/(\s+)/).map(w => { if (!/\uFFFD/.test(w)) return w;
+      const A = x => x.replace(/[أإآ]/g, 'ا');
+      const re = new RegExp('^' + A(w).replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\uFFFD+/g, '[\u0600-\u06ff]{1,3}') + '$');
+      const hit = [...VOCAB].filter(v => re.test(A(v))); return hit.length === 1 ? hit[0] : hit.length ? hit.sort((a, b) => a.length - b.length)[0] : w.replace(/\uFFFD+/g, '…'); }).join('');
+  };
+  const cleanName = (code, name) => { const o = /^\d{6,7}$/.test(code || '') ? nm(code) : ''; return (o && !/\uFFFD/.test(o) ? o : '') || fixAr(name || o); };
   const ruleLink = (art, label) => `<a href="${BACH_URL}" target="_blank" rel="noopener" class="adv-rule" title="تعليمات منح درجة البكالوريوس في جامعة البترا (رقم 17 لسنة 2023)"><i class="bi bi-bookmark-check"></i> ${label || 'م ' + art}</a>`;
   const hrsWord = n => n === 1 ? 'ساعة' : n === 2 ? 'ساعتان' : n <= 10 ? `${n} ساعات` : `${n} ساعة`;
 
@@ -530,6 +541,7 @@
   .adv-kpis { grid-template-columns:repeat(auto-fill,minmax(165px,1fr)) !important; }
   .adv-kpi span { font-size:.95rem !important; color:#111 !important; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .adv-kpi b { font-size:1.6rem !important; }
+  .adv-t td small, .adv-t td .adv-src, .adv-t td .text-muted, .adv-t td .text-secondary, .adv-t td .small, .adv-tools, .adv-tools small, .adv-cci dt, .adv-dayc .adv-src { color:#111 !important; opacity:1 !important; }
   .adv-sl { padding:3px 0; white-space:nowrap; } .adv-sl + .adv-sl { border-top:1px dashed #e5e5e5; } .adv-sl small { color:#3b4048; }
   .adv-cb { width: 34px; text-align: center; } .adv-cb input { width: 17px; height: 17px; accent-color: #901d23; cursor: pointer; }
   .adv-row.sel td { background: #fbf2f3; }
@@ -645,7 +657,7 @@
     const col = f => `<td>${mine.map(x => `<div class="adv-sl">${f(x)}</div>`).join('')}</td>`;
     return col(x => `<span class="fb ${x.activity === 'عملي' ? 'lab' : 'sec'}">ش ${esc(x.section)}${x.activity === 'عملي' ? ' · عملي' : ''}</span>`)
       + col(x => { const g = {}; x.meetings.forEach(m => { const k = live(m) ? `<bdi dir="ltr">${m.start} – ${m.end}</bdi>` : 'غير متزامن'; (g[k] ||= []).push(DAYN(m.day)); });
-          return Object.entries(g).map(([k, d]) => `<div><i class="bi bi-clock ic-o"></i> ${esc(d.join(' و'))} ${k}</div>`).join(''); })
+          return Object.entries(g).map(([k, d]) => `<div><i class="bi ${k === 'غير متزامن' ? 'bi-laptop ic-t' : 'bi-clock ic-o'}"></i> ${esc(d.join(' و'))} ${k}</div>`).join(''); })
       + col(x => `<i class="bi bi-person-fill ic-b"></i> ${esc(U.shortName(x.instructor || '—'))}`)
       + col(x => `<i class="bi bi-door-open-fill ic-p"></i> ${esc(x.room && x.room !== '0' ? x.room : 'افتراضية')}`)
       + col(x => isOpen(x) ? `<span class="fb ok"><i class="bi bi-check-circle-fill"></i> ${seats(x)} شاغر</span>` : '<span class="fb no"><i class="bi bi-x-circle-fill"></i> مغلقة</span>');
@@ -1210,7 +1222,7 @@
       const list = t ? t.courses.slice() : [];
       // placement tests: a student who did not pass studies the remedial course first (instructions, article 5/ب)
       const REM = [['ar', '9401099', '9400113', 'اللغة العربية'], ['en', '9402099', '9400123', 'اللغة الإنجليزية'], ['pc', '9601099', '9600104', 'المهارات الحاسوبية']];
-      let courses = list.map(c => ({ code: c.code, name: c.name || nm(c.code), hours: c.hours || 3, prereq: [], g: { fixed: true, name: 'الخطة الاسترشادية' }, why: [['req', `${['', 'الفصل الأول', 'الفصل الثاني'][termNo === 'first' ? 1 : 2]} من الخطة الاسترشادية`]], ready: true, required: true, level: 1, score: 0 }));
+      let courses = list.map(c => ({ code: c.code, name: cleanName(c.code, c.name), hours: c.hours || 3, prereq: [], g: { fixed: true, name: 'الخطة الاسترشادية' }, why: [['req', `${['', 'الفصل الأول', 'الفصل الثاني'][termNo === 'first' ? 1 : 2]} من الخطة الاسترشادية`]], ready: true, required: true, level: 1, score: 0 }));
       REM.forEach(([k, rem, real, label]) => {
         if (!st.fresh[k]) return;
         const i = courses.findIndex(c => c.code === real || (k === 'pc' && /^9600/.test(c.code)));
@@ -1218,7 +1230,7 @@
         if (i >= 0) courses.splice(i, 1, rc); else courses.unshift(rc);
       });
       courses = courses.filter(c => /^\d{6,7}$/.test(c.code));
-      const slots = list.filter(c => !/^\d{6,7}$/.test(c.code));
+      const slots = list.filter(c => !/^\d{6,7}$/.test(c.code)).map(c => ({ ...c, code: /^\d{6,7}$/.test(c.code || '') ? c.code : '', name: fixAr(c.name) }));
       const a = { st: { head: { studyType: 'صباحي' } }, groups: [], open: courses };
       const sug = suggest(a, S, { max: 18, alts: altCodes });
       const sel = sug.best.combo;
@@ -1247,12 +1259,12 @@
               return `<div class="adv-cci" style="--cc:${(colour[c.via || c.code] || ['#9ca3af'])[0]}"><div class="adv-cci-h"><span class="fb code">${c.code}</span><span class="fb hrs">${c.hours} س</span></div><b class="adv-cci-n">${esc(c.name)}</b>
                 ${mine.length ? mine.map(x => `<dl><dt><i class="bi bi-hash ic-p"></i>الشعبة</dt><dd><span class="fb ${x.activity === 'عملي' ? 'lab' : 'sec'}">ش ${esc(x.section)}${x.activity === 'عملي' ? ' · عملي' : ''}</span></dd><dt><i class="bi bi-clock ic-o"></i>المواعيد</dt><dd>${x.meetings.map(m => live(m) ? `${esc(DAYN(m.day))} <bdi dir="ltr">${m.start} – ${m.end}</bdi>` : `${esc(DAYN(m.day))} غير متزامن`).join('<br>')}</dd><dt><i class="bi bi-person-fill ic-b"></i>المدرس</dt><dd>${esc(U.shortName(x.instructor || '—'))}</dd><dt><i class="bi bi-door-open-fill ic-p"></i>القاعة</dt><dd>${esc(room(x))}</dd><dt><i class="bi bi-people-fill ic-g"></i>المقاعد</dt><dd>${isOpen(x) ? `<span class="fb ok"><i class="bi bi-check-circle-fill"></i> ${seats(x)} شاغر</span>` : '<span class="fb no"><i class="bi bi-x-circle-fill"></i> مغلقة</span>'}</dd></dl>`).join('')
                   : `<div class="mt-2"><span class="fb no"><i class="bi bi-x-octagon-fill"></i> ${offeredAs(c.code) ? 'تتعارض شعبها أو تتجاوز الساعات' : 'غير مطروحة هذا الفصل'}</span></div>`}</div>`; }).join('')}
-              ${slots.map(c => `<div class="adv-cci" style="--cc:#9ca3af"><div class="adv-cci-h"><span class="fb code">${esc(c.code)}</span><span class="fb hrs">${c.hours || ''} س</span></div><b class="adv-cci-n">${esc(c.name)}</b><div class="adv-src mt-2">يختارها الطالب من المجموعة</div></div>`).join('')}</div>`;
+              ${slots.map(c => `<div class="adv-cci" style="--cc:#9ca3af"><div class="adv-cci-h">${c.code ? `<span class="fb code">${esc(c.code)}</span>` : '<span class="fb sec">اختيار</span>'}<span class="fb hrs">${c.hours || ''} س</span></div><b class="adv-cci-n">${esc(c.name)}</b><div class="adv-src mt-2">يختارها الطالب من المجموعة</div></div>`).join('')}</div>`;
           else view = `<div class="table-responsive"><table class="adv-t"><thead><tr><th>الرمز</th><th>المادة</th><th>س</th>${SEC_TH}</tr></thead><tbody>
         ${courses.map(c => { const mine = sel.filter(x => x.code === (c.via || c.code));
           return `<tr class="${mine.length ? '' : 'adv-x'}"><td><span class="fb code">${c.code}</span>${c.via ? `<div class="adv-src">برمز ${c.via}</div>` : ''}</td><td><b>${esc(c.name)}</b>${c.why[0][0] === 'retake' ? ' <span class="adv-chip retake">استدراكية</span>' : ''}</td><td><span class="fb hrs">${c.hours} س</span></td>${mine.length ? secTds(mine)
             : `<td colspan="5">${offeredAs(c.code) ? '<span class="fb no"><i class="bi bi-exclamation-triangle-fill"></i> تتعارض شعبها أو تتجاوز الساعات</span>' : '<span class="fb no"><i class="bi bi-x-octagon-fill"></i> غير مطروحة هذا الفصل</span>'}</td>`}</tr>`; }).join('')}
-        ${slots.map(c => `<tr><td><span class="fb code">${esc(c.code)}</span></td><td><b>${esc(c.name)}</b><div class="adv-src">يختارها الطالب من المجموعة</div></td><td><span class="fb hrs">${c.hours || ''} س</span></td><td colspan="5"><i class="bi bi-info-circle ic-b"></i> انظر المطروح منها في <a href="plans.html" target="_blank" rel="noopener">الخطط الدراسية</a></td></tr>`).join('')}</tbody></table></div>`;
+        ${slots.map(c => `<tr><td>${c.code ? `<span class="fb code">${esc(c.code)}</span>` : '<span class="fb sec">اختيار</span>'}</td><td><b>${esc(c.name)}</b><div class="adv-src">يختارها الطالب من المجموعة</div></td><td><span class="fb hrs">${c.hours || ''} س</span></td><td colspan="5"><i class="bi bi-info-circle ic-b"></i> انظر المطروح منها في <a href="plans.html" target="_blank" rel="noopener">الخطط الدراسية</a></td></tr>`).join('')}</tbody></table></div>`;
           return nav + view;
         })()}
         ${sel.length ? `<a class="btn btn-sm btn-light border mt-2 no-print" href="${planner}" target="_blank" rel="noopener"><i class="bi bi-calendar2-week"></i> افتح في «مخطط جدولي»</a>` : ''}</div>`;
