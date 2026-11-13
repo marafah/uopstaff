@@ -36,12 +36,7 @@ MENU = [
     ("planner.html", "bi-mortarboard", "للطلبة", "اختر مقرراتك وشعبك بلا تعارض", [
         ("together.html", "bi-people", "جدولنا معاً", "أوقات فراغ مشتركة لمجموعة طلبة ومشرفهم"),
         ("myexams.html", "bi-calendar-check", "امتحاناتي", "يوم امتحان كل مقرر ووقته وقاعته، على هاتفك")]),
-    ("advising.html", "bi-compass", "الإرشاد", "كل طلبتك وخططهم وتفاصيلهم: المتوقع تخرجهم، المنذرون، المتعثرون", [
-        ("advising.html?view=import", "bi-plus-circle", "إضافة طلاب", "من بوابة الطلبة دفعة واحدة، أو برفع «تحليل خطة الطالب»، أو يدوياً"),
-        ("advising.html?view=demand", "bi-bar-chart-line", "المواد المطلوبة", "كم طالباً يحق له تسجيل كل مادة في الفصل القادم، لتخطيط الشعب"),
-        ("advising.html?view=fresh", "bi-stars", "طالب جديد", "حزمة الفصل الأول من الخطة الاسترشادية مع المواد الاستدراكية"),
-        ("advising.html?view=dict", "bi-book-half", "قاموس المواد", "الرموز القديمة والجديدة، والمواد المكافئة (يرفعها أي مستخدم)"),
-        ("advising.html?view=rules", "bi-bank", "القواعد الرسمية", "العبء الدراسي والمتطلبات والإنذار، بنص التعليمات ورابطها"),
+    ("advising.html", "bi-compass", "الإرشاد", "طلبتك، المواد المطلوبة، طالب جديد، قاموس المواد والقواعد الرسمية في صفحة واحدة", [
         ("plans.html", "bi-journal-bookmark", "الخطط الدراسية", "خطة كل تخصص: المجموعات والساعات والمقررات وما يُطرح منها هذا الفصل"),
         ("advisory.html", "bi-signpost-split", "الخطط الاسترشادية", "خطة كل برنامج سنةً بسنة وفصلاً بفصل، بكل إصداراتها، مع أداة للمرشد الأكاديمي")]),
     ("fees.html", "bi-cash-coin", "المالية", "التخصصات وسعر الساعة المعتمدة كما تنشرها الجامعة", [
@@ -54,7 +49,7 @@ MENU = [
     ("notes.html", "bi-journal-richtext", "مفكرتي", "", []),
 ]
 # a menu named for its users opens with its main page under that page's own name and icon
-HEAD = {"advising.html": ("bi-people", "الطلاب"), "instructor.html": ("bi-person-badge", "صفحة المدرس"), "planner.html": ("bi-calendar2-week", "مخطط جدولي"), "fees.html": ("bi-tags", "التخصصات والرسوم")}
+HEAD = {"advising.html": ("bi-compass", "مكتب الإرشاد"), "instructor.html": ("bi-person-badge", "صفحة المدرس"), "planner.html": ("bi-calendar2-week", "مخطط جدولي"), "fees.html": ("bi-tags", "التخصصات والرسوم")}
 # on phones and tablets the menu is two rows of four, so the long names are shortened there
 SHORT = {"directory.html": "الدليل", "timetable.html": "الجدول", "calendar.html": "التقويم", "now.html": "الآن"}
 MAIN = [(href, ic, t) for href, ic, t, _, _ in MENU]
