@@ -32,7 +32,7 @@ AI = os.path.join(ROOT, "data", "course_desc_ai.json")   # Claude's transcriptio
 KEY = os.environ.get("ANTHROPIC_API_KEY", "").strip()
 MODEL = os.environ.get("COURSE_DESC_MODEL", "claude-sonnet-4-5")
 AI_MAX = int(os.environ.get("COURSE_DESC_AI_MAX", "600"))
-AI_CACHE, AI_USED = {}, [0]
+AI_CACHE, AI_USED, AI_ERR = {}, [0], []
 PROMPT = ("This image is part of a page of a University of Petra course description file («وصف المواد»). Transcribe the course "
           "description paragraph exactly as printed, letter for letter, in its own language (Arabic or English), keeping every English "
           "term and punctuation mark as printed. Leave out the title line (course number, name, credit hours) and the prerequisite line "
@@ -59,6 +59,7 @@ def ai_text(names, key):
         r.raise_for_status()
     except Exception as e:  # quota or network: the page reading stays, tried again next run
         print(f"  Claude: {e}", file=sys.stderr)
+        AI_ERR.append(f"{type(e).__name__}: {getattr(getattr(e, 'response', None), 'text', '')[:200] or str(e)[:200]}")
         AI_USED[0] = AI_MAX
         return ""
     AI_USED[0] += 1
@@ -328,7 +329,8 @@ def main():
         return
     data = {"updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "parser": VERSION,
             "source": "ملفات «وصف المواد» المنشورة على صفحات الأقسام في مواقع الكليات", "failed": failed,
-            "docs": docs, "courses": dict(sorted(courses.items()))}
+            "docs": docs, "courses": dict(sorted(courses.items())),
+            "ai": {"key": bool(KEY), "model": MODEL, "calls": AI_USED[0] if not AI_ERR else None, "error": AI_ERR[:1]}}
     if json.dumps({k: v for k, v in data.items() if k != "updated"}, sort_keys=True) == json.dumps({k: v for k, v in old.items() if k != "updated"}, sort_keys=True):
         print("course descriptions: no change")
         return

@@ -36,16 +36,15 @@
     const doc = p && Object.entries(DESC.docs || {}).find(([, d]) => (d.programs || []).includes(p.id));
     if (!e) return doc ? `<h4><i class="bi bi-card-text"></i> وصف المادة</h4><p class="small text-muted mb-0">لم يُعثر على وصف لهذه المادة في <a href="${esc(doc[0])}" target="_blank" rel="noopener">ملف «وصف المواد» للقسم</a>${doc[1].courses ? '' : ' (الملف صور أو بتنسيق لم يُقرأ بعد)'}.</p>` : '';
     const d = (DESC.docs || {})[e.url] || {};
-    return `<h4><i class="bi bi-card-text"></i> وصف المادة</h4>${descBody(e)}
-      ${e.pre ? `<p class="am-asis"><i class="bi bi-quote"></i> كما في الوصف: ${esc(e.pre)}</p>` : ''}
-      <p class="small text-muted mb-0"><i class="bi bi-file-earmark-pdf"></i> من <a href="${esc(e.url)}#page=${e.page || 1}" target="_blank" rel="noopener">«وصف المواد»${d.program ? ' – ' + esc(d.program) : ''}</a>، صفحة ${e.page || 1}، منقول كما هو.</p>`;
-  }
-  // the description as printed (an image of its part of the page: exact), and its text when the file's text layer reads cleanly
-  function descBody(e) {
     const imgs = (e.img || []).map(n => `<img class="am-dimg" src="data/coursedesc/${esc(n)}" alt="وصف المادة كما في الملف المنشور" loading="lazy">`).join('');
-    const text = e.clean || e.ocr || e.ai ? `<p class="am-desc">${esc(e.text)}</p>` : '';
-    return `${text}${e.ocr ? '<p class="small text-muted mb-1">قُرئ النص من صورة الصفحة لأن خطّ الملف لا يُستخرج نصاً سليماً؛ قد يقع فيه خطأ حرفي نادر — المرجع الملف.</p>' : ''}
-      ${imgs ? (text ? `<details class="small"><summary>كما طُبع في الملف</summary><div class="am-dimgs">${imgs}</div></details>` : `<div class="am-dimgs">${imgs}</div>`) : ''}`;
+    const text = e.clean || e.ocr || e.ai;
+    const meta = [e.ocr ? '<span title="خطّ الملف لا يُستخرج نصاً سليماً، فقُرئ النص من صورة الصفحة؛ قد يقع فيه خطأ حرفي نادر — المرجع الملف"><i class="bi bi-eye"></i> مقروء من صورة الصفحة</span>' : '',
+      imgs && text ? '<a href="#" class="am-dshow"><i class="bi bi-image"></i> كما طُبع في الملف</a>' : '',
+      e.pre ? `<span><i class="bi bi-arrow-return-left"></i> ${esc(e.pre)}</span>` : '',
+      `<a href="${esc(e.url)}#page=${e.page || 1}" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> «وصف المواد»${d.program ? ' – ' + esc(d.program) : ''}، ص ${e.page || 1}</a>`].filter(Boolean).join('<b>·</b>');
+    return `<details class="am-dsec"><summary><i class="bi bi-card-text"></i> وصف المادة</summary>
+      ${text ? `<p class="am-desc">${esc(e.text)}</p>` : ''}<div class="am-dimgs" ${text ? 'hidden' : ''}>${imgs}</div>
+      <div class="am-dmeta">${meta}</div></details>`;
   }
   // the groups of the portal's study plan a choice slot («متطلب تخصص اختياري», «مادة حرة»…) is filled from
   function slotGroups(n, pm) {
@@ -73,7 +72,7 @@
       <div class="am-slot">${L.map(c => { const S = secs(c.code), open = S.filter(isOpen), e = descOf(c.code, p);
         const k = S.length ? (open.length ? 'open' : 'closed') : 'none';
         return `<details class="am-slc"><summary><span class="am-dot2" style="background:${AV[k][1]}"></span><code>${esc(c.code)}</code> ${esc(c.name)} <small>${c.hours} س · ${S.length ? `${open.length}/${S.length} مفتوحة` : 'غير مطروحة'}</small></summary>
-          ${e ? descBody(e) : '<p class="small text-muted mb-1">لا وصف منشور لهذه المادة في ملفات «وصف المواد».</p>'}
+          ${e ? `<p class="am-desc">${esc(e.text)}</p>` : '<p class="small text-muted mb-1">لا وصف منشور لهذه المادة في ملفات «وصف المواد».</p>'}
           <div class="d-flex gap-2 small">${S.length ? `<a href="timetable.html?q=${c.code}">الشعب</a>` : ''}<a href="plans.html?plan=${encodeURIComponent(pm.pl.id)}&q=${c.code}">الخطة الدراسية</a></div></details>`; }).join('')}</div>`; }).join('')
       + `<p class="small text-muted mt-2 mb-0"><i class="bi bi-journal-text"></i> من الخطة الدراسية «${esc(pm.pl.major)}» (إصدار ${esc(pm.pl.version)}) على بوابة الجامعة، تتحدّث كل ساعة؛ «مطروحة» من الجدول الدراسي المنشور.</p>`;
   }
@@ -632,6 +631,10 @@
     .am-n-ft { justify-content: space-between; margin-top: .1rem; }
     .am-stp { display: inline-flex; align-items: center; gap: .25rem; border-radius: 99px; padding: .05rem .45rem; font-size: .66rem; font-weight: 800; white-space: nowrap; }
     .am-stp i { font-size: .7rem; }
+    .am-dsec { margin: .45rem 0; border: 1px solid #ece6d6; border-radius: 10px; background: #fffdf8; padding: .3rem .6rem; }
+    .am-dsec > summary { cursor: pointer; font-weight: 800; color: #1f2328; font-size: .95rem; list-style-position: inside; }
+    .am-dmeta { display: flex; flex-wrap: nowrap; gap: .35rem; align-items: center; overflow-x: auto; white-space: nowrap; font-size: .74rem; color: #3b4048; padding-bottom: .15rem; }
+    .am-dmeta b { color: #b8a77c; } .am-dmeta i { margin-inline-end: .15rem; }
     .am-dimgs { display: grid; gap: 2px; border: 1px solid #ece6d6; border-radius: 10px; overflow: hidden; background: #fff; margin: .3rem 0; } .am-dimg { width: 100%; height: auto; display: block; }
     .am-desc { font-size: .9rem; line-height: 1.85; color: #1f2328; background: #fbfaf6; border: 1px solid #ece6d6; border-radius: 10px; padding: .5rem .7rem; margin: .3rem 0; }
     .am-np { font-size: .66rem; font-weight: 700; color: #6d28d9; background: #f3efff; border: 1px solid #d8ccf5; border-radius: 99px; padding: 0 .35rem; margin-inline-start: .2rem; }
@@ -1052,6 +1055,7 @@
     function bindSide() {
       const side = $('#am-side');
       side.querySelectorAll('[data-go]').forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.go); });
+      side.querySelectorAll('.am-dshow').forEach(a => a.onclick = e => { e.preventDefault(); const g = a.closest('.am-dsec').querySelector('.am-dimgs'); g.hidden = !g.hidden; });
       const xb = $('#am-x'); if (xb) xb.onclick = () => pick('');
       const bk = $('#am-back'); if (bk) bk.onclick = () => pick(HIST.pop(), true);
       side.querySelectorAll('[data-close]').forEach(b => b.onclick = () => { HELP = false; row.classList.remove('open'); });
