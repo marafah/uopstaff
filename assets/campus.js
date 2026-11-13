@@ -172,7 +172,7 @@
     $('#cm-play').onclick = () => { if (tool !== 'lapse') setTool('lapse'); if (!LP.tm) lapsePlay(); };
     $('#cm-now').onclick = () => { at = null; const m = U.amman(P.get('at')); $('#cm-day').value = m.day; $('#cm-min').value = Math.min(1260, Math.max(420, m.min)); draw(); };
     $('#cm-layers-b').onclick = e => { e.stopPropagation(); $('#cm-layers').hidden = !$('#cm-layers').hidden; };
-    $('#cm-layers').onchange = e => { const k = e.target.dataset.l; if (k) { L[k] = e.target.checked; saveL(); draw(); } };
+    $('#cm-layers').onchange = e => { const k = e.target.dataset.l; if (k) { L[k] = e.target.checked; saveL(); if (k === 'acc' && tool === 'access') accessTool(); draw(); } };
     $('#cm-size').oninput = e => { L.size = +e.target.value; saveL(); apply(); };
     $('#cm-reset').onclick = () => { Object.assign(L, L0); syncLayers(); $('#cm-size').value = L.size; saveL(); draw(); apply(); };
     $('#cm-layers').addEventListener('pointerdown', e => e.stopPropagation());
@@ -1085,7 +1085,8 @@
     $('#cm-ato').onchange = e => { ACC.to = B(e.target.value); accessTool(); center(ACC.to); };
     $('#cm-card').querySelector('[data-go="free"]').onclick = () => { FREE.ground = true; FREE.from = ACC.to; setTool('free'); };
     $('#cm-doc').onclick = accessDoc;
-    if (C.access) OV = accLayer(p);
+    if (C.access && !ACC.layered) { ACC.layered = true; L.acc = true; syncLayers(); }   // the layer is on while this tool is open (its checkbox shows it)
+    if (C.access) OV = L.acc ? accLayer(p) : { lines: p ? [{ pts: p.pts, cls: 'cm-access' }] : [], marks: '' };
     else { const net = C.paths ? C.paths.edges.map(([a, b]) => ({ pts: [C.paths.nodes[a], C.paths.nodes[b]], cls: 'cm-net', nocase: true })) : [];
       OV = { lines: [...net, ...(p ? [{ pts: p.pts, cls: 'cm-access' }] : [])], marks: '' }; }
     mark = new Set([ACC.to.id]); pins();
