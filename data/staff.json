@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-13T23:39:33Z",
+"updated": "2026-11-14T19:14:28Z",
 "main_line": "+96265799555",
 "main_line_display": "06 5799555",
 "faculties": [
@@ -5411,28 +5411,6 @@
 "photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/%D8%AF.%20%D9%8A%D8%A7%D8%B3%D8%B1%20%D8%A7%D9%84%D9%87%D9%85%D8%B4%D8%B1%D9%8A%20%281%29202211143328.JPG"
 },
 {
-"id": "A:690068007300730061006E002E00730061006D00610072006100400075006F0070002E006500640075002E006A006F00",
-"type": "academic",
-"faculty": 3,
-"name": "د. احسان سمير كامل سمارة",
-"name_en": "",
-"job": "رئيس قسم ادارة الاعمال& ادارة سلاسل التوريد والعلوم اللوجستية",
-"rank": "أستاذ مساعد",
-"rank_order": 3,
-"role": "رئيس قسم",
-"sort": 5,
-"department": "إدارة سلاسل التوريد والعلوم اللوجستية",
-"specialization": "ادارة الاعمال – ادارة الاعمال",
-"qualification": "",
-"ext": "9407",
-"office": "9407",
-"email": "ihssan.samara@uop.edu.jo",
-"photo": "assets/photos/0ceef1b0c7d2297d.jpg",
-"profile": "https://fafs.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=690068007300730061006E002E00730061006D00610072006100400075006F0070002E006500640075002E006A006F00",
-"source": "academic_api",
-"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/%D8%AF.%20%D8%A5%D8%AD%D8%B3%D8%A7%D9%86%20%D8%B3%D9%85%D8%A7%D8%B1%D8%A9%20Paint2022112952709.jpg"
-},
-{
 "id": "A:610068006D00610064002E00650079006100640061007400400075006F0070002E006500640075002E006A006F00",
 "type": "academic",
 "faculty": 3,
@@ -5849,6 +5827,28 @@
 "profile": "https://fafs.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=680061006E0069002E0061006C006B006100790065006400400075006F0070002E006500640075002E006A006F00",
 "source": "academic_api",
 "photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/%D8%AF.%20%D9%87%D8%A7%D9%86%D9%8A%20%D8%A7%D9%84%D9%83%D8%A7%D9%8A%D8%AF%20%281%29202211134180.JPG"
+},
+{
+"id": "A:690068007300730061006E002E00730061006D00610072006100400075006F0070002E006500640075002E006A006F00",
+"type": "academic",
+"faculty": 3,
+"name": "د. احسان سمير كامل سمارة",
+"name_en": "",
+"job": "استاذ مساعد",
+"rank": "أستاذ مساعد",
+"rank_order": 3,
+"role": "",
+"sort": 10,
+"department": "إدارة سلاسل التوريد والعلوم اللوجستية",
+"specialization": "ادارة الاعمال – ادارة الاعمال",
+"qualification": "",
+"ext": "9407",
+"office": "9407",
+"email": "ihssan.samara@uop.edu.jo",
+"photo": "assets/photos/0ceef1b0c7d2297d.jpg",
+"profile": "https://fafs.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=690068007300730061006E002E00730061006D00610072006100400075006F0070002E006500640075002E006A006F00",
+"source": "academic_api",
+"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/%D8%AF.%20%D8%A5%D8%AD%D8%B3%D8%A7%D9%86%20%D8%B3%D9%85%D8%A7%D8%B1%D8%A9%20Paint2022112952709.jpg"
 },
 {
 "id": "A:610065006C0071006100730065006D00400075006F0070002E006500640075002E006A006F00",

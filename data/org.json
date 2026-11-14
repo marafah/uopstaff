@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-13T23:39:33Z",
+"updated": "2026-11-14T19:14:28Z",
 "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
 "revision": "Rev.E",
 "revision_date": "2023-12-20",
@@ -1472,19 +1472,7 @@
 "from_directory": true,
 "dept": "إدارة سلاسل التوريد والعلوم اللوجستية",
 "count": 4,
-"people": [
-{
-"id": "A:690068007300730061006E002E00730061006D00610072006100400075006F0070002E006500640075002E006A006F00",
-"name": "د. احسان سمير كامل سمارة",
-"job": "رئيس قسم ادارة الاعمال& ادارة سلاسل التوريد والعلوم اللوجستية",
-"role": "رئيس قسم",
-"type": "academic",
-"ext": "9407",
-"email": "ihssan.samara@uop.edu.jo",
-"photo": "assets/photos/0ceef1b0c7d2297d.jpg",
-"faculty": 3
-}
-]
+"people": []
 },
 {
 "id": "f3-d4",
