@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-14T19:14:28Z",
+"updated": "2026-11-15T11:03:08Z",
 "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
 "revision": "Rev.E",
 "revision_date": "2023-12-20",
@@ -1769,7 +1769,7 @@
 "unit": {
 "id": "5",
 "name": "كلية الآداب والعلوم",
-"count": 91,
+"count": 92,
 "academic": 75
 },
 "people": [
@@ -2530,7 +2530,7 @@
 "type": "admin",
 "ext": "5100",
 "email": "ahmad.jadallah@uop.edu.jo",
-"photo": "",
+"photo": "assets/photos/7d13f0ed95e226b0.jpg",
 "faculty": "healthcarecenter"
 }
 ]

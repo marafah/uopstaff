@@ -1,6 +1,6 @@
 {
 "term": "الفصل الأول 2027/2026",
-"updated": "2026-11-14T23:05:35Z",
+"updated": "2026-11-15T11:09:18Z",
 "teaching": {
 "start": "2026-10-18",
 "end": "2027-01-19",
@@ -372,7 +372,7 @@
 {
 "id": "b94ee9a9a5",
 "name": "أ.د. محمد اشرف عبدالعزيز امين الخطاط",
-"sections": 4,
+"sections": 3,
 "department": "التصميم الداخلي",
 "faculty": "العمارة و التصميم",
 "email": "mohamed.elkhattat@uop.edu.jo",
@@ -5852,7 +5852,7 @@
 {
 "id": "8b25b145c6",
 "name": "م. هاشم محمد نصر الله ابو محفوظ",
-"sections": 2,
+"sections": 3,
 "department": "",
 "faculty": "",
 "ics": "data/ics/8b25b145c6.ics"

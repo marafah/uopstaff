@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-14T19:14:28Z",
+"updated": "2026-11-15T11:03:08Z",
 "main_line": "+96265799555",
 "main_line_display": "06 5799555",
 "faculties": [
@@ -385,7 +385,7 @@
 "name": "الكادر الإداري – كلية الآداب والعلوم",
 "kind": "admin",
 "url": "https://artsci.uop.edu.jo/Ar/Pages/AllAdministrativeStaff.aspx",
-"count": 15,
+"count": 16,
 "faculty": 5
 },
 {
@@ -1834,10 +1834,10 @@
 "ext": "5100",
 "office": "المركز الصحي",
 "email": "ahmad.jadallah@uop.edu.jo",
-"photo": "",
+"photo": "assets/photos/7d13f0ed95e226b0.jpg",
 "profile": "https://www.uop.edu.jo/Ar/HealthcareCenter/Pages/AdministrativeStaff.aspx",
 "source": "admin_healthcarecenter",
-"photo_src": ""
+"photo_src": "https://www.uop.edu.jo/En/HealthcareCenter/PublishingImages/Staff/Dr.%20Ahmad%20Jadallah.jpg"
 },
 {
 "id": "S:healthcarecenter:29",
@@ -1860,6 +1860,28 @@
 "profile": "https://www.uop.edu.jo/Ar/HealthcareCenter/Pages/AdministrativeStaff.aspx",
 "source": "admin_healthcarecenter",
 "photo_src": "https://www.uop.edu.jo/En/HealthcareCenter/PublishingImages/Staff/Ashjan%20Tarif.JPG"
+},
+{
+"id": "S:healthcarecenter:28",
+"type": "admin",
+"faculty": "healthcarecenter",
+"name": "د. هبه سهيل لطفي غولي",
+"name_en": "Dr. Heba Suhail Lutfi Ghouli",
+"job": "طبيبة",
+"rank": "",
+"rank_order": 99,
+"role": "",
+"sort": 30,
+"department": "",
+"specialization": "",
+"qualification": "بكالوريوس",
+"ext": "5110",
+"office": "المركز الصحي",
+"email": "heba.ghouli@uop.edu.jo",
+"photo": "assets/photos/f1170ce13cc3e0b4.jpg",
+"profile": "https://www.uop.edu.jo/Ar/HealthcareCenter/Pages/AdministrativeStaff.aspx",
+"source": "admin_healthcarecenter",
+"photo_src": "https://www.uop.edu.jo/En/HealthcareCenter/PublishingImages/Staff/Heba%20Ghouli.jpg"
 },
 {
 "id": "S:healthcarecenter:26",
@@ -1950,28 +1972,6 @@
 "photo_src": "https://www.uop.edu.jo/En/HealthcareCenter/PublishingImages/Staff/Maisa%27a%20Abo%20Alia.jpg"
 },
 {
-"id": "S:healthcarecenter:28",
-"type": "admin",
-"faculty": "healthcarecenter",
-"name": "هبه سهيل لطفي غولي",
-"name_en": "Heba Suhail Lutfi Ghouli",
-"job": "طبيبة",
-"rank": "",
-"rank_order": 99,
-"role": "",
-"sort": 30,
-"department": "",
-"specialization": "",
-"qualification": "بكالوريوس",
-"ext": "5110",
-"office": "المركز الصحي",
-"email": "heba.ghouli@uop.edu.jo",
-"photo": "",
-"profile": "https://www.uop.edu.jo/Ar/HealthcareCenter/Pages/AdministrativeStaff.aspx",
-"source": "admin_healthcarecenter",
-"photo_src": ""
-},
-{
 "id": "S:healthcarecenter:25",
 "type": "admin",
 "faculty": "healthcarecenter",
@@ -1988,10 +1988,10 @@
 "ext": "5160",
 "office": "المركز الصحي",
 "email": "walid.naamneh@uop.edu.jo",
-"photo": "",
+"photo": "assets/photos/17aba78a22fdb403.jpg",
 "profile": "https://www.uop.edu.jo/Ar/HealthcareCenter/Pages/AdministrativeStaff.aspx",
 "source": "admin_healthcarecenter",
-"photo_src": ""
+"photo_src": "https://www.uop.edu.jo/En/HealthcareCenter/PublishingImages/Staff/Walid%20Naamneh.jpg"
 },
 {
 "id": "S:nutritionclinic:20",
@@ -9692,7 +9692,7 @@
 "department": "",
 "specialization": "",
 "qualification": "دبلوم – جامعة البلقاء التطبيقية / كلية الزرقاء الجامعية",
-"ext": "4010",
+"ext": "6410",
 "office": "كلية الآداب والعلوم",
 "email": "braah.alkhawaldeh@uop.edu.jo",
 "photo": "assets/photos/d15efc3f3acd77e5.jpg",
@@ -9742,7 +9742,7 @@
 "photo": "",
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AllAdministrativeStaff.aspx",
 "source": "admin_artsci",
-"photo_src": ""
+"photo_src": "https://artsci.uop.edu.jo/PublishingImages/Staff/Kholod%20Ahmad.jpg"
 },
 {
 "id": "S:artsci:26",
@@ -9809,6 +9809,28 @@
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AllAdministrativeStaff.aspx",
 "source": "admin_artsci",
 "photo_src": "https://artsci.uop.edu.jo/PublishingImages/Staff/%D8%B9%D8%A7%D8%A6%D8%B4%D8%A9%20%D8%AD%D8%B3%D9%8A%D9%86%20%D8%B9%D8%A8%D8%AF%20%D8%A7%D9%84%D9%81%D8%AA%D8%A7%D8%AD%20%D9%85%D8%AD%D9%85%D8%AF%20%20.JPG"
+},
+{
+"id": "S:artsci:27",
+"type": "admin",
+"faculty": 5,
+"name": "عُلا عبدالكريم أبو الحاج",
+"name_en": "Ola Abdulkarim Abu Al-Haj",
+"job": "مشرف مختبر",
+"rank": "",
+"rank_order": 99,
+"role": "",
+"sort": 30,
+"department": "",
+"specialization": "",
+"qualification": "البكالوريوس – جامعة العلوم و التكنولوجيا الاردنية",
+"ext": "7104",
+"office": "كلية تكنولوجيا المعلومات",
+"email": "oabualhaj@uop.edu.jo",
+"photo": "assets/photos/bd737ec22b2962a4.jpg",
+"profile": "https://artsci.uop.edu.jo/Ar/Pages/AllAdministrativeStaff.aspx",
+"source": "admin_artsci",
+"photo_src": "https://artsci.uop.edu.jo/PublishingImages/Staff/Ola%20Abu%20Al-Haj.jpg"
 },
 {
 "id": "S:artsci:8",
@@ -9934,7 +9956,7 @@
 "department": "",
 "specialization": "",
 "qualification": "الدبلوم – كلية الزرقاء الجامعية",
-"ext": "7014",
+"ext": "7104",
 "office": "كلية تكنولوجيا المعلومات",
 "email": "hazar.alqaryouti@uop.edu.jo",
 "photo": "",
