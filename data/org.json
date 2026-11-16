@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-15T11:03:08Z",
+"updated": "2026-11-16T22:12:46Z",
 "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
 "revision": "Rev.E",
 "revision_date": "2023-12-20",
@@ -2734,13 +2734,13 @@
 "people": [
 {
 "id": "S:generalservicesdepartment:21",
-"name": "محمد حسن رمضان",
+"name": "عواد النعيمات",
 "job": "رئيس قسم الحركة",
 "role": "رئيس قسم",
 "type": "admin",
 "ext": "5640",
-"email": "mramadan@uop.edu.jo",
-"photo": "assets/photos/e645973b92b23b42.jpg",
+"email": "aalnimat@uop.edu.jo",
+"photo": "",
 "faculty": "generalservicesdepartment"
 }
 ]

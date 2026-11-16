@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-16T11:32:18Z",
+"updated": "2026-11-16T22:12:46Z",
 "main_line": "+96265799555",
 "main_line_display": "06 5799555",
 "faculties": [
@@ -321,7 +321,7 @@
 "name": "الكادر الإداري – دائرة الخدمات العامة",
 "kind": "admin",
 "url": "https://www.uop.edu.jo/Ar/GeneralServicesDepartment/Pages/AdministrativeStaff.aspx",
-"count": 4,
+"count": 5,
 "faculty": "generalservicesdepartment"
 },
 {
@@ -2789,8 +2789,8 @@
 "id": "S:generalservicesdepartment:21",
 "type": "admin",
 "faculty": "generalservicesdepartment",
-"name": "محمد حسن رمضان",
-"name_en": "Muhammad Hasan Ramadan",
+"name": "عواد النعيمات",
+"name_en": "Awwad Alnimat",
 "job": "رئيس قسم الحركة",
 "rank": "",
 "rank_order": 99,
@@ -2798,14 +2798,14 @@
 "sort": 25,
 "department": "",
 "specialization": "",
-"qualification": "الدبلوم",
+"qualification": "",
 "ext": "5640",
-"office": "",
-"email": "mramadan@uop.edu.jo",
-"photo": "assets/photos/e645973b92b23b42.jpg",
+"office": "قسم الحركة",
+"email": "aalnimat@uop.edu.jo",
+"photo": "",
 "profile": "https://www.uop.edu.jo/Ar/GeneralServicesDepartment/Pages/AdministrativeStaff.aspx",
 "source": "admin_generalservicesdepartment",
-"photo_src": "https://www.uop.edu.jo/En/GeneralServicesDepartment/PublishingImages/Staff/%D9%85%D8%AD%D9%85%D8%AF%20%D8%B1%D9%85%D8%B6%D8%A7%D9%86%20.JPG"
+"photo_src": ""
 },
 {
 "id": "S:generalservicesdepartment:18",
@@ -2822,7 +2822,7 @@
 "specialization": "",
 "qualification": "ماجستير إدارة الأعمال (MBA) – جامعة كوينزلاند المركزية",
 "ext": "5600",
-"office": "",
+"office": "المجمع الإداري",
 "email": "halmanaseer@uop.edu.jo",
 "photo": "",
 "profile": "https://www.uop.edu.jo/Ar/GeneralServicesDepartment/Pages/AdministrativeStaff.aspx",
@@ -2844,12 +2844,12 @@
 "specialization": "",
 "qualification": "بكالوريوس في إدارة الأعمال – جامعة العلوم التطبيقية الخاصة",
 "ext": "5616",
-"office": "",
+"office": "المجمع الإداري",
 "email": "malhamdan@uop.edu.jo",
-"photo": "",
+"photo": "assets/photos/67de25b34ccacd67.jpg",
 "profile": "https://www.uop.edu.jo/Ar/GeneralServicesDepartment/Pages/AdministrativeStaff.aspx",
 "source": "admin_generalservicesdepartment",
-"photo_src": ""
+"photo_src": "https://www.uop.edu.jo/En/GeneralServicesDepartment/PublishingImages/Staff/Mohammad%20Al-Hamdan.jpg"
 },
 {
 "id": "S:generalservicesdepartment:20",
@@ -2866,7 +2866,7 @@
 "specialization": "",
 "qualification": "",
 "ext": "5621",
-"office": "",
+"office": "المجمع الإداري",
 "email": "hbarri@uop.edu.jo",
 "photo": "",
 "profile": "https://www.uop.edu.jo/Ar/GeneralServicesDepartment/Pages/AdministrativeStaff.aspx",

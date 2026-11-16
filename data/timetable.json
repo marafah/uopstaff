@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-16T11:35:46Z",
-"checked": "2026-11-16T11:35:46Z",
+"updated": "2026-11-16T22:17:39Z",
+"checked": "2026-11-16T22:17:39Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -13217,14 +13217,14 @@
 "time": "[ 12:30_14:00 ] ن وجاهي ر وجاهي",
 "room": "9121",
 "section": "2",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "م. ياره احمد زيدان الجمل",
 "building": "مبنى كلية العلوم الإدارية",
 "faculty": "العلوم الادارية والمالية",
 "department": "العلوم المالية والمصرفية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 60,
+"registered": 59,
 "capacity": 60,
 "meetings": [
 {
@@ -14743,7 +14743,7 @@
 "department": "الأعمال والتجارة الالكترونية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 59,
+"registered": 58,
 "capacity": 60,
 "meetings": [
 {
@@ -47271,7 +47271,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 86,
+"registered": 85,
 "capacity": 85,
 "meetings": [
 {
@@ -48625,7 +48625,7 @@
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 107,
+"registered": 106,
 "capacity": 77,
 "meetings": [
 {
