@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-17T14:36:28Z",
-"checked": "2026-11-17T14:36:28Z",
+"updated": "2026-11-17T23:04:48Z",
+"checked": "2026-11-17T23:04:48Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -4719,7 +4719,7 @@
 "department": "العلوم الأساسية / الرياضيات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 38,
+"registered": 37,
 "capacity": 40,
 "meetings": [
 {
@@ -9374,14 +9374,14 @@
 "time": "[ 13:00_15:00 ] خ غير متزامن[ 12:00_13:30 ] ح وجاهي ث وجاهي",
 "room": "4315",
 "section": "1",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "د. محمد خيري عبد الصادق عمر",
 "building": "مبنى كلية العمارة والتصميم",
 "faculty": "العمارة و التصميم",
 "department": "التصميم الجرافيكي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 24,
+"registered": 23,
 "capacity": 24,
 "meetings": [
 {
@@ -44346,7 +44346,7 @@
 "department": "الصحافة والإعلام الرقمي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 21,
+"registered": 20,
 "capacity": 30,
 "meetings": [
 {
@@ -44594,7 +44594,7 @@
 "department": "الصحافة والإعلام الرقمي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 12,
+"registered": 11,
 "capacity": 24,
 "meetings": [
 {
