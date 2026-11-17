@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-16T22:17:39Z",
-"checked": "2026-11-16T22:17:39Z",
+"updated": "2026-11-17T14:36:28Z",
+"checked": "2026-11-17T14:36:28Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -4682,7 +4682,7 @@
 "department": "العلوم الأساسية / الرياضيات",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 27,
+"registered": 26,
 "capacity": 40,
 "meetings": [
 {
@@ -6941,7 +6941,7 @@
 "department": "التصميم الداخلي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 10,
+"registered": 9,
 "capacity": 15,
 "meetings": [
 {
@@ -14904,7 +14904,7 @@
 "department": "الأعمال والتجارة الالكترونية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 22,
+"registered": 21,
 "capacity": 23,
 "meetings": [
 {
@@ -19454,7 +19454,7 @@
 "department": "ادارة الأعمال",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 42,
+"registered": 41,
 "capacity": 50,
 "meetings": [
 {
@@ -19491,7 +19491,7 @@
 "department": "ادارة الأعمال",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 42,
+"registered": 41,
 "capacity": 50,
 "meetings": [
 {
@@ -20411,14 +20411,14 @@
 "time": "[ 11:00_12:30 ] ن وجاهي ر وجاهي",
 "room": "9421",
 "section": "2",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "د. عصام علي احمد شحادة",
 "building": "مبنى كلية العلوم الإدارية",
 "faculty": "العلوم الادارية والمالية",
 "department": "المحاسبة",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 60,
+"registered": 59,
 "capacity": 60,
 "meetings": [
 {
@@ -20442,14 +20442,14 @@
 "time": "[ 11:00_12:30 ] ن وجاهي ر وجاهي",
 "room": "9421",
 "section": "2",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "د. عصام علي احمد شحادة",
 "building": "مبنى كلية العلوم الإدارية",
 "faculty": "العلوم الادارية والمالية",
 "department": "المحاسبة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 60,
+"registered": 59,
 "capacity": 60,
 "meetings": [
 {
@@ -21339,7 +21339,7 @@
 "department": "اللغة العربية وآدابها",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 40,
+"registered": 39,
 "capacity": 39,
 "meetings": [
 {
@@ -22626,7 +22626,7 @@
 "department": "اللغة الانجليزية وآدابها",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 31,
+"registered": 30,
 "capacity": 30,
 "meetings": [
 {
@@ -23915,7 +23915,7 @@
 "department": "العلوم التربويه / تربية الطفل",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 46,
+"registered": 45,
 "capacity": 50,
 "meetings": [
 {
@@ -25183,7 +25183,7 @@
 "department": "اللغة الفرنسية واللغة الانجليزية وآدابهما",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 14,
+"registered": 12,
 "capacity": 30,
 "meetings": [
 {
@@ -25220,7 +25220,7 @@
 "department": "اللغة الفرنسية واللغة الانجليزية وآدابهما",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 12,
+"registered": 10,
 "capacity": 30,
 "meetings": [
 {
@@ -44210,7 +44210,7 @@
 "department": "الصحافة والإعلام الرقمي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 27,
+"registered": 26,
 "capacity": 30,
 "meetings": [
 {
@@ -49124,14 +49124,14 @@
 "time": "[ 13:00_14:00 ] ح وجاهي ث وجاهي خ غير متزامن",
 "room": "06001",
 "section": "4",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "م. امينا عزام رشاد الاسير",
 "building": "مبنى كلية الآداب والعلوم",
 "faculty": "الآداب والعلوم",
 "department": "العلوم الأساسية - متطلبات الجامعة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 90,
+"registered": 89,
 "capacity": 90,
 "meetings": [
 {
@@ -49686,7 +49686,7 @@
 "department": "اللغة الانجليزية وآدابها",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 82,
+"registered": 81,
 "capacity": 85,
 "meetings": [
 {

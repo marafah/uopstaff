@@ -1,6 +1,6 @@
 {
 "term": "الفصل الأول 2027/2026",
-"updated": "2026-11-16T22:17:39Z",
+"updated": "2026-11-17T14:36:28Z",
 "teaching": {
 "start": "2026-10-18",
 "end": "2027-01-19",
@@ -543,7 +543,7 @@
 "job": "عميد كلية الاداب والعلوم",
 "role": "عميد",
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=770061007500640065006800400075006F0070002E006500640075002E006A006F00",
-"name_en": "Wasim Ahmad Odeh",
+"name_en": "Prof. Wasim Ahmad Odeh",
 "directory_id": "A:770061007500640065006800400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/049b6b5582.ics"
@@ -594,7 +594,7 @@
 "faculty": "الآداب والعلوم",
 "email": "ziad.zayed@uop.edu.jo",
 "ext": "6400",
-"office": "6203",
+"office": "6120",
 "photo": "assets/photos/ae4873368f0d2136.jpg",
 "rank": "أستاذ",
 "job": "رئيس قسم العلوم التربوية",
@@ -1194,7 +1194,7 @@
 "job": "عضو هيئة تدريس",
 "role": "",
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=610061006C007300680075006E006E0061007100400075006F0070002E006500640075002E006A006F00",
-"name_en": "Amal Abdulla Al-Shunnaq",
+"name_en": "Amal Abdulla Talal Al-Shunnaq",
 "directory_id": "A:610061006C007300680075006E006E0061007100400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/afd89d6200.ics"
@@ -1384,7 +1384,7 @@
 "job": "عضو هيئة تدريس في قسم الرياضيات",
 "role": "",
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6200650062006100720074002E006A0061006E00620065006B00400075006F0070002E006500640075002E006A006F00",
-"name_en": "",
+"name_en": "Dr. Bebart Maisar Taher Janbek",
 "directory_id": "A:6200650062006100720074002E006A0061006E00620065006B00400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/43d823905d.ics"
@@ -1517,7 +1517,7 @@
 "job": "رئيس قسم الرياضيات",
 "role": "رئيس قسم",
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6A0061006D0061006C002E006F00750064006500740061006C006C0061006800400075006F0070002E006500640075002E006A006F00",
-"name_en": "",
+"name_en": "Dr. Jamal Abdel-Rahim Fahid OudetAllah",
 "directory_id": "A:6A0061006D0061006C002E006F00750064006500740061006C006C0061006800400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/01769c3653.ics"
@@ -1886,7 +1886,7 @@
 "job": "استاذ مشارك",
 "role": "",
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=720061006200750061007700770061006400400075006F0070002E006500640075002E006A006F00",
-"name_en": "Raed Rajeh Abu Awwad",
+"name_en": "Dr. Raed Rajeh Khalil Abu Awwad",
 "directory_id": "A:720061006200750061007700770061006400400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/6cfa9e775f.ics"
@@ -2111,7 +2111,7 @@
 "job": "عضو هيئة تدريس",
 "role": "",
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=730061006D00650072002E0061006C006F006B00610069006C007900400075006F0070002E006500640075002E006A006F00",
-"name_en": "Samer Ahmad Alokaily",
+"name_en": "Dr. Samer Ahmad Jamil Alokaily",
 "directory_id": "A:730061006D00650072002E0061006C006F006B00610069006C007900400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/1cdb4d36cb.ics"
@@ -2214,7 +2214,7 @@
 "job": "عضو هيئة تدريسية",
 "role": "",
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=730061006D00610068002E00610062007500730061006D006D006F0075007200400075006F0070002E006500640075002E006A006F00",
-"name_en": "Samah Ghazi Hussain Abu Sammour",
+"name_en": "Dr. Samah Ghazi Hussain Abu Sammour",
 "directory_id": "A:730061006D00610068002E00610062007500730061006D006D006F0075007200400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/ffdf3e250d.ics"
@@ -2857,7 +2857,7 @@
 "job": "عضو هيئة تدريس",
 "role": "",
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=670061006200750066006F007500640065006800400075006F0070002E006500640075002E006A006F00",
-"name_en": "Ghassan Khamis Abufoudeh",
+"name_en": "Dr. Ghassan Khamis Salem Abufoudeh",
 "directory_id": "A:670061006200750066006F007500640065006800400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/29c349cbee.ics"
@@ -3660,7 +3660,7 @@
 "job": "عضو هيئة تدريس",
 "role": "",
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6D0061006C00680061006D0061006400400075006F0070002E006500640075002E006A006F00",
-"name_en": "Mohammad Qasem Al-Hamad",
+"name_en": "Mohammad Qasem Mohammad Al-Hamad",
 "directory_id": "A:6D0061006C00680061006D0061006400400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/31617b806c.ics"
@@ -3972,7 +3972,7 @@
 "job": "عضو هيئة تدريس",
 "role": "",
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6D0061006E0061006C002E0061006C006C0061006200610064006900400075006F0070002E006500640075002E006A006F00",
-"name_en": "Manal shawkat Allabadi",
+"name_en": "Dr. Manal Shawkat Yousef Allabadi",
 "directory_id": "A:6D0061006E0061006C002E0061006C006C0061006200610064006900400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/e5d46cf5d7.ics"
@@ -5087,7 +5087,7 @@
 "job": "رئيسة قسم اللغة الانجليزية وآدابها",
 "role": "رئيس قسم",
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=680061006D0072006F00400075006F0070002E006500640075002E006A006F00",
-"name_en": "Hiba Salim Amro",
+"name_en": "Hiba Salim Mustafa Amro",
 "directory_id": "A:680061006D0072006F00400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/fb5633a8c8.ics"
@@ -5728,7 +5728,7 @@
 "job": "مدرس",
 "role": "",
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6D0061006C006C0061006B002E006A006100620065007200400075006F0070002E006500640075002E006A006F00",
-"name_en": "",
+"name_en": "Mallak Anwer Abdul Zahee Jaber",
 "directory_id": "A:6D0061006C006C0061006B002E006A006100620065007200400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/b655e1853f.ics"

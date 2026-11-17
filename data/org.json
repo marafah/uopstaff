@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-16T22:12:46Z",
+"updated": "2026-11-17T14:33:06Z",
 "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
 "revision": "Rev.E",
 "revision_date": "2023-12-20",
@@ -1769,8 +1769,8 @@
 "unit": {
 "id": "5",
 "name": "كلية الآداب والعلوم",
-"count": 92,
-"academic": 75
+"count": 91,
+"academic": 74
 },
 "people": [
 {
@@ -1936,7 +1936,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "الكيمياء",
-"count": 9,
+"count": 8,
 "people": []
 },
 {
@@ -2313,13 +2313,13 @@
 },
 {
 "id": "S:admissionsandregistration:14",
-"name": "فؤاد الغبن",
+"name": "آلاء حسام عطيه جلنبو",
 "job": "سكرتير مدير القبول والتسجيل",
 "role": "",
 "type": "admin",
 "ext": "5001",
-"email": "fghaben@uop.edu.jo",
-"photo": "assets/photos/9f0281cc18678b3b.jpg",
+"email": "alaa.jalanbo@uop.edu.jo",
+"photo": "",
 "faculty": "admissionsandregistration"
 }
 ],
@@ -2544,10 +2544,22 @@
 "unit": {
 "id": "computercenter",
 "name": "مركز الحاسوب والمعلومات والسيطرة",
-"count": 14,
+"count": 16,
 "academic": 0
 },
-"people": [],
+"people": [
+{
+"id": "S:computercenter:39",
+"name": "طارق محمود حسين أحمد",
+"job": "مدير مركز الحاسوب والمعلومات والسيطرة",
+"role": "مدير",
+"type": "admin",
+"ext": "5500",
+"email": "tariq.ahmad@uop.edu.jo",
+"photo": "assets/photos/44a9d94aa065c373.jpg",
+"faculty": "computercenter"
+}
+],
 "children": [
 {
 "id": "website",
@@ -2562,7 +2574,7 @@
 "type": "admin",
 "ext": "5551",
 "email": "fbadran@uop.edu.jo",
-"photo": "assets/photos/e32b651cfbef0929.jpg",
+"photo": "assets/photos/baf5a8f6ab95f068.jpg",
 "faculty": "computercenter"
 }
 ]
@@ -2612,7 +2624,7 @@
 "type": "admin",
 "ext": "5546",
 "email": "ahmad.aldalabeeh@uop.edu.jo",
-"photo": "assets/photos/1c10250da30a7534.jpg",
+"photo": "assets/photos/5618d8198b8b0a67.jpg",
 "faculty": "computercenter"
 },
 {
@@ -2623,7 +2635,7 @@
 "type": "admin",
 "ext": "5531",
 "email": "aalhmoud@uop.edu.jo",
-"photo": "assets/photos/dfba5370b4572315.jpg",
+"photo": "assets/photos/88678f9415d59941.jpg",
 "faculty": "computercenter"
 },
 {
@@ -2634,7 +2646,7 @@
 "type": "admin",
 "ext": "5534",
 "email": "maodeh@uop.edu.jo",
-"photo": "assets/photos/b06215eca28741d4.jpg",
+"photo": "assets/photos/504ee4a79d203348.jpg",
 "faculty": "computercenter"
 }
 ]
@@ -2704,7 +2716,7 @@
 "unit": {
 "id": "generalservicesdepartment",
 "name": "دائرة الخدمات العامة",
-"count": 4,
+"count": 5,
 "academic": 0
 },
 "people": [
