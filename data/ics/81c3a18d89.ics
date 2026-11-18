@@ -55,18 +55,6 @@ DESCRIPTION:نظري · وجاهي · الأعمال والتجارة ال
  الكترونية – العلوم الادارية والمالية
 END:VEVENT
 BEGIN:VEVENT
-UID:5551425809f9f871@uopstaff
-DTSTAMP:20261018T000000Z
-DTSTART;TZID=Asia/Amman:20261024T110000
-DTEND;TZID=Asia/Amman:20261024T120000
-RRULE:FREQ=WEEKLY;BYDAY=SA;UNTIL=20270119T205959Z
-SUMMARY:304401 الإدارة الالكترونية لسلسلة التز
- ويد – ش2
-LOCATION:9124 – مبنى كلية العلوم الإدارية
-DESCRIPTION:نظري · مدمج · الأعمال والتجارة الا
- لكترونية – العلوم الادارية والمالية
-END:VEVENT
-BEGIN:VEVENT
 UID:a5b5703f6f2f1933@uopstaff
 DTSTAMP:20261018T000000Z
 DTSTART;TZID=Asia/Amman:20261019T110000

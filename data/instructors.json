@@ -1,6 +1,6 @@
 {
 "term": "الفصل الأول 2027/2026",
-"updated": "2026-11-18T04:34:15Z",
+"updated": "2026-11-18T14:09:19Z",
 "teaching": {
 "start": "2026-10-18",
 "end": "2027-01-19",
@@ -2930,7 +2930,7 @@
 "job": "استاذ مساعد/ جامعة البترا/باحثة في دراسات عن الشرق الاوسط . ORCID 0009-0002-7572-1200",
 "role": "",
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=660061006C00740061007200610077006E0065006800400075006F0070002E006500640075002E006A006F00",
-"name_en": "Fatima salim Al tarawneh",
+"name_en": "Fatima ٍSalim Al tarawneh",
 "directory_id": "A:660061006C00740061007200610077006E0065006800400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/f9c8ebf14b.ics"
@@ -3424,7 +3424,7 @@
 "job": "رئيبس قسم اللغة العربية وآدابها",
 "role": "رئيس قسم",
 "profile": "https://artsci.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6D007500680061006D006D00610064002E006B006100770061006B007A0065006800400075006F0070002E006500640075002E006A006F000D00",
-"name_en": "",
+"name_en": "Muhammad Hasan Bakhit Kawakzeh",
 "directory_id": "A:6D007500680061006D006D00610064002E006B006100770061006B007A0065006800400075006F0070002E006500640075002E006A006F000D00",
 "corrected": false,
 "ics": "data/ics/635e6332ba.ics"
@@ -4236,7 +4236,7 @@
 "id": "b0be7d8f48",
 "name": "د. نبيل علي محمد حسنين",
 "sections": 4,
-"department": "العلوم الأساسية - متطلبات الجامعة",
+"department": "اللغة العربية وآدابها",
 "faculty": "الآداب والعلوم",
 "email": "nhasanain@uop.edu.jo",
 "ext": "6100",
@@ -4373,7 +4373,7 @@
 "faculty": "الآداب والعلوم",
 "email": "nswweidan@uop.edu.jo",
 "ext": "7115",
-"office": "",
+"office": "6500",
 "photo": "assets/photos/bd87a1dc2524572a.jpg",
 "rank": "أستاذ مشارك",
 "job": "رئيس القسم",
@@ -4795,7 +4795,7 @@
 "id": "4a65ec7226",
 "name": "د. يزن شاهر محمد المومني",
 "sections": 9,
-"department": "الهندسة المدنية",
+"department": "العلوم الأساسية - متطلبات الجامعة",
 "faculty": "الهندسة",
 "email": "yazan.almomani@uop.edu.jo",
 "ext": "2223",

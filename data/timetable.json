@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-18T04:34:15Z",
-"checked": "2026-11-18T04:34:15Z",
+"updated": "2026-11-18T14:09:19Z",
+"checked": "2026-11-18T14:09:19Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الأول 2027/2026",
 "count": 1651,
@@ -6403,7 +6403,7 @@
 "department": "هندسة العمارة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 40,
+"registered": 39,
 "capacity": 35,
 "meetings": [
 {
@@ -7828,7 +7828,7 @@
 "department": "التصميم الداخلي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 26,
+"registered": 25,
 "capacity": 21,
 "meetings": [
 {
@@ -12439,7 +12439,7 @@
 "department": "ادارة الأعمال",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 58,
+"registered": 57,
 "capacity": 55,
 "meetings": [
 {
@@ -13224,7 +13224,7 @@
 "department": "العلوم المالية والمصرفية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 59,
+"registered": 58,
 "capacity": 60,
 "meetings": [
 {
@@ -13953,7 +13953,7 @@
 "department": "المحاسبة",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 34,
+"registered": 33,
 "capacity": 50,
 "meetings": [
 {
@@ -15474,7 +15474,7 @@
 "code": "304401",
 "name": "الإدارة الالكترونية لسلسلة التزويد",
 "activity": "نظري",
-"time": "[ 11:00_12:00 ] ن وجاهي ر وجاهي س مدمج",
+"time": "[ 11:00_12:00 ] ن وجاهي ر وجاهي س غير متزامن",
 "room": "9124",
 "section": "2",
 "status": "مفتوحة",
@@ -15503,7 +15503,7 @@
 "day": "س",
 "start": "11:00",
 "end": "12:00",
-"mode": "مدمج"
+"mode": "غير متزامن"
 }
 ]
 },
@@ -18207,14 +18207,14 @@
 "time": "[ 11:00_12:00 ] ح وجاهي ث وجاهي خ غير متزامن",
 "room": "9426",
 "section": "3",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "د. شادي محمود مصباح الطريفي",
 "building": "مبنى كلية العلوم الإدارية",
 "faculty": "العلوم الادارية والمالية",
 "department": "التسويق الرقمي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 60,
+"registered": 59,
 "capacity": 60,
 "meetings": [
 {
@@ -19794,7 +19794,7 @@
 "department": "ادارة الأعمال",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 42,
+"registered": 41,
 "capacity": 50,
 "meetings": [
 {
@@ -23436,7 +23436,7 @@
 "department": "اللغة الانجليزية /الترجمه",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 47,
+"registered": 46,
 "capacity": 40,
 "meetings": [
 {
@@ -23486,7 +23486,7 @@
 "department": "اللغة الانجليزية /الترجمه",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 47,
+"registered": 46,
 "capacity": 40,
 "meetings": [
 {
@@ -34803,14 +34803,14 @@
 "time": "[ 09:30_10:30 ] ن وجاهي ر وجاهي",
 "room": "2102",
 "section": "5",
-"status": "مغلقة",
+"status": "مفتوحة",
 "instructor": "د. ضحى محمد عادل محمد الصمادي",
 "building": "مبنى المكتبة",
 "faculty": "تكنولوجيا المعلومات",
 "department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 26,
+"registered": 25,
 "capacity": 26,
 "meetings": [
 {
@@ -35028,7 +35028,7 @@
 "department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 30,
+"registered": 29,
 "capacity": 26,
 "meetings": [
 {
@@ -36530,7 +36530,7 @@
 "department": "علم الحاسوب",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 13,
+"registered": 12,
 "capacity": 26,
 "meetings": [
 {
@@ -43802,7 +43802,7 @@
 "department": "الصحافة والإعلام الرقمي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 34,
+"registered": 32,
 "capacity": 30,
 "meetings": [
 {
@@ -43833,7 +43833,7 @@
 "department": "الصحافة والإعلام الرقمي",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 34,
+"registered": 32,
 "capacity": 30,
 "meetings": [
 {
@@ -44836,7 +44836,7 @@
 "department": "الصحافة والإعلام الرقمي",
 "degree": "الماجستير",
 "study_type": "صباحي",
-"registered": 14,
+"registered": 15,
 "capacity": 20,
 "meetings": [
 {
@@ -44852,7 +44852,7 @@
 "name": "الكتابة للإعلام الرقمي",
 "activity": "نظري",
 "time": "[ 10:00_13:00 ] س وجاهي",
-"room": "3303",
+"room": "3311",
 "section": "1",
 "status": "مفتوحة",
 "instructor": "د. منال هلال سليم المزاهرة",
@@ -45072,7 +45072,7 @@
 "department": "العلاقات العامة والترويج الرقمي",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 34,
+"registered": 33,
 "capacity": 30,
 "meetings": [
 {
@@ -45487,7 +45487,7 @@
 "department": "الهندسة المدنية",
 "degree": "البكالوريوس",
 "study_type": "صباحي",
-"registered": 10,
+"registered": 9,
 "capacity": 3,
 "meetings": [
 {
@@ -54313,7 +54313,7 @@
 "د. نبيل علي محمد حسنين": {
 "faculty": "الآداب والعلوم",
 "departments": [
-"العلوم الأساسية - متطلبات الجامعة"
+"اللغة العربية وآدابها"
 ]
 },
 "د. نجم نافذ ابراهيم سرحان": {
@@ -54487,7 +54487,7 @@
 "د. يزن شاهر محمد المومني": {
 "faculty": "الهندسة",
 "departments": [
-"الهندسة المدنية"
+"العلوم الأساسية - متطلبات الجامعة"
 ]
 },
 "د. يوسف عيسى موسى مجدلاوي": {

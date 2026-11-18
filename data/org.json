@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-17T14:33:06Z",
+"updated": "2026-11-18T14:06:52Z",
 "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
 "revision": "Rev.E",
 "revision_date": "2023-12-20",
@@ -892,7 +892,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "الهندسة المدنية",
-"count": 8,
+"count": 7,
 "people": [
 {
 "id": "A:71007500730069002E0061006C00710061007700610073006D0065006800400075006F0070002E006500640075002E006A006F00",
@@ -1847,17 +1847,6 @@
 "email": "malqudah@uop.edu.jo",
 "photo": "assets/photos/8575ca43a22f6ae9.jpg",
 "faculty": 5
-},
-{
-"id": "A:6E0068006100730061006E00610069006E00400075006F0070002E006500640075002E006A006F00",
-"name": "د. نبيل علي محمد حسنين",
-"job": "رئيس قسم اللغة العربية وآدابها",
-"role": "رئيس قسم",
-"type": "academic",
-"ext": "6100",
-"email": "nhasanain@uop.edu.jo",
-"photo": "assets/photos/1a9e0f3a9c7f1174.jpg",
-"faculty": 5
 }
 ]
 },
@@ -2007,7 +1996,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "اللغة العربية وآدابها",
-"count": 5,
+"count": 6,
 "people": [
 {
 "id": "A:6D007500680061006D006D00610064002E006B006100770061006B007A0065006800400075006F0070002E006500640075002E006A006F000D00",
@@ -2018,6 +2007,17 @@
 "ext": "6100",
 "email": "muhammad.kawakzeh@uop.edu.jo",
 "photo": "assets/photos/26b49fc8a65e6ba4.jpg",
+"faculty": 5
+},
+{
+"id": "A:6E0068006100730061006E00610069006E00400075006F0070002E006500640075002E006A006F00",
+"name": "د. نبيل علي محمد حسنين",
+"job": "رئيس قسم اللغة العربية وآدابها",
+"role": "رئيس قسم",
+"type": "academic",
+"ext": "6100",
+"email": "nhasanain@uop.edu.jo",
+"photo": "assets/photos/1a9e0f3a9c7f1174.jpg",
 "faculty": 5
 }
 ]
