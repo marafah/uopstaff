@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-18T14:06:52Z",
+"updated": "2026-11-19T13:19:32Z",
 "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
 "revision": "Rev.E",
 "revision_date": "2023-12-20",
@@ -858,8 +858,8 @@
 "unit": {
 "id": "12",
 "name": "كلية الهندسة",
-"count": 14,
-"academic": 8
+"count": 13,
+"academic": 7
 },
 "people": [
 {
@@ -1835,7 +1835,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "العلوم الأساسية - متطلبات الجامعة",
-"count": 20,
+"count": 19,
 "people": [
 {
 "id": "A:6D0061006C0071007500640061006800400075006F0070002E006500640075002E006A006F00",
@@ -1903,15 +1903,6 @@
 },
 {
 "id": "f5-d6",
-"name": "قسم العلوم التربويه / تربية الطفل",
-"kind": "academic-dept",
-"from_directory": true,
-"dept": "العلوم التربويه / تربية الطفل",
-"count": 1,
-"people": []
-},
-{
-"id": "f5-d7",
 "name": "قسم العلوم التربويه / معلم الصف",
 "kind": "academic-dept",
 "from_directory": true,
@@ -1920,7 +1911,7 @@
 "people": []
 },
 {
-"id": "f5-d8",
+"id": "f5-d7",
 "name": "قسم الكيمياء",
 "kind": "academic-dept",
 "from_directory": true,
@@ -1929,7 +1920,7 @@
 "people": []
 },
 {
-"id": "f5-d9",
+"id": "f5-d8",
 "name": "قسم اللغة الانجليزية /الترجمه",
 "kind": "academic-dept",
 "from_directory": true,
@@ -1961,7 +1952,7 @@
 ]
 },
 {
-"id": "f5-d10",
+"id": "f5-d9",
 "name": "قسم اللغة الانجليزية التطبيقية",
 "kind": "academic-dept",
 "from_directory": true,
@@ -1970,7 +1961,7 @@
 "people": []
 },
 {
-"id": "f5-d11",
+"id": "f5-d10",
 "name": "قسم اللغة الانجليزية وآدابها",
 "kind": "academic-dept",
 "from_directory": true,
@@ -1991,24 +1982,13 @@
 ]
 },
 {
-"id": "f5-d12",
+"id": "f5-d11",
 "name": "قسم اللغة العربية وآدابها",
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "اللغة العربية وآدابها",
 "count": 6,
 "people": [
-{
-"id": "A:6D007500680061006D006D00610064002E006B006100770061006B007A0065006800400075006F0070002E006500640075002E006A006F000D00",
-"name": "د. محمد حسن بخيت قواقزة",
-"job": "رئيبس قسم اللغة العربية وآدابها",
-"role": "رئيس قسم",
-"type": "academic",
-"ext": "6100",
-"email": "muhammad.kawakzeh@uop.edu.jo",
-"photo": "assets/photos/26b49fc8a65e6ba4.jpg",
-"faculty": 5
-},
 {
 "id": "A:6E0068006100730061006E00610069006E00400075006F0070002E006500640075002E006A006F00",
 "name": "د. نبيل علي محمد حسنين",
@@ -2023,7 +2003,7 @@
 ]
 },
 {
-"id": "f5-d13",
+"id": "f5-d12",
 "name": "قسم اللغة الفرنسية واللغة الانجليزية وآدابهما",
 "kind": "academic-dept",
 "from_directory": true,
