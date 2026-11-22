@@ -69,6 +69,7 @@
       <div class="card mb-3 no-print"><div class="card-body d-flex flex-wrap gap-2 align-items-end">
         <div class="flex-grow-1"><label class="small fw-bold" for="r-q">القاعة</label>
           <input class="form-control form-control-sm" id="r-q" value="${esc(P.get('q') || '')}" placeholder="رقم القاعة، مثلاً 7419…" inputmode="search"></div>
+        ${window.UOP_TERM ? UOP_TERM.field() : ''}
         <div><label class="small fw-bold" for="r-bld">المبنى</label><select class="form-select form-select-sm" id="r-bld"><option value="">كل المباني</option>
           ${blds.map(b => `<option ${b === bld ? 'selected' : ''}>${esc(b)}</option>`).join('')}</select></div>
         <span class="small text-muted ms-auto">${list.length} قاعة${T.ok ? ` · <b class="text-success">${freeNow} شاغرة الآن</b> (${now.clock})` : ` · ${esc(T.why)}`}</span></div></div>

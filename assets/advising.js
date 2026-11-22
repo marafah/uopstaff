@@ -414,6 +414,7 @@
   .adv-tabs button em { font-style:normal; font-size:.78rem; background:#f3f1ea; color:#3b4048; border-radius:99px; padding:1px 8px; margin-inline-start:4px; } .adv-tabs button.on em { background:#901d23; color:#fff; }
   .adv-tabs .adv-add { margin-inline-start:auto; background:#901d23; color:#fff; border-radius:10px 10px 0 0; } .adv-tabs .adv-add:hover { color:#fff; background:#7a171d; } .adv-tabs button.adv-add.on, .adv-tabs button.adv-add.on i { color:#fff; border-bottom-color:#5b0f14; }
   .adv-tabs .adv-ref { padding:9px 10px; color:#3b4048; }
+  .adv-tabs .adv-term { width:auto; field-sizing:content; align-self:center; margin:0 6px 4px; font-weight:700; color:#3b4048; }
   .adv-drop { border:2px dashed #c9bfa6; border-radius:14px; background:#fffdf7; padding:26px 16px; text-align:center; cursor:pointer; color:#1f2328; }
   .adv-drop.over { background:#f7efe0; border-color:#901d23; }
   .adv-drop i { font-size:2rem; color:#901d23; }
@@ -1612,6 +1613,7 @@
     const body = sub + (st.view === 'import' ? importView() : st.view === 'board' || st.view === 'demand' ? boardView() : st.view === 'fresh' ? freshView() : st.view === 'dict' ? dictView() : st.view === 'rules' ? rulesView() : studentView());
     $('#adv-app').innerHTML = `<div class="adv-tabs">${tabs.map(([k, ic, l]) => `<button type="button" class="${st.view === k || (k === 'board' && st.view === 'student') ? 'on' : ''}" data-view="${k}"><i class="bi ${ic}"></i> ${l}</button>`).join('')}
       <button type="button" class="adv-add ${st.view === 'import' ? 'on' : ''}" data-view="import"><i class="bi bi-plus-lg"></i> إضافة طلاب</button>
+      ${window.UOP_TERM ? UOP_TERM.select('adv-term') : ''}
       <button type="button" class="adv-ref" id="adv-refresh" title="أعد قراءة الجدول الدراسي المنشور الآن (يتحدّث كل ساعة)"><i class="bi bi-arrow-clockwise"></i></button></div>${body}`;
     const url = new URL(location.href);
     url.searchParams.delete('view'); url.searchParams.delete('q'); url.searchParams.delete('from'); url.searchParams.delete('id');   // «from=edugate» is only for the tab the portal opens: a reload must not restart the import screen

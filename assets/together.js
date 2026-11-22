@@ -81,6 +81,7 @@
         </div>
         <div class="col-xl-8"><section class="card"><div class="card-header d-flex flex-wrap gap-2 align-items-center"><span><i class="bi bi-calendar-week"></i> الأسبوع</span>
             <span class="ms-auto d-flex flex-wrap gap-2 align-items-center small no-print">
+              ${window.UOP_TERM ? `<label>الفصل ${UOP_TERM.select('d-inline-block w-auto')}</label>` : ''}
               <label>من <select class="form-select form-select-sm d-inline-block w-auto" id="tg-from">${[7, 8, 9, 10, 11, 12].map(h => `<option value="${h}" ${st.from === h * 60 ? 'selected' : ''}>${h}:00</option>`).join('')}</select></label>
               <label>إلى <select class="form-select form-select-sm d-inline-block w-auto" id="tg-to">${[14, 15, 16, 17, 18, 19, 20, 21, 22, 23].map(h => `<option value="${h}" ${st.to === h * 60 ? 'selected' : ''}>${h}:00</option>`).join('')}</select></label>
               <label>أقل مدة <select class="form-select form-select-sm d-inline-block w-auto" id="tg-min">${[30, 60, 90, 120].map(m => `<option value="${m}" ${st.min === m ? 'selected' : ''}>${U.mins(m)}</option>`).join('')}</select></label>

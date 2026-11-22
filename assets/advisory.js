@@ -569,6 +569,7 @@
   // the programme header on one row
   if (!document.getElementById('ad-h-css')) { const c = document.createElement('style'); c.id = 'ad-h-css'; c.textContent = `
     .am-col { gap: 16px !important; }
+    .ad-bar .ad-s-t { flex: 0 0 auto !important; width: auto !important; field-sizing: content; padding-inline-end: 2.2rem; }
     .ad-bar .ad-s-v { flex: 0 0 auto !important; width: auto !important; min-width: 200px; field-sizing: content; padding-inline-end: 2.4rem; }
     .ad-bar { gap: .45rem !important; } .ad-bar > .form-select { height: 32px; border-radius: 9px; }
     .ad-sep { flex: none; width: 1px; align-self: stretch; margin: 4px 0; background: #dfe3e8; }
@@ -1189,6 +1190,7 @@
           <select class="form-select form-select-sm ad-s-fac" id="ad-fac" title="الكلية" aria-label="الكلية"><option value="">كل الكليات</option>${facs.map(f => `<option ${f === st.fac ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select>
           <select class="form-select form-select-sm ad-s-p" id="ad-p" title="البرنامج (${list.length})" aria-label="البرنامج">${['bachelor', 'master', 'phd'].map(t => { const g = list.filter(q => (q.type || 'bachelor') === t); return g.length ? `<optgroup label="${t === 'master' ? 'الماجستير' : t === 'phd' ? 'الدكتوراه' : 'البكالوريوس'}">${g.map(q => `<option value="${esc(q.id)}" ${q === p ? 'selected' : ''}>${esc(q.ar || q.en)}${planVersions(q).some(v => v.current && v.r.ok) ? ' ✓' : ''}</option>`).join('')}</optgroup>` : ''; }).join('')}</select>
           <select class="form-select form-select-sm ad-s-v" id="ad-v" title="الإصدار" aria-label="الإصدار">${vs.map(o => `<option value="${o.v.sha}" ${o === x ? 'selected' : ''}>${esc(vTitle(o))}${o.r.ok ? ' ✓' : ''}</option>`).join('') || '<option>لا خطة منشورة</option>'}</select>
+          ${window.UOP_TERM ? UOP_TERM.select('ad-s-t') : ''}
           <span class="ad-sep" aria-hidden="true"></span>
           <div class="btn-group btn-group-sm ad-views" role="group" aria-label="طريقة العرض">${views.map(([k, l, i, t]) => `<button type="button" class="btn ${st.view === k ? 'btn-maroon' : 'btn-outline-secondary'}" data-view="${k}" title="${t}"><i class="bi ${i}"></i><span> ${l}</span></button>`).join('')}</div>
           <span class="ad-sep" aria-hidden="true"></span>

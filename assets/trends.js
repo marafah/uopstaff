@@ -81,6 +81,7 @@
 
     $('#tr-app').innerHTML = `
       <div class="card mb-3 no-print"><div class="card-body py-2 d-flex flex-wrap gap-2 align-items-center">
+        ${window.UOP_TERM ? UOP_TERM.select('w-auto') : ''}
         <select class="form-select form-select-sm w-auto" id="tr-fac"><option value="">كل الكليات</option>${facs.map(f => `<option ${f === st.fac ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select>
         <select class="form-select form-select-sm w-auto" id="tr-dept"><option value="">كل الأقسام</option>${depts.map(d => `<option ${d === st.dept ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select>
         <span class="small text-muted ms-auto"><i class="bi bi-clock-history"></i> التتبع منذ ${esc(since)} · ${U.count(H.times.length, 'لقطة واحدة', 'لقطتان', 'لقطات', 'لقطة')} · التغيّر الأخير = ${span}</span></div></div>

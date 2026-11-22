@@ -1556,6 +1556,7 @@
           ${S.mk ? '<button class="btn btn-sm btn-link text-danger" data-clrmk>حذف القائمة</button>' : ''}</div>
         ${S.mk ? `<div class="ex-rule ok mt-2"><i class="bi bi-check-circle-fill"></i> ${esc(S.mk.info)}${REGMEM ? '' : ' · <span class="text-muted">لطباعة كشوف الحضور بالأسماء أعد رفع القائمة (الأسماء لا تُحفظ)</span>'}</div>` : '<div class="ex-rule mt-2"><i class="bi bi-info-circle-fill"></i> لم تُرفع قائمة بعد: بدونها يُعامل التكميلي كامتحان لكل مقررات الكليات المختارة.</div>'}</div>` : ''}
       ${profBox()}${filesPanel()}${fixedView()}
+      ${window.UOP_TERM && UOP_TERM.options() ? `<div class="ex-row2b"><label class="ex-fld"><span>الفصل الدراسي (المحاضرات والشعب)</span><select class="form-select" data-uop-term>${UOP_TERM.options()}</select></label></div>` : ''}
       <div class="ex-row2b"><label class="ex-fld"><span>عنوان الجدول (يظهر في الطباعة)</span><input class="form-control" data-k="label" placeholder="${esc(TYPES[S.type].name)} – ${esc(TT.term)}" value="${esc(S.label || '')}"></label>
       <div class="ex-fld"><span>الكليات المشمولة</span><div class="ex-chipset ex-facs"><label class="ex-chk${!S.facs.length ? ' on' : ''}"><input type="checkbox" data-facall ${!S.facs.length ? 'checked' : ''}> <i class="bi bi-buildings-fill"></i> كل الكليات</label>
         ${facs.map(x => `<label class="ex-chk${S.facs.includes(x) ? ' on' : ''}"><input type="checkbox" data-fac="${esc(x)}" ${S.facs.includes(x) ? 'checked' : ''}> ${esc(x)}</label>`).join('')}</div>

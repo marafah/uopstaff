@@ -82,6 +82,7 @@
       <div class="card mb-3 no-print"><div class="card-body d-flex flex-wrap gap-2 align-items-end">
         <div class="btn-group btn-group-sm" role="group" aria-label="طريقة العرض">${[['home', 'مدرسو القسم', 'حسب قسم المدرس في دليل الموظفين'], ['offer', 'من يدرّس شعب القسم', 'كل من يدرّس شعباً يطرحها القسم، ومنهم غير المتفرغين']]
           .map(([k, l, t]) => `<button type="button" class="btn ${st.by === k ? 'btn-maroon' : 'btn-outline-secondary'}" data-by="${k}" title="${t}">${l}</button>`).join('')}</div>
+        ${window.UOP_TERM ? UOP_TERM.field() : ''}
         <div><label class="small fw-bold" for="ld-fac">الكلية</label><select class="form-select form-select-sm" id="ld-fac"><option value="">كل الكليات</option>${facs.map(f => `<option ${f === st.fac ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select></div>
         <div><label class="small fw-bold" for="ld-dept">القسم</label><select class="form-select form-select-sm" id="ld-dept"><option value="">كل الأقسام</option>${dps.map(d => `<option ${d === st.dept ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select></div>
         <div class="flex-grow-1"><label class="small fw-bold" for="ld-q">المدرس</label><input class="form-control form-control-sm" id="ld-q" value="${esc(st.q)}" placeholder="اسم المدرس…"></div>

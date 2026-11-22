@@ -82,6 +82,7 @@
 
     $('#oc-app').innerHTML = `
       <div class="card mb-3 no-print"><div class="card-body d-flex flex-wrap gap-2 align-items-end">
+        ${window.UOP_TERM ? UOP_TERM.field() : ''}
         <div><label class="small fw-bold" for="oc-bld">المبنى</label><select class="form-select form-select-sm" id="oc-bld"><option value="">كل المباني</option>
           ${blds.map(b => `<option ${b === st.bld ? 'selected' : ''}>${esc(b)}</option>`).join('')}</select></div>
         <div><span class="small fw-bold d-block">ساعات الدوام المحسوبة</span><div class="btn-group btn-group-sm" role="group">

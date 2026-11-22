@@ -1297,6 +1297,7 @@
     $('#tt-panel').innerHTML = `<form class="card mb-3" id="tt-filters" onsubmit="return false">
       <div class="card-header d-flex justify-content-between align-items-center"><span><i class="bi bi-funnel-fill"></i> التصفية</span>${active.length || st.q ? '<a href="#" data-clear="all" class="small">مسح الكل</a>' : ''}</div>
       <div class="card-body d-grid gap-2">
+        ${window.UOP_TERM ? UOP_TERM.field('mb-0') : ''}
         <div class="input-group input-group-sm"><span class="input-group-text"><i class="bi bi-search"></i></span>
           <input class="form-control" name="q" value="${esc(st.q)}" placeholder="رمز أو اسم مقرر، مدرس، قاعة…"></div>
         <div class="form-check form-switch small"><input class="form-check-input" type="checkbox" id="f-seats" ${st.seats ? 'checked' : ''}><label class="form-check-label" for="f-seats">فيها مقاعد متاحة فقط</label></div>

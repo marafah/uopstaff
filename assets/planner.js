@@ -88,6 +88,7 @@
           <div class="card-body d-grid gap-2">
             <div class="input-group input-group-sm"><span class="input-group-text"><i class="bi bi-search"></i></span>
               <input class="form-control" id="pl-q" value="${esc(st.q)}" placeholder="رمز أو اسم المقرر…" autocomplete="off"></div>
+            ${window.UOP_TERM ? UOP_TERM.select() : ''}
             <div class="row g-2"><div class="col-6"><select class="form-select form-select-sm" id="pl-deg">${['البكالوريوس', 'الماجستير'].map(d => `<option ${d === st.deg ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
               <div class="col-6"><select class="form-select form-select-sm" id="pl-fac"><option value="">كل الكليات</option>${facs.map(f => `<option ${f === st.fac ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select></div></div>
             <div class="pl-results">${q.length < 2 ? '<p class="small text-muted mb-0">اكتب حرفين على الأقل من رمز المقرر أو اسمه.</p>'

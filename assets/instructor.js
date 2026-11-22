@@ -24,6 +24,7 @@
     $('#ins-app').innerHTML = `<div class="card mb-3 no-print"><div class="card-body d-flex flex-wrap gap-2 align-items-end">
         <div class="flex-grow-1"><label class="small fw-bold" for="i-q">المدرس</label>
           <input class="form-control form-control-sm" id="i-q" value="${esc(p.get('q') || '')}" placeholder="اكتب جزءاً من الاسم…"></div>
+        ${window.UOP_TERM ? UOP_TERM.field() : ''}
         <div><label class="small fw-bold" for="i-fac">الكلية</label><select class="form-select form-select-sm" id="i-fac"><option value="">كل الكليات</option>
           ${facs.map(f => `<option ${f === fac ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select></div>
         <div><label class="small fw-bold" for="i-dept">القسم</label><select class="form-select form-select-sm" id="i-dept"><option value="">كل الأقسام</option>
@@ -587,6 +588,7 @@
       <section class="card ip-wk mb-3"><div class="card-header">
         <h5><i class="bi bi-calendar-week"></i> الجدول الأسبوعي</h5>
         <div class="ip-tools no-print">
+          ${window.UOP_TERM ? UOP_TERM.select('w-auto ip-term') : ''}
           ${seg('v', [['mx', 'مصفوفة الأسبوع والفراغ', 'bi-distribute-horizontal'], ['cols', 'الأيام كأعمدة', 'bi-layout-three-columns'], ['grid', 'الشبكة الزمنية', 'bi-calendar3'], ['secs', `الشعب (${W.secs.length})`, 'bi-list-ul']])}
           ${P.v === 'mx' || P.v === 'cols' ? `<span class="ip-tl">الساعات</span>${seg('range', [['auto', 'تلقائي'], ['work', 'الدوام 08–16']])}` : ''}
           ${P.v === 'mx' || P.v === 'cols' ? `<span class="ip-tl">الخانة</span>${cb('name', 'اسم المقرر')}${cb('room', 'القاعة')}${P.v === 'mx' ? cb('time', 'الوقت') : ''}${cb('free', 'الفراغ')}` : ''}

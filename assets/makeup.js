@@ -82,6 +82,7 @@
         <h2 class="h5 fw-bold"><i class="bi bi-arrow-repeat"></i> من المدرس؟</h2>
         <p class="text-muted small mb-2">اختر المدرس ثم الشعبة، فتظهر الأيام والأوقات التي لا يكون فيها للمدرس محاضرة أخرى ومعها القاعات الشاغرة طوال المدة.</p>
         <input class="form-control form-control-lg" id="mk-who" list="mk-list" placeholder="اكتب اسم المدرس…" autocomplete="off">
+        ${window.UOP_TERM ? `<div class="mt-2" style="max-width:22rem">${UOP_TERM.field()}</div>` : ''}
         <datalist id="mk-list">${list.map(i => `<option value="${esc(i.name)}">${esc(i.department || '')}</option>`).join('')}</datalist>
         </div></div>`;
     const go = () => { const i = list.find(x => x.name === $('#mk-who').value.trim()) || list.find(x => norm(x.name).includes(norm($('#mk-who').value.trim())) && $('#mk-who').value.trim().length > 3);
@@ -104,6 +105,7 @@
       <div class="mk-who card mb-3"><div class="card-body d-flex flex-wrap align-items-center gap-3">
         <span class="mk-av">${I.photo ? `<img src="${esc(I.photo)}" alt="" onerror="this.remove()">` : ''}<i class="bi bi-person-fill"></i></span>
         <div class="flex-grow-1"><b class="fs-5">${esc(I.name)}</b><small class="d-block text-muted">${esc([I.department, I.faculty].filter(Boolean).join(' · '))}</small></div>
+        ${window.UOP_TERM ? UOP_TERM.select('w-auto') : ''}
         <a class="btn btn-sm btn-outline-secondary" href="instructor.html?id=${I.id}"><i class="bi bi-calendar-week"></i> جدوله</a>
         <button type="button" class="btn btn-sm btn-outline-secondary" id="mk-change"><i class="bi bi-arrow-left-right"></i> مدرس آخر</button></div></div>
       <section class="card mb-3"><div class="card-header"><i class="bi bi-1-circle-fill"></i> الشعبة التي تحتاج محاضرة تعويضية</div>

@@ -55,6 +55,7 @@
         <div class="sp2-views" role="tablist" aria-label="طريقة العرض">${views.map(([k, l, i]) =>
           `<button type="button" role="tab" aria-selected="${st.view === k}" class="${st.view === k ? 'on' : ''}" data-view="${k}"><i class="bi ${i}"></i><span>${l}</span></button>`).join('')}</div>
         <span class="sp2-vr"></span>
+        ${window.UOP_TERM && UOP_TERM.options() ? `<label class="sp2-sel" title="الفصل الدراسي («هذا الفصل»)"><small>الفصل الدراسي</small><select class="form-select form-select-sm" data-uop-term aria-label="الفصل الدراسي">${UOP_TERM.options()}</select></label>` : ''}
         ${sel('sp-deg', 'الدرجة', degs.map(d => `<option ${d === st.deg ? 'selected' : ''}>${esc(d)}</option>`).join(''), st.deg, 'كل الدرجات')}
         ${sel('sp-fac', 'الكلية', facs.map(d => `<option ${d === st.fac ? 'selected' : ''}>${esc(d)}</option>`).join(''), st.fac, 'كل الكليات')}
         ${sel('sp-dept', 'القسم', depts.map(d => `<option ${d === st.dept ? 'selected' : ''}>${esc(d)}</option>`).join(''), st.dept, 'كل الأقسام')}
