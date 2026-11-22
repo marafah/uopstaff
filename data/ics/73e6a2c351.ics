@@ -66,4 +66,55 @@ LOCATION:06317 – مبنى كلية الآداب والعلوم
 DESCRIPTION:نظري · وجاهي · اللغة الفرنسية والل
  غة الانجليزية وآدابهما – الآداب والعلوم
 END:VEVENT
+BEGIN:VEVENT
+UID:7b5b3dc392272602@uopstaff
+DTSTAMP:20270314T000000Z
+DTSTART;TZID=Asia/Amman:20270314T100000
+DTEND;TZID=Asia/Amman:20270314T110000
+RRULE:FREQ=WEEKLY;BYDAY=TU,TH,SU;UNTIL=20270622T205959Z
+EXDATE;TZID=Asia/Amman:20270516T100000,20270518T100000,20270525T100000,2027
+ 0606T100000
+SUMMARY:408264 مهارات التعبير الكتابي في اللغة 
+ الفرنسية (1) – ش1
+LOCATION:06317 – مبنى كلية الآداب والعلوم
+DESCRIPTION:نظري · وجاهي · اللغة الفرنسية والل
+ غة الانجليزية وآدابهما – الآداب والعلوم
+END:VEVENT
+BEGIN:VEVENT
+UID:dd72c006e6e4cf8f@uopstaff
+DTSTAMP:20270314T000000Z
+DTSTART;TZID=Asia/Amman:20270315T110000
+DTEND;TZID=Asia/Amman:20270315T123000
+RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270622T205959Z
+EXDATE;TZID=Asia/Amman:20270517T110000,20270519T110000
+SUMMARY:408367 المحادثة والتعبير الشفوي في اللغ
+ ة الفرنسية (3) – ش1
+LOCATION:06319 – مبنى كلية الآداب والعلوم
+DESCRIPTION:نظري · وجاهي · اللغة الفرنسية والل
+ غة الانجليزية وآدابهما – الآداب والعلوم
+END:VEVENT
+BEGIN:VEVENT
+UID:ba4f927375543cdf@uopstaff
+DTSTAMP:20270314T000000Z
+DTSTART;TZID=Asia/Amman:20270316T120000
+DTEND;TZID=Asia/Amman:20270316T130000
+RRULE:FREQ=WEEKLY;BYDAY=TU,TH;UNTIL=20270622T205959Z
+EXDATE;TZID=Asia/Amman:20270518T120000,20270525T120000
+SUMMARY:408454 اللغويات الفرنسية – ش1
+LOCATION:06319 – مبنى كلية الآداب والعلوم
+DESCRIPTION:نظري · وجاهي · اللغة الفرنسية والل
+ غة الانجليزية وآدابهما – الآداب والعلوم
+END:VEVENT
+BEGIN:VEVENT
+UID:530fe12f1565ae99@uopstaff
+DTSTAMP:20270314T000000Z
+DTSTART;TZID=Asia/Amman:20270315T093000
+DTEND;TZID=Asia/Amman:20270315T103000
+RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270622T205959Z
+EXDATE;TZID=Asia/Amman:20270517T093000,20270519T093000
+SUMMARY:408456 نصوص شعرية في اللغة الفرنسية – ش1
+LOCATION:06319 – مبنى كلية الآداب والعلوم
+DESCRIPTION:نظري · وجاهي · اللغة الفرنسية والل
+ غة الانجليزية وآدابهما – الآداب والعلوم
+END:VEVENT
 END:VCALENDAR

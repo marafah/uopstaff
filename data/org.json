@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-22T06:58:36Z",
+"updated": "2026-11-22T15:26:11Z",
 "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
 "revision": "Rev.E",
 "revision_date": "2023-12-20",
@@ -284,8 +284,8 @@
 "council_role": "عضو",
 "ext": "5800",
 "email": "aalqaisi@uop.edu.jo",
-"photo": "assets/photos/8c212d2892e582c1.jpg",
-"directory_id": "S:studentsaffairs:18"
+"photo": "assets/photos/764db47ca8e0899d.jpg",
+"directory_id": "A:610061006C0071006100690073006900400075006F0070002E006500640075002E006A006F00"
 },
 {
 "name": "أ.د. عنبر شلاش",
@@ -338,8 +338,8 @@
 "council_role": "عضو",
 "ext": "6500",
 "email": "aaltweiq@uop.edu.jo",
-"photo": "assets/photos/80c62420a2f1c885.jpg",
-"directory_id": "S:petraclub:19"
+"photo": "assets/photos/10fed5132a3aff08.jpg",
+"directory_id": "A:610061006C0074007700650069007100400075006F0070002E006500640075002E006A006F00"
 },
 {
 "name": "د. أحمد القاسم",
@@ -347,8 +347,8 @@
 "council_role": "عضو",
 "ext": "1800",
 "email": "aelqasem@uop.edu.jo",
-"photo": "assets/photos/921b989760ffcc6f.jpg",
-"directory_id": "S:qualityassuranceplanning:18"
+"photo": "assets/photos/e24816020af6c08b.jpg",
+"directory_id": "A:610065006C0071006100730065006D00400075006F0070002E006500640075002E006A006F00"
 },
 {
 "name": "السيد سعد المغربي",
@@ -527,8 +527,8 @@
 "council_role": "عضو",
 "ext": "1990",
 "email": "nuhak@uop.edu.jo",
-"photo": "assets/photos/079c13e29b76809e.jpg",
-"directory_id": "S:elearningcenter:1"
+"photo": "assets/photos/30204a0b5a15ea90.jpg",
+"directory_id": "A:4E007500680061006B00400075006F0070002E006500640075002E006A006F00"
 },
 {
 "name": "د. علي المقوسي",
@@ -545,8 +545,8 @@
 "council_role": "عضو",
 "ext": "5800",
 "email": "aalqaisi@uop.edu.jo",
-"photo": "assets/photos/8c212d2892e582c1.jpg",
-"directory_id": "S:studentsaffairs:18"
+"photo": "assets/photos/764db47ca8e0899d.jpg",
+"directory_id": "A:610061006C0071006100690073006900400075006F0070002E006500640075002E006A006F00"
 },
 {
 "name": "د. نضال حسين",
@@ -554,8 +554,8 @@
 "council_role": "عضو",
 "ext": "2000",
 "email": "nidal.hussein@uop.edu.jo",
-"photo": "assets/photos/a6aebff49bbe5322.jpg",
-"directory_id": "S:qualityassuranceplanning:30"
+"photo": "assets/photos/1b678aa883281362.jpg",
+"directory_id": "A:6E006900640061006C002E006800750073007300650069006E00400075006F0070002E006500640075002E006A006F00"
 }
 ],
 "members_page": "https://www.uop.edu.jo/Ar/MoreAbout/Pages/BoardDeans.aspx?staffid=1"
@@ -616,6 +616,17 @@
 "name": "مساعد الرئيس للاتفاقيات والتعاون الدولي",
 "kind": "assistant",
 "people": [
+{
+"id": "A:6B006D0061006E0073006F006F007200400075006F0070002E006500640075002E006A006F00",
+"name": "أ.د.كنزا عبدالهادي حامد منصور",
+"job": "مساعد الرئيس للاتفاقيات والتعاون الدولي",
+"role": "مساعد عميد / رئيس",
+"type": "academic",
+"ext": "8113",
+"email": "kmansoor@uop.edu.jo",
+"photo": "assets/photos/2c3fbc4bbe544ea9.jpg",
+"faculty": 2
+},
 {
 "id": "A:6F002E006E00610069006D00400075006F0070002E006500640075002E006A006F00",
 "name": "د. اسامة منير يوسف نعيم",
@@ -686,10 +697,22 @@
 "unit": {
 "id": "qualityassuranceplanning",
 "name": "وحدة ضمان الجودة",
-"count": 11,
+"count": 3,
 "academic": 0
 },
-"people": [],
+"people": [
+{
+"id": "A:530061006C00740061007200690066006900400075006F0070002E006500640075002E006A006F00",
+"name": "د. شادي محمود مصباح الطريفي",
+"job": "مساعد مدير وحدة ضمان الجودة والتخطيط والقياس",
+"role": "مدير",
+"type": "academic",
+"ext": "9327",
+"email": "saltarifi@uop.edu.jo",
+"photo": "assets/photos/f5ad965297527328.jpg",
+"faculty": 3
+}
+],
 "official_heads": [
 {
 "name": "د. أحمد القاسم",
@@ -697,8 +720,8 @@
 "council_role": "عضو",
 "ext": "1800",
 "email": "aelqasem@uop.edu.jo",
-"photo": "assets/photos/921b989760ffcc6f.jpg",
-"directory_id": "S:qualityassuranceplanning:18"
+"photo": "assets/photos/e24816020af6c08b.jpg",
+"directory_id": "A:610065006C0071006100730065006D00400075006F0070002E006500640075002E006A006F00"
 }
 ]
 },
@@ -738,8 +761,8 @@
 "council_role": "عضو",
 "ext": "1990",
 "email": "nuhak@uop.edu.jo",
-"photo": "assets/photos/079c13e29b76809e.jpg",
-"directory_id": "S:elearningcenter:1"
+"photo": "assets/photos/30204a0b5a15ea90.jpg",
+"directory_id": "A:4E007500680061006B00400075006F0070002E006500640075002E006A006F00"
 }
 ]
 },
@@ -835,10 +858,22 @@
 "unit": {
 "id": "12",
 "name": "كلية الهندسة",
-"count": 12,
-"academic": 6
+"count": 13,
+"academic": 7
 },
-"people": [],
+"people": [
+{
+"id": "A:6E006900640061006C002E006800750073007300650069006E00400075006F0070002E006500640075002E006A006F00",
+"name": "د. نضال محمد عبد الرزاق حسين",
+"job": "عميد كلية الهندسة",
+"role": "عميد",
+"type": "academic",
+"ext": "2000",
+"email": "nidal.hussein@uop.edu.jo",
+"photo": "assets/photos/1b678aa883281362.jpg",
+"faculty": 12
+}
+],
 "official_heads": [
 {
 "name": "د. نضال حسين",
@@ -846,8 +881,8 @@
 "council_role": "عضو",
 "ext": "2000",
 "email": "nidal.hussein@uop.edu.jo",
-"photo": "assets/photos/a6aebff49bbe5322.jpg",
-"directory_id": "S:qualityassuranceplanning:30"
+"photo": "assets/photos/1b678aa883281362.jpg",
+"directory_id": "A:6E006900640061006C002E006800750073007300650069006E00400075006F0070002E006500640075002E006A006F00"
 }
 ],
 "children": [
@@ -857,7 +892,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "الهندسة المدنية",
-"count": 6,
+"count": 7,
 "people": [
 {
 "id": "A:71007500730069002E0061006C00710061007700610073006D0065006800400075006F0070002E006500640075002E006A006F00",
@@ -882,13 +917,13 @@
 "id": "4",
 "name": "كلية العمارة والتصميم",
 "count": 51,
-"academic": 28
+"academic": 29
 },
 "people": [
 {
 "id": "A:720061006E00690061002E00610062007500720061006D006100640061006E00400075006F0070002E006500640075002E006A006F00",
 "name": "د. رانيا فايز عبد الله أبو رمضان",
-"job": "عميد",
+"job": "عميد كلية العمارة والتصميم",
 "role": "عميد",
 "type": "academic",
 "ext": "",
@@ -957,7 +992,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "التصميم الداخلي",
-"count": 9,
+"count": 10,
 "people": [
 {
 "id": "A:6D0061006E007300610072006900400075006F0070002E006500640075002E006A006F00",
@@ -1011,8 +1046,8 @@
 "unit": {
 "id": "9",
 "name": "كلية الحقوق",
-"count": 17,
-"academic": 12
+"count": 18,
+"academic": 14
 },
 "people": [
 {
@@ -1054,7 +1089,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "القانون الخاص",
-"count": 5,
+"count": 6,
 "people": [
 {
 "id": "A:680061006E00650065006E002E0061006C006D0061006E0073006F0075007200400075006F0070002E006500640075002E006A006F00",
@@ -1086,7 +1121,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "القانون العام",
-"count": 5,
+"count": 6,
 "people": []
 }
 ]
@@ -1099,7 +1134,7 @@
 "id": "11",
 "name": "كلية الإعلام",
 "count": 22,
-"academic": 15
+"academic": 16
 },
 "people": [
 {
@@ -1174,7 +1209,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "العلاقات العامة والترويج الرقمي",
-"count": 3,
+"count": 4,
 "people": [
 {
 "id": "A:7A00610069006E00650068002E0061006C007A006F00750062006900400075006F0070002E006500640075002E006A006F00",
@@ -1198,8 +1233,8 @@
 "unit": {
 "id": "1",
 "name": "كلية تكنولوجيا المعلومات",
-"count": 46,
-"academic": 34
+"count": 50,
+"academic": 42
 },
 "people": [
 {
@@ -1250,15 +1285,26 @@
 "kind": "center",
 "people": [
 {
-"id": "S:elearningcenter:1",
-"name": "أ.د. نهى الخليلي",
-"job": "مدير مركز التعلم الالكتروني",
+"id": "A:77006800610064006900400075006F0070002E006500640075002E006A006F00",
+"name": "أ.د.وائل موسى محمد هادي",
+"job": "مدير مركز التعلم الإلكتروني",
 "role": "مدير",
-"type": "admin",
-"ext": "7000",
-"email": "nuhak@uop.edu.jo",
-"photo": "assets/photos/079c13e29b76809e.jpg",
-"faculty": "elearningcenter"
+"type": "academic",
+"ext": "7223",
+"email": "whadi@uop.edu.jo",
+"photo": "assets/photos/3707c9ba54a0e9da.jpg",
+"faculty": 1
+},
+{
+"id": "A:610073006800740061007900790061007400400075006F0070002E006500640075002E006A006F00",
+"name": "م. احمد غازي محمود الشتيات",
+"job": "مساعد مدير مركز التعلم الإلكتروني",
+"role": "مدير",
+"type": "academic",
+"ext": "7777",
+"email": "ashtayyat@uop.edu.jo",
+"photo": "assets/photos/8a54e3feb4213cba.jpg",
+"faculty": 5
 }
 ]
 },
@@ -1283,7 +1329,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "علم البيانات والذكاء الاصطناعي",
-"count": 10,
+"count": 11,
 "people": [
 {
 "id": "A:6D006F00680061006D006D00610064002E00610072006100660061006800400075006F0070002E006500640075002E006A006F000D00",
@@ -1304,7 +1350,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "علم الحاسوب",
-"count": 12,
+"count": 17,
 "people": [
 {
 "id": "A:6D006F00680061006D006D00610064002E0061006C006F007500640061007400400075006F0070002E006500640075002E006A006F00",
@@ -1325,7 +1371,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "علم الحاسوب / الواقع الافتراضي والمعزز",
-"count": 2,
+"count": 3,
 "people": []
 },
 {
@@ -1334,7 +1380,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "هندسة البرمجيات",
-"count": 5,
+"count": 6,
 "people": [
 {
 "id": "A:6B006F006D0061007200400075006F0070002E006500640075002E006A006F00",
@@ -1358,8 +1404,8 @@
 "unit": {
 "id": "3",
 "name": "كلية العلوم الإدارية والمالية",
-"count": 65,
-"academic": 56
+"count": 69,
+"academic": 61
 },
 "people": [
 {
@@ -1404,7 +1450,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "ادارة الأعمال",
-"count": 9,
+"count": 12,
 "people": [
 {
 "id": "A:6D006F007500730061002E0061006C00730068006500790061006200400075006F0070002E006500640075002E006A006F00",
@@ -1464,7 +1510,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "التسويق الرقمي",
-"count": 8,
+"count": 9,
 "people": [
 {
 "id": "A:73006D00610067006100740065006600400075006F0070002E006500640075002E006A006F00",
@@ -1506,7 +1552,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "العلوم المالية والمصرفية",
-"count": 7,
+"count": 8,
 "people": []
 },
 {
@@ -1560,8 +1606,8 @@
 "unit": {
 "id": "2",
 "name": "كلية الصيدلة والعلوم الطبية",
-"count": 54,
-"academic": 37
+"count": 55,
+"academic": 39
 },
 "people": [
 {
@@ -1645,7 +1691,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "التغذية",
-"count": 9,
+"count": 10,
 "people": [
 {
 "id": "A:61007900610068002E007A0061006900640061006C006B0069006C0061006E006900400075006F0070002E006500640075002E006A006F00",
@@ -1666,7 +1712,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "الصيدلة",
-"count": 22,
+"count": 23,
 "people": [
 {
 "id": "A:61006100620075006B00680061006C0069006C00400075006F0070002E006500640075002E006A006F00",
@@ -1723,8 +1769,8 @@
 "unit": {
 "id": "5",
 "name": "كلية الآداب والعلوم",
-"count": 88,
-"academic": 68
+"count": 92,
+"academic": 74
 },
 "people": [
 {
@@ -1789,7 +1835,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "العلوم الأساسية - متطلبات الجامعة",
-"count": 15,
+"count": 19,
 "people": [
 {
 "id": "A:6D0061006C0071007500640061006800400075006F0070002E006500640075002E006A006F00",
@@ -1870,7 +1916,7 @@
 "kind": "academic-dept",
 "from_directory": true,
 "dept": "الكيمياء",
-"count": 6,
+"count": 8,
 "people": []
 },
 {
@@ -1882,25 +1928,14 @@
 "count": 6,
 "people": [
 {
-"id": "A:61006400610062006200610067006800400075006F0070002E006500640075002E006A006F00",
-"name": "د. علا محمد كامل علي الدباغ",
+"id": "A:610061006C007300680075006E006E0061007100400075006F0070002E006500640075002E006A006F00",
+"name": "د. امل عبدالله طلال الشناق",
 "job": "رئيس قسم",
 "role": "رئيس قسم",
 "type": "academic",
-"ext": "6235",
-"email": "adabbagh@uop.edu.jo",
-"photo": "assets/photos/bbae7ff546cc4c1f.jpg",
-"faculty": 5
-},
-{
-"id": "A:6D0061006C007300680075006E006E0061007100400075006F0070002E006500640075002E006A006F00",
-"name": "د. محمد عواد محمد الشناق",
-"job": "عضو هيئة تدريس",
-"role": "رئيس قسم",
-"type": "academic",
-"ext": "6234",
-"email": "malshunnaq@uop.edu.jo",
-"photo": "assets/photos/0719b7fa7bf51aae.jpg",
+"ext": "6212",
+"email": "aalshunnaq@uop.edu.jo",
+"photo": "assets/photos/51b90f593ffa9311.jpg",
 "faculty": 5
 }
 ]
@@ -2003,7 +2038,7 @@
 "unit": {
 "id": "uoplibrary",
 "name": "مكتبة البترا",
-"count": 10,
+"count": 9,
 "academic": 0
 },
 "people": []
@@ -2062,41 +2097,19 @@
 "unit": {
 "id": "studentsaffairs",
 "name": "عمادة شؤون الطلبة",
-"count": 17,
+"count": 16,
 "academic": 0
 },
 "people": [
 {
-"id": "S:studentsaffairs:18",
-"name": "د. عبير القيسي",
-"job": "عميد شؤون الطلبة",
+"id": "A:610061006C0071006100690073006900400075006F0070002E006500640075002E006A006F00",
+"name": "د. عبير حسن سالم القيسي",
+"job": "القائم بأعمال عميد شؤون الطلبة",
 "role": "عميد",
-"type": "admin",
+"type": "academic",
 "ext": "5800",
 "email": "aalqaisi@uop.edu.jo",
-"photo": "assets/photos/8c212d2892e582c1.jpg",
-"faculty": "studentsaffairs"
-},
-{
-"id": "S:studentsaffairs:40",
-"name": "د. لؤي يوسف صالح",
-"job": "مساعد عميد شؤون الطلبة",
-"role": "مساعد عميد / رئيس",
-"type": "admin",
-"ext": "2413",
-"email": "loiy.aldaoud@uop.edu.jo",
-"photo": "assets/photos/1e072ed5b1dc44b0.jpg",
-"faculty": 5
-},
-{
-"id": "S:studentsaffairs:41",
-"name": "د. مصطفى الطراونة",
-"job": "مساعد عميد شؤون الطلبة",
-"role": "مساعد عميد / رئيس",
-"type": "admin",
-"ext": "2412",
-"email": "mostafa.altarawneh@uop.edu.jo",
-"photo": "assets/photos/dd6307de9898f244.jpg",
+"photo": "assets/photos/764db47ca8e0899d.jpg",
 "faculty": 9
 },
 {
@@ -2252,21 +2265,10 @@
 "unit": {
 "id": "admissionsandregistration",
 "name": "عمادة القبول والتسجيل",
-"count": 10,
+"count": 9,
 "academic": 0
 },
 "people": [
-{
-"id": "S:admissionsandregistration:1",
-"name": "د. ناصر الجمل",
-"job": "مدير القبول والتسجيل",
-"role": "مدير",
-"type": "admin",
-"ext": "5000",
-"email": "njamal@uop.edu.jo",
-"photo": "assets/photos/bb58790a6a0cd261.jpg",
-"faculty": "admissionsandregistration"
-},
 {
 "id": "S:admissionsandregistration:2",
 "name": "غاده عدنان مناع",
@@ -2511,7 +2513,7 @@
 "unit": {
 "id": "computercenter",
 "name": "مركز الحاسوب والمعلومات والسيطرة",
-"count": 17,
+"count": 16,
 "academic": 0
 },
 "people": [
@@ -2583,17 +2585,6 @@
 "name": "قسم صيانة الحاسوب والاجهزة المكتبية",
 "kind": "section",
 "people": [
-{
-"id": "S:computercenter:28",
-"name": "نضال صابر الشرع",
-"job": "رئيس صيانة الحاسوب والأجهزة",
-"role": "رئيس قسم",
-"type": "admin",
-"ext": "5530",
-"email": "nidal.alsalhi@uop.edu.jo",
-"photo": "assets/photos/609081c9d917e851.jpg",
-"faculty": "computercenter"
-},
 {
 "id": "S:computercenter:27",
 "name": "أحمد محمد الدلابيح",
@@ -2780,11 +2771,6 @@
 ]
 },
 "not_in_chart": [
-{
-"id": "elearningcenter",
-"name": "مركز التعلم الإلكتروني",
-"count": 3
-},
 {
 "id": "petraclub",
 "name": "نادي جامعة البترا",
