@@ -1,13 +1,17 @@
 """Data for the instructor, planner, now and registration pages, built from the files the other scripts write.
 
-  * data/instructors.json   - every instructor in the timetable: short id, own department (staff directory), e-mail,
-                              ext, office, photo and the id of their calendar file
-  * data/ics/<id>.ics       - each instructor's teaching as weekly recurring events over the teaching period of the
-                              official academic calendar, holidays excluded (subscribable: refreshed hourly)
-  * data/seats_history.json - registered students per section over time (a point is added only when it changes)
+For every semester kept in data/terms/<id>/ (see scripts/terms.py):
+  * instructors.json   - every instructor in that semester's timetable: short id, own department (staff directory),
+                         e-mail, ext, office, photo and the id of their calendar file
+  * seats_history.json - registered students per section over time (a point is added only when it changes)
+and for the whole site:
+  * data/ics/<id>.ics  - each instructor's teaching as weekly recurring events, in every kept semester of the official
+                         academic calendar's year, each over its own teaching period, holidays excluded (subscribable:
+                         refreshed hourly; a subscription follows the instructor into the next semester)
+The default semester's files are then copied to data/instructors.json and data/seats_history.json.
 
-Nothing here is guessed: the teaching period and holidays come from data/calendar.json; when they cannot be found
-the calendar files are not written. Asynchronous meetings have no fixed time and are left out of the calendars.
+Nothing here is guessed: the teaching periods and holidays come from data/calendar.json; a semester the calendar does
+not cover has no calendar events. Asynchronous meetings have no fixed time and are left out of the calendars.
 
     python scripts/build_extras.py
 """
@@ -19,6 +23,8 @@ import sys
 from datetime import date, datetime, timedelta, timezone
 
 HERE = os.path.dirname(__file__)
+sys.path.insert(0, HERE)
+import terms  # noqa: E402  (the kept semesters: data/terms/<id>/)
 DATA = os.path.join(HERE, "..", "data")
 DAY_IDX = {"ح": 6, "ن": 0, "ث": 1, "ر": 2, "خ": 3, "س": 5, "ج": 4}   # Python weekday(): Monday = 0
 ICS_DAY = {"ح": "SU", "ن": "MO", "ث": "TU", "ر": "WE", "خ": "TH", "س": "SA", "ج": "FR"}
@@ -95,15 +101,15 @@ def fold(line):
     return "\r\n".join(out)
 
 
-def ics_for(name, sections, period):
-    start, end, holidays = period
+def ics_for(name, items):
+    """items: [(semester id, section, teaching period)]"""
     lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//uopstaff//timetable//AR", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
              f"X-WR-CALNAME:{esc('محاضرات ' + name)}", "X-WR-TIMEZONE:Asia/Amman", "REFRESH-INTERVAL;VALUE=DURATION:PT1H",
              "X-PUBLISHED-TTL:PT1H",
              "BEGIN:VTIMEZONE", "TZID:Asia/Amman", "BEGIN:STANDARD", "DTSTART:19700101T000000", "TZOFFSETFROM:+0300",
              "TZOFFSETTO:+0300", "TZNAME:+03", "END:STANDARD", "END:VTIMEZONE"]
-    stamp = start.strftime("%Y%m%dT000000Z")  # fixed, so an unchanged timetable gives an unchanged file
-    for s in sections:
+    for tid, s, (start, end, holidays) in items:
+        stamp = start.strftime("%Y%m%dT000000Z")  # fixed, so an unchanged timetable gives an unchanged file
         groups = {}
         for m in s["meetings"]:
             if m["mode"] == "غير متزامن":
@@ -115,7 +121,8 @@ def ics_for(name, sections, period):
             dt1 = datetime.combine(first, datetime.strptime(t1, "%H:%M").time())
             ex = [h for h in holidays if any(h.weekday() == DAY_IDX[d] for d in ds)]
             where = "إلكتروني" if s["room"] == "0" or mode == "الكتروني كامل" else f"{s['room']} – {s['building']}"
-            uid = hashlib.sha1(f"{section_key(s)}|{t0}|{''.join(ds)}".encode("utf-8")).hexdigest()[:16]
+            # the semester is part of the id: the same section number comes back in other semesters
+            uid = hashlib.sha1(f"{tid}|{section_key(s)}|{t0}|{''.join(ds)}".encode("utf-8")).hexdigest()[:16]
             byday = ",".join(ICS_DAY[d] for d in sorted(ds, key=lambda d: DAY_IDX[d]))
             summary = "%s %s – ش%s" % (s["code"], s["name"], s["section"])
             about = "%s · %s · %s – %s" % (s["activity"], mode, s["department"], s["faculty"])
@@ -130,20 +137,12 @@ def ics_for(name, sections, period):
     return "\r\n".join(fold(l) for l in lines) + "\r\n"
 
 
-def main():
-    tt, cal, staff = load("timetable.json"), load("calendar.json"), load("staff.json")
-    S = tt["sections"]
-    by_key = {}
-    for m in staff["members"]:
-        if m["type"] == "academic":
-            by_key.setdefault(person_key(m["name"]), []).append(m)
-    period = teaching_period(tt, cal)
-
-    # instructors: id, own department, contact; calendar files
+def instructors_of(tt, by_key, period, ics_ids):
+    """The instructor list of one semester (data/terms/<id>/instructors.json)."""
     people = {}
-    for s in S:
+    for s in tt["sections"]:
         people.setdefault(s["instructor"], []).append(s)
-    index, written = [], 0
+    index = []
     for name in sorted(people):
         found = by_key.get(person_key(name), [])
         m = found[0] if len(found) == 1 else None
@@ -154,37 +153,65 @@ def main():
             rec.update({"email": m["email"], "ext": m["ext"], "office": m["office"] if m["office"] != m["ext"] else "",
                         "photo": m["photo"], "rank": m["rank"], "job": m["job"], "role": m["role"], "profile": m["profile"],
                         "name_en": m["name_en"], "directory_id": m["id"], "corrected": bool(m.get("corrected"))})
-        if period:
-            written += write_if_changed(os.path.join(DATA, "ics", rec["id"] + ".ics"), ics_for(name, people[name], period))
+        if rec["id"] in ics_ids:
             rec["ics"] = f"data/ics/{rec['id']}.ics"
         index.append(rec)
-    if period:  # calendars of instructors no longer in the timetable
-        keep = {r["id"] + ".ics" for r in index}
-        for f in os.listdir(os.path.join(DATA, "ics")):
-            if f.endswith(".ics") and f not in keep:
-                os.remove(os.path.join(DATA, "ics", f))
-    out = {"term": tt["term"], "updated": tt["updated"],
-           "teaching": {"start": period[0].isoformat(), "end": period[1].isoformat(), "holidays": [h.isoformat() for h in period[2]]} if period else None,
-           "instructors": index}
-    write_if_changed(os.path.join(DATA, "instructors.json"), json.dumps(out, ensure_ascii=False, indent=0))
-    print(f"instructors: {len(index)}, calendar files changed: {written}" + ("" if period else " (no teaching period found: calendars not written)"))
+    return {"term": tt["term"], "updated": tt["updated"],
+            "teaching": {"start": period[0].isoformat(), "end": period[1].isoformat(), "holidays": [h.isoformat() for h in period[2]]} if period else None,
+            "instructors": index}
 
-    # seats history: one point per section when its registered count or capacity changes
-    path = os.path.join(DATA, "seats_history.json")
-    hist = load("seats_history.json") if os.path.exists(path) else {"term": tt["term"], "times": [], "series": {}}
+
+def seats_of(tt, path):
+    """One semester's registration history: a point per section whenever its registered count or capacity changes."""
+    hist = terms.load(path) or {"term": tt["term"], "times": [], "series": {}}
     if hist.get("term") != tt["term"]:
         hist = {"term": tt["term"], "times": [], "series": {}}
     t = tt["updated"]
-    if not hist["times"] or hist["times"][-1] < t:
-        hist["times"].append(t)
-        ti = len(hist["times"]) - 1
-        for s in S:
-            k = section_key(s)
-            ser = hist["series"].setdefault(k, [])
-            if not ser or ser[-1][1:] != [s["registered"], s["capacity"]]:
-                ser.append([ti, s["registered"], s["capacity"]])
-        write_if_changed(path, json.dumps(hist, ensure_ascii=False, separators=(",", ":")))
-        print(f"seats history: {len(hist['times'])} snapshots")
+    if hist["times"] and hist["times"][-1] >= t:
+        return False
+    hist["times"].append(t)
+    ti = len(hist["times"]) - 1
+    for s in tt["sections"]:
+        ser = hist["series"].setdefault(section_key(s), [])
+        if not ser or ser[-1][1:] != [s["registered"], s["capacity"]]:
+            ser.append([ti, s["registered"], s["capacity"]])
+    return write_if_changed(path, json.dumps(hist, ensure_ascii=False, separators=(",", ":")))
+
+
+def main():
+    cal, staff = load("calendar.json"), load("staff.json")
+    by_key = {}
+    for m in staff["members"]:
+        if m["type"] == "academic":
+            by_key.setdefault(person_key(m["name"]), []).append(m)
+    kept = terms.kept()
+    if not kept:
+        sys.exit("no semester kept in data/terms")
+
+    # calendar files: each instructor's teaching in every kept semester the official calendar covers, each semester over
+    # its own teaching period (a subscription then follows the instructor from one semester to the next)
+    periods = {tid: teaching_period(tt, cal) if terms.calendar_semester(tt["term"], cal) else None for tid, tt in kept}
+    teach = {}
+    for tid, tt in kept:
+        if periods[tid]:
+            for s in tt["sections"]:
+                teach.setdefault(s["instructor"], []).append((tid, s, periods[tid]))
+    written = 0
+    for name, items in teach.items():
+        written += write_if_changed(os.path.join(DATA, "ics", short_id(name) + ".ics"), ics_for(name, items))
+    ics_ids = {short_id(n) for n in teach}
+    if teach:  # calendars of instructors no longer in any covered semester
+        for f in os.listdir(os.path.join(DATA, "ics")):
+            if f.endswith(".ics") and f[:-4] not in ics_ids:
+                os.remove(os.path.join(DATA, "ics", f))
+    print(f"calendar files: {len(ics_ids)}, changed: {written}" + ("" if teach else " (no teaching period found: calendars not written)"))
+
+    for tid, tt in kept:
+        out = instructors_of(tt, by_key, periods[tid], ics_ids)
+        write_if_changed(os.path.join(terms.folder(tid), "instructors.json"), json.dumps(out, ensure_ascii=False, indent=0))
+        seats_of(tt, os.path.join(terms.folder(tid), "seats_history.json"))
+        print(f"{tt['term']}: {len(out['instructors'])} instructors")
+    print("default semester:", terms.publish())
 
 
 if __name__ == "__main__":

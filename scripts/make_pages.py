@@ -58,7 +58,7 @@ MORE = [c for *_, kids in MENU for c in kids]
 
 PAGES = {
     "instructor.html": dict(
-        title="صفحة المدرس", short="صفحة المدرس", what="صفحة المدرس", app="ins-app", js="instructor.js", v="202611080500", extra=["officehours.js"],
+        title="صفحة المدرس", short="صفحة المدرس", what="صفحة المدرس", app="ins-app", js="instructor.js", v="202611221200", extra=["officehours.js"],
         desc="صفحة كل مدرس في جامعة البترا: التواصل، الجدول الأسبوعي، أوقات الفراغ، واشتراك محاضراته في تقويم الهاتف.",
         hero="صفحة المدرس", sub="التواصل، الجدول الأسبوعي، أوقات الفراغ، واشتراك المحاضرات في تقويم الهاتف",
         search="ابحث عن مدرس بالاسم…", about="جدول كل مدرس من بوابة الجامعة وبيانات تواصله من دليل الموظفين، مع اشتراك تقويم يتحدّث تلقائياً كل ساعة."),
@@ -153,7 +153,7 @@ PAGES = {
         hero="الخطط الاسترشادية", sub="خطة كل برنامج سنةً بسنة وفصلاً بفصل، بكل إصداراتها المنشورة — مع المقارنة بين الإصدارات، وما يُطرح هذا الفصل، وأداة للمرشد الأكاديمي",
         search="ابحث: رمز أو اسم مادة…", about="من صفحات الأقسام على مواقع الكليات؛ تُعرض الخطة جدولاً فقط حين تطابق ساعاتها كل المجاميع المطبوعة فيها، وإلا فصفحاتها الأصلية."),
     "plans.html": dict(
-        title="الخطط الدراسية", short="الخطط الدراسية", what="الخطط الدراسية", app="sp-app", js="plans.js", v="202611030900",
+        title="الخطط الدراسية", short="الخطط الدراسية", what="الخطط الدراسية", app="sp-app", js="plans.js", v="202611221200",
         desc="الخطط الدراسية لكل تخصصات جامعة البترا: متطلبات الجامعة والكلية والتخصص، الساعات المعتمدة، المقررات، وما يُطرح منها هذا الفصل.",
         hero="الخطط الدراسية", sub="خطة كل تخصص في كل الكليات: المجموعات والساعات والمقررات، وما يُطرح منها هذا الفصل — مع البحث والمقارنة والتصدير",
         search="ابحث: رمز أو اسم مقرر…", about="من الخطط الدراسية المنشورة على بوابة الجامعة، مربوطة بالجدول الدراسي، وتُراجَع مع كل تحديث للموقع."),
@@ -250,6 +250,11 @@ def app_shell(html):
 
 
 SITE_V = "202611131200"
+# the semester choice (assets/term.js, before the page's own script) on the pages that show the sections of a semester;
+# the pages about "now" (now, campus, screens) and the search always use the semester being taught
+TERM_V = "202611221200"
+TERM_PAGES = {"instructor.html", "planner.html", "room.html", "usage.html", "trends.html", "makeup.html", "load.html",
+              "together.html", "plans.html", "advisory.html", "advising.html", "exams.html"}
 VOICE_V = "202611030900"
 
 
@@ -303,8 +308,11 @@ def main():
         h = h.replace('مشاركة الجدول الدراسي</h5>', f'مشاركة {p["short"]}</h5>').replace('الجدول كاملاً</label>', 'هذه الصفحة</label>')
         h = h.replace('<b>الجدول الدراسي – بوصلة البترا</b>', f'<b>{p["title"]} – بوصلة البترا</b>')
         h = re.sub(r'<script src="https://cdn.jsdelivr.net/npm/xlsx(?:-js-style)?@[^"]+" defer></script>\n', '', h)
+        h = re.sub(r'<script src="assets/term\.js\?v=\d+"></script>\n', '', h)
         h = re.sub(r'<script src="assets/timetable\.js\?v=(\d+)"></script>',
                    lambda m: "\n".join(f'<script src="assets/{js}?v={p.get("v", m.group(1)) if js != "common.js" else m.group(1)}"></script>' for js in ["common.js"] + p.get("extra", []) + [p["js"]]), h)
+        if page in TERM_PAGES:
+            h = h.replace('<script src="assets/common.js', f'<script src="assets/term.js?v={TERM_V}"></script>\n<script src="assets/common.js', 1)
         if p.get("app", "").startswith("fn-"):  # the finance pages carry their own styles: load the stylesheet of the same release
             h = re.sub(r'assets/app\.css\?v=\d+', f'assets/app.css?v={p["v"]}', h)
         h = app_shell(set_nav(h, href_of))
