@@ -108,9 +108,18 @@ window.UOP = (function () {
   }
   let DAYS = { 'ح': 'الأحد', 'ن': 'الاثنين', 'ث': 'الثلاثاء', 'ر': 'الأربعاء', 'خ': 'الخميس', 'س': 'السبت', 'ج': 'الجمعة' };
 
+  // the kept semesters (data/terms/index.json): a semester the portal no longer shows is a saved copy, not re-read hourly
+  let termIx = null;
+  const termIndex = () => termIx || (termIx = (window.UOP_TERM ? window.UOP_TERM.index : getJSON('data/terms/index.json')).catch(() => null));
+  const savedNote = (iso, el, base) => termIndex().then(ix => {
+    const t = ix && ix.portal && ix.terms.find(x => x.updated === iso && x.id !== ix.portal);
+    const now = t && ix.terms.find(x => x.id === ix.portal);
+    if (t && now) el.innerHTML = `${base} · نسخة محفوظة من ${esc(t.term)} (تعرض بوابة الجامعة الآن ${esc(now.term)})`;
+  });
   function updatedLine(iso, extra) {
     const el = $('#pg-updated');
-    if (el) el.innerHTML = `آخر تغيير ${ago(iso)} (${numDate(iso)})${extra ? ' · ' + extra : ''}`;
+    const base = `آخر تغيير ${ago(iso)} (${numDate(iso)})`;
+    if (el) { el.innerHTML = base + (extra ? ' · ' + extra : ''); savedNote(iso, el, base); }
     const fu = $('#foot-updated');
     if (fu) fu.textContent = 'آخر تغيير ' + ago(iso);
     const y = $('#year');
@@ -138,6 +147,6 @@ window.UOP = (function () {
     a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
-  return { $, esc, norm, WEEK, JS_DAY, MODE, toMin, toTime, live, dur, mins, ago, count: say, amman, PALETTE, numDate, getJSON, sectionKey, shortName, weekGrid, updatedLine, modal, download,
+  return { $, esc, norm, WEEK, JS_DAY, MODE, toMin, toTime, live, dur, mins, ago, count: say, amman, PALETTE, numDate, getJSON, sectionKey, shortName, weekGrid, updatedLine, savedNote, modal, download,
     setDays: d => { DAYS = d; }, get DAYS() { return DAYS; } };
 })();

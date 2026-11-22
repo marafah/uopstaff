@@ -2016,6 +2016,11 @@
   function showUpdated(d) {
     const upd = new Date(d.updated).toLocaleDateString('ar-JO-u-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric' });
     $('#tt-updated').innerHTML = `آخر تغيير ${ago(d.updated)} (${upd}) · يُراجَع كل ساعة`;
+    // a semester the portal no longer shows is a saved copy (data/terms/, see assets/term.js), not re-read every hour
+    if (window.UOP_TERM) window.UOP_TERM.index.then(ix => {
+      const t = ix && ix.portal && ix.terms.find(x => x.updated === d.updated && x.id !== ix.portal), now = t && ix.terms.find(x => x.id === ix.portal);
+      if (t && now && DATA === d) $('#tt-updated').innerHTML = `آخر تغيير ${ago(d.updated)} (${upd}) · نسخة محفوظة (تعرض بوابة الجامعة الآن ${esc(now.term)})`;
+    });
     $('#foot-count').textContent = `${d.count} شعبة · ${d.term}`;
     $('#foot-updated').textContent = 'آخر تغيير ' + ago(d.updated);
   }

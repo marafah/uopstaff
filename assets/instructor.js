@@ -725,6 +725,9 @@
     const id = qs().get('id');
     const I = id && idx.instructors.find(i => i.id === id);
     if (I) personView(I); else listView();
+    // an instructor of another semester (the semester is chosen at the top of the page, see assets/term.js)
+    if (id && !I) $('#ins-app').insertAdjacentHTML('afterbegin', `<div class="alert alert-warning mt-3"><i class="bi bi-info-circle"></i>
+      لا شعب لهذا المدرس في ${esc(tt.term)}. اختر فصلاً آخر في أعلى الصفحة، أو ابحث في القائمة أدناه.</div>`);
     const top = $('#pg-q');
     top.addEventListener('keydown', e => { if (e.key === 'Enter') location.href = 'instructor.html?q=' + encodeURIComponent(top.value); });
     if (!I) top.addEventListener('input', () => { const i = $('#i-q'); if (i) { i.value = top.value; i.dispatchEvent(new Event('input')); } });

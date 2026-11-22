@@ -1,4 +1,8 @@
-"""Refresh data/timetable.json from the university's public timetable (https://edugate.uop.edu.jo/timetable).
+"""Refresh the timetable from the university's public timetable (https://edugate.uop.edu.jo/timetable).
+
+The portal shows one semester (the one it is preparing). The read is saved in that semester's own folder,
+data/terms/<id>/timetable.json, so the other semesters already kept stay as they were; then data/terms/index.json and
+the site's default semester (data/timetable.json) are written by scripts/terms.py (see there).
 
 The page is a JSF form. One search with no filter gives every section (all rows on one page). Each row's own
 "details" dialog then gives its faculty, department, degree, study type and number of registered students,
@@ -28,7 +32,8 @@ UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like 
 TIMEOUT = 90
 TRIES = 4
 WORKERS = 3
-OUT = os.path.join(os.path.dirname(__file__), "..", "data", "timetable.json")
+sys.path.insert(0, os.path.dirname(__file__))
+import terms  # noqa: E402  (the kept semesters)
 AJAX = {"Faces-Request": "partial/ajax", "X-Requested-With": "XMLHttpRequest"}
 COLS = ["code", "name", "activity", "time", "room", "section", "status", "instructor", "building"]
 DAYS = {"ح": "الأحد", "ن": "الاثنين", "ث": "الثلاثاء", "ر": "الأربعاء", "خ": "الخميس", "س": "السبت", "ج": "الجمعة"}
@@ -279,7 +284,11 @@ def main():
             time.sleep(60)
     if problems:
         print("\n".join(problems[:40]), file=sys.stderr)
-        sys.exit(f"{len(problems)} problem(s); data/timetable.json left unchanged")
+        sys.exit(f"{len(problems)} problem(s); the timetable left unchanged")
+    term = terms.parse(form.term)
+    if not term:
+        sys.exit(f"unknown semester name {form.term!r}; the timetable left unchanged")
+    out = os.path.join(terms.folder(term[0]), "timetable.json")
 
     # obvious spelling slips in the portal's building names (e.g. "مينى كلية الصيدلة"), corrected after the checks
     for r in rows:
@@ -304,15 +313,15 @@ def main():
         "checks": {"rows": len(rows), "details_read": len(det), "filters": ["degree", "study_type", "faculty", "department"],
                    "status_vs_seats": len(rows)},
     }
-    if os.path.exists(OUT):
-        with open(OUT, encoding="utf-8") as f:
-            old = json.load(f)
-        if {k: v for k, v in old.items() if k not in ("updated", "checked")} == {k: v for k, v in data.items() if k not in ("updated", "checked")}:
-            print(f"no changes since {old.get('updated')}")
-            return
-    with open(OUT, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=0)
-    print(f"wrote {len(rows)} sections to data/timetable.json")
+    old = terms.load(out)
+    if old and {k: v for k, v in old.items() if k not in ("updated", "checked")} == {k: v for k, v in data.items() if k not in ("updated", "checked")}:
+        print(f"{form.term}: no changes since {old.get('updated')}")
+    else:
+        os.makedirs(os.path.dirname(out), exist_ok=True)
+        with open(out, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=0)
+        print(f"wrote {len(rows)} sections to data/terms/{term[0]}/timetable.json")
+    print("default semester:", terms.publish(term[0]))
 
 
 if __name__ == "__main__":
