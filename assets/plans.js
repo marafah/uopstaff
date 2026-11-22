@@ -373,7 +373,7 @@
   }
   const planUrl = p => { const u = new URL(location.href.split('?')[0]); u.searchParams.set('plan', p.id); if (st.pv !== 'table') u.searchParams.set('pv', st.pv); return u.href; };
   const planHead = (p, f) => ({ subtitle: `${p.degree} · ${p.faculty} · قسم ${p.dept}`, source: 'edugate.uop.edu.jo/studyPlans', url: planUrl(p), qrLabel: 'الخطة الحية',
-    filters: [['الفصل', D.term || ''], ...(st.kind ? [['النوع', KIND[st.kind][0]]] : []), ...(st.q ? [['بحث', st.q]] : [])],
+    filters: [['الفصل', D.timetable_term || D.term || ''], ...(st.kind ? [['النوع', KIND[st.kind][0]]] : []), ...(st.q ? [['بحث', st.q]] : [])],
     stats: [['ساعة للتخرج', p.total || f.sum], ['إجباري', f.req], ['اختياري', f.el], ['حر', f.free], ['مقرر', f.courses], ['مطروح هذا الفصل', `${f.offered}/${f.courses}`]] });
   function printTrack() {
     const p = BYID[st.plan], f = figures(p), pr = progress(p);
@@ -562,6 +562,8 @@
   </style>`);
   Promise.all([U.getJSON('data/study_plans.json'), U.getJSON('data/timetable.json').catch(() => ({ sections: [] })), U.getJSON('data/course_names_en.json').catch(() => ({ names: {} }))]).then(([d, tt, en]) => {
     EN = en.names || {};
+    // «هذا الفصل» is the semester of the timetable this page reads (the semester chosen at the top, see assets/term.js)
+    if (tt.term) d.timetable_term = tt.term;
     D = d; PLANS = d.plans; BYID = Object.fromEntries(PLANS.map(p => [p.id, p]));
     (tt.sections || []).forEach(s => (TT[s.code] ||= []).push(s));
     // one section listed under two degrees is one section
@@ -569,7 +571,7 @@
     PLANS.forEach(p => { p._twin = PLANS.some(o => o !== p && o.major === p.major && o.degree === p.degree); });
     PLANS.forEach(p => p.groups.forEach(g => { const n = groupKey(g.name); if (!GROUPS.includes(n)) GROUPS.push(n); g.courses.forEach(c => (IDX[c.code] ||= []).push({ p, g, c })); }));
     if (!st.plan && !st.fac) { const first = PLANS.find(p => p.degree === 'البكالوريوس') || PLANS[0]; st.plan = first ? first.id : ''; }
-    U.updatedLine(d.updated, d.term);
+    U.updatedLine(d.updated, d.timetable_term ? `«هذا الفصل»: ${d.timetable_term}` : d.term);
     const top = $('#pg-q'); if (top) top.addEventListener('input', e => { st.q = e.target.value; if (st.view === 'all' || st.view === 'compare') st.view = 'courses'; render(); });
     if (st.q && top) top.value = st.q;
     render();
