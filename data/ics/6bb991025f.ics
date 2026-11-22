@@ -77,7 +77,7 @@ DESCRIPTION:نظري · الكتروني كامل · اللغة العرب
  ية وآدابها – الآداب والعلوم
 END:VEVENT
 BEGIN:VEVENT
-UID:e46848f6a269411a@uopstaff
+UID:11d65c461b0e7d1d@uopstaff
 DTSTAMP:20270314T000000Z
 DTSTART;TZID=Asia/Amman:20270314T110000
 DTEND;TZID=Asia/Amman:20270314T120000
@@ -90,7 +90,7 @@ DESCRIPTION:نظري · وجاهي · اللغة العربية وآداب
  ها – الآداب والعلوم
 END:VEVENT
 BEGIN:VEVENT
-UID:11d65c461b0e7d1d@uopstaff
+UID:e46848f6a269411a@uopstaff
 DTSTAMP:20270314T000000Z
 DTSTART;TZID=Asia/Amman:20270314T110000
 DTEND;TZID=Asia/Amman:20270314T120000
