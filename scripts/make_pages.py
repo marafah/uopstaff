@@ -252,7 +252,7 @@ def app_shell(html):
 SITE_V = "202611131200"
 # the semester choice (assets/term.js, before the page's own script) on the pages that show the sections of a semester;
 # the pages about "now" (now, campus, screens) and the search always use the semester being taught
-TERM_V = "202611221300"
+TERM_V = "202611221400"
 TERM_PAGES = {"instructor.html", "planner.html", "room.html", "usage.html", "trends.html", "makeup.html", "load.html",
               "together.html", "plans.html", "advisory.html", "advising.html", "exams.html"}
 VOICE_V = "202611030900"

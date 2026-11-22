@@ -37,7 +37,9 @@
     const m = typeof input === 'string' && FILE.exec(input);
     if (!m) return nativeFetch(input, init);
     return ready.then(() => chosen
-      ? nativeFetch(`data/terms/${chosen}/${m[1]}.json${m[2] || ''}`, init).then(r => r.ok ? r : (forget(), nativeFetch(input, init)))
+      // a semester no longer kept (404): the default semester, and the choice is dropped; any other failure (the network,
+      // a server error) is the page's to report: never another semester's data in its place
+      ? nativeFetch(`data/terms/${chosen}/${m[1]}.json${m[2] || ''}`, init).then(r => r.status === 404 ? (forget(), nativeFetch(input, init)) : r)
       : nativeFetch(input, init));
   };
   // the page writes its own filters into the address: the semester stays in it, so a shared link opens the same semester
