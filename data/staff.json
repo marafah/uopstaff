@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-22T21:53:07Z",
+"updated": "2026-11-23T12:56:50Z",
 "main_line": "+96265799555",
 "main_line_display": "06 5799555",
 "faculties": [
@@ -225,7 +225,7 @@
 "name": "الكادر الإداري – مركز الحاسوب والمعلومات والسيطرة",
 "kind": "admin",
 "url": "https://www.uop.edu.jo/Ar/ComputerCenter/Pages/AdministrativeStaff.aspx",
-"count": 17,
+"count": 15,
 "faculty": "computercenter"
 },
 {
@@ -1092,28 +1092,6 @@
 "photo_src": "https://www.uop.edu.jo/En/ComputerCenter/PublishingImages/Staff/Tariq%20Ahmad.jpg"
 },
 {
-"id": "S:computercenter:20",
-"type": "admin",
-"faculty": "computercenter",
-"name": "فراس عدنان",
-"name_en": "Feras Badran",
-"job": "مساعد مدير الموقع الالكتروني",
-"rank": "",
-"rank_order": 99,
-"role": "مدير",
-"sort": 26,
-"department": "",
-"specialization": "",
-"qualification": "بكالوريوس – جامعة ماساتشوستس - بوسطن",
-"ext": "5551",
-"office": "مركز الحاسوب والمعلومات والسيطرة",
-"email": "fbadran@uop.edu.jo",
-"photo": "assets/photos/baf5a8f6ab95f068.jpg",
-"profile": "https://www.uop.edu.jo/Ar/ComputerCenter/Pages/AdministrativeStaff.aspx",
-"source": "admin_computercenter",
-"photo_src": "https://www.uop.edu.jo/En/ComputerCenter/PublishingImages/Staff/Feras%20Badran.jpg"
-},
-{
 "id": "S:computercenter:27",
 "type": "admin",
 "faculty": "computercenter",
@@ -1200,28 +1178,6 @@
 "profile": "https://www.uop.edu.jo/Ar/ComputerCenter/Pages/AdministrativeStaff.aspx",
 "source": "admin_computercenter",
 "photo_src": "https://www.uop.edu.jo/En/ComputerCenter/PublishingImages/Staff/Mr.%20Ishaq%20AlHaribat.jpg"
-},
-{
-"id": "S:computercenter:34",
-"type": "admin",
-"faculty": "computercenter",
-"name": "تالا جمال دروزة",
-"name_en": "Tala Jamal Darwazeh",
-"job": "ضابط ارتباط وسائل التواصل الاجتماعي",
-"rank": "",
-"rank_order": 99,
-"role": "",
-"sort": 30,
-"department": "",
-"specialization": "",
-"qualification": "بكالوريوس إذاعة وتلفزيون – جامعة البترا",
-"ext": "5554",
-"office": "مركز الحاسوب والمعلومات والسيطرة",
-"email": "tala.darwazeh@uop.edu.jo",
-"photo": "",
-"profile": "https://www.uop.edu.jo/Ar/ComputerCenter/Pages/AdministrativeStaff.aspx",
-"source": "admin_computercenter",
-"photo_src": ""
 },
 {
 "id": "S:computercenter:37",

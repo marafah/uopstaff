@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-22T15:26:11Z",
+"updated": "2026-11-23T12:56:50Z",
 "source": "https://www.uop.edu.jo/Ar/MoreAbout/Documents/OrganizationalStructure.pdf",
 "revision": "Rev.E",
 "revision_date": "2023-12-20",
@@ -2513,7 +2513,7 @@
 "unit": {
 "id": "computercenter",
 "name": "مركز الحاسوب والمعلومات والسيطرة",
-"count": 16,
+"count": 14,
 "academic": 0
 },
 "people": [
@@ -2534,19 +2534,7 @@
 "id": "website",
 "name": "قسم الموقع الإلكتروني",
 "kind": "section",
-"people": [
-{
-"id": "S:computercenter:20",
-"name": "فراس عدنان",
-"job": "مساعد مدير الموقع الالكتروني",
-"role": "مدير",
-"type": "admin",
-"ext": "5551",
-"email": "fbadran@uop.edu.jo",
-"photo": "assets/photos/baf5a8f6ab95f068.jpg",
-"faculty": "computercenter"
-}
-]
+"people": []
 },
 {
 "id": "programming",
