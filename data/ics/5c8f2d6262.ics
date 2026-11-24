@@ -91,13 +91,13 @@ DESCRIPTION:نظري · وجاهي · اللغة الانجليزية وآ
  دابها – الآداب والعلوم
 END:VEVENT
 BEGIN:VEVENT
-UID:fa91ad845da9b20b@uopstaff
+UID:a92d3e1a64849df9@uopstaff
 DTSTAMP:20270314T000000Z
 DTSTART;TZID=Asia/Amman:20270315T110000
 DTEND;TZID=Asia/Amman:20270315T123000
 RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20270622T205959Z
 EXDATE;TZID=Asia/Amman:20270517T110000,20270519T110000
-SUMMARY:402220 مدخل إلى الأدب الإنجليزي – ش2
+SUMMARY:402220 مدخل إلى الأدب الإنجليزي – ش1
 LOCATION:06113 – مبنى كلية الآداب والعلوم
 DESCRIPTION:نظري · وجاهي · اللغة الانجليزية وآ
  دابها – الآداب والعلوم
