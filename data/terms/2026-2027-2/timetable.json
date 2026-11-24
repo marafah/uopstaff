@@ -1,6 +1,6 @@
 {
-"updated": "2026-11-24T11:04:30Z",
-"checked": "2026-11-24T11:04:30Z",
+"updated": "2026-11-24T21:21:33Z",
+"checked": "2026-11-24T21:21:33Z",
 "source": "https://edugate.uop.edu.jo/timetable",
 "term": "الفصل الثاني 2027/2026",
 "count": 628,
@@ -12619,12 +12619,12 @@
 ]
 },
 {
-"code": "503105",
-"name": "مختبر علوم الحياة (1)",
+"code": "503106",
+"name": "مختبر علوم الحياة (2)",
 "activity": "عملي",
 "time": "[ 13:00_16:00 ] ن وجاهي",
 "room": "0",
-"section": "2",
+"section": "1",
 "status": "مفتوحة",
 "instructor": "د. احمد محمد امين سالم العثامنه",
 "building": "-",
@@ -12649,7 +12649,7 @@
 "activity": "عملي",
 "time": "[ 13:00_16:00 ] ث وجاهي",
 "room": "0",
-"section": "1",
+"section": "2",
 "status": "مفتوحة",
 "instructor": "د. احمد محمد امين سالم العثامنه",
 "building": "-",
@@ -13123,7 +13123,7 @@
 "degree": "البكالوريوس",
 "study_type": "صباحي",
 "registered": 0,
-"capacity": 40,
+"capacity": 30,
 "meetings": [
 {
 "day": "ح",
@@ -13154,7 +13154,7 @@
 "degree": "البكالوريوس",
 "study_type": "صباحي",
 "registered": 0,
-"capacity": 20,
+"capacity": 15,
 "meetings": [
 {
 "day": "ح",
@@ -13179,7 +13179,7 @@
 "degree": "البكالوريوس",
 "study_type": "صباحي",
 "registered": 0,
-"capacity": 20,
+"capacity": 15,
 "meetings": [
 {
 "day": "ن",
@@ -14026,7 +14026,7 @@
 "code": "503791",
 "name": "ندوة وطرائق البحث",
 "activity": "نظري",
-"time": "[ 14:00_16:00 ] ر وجاهي",
+"time": "[ 16:00_18:00 ] ر وجاهي",
 "room": "3310",
 "section": "1",
 "status": "مفتوحة",
@@ -14041,8 +14041,8 @@
 "meetings": [
 {
 "day": "ر",
-"start": "14:00",
-"end": "16:00",
+"start": "16:00",
+"end": "18:00",
 "mode": "وجاهي"
 }
 ]
