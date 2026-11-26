@@ -1,5 +1,5 @@
 {
-"updated": "2026-11-26T00:28:33Z",
+"updated": "2026-11-26T09:38:38Z",
 "main_line": "+96265799555",
 "main_line_display": "06 5799555",
 "faculties": [
@@ -259,6 +259,14 @@
 "url": "https://www.uop.edu.jo/Ar/HRD/Pages/AdministrativeStaff.aspx",
 "count": 4,
 "faculty": "hrd"
+},
+{
+"key": "admin_elearning",
+"name": "الكادر الإداري – التعلم الإلكتروني",
+"kind": "admin",
+"url": "https://www.uop.edu.jo/Ar/ELearning/Pages/AdministrativeStaff.aspx",
+"count": 3,
+"faculty": "elearning"
 },
 {
 "key": "admin_qualityassuranceplanning",
@@ -4371,10 +4379,10 @@
 "ext": "8800",
 "office": "8B-8240",
 "email": "mohammed.abadleh@uop.edu.jo",
-"photo": "assets/photos/d1216e356a00efc3.jpg",
+"photo": "assets/photos/9effdfabf1c30492.jpg",
 "profile": "https://pharma.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6D006F00680061006D006D00650064002E0061006200610064006C0065006800400075006F0070002E006500640075002E006A006F00",
 "source": "academic_api",
-"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20171007.JPG"
+"photo_src": "https://services.uop.edu.jo/InstructorProfile/ProfileImage/20171007.jpg"
 },
 {
 "id": "A:690061006C0061006400680061006D00400075006F0070002E006500640075002E006A006F00",
