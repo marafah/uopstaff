@@ -1,6 +1,6 @@
 {
 "term": "الفصل الثاني 2027/2026",
-"updated": "2026-11-26T09:40:18Z",
+"updated": "2026-11-26T19:43:15Z",
 "teaching": {
 "start": "2027-03-14",
 "end": "2027-06-22",
@@ -167,6 +167,33 @@
 "directory_id": "A:73006100790065006C002E0061006C006D006F006D0061006E006900400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/91f393a095.ics"
+},
+{
+"id": "fdaf185a01",
+"name": "أ.د. صبحي محمد هايل موسى البزلميط",
+"sections": 4,
+"department": "هندسة العمارة",
+"faculty": "العمارة و التصميم",
+"email": "subhi.albazlamit@uop.edu.jo",
+"ext": "4212",
+"office": "",
+"photo": "assets/photos/c12928cf9fd9d047.jpg",
+"rank": "أستاذ",
+"job": "عضو هيئة تدريس",
+"role": "",
+"profile": "https://arch.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=730075006200680069002E0061006C00620061007A006C0061006D0069007400400075006F0070002E006500640075002E006A006F00",
+"name_en": "Prof. Subhi Mohammad Hayel Mousa AlBazlamit",
+"directory_id": "A:730075006200680069002E0061006C00620061007A006C0061006D0069007400400075006F0070002E006500640075002E006A006F00",
+"corrected": false,
+"ics": "data/ics/fdaf185a01.ics"
+},
+{
+"id": "1589b2c241",
+"name": "أ.د. علي محمود أبو غنيمة",
+"sections": 1,
+"department": "",
+"faculty": "",
+"ics": "data/ics/1589b2c241.ics"
 },
 {
 "id": "3cc040a063",
@@ -853,6 +880,25 @@
 "ics": "data/ics/775b691845.ics"
 },
 {
+"id": "9d10ee13e8",
+"name": "د. خالد كمال الياس طرزي",
+"sections": 5,
+"department": "هندسة العمارة",
+"faculty": "العمارة و التصميم",
+"email": "ktarazi@uop.edu.jo",
+"ext": "4206",
+"office": "",
+"photo": "assets/photos/31728b1d3a923087.jpg",
+"rank": "أستاذ مساعد",
+"job": "عضو هيئة تدريس",
+"role": "",
+"profile": "https://arch.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=6B0074006100720061007A006900400075006F0070002E006500640075002E006A006F00",
+"name_en": "Dr. Khaled Kamal Elias Tarazi",
+"directory_id": "A:6B0074006100720061007A006900400075006F0070002E006500640075002E006A006F00",
+"corrected": false,
+"ics": "data/ics/9d10ee13e8.ics"
+},
+{
 "id": "e6045f0b11",
 "name": "د. خليل بدر علي البطاينة",
 "sections": 4,
@@ -927,6 +973,25 @@
 "directory_id": "A:720061006200750061007700770061006400400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/6cfa9e775f.ics"
+},
+{
+"id": "cfde50d308",
+"name": "د. رانيا فايز عبد الله أبو رمضان",
+"sections": 3,
+"department": "هندسة العمارة",
+"faculty": "العمارة و التصميم",
+"email": "rania.aburamadan@uop.edu.jo",
+"ext": "",
+"office": "",
+"photo": "assets/photos/c6d5620ca82d46f9.jpg",
+"rank": "أستاذ مشارك",
+"job": "عميد كلية العمارة والتصميم",
+"role": "عميد",
+"profile": "https://arch.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=720061006E00690061002E00610062007500720061006D006100640061006E00400075006F0070002E006500640075002E006A006F00",
+"name_en": "Rania Fayiz Abdallah Aburamdan",
+"directory_id": "A:720061006E00690061002E00610062007500720061006D006100640061006E00400075006F0070002E006500640075002E006A006F00",
+"corrected": false,
+"ics": "data/ics/cfde50d308.ics"
 },
 {
 "id": "ba25863dcb",
@@ -1005,6 +1070,25 @@
 "ics": "data/ics/1cdb4d36cb.ics"
 },
 {
+"id": "c298a843a2",
+"name": "د. سلام أسيد عزت مرعي",
+"sections": 4,
+"department": "هندسة العمارة",
+"faculty": "العمارة و التصميم",
+"email": "salam.maree@uop.edu.jo",
+"ext": "4431",
+"office": "",
+"photo": "assets/photos/59e57f09ce0f2942.jpg",
+"rank": "أستاذ مساعد",
+"job": "مساعد العميد لشؤون الطلبة والجودة",
+"role": "مساعد عميد / رئيس",
+"profile": "https://arch.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=730061006C0061006D002E006D006100720065006500400075006F0070002E006500640075002E006A006F00",
+"name_en": "Dr. Salam Osayd Izzat Mare'e",
+"directory_id": "A:730061006C0061006D002E006D006100720065006500400075006F0070002E006500640075002E006A006F00",
+"corrected": false,
+"ics": "data/ics/c298a843a2.ics"
+},
+{
 "id": "ffdf3e250d",
 "name": "د. سماح غازي حسين أبو سمور",
 "sections": 5,
@@ -1060,6 +1144,25 @@
 "directory_id": "A:73006100690066002E0061006C00680061006C0062006F0073006900400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/e54d239317.ics"
+},
+{
+"id": "6912610e9b",
+"name": "د. شذا رامز مسعود ملحيس",
+"sections": 3,
+"department": "التصميم الداخلي",
+"faculty": "العمارة و التصميم",
+"email": "smalhis@uop.edu.jo",
+"ext": "4305",
+"office": "",
+"photo": "assets/photos/7e0c238480015d16.jpg",
+"rank": "أستاذ مشارك",
+"job": "عضو هيئة تدريس",
+"role": "",
+"profile": "https://arch.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=73006D0061006C00680069007300400075006F0070002E006500640075002E006A006F00",
+"name_en": "Dr. Shatha Ramez Masoud Malhis",
+"directory_id": "A:73006D0061006C00680069007300400075006F0070002E006500640075002E006A006F00",
+"corrected": false,
+"ics": "data/ics/6912610e9b.ics"
 },
 {
 "id": "c9060950cb",
@@ -1136,6 +1239,25 @@
 "directory_id": "A:74007A0075006800610069007200400075006F0070002E006500640075002E006A006F00",
 "corrected": false,
 "ics": "data/ics/5c8f2d6262.ics"
+},
+{
+"id": "68948bfd92",
+"name": "د. عامر محمد عزت مصطفى الجوخدار",
+"sections": 3,
+"department": "هندسة العمارة",
+"faculty": "العمارة و التصميم",
+"email": "amer.aljokhadar@uop.edu.jo",
+"ext": "4429",
+"office": "",
+"photo": "assets/photos/ac285aabaaff3378.jpg",
+"rank": "أستاذ مشارك",
+"job": "عضو هيئة تدريس",
+"role": "",
+"profile": "https://arch.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=61006D00650072002E0061006C006A006F006B0068006100640061007200400075006F0070002E006500640075002E006A006F00",
+"name_en": "Dr. Amer Moh'd Izzat Mustafa Al- Jokhadar",
+"directory_id": "A:61006D00650072002E0061006C006A006F006B0068006100640061007200400075006F0070002E006500640075002E006A006F00",
+"corrected": false,
+"ics": "data/ics/68948bfd92.ics"
 },
 {
 "id": "73e6a2c351",
@@ -1955,6 +2077,25 @@
 "ics": "data/ics/e6168c3f39.ics"
 },
 {
+"id": "7c8a372e62",
+"name": "د. هدير اسماعيل عبدالحميد مرزه",
+"sections": 4,
+"department": "هندسة العمارة",
+"faculty": "العمارة و التصميم",
+"email": "hmerza@uop.edu.jo",
+"ext": "4314",
+"office": "",
+"photo": "assets/photos/6a16b6b5a8619ec8.jpg",
+"rank": "أستاذ مشارك",
+"job": "عضو هيئة تدريس",
+"role": "",
+"profile": "https://arch.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=68006D00650072007A006100400075006F0070002E006500640075002E006A006F00",
+"name_en": "Hadeer Ismail A Merza",
+"directory_id": "A:68006D00650072007A006100400075006F0070002E006500640075002E006A006F00",
+"corrected": false,
+"ics": "data/ics/7c8a372e62.ics"
+},
+{
 "id": "cf79d6364e",
 "name": "د. هنادي عدي شاكر الشاكر",
 "sections": 6,
@@ -2476,6 +2617,25 @@
 "ics": "data/ics/fb29201c6c.ics"
 },
 {
+"id": "cc3014f3a9",
+"name": "م.رعد وجيه هلال عيسوه",
+"sections": 5,
+"department": "هندسة العمارة",
+"faculty": "العمارة و التصميم",
+"email": "ressoh@uop.edu.jo",
+"ext": "4312",
+"office": "",
+"photo": "assets/photos/7fedd597b4566d9a.jpg",
+"rank": "مدرس",
+"job": "عضو هيئة تدريس",
+"role": "",
+"profile": "https://arch.uop.edu.jo/Ar/Pages/AcademicStaffInfo.aspx?uid=72006500730073006F006800400075006F0070002E006500640075002E006A006F00",
+"name_en": "M.Arch. Raid Wajeeh Helal Esso",
+"directory_id": "A:72006500730073006F006800400075006F0070002E006500640075002E006A006F00",
+"corrected": false,
+"ics": "data/ics/cc3014f3a9.ics"
+},
+{
 "id": "4ef04dee46",
 "name": "م.ميس توفيق محمود كريشان",
 "sections": 5,
@@ -2497,7 +2657,7 @@
 {
 "id": "5c9a3c6221",
 "name": "هيئه تدريسيه",
-"sections": 29,
+"sections": 36,
 "department": "",
 "faculty": "",
 "ics": "data/ics/5c9a3c6221.ics"
